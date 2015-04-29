@@ -1,5 +1,7 @@
-from pytsite import app, router, entity
+from pytsite import application, router, entity, assetman
 
 
-app.register_plugin(entity.EntityPlugin)
+app = application.Application()
+
+app.register_plugin(assetman.AssetmanPlugin(app))
 app.run()

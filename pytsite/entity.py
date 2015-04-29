@@ -1,8 +1,9 @@
-from pytsite.app import Plugin
+from pytsite.application import Plugin
+
 
 class EntityPlugin(Plugin):
-    def init(self):
-        pass
+    def __init__(self, app):
+        print('entity init')
 
-    def start(self):
-        pass
+    def start(self, app):
+        print('entity start')
