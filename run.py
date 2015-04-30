@@ -1,7 +1,5 @@
-from pytsite import application, router, entity, assetman
+import pytsite
 
+pytsite.application.run()
 
-app = application.Application()
-
-app.register_plugin(assetman.AssetmanPlugin(app))
-app.run()
+pytsite.registry.get_val('paths.root')

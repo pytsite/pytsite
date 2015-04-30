@@ -1,24 +1,16 @@
-class Application:
-    def __init__(self):
-        self.plugins = []
+import inspect
+from os import path
+from . import registry
 
-    def register_plugin(self, obj: Plugin)->None:
-        self.plugins.append(obj)
 
-    def _init_plugins(self):
-        for plugin in self.plugins:
-            plugin.init(self)
+def run():
+    sep = str(path.sep)
+    root_path = path.dirname(inspect.getouterframes(inspect.currentframe())[1][1])
 
-    def run(self):
-        self._init_plugins()
+    registry.set_val('paths.root', root_path)
+    registry.set_val('paths.config', root_path + sep + 'config')
+    registry.set_val('paths.log', root_path + sep + 'log')
+    registry.set_val('paths.tpl', root_path + sep + 'tpl')
 
-        for plugin in self.plugins:
-            plugin.start(self)
-
-class Plugin():
-    def init(self, app: Application)->None:
-        pass
-
-    def start(self, app: Application)->None:
-        pass
+    registry.set_driver(registry.FileDriver(registry.get_val('paths.config')))
 
