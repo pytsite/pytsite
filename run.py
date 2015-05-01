@@ -2,4 +2,4 @@ import pytsite
 
 pytsite.application.run()
 
-pytsite.registry.get_val('paths.root')
+pytsite._registry.get_val('paths.root')

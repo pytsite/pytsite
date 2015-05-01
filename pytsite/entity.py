@@ -1,4 +1,4 @@
-from . import registry
+from . import _registry
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from bson.dbref import DBRef

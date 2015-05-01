@@ -1,7 +1,8 @@
 import inspect
 from os import path
-from . import registry
+from . import _registry
 
+registry = _registry.Registry()
 
 def run():
     sep = str(path.sep)
@@ -12,5 +13,7 @@ def run():
     registry.set_val('paths.log', root_path + sep + 'log')
     registry.set_val('paths.tpl', root_path + sep + 'tpl')
 
-    registry.set_driver(registry.FileDriver(registry.get_val('paths.config')))
+    registry.set_driver(_registry.FileDriver(registry.get_val('paths.config')))
+
+    registry.get_val('paths.root')
 

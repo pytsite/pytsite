@@ -1,1 +1,1 @@
-from . import application, registry
+from . import application, _registry
