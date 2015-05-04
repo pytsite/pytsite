@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from os import path
-from . import helpers
+
+from pytsite.core import helpers
+
 
 class ConfigDriver(ABC):
     _storage = dict()
