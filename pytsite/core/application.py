@@ -1,33 +1,88 @@
-import inspect
-import socket
-import getpass
-from os import path
-from pytsite.core import registry
-from flask import Flask
-
-__flask_app = Flask(__name__)
-__flask_app.debug = True
-
-# Plugins
+__initialized = False
 __plugins = {}
 
-# Environment
-registry.set_val('env.name', getpass.getuser() + '@' + socket.gethostname())
 
-# Registering necessary paths
-sep = str(path.sep)
-root_path = path.dirname(inspect.getouterframes(inspect.currentframe())[1][1])
-registry.set_val('paths.root', root_path)
-registry.set_val('paths.config', root_path + sep + 'config')
-registry.set_val('paths.log', root_path + sep + 'log')
-registry.set_val('paths.tpl', root_path + sep + 'tpl')
+def __load_routes_from_registry():
+    """Loads routes from the __registry.
+    """
+    from . import registry
 
-# Switching to the file driver
-file_driver = registry.FileDriver(registry.get_val('paths.config'), registry.get_val('env.name'))
-registry.set_driver(file_driver)
+    for pattern, opts in registry.get_val('routes', {}).items():
+        if '_endpoint' not in opts and '_redirect' not in opts:
+            raise Exception("'_endpoint' or '_redirect' is not defined for route '{0}'".format(pattern))
+
+        endpoint = None
+        if '_endpoint' in opts:
+            endpoint = opts['_endpoint']
+
+        redirect = None
+        if '_redirect' in opts:
+            redirect = opts['_redirect']
+
+        defaults = dict()
+        for k, v in opts.items():
+            if not v.startswith('_'):
+                defaults[k] = v
+
+        methods = ('GET', 'POST')
+        if '_methods' in opts:
+            methods = opts['_methods']
+
+        from . import router
+        router.add_rule(pattern, endpoint, defaults, methods, redirect)
+
+
+def init(caller_file: str):
+    """Init.
+    """
+    import getpass
+    import socket
+    from . import registry
+    from . import lang
+    from . import tpl
+
+    # Environment
+    registry.set_val('env.name', getpass.getuser() + '@' + socket.gethostname())
+
+    # Filesystem paths
+    from os import path
+    root_path = path.dirname(caller_file)
+    app_path = path.join(root_path, 'app')
+    registry.set_val('paths.root', root_path)
+    registry.set_val('paths.app', app_path)
+    for n in ['config', 'log', 'storage', 'tmp', 'themes']:
+        registry.set_val('paths.' + n, path.join(app_path, n))
+
+    # Output parameters
+    registry.set_val('output', {
+        'minify': False,
+        'theme': 'default',
+        'compress_css': False,
+        'compress_js': False
+    })
+
+    # Switching registry to the file driver
+    file_driver = registry.FileDriver(registry.get_val('paths.config'), registry.get_val('env.name'))
+    registry.set_driver(file_driver)
+
+    # Adding app's languages storage
+    lang.define_languages(registry.get_val('lang.languages', ['en']))
+    lang.register_package('app')
+
+    # Adding app's templates storage
+    tpl.register_package('app', 'themes' + path.sep + registry.get_val('output.theme') + path.sep + 'tpl')
+
+    # Loading routes from the registry
+    __load_routes_from_registry()
+
+    global __initialized
+    __initialized = True
 
 
 def register_plugin(plugin):
+    if not __initialized:
+        raise Exception("Application is not initialized.")
+
     if plugin.__class__.__name__ != 'module':
         raise Exception('Only modules can be registered as plugins.')
 
@@ -40,18 +95,21 @@ def register_plugin(plugin):
     __plugins[plugin.get_name()] = plugin
 
 
-def get_plugins()->dict:
-    return __plugins
-
-
-def add_route(pattern, name, view_func):
-    """Add a route.
+def wsgi_dispatch(env, start_response):
+    """Call application via WSGI.
     """
-    __flask_app.add_url_rule(pattern, name, view_func)
+    from . import router
+
+    if not __initialized:
+        raise Exception("Application is not initialized.")
+
+    return router.dispatch(env, start_response)
 
 
-def wsgi(env, start_response):
-    """WSGI proxy function.
+def console_dispatch(*args):
+    """Call application from console.
     """
-    return __flask_app.wsgi_app(env, start_response)
+    if not __initialized:
+        raise Exception("Application is not initialized.")
+    pass
 

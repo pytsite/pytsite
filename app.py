@@ -1,14 +1,12 @@
-from pytsite.core.application import wsgi
-from pytsite.core import application
-import pytsite.auth.plugin as auth
+import pytsite.core.application as app
 
-import pytsite.content
+app.init(__file__)
 
-
-def abc():
-    user = auth.create_user('a@shepetko.com')
-    return user.f_get('login')
+from pytsite.core import lang
 
 
-application.add_route('/', 'func', abc)
+print(lang.trans('app@test'))
+print(lang.trans('app@test'))
+print(lang.trans('app@test'))
 
+app.console_dispatch()

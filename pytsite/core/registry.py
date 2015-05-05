@@ -9,27 +9,32 @@ class ConfigDriver(ABC):
 
     @abstractmethod
     def set_val(self, key: str, value):
-        """Set value of the registry."""
+        """Set value of the registry.
+        """
         pass
 
     @abstractmethod
     def get_val(self, key: str, default):
-        """Get value from the registry."""
+        """Get value from the registry.
+        """
         pass
 
     @abstractmethod
     def merge(self, other: dict):
-        """Merge other dictionary onto the registry storage."""
+        """Merge other dictionary onto the registry storage.
+        """
         pass
 
     def get_all(self)->dict:
-        """Get all registry's content."""
+        """Get all registry's content.
+        """
         return self._storage
 
 
 class MemoryDriver(ConfigDriver):
     def set_val(self, key: str, value):
-        """Set value of the registry."""
+        """Set value of the registry.
+        """
 
         current = self._storage
         parts = key.split('.')
@@ -50,8 +55,8 @@ class MemoryDriver(ConfigDriver):
             i += 1
 
     def get_val(self, key, default=None):
-        """Get value from the registry."""
-
+        """Get value from the registry.
+        """
         current = self._storage
         parts = key.split('.')
         i = 1
@@ -70,8 +75,8 @@ class MemoryDriver(ConfigDriver):
             i += 1
 
     def merge(self, other: dict):
-        """Merges data into the registry"""
-
+        """Merges data into the registry.
+        """
         self._storage = helpers.dict_merge(self._storage, other)
 
 
@@ -90,7 +95,8 @@ class FileDriver(MemoryDriver):
                 file.close()
 
     def get_val(self, key: str, default=None):
-        """Get value from the registry"""
+        """Get value from the registry.
+        """
         return super().get_val(key, default)
 
 
