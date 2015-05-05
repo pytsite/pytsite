@@ -78,6 +78,27 @@ def translate(msg_id: str, language: str=None)->str:
     return content[msg_id]
 
 
+def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
+    """Translate a string in plural form.
+    """
+    if not language:
+        language = get_lang()
+
+    # Language is not cyrillic
+    if language not in ['ru', 'uk']:
+        if num == 1:
+            return translate(msg_id + '_plural_one')
+        else:
+            return translate(msg_id + '_plural_two')
+
+    last_digit = int(str(num)[-1])
+    if last_digit in [0, 5, 6, 7, 8, 9]:
+        return translate(msg_id + '_plural_zero')
+    elif last_digit in [2, 3, 4]:
+        return translate(msg_id + '_plural_two')
+    else:
+        return translate(msg_id + '_plural_one')
+
 def transliterate(text: str)->str:
     """Transliterate a string.
     """
@@ -112,7 +133,6 @@ def transliterate(text: str)->str:
 
     return r
 
-
 def _load_file(package_name: str, language: str=None):
     """Load package's language file.
     """
@@ -134,6 +154,9 @@ def _load_file(package_name: str, language: str=None):
     import yaml
     content = yaml.load(file)
     file.close()
+
+    if content is None:
+        content = dict()
 
     # Caching
     _packages[package_name][language] = content
