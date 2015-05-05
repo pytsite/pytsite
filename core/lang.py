@@ -30,8 +30,8 @@ def get_lang()->str:
     if not _languages:
         raise Exception("No languages are defined.")
 
+    global _current_language
     if not _current_language:
-        global _current_language
         _current_language = _languages[0]
 
     return _current_language
@@ -53,7 +53,7 @@ def register_package(package_name: str, languages_dir: str='lng')->str:
     _packages[package_name] = {'_path': lng_dir}
 
 
-def trans(msg_id: str, language: str=None)->str:
+def translate(msg_id: str, language: str=None)->str:
     """Translate a string.
     """
     if not language:
@@ -76,6 +76,41 @@ def trans(msg_id: str, language: str=None)->str:
         return package_name + '@' + msg_id
 
     return content[msg_id]
+
+
+def transliterate(text: str)->str:
+    """Transliterate a string.
+    """
+    cyrillic = [
+        "Щ", "щ", 'Ё', 'Ж', 'Х', 'Ц', 'Ч', 'Ш', 'Ю', 'Я',
+        'ё', 'ж', 'х', 'ц', 'ч', 'ш', 'ю', 'я', 'А', 'Б',
+        'В', 'Г', 'Д', 'Е', 'З', 'И', 'Й', 'К', 'Л', 'М',
+        'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Ь', 'Ы',
+        'Ъ', 'Э', 'а', 'б', 'в', 'г', 'д', 'е', 'з', 'и',
+        'і', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с',
+        'т', 'у', 'ф', 'ь', 'ы', 'ъ', 'э', 'Ї', 'ї', 'Є',
+        'є', 'Ґ', 'ґ']
+
+    roman = [
+        "Sch", "sch", 'Yo', 'Zh', 'Kh', 'Ts', 'Ch', 'Sh', 'Yu', 'Ya',
+        'yo', 'zh', 'kh', 'ts', 'ch', 'sh', 'yu', 'ya', 'A', 'B',
+        'V', 'G', 'D', 'E', 'Z', 'I', 'Y', 'K', 'L', 'M',
+        'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', '', 'Y',
+        '', 'E', 'a', 'b', 'v', 'g', 'd', 'e', 'z', 'i',
+        'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's',
+        't', 'u', 'f', '', 'y', '', 'e', 'i', 'i', 'Ye',
+        'ye', 'G', 'g'
+    ]
+
+    r = ''
+    for ch in text:
+        try:
+            i = cyrillic.index(ch)
+            r += roman[i]
+        except ValueError:
+            r += ch
+
+    return r
 
 
 def _load_file(package_name: str, language: str=None):
