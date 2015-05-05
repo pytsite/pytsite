@@ -1,7 +1,0 @@
-db:
-  database: fakeoff_org
-
-routes:
-  /test:
-    _endpoint: app.views::test
-    arg_one: hello
