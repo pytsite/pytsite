@@ -1,3 +1,8 @@
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
+
 _languages = []
 _current_language = None
 _packages = {}
