@@ -12,5 +12,6 @@ setup(
         'PyYAML',
         'Werkzeug',
         'Jinja2',
+        'webassets'
     ]
 )

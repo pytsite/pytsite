@@ -37,15 +37,13 @@ def init(caller_file: str):
     """
     import getpass
     import socket
-    from . import registry
-    from . import lang
-    from . import tpl
+    from os import path
+    from . import registry, lang, tpl, assetman
 
     # Environment
     registry.set_val('env.name', getpass.getuser() + '@' + socket.gethostname())
 
     # Filesystem paths
-    from os import path
     root_path = path.dirname(caller_file)
     app_path = path.join(root_path, 'app')
     registry.set_val('paths.root', root_path)
@@ -65,12 +63,19 @@ def init(caller_file: str):
     file_driver = registry.FileDriver(registry.get_val('paths.config'), registry.get_val('env.name'))
     registry.set_driver(file_driver)
 
-    # Adding app's languages storage
+    # App's languages storage
     lang.define_languages(registry.get_val('lang.languages', ['en']))
     lang.register_package('app')
 
-    # Adding app's templates storage
-    tpl.register_package('app', 'themes' + path.sep + registry.get_val('output.theme') + path.sep + 'tpl')
+    theme = registry.get_val('output.theme')
+
+    # App's templates storage
+    templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
+    tpl.register_package('app', templates_dir)
+
+    # App's assets storage
+    assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
+    assetman.register_package('app', assets_dir)
 
     # Loading routes from the registry
     __load_routes_from_registry()

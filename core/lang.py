@@ -3,43 +3,43 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_languages = []
-_current_language = None
-_packages = {}
+__languages = []
+__current_language = None
+__packages = {}
 
 
 def define_languages(languages: list):
     """Define available languages.
     """
-    global _languages
-    _languages = languages
+    global __languages
+    __languages = languages
     set_lang(languages[0])
 
 
 def get_languages():
     """Get all available languages.
     """
-    return _languages
+    return __languages
 
 
 def set_lang(code: str):
     """Set current default language.
     """
-    if code not in _languages:
+    if code not in __languages:
         raise Exception("Language '{0}' is not defined.".format(code))
 
 
 def get_lang()->str:
     """Get current default language.
     """
-    if not _languages:
+    if not __languages:
         raise Exception("No languages are defined.")
 
-    global _current_language
-    if not _current_language:
-        _current_language = _languages[0]
+    global __current_language
+    if not __current_language:
+        __current_language = __languages[0]
 
-    return _current_language
+    return __current_language
 
 
 def register_package(package_name: str, languages_dir: str='lng')->str:
@@ -55,7 +55,7 @@ def register_package(package_name: str, languages_dir: str='lng')->str:
     if not path.isdir(lng_dir):
         raise Exception("Directory '{0}' is not exists.".format(lng_dir))
 
-    _packages[package_name] = {'_path': lng_dir}
+    __packages[package_name] = {'_path': lng_dir}
 
 
 def translate(msg_id: str, language: str=None)->str:
@@ -64,7 +64,7 @@ def translate(msg_id: str, language: str=None)->str:
     if not language:
         language = get_lang()
 
-    if language not in _languages:
+    if language not in __languages:
         raise Exception("Language '{0}' is not defined.".format(language))
 
     # Determining package name and message ID
@@ -142,19 +142,19 @@ def _load_file(package_name: str, language: str=None):
     """Load package's language file.
     """
     # Is package registered?
-    if package_name not in _packages:
+    if package_name not in __packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     if not language:
         language = get_lang()
 
     # Getting from cache
-    if language in _packages[package_name]:
-        return _packages[package_name][language]
+    if language in __packages[package_name]:
+        return __packages[package_name][language]
 
     # Actual data loading
     from os import path
-    file_path = path.join(_packages[package_name]['_path'], language + '.yml')
+    file_path = path.join(__packages[package_name]['_path'], language + '.yml')
     file = open(file_path)
     import yaml
     content = yaml.load(file)
@@ -164,6 +164,6 @@ def _load_file(package_name: str, language: str=None):
         content = dict()
 
     # Caching
-    _packages[package_name][language] = content
+    __packages[package_name][language] = content
 
     return content
