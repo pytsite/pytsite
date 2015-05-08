@@ -1,6 +1,10 @@
-from werkzeug.routing import Map as __Map
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
-__routes = __Map()
+from werkzeug.routing import Map
+
+__routes = Map()
 __url_adapter = None
 
 
@@ -77,7 +81,7 @@ def dispatch(env: dict, start_response: callable):
 
     except HTTPException as e:
         response = tpl.render('app@exceptions/common.jinja2', {'exception': e})
-        metatag.set('title', lang.t('pytsite.core@http_error', {'code': e.code}))
+        metatag.set_tag('title', lang.t('pytsite.core@http_error', {'code': e.code}))
         print(metatag.dump_all())
         return Response(response, e.code, content_type='text/html')(env, start_response)
 

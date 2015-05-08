@@ -1,7 +1,11 @@
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from abc import ABC, abstractmethod
 from os import path
-
-from pytsite.core import helpers
+import yaml
+from pytsite.core.helpers import dict_merge
 
 
 class ConfigDriver(ABC):
@@ -77,7 +81,7 @@ class MemoryDriver(ConfigDriver):
     def merge(self, other: dict):
         """Merges data into the registry.
         """
-        self._storage = helpers.dict_merge(self._storage, other)
+        self._storage = dict_merge(self._storage, other)
 
 
 class FileDriver(MemoryDriver):
@@ -86,7 +90,6 @@ class FileDriver(MemoryDriver):
         self.root_dir = root_dir
         self.env_name = env_name
 
-        import yaml
         for name in ('default.yml', env_name + '.yml'):
             file_path = root_dir + path.sep + name
             if path.isfile(file_path):
@@ -105,23 +108,27 @@ __current_driver = MemoryDriver()
 
 
 def set_driver(driver: ConfigDriver):
-    """Switch registry driver"""
+    """Switch registry driver.
+    """
     global __current_driver
     __current_driver = driver
 
 
 def set_val(key: str, value):
-    """Set registry's value"""
+    """Set registry's value.
+    """
     __current_driver.set_val(key, value)
 
 
 def get_val(key: str, default=None):
-    """Get registry's value"""
+    """Get registry's value.
+    """
     return __current_driver.get_val(key, default)
 
 
 def get_all()->dict:
-    """Get all registry's content"""
+    """Get all registry's content.
+    """
     return __current_driver.get_all()
 
 

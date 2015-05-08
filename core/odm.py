@@ -1,4 +1,7 @@
-from inspect import isclass
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from datetime import datetime
 from pytsite.core import db
 from bson.objectid import ObjectId
@@ -6,7 +9,9 @@ from bson.dbref import DBRef
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor, CursorType
 from abc import ABC
-from .helpers import dd
+
+__registered_models = dict()
+__dispensed_entities = dict()
 
 
 class EntityNotFoundException(Exception):
@@ -620,16 +625,13 @@ class Finder:
         return Result(self._model_name, cursor)
 
 
-__registered_models = dict()
-__dispensed_entities = dict()
-
-
 def register_model(model_name: str, model_class: type):
     """Register new ODM model.
     """
     if model_name in __registered_models:
         raise Exception("Model '{0}' already registered.".format(model_name))
 
+    from inspect import isclass
     if not isclass(model_class):
         raise Exception("Class required as second argument.")
 

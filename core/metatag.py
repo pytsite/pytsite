@@ -1,7 +1,8 @@
-from . import lang as __lang
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 __tags = dict()
-
 __allowed_tags = {
     'title',
     'author',
@@ -10,14 +11,16 @@ __allowed_tags = {
 }
 
 
-def set(tag: str, value: str):
+def set_tag(tag: str, value: str):
+    """Set tag value.
+    """
     if tag not in __allowed_tags:
         raise Exception("Unknown tag '{0}'".format(tag))
     __tags[tag] = value
 
 
 def set_multiple(tags: dict):
-    """ Add multiple tags.
+    """ Set multiple tags.
     """
     # TODO
     pass
@@ -51,5 +54,7 @@ def dump_all()->str:
 
     return r
 
-set('charset', 'UTF-8')
-set('title', __lang.t('pytsite.core@untitled_document'))
+# Minimum defaults
+from . import lang as __lang
+set_tag('charset', 'UTF-8')
+set_tag('title', __lang.t('pytsite.core@untitled_document'))

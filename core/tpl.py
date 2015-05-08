@@ -1,21 +1,25 @@
-from jinja2 import Environment as _Environment, PackageLoader as _PackageLoader
-from . import lang, metatag
-from .helpers import dd
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
+from jinja2 import Environment, PackageLoader
+from . import lang, metatag, registry
 
 __loaders = {}
-__env = _Environment()
+__env = Environment()
 
 
-# Translate function
+# Additional functions
 __env.globals['t'] = lang.translate
 __env.globals['meta_tags'] = metatag.dump_all
+__env.globals['reg_get'] = registry.get_val
 
 
 def register_package(package_name: str, templates_dir: str='tpl'):
     """Register templates container.
     """
     if package_name not in __loaders:
-        __loaders[package_name] = _PackageLoader(package_name, templates_dir)
+        __loaders[package_name] = PackageLoader(package_name, templates_dir)
 
 
 def render(tpl_location: str, data: dict=None)->str:
