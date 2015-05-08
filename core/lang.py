@@ -58,7 +58,7 @@ def register_package(package_name: str, languages_dir: str='lng')->str:
     __packages[package_name] = {'_path': lng_dir}
 
 
-def translate(msg_id: str, language: str=None)->str:
+def translate(msg_id: str, data: dict=None, language: str=None)->str:
     """Translate a string.
     """
     if not language:
@@ -80,7 +80,18 @@ def translate(msg_id: str, language: str=None)->str:
     if msg_id not in content:
         return package_name + '@' + msg_id
 
-    return content[msg_id]
+    msg = content[msg_id]
+    """:type : str"""
+
+    if data:
+        for k, v in data.items():
+            msg = msg.replace(':' + str(k), str(v))
+
+    return msg
+
+
+t = translate
+"""Shortcut for translate()."""
 
 
 def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
@@ -103,6 +114,7 @@ def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
         return translate(msg_id + '_plural_two')
     else:
         return translate(msg_id + '_plural_one')
+
 
 def transliterate(text: str)->str:
     """Transliterate a string.
@@ -137,6 +149,7 @@ def transliterate(text: str)->str:
             r += ch
 
     return r
+
 
 def _load_file(package_name: str, language: str=None):
     """Load package's language file.

@@ -28,6 +28,7 @@ def dispatch(env: dict, start_response: callable):
     from werkzeug.utils import redirect
     from importlib import import_module
     from re import sub
+    from . import lang, tpl, metatag
 
     global __url_adapter
     __url_adapter = __routes.bind_to_environ(env)
@@ -44,7 +45,7 @@ def dispatch(env: dict, start_response: callable):
     try:
         endpoint_str, values = __url_adapter.match()
 
-        endpoint = endpoint_str.split('::')
+        endpoint = endpoint_str.split('@')
         if len(endpoint) != 2:
             raise TypeError("Invalid format of endpoint specification: '{0}'".format(endpoint))
 
@@ -75,7 +76,14 @@ def dispatch(env: dict, start_response: callable):
             raise e
 
     except HTTPException as e:
-        return e(env, start_response)
+        response = tpl.render('app@exceptions/common.jinja2', {'exception': e})
+        metatag.set('title', lang.t('pytsite.core@http_error', {'code': e.code}))
+        print(metatag.dump_all())
+        return Response(response, e.code, content_type='text/html')(env, start_response)
+
+    except Exception as e:
+        response = tpl.render('app@exceptions/common.jinja2', {'exception': e})
+        return Response(response, 500, content_type='text/html')(env, start_response)
 
 
 def base_path(language: str=None)->str:

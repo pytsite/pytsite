@@ -1,5 +1,4 @@
 __initialized = False
-__plugins = {}
 __logger = None
 
 
@@ -33,13 +32,19 @@ def __load_routes_from_registry():
         router.add_rule(pattern, endpoint, defaults, methods, redirect)
 
 
+def is_initialized()->bool:
+    """Check whether the application is initialized.
+    """
+    return __initialized
+
+
 def init(caller_file: str):
     """Init.
     """
     import getpass
     import socket
     from os import path
-    from . import registry, lang, tpl, assetman
+    from . import registry
 
     # Logger
     import logging
@@ -50,7 +55,7 @@ def init(caller_file: str):
     registry.set_val('env.name', getpass.getuser() + '@' + socket.gethostname())
 
     # Filesystem paths
-    root_path = path.dirname(caller_file)
+    root_path = path.abspath(path.dirname(caller_file))
     app_path = path.join(root_path, 'app')
     static_path = path.join(root_path, 'static')
     registry.set_val('paths.root', root_path)
@@ -64,7 +69,7 @@ def init(caller_file: str):
         'minify': False,
         'theme': 'default',
         'compress_css': False,
-        'compress_js': False
+        'compress_js': False,
     })
 
     # Debug parameters
@@ -74,17 +79,37 @@ def init(caller_file: str):
     file_driver = registry.FileDriver(registry.get_val('paths.config'), registry.get_val('env.name'))
     registry.set_driver(file_driver)
 
-    # App's languages storage
+    from . import lang
+
+    # Available languages
     lang.define_languages(registry.get_val('lang.languages', ['en']))
+
+    # Core's languages store
+    lang.register_package('pytsite.core')
+
+    from . import tpl
+
+    # Core's templates store
+    tpl.register_package('pytsite.core')
+
+    from importlib import import_module
+
+    # Autoloading modules
+    for module_name in registry.get_val('autoload', []):
+        import_module(module_name)
+
+    # Initializing 'app' package
+    import_module('app')
+
+    # App's languages storage
     lang.register_package('app')
 
-    theme = registry.get_val('output.theme')
+    from . import assetman
 
-    # App's templates storage
+    # App's templates and assets storage
+    theme = registry.get_val('output.theme')
     templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
     tpl.register_package('app', templates_dir)
-
-    # App's assets storage
     assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
     assetman.register_package('app', assets_dir)
 
@@ -95,26 +120,10 @@ def init(caller_file: str):
     __initialized = True
 
 
-def get_logger():
+def logger():
     """Get application logger.
     """
     return __logger
-
-
-def register_plugin(plugin):
-    if not __initialized:
-        raise Exception("Application is not initialized.")
-
-    if plugin.__class__.__name__ != 'module':
-        raise Exception('Only modules can be registered as plugins.')
-
-    if not hasattr(plugin, 'get_name') or not hasattr(getattr(plugin, 'get_name'), '__call__'):
-        raise Exception("Module {0} missing function get_name().".format(plugin))
-
-    if not hasattr(plugin, 'start') or not hasattr(getattr(plugin, 'start'), '__call__'):
-        raise Exception("Module {0} missing function start().".format(plugin))
-
-    __plugins[plugin.get_name()] = plugin
 
 
 def wsgi(env, start_response):
@@ -127,8 +136,11 @@ def wsgi(env, start_response):
     return dispatch(env, start_response)
 
 
-def console(*args):
-    """Call application from console.
+def run():
+    """Run application in console mode.
     """
     if not __initialized:
         raise Exception("Application is not initialized.")
+
+    from . import console
+    console.run()

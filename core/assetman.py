@@ -2,6 +2,25 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
+from . import console
+from .helpers import dd
+from .lang import t
+
+
+class ConsoleCommand(console.Command):
+    def get_name(self)->str:
+        return 'assetman:build'
+
+    def get_description(self)->str:
+        return t('pytsite.core@assetman_console_command_description')
+
+    def execute(self, args: dict):
+        compile_assets()
+
+
+console.register_command(ConsoleCommand())
+
 __packages = {}
 
 
@@ -44,7 +63,6 @@ def compile_assets():
     from webassets.script import CommandLineEnvironment
     from . import registry, application
 
-    root_dir = registry.get_val('paths.root')
     static_dir = registry.get_val('paths.static')
     debug = registry.get_val('debug.enabled')
 
@@ -65,6 +83,7 @@ def compile_assets():
 
             dst = src.replace(package_assets_dir + os.path.sep, '')
             dst = os.path.join(static_dir, 'assets', pkg_name, dst)
+            print('Compiling {0} -> {1}'.format(src, dst))
 
             ext = os.path.splitext(src)[1]
             if ext in ['.js', '.css']:
@@ -78,7 +97,7 @@ def compile_assets():
 
                 env = Environment(directory=package_assets_dir, filters=filters, debug=debug)
                 env.register('bundle', src, output=dst)
-                cmd = CommandLineEnvironment(env, application.get_logger())
+                cmd = CommandLineEnvironment(env, application.logger())
                 cmd.invoke('build', dict())
             elif '.webassets-cache' not in src:
                 dst_dir = os.path.dirname(dst)
@@ -100,15 +119,4 @@ def __split_asset_path_info(path: str)->dict:
     if package_name not in __packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
-    if asset_path.endswith('.js'):
-        bundle_name = 'js'
-    elif asset_path.endswith('.min.js'):
-        bundle_name = 'compressed_js'
-    elif asset_path.endswith('.css'):
-        bundle_name = 'css'
-    elif asset_path.endswith('.min.css'):
-        bundle_name = 'compressed_css'
-    else:
-        bundle_name = 'other'
-
-    return package_name, asset_path, bundle_name
+    return package_name, asset_path
