@@ -4,7 +4,6 @@ __license__ = 'MIT'
 
 
 from . import console
-from .helpers import dd
 from .lang import t
 
 
@@ -59,7 +58,7 @@ def compile_assets():
     """
     import os
     from shutil import rmtree, copy
-    from webassets import Environment, Bundle
+    from webassets import Environment
     from webassets.script import CommandLineEnvironment
     from . import registry, application
 
@@ -102,7 +101,7 @@ def compile_assets():
             elif '.webassets-cache' not in src:
                 dst_dir = os.path.dirname(dst)
                 if not os.path.exists(dst_dir):
-                    os.mkdir(dst_dir, 0o755)
+                    os.makedirs(dst_dir, 0o755)
                 copy(src, dst)
 
 
