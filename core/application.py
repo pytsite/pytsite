@@ -100,21 +100,18 @@ def register_plugin(plugin):
     __plugins[plugin.get_name()] = plugin
 
 
-def wsgi_dispatch(env, start_response):
+def wsgi(env, start_response):
     """Call application via WSGI.
     """
-    from . import router
-
     if not __initialized:
         raise Exception("Application is not initialized.")
 
-    return router.dispatch(env, start_response)
+    from .router import dispatch
+    return dispatch(env, start_response)
 
 
-def console_dispatch(*args):
+def console(*args):
     """Call application from console.
     """
     if not __initialized:
         raise Exception("Application is not initialized.")
-    pass
-

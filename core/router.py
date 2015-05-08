@@ -1,9 +1,7 @@
-from werkzeug.routing import Map as __Map, MapAdapter as __MapAdapter
+from werkzeug.routing import Map as __Map
 
 __routes = __Map()
-
 __url_adapter = None
-""":type : __MapAdapter"""
 
 
 def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, redirect_to: str=None):
@@ -29,22 +27,26 @@ def dispatch(env: dict, start_response: callable):
     from werkzeug.wrappers import Request, Response
     from werkzeug.utils import redirect
     from importlib import import_module
+    from re import sub
 
     global __url_adapter
     __url_adapter = __routes.bind_to_environ(env)
 
     path_info = __url_adapter.path_info
 
-    # Force trailing slash
-    if not path_info.endswith('/'):
-        return redirect(path_info + '/' + __url_adapter.query_args, 301)(env, start_response)
+    # Remove trailing slash
+    if len(path_info) > 1 and path_info.endswith('/'):
+        redirect_url = sub(r'/$', '', path_info)
+        if __url_adapter.query_args:
+            redirect_url += '?' + __url_adapter.query_args
+        return redirect(redirect_url, 301)(env, start_response)
 
     try:
         endpoint_str, values = __url_adapter.match()
 
         endpoint = endpoint_str.split('::')
         if len(endpoint) != 2:
-            raise TypeError("Invalid format in endpoint specification: '{0}'".format(endpoint))
+            raise TypeError("Invalid format of endpoint specification: '{0}'".format(endpoint))
 
         module_name, callable_name = endpoint[0], endpoint[1]
         try:
@@ -76,20 +78,76 @@ def dispatch(env: dict, start_response: callable):
         return e(env, start_response)
 
 
-def base_path():
-    return '/'
+def base_path(language: str=None)->str:
+    """Get base path of application.
+    """
+    from .lang import get_current_lang, get_languages
+    current_lang = get_current_lang()
+    available_langs = get_languages()
+
+    if not language:
+        language = get_current_lang()
+
+    if language not in available_langs:
+        raise Exception("Language '{0}' is not supported.".format(language))
+
+    r = '/'
+    if len(available_langs) > 1 and language != current_lang:
+        r += language + '/'
+
+    return r
 
 
-def base_url():
+def server_name():
     from . import registry
-
-    server_name = registry.get_val('console.server_name', 'localhost')
-    scheme = 'http'
-
+    name = registry.get_val('console.server_name', 'localhost')
     if __url_adapter:
-        server_name = __url_adapter.server_name
-        scheme = __url_adapter.url_scheme
+        name = __url_adapter.server_name
 
-    redirect_url = scheme + '://' + server_name + base_path()
+    return name
 
-    return
+
+def scheme():
+    r = 'http'
+    if __url_adapter:
+        r = __url_adapter.url_scheme
+
+    return r
+
+
+def base_url(language: str=None):
+    """Get base URL of application.
+    """
+    return scheme() + '://' + server_name() + base_path(language)
+
+
+def url(url_str: str, language: str=None, strip_language_part=False)->str:
+    """Generate an URL.
+    """
+    from urllib.parse import urlparse, urlunparse
+
+    parsed_url = urlparse(url_str)
+
+    # Absolute URL given, return it immediately
+    if parsed_url[0]:
+        return url_str
+
+    # Defaults
+    # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
+    r = [
+        scheme(),  # 0, Scheme
+        server_name(),  # 1, Netloc
+        '',  # 2, Path
+        '',  # 3, Params
+        '',  # 4, Query
+        '',  # 5, Fragment
+    ]
+
+    for k, v in enumerate(parsed_url):
+        if parsed_url[k]:
+            r[k] = parsed_url[k]
+
+    if not strip_language_part:
+        r[2] = str(base_path(language) + parsed_url[2]).replace('//', '/')
+
+    return urlunparse(r)

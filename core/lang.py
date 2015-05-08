@@ -13,7 +13,7 @@ def define_languages(languages: list):
     """
     global __languages
     __languages = languages
-    set_lang(languages[0])
+    set_current_lang(languages[0])
 
 
 def get_languages():
@@ -22,15 +22,15 @@ def get_languages():
     return __languages
 
 
-def set_lang(code: str):
+def set_current_lang(code: str):
     """Set current default language.
     """
     if code not in __languages:
         raise Exception("Language '{0}' is not defined.".format(code))
 
 
-def get_lang()->str:
-    """Get current default language.
+def get_current_lang()->str:
+    """Get current language.
     """
     if not __languages:
         raise Exception("No languages are defined.")
@@ -62,7 +62,7 @@ def translate(msg_id: str, language: str=None)->str:
     """Translate a string.
     """
     if not language:
-        language = get_lang()
+        language = get_current_lang()
 
     if language not in __languages:
         raise Exception("Language '{0}' is not defined.".format(language))
@@ -87,7 +87,7 @@ def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
     """Translate a string in plural form.
     """
     if not language:
-        language = get_lang()
+        language = get_current_lang()
 
     # Language is not cyrillic
     if language not in ['ru', 'uk']:
@@ -146,7 +146,7 @@ def _load_file(package_name: str, language: str=None):
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     if not language:
-        language = get_lang()
+        language = get_current_lang()
 
     # Getting from cache
     if language in __packages[package_name]:

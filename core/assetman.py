@@ -41,8 +41,11 @@ def url(path: str)->str:
     if asset_path not in assets_list:
         raise Exception("Asset '{0}' is not defined in package '{1}'.".format(asset_path, package_name))
 
+    asset_path = '/assets/{0}/{1}'.format(package_name, asset_path)
+
     from . import router
-    print(router.base_url())
+    return router.url(asset_path, strip_language_part=True)
+
 
 def __split_asset_path_info(path: str)->dict:
     """Split asset path into package name and asset path.
