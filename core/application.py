@@ -1,5 +1,6 @@
 __initialized = False
 __plugins = {}
+__logger = None
 
 
 def __load_routes_from_registry():
@@ -40,14 +41,21 @@ def init(caller_file: str):
     from os import path
     from . import registry, lang, tpl, assetman
 
+    # Logger
+    import logging
+    global __logger
+    __logger = logging.getLogger()
+
     # Environment
     registry.set_val('env.name', getpass.getuser() + '@' + socket.gethostname())
 
     # Filesystem paths
     root_path = path.dirname(caller_file)
     app_path = path.join(root_path, 'app')
+    static_path = path.join(root_path, 'static')
     registry.set_val('paths.root', root_path)
     registry.set_val('paths.app', app_path)
+    registry.set_val('paths.static', static_path)
     for n in ['config', 'log', 'storage', 'tmp', 'themes']:
         registry.set_val('paths.' + n, path.join(app_path, n))
 
@@ -58,6 +66,9 @@ def init(caller_file: str):
         'compress_css': False,
         'compress_js': False
     })
+
+    # Debug parameters
+    registry.set_val('debug', {'enabled': False})
 
     # Switching registry to the file driver
     file_driver = registry.FileDriver(registry.get_val('paths.config'), registry.get_val('env.name'))
@@ -82,6 +93,12 @@ def init(caller_file: str):
 
     global __initialized
     __initialized = True
+
+
+def get_logger():
+    """Get application logger.
+    """
+    return __logger
 
 
 def register_plugin(plugin):
