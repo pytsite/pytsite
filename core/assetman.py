@@ -3,8 +3,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from . import console
-from .lang import t
+from . import console, lang, router, registry
 
 
 class ConsoleCommand(console.Command):
@@ -12,7 +11,7 @@ class ConsoleCommand(console.Command):
         return 'assetman:build'
 
     def get_description(self)->str:
-        return t('pytsite.core@assetman_console_command_description')
+        return lang.t('pytsite.core@assetman_console_command_description')
 
     def execute(self, args: dict):
         compile_assets()
@@ -20,7 +19,8 @@ class ConsoleCommand(console.Command):
 
 console.register_command(ConsoleCommand())
 
-__packages = {}
+_packages = dict()
+_links = {'js': [], 'css': []}
 
 
 def register_package(package_name: str, assets_dir: str='assets', languages_dir='lng'):
@@ -36,20 +36,37 @@ def register_package(package_name: str, assets_dir: str='assets', languages_dir=
     if not path.isdir(assets_dir):
         raise Exception("Directory '{0}' is not exists.".format(assets_dir))
 
-    __packages[package_name] = {
+    _packages[package_name] = {
         'assets_dir': assets_dir,
     }
 
 
-def url(path: str)->str:
+def add_js(path: str):
+    _links['js'].append(path)
+
+
+def add_css(path: str):
+    _links['css'].append(path)
+
+
+def dump_js():
+    r = ''
+    for path in _links['js']:
+        r += '<script type="text/javascript" src="{0}"></script>\n'.format(get_url(path))
+    return r
+
+
+def dump_css():
+    r = ''
+    for path in _links['css']:
+        r += '<link rel="stylesheet" href="{0}">\n'.format(get_url(path))
+    return r
+
+
+def get_url(path: str)->str:
     """Get URL of an asset.
     """
-    package_name, asset_path, bundle_name = __split_asset_path_info(path)
-    assets_list = __packages[package_name]['assets'][bundle_name]
-    if asset_path not in assets_list:
-        raise Exception("Asset '{0}' is not defined in package '{1}'.".format(asset_path, package_name))
-
-    from . import router
+    package_name, asset_path = __split_asset_path_info(path)
     return router.url('/assets/{0}/{1}'.format(package_name, asset_path), strip_language_part=True)
 
 
@@ -68,9 +85,9 @@ def compile_assets():
     if os.path.exists(static_dir):
         rmtree(static_dir)
 
-    for pkg_name in __packages:
+    for pkg_name in _packages:
         # Building package's assets absolute paths list
-        package_assets_dir = __packages[pkg_name]['assets_dir']
+        package_assets_dir = _packages[pkg_name]['assets_dir']
         files_list = []
         for root, dirs, files in os.walk(package_assets_dir):
             for file in files:
@@ -108,14 +125,14 @@ def compile_assets():
 def __split_asset_path_info(path: str)->dict:
     """Split asset path into package name and asset path.
     """
-    path_parts = path.split('@')
     package_name = 'app'
     asset_path = path
+    path_parts = path.split('@')
     if len(path_parts) == 2:
         package_name = path_parts[0]
         asset_path = path_parts[1]
 
-    if package_name not in __packages:
+    if package_name not in _packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     return package_name, asset_path

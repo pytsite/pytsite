@@ -2,7 +2,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from traceback import format_exc
 from werkzeug.routing import Map
+from werkzeug.routing import Rule
+from werkzeug.exceptions import HTTPException, InternalServerError
+from werkzeug.wrappers import Request, Response
+from werkzeug.utils import redirect
+from importlib import import_module
+from re import sub
+from . import lang, metatag
 
 __routes = Map()
 __url_adapter = None
@@ -11,8 +19,6 @@ __url_adapter = None
 def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, redirect_to: str=None):
     """Add a rule to the router.
     """
-    from werkzeug.routing import Rule
-
     rule = Rule(
         string=pattern,
         endpoint=endpoint,
@@ -27,13 +33,7 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, red
 def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
-    from werkzeug.exceptions import HTTPException, NotFound
-    from werkzeug.wrappers import Request, Response
-    from werkzeug.utils import redirect
-    from importlib import import_module
-    from re import sub
-    from . import lang, tpl, metatag
-
+    from . import tpl
     global __url_adapter
     __url_adapter = __routes.bind_to_environ(env)
 
@@ -80,13 +80,13 @@ def dispatch(env: dict, start_response: callable):
             raise e
 
     except HTTPException as e:
-        response = tpl.render('app@exceptions/common.jinja2', {'exception': e})
-        metatag.set_tag('title', lang.t('pytsite.core@http_error', {'code': e.code}))
-        print(metatag.dump_all())
+        response = tpl.render('app@exceptions/common', {'exception': e})
+        metatag.set_tag('title', lang.t('pytsite.core@error', {'code': e.code}))
         return Response(response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
-        response = tpl.render('app@exceptions/common.jinja2', {'exception': e})
+        response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
+        metatag.set_tag('title', lang.t('pytsite.core@error', {'code': 500}))
         return Response(response, 500, content_type='text/html')(env, start_response)
 
 

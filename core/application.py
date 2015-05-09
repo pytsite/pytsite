@@ -74,6 +74,7 @@ def init(caller_file: str):
         'theme': 'default',
         'compress_css': False,
         'compress_js': False,
+        'base_tpl': 'app@html',
     })
 
     # Debug parameters
@@ -89,12 +90,12 @@ def init(caller_file: str):
     lang.define_languages(registry.get_val('lang.languages', ['en']))
 
     # Core's languages store
-    lang.register_package('pytsite.core')
+    lang.register_package('pytsite.core', 'resources/lng')
 
     from . import tpl
 
     # Core's templates store
-    tpl.register_package('pytsite.core')
+    tpl.register_package('pytsite.core', 'resources/tpl')
 
     from importlib import import_module
 

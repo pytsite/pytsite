@@ -5,7 +5,7 @@ __license__ = 'MIT'
 
 __languages = []
 __current_language = None
-__packages = {}
+_packages = {}
 
 
 def define_languages(languages: list):
@@ -55,7 +55,7 @@ def register_package(package_name: str, languages_dir: str='lng')->str:
     if not path.isdir(lng_dir):
         raise Exception("Directory '{0}' is not exists.".format(lng_dir))
 
-    __packages[package_name] = {'_path': lng_dir}
+    _packages[package_name] = {'_path': lng_dir}
 
 
 def translate(msg_id: str, data: dict=None, language: str=None)->str:
@@ -155,19 +155,19 @@ def _load_file(package_name: str, language: str=None):
     """Load package's language file.
     """
     # Is package registered?
-    if package_name not in __packages:
+    if package_name not in _packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     if not language:
         language = get_current_lang()
 
     # Getting from cache
-    if language in __packages[package_name]:
-        return __packages[package_name][language]
+    if language in _packages[package_name]:
+        return _packages[package_name][language]
 
     # Actual data loading
     from os import path
-    file_path = path.join(__packages[package_name]['_path'], language + '.yml')
+    file_path = path.join(_packages[package_name]['_path'], language + '.yml')
     file = open(file_path)
     import yaml
     content = yaml.load(file)
@@ -177,6 +177,6 @@ def _load_file(package_name: str, language: str=None):
         content = dict()
 
     # Caching
-    __packages[package_name][language] = content
+    _packages[package_name][language] = content
 
     return content
