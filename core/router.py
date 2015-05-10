@@ -16,7 +16,7 @@ __routes = Map()
 __url_adapter = None
 
 
-def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, redirect_to: str=None):
+def add_rule(pattern: str, endpoint: str, defaults: list=None, methods: list=None, redirect_to: str=None):
     """Add a rule to the router.
     """
     rule = Rule(
@@ -49,15 +49,16 @@ def dispatch(env: dict, start_response: callable):
     try:
         endpoint_str, values = __url_adapter.match()
 
-        endpoint = endpoint_str.split('@')
-        if len(endpoint) != 2:
-            raise TypeError("Invalid format of endpoint specification: '{0}'".format(endpoint))
+        endpoint = endpoint_str.split('.')
+        if not len(endpoint):
+            raise TypeError("Invalid format of endpoint specification: '{0}'".format(endpoint_str))
 
-        module_name, callable_name = endpoint[0], endpoint[1]
+        module_name = '.'.join(endpoint[0:len(endpoint)-1])
+        callable_name = endpoint[-1]
         try:
             module = import_module(module_name)
             if callable_name not in dir(module):
-                raise Exception("Callable specified in endpoint '{0}' doesn't exists .".format(endpoint))
+                raise Exception("Callable {0} doesn't exists in module {1}.".format(callable_name, module_name))
 
             callable_obj = getattr(module, callable_name)
             if not hasattr(callable_obj, '__call__'):
