@@ -8,10 +8,11 @@ from .lang import t
 
 
 class Rule(ABC):
-    def __init__(self):
+    def __init__(self, msg_id: str=None):
         """Init.
         """
         self._value = None
+        self._msg_id = msg_id
         self._message = None
         self._validation_state = None
 
@@ -57,7 +58,8 @@ class NotEmptyRule(Rule):
         if self._value:
             self._validation_state = True
         else:
-            self.reset()._message = t('pytsite.core@validation_rule_not_empty', {'field': field})
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_not_empty'
+            self.reset()._message = t(msg_id, {'name': field})
             self._validation_state = False
 
         return self._validation_state
@@ -111,9 +113,11 @@ class Validator:
         """
         r = {}
         for field_name, rules in self._rules.items():
-            if field_name not in r:
-                r[field_name] = []
             for rule in rules:
-                r[field_name].append(rule.message)
+                msg = rule.message
+                if msg:
+                    if field_name not in r:
+                        r[field_name] = []
+                    r[field_name].append(rule.message)
 
         return r
