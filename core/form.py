@@ -4,11 +4,11 @@ __license__ = 'MIT'
 
 
 from abc import ABC, abstractmethod
-from .widget import Widget
+from .widget import AbstractWidget
 from .validation import Validator, Rule
 
 
-class Form(ABC):
+class AbstractForm(ABC):
     def __init__(self, uid: str, name: str=None, legend: str=None, css_classes: tuple=()):
         """Init.
         """
@@ -59,6 +59,8 @@ class Form(ABC):
 
     @property
     def messages(self):
+        """Get validation messages.
+        """
         return self._validator.messages
 
     def render(self)->str:
@@ -67,12 +69,12 @@ class Form(ABC):
         header = self._render_header()
         footer = self._render_footer()
         body = []
-        for widget_data in sorted(self._widgets, key=lambda tup: tup[1]):
-            body.append(widget_data[0].render())
+        for widget_data in sorted(self._widgets.items(), key=lambda item: item[1][1]):
+            body.append(widget_data[1][0].render())
 
         return header + '\n'.join(body) + '\n' + footer
 
-    def _add_widget(self, widget: Widget, weight: int=0):
+    def _add_widget(self, widget: AbstractWidget, weight: int=0):
         """Add a widget.
         """
         uid = widget.uid
@@ -86,7 +88,7 @@ class Form(ABC):
     def _has_widget(self, uid: str)->bool:
         return uid in self._widgets
 
-    def _get_widget(self, uid: str)->Widget:
+    def _get_widget(self, uid: str)->AbstractWidget:
         """Get a widget.
         """
         if not self._has_widget(uid):

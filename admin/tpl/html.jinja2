@@ -1,8 +1,11 @@
+{% do add_css('pytsite.admin@AdminLTE/css/AdminLTE.min.css') %}
+{% do add_css('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css') %}
+{% do add_js('pytsite.admin@AdminLTE/js/app.min.js') %}
 <!DOCTYPE html>
 <html>
 <head>
     {{ meta_tags() }}
-    {{ css() }}
+    {{ dump_css() }}
 </head>
 <body class="skin-blue sidebar-mini">
 
@@ -1252,6 +1255,6 @@
     <div class="control-sidebar-bg"></div>
 </div>
 
-{{ js() }}
+{{ dump_js() }}
 </body>
 </html>

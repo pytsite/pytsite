@@ -33,3 +33,34 @@ def dict_merge(a: dict, b: dict)->dict:
             result[k] = deepcopy(v)
 
     return result
+
+
+def mk_tmp_file()->str:
+    """Creates temporary file.
+    """
+    from os import path, mkdir
+    from tempfile import mkstemp
+    from . import registry
+
+    tmp_dir = registry.get_val('paths.tmp')
+    if not tmp_dir:
+        raise Exception("Cannot determine temporary directory location.")
+
+    if not path.exists(tmp_dir):
+        mkdir(tmp_dir)
+
+    return mkstemp(dir=tmp_dir)
+
+
+def random_str(size=16, chars='0123456789abcdef'):
+    """Generate random string.
+    """
+    import random
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
+def random_password(size=16):
+    """Generate random password.
+    """
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
+    return random_str(size, chars)

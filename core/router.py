@@ -3,17 +3,46 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from traceback import format_exc
-from werkzeug.routing import Map
-from werkzeug.routing import Rule
-from werkzeug.exceptions import HTTPException, InternalServerError
-from werkzeug.wrappers import Request, Response
-from werkzeug.utils import redirect
+from werkzeug.routing import Map, Rule, BuildError
+from werkzeug.exceptions import HTTPException
+from werkzeug.wrappers import Request as _Request, Response as _Response
+from werkzeug.utils import escape
 from importlib import import_module
 from re import sub
 from . import lang, metatag
 
 __routes = Map()
 __url_adapter = None
+
+
+class Request(_Request):
+    """HTTP request.
+    """
+    def get_values(self)->dict:
+        """Get all values of the request.
+        """
+        return self.values.to_dict()
+
+    def get_value(self, key: str, default=None):
+        """Get single value of the request.
+        """
+        return self.values.get(key, default)
+
+
+class Response(_Response):
+    """HTTP response.
+    """
+    pass
+
+
+class RedirectResponse(Response):
+    """Redirect HTTP response.
+    """
+    def __init__(self, location: str, status: int=302):
+        """Init.
+        """
+        headers = {'Location': escape(location)}
+        super().__init__('Redirecting to {0}'.format(location), status=status, headers=headers)
 
 
 def add_rule(pattern: str, endpoint: str, defaults: list=None, methods: list=None, redirect_to: str=None):
@@ -44,10 +73,10 @@ def dispatch(env: dict, start_response: callable):
         redirect_url = sub(r'/$', '', path_info)
         if __url_adapter.query_args:
             redirect_url += '?' + __url_adapter.query_args
-        return redirect(redirect_url, 301)(env, start_response)
+        return RedirectResponse(redirect_url, 301)(env, start_response)
 
     try:
-        endpoint_str, values = __url_adapter.match()
+        endpoint_str, args = __url_adapter.match()
 
         endpoint = endpoint_str.split('.')
         if not len(endpoint):
@@ -66,7 +95,7 @@ def dispatch(env: dict, start_response: callable):
 
             # Call endpoint
             response = Response(response='', status=200, content_type='text/html')
-            response_from_callable = callable_obj(values, request=Request(env))
+            response_from_callable = callable_obj(args, Request(env).get_values())
             if isinstance(response_from_callable, str):
                 response.data = response_from_callable
             elif isinstance(response_from_callable, Response):
@@ -164,3 +193,13 @@ def url(url_str: str, language: str=None, strip_language_part=False)->str:
         r[2] = str(base_path(language) + parsed_url[2]).replace('//', '/')
 
     return urlunparse(r)
+
+
+def route_url(endpoint: str, args: dict=None)->str:
+    """Get URL for endpoint.
+    """
+    global __url_adapter
+    try:
+        return __url_adapter.build(endpoint, args)
+    except BuildError:
+        raise Exception("Cannot build URL for endpoint '{0}'.".format(endpoint))

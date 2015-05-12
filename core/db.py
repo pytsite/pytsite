@@ -23,8 +23,8 @@ def get_client()->__MongoClient:
         'port': 27017,
     }
 
-    from pytsite.core import helpers, registry
-    config = helpers.dict_merge(default, registry.get_val('db', {}))
+    from pytsite.core import utils, registry
+    config = utils.dict_merge(default, registry.get_val('db', {}))
 
     __client = __MongoClient(config['host'], config['port'])
 

@@ -12,6 +12,8 @@ setup(
         'PyYAML',
         'Werkzeug',
         'Jinja2',
-        'webassets'
+        'webassets',
+        'Pillow',
+        'python-magic',
     ]
 )

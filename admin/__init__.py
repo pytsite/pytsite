@@ -10,6 +10,3 @@ lang.register_package(__name__)
 tpl.register_package(__name__)
 
 assetman.register_package(__name__)
-assetman.add_css(__name__ + '@AdminLTE/css/AdminLTE.min.css')
-assetman.add_css(__name__ + '@AdminLTE/css/skins/skin-blue.min.css')
-assetman.add_js(__name__ + '@AdminLTE/js/app.min.js')

@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from importlib import import_module
 from os import path
 from jinja2 import Environment, BaseLoader, TemplateNotFound
-from . import lang, metatag, registry, assetman
+from . import router, lang, metatag, registry, assetman
 
 _packages = dict()
 
@@ -47,11 +47,14 @@ __env = Environment(loader=TemplateLoader())
 
 # Additional functions
 __env.globals['reg_get'] = registry.get_val
+__env.globals['route_url'] = router.route_url
 __env.globals['t'] = lang.translate
 __env.globals['meta_tags'] = metatag.dump_all
 __env.globals['asset_url'] = assetman.get_url
-__env.globals['js'] = assetman.dump_js
-__env.globals['css'] = assetman.dump_css
+__env.globals['add_js'] = assetman.add_js
+__env.globals['dump_js'] = assetman.dump_js
+__env.globals['add_css'] = assetman.add_css
+__env.globals['dump_css'] = assetman.dump_css
 
 
 def register_package(package_name: str, templates_dir: str='tpl'):

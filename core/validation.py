@@ -8,10 +8,10 @@ from .lang import t
 
 
 class Rule(ABC):
-    def __init__(self, msg_id: str=None):
+    def __init__(self, msg_id: str=None, value=None):
         """Init.
         """
-        self._value = None
+        self._value = value
         self._msg_id = msg_id
         self._message = None
         self._validation_state = None
@@ -52,28 +52,64 @@ class Rule(ABC):
 
 
 class NotEmptyRule(Rule):
-    def validate(self, validator, field: str)->bool:
+    """Not empty rule.
+    """
+    def validate(self, validator, field_name: str)->bool:
         """Validate the rule.
         """
         if self._value:
             self._validation_state = True
         else:
             msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_not_empty'
-            self.reset()._message = t(msg_id, {'name': field})
+            self._message = t(msg_id, {'name': field_name})
             self._validation_state = False
 
         return self._validation_state
 
 
 class IntegerRule(Rule):
+    """Integer validation rule.
+    """
     def validate(self, validator, field_name: str)->bool:
         """Validate the rule.
         """
         try:
             int(self._value)
-            return True
+            self._validation_state = True
         except ValueError:
-            return False
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_integer'
+            self._message = t(msg_id, {'name': field_name})
+            self._validation_state = False
+
+        return self._validation_state
+
+
+class UrlRule(Rule):
+    """URL validation rule.
+    """
+    def validate(self, validator, field_name: str)->bool:
+        """Validate the rule.
+        """
+        import re
+        try:
+            regex = re.compile(
+                r'^(?:http|ftp)s?://' # http:// or https://
+                r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+                r'localhost|' #localhost...
+                r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+                r'(?::\d+)?' # optional port
+                r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+            if not regex.match(str(self._value)):
+                raise ValueError()
+
+            self._validation_state = True
+        except ValueError:
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_url'
+            self._message = t(msg_id, {'name': field_name})
+            self._validation_state = False
+
+        return self._validation_state
 
 
 class Validator:

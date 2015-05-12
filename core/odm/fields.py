@@ -1,0 +1,289 @@
+"""ODM Fields.
+"""
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
+from abc import ABC
+from datetime import datetime
+from bson.objectid import ObjectId
+from bson.dbref import DBRef
+
+
+class AbstractField(ABC):
+    """Base field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        self._name = name
+        self._modified = False
+        self._value = None
+        self._options = kwargs
+
+    def get_name(self):
+        """Get name of the field.
+        """
+        return self._name
+
+    def is_modified(self)->bool:
+        """Is the field has been modified?
+        """
+        return self._modified
+
+    def reset_modified(self):
+        """Reset the 'modified' status of the field.
+        """
+        self._modified = False
+        return self
+
+    def get_options(self)->dict:
+        """Get field's options.
+        """
+        return self._options
+
+    def get_option(self, opt_name: str, default=None):
+        """Get field's option.
+        """
+        if opt_name in self._options:
+            return self._options[opt_name]
+        return default
+
+    def set_val(self, value, change_modified: bool=True):
+        """Set value of the field.
+        """
+        self._value = value
+        if change_modified and not self._modified:
+            self._modified = True
+        return self
+
+    def get_val(self, **kwargs):
+        """Get value of the field
+        """
+        return self._value
+
+    def get_storable_val(self):
+        """Get value suitable to store in a database.
+        """
+        if self.get_option('not_empty') and not self._value:
+            raise Exception("Value of the field '{0}' cannot be empty.".format(self.get_name()))
+        return self._value
+
+    def clear_val(self, reset_modified: bool=True):
+        """Clears a value of the field.
+        """
+        raise Exception("Not implemented yet.")
+
+    def add_val(self, value, change_modified: bool=True):
+        """Add a value to the field.
+        """
+        raise Exception("Not implemented yet.")
+
+    def subtract_val(self, value, change_modified: bool=True):
+        """Remove a value from the field.
+        """
+        raise Exception("Not implemented yet.")
+
+    def increment_val(self, change_modified: bool=True):
+        """Increment a value of the field.
+        """
+        raise Exception("Not implemented yet.")
+
+    def decrement_val(self, change_modified: bool=True):
+        """Increment a value of the field.
+        """
+        raise Exception("Not implemented yet.")
+
+    def delete(self):
+        """Entity will be deleted from storage.
+        """
+        pass
+
+
+class ObjectIdField(AbstractField):
+    """ObjectId field.
+    """
+    def set_val(self, value, change_modified: bool=True):
+        """Set value of the field.
+        """
+        if not isinstance(value, ObjectId):
+            raise TypeError("ObjectId expected")
+
+        return super().set_val(value, change_modified)
+
+
+class ListField(AbstractField):
+    """List field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, **kwargs)
+        self._value = []
+
+    def set_val(self, value: list, change_modified: bool=True):
+        """Set value of the field.
+        """
+        if not isinstance(value, list):
+            raise TypeError("List expected")
+
+        return super().set_val(value, change_modified)
+
+
+class DictField(AbstractField):
+    """Dictionary field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, **kwargs)
+        self._value = {}
+
+    def set_val(self, value: dict, change_modified: bool=True):
+        """Set value of the field.
+        """
+        if not isinstance(value, dict):
+            raise TypeError("Dictionary expected")
+
+        return super().set_val(value, change_modified)
+
+
+class RefField(AbstractField):
+    """DBRef field.
+    """
+    def set_val(self, value, change_modified: bool=True):
+        """Set value of the field.
+        """
+        from .models import Model
+        if value and not isinstance(value, DBRef) and not isinstance(value, Model):
+            raise TypeError("Entity or DBRef expected, while {0} given.".format(type(value)))
+
+        if isinstance(value, Model):
+            value = value.ref()
+
+        return super().set_val(value, change_modified)
+
+    def get_val(self, **kwargs):
+        """Get value of the field.
+        """
+        if isinstance(self._value, DBRef):
+            from .manager import dispense_by_ref
+            referenced_entity = dispense_by_ref(self._value)
+            if not referenced_entity:
+                self.set_val(None)  # Updating field's value about missing entity
+            return referenced_entity
+
+
+class RefsListField(AbstractField):
+    """List of DBRefs field.
+    """
+    def __init__(self, name: str, **kwargs):
+        super().__init__(name, **kwargs)
+        self._value = []
+
+    def set_val(self, value: list, change_modified: bool=True):
+        """Set value of the field.
+        """
+        if not isinstance(value, list):
+            raise TypeError("List of DBRefs or entities expected.")
+
+        clean_value = []
+        for item in value:
+            from .models import Model
+
+            if not isinstance(item, DBRef) and not isinstance(item, Model):
+                raise TypeError("List of DBRefs or entities expected.")
+
+            if isinstance(item, Model):
+                clean_value.append(item.ref())
+            elif isinstance(item, DBRef):
+                clean_value.append(item)
+
+        return super().set_val(clean_value, change_modified)
+
+    def get_val(self, **kwargs):
+        """Get value of the field.
+        """
+        r = []
+        for ref in self._value:
+            from .manager import dispense_by_ref
+            entity = dispense_by_ref(ref)
+            if entity:
+                r.append(entity)
+
+        return r
+
+    def add_val(self, value, change_modified: bool=True):
+        """Add a value to the field.
+        """
+        from .models import Model
+        if not isinstance(value, DBRef) and not isinstance(value, Model):
+            raise TypeError("DBRef of entity expected.")
+
+        if isinstance(value, DBRef):
+            self._value.append(value)
+        elif isinstance(value, Model):
+            self._value.append(value.ref())
+
+        if change_modified:
+            self._modified = True
+
+        return self
+
+
+class DateTimeField(AbstractField):
+    """Datetime field.
+    """
+    def __init__(self, name: str, **kwargs):
+        super().__init__(name, **kwargs)
+        self._value = datetime(1970, 1, 1)
+
+    def set_val(self, value: list, change_modified: bool=True):
+        """Set value of the field.
+        """
+        if value and not isinstance(value, datetime):
+            raise TypeError("DateTime or None expected")
+
+        return super().set_val(value, change_modified)
+
+
+class StringField(AbstractField):
+    """String field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, **kwargs)
+        self._value = ''
+
+    def set_val(self, value: str, change_modified: bool=True):
+        """Set value of the field.
+        """
+        if not isinstance(value, str):
+            raise TypeError("String expected.")
+
+        return super().set_val(value, change_modified)
+
+
+class IntegerField(AbstractField):
+    """Integer field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, **kwargs)
+        self._value = 0
+
+    def set_val(self, value: int, change_modified: bool=True):
+        """Set value of the field.
+        """
+        try:
+            value = int(value)
+        except TypeError:
+            raise TypeError("Integer expected.")
+
+        return super().set_val(value, change_modified)
+
+
+class VirtualField(AbstractField):
+    pass

@@ -2,4 +2,5 @@ assetman_console_command_description: 'Компиляция ассетов'
 untitled_document: 'Безымянный Документ'
 error: 'Ошибка :code'
 
-validation_rule_not_empty: 'Поле ":name" обязательно для заполнения'
+validation_rule_not_empty: 'Обязательно для заполнения'
+validation_rule_integer: 'Должно быть целым значением'

@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from abc import ABC, abstractmethod
 
 
-class Widget(ABC):
+class AbstractWidget(ABC):
     def __init__(self, uid: str, name: str=None, value: str=None, label: str=None, placeholder: str=None,
                  classes: list=None, help_msg: str=None):
         """Init.
@@ -96,7 +96,7 @@ class Widget(ABC):
         return '<div class="{0}">{1}{2}</div>'.format(classes_str, label_str, str_to_wrap)
 
 
-class Input(Widget):
+class Input(AbstractWidget):
     @abstractmethod
     def render(self)->str:
         """Render the widget.
