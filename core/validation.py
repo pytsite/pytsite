@@ -65,6 +65,17 @@ class NotEmptyRule(Rule):
         return self._validation_state
 
 
+class IntegerRule(Rule):
+    def validate(self, validator, field_name: str)->bool:
+        """Validate the rule.
+        """
+        try:
+            int(self._value)
+            return True
+        except ValueError:
+            return False
+
+
 class Validator:
     def __init__(self):
         """Init.
