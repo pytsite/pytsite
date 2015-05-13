@@ -23,8 +23,8 @@ class File(odm.models.Model):
         """_after_delete() hook.
         """
         from os import path, unlink
-        from ..core import registry
-        storage_dir = registry.get_val('paths.storage')
+        from ..core import reg
+        storage_dir = reg.get_val('paths.storage')
         file_abs_path = path.join(storage_dir, self.f_get('path'))
         if path.exists(file_abs_path):
             unlink(file_abs_path)
@@ -34,7 +34,7 @@ class File(odm.models.Model):
         """
         if field_name == 'abs_path':
             from os import path
-            from ..core import registry
-            return path.join(registry.get_val('paths.storage'), self.f_get('path'))
+            from ..core import reg
+            return path.join(reg.get_val('paths.storage'), self.f_get('path'))
 
         return super()._on_f_get(field_name, orig_value)

@@ -1,9 +1,10 @@
+"""Asset Manager.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
-from . import console, lang, router, registry
+from . import console, lang, router, logger
 
 
 class ConsoleCommand(console.Command):
@@ -23,7 +24,7 @@ _packages = dict()
 _links = {'js': [], 'css': []}
 
 
-def register_package(package_name: str, assets_dir: str='assets', languages_dir='lng'):
+def register_package(package_name: str, assets_dir: str='assets', languages_dir='lang'):
     """Register assets container.
     """
     from importlib.util import find_spec
@@ -77,10 +78,10 @@ def compile_assets():
     from shutil import rmtree, copy
     from webassets import Environment
     from webassets.script import CommandLineEnvironment
-    from . import registry, application
+    from . import reg, wsgi
 
-    static_dir = registry.get_val('paths.static')
-    debug = registry.get_val('debug.enabled')
+    static_dir = reg.get_val('paths.static')
+    debug = reg.get_val('debug.enabled')
 
     if os.path.exists(static_dir):
         rmtree(static_dir)
@@ -113,7 +114,7 @@ def compile_assets():
 
                 env = Environment(directory=package_assets_dir, filters=filters, debug=debug)
                 env.register('bundle', src, output=dst)
-                cmd = CommandLineEnvironment(env, application.logger())
+                cmd = CommandLineEnvironment(env, logger)
                 cmd.invoke('build', dict())
             elif '.webassets-cache' not in src:
                 dst_dir = os.path.dirname(dst)

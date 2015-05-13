@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from abc import ABC, abstractmethod
 from os import path
 import yaml
-from pytsite.core.utils import dict_merge
+from pytsite.core.util import dict_merge
 
 
 class ConfigDriver(ABC):

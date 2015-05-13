@@ -40,9 +40,9 @@ def mk_tmp_file()->str:
     """
     from os import path, mkdir
     from tempfile import mkstemp
-    from . import registry
+    from . import reg
 
-    tmp_dir = registry.get_val('paths.tmp')
+    tmp_dir = reg.get_val('paths.tmp')
     if not tmp_dir:
         raise Exception("Cannot determine temporary directory location.")
 

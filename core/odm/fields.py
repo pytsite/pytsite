@@ -8,6 +8,7 @@ from abc import ABC
 from datetime import datetime
 from bson.objectid import ObjectId
 from bson.dbref import DBRef
+from pytsite.core import validation
 
 
 class AbstractField(ABC):
@@ -18,8 +19,10 @@ class AbstractField(ABC):
         """
         self._name = name
         self._modified = False
-        self._value = None
         self._options = kwargs
+
+        default_value = self.get_option('default')
+        self._value = default_value if default_value else None
 
     def get_name(self):
         """Get name of the field.
@@ -49,7 +52,7 @@ class AbstractField(ABC):
             return self._options[opt_name]
         return default
 
-    def set_val(self, value, change_modified: bool=True):
+    def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         self._value = value
@@ -65,7 +68,7 @@ class AbstractField(ABC):
     def get_storable_val(self):
         """Get value suitable to store in a database.
         """
-        if self.get_option('not_empty') and not self._value:
+        if self.get_option('required') and not self._value:
             raise Exception("Value of the field '{0}' cannot be empty.".format(self.get_name()))
         return self._value
 
@@ -74,7 +77,7 @@ class AbstractField(ABC):
         """
         raise Exception("Not implemented yet.")
 
-    def add_val(self, value, change_modified: bool=True):
+    def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
         raise Exception("Not implemented yet.")
@@ -103,7 +106,7 @@ class AbstractField(ABC):
 class ObjectIdField(AbstractField):
     """ObjectId field.
     """
-    def set_val(self, value, change_modified: bool=True):
+    def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, ObjectId):
@@ -119,9 +122,10 @@ class ListField(AbstractField):
         """Init.
         """
         super().__init__(name, **kwargs)
-        self._value = []
+        if self._value is None:
+            self._value = []
 
-    def set_val(self, value: list, change_modified: bool=True):
+    def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, list):
@@ -137,9 +141,10 @@ class DictField(AbstractField):
         """Init.
         """
         super().__init__(name, **kwargs)
-        self._value = {}
+        if self._value is None:
+            self._value = {}
 
-    def set_val(self, value: dict, change_modified: bool=True):
+    def set_val(self, value: dict, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, dict):
@@ -151,7 +156,7 @@ class DictField(AbstractField):
 class RefField(AbstractField):
     """DBRef field.
     """
-    def set_val(self, value, change_modified: bool=True):
+    def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         from .models import Model
@@ -179,9 +184,10 @@ class RefsListField(AbstractField):
     """
     def __init__(self, name: str, **kwargs):
         super().__init__(name, **kwargs)
-        self._value = []
+        if self._value is None:
+            self._value = []
 
-    def set_val(self, value: list, change_modified: bool=True):
+    def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, list):
@@ -213,7 +219,7 @@ class RefsListField(AbstractField):
 
         return r
 
-    def add_val(self, value, change_modified: bool=True):
+    def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
         from .models import Model
@@ -236,9 +242,10 @@ class DateTimeField(AbstractField):
     """
     def __init__(self, name: str, **kwargs):
         super().__init__(name, **kwargs)
-        self._value = datetime(1970, 1, 1)
+        if self._value is None:
+            self._value = datetime(1970, 1, 1)
 
-    def set_val(self, value: list, change_modified: bool=True):
+    def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if value and not isinstance(value, datetime):
@@ -254,13 +261,20 @@ class StringField(AbstractField):
         """Init.
         """
         super().__init__(name, **kwargs)
-        self._value = ''
+        if self._value is None:
+            self._value = ''
 
-    def set_val(self, value: str, change_modified: bool=True):
+    def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, str):
             raise TypeError("String expected.")
+
+        if self.get_option('validate_email'):
+            v = validation.Validator()
+            v.add_rule('email', validation.EmailRule(value=value))
+            if not v.validate():
+                raise ValueError("Email expected.")
 
         return super().set_val(value, change_modified)
 
@@ -272,9 +286,10 @@ class IntegerField(AbstractField):
         """Init.
         """
         super().__init__(name, **kwargs)
-        self._value = 0
+        if self._value is None:
+            self._value = 0
 
-    def set_val(self, value: int, change_modified: bool=True):
+    def set_val(self, value: int, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         try:
@@ -283,6 +298,13 @@ class IntegerField(AbstractField):
             raise TypeError("Integer expected.")
 
         return super().set_val(value, change_modified)
+
+    def add_val(self, value: int, change_modified: bool=True, **kwargs):
+        """Add a value to the value of the field.
+        """
+        self.set_val(self.get_val(**kwargs) + int(value))
+        return self
+
 
 
 class VirtualField(AbstractField):

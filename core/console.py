@@ -1,3 +1,5 @@
+"""PytSite Console.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -5,12 +7,13 @@ __license__ = 'MIT'
 from abc import ABC, abstractmethod
 from sys import argv, exit
 from re import sub
-from . import application
 
-__commands = dict()
+__commands = {}
 
 
 class Command(ABC):
+    """Abstract command.
+    """
     @abstractmethod
     def get_name(self)->str:
         pass
@@ -27,12 +30,14 @@ class Command(ABC):
 def register_command(obj: Command):
     """Register a console command.
     """
+    global __commands
     __commands[obj.get_name()] = obj
 
 
 def get_command(name: str)->Command:
     """Get a console command.
     """
+    global __commands
     if name not in __commands:
         raise Exception("Command '{0}' is not registered.".format(name))
     return __commands[name]
@@ -47,19 +52,18 @@ def run_command(name: str, args: dict):
 def usage():
     """Print the usage.
     """
+    global __commands
     r = ''
     for name, cmd in __commands.items():
-        r += "{0}\t{1}".format(name, cmd.get_description())
+        r += "{0}\t{1}\n".format(name, cmd.get_description())
+
     return r
 
 
 def run():
     """Run the console.
     """
-    if not application.is_initialized():
-        raise Exception("Application is not initialized.")
-
-    if len(argv) == 1:
+    if len(argv) < 2:
         print(usage())
         exit(-1)
 
@@ -75,3 +79,19 @@ def run():
                 cmd_args[arg_split[0]] = arg_val
 
     return run_command(argv[1], cmd_args)
+
+
+class Cron(Command):
+    """Cron command.
+    """
+    def get_name(self):
+        return 'cron:start'
+
+    def get_description(self):
+        return 'Cron'
+
+    def execute(self, *args, **kwargs):
+        pass
+
+
+register_command(Cron())

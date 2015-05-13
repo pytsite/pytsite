@@ -4,15 +4,17 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import json
 from urllib.parse import urlencode
+from urllib.request import urlopen
+from pytsite.core import widget, tpl, forms, router
+from pytsite.image import manager as image_manager
+from .. import manager as auth_manager
+from .. import errors
 from .abstract import AbstractDriver
-from ...core import tpl
-from ...core.router import Request, RedirectResponse
-from ...core.widget import AbstractWidget
-from ...core.form import AbstractForm
 
 
-class LoginWidget(AbstractWidget):
+class LoginWidget(widget.AbstractWidget):
     """ULogin login widget.
     """
     def render(self)->str:
@@ -21,7 +23,7 @@ class LoginWidget(AbstractWidget):
         return tpl.render('pytsite.auth@drivers/ulogin/widget')
 
 
-class LoginForm(AbstractForm):
+class LoginForm(forms.AbstractForm):
     """ULogin login form.
     """
     def _setup(self):
@@ -31,39 +33,50 @@ class LoginForm(AbstractForm):
 class ULoginDriver(AbstractDriver):
     """ULogin driver.
     """
-    def get_login_form(self)->AbstractForm:
+    def get_login_form(self)->forms.AbstractForm:
         """Get the login form.
         """
         return LoginForm(uid='ulogin-form')
 
-    def post_login_form(self, args: dict, inp: dict)->RedirectResponse:
+    def post_login_form(self, args: dict, inp: dict)->router.RedirectResponse:
         """Post the login form.
         """
-        from urllib.request import urlopen
-
+        # Reading response from uLogin
         response = urlopen('http://ulogin.ru/token.php?{0}'.format(urlencode(inp)))
         if response.status != 200:
             raise Exception("Bad response status code from uLogin: {0}.".format(response.status))
 
-        from json import loads
-        data = loads(response.read().decode('utf-8'))
-        if 'error' in data:
-            raise Exception("Bad response from uLogin: '{0}'.".format(data['error']))
+        ulogin_data = json.loads(response.read().decode('utf-8'))
+        if 'error' in ulogin_data:
+            raise Exception("Bad response from uLogin: '{0}'.".format(ulogin_data['error']))
 
-        if 'email' not in data or data['verified_email'] != '1':
-            raise Exception("Email '{0}' is not verified by uLogin.".format(data['email']))
+        if 'email' not in ulogin_data or ulogin_data['verified_email'] != '1':
+            raise Exception("Email '{0}' is not verified by uLogin.".format(ulogin_data['email']))
 
-        from .. import manager as user_manager
-        login = data['email']
-        user = user_manager.get_user_by_login(login)
+        email = ulogin_data['email']
+        user = auth_manager.get_user(email)
         if not user:
-            user = user_manager.create_user(login, login)
-            picture_url = data['photo_big'] if 'photo_big' in data else None
+            user = auth_manager.create_user(login=email, email=email)
+
+            picture_url = ulogin_data['photo_big'] if 'photo_big' in ulogin_data else None
             if not picture_url:
-                picture_url = data['photo'] if 'photo' in data else None
+                picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
 
             if picture_url:
-                from ...image import manager as img_manager
-                user.f_set('picture', img_manager.create(picture_url))
+                user.f_set('picture', image_manager.create(picture_url))
+
+            full_name = ''
+            if 'first_name' in ulogin_data:
+                full_name += ulogin_data['first_name']
+            if 'last_name' in ulogin_data:
+                full_name += ' ' + ulogin_data['last_name']
+            user.f_set('fullName', full_name)
+
+            if 'sex' in ulogin_data:
+                user.f_set('gender', ulogin_data['sex'])
+
+            user.f_set('options', {'ulogin': ulogin_data})
 
             user.save()
+
+        auth_manager.authorize(user)

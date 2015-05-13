@@ -155,27 +155,28 @@ class Model:
         """
         return self.f_get('_modified')
 
-    def f_set(self, field_name: str, value):
+    def f_set(self, field_name: str, value, **kwargs):
         """Set field's value.
         """
-        value = self._on_f_set(field_name, value)
+        value = self._on_f_set(field_name, value, **kwargs)
         self.get_field(field_name).set_val(value)
+
         return self
 
-    def _on_f_set(self, field_name: str, field_value):
+    def _on_f_set(self, field_name: str, orig_value, **kwargs):
         """On set field's value hook.
         """
-        return field_value
+        return orig_value
 
-    def f_get(self, field_name: str):
+    def f_get(self, field_name: str, **kwargs):
         """Get field's value.
         """
-        return self._on_f_get(field_name, self.get_field(field_name).get_val())
+        return self._on_f_get(field_name, self.get_field(field_name).get_val(**kwargs), **kwargs)
 
-    def _on_f_get(self, field_name: str, field_value):
+    def _on_f_get(self, field_name: str, orig_value, **kwargs):
         """On get field's value hook.
         """
-        return field_value
+        return orig_value
 
     def f_add(self, field_name: str, value):
         """Add a value to the field.

@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from importlib import import_module
 from os import path
 from jinja2 import Environment, BaseLoader, TemplateNotFound
-from . import router, lang, metatag, registry, assetman
+from . import router, lang, metatag, reg, assetman
 
 _packages = dict()
 
@@ -46,8 +46,8 @@ __env = Environment(loader=TemplateLoader())
 
 
 # Additional functions
-__env.globals['reg_get'] = registry.get_val
-__env.globals['route_url'] = router.route_url
+__env.globals['reg_get'] = reg.get_val
+__env.globals['route_url'] = router.endpoint_url
 __env.globals['t'] = lang.translate
 __env.globals['meta_tags'] = metatag.dump_all
 __env.globals['asset_url'] = assetman.get_url

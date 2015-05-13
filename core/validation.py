@@ -112,6 +112,27 @@ class UrlRule(Rule):
         return self._validation_state
 
 
+class EmailRule(Rule):
+    """Email validation rule.
+    """
+    def validate(self, validator, field_name: str)->bool:
+        """Validate the rule.
+        """
+        import re
+        try:
+            regex = re.compile('[^@]+@[^@]+\.[^@]+')
+            if not regex.match(str(self._value)):
+                raise ValueError()
+
+            self._validation_state = True
+        except ValueError:
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_email'
+            self._message = t(msg_id, {'name': field_name})
+            self._validation_state = False
+
+        return self._validation_state
+
+
 class Validator:
     def __init__(self):
         """Init.

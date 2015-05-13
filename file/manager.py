@@ -10,11 +10,11 @@ from .models import File
 def _create_store_path(mime: str)->str:
     from os import path
     from mimetypes import guess_extension
-    from ..core import utils, registry
+    from ..core import util, reg
 
-    storage_dir = registry.get_val('paths.storage')
+    storage_dir = reg.get_val('paths.storage')
     store_path = ''
-    rnd_str = utils.random_str
+    rnd_str = util.random_str
     extension = guess_extension(mime)
     while True:
         possible_target_path = path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
@@ -30,7 +30,7 @@ def create(source_path: str, name: str=None, description: str=None, model: str='
     """
     from os import path, makedirs, stat, write
     import magic
-    from ..core import validation, registry
+    from ..core import validation, reg
     from ..core.odm import manager
 
     url_validator = validation.Validator()
@@ -38,7 +38,7 @@ def create(source_path: str, name: str=None, description: str=None, model: str='
     if url_validator.validate():
         from urllib.request import urlopen
         from urllib.parse import urlparse
-        from ..core.utils import mk_tmp_file
+        from ..core.util import mk_tmp_file
 
         # Copying remote file to the temporary local file
         with urlopen(source_path) as src:
@@ -73,7 +73,7 @@ def create(source_path: str, name: str=None, description: str=None, model: str='
     if not isinstance(file_entity, File):
         raise Exception('File entity expected.')
 
-    storage_dir = registry.get_val('paths.storage')
+    storage_dir = reg.get_val('paths.storage')
 
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
     file_entity.f_set('name', name)

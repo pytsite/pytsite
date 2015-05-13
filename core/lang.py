@@ -1,11 +1,17 @@
+"""PytSite Language Support.
+"""
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from importlib.util import find_spec
+from os import path
+import yaml
 
 __languages = []
 __current_language = None
-_packages = {}
+__packages = {}
 
 
 def define_languages(languages: list):
@@ -32,6 +38,7 @@ def set_current_lang(code: str):
 def get_current_lang()->str:
     """Get current language.
     """
+    global __languages
     if not __languages:
         raise Exception("No languages are defined.")
 
@@ -42,20 +49,18 @@ def get_current_lang()->str:
     return __current_language
 
 
-def register_package(package_name: str, languages_dir: str='lng')->str:
+def register_package(package_name: str, languages_dir: str='lang')->str:
     """Register language container.
     """
-    from importlib.util import find_spec
     spec = find_spec(package_name)
     if not spec:
         raise Exception("Package '{0}' is not found.".format(package_name))
 
-    from os import path
     lng_dir = path.join(path.dirname(spec.origin), languages_dir)
     if not path.isdir(lng_dir):
         raise Exception("Directory '{0}' is not exists.".format(lng_dir))
 
-    _packages[package_name] = {'_path': lng_dir}
+    __packages[package_name] = {'_path': lng_dir}
 
 
 def translate(msg_id: str, data: dict=None, language: str=None)->str:
@@ -88,10 +93,6 @@ def translate(msg_id: str, data: dict=None, language: str=None)->str:
             msg = msg.replace(':' + str(k), str(v))
 
     return msg
-
-
-t = translate
-"""Shortcut for translate()."""
 
 
 def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
@@ -155,21 +156,20 @@ def _load_file(package_name: str, language: str=None):
     """Load package's language file.
     """
     # Is package registered?
-    if package_name not in _packages:
+    if package_name not in __packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     if not language:
         language = get_current_lang()
 
     # Getting from cache
-    if language in _packages[package_name]:
-        return _packages[package_name][language]
+    if language in __packages[package_name]:
+        return __packages[package_name][language]
 
     # Actual data loading
-    from os import path
-    file_path = path.join(_packages[package_name]['_path'], language + '.yml')
+
+    file_path = path.join(__packages[package_name]['_path'], language + '.yml')
     file = open(file_path)
-    import yaml
     content = yaml.load(file)
     file.close()
 
@@ -177,6 +177,10 @@ def _load_file(package_name: str, language: str=None):
         content = dict()
 
     # Caching
-    _packages[package_name][language] = content
+    __packages[package_name][language] = content
 
     return content
+
+
+t = translate
+"""Shortcut for translate()."""

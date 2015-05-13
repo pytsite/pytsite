@@ -143,4 +143,4 @@ class Finder:
         if not result:
             return None
 
-        return result
+        return result[0]
