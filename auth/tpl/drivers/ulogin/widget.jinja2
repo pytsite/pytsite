@@ -1,2 +1,10 @@
+<script type="text/javascript">
+    function pytsite_ulogin_callback(token) {
+        var widget_selector = '#' + '{{ widget.uid }}';
+        var form = $(widget_selector).closest('form');
+        form.find('[name=token]').val(token);
+        form.submit();
+    }
+</script>
 <script src="//ulogin.ru/js/ulogin.js"></script>
-<div id="uLogin" data-ulogin="display=panel;fields=first_name,last_name,email,nickname,bdate,sex,photo,photo_big,city,country;providers=facebook,twitter,googleplus,linkedin,yandex,vkontakte;hidden=other;redirect_uri={{ route_url('pytsite.auth.endpoints.post_login') }}"></div>
+<div id="{{ widget.uid }}" data-ulogin="display=panel;fields=first_name,last_name,email,nickname,bdate,sex,photo,photo_big,city,country;providers=facebook,twitter,googleplus,linkedin,yandex,vkontakte;hidden=other;redirect_uri=;callback=pytsite_ulogin_callback"></div>

@@ -1,22 +1,29 @@
+"""Widgets.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
 
 from abc import ABC, abstractmethod
 
 
 class AbstractWidget(ABC):
-    def __init__(self, uid: str, name: str=None, value: str=None, label: str=None, placeholder: str=None,
-                 classes: list=None, help_msg: str=None):
+    """Abstract widget.
+    """
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
         self._uid = uid
-        self._name = name if name else uid
-        self._value = value
-        self._label = label
-        self._placeholder = placeholder
-        self._classes = classes if classes else []
-        self._help = help_msg
+        self._name = kwargs.get('name')
+        self._value = kwargs.get('value', '')
+        self._label = kwargs.get('label')
+        self._placeholder = kwargs.get('placeholders')
+        self._classes = kwargs.get('classes', {})
+        self._help = kwargs.get('help')
+
+        if not self._name:
+            self._name = uid
 
         self._children = []
 
@@ -108,7 +115,7 @@ class HiddenInput(Input):
     def render(self)->str:
         """Render the widget.
         """
-        return '<input type="hidden" id="{0}" name="{1}">'.format(self._uid, self._name)
+        return '<input type="hidden" id="{0}" name="{1}" value="{2}">'.format(self._uid, self._name, self._value)
 
 
 class TextInput(Input):
@@ -116,5 +123,7 @@ class TextInput(Input):
         """Render the widget.
         """
         placeholder = 'placeholder="{0}"'.format(self._placeholder) if self._placeholder else ''
-        r = '<input type="text" id="{0}" name="{1}" {2}>'.format(self._uid, self._name, placeholder)
+        r = '<input type="text" id="{0}" name="{1}" {2} value="{3}">'.format(
+            self._uid, self._name, placeholder, self._value)
+
         return self._group_wrap(r)

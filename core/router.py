@@ -1,32 +1,25 @@
+"""Router.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from traceback import format_exc
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 from werkzeug.routing import Map, MapAdapter, Rule as _Rule, BuildError
 from werkzeug.exceptions import HTTPException
-from werkzeug.wrappers import Request as _Request, Response as _Response
-from werkzeug.contrib.sessions import FilesystemSessionStore, Session
+from werkzeug.contrib.sessions import FilesystemSessionStore
 from importlib import import_module
 from re import sub
+from .http.request import Request
+from .http.response import Response, RedirectResponse
+from .http.session import Session
 from . import reg
-
-__session_store = FilesystemSessionStore(path=reg.get_val('paths.tmp'))
-
-__routes = Map()
-
-__url_adapter = None
-""":type : MapAdapter"""
-
-request = None
-""":type : Request"""
-
-session = __session_store.new()
-""":type : Session"""
 
 
 class Rule(_Rule):
+    """Routing rule.
+    """
     def __init__(self, string: str, **kwargs):
         self.filters = ()
         if 'filters' in kwargs:
@@ -36,40 +29,14 @@ class Rule(_Rule):
         super().__init__(string, **kwargs)
 
 
-class Request(_Request):
-    """HTTP request.
-    """
-    def get_values(self)->dict:
-        """Get all values of the request.
-        """
-        return self.values.to_dict()
-
-    def get_value(self, key: str, default=None):
-        """Get single value of the request.
-        """
-        return self.values.get(key, default)
-
-
-class Response(_Response):
-    """HTTP response.
-    """
-    pass
-
-
-class RedirectResponse(Response):
-    """Redirect HTTP response.
-    """
-    def __init__(self, location: str, status: int=302):
-        """Init.
-        """
-        headers = {'Location': location}
-        super().__init__('Redirecting to {0}'.format(location), status=status, headers=headers)
-
-
 def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: list=None, redirect_to: str=None,
              filters: list=None):
     """Add a rule to the router.
     """
+
+    if filters is None:
+        filters = []
+
     rule = Rule(
         string=pattern,
         endpoint=endpoint,
@@ -99,7 +66,7 @@ def __call_endpoint(name: str, args: dict=None):
         if not hasattr(callable_obj, '__call__'):
             raise Exception("'{0}' is not callable".format(callable_name))
 
-        return callable_obj(args, request.get_values())
+        return callable_obj(args, request.values.to_dict())
 
     except ImportError as e:
         e.msg = "Cannot load module '{0}' specified in endpoint '{1}': {2}.".format(module_name, endpoint, e.msg)
@@ -123,7 +90,7 @@ def dispatch(env: dict, start_response: callable):
             redirect_url += '?' + __url_adapter.query_args
         return RedirectResponse(redirect_url, 301)(env, start_response)
 
-    # Creating new or restoring existing session
+    # Restoring session
     sid = request.cookies.get('PYTSITE_SESSION')
     if sid:
         session = __session_store.get(sid)
@@ -132,38 +99,37 @@ def dispatch(env: dict, start_response: callable):
         rule, args = __url_adapter.match(return_rule=True)
 
         # Processing rule filters
-        if isinstance(rule.filters, list):
-            for flt in rule.filters:
-                flt_response = __call_endpoint(flt, args)
-                if isinstance(flt_response, RedirectResponse):
-                    return flt_response(env, start_response)
+        for flt in rule.filters:
+            flt_response = __call_endpoint(flt, args)
+            if isinstance(flt_response, RedirectResponse):
+                return flt_response(env, start_response)
 
-        # Call endpoint
+        # Processing response from handler
+        wsgi_response = Response(response='', status=200, content_type='text/html')
         response_from_callable = __call_endpoint(rule.endpoint, args)
-
-        response = Response(response='', status=200, content_type='text/html')
         if isinstance(response_from_callable, str):
-            response.data = response_from_callable
+            wsgi_response.data = response_from_callable
         elif isinstance(response_from_callable, Response):
-            response = response_from_callable
+            wsgi_response = response_from_callable
         else:
-            response.data = ''
+            wsgi_response.data = ''
 
+        # Updating session data
         if session.should_save:
             __session_store.save(session)
-            response.set_cookie('PYTSITE_SESSION', session.sid)
+            wsgi_response.set_cookie('PYTSITE_SESSION', session.sid)
 
-        return response(env, start_response)
+        return wsgi_response(env, start_response)
 
     except HTTPException as e:
-        response = tpl.render('app@exceptions/common', {'exception': e})
         metatag.set_tag('title', lang.t('pytsite.core@error', {'code': e.code}))
-        return Response(response, e.code, content_type='text/html')(env, start_response)
+        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
+        return Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
-        response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
         metatag.set_tag('title', lang.t('pytsite.core@error', {'code': 500}))
-        return Response(response, 500, content_type='text/html')(env, start_response)
+        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
+        return Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 
 def base_path(language: str=None)->str:
@@ -206,36 +172,34 @@ def scheme():
 def base_url(language: str=None):
     """Get base URL of application.
     """
+
     return scheme() + '://' + server_name() + base_path(language)
 
 
-def url(url_str: str, language: str=None, strip_language_part=False)->str:
+def url(url: str, lang: str=None, strip_lang=False, query: dict=None) -> str:
     """Generate an URL.
     """
 
-    parsed_url = urlparse(url_str)
-
-    # Absolute URL given, return it immediately
-    if parsed_url[0]:
-        return url_str
-
-    # Defaults
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
+    parsed_url = urlparse(url)
     r = [
-        scheme(),  # 0, Scheme
-        server_name(),  # 1, Netloc
-        '',  # 2, Path
-        '',  # 3, Params
-        '',  # 4, Query
-        '',  # 5, Fragment
+        parsed_url[0] if parsed_url[0] else scheme(),  # 0, Scheme
+        parsed_url[1] if parsed_url[1] else server_name(),  # 1, Netloc
+        parsed_url[2] if parsed_url[2] else '',  # 2, Path
+        parsed_url[3] if parsed_url[3] else '',  # 3, Params
+        parsed_url[4] if parsed_url[4] else '',  # 4, Query
+        parsed_url[5] if parsed_url[5] else '',  # 5, Fragment
     ]
 
-    for k, v in enumerate(parsed_url):
-        if parsed_url[k]:
-            r[k] = parsed_url[k]
+    # Attaching additional query arguments
+    if query:
+        parsed_qs = parse_qs(parsed_url[4])
+        parsed_qs.update(query)
+        r[4] = urlencode(parsed_qs, doseq=True)
 
-    if not strip_language_part:
-        r[2] = str(base_path(language) + parsed_url[2]).replace('//', '/')
+    # Adding language suffix
+    if not strip_lang:
+        r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
 
     return urlunparse(r)
 
@@ -256,6 +220,20 @@ def endpoint_url(endpoint: str, args: dict=None)->str:
     """
     global __url_adapter
     try:
-        return __url_adapter.build(endpoint, args)
+        return url(__url_adapter.build(endpoint, args))
     except BuildError:
         raise Exception("Cannot build URL for endpoint '{0}'.".format(endpoint))
+
+
+__session_store = FilesystemSessionStore(path=reg.get_val('paths.tmp'), session_class=Session)
+
+__routes = Map()
+
+__url_adapter = None
+""":type : MapAdapter"""
+
+request = None
+""":type : Request"""
+
+session = __session_store.new()
+""":type : Session"""

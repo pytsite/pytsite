@@ -4,14 +4,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from .models import Image
+from PIL import Image
+from pytsite.file import manager as file_manager
+from .models import Image as ImageModel
 
 
-def create(source_path: str, name: str=None, description: str=None)->Image:
+def create(source_path: str, name: str=None, description: str=None)->ImageModel:
     """Create an image from URL or local file.
     """
-    from PIL import Image
-    from ..file import manager as file_manager
+
     img_entity = file_manager.create(source_path, name, description, 'image')
 
     mime = str(img_entity.f_get('mime'))

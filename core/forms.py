@@ -1,23 +1,31 @@
+"""Forms.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 from abc import ABC, abstractmethod
-from .widget import AbstractWidget
+from .widgets import AbstractWidget
 from .validation import Validator, Rule
 
 
 class AbstractForm(ABC):
-    def __init__(self, uid: str, name: str=None, legend: str=None, css_classes: tuple=()):
+    """Abstract form.
+    """
+    def __init__(self, uid: str, **kwargs: dict):
         """Init.
         """
-        self._id = uid
-        self._name = name if name else uid
-        self._legend = legend
-        self._css_classes = css_classes
+        self._uid = uid
+        self._name = kwargs.get('name', '')
+        self._action = kwargs.get('action', '')
+        self._legend = kwargs.get('legend', '')
+        self._classes = kwargs.get('classes', '')
+
         self._widgets = {}
         self._validator = Validator()
+
+        if not self._name:
+            self._name = uid
 
         self._setup()
 
@@ -26,6 +34,30 @@ class AbstractForm(ABC):
         """_setup() hook.
         """
         pass
+
+    @property
+    def uid(self) -> str:
+        return self._uid
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def action(self) -> str:
+        return self._action
+
+    @action.setter
+    def action(self, val) -> None:
+        self._action = val
+
+    @property
+    def legend(self) -> str:
+        return self._legend
+
+    @property
+    def classes(self) -> str:
+        return self._classes
 
     def fill(self, values: dict):
         """Fill form's widgets with values.
@@ -100,10 +132,10 @@ class AbstractForm(ABC):
         """Render the header of the form.
         """
         css_class = ''
-        if self._css_classes:
-            css_class = 'class="{0}"'.format(' '.join(self._css_classes))
+        if self._classes:
+            css_class = 'class="{0}"'.format(' '.join(self._classes))
 
-        r = '<form {0} id="{1}" name="{2}">\n'.format(css_class, self._id, self._name)
+        r = '<form action="{0}" {1} id="{2}" name="{3}">\n'.format(self.action, css_class, self._uid, self._name)
 
         return r
 

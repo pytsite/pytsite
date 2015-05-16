@@ -4,14 +4,17 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import magic
+from os import path, makedirs, stat, write, unlink
+from mimetypes import guess_extension
+from shutil import copyfile
+from urllib.request import urlopen
+from urllib.parse import urlparse
+from pytsite.core import util, reg, validation, odm
 from .models import File
 
 
 def _create_store_path(mime: str)->str:
-    from os import path
-    from mimetypes import guess_extension
-    from ..core import util, reg
-
     storage_dir = reg.get_val('paths.storage')
     store_path = ''
     rnd_str = util.random_str
@@ -25,26 +28,19 @@ def _create_store_path(mime: str)->str:
     return store_path
 
 
-def create(source_path: str, name: str=None, description: str=None, model: str='file')->File:
+def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False)->File:
     """Create a file from path or URL.
     """
-    from os import path, makedirs, stat, write
-    import magic
-    from ..core import validation, reg
-    from ..core.odm import manager
 
+    # Store remote file to the local if URL was specified
     url_validator = validation.Validator()
     url_validator.add_rule('url', validation.UrlRule(value=source_path))
     if url_validator.validate():
-        from urllib.request import urlopen
-        from urllib.parse import urlparse
-        from ..core.util import mk_tmp_file
-
         # Copying remote file to the temporary local file
         with urlopen(source_path) as src:
             data = src.read()
 
-        tmp_file = mk_tmp_file()
+        tmp_file = util.mk_tmp_file()
         write(tmp_file[0], data)
 
         if not name:
@@ -52,6 +48,7 @@ def create(source_path: str, name: str=None, description: str=None, model: str='
         if not description:
             description = 'Downloaded from ' + source_path
 
+        remove_source = True
         source_path = tmp_file[1]
 
     mime = magic.from_file(source_path, True).decode()
@@ -62,19 +59,19 @@ def create(source_path: str, name: str=None, description: str=None, model: str='
         makedirs(target_dir, 0o755, True)
 
     # Copying file to the storage
-    from shutil import copyfile
     copyfile(source_path, abs_target_path)
     if not name:
         name = path.basename(source_path)
     if not description:
         description = 'Created from local file ' + source_path
+    if remove_source:
+        unlink(source_path)
 
-    file_entity = manager.dispense(model)
+    # Create File entity
+    storage_dir = reg.get_val('paths.storage')
+    file_entity = odm.manager.dispense(model)
     if not isinstance(file_entity, File):
         raise Exception('File entity expected.')
-
-    storage_dir = reg.get_val('paths.storage')
-
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
     file_entity.f_set('name', name)
     file_entity.f_set('description', description)

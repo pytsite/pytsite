@@ -42,19 +42,16 @@ class TemplateLoader(BaseLoader):
         return source, template_abs_path, lambda: mtime == path.getmtime(template_abs_path)
 
 
-__env = Environment(loader=TemplateLoader())
+__env = Environment(loader=TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
 # Additional functions
-__env.globals['reg_get'] = reg.get_val
-__env.globals['route_url'] = router.endpoint_url
+__env.globals['lang'] = lang
 __env.globals['t'] = lang.translate
-__env.globals['meta_tags'] = metatag.dump_all
-__env.globals['asset_url'] = assetman.get_url
-__env.globals['add_js'] = assetman.add_js
-__env.globals['dump_js'] = assetman.dump_js
-__env.globals['add_css'] = assetman.add_css
-__env.globals['dump_css'] = assetman.dump_css
+__env.globals['reg'] = reg
+__env.globals['router'] = router
+__env.globals['metatag'] = metatag
+__env.globals['assetman'] = assetman
 
 
 def register_package(package_name: str, templates_dir: str='tpl'):

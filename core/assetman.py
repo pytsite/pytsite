@@ -68,7 +68,7 @@ def get_url(path: str)->str:
     """Get URL of an asset.
     """
     package_name, asset_path = __split_asset_path_info(path)
-    return router.url('/assets/{0}/{1}'.format(package_name, asset_path), strip_language_part=True)
+    return router.url('/assets/{0}/{1}'.format(package_name, asset_path), strip_lang=True)
 
 
 def compile_assets():

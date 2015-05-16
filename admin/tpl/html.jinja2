@@ -1,11 +1,11 @@
-{% do add_css('pytsite.admin@AdminLTE/css/AdminLTE.min.css') %}
-{% do add_css('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css') %}
-{% do add_js('pytsite.admin@AdminLTE/js/app.min.js') %}
+{% do assetman.add_css('pytsite.admin@AdminLTE/css/AdminLTE.min.css') %}
+{% do assetman.add_css('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css') %}
+{% do assetman.add_js('pytsite.admin@AdminLTE/js/app.min.js') %}
 <!DOCTYPE html>
 <html>
 <head>
-    {{ meta_tags() }}
-    {{ dump_css() }}
+    {{ metatag.dump_all() }}
+    {{ assetman.dump_css() }}
 </head>
 <body class="skin-blue sidebar-mini">
 
@@ -1255,6 +1255,6 @@
     <div class="control-sidebar-bg"></div>
 </div>
 
-{{ dump_js() }}
+{{ assetman.dump_js() }}
 </body>
 </html>

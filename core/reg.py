@@ -1,14 +1,19 @@
+"""Registry.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import yaml
 from abc import ABC, abstractmethod
 from os import path
-import yaml
 from pytsite.core.util import dict_merge
 
 
-class ConfigDriver(ABC):
+class RegistryDriver(ABC):
+    """Abstract registry driver.
+    """
+
     _storage = dict()
 
     @abstractmethod
@@ -35,7 +40,7 @@ class ConfigDriver(ABC):
         return self._storage
 
 
-class MemoryDriver(ConfigDriver):
+class MemoryDriver(RegistryDriver):
     def set_val(self, key: str, value):
         """Set value of the registry.
         """
@@ -107,7 +112,7 @@ class FileDriver(MemoryDriver):
 __current_driver = MemoryDriver()
 
 
-def set_driver(driver: ConfigDriver):
+def set_driver(driver: RegistryDriver):
     """Switch registry driver.
     """
     global __current_driver
