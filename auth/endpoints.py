@@ -3,15 +3,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from werkzeug.utils import escape
-from pytsite.core import view, metatag, lang, router
+from pytsite.core import metatag, lang, router, tpl
 from . import manager
 
 
-def get_login(args: dict, inp: dict)->str:
+def get_login(args: dict, inp: dict) -> str:
     """Get login form.
     """
     metatag.set_tag('title', lang.t('pytsite.auth@authorization'))
-    return view.render_tpl('pytsite.auth@views/login', {'form': manager.get_login_form()})
+    return tpl.render('pytsite.auth@views/login', {'form': manager.get_login_form()})
 
 
 def post_login(args: dict, inp: dict) -> router.RedirectResponse:

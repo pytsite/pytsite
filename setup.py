@@ -15,5 +15,7 @@ setup(
         'webassets',
         'Pillow',
         'python-magic',
+        'htmlmin',
+        'html',
     ]
 )

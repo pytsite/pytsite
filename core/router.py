@@ -4,17 +4,36 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from os import path, makedirs
 from traceback import format_exc
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-from werkzeug.routing import Map, MapAdapter, Rule as _Rule, BuildError
+from werkzeug.routing import Map, Rule as _Rule, BuildError
 from werkzeug.exceptions import HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore
 from importlib import import_module
 from re import sub
+from htmlmin import minify
 from .http.request import Request
 from .http.response import Response, RedirectResponse
 from .http.session import Session
 from . import reg
+
+session_storage_path = reg.get_val('paths.session')
+if not path.exists(session_storage_path):
+    makedirs(session_storage_path, 0o755, True)
+
+__session_store = FilesystemSessionStore(path=session_storage_path, session_class=Session)
+
+__routes = Map()
+
+__url_adapter = None
+""":type : werkzeug.routing.MapAdapter"""
+
+request = None
+""":type : pytsite.core.http.request.Request"""
+
+session = __session_store.new()
+""":type : pytsite.core.http.session.Session"""
 
 
 class Rule(_Rule):
@@ -108,6 +127,8 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = Response(response='', status=200, content_type='text/html')
         response_from_callable = __call_endpoint(rule.endpoint, args)
         if isinstance(response_from_callable, str):
+            if reg.get_val('output.minify'):
+                response_from_callable = minify(response_from_callable, True, True)
             wsgi_response.data = response_from_callable
         elif isinstance(response_from_callable, Response):
             wsgi_response = response_from_callable
@@ -223,17 +244,3 @@ def endpoint_url(endpoint: str, args: dict=None)->str:
         return url(__url_adapter.build(endpoint, args))
     except BuildError:
         raise Exception("Cannot build URL for endpoint '{0}'.".format(endpoint))
-
-
-__session_store = FilesystemSessionStore(path=reg.get_val('paths.tmp'), session_class=Session)
-
-__routes = Map()
-
-__url_adapter = None
-""":type : MapAdapter"""
-
-request = None
-""":type : Request"""
-
-session = __session_store.new()
-""":type : Session"""

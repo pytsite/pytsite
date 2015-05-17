@@ -44,6 +44,7 @@ class Group(odm.models.Model):
     def _setup(self):
         """_setup() hook.
         """
+
         self.define_field(odm.fields.StringField('name', required=True))
         self.define_field(odm.fields.StringField('description'))
         self.define_field(odm.fields.ListField('permissions'))

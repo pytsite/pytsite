@@ -1,4 +1,8 @@
+cleanup_all_console_command_description: 'Очистка всех устаревших файлов'
+cleanup_session_console_command_description: 'Очистка устаревших файлов сессий'
+cleanup_tmp_console_command_description: 'Очистка устаревших временных файлов'
 assetman_console_command_description: 'Компиляция ассетов'
+cron_console_command_description: 'Запуск Cron'
 untitled_document: 'Безымянный Документ'
 error: 'Ошибка :code'
 

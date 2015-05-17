@@ -27,10 +27,11 @@ reg.set_val('paths.app', app_path)
 reg.set_val('paths.static', static_path)
 for n in ['config', 'log', 'storage', 'tmp', 'themes']:
     reg.set_val('paths.' + n, path.join(app_path, n))
+reg.set_val('paths.session', path.join(reg.get_val('paths.tmp'), 'session'))
 
 # Output parameters
 reg.set_val('output', {
-    'minify': False,
+    'minify': True,
     'theme': 'default',
     'compress_css': False,
     'compress_js': False,
@@ -53,11 +54,25 @@ lang.register_package('pytsite.core', 'resources/lang')
 from pytsite.core import tpl
 tpl.register_package('pytsite.core', 'resources/tpl')
 
+# Initializing event subsystem
+from pytsite.core import events
+
+# Initialize console
+from pytsite.core import console
+from pytsite.core.commands.cleanup import *
+console.register_command(CleanupSessionCommand())
+console.register_command(CleanupTmpCommand())
+console.register_command(CleanupAllCommand())
+
+# Initializing cron
+from pytsite.core import cron
+cron.register_console_commands()
+
 # Initializing 'app' package
 import_module('app')
 lang.register_package('app')
 
-# Initializing tha assets manager
+# Initializing asset manager
 from pytsite.core import assetman
 theme = reg.get_val('output.theme')
 templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
@@ -65,8 +80,10 @@ tpl.register_package('app', templates_dir)
 assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
 assetman.register_package('app', assets_dir)
 
-# Loading routes from the registry
+# Initializing router
 from .core import router
+
+# Loading routes from the registry
 for pattern, opts in reg.get_val('routes', {}).items():
     if '_endpoint' not in opts and '_redirect' not in opts:
         raise Exception("'_endpoint' or '_redirect' is not defined for route '{0}'".format(pattern))

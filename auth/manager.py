@@ -9,7 +9,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from pytsite.core import router, forms, odm
 from .errors import *
-from .models import User
+from .models import User, Group
 from .drivers.abstract import AbstractDriver
 
 __driver = None
@@ -117,6 +117,21 @@ def get_user(login: str=None, uid: str=None) -> User:
         return odm.manager.find('user').where('login', '=', login).first()
     if uid:
         return odm.manager.find('user').where('_id', '=', uid).first()
+
+
+def create_group(name: str, description: str=''):
+    if get_group(name=name):
+        raise Exception("Group with name '{0}' already exists.".format(name))
+
+    group = odm.manager.dispense('group', name)
+    return group.f_set('name', name).f_set('description')
+
+
+def get_group(name: str=None, uid=None) -> Group:
+    if name:
+        return odm.manager.find('group').where('name', '=', name).first()
+    if uid:
+        return odm.manager.find('group').where('_id', '=', uid).first()
 
 
 def authorize(user: User)->User:

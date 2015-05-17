@@ -7,14 +7,14 @@ __license__ = 'MIT'
 from . import console, lang, router, logger
 
 
-class ConsoleCommand(console.Command):
+class ConsoleCommand(console.AbstractCommand):
     def get_name(self)->str:
         return 'assetman:build'
 
     def get_description(self)->str:
         return lang.t('pytsite.core@assetman_console_command_description')
 
-    def execute(self, args: dict):
+    def execute(self, **kwargs: dict):
         compile_assets()
 
 

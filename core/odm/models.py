@@ -32,7 +32,7 @@ class Model:
         self.define_field(ObjectIdField('_id'))
         self.define_field(StringField('_model'))
         self.define_field(RefField('_parent'))
-        self.define_field(RefsListField('_children'))
+        self.define_field(RefsListField('_children', model=model_name))
         self.define_field(DateTimeField('_created'))
         self.define_field(DateTimeField('_modified'))
 

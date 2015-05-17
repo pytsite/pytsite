@@ -121,6 +121,7 @@ class ListField(AbstractField):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
+
         super().__init__(name, **kwargs)
         if self._value is None:
             self._value = []
@@ -128,6 +129,7 @@ class ListField(AbstractField):
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
+
         if not isinstance(value, list):
             raise TypeError("List expected")
 
@@ -183,7 +185,14 @@ class RefsListField(AbstractField):
     """List of DBRefs field.
     """
     def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+
         super().__init__(name, **kwargs)
+
+        if not self.get_option('model'):
+            raise Exception('Model must be specified for this type of field.')
+
         if self._value is None:
             self._value = []
 
