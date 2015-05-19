@@ -42,7 +42,7 @@ def mk_tmp_file()->str:
     from tempfile import mkstemp
     from . import reg
 
-    tmp_dir = reg.get_val('paths.tmp')
+    tmp_dir = reg.get('paths.tmp')
     if not tmp_dir:
         raise Exception("Cannot determine temporary directory location.")
 

@@ -63,7 +63,7 @@ def register_package(package_name: str, languages_dir: str='lang')->str:
     __packages[package_name] = {'_path': lng_dir}
 
 
-def translate(msg_id: str, data: dict=None, language: str=None)->str:
+def t(msg_id: str, data: dict=None, language: str=None)->str:
     """Translate a string.
     """
     if not language:
@@ -95,7 +95,7 @@ def translate(msg_id: str, data: dict=None, language: str=None)->str:
     return msg
 
 
-def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
+def t_plural(msg_id: str, num: int=2, language: str=None)->str:
     """Translate a string in plural form.
     """
     if not language:
@@ -104,17 +104,17 @@ def translate_plural(msg_id: str, num: int=2, language: str=None)->str:
     # Language is not cyrillic
     if language not in ['ru', 'uk']:
         if num == 1:
-            return translate(msg_id + '_plural_one')
+            return t(msg_id + '_plural_one')
         else:
-            return translate(msg_id + '_plural_two')
+            return t(msg_id + '_plural_two')
 
     last_digit = int(str(num)[-1])
     if last_digit in [0, 5, 6, 7, 8, 9]:
-        return translate(msg_id + '_plural_zero')
+        return t(msg_id + '_plural_zero')
     elif last_digit in [2, 3, 4]:
-        return translate(msg_id + '_plural_two')
+        return t(msg_id + '_plural_two')
     else:
-        return translate(msg_id + '_plural_one')
+        return t(msg_id + '_plural_one')
 
 
 def transliterate(text: str)->str:
@@ -180,7 +180,3 @@ def _load_file(package_name: str, language: str=None):
     __packages[package_name][language] = content
 
     return content
-
-
-t = translate
-"""Shortcut for translate()."""

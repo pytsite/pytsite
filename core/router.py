@@ -18,7 +18,7 @@ from .http.response import Response, RedirectResponse
 from .http.session import Session
 from . import reg
 
-session_storage_path = reg.get_val('paths.session')
+session_storage_path = reg.get('paths.session')
 if not path.exists(session_storage_path):
     makedirs(session_storage_path, 0o755, True)
 
@@ -49,7 +49,7 @@ class Rule(_Rule):
 
 
 def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: list=None, redirect_to: str=None,
-             filters: list=None):
+             filters: tuple=None):
     """Add a rule to the router.
     """
 
@@ -115,19 +115,28 @@ def dispatch(env: dict, start_response: callable):
         session = __session_store.get(sid)
 
     try:
-        rule, args = __url_adapter.match(return_rule=True)
+        rule, rule_args = __url_adapter.match(return_rule=True)
 
         # Processing rule filters
         for flt in rule.filters:
-            flt_response = __call_endpoint(flt, args)
+            flt_args = rule_args.copy()
+            flt_split = flt.split(':')
+            flt_endpoint = flt_split[0]
+            if len(flt_split) > 1:
+                for flt_arg_str in flt_split[1:]:
+                    flt_arg_str_split = flt_arg_str.split('=')
+                    if len(flt_arg_str_split) == 2:
+                        flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
+
+            flt_response = __call_endpoint(flt_endpoint, flt_args)
             if isinstance(flt_response, RedirectResponse):
                 return flt_response(env, start_response)
 
         # Processing response from handler
         wsgi_response = Response(response='', status=200, content_type='text/html')
-        response_from_callable = __call_endpoint(rule.endpoint, args)
+        response_from_callable = __call_endpoint(rule.endpoint, rule_args)
         if isinstance(response_from_callable, str):
-            if reg.get_val('output.minify'):
+            if reg.get('output.minify'):
                 response_from_callable = minify(response_from_callable, True, True)
             wsgi_response.data = response_from_callable
         elif isinstance(response_from_callable, Response):
@@ -175,7 +184,7 @@ def base_path(language: str=None)->str:
 
 def server_name():
     from . import reg
-    name = reg.get_val('console.server_name', 'localhost')
+    name = reg.get('console.server_name', 'localhost')
     if __url_adapter:
         name = __url_adapter.server_name
 

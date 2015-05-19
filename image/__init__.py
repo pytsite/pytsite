@@ -5,9 +5,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from ..core import odm, router
+from pytsite.core import odm, router
 from .models import Image
 
 odm.manager.register_model('image', Image)
 
-router.add_rule('/image/resize/<width>/<height>/<id>', 'pytsite.image.views.get_resize')
+router.add_rule(
+    '/image/resize/<int:width>/<int:height>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',
+    'pytsite.image.endpoints.get_resize'
+)

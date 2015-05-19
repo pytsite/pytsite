@@ -19,13 +19,26 @@ def listen(event: str, listener: callable):
     __listeners[event].append(listener)
 
 
-def fire(event: str, **kwargs):
+def fire(event: str, **kwargs: dict):
     """Fires an event to listeners.
     """
 
-    print(event)
+    stop_after = kwargs.get('stop_after', 0)
 
     global __listeners
-    if event in __listeners:
-        for handler in __listeners[event].values:
-            handler(**kwargs)
+    if event not in __listeners:
+        return
+
+    count = 0
+    for handler in __listeners[event]:
+        handler(**kwargs)
+        count += 1
+        if stop_after and count >= stop_after:
+            return
+
+
+def first(event: str, **kwargs: dict):
+    """Fires an event and process only one handler.
+    """
+
+    return fire(event, stop_after=1, **kwargs)

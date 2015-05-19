@@ -9,7 +9,14 @@ from pytsite.file import manager as file_manager
 from .models import Image as ImageModel
 
 
-def create(source_path: str, name: str=None, description: str=None)->ImageModel:
+def get_storage_root() -> str:
+    """Get image storage root.
+    """
+
+    return file_manager.get_storage_root('image')
+
+
+def create(source_path: str, name: str=None, description: str=None) -> ImageModel:
     """Create an image from URL or local file.
     """
 
@@ -28,3 +35,10 @@ def create(source_path: str, name: str=None, description: str=None)->ImageModel:
     img_entity.save()
 
     return img_entity
+
+
+def get(uid: str=None, rel_path: str=None) -> ImageModel:
+    """Get image.
+    """
+
+    return file_manager.get(uid, rel_path, 'image')

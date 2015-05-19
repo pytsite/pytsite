@@ -4,6 +4,7 @@ __license__ = 'MIT'
 
 from werkzeug.utils import escape
 from pytsite.core import metatag, lang, router, tpl
+from pytsite.core.http.errors import Forbidden
 from . import manager
 
 
@@ -36,9 +37,17 @@ def filter_authorize(args: dict, inp: dict) -> router.RedirectResponse:
     """Authorization filter.
     """
 
-    # User is currently authorized, nothing to do
-    if manager.get_current_user():
-        return None
+    user = manager.get_current_user()
+
+    # User is currently authorized
+    if user:
+        # Checking requested permissions
+        req_perms_str = args.get('permissions', '')
+        if req_perms_str:
+            for perm in req_perms_str.split(','):
+                if not user.has_permission(perm.strip()):
+                    raise Forbidden()
+        return
 
     # Redirecting to the authorization endpoint
     inp['redirect'] = escape(router.current_url(True))

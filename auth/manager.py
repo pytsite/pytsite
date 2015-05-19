@@ -9,7 +9,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from pytsite.core import router, forms, odm
 from .errors import *
-from .models import User, Group
+from .models import User, Role
 from .drivers.abstract import AbstractDriver
 
 __driver = None
@@ -67,8 +67,16 @@ def get_permissions()->dict:
     """Get all defined permissions.
     """
 
+    global __permissions
     return __permissions
 
+
+def is_permission_defined(name: str) -> bool:
+    """Checks if the permission is defined.
+    """
+
+    global __permissions
+    return name in __permissions
 
 def get_login_form(uid: str=None) -> forms.AbstractForm:
     """Get a login form.
@@ -119,19 +127,19 @@ def get_user(login: str=None, uid: str=None) -> User:
         return odm.manager.find('user').where('_id', '=', uid).first()
 
 
-def create_group(name: str, description: str=''):
-    if get_group(name=name):
-        raise Exception("Group with name '{0}' already exists.".format(name))
+def create_role(name: str, description: str=''):
+    if get_role(name=name):
+        raise Exception("Role with name '{0}' already exists.".format(name))
 
-    group = odm.manager.dispense('group', name)
-    return group.f_set('name', name).f_set('description')
+    role = odm.manager.dispense('role')
+    return role.f_set('name', name).f_set('description', description)
 
 
-def get_group(name: str=None, uid=None) -> Group:
+def get_role(name: str=None, uid=None) -> Role:
     if name:
-        return odm.manager.find('group').where('name', '=', name).first()
+        return odm.manager.find('role').where('name', '=', name).first()
     if uid:
-        return odm.manager.find('group').where('_id', '=', uid).first()
+        return odm.manager.find('role').where('_id', '=', uid).first()
 
 
 def authorize(user: User)->User:

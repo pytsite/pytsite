@@ -14,8 +14,12 @@ from pytsite.core import util, reg, validation, odm
 from .models import File
 
 
-def _create_store_path(mime: str)->str:
-    storage_dir = reg.get_val('paths.storage')
+def get_storage_root(model: str='file') -> str:
+    return path.join(reg.get('paths.storage'), model)
+
+
+def _create_store_path(mime: str, model: str='file')->str:
+    storage_dir = get_storage_root(model)
     store_path = ''
     rnd_str = util.random_str
     extension = guess_extension(mime)
@@ -52,7 +56,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
         source_path = tmp_file[1]
 
     mime = magic.from_file(source_path, True).decode()
-    abs_target_path = _create_store_path(mime)
+    abs_target_path = _create_store_path(mime, model)
 
     target_dir = path.dirname(abs_target_path)
     if not path.exists(target_dir):
@@ -68,7 +72,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
         unlink(source_path)
 
     # Create File entity
-    storage_dir = reg.get_val('paths.storage')
+    storage_dir = reg.get('paths.storage')
     file_entity = odm.manager.dispense(model)
     if not isinstance(file_entity, File):
         raise Exception('File entity expected.')
@@ -79,3 +83,16 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     file_entity.f_set('length', stat(abs_target_path).st_size)
 
     return file_entity.save()
+
+
+def get(uid: str=None, rel_path: str=None, model: str='file') -> File:
+    """Get file.
+    """
+
+    if not uid and not rel_path:
+        raise Exception("Not enough arguments.")
+
+    if uid:
+        return odm.manager.find(model).where('_id', '=', uid).first()
+    elif rel_path:
+        return odm.manager.find(model).where('path', '=', rel_path).first()

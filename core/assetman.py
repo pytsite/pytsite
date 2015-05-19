@@ -80,8 +80,8 @@ def compile_assets():
     from webassets.script import CommandLineEnvironment
     from . import reg, wsgi
 
-    static_dir = reg.get_val('paths.static')
-    debug = reg.get_val('debug.enabled')
+    static_dir = reg.get('paths.static')
+    debug = reg.get('debug.enabled')
 
     if os.path.exists(static_dir):
         rmtree(static_dir)

@@ -24,7 +24,7 @@ def get_client()->__MongoClient:
     }
 
     from pytsite.core import util, reg
-    config = util.dict_merge(default, reg.get_val('db', {}))
+    config = util.dict_merge(default, reg.get('db', {}))
 
     __client = __MongoClient(config['host'], config['port'])
 
@@ -40,7 +40,7 @@ def get_database()->__Database:
         return __database
 
     from pytsite.core import reg
-    __database = get_client().get_database(reg.get_val('db.database', 'test'))
+    __database = get_client().get_database(reg.get('db.database', 'test'))
 
     return __database
 

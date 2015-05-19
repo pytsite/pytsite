@@ -7,10 +7,10 @@ __license__ = 'MIT'
 import pickle
 from os import path, unlink
 from datetime import datetime
-from . import reg, events, console, lang
+from pytsite.core import reg, events, console, lang
 
 
-class Cron(console.AbstractCommand):
+class CronCommand(console.AbstractCommand):
     """Cron command.
     """
     def get_name(self):
@@ -52,13 +52,13 @@ class Cron(console.AbstractCommand):
         """Get descriptor file path.
         """
 
-        return path.join(reg.get_val('paths.storage'), 'cron.data')
+        return path.join(reg.get('paths.storage'), 'cron.data')
 
     def _get_lock_file_path(self) -> str:
         """Get lock file path.
         """
 
-        return path.join(reg.get_val('paths.storage'), 'cron.lock')
+        return path.join(reg.get('paths.storage'), 'cron.lock')
 
     def _lock_file_op(self, op: bool):
         """Operation with lock file.
@@ -103,10 +103,3 @@ class Cron(console.AbstractCommand):
             pickle.dump(data, f)
 
         return data
-
-
-def register_console_commands():
-    """Register console commands.
-    """
-
-    console.register_command(Cron())

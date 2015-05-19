@@ -135,6 +135,28 @@ class ListField(AbstractField):
 
         return super().set_val(value, change_modified)
 
+    def add_val(self, value, change_modified: bool=True, **kwargs):
+        """Add a value to the field.
+        """
+
+        allowed_types = (int, str, float, list, dict, tuple)
+
+        valid = False
+        for t in allowed_types:
+            if isinstance(value, t):
+                valid = True
+                break
+
+        if not valid:
+            raise TypeError("Invalid value type: {}.".format(type(value)))
+
+        self._value.append(value)
+
+        if change_modified:
+            self._modified = True
+
+        return self
+
 
 class DictField(AbstractField):
     """Dictionary field.
@@ -231,6 +253,7 @@ class RefsListField(AbstractField):
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
+
         from .models import Model
         if not isinstance(value, DBRef) and not isinstance(value, Model):
             raise TypeError("DBRef of entity expected.")

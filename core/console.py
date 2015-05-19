@@ -7,6 +7,8 @@ __license__ = 'MIT'
 from abc import ABC, abstractmethod
 from sys import argv, exit
 from re import sub
+from os import path
+from . import reg, lang
 
 __commands = {}
 
@@ -61,7 +63,7 @@ def usage():
     global __commands
     r = ''
     for name, cmd in sorted(__commands.items()):
-        r += "{0}\t{1}\n".format(name, cmd.get_description())
+        r += "{0} -- {1}\n".format(name, cmd.get_description())
 
     return r
 
@@ -84,5 +86,9 @@ def run():
             else:
                 arg_val = arg_split[1]
                 cmd_args[arg_split[0]] = arg_val
+
+    # Check if the setup completed
+    if not path.exists(reg.get('paths.setup.lock')) and argv[1] != 'app:setup':
+        raise Exception(lang.t('pytsite.core@setup_is_not_completed'))
 
     return run_command(argv[1], **cmd_args)

@@ -125,7 +125,7 @@ def set_val(key: str, value):
     __current_driver.set_val(key, value)
 
 
-def get_val(key: str, default=None):
+def get(key: str, default=None):
     """Get registry's value.
     """
     return __current_driver.get_val(key, default)

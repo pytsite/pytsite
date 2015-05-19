@@ -184,7 +184,7 @@ class Model:
         self.get_field(field_name).add_val(self._on_f_add(field_name, value))
         return self
 
-    def _on_f_add(self, field_name: str, value):
+    def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """On field's add value hook.
         """
         return value
@@ -235,7 +235,10 @@ class Model:
             del data['_id']
 
         # Saving data into collection
-        self._collection.save(data)
+        if self.is_new():
+            self._collection.insert_one(data)
+        else:
+            self._collection.replace_one({'_id': data['_id']}, data)
 
         # Getting assigned ID from MongoDB
         if self.is_new():
@@ -244,6 +247,7 @@ class Model:
         # After save hook
         self._after_save()
 
+        # Notifying fields about entity saving
         for f_name, field in self._fields.items():
             field.reset_modified()
 

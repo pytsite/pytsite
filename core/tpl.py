@@ -47,7 +47,7 @@ __env = Environment(loader=TemplateLoader(), extensions=['jinja2.ext.do'])
 
 # Additional functions
 __env.globals['lang'] = lang
-__env.globals['t'] = lang.translate
+__env.globals['t'] = lang.t
 __env.globals['reg'] = reg
 __env.globals['router'] = router
 __env.globals['metatag'] = metatag

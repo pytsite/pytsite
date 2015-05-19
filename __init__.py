@@ -4,9 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from getpass import getuser
-from socket import gethostname
-from importlib import import_module
+
 from os import path, environ
 from .core import reg
 
@@ -14,9 +12,11 @@ if 'PYTSITE_APP_ROOT' not in environ:
     raise Exception("The 'PYTSITE_APP_ROOT' environment variable is not defined.")
 
 # Environment
+from getpass import getuser
+from socket import gethostname
 reg.set_val('env.name', getuser() + '@' + gethostname())
 
-# Filesystem paths
+# Base filesystem paths
 root_path = path.abspath(environ['PYTSITE_APP_ROOT'])
 if not path.exists(root_path) or not path.isdir(root_path):
     raise Exception("{0} is not exists or it is not a directory.")
@@ -27,7 +27,10 @@ reg.set_val('paths.app', app_path)
 reg.set_val('paths.static', static_path)
 for n in ['config', 'log', 'storage', 'tmp', 'themes']:
     reg.set_val('paths.' + n, path.join(app_path, n))
-reg.set_val('paths.session', path.join(reg.get_val('paths.tmp'), 'session'))
+
+# Additional filesystem paths
+reg.set_val('paths.session', path.join(reg.get('paths.tmp'), 'session'))
+reg.set_val('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
 
 # Output parameters
 reg.set_val('output', {
@@ -42,12 +45,12 @@ reg.set_val('output', {
 reg.set_val('debug', {'enabled': False})
 
 # Switching registry to the file driver
-file_driver = reg.FileDriver(reg.get_val('paths.config'), reg.get_val('env.name'))
+file_driver = reg.FileDriver(reg.get('paths.config'), reg.get('env.name'))
 reg.set_driver(file_driver)
 
 # Now it is possible to initialize language subsystem
 from pytsite.core import lang
-lang.define_languages(reg.get_val('lang.languages', ['en']))
+lang.define_languages(reg.get('lang.languages', ['en']))
 lang.register_package('pytsite.core', 'resources/lang')
 
 # Now it possible to initialize template engine
@@ -60,21 +63,21 @@ from pytsite.core import events
 # Initialize console
 from pytsite.core import console
 from pytsite.core.commands.cleanup import *
+from pytsite.core.commands.cron import *
+from pytsite.core.commands.setup import *
 console.register_command(CleanupSessionCommand())
 console.register_command(CleanupTmpCommand())
 console.register_command(CleanupAllCommand())
-
-# Initializing cron
-from pytsite.core import cron
-cron.register_console_commands()
+console.register_command(SetupCommand())
 
 # Initializing 'app' package
+from importlib import import_module
 import_module('app')
 lang.register_package('app')
 
 # Initializing asset manager
 from pytsite.core import assetman
-theme = reg.get_val('output.theme')
+theme = reg.get('output.theme')
 templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
 tpl.register_package('app', templates_dir)
 assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
@@ -84,7 +87,7 @@ assetman.register_package('app', assets_dir)
 from .core import router
 
 # Loading routes from the registry
-for pattern, opts in reg.get_val('routes', {}).items():
+for pattern, opts in reg.get('routes', {}).items():
     if '_endpoint' not in opts and '_redirect' not in opts:
         raise Exception("'_endpoint' or '_redirect' is not defined for route '{0}'".format(pattern))
 

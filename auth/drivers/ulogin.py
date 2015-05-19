@@ -73,7 +73,7 @@ class ULoginDriver(AbstractDriver):
 
         try:
             # User is not exists and its creation is not allowed
-            if not user and not reg.get_val('auth.auto_signup'):
+            if not user and not reg.get('auth.auto_signup'):
                 raise errors.LoginIncorrect()
 
             # Create new user

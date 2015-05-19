@@ -1,11 +1,18 @@
+""" Auth Models.
+"""
+
 import hashlib
 from pytsite.core import odm, util
 
 
 class User(odm.models.Model):
+    """User.
+    """
+
     def _setup(self):
         """_setup() hook.
         """
+
         self.define_field(odm.fields.StringField('login', required=True))
         self.define_field(odm.fields.StringField('email', required=True, validate_email=True))
         self.define_field(odm.fields.StringField('password', required=True))
@@ -14,7 +21,7 @@ class User(odm.models.Model):
         self.define_field(odm.fields.DateTimeField('lastLogin'))
         self.define_field(odm.fields.IntegerField('loginCount'))
         self.define_field(odm.fields.StringField('status', default='active'))
-        self.define_field(odm.fields.ListField('groups'))
+        self.define_field(odm.fields.RefsListField('roles', model='role'))
         self.define_field(odm.fields.IntegerField('gender'))
         self.define_field(odm.fields.StringField('phone'))
         self.define_field(odm.fields.DictField('options'))
@@ -39,8 +46,38 @@ class User(odm.models.Model):
         if not self.f_get('password'):
             self.f_set('password', util.random_password())
 
+    def has_role(self, name: str) -> bool:
+        """Checks if the user has role.
+        """
 
-class Group(odm.models.Model):
+        for role in self.f_get('roles'):
+            if role.f_get('name') == name:
+                return True
+
+        return False
+
+    def has_permission(self, name: str) -> bool:
+        """Checks if the user has permission.
+        """
+
+        from . import manager
+        if not manager.is_permission_defined(name):
+            raise KeyError("Permission '{}' is not defined.".format(name))
+
+        if self.has_role('admin'):
+            return True
+
+        for role in self.f_get('roles'):
+            if name in role.f_get('permissions'):
+                return True
+
+        return False
+
+
+class Role(odm.models.Model):
+    """Role.
+    """
+
     def _setup(self):
         """_setup() hook.
         """
@@ -50,3 +87,12 @@ class Group(odm.models.Model):
         self.define_field(odm.fields.ListField('permissions'))
 
         self.define_index([('name', odm.I_ASC)], unique=True)
+
+    def _on_f_add(self, field_name: str, value, **kwargs: dict):
+        """_on_f_add() hook.
+        """
+
+        if field_name == 'permissions' and not isinstance(value, str):
+            raise TypeError("String expected")
+
+        return value
