@@ -9,7 +9,7 @@ __import__('pytsite.auth')
 
 # Other imports
 from pytsite.core import lang, router, tpl, assetman
-from pytsite.auth import manager as auth
+from pytsite.auth import auth_manager as auth
 
 lang.register_package(__name__)
 tpl.register_package(__name__)

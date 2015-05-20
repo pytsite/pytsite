@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from os import path, makedirs
 from traceback import format_exc
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-from werkzeug.routing import Map, Rule as _Rule, BuildError
+from werkzeug.routing import Map, Rule as _Rule, BuildError, MapAdapter
 from werkzeug.exceptions import HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore
 from importlib import import_module
@@ -26,8 +26,7 @@ __session_store = FilesystemSessionStore(path=session_storage_path, session_clas
 
 __routes = Map()
 
-__url_adapter = None
-""":type : werkzeug.routing.MapAdapter"""
+__url_adapter = __routes.bind(reg.get('server_name', 'localhost'))
 
 request = None
 """:type : pytsite.core.http.request.Request"""
@@ -68,7 +67,7 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: list=Non
     __routes.add(rule)
 
 
-def __call_endpoint(name: str, args: dict=None):
+def call_endpoint(name: str, args: dict=None):
     endpoint = name.split('.')
     if not len(endpoint):
         raise TypeError("Invalid format of endpoint specification: '{0}'".format(name))
@@ -98,7 +97,9 @@ def dispatch(env: dict, start_response: callable):
     from pytsite.core import tpl, metatag, lang
     global __url_adapter, __session_store, request, session
 
+    # Replace url adapter with environment-based
     __url_adapter = __routes.bind_to_environ(env)
+
     request = Request(env)
 
     # Remove trailing slash
@@ -128,13 +129,13 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = __call_endpoint(flt_endpoint, flt_args)
+            flt_response = call_endpoint(flt_endpoint, flt_args)
             if isinstance(flt_response, RedirectResponse):
                 return flt_response(env, start_response)
 
         # Processing response from handler
         wsgi_response = Response(response='', status=200, content_type='text/html')
-        response_from_callable = __call_endpoint(rule.endpoint, rule_args)
+        response_from_callable = call_endpoint(rule.endpoint, rule_args)
         if isinstance(response_from_callable, str):
             if reg.get('output.minify'):
                 response_from_callable = minify(response_from_callable, True, True)
@@ -248,8 +249,6 @@ def current_url(strip_query_string=False):
 def endpoint_url(endpoint: str, args: dict=None)->str:
     """Get URL for endpoint.
     """
+
     global __url_adapter
-    try:
-        return url(__url_adapter.build(endpoint, args))
-    except BuildError:
-        raise Exception("Cannot build URL for endpoint '{0}'.".format(endpoint))
+    return url(__url_adapter.build(endpoint, args))

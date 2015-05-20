@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from PIL import Image
-from pytsite.file import manager as file_manager
+from pytsite.file import file_manager as file_manager
 from .models import Image as ImageModel
 
 

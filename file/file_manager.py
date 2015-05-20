@@ -73,7 +73,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 
     # Create File entity
     storage_dir = reg.get('paths.storage')
-    file_entity = odm.manager.dispense(model)
+    file_entity = odm.odm.dispense(model)
     if not isinstance(file_entity, File):
         raise Exception('File entity expected.')
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
@@ -93,6 +93,6 @@ def get(uid: str=None, rel_path: str=None, model: str='file') -> File:
         raise Exception("Not enough arguments.")
 
     if uid:
-        return odm.manager.find(model).where('_id', '=', uid).first()
+        return odm.odm.find(model).where('_id', '=', uid).first()
     elif rel_path:
-        return odm.manager.find(model).where('path', '=', rel_path).first()
+        return odm.odm.find(model).where('path', '=', rel_path).first()

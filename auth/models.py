@@ -2,10 +2,14 @@
 """
 
 import hashlib
-from pytsite.core import odm, util
+from pytsite.core import util
+from pytsite.core.odm import I_ASC
+from pytsite.core.odm.model import ODMModel
+from pytsite.core.odm.fields import *
+from pytsite.odm_ui.model import UIModelMixin
 
 
-class User(odm.models.Model):
+class User(ODMModel, UIModelMixin):
     """User.
     """
 
@@ -13,28 +17,28 @@ class User(odm.models.Model):
         """_setup() hook.
         """
 
-        self.define_field(odm.fields.StringField('login', required=True))
-        self.define_field(odm.fields.StringField('email', required=True, validate_email=True))
-        self.define_field(odm.fields.StringField('password', required=True))
-        self.define_field(odm.fields.StringField('token', required=True))
-        self.define_field(odm.fields.StringField('fullName'))
-        self.define_field(odm.fields.DateTimeField('lastLogin'))
-        self.define_field(odm.fields.IntegerField('loginCount'))
-        self.define_field(odm.fields.StringField('status', default='active'))
-        self.define_field(odm.fields.RefsListField('roles', model='role'))
-        self.define_field(odm.fields.IntegerField('gender'))
-        self.define_field(odm.fields.StringField('phone'))
-        self.define_field(odm.fields.DictField('options'))
-        self.define_field(odm.fields.RefField('picture'))
+        self.define_field(StringField('login', required=True))
+        self.define_field(StringField('email', required=True, validate_email=True))
+        self.define_field(StringField('password', required=True))
+        self.define_field(StringField('token', required=True))
+        self.define_field(StringField('fullName'))
+        self.define_field(DateTimeField('lastLogin'))
+        self.define_field(IntegerField('loginCount'))
+        self.define_field(StringField('status', default='active'))
+        self.define_field(RefsListField('roles', model='role'))
+        self.define_field(IntegerField('gender'))
+        self.define_field(StringField('phone'))
+        self.define_field(DictField('options'))
+        self.define_field(RefField('picture'))
 
-        self.define_index([('login', odm.I_ASC)], unique=True)
-        self.define_index([('token', odm.I_ASC)], unique=True)
+        self.define_index([('login', I_ASC)], unique=True)
+        self.define_index([('token', I_ASC)], unique=True)
 
     def _on_f_set(self, field_name: str, orig_value, **kwargs):
         """_on_f_set() hook.
         """
         if field_name == 'password':
-            from .manager import password_hash
+            from .auth_manager import password_hash
             orig_value = password_hash(orig_value)
             self.f_set('token', hashlib.md5(util.random_password().encode()).hexdigest())
 
@@ -60,8 +64,8 @@ class User(odm.models.Model):
         """Checks if the user has permission.
         """
 
-        from . import manager
-        if not manager.is_permission_defined(name):
+        from . import auth_manager
+        if not auth_manager.is_permission_defined(name):
             raise KeyError("Permission '{}' is not defined.".format(name))
 
         if self.has_role('admin'):
@@ -74,7 +78,7 @@ class User(odm.models.Model):
         return False
 
 
-class Role(odm.models.Model):
+class Role(ODMModel):
     """Role.
     """
 
@@ -82,11 +86,11 @@ class Role(odm.models.Model):
         """_setup() hook.
         """
 
-        self.define_field(odm.fields.StringField('name', required=True))
-        self.define_field(odm.fields.StringField('description'))
-        self.define_field(odm.fields.ListField('permissions'))
+        self.define_field(StringField('name', required=True))
+        self.define_field(StringField('description'))
+        self.define_field(ListField('permissions'))
 
-        self.define_index([('name', odm.I_ASC)], unique=True)
+        self.define_index([('name', I_ASC)], unique=True)
 
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """_on_f_add() hook.

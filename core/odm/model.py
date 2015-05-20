@@ -13,7 +13,7 @@ from .errors import EntityNotFoundException
 from .fields import *
 
 
-class Model:
+class ODMModel:
     def __init__(self, model_name: str, obj_id=None):
         """Init.
         """
@@ -281,7 +281,7 @@ class Model:
         # Actual deletion from storage
         if not self.is_new():
             self.collection().delete_one({'_id': self.id()})
-            from .manager import cache_delete
+            from .odm import cache_delete
             cache_delete(self)
 
         self._is_deleted = True

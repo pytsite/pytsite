@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from abc import ABC, abstractmethod
 from pytsite.core.router import RedirectResponse
-from pytsite.core.forms import AbstractForm
+from pytsite.core.form import AbstractForm
 
 
 class AbstractDriver(ABC):

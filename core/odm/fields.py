@@ -183,11 +183,11 @@ class RefField(AbstractField):
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        from .models import Model
-        if value and not isinstance(value, DBRef) and not isinstance(value, Model):
+        from .model import ODMModel
+        if value and not isinstance(value, DBRef) and not isinstance(value, ODMModel):
             raise TypeError("Entity or DBRef expected, while {0} given.".format(type(value)))
 
-        if isinstance(value, Model):
+        if isinstance(value, ODMModel):
             value = value.ref()
 
         return super().set_val(value, change_modified)
@@ -196,7 +196,7 @@ class RefField(AbstractField):
         """Get value of the field.
         """
         if isinstance(self._value, DBRef):
-            from .manager import dispense_by_ref
+            from .odm import dispense_by_ref
             referenced_entity = dispense_by_ref(self._value)
             if not referenced_entity:
                 self.set_val(None)  # Updating field's value about missing entity
@@ -226,12 +226,12 @@ class RefsListField(AbstractField):
 
         clean_value = []
         for item in value:
-            from .models import Model
+            from .model import ODMModel
 
-            if not isinstance(item, DBRef) and not isinstance(item, Model):
+            if not isinstance(item, DBRef) and not isinstance(item, ODMModel):
                 raise TypeError("List of DBRefs or entities expected.")
 
-            if isinstance(item, Model):
+            if isinstance(item, ODMModel):
                 clean_value.append(item.ref())
             elif isinstance(item, DBRef):
                 clean_value.append(item)
@@ -243,7 +243,7 @@ class RefsListField(AbstractField):
         """
         r = []
         for ref in self._value:
-            from .manager import dispense_by_ref
+            from .odm import dispense_by_ref
             entity = dispense_by_ref(ref)
             if entity:
                 r.append(entity)
@@ -254,13 +254,13 @@ class RefsListField(AbstractField):
         """Add a value to the field.
         """
 
-        from .models import Model
-        if not isinstance(value, DBRef) and not isinstance(value, Model):
+        from .model import ODMModel
+        if not isinstance(value, DBRef) and not isinstance(value, ODMModel):
             raise TypeError("DBRef of entity expected.")
 
         if isinstance(value, DBRef):
             self._value.append(value)
-        elif isinstance(value, Model):
+        elif isinstance(value, ODMModel):
             self._value.append(value.ref())
 
         if change_modified:

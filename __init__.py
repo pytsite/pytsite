@@ -70,19 +70,6 @@ console.register_command(CleanupTmpCommand())
 console.register_command(CleanupAllCommand())
 console.register_command(SetupCommand())
 
-# Initializing 'app' package
-from importlib import import_module
-import_module('app')
-lang.register_package('app')
-
-# Initializing asset manager
-from pytsite.core import assetman
-theme = reg.get('output.theme')
-templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
-tpl.register_package('app', templates_dir)
-assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
-assetman.register_package('app', assets_dir)
-
 # Initializing router
 from .core import router
 
@@ -109,3 +96,17 @@ for pattern, opts in reg.get('routes', {}).items():
         methods = opts['_methods']
 
     router.add_rule(pattern, endpoint, defaults, methods, redirect)
+
+# Initializing asset manager
+from pytsite.core import assetman
+assetman.register_package('pytsite.core', 'resources/assets')
+
+# Initializing 'app' package
+from importlib import import_module
+import_module('app')
+lang.register_package('app')
+theme = reg.get('output.theme')
+templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
+tpl.register_package('app', templates_dir)
+assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
+assetman.register_package('app', assets_dir)

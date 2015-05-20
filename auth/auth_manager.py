@@ -7,7 +7,7 @@ __license__ = 'MIT'
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from pytsite.core import router, forms, odm
+from pytsite.core import router, form, odm
 from .errors import *
 from .models import User, Role
 from .drivers.abstract import AbstractDriver
@@ -78,7 +78,7 @@ def is_permission_defined(name: str) -> bool:
     global __permissions
     return name in __permissions
 
-def get_login_form(uid: str=None) -> forms.AbstractForm:
+def get_login_form(uid: str=None) -> form.AbstractForm:
     """Get a login form.
     """
 
@@ -108,7 +108,7 @@ def create_user(email: str, login: str=None, password: str=None) -> User:
     if get_user(login=login):
         raise Exception("User with login '{0}' already exists.".format(login))
 
-    user = odm.manager.dispense('user')
+    user = odm.odm.dispense('user')
     user.f_set('login', login).f_set('email', email)
 
     if password:
@@ -122,24 +122,24 @@ def get_user(login: str=None, uid: str=None) -> User:
     """
 
     if login:
-        return odm.manager.find('user').where('login', '=', login).first()
+        return odm.odm.find('user').where('login', '=', login).first()
     if uid:
-        return odm.manager.find('user').where('_id', '=', uid).first()
+        return odm.odm.find('user').where('_id', '=', uid).first()
 
 
 def create_role(name: str, description: str=''):
     if get_role(name=name):
         raise Exception("Role with name '{0}' already exists.".format(name))
 
-    role = odm.manager.dispense('role')
+    role = odm.odm.dispense('role')
     return role.f_set('name', name).f_set('description', description)
 
 
 def get_role(name: str=None, uid=None) -> Role:
     if name:
-        return odm.manager.find('role').where('name', '=', name).first()
+        return odm.odm.find('role').where('name', '=', name).first()
     if uid:
-        return odm.manager.find('role').where('_id', '=', uid).first()
+        return odm.odm.find('role').where('_id', '=', uid).first()
 
 
 def authorize(user: User)->User:

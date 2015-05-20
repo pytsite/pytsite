@@ -6,12 +6,12 @@ __license__ = 'MIT'
 
 
 from pymongo.cursor import Cursor, CursorType
-from .models import Model
+from .model import ODMModel
 from .fields import *
 
 
 class Query:
-    def __init__(self, model: Model):
+    def __init__(self, model: ODMModel):
         self._model = model
         self._criteria = dict()
 
@@ -76,14 +76,14 @@ class Result:
         return self
 
     def __next__(self):
-        from .manager import dispense
+        from .odm import dispense
         doc = next(self._cursor)
         return dispense(self._model_name, doc['_id'])
 
 
 class Finder:
     def __init__(self, model_name: str):
-        from .manager import dispense
+        from .odm import dispense
 
         self._model_name = model_name
         self._model = dispense(model_name)
@@ -136,7 +136,7 @@ class Finder:
 
         return Result(self._model_name, cursor)
 
-    def first(self)->Model:
+    def first(self)->ODMModel:
         """Execute the query and return a first result.
         """
         result = list(self.get(1))

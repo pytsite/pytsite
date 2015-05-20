@@ -10,7 +10,7 @@ from PIL import Image
 from pytsite.core import reg
 from pytsite.core.http.response import RedirectResponse
 from pytsite.core.http.errors import NotFound
-from . import manager
+from . import image_manager
 
 
 def get_resize(args: dict, inp: dict) -> RedirectResponse:
@@ -18,12 +18,12 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
     height = args['height']
     file_path = path.join(args['p1'], args['p2'], args['filename'])
 
-    image_entity = manager.get(rel_path=file_path)
+    image_entity = image_manager.get(rel_path=file_path)
     if not image_entity:
         raise NotFound()
 
     source_path = image_entity.f_get('path')
-    source_abs_path = path.join(manager.get_storage_root(), source_path)
+    source_abs_path = path.join(image_manager.get_storage_root(), source_path)
 
     if not path.exists(source_abs_path):
         return RedirectResponse('http://placehold.it/{}x{}'.format(width, height))

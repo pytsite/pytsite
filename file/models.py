@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from ..core import odm
 
 
-class File(odm.models.Model):
+class File(odm.model.ODMModel):
     """File Model.
     """
 

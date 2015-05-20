@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC, abstractmethod
-from .widgets import AbstractWidget
+from .widget.abstract import AbstractWidget
 from .validation import Validator, Rule
 
 
@@ -133,9 +133,9 @@ class AbstractForm(ABC):
         """
         css_class = ''
         if self._classes:
-            css_class = 'class="{0}"'.format(' '.join(self._classes))
+            css_class = 'class="{}"'.format(' '.join(self._classes))
 
-        r = '<form action="{0}" {1} id="{2}" name="{3}">\n'.format(self.action, css_class, self._uid, self._name)
+        r = '<form action="{}" {} id="{}" name="{}">\n'.format(self.action, css_class, self._uid, self._name)
 
         return r
 

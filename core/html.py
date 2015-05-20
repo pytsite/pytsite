@@ -6,7 +6,7 @@ from abc import ABC
 
 _common_tag_attrs = (
     'accesskey',
-    'class',
+    'class_',
     'contenteditable',
     'contextmenu',
     'dir',
@@ -27,7 +27,7 @@ class ElementAttrs(dict):
     def __str__(self):
         r = ''
         for k, v in self.items():
-            r += ' {0}="{1}"'.format(k, v)
+            r += ' {0}="{1}"'.format(str(k).rstrip('_'), str(v).strip())
         return r
 
 
@@ -85,6 +85,8 @@ class Element(ABC):
 
         self._children.append(self._validate_child(child))
 
+        return self
+
     def _validate_attr(self, attr: str, value: str) -> str:
         return value
 
@@ -100,22 +102,26 @@ class Element(ABC):
     def _get_valid_children(self) -> tuple:
         return ()
 
-    def __str__(self):
-        r = "<{0}{1}>".format(self._tag_name, self._attrs)
-        if self._content:
-            r += self._content
+    def render(self) -> str:
+        r = "<{}{}>".format(self._tag_name, self._attrs)
         if self._children:
             for child in self._children:
                 r += str(child)
-        r += "</{0}>".format(self._tag_name)
+        if self._content:
+            r += self._content
+        r += "</{}>".format(self._tag_name)
+
         return r
+
+    def __str__(self) -> str:
+        return self.render()
 
 
 class SingleTagElement(Element):
     def _validate_child(self, child):
         raise ValueError("'{0}' element cannot contain children.".format(self._tag_name))
 
-    def __str__(self):
+    def render(self) -> str:
         return "<{0}{1}>".format(self._tag_name, self._attrs)
 
 
@@ -147,6 +153,9 @@ class I(Span):
 
 class A(Span):
     def _get_required_attrs(self):
+        return 'href',
+
+    def _get_valid_attrs(self):
         return 'href',
 
 
@@ -217,7 +226,7 @@ class TFoot(BlockElement):
 
 class Tr(BlockElement):
     def _get_valid_children(self):
-        return 'td',
+        return 'td', 'th'
 
 
 class Td(BlockElement):
@@ -237,7 +246,8 @@ class Form(BlockElement):
 
 
 class Input(InlineElement, SingleTagElement):
-    pass
+    def _get_valid_attrs(self) -> tuple:
+        return 'name', 'type', 'value', 'placeholder'
 
 
 class TextArea(BlockElement):

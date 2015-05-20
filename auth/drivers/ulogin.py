@@ -7,20 +7,22 @@ __license__ = 'MIT'
 import json
 from urllib.parse import urlencode
 from urllib.request import urlopen
-from pytsite.core import widgets, tpl, forms, router, reg, lang
-from pytsite.image import manager as image_manager
-from .. import manager as auth_manager, errors
+from pytsite.core import tpl, form, router, reg, lang
+from pytsite.core.widget.abstract import AbstractWidget
+from pytsite.core.widget.hidden_input import HiddenInputWidget
+from pytsite.image import image_manager as image_manager
+from .. import auth_manager, errors
 from .abstract import AbstractDriver
 
 
-class LoginWidget(widgets.AbstractWidget):
+class LoginWidget(AbstractWidget):
     """ULogin Widget.
     """
 
-    def __init__(self, uid: str, **kwargs: dict):
+    def __init__(self, **kwargs: dict):
         """Init.
         """
-        super().__init__(uid, **kwargs)
+        super().__init__()
         self._redirect_url = kwargs.get('redirect_url', '')
 
     def render(self)->str:
@@ -29,7 +31,7 @@ class LoginWidget(widgets.AbstractWidget):
         return tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
 
 
-class LoginForm(forms.AbstractForm):
+class LoginForm(form.AbstractForm):
     """ULogin Login Form.
     """
 
@@ -37,18 +39,18 @@ class LoginForm(forms.AbstractForm):
         """_setup() hook.
         """
 
-        self._add_widget(widgets.HiddenInput(uid=self.uid + '-token', name='token'))
+        self._add_widget(HiddenInputWidget(uid=self.uid + '-token', name='token'))
         for k, v in router.request.values.items():
-            self._add_widget(widgets.HiddenInput(uid=self.uid + '-' + k, name=k, value=v))
+            self._add_widget(HiddenInputWidget(uid=self.uid + '-' + k, name=k, value=v))
 
-        self._add_widget(LoginWidget('ulogin-widget'))
+        self._add_widget(LoginWidget())
 
 
 class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
 
-    def get_login_form(self, uid: str) -> forms.AbstractForm:
+    def get_login_form(self, uid: str) -> form.AbstractForm:
         """Get the login form.
         """
 

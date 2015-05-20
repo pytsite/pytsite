@@ -46,6 +46,7 @@ __env = Environment(loader=TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
 # Additional functions
+__env.globals['import'] = import_module
 __env.globals['lang'] = lang
 __env.globals['t'] = lang.t
 __env.globals['reg'] = reg
