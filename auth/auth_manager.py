@@ -9,7 +9,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from pytsite.core import router, form, odm
 from .errors import *
-from .models import User, Role
+from .models import User, Role, AnonymousUser
 from .drivers.abstract import AbstractDriver
 
 __driver = None
@@ -166,12 +166,12 @@ def get_current_user() -> User:
 
     login = router.session.get('pytsite.auth.login')
     if not login:
-        return None
+        return AnonymousUser()
 
     try:
         user = get_user(login=login)
         if not user:
-            return None
+            return AnonymousUser()
 
         return authorize(user)
 

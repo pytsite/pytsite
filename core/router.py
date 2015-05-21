@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from os import path, makedirs
 from traceback import format_exc
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-from werkzeug.routing import Map, Rule as _Rule, BuildError, MapAdapter
+from werkzeug.routing import Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore
 from importlib import import_module
@@ -16,7 +16,8 @@ from htmlmin import minify
 from .http.request import Request
 from .http.response import Response, RedirectResponse
 from .http.session import Session
-from . import reg
+from .http.errors import NotFound
+from . import reg, logger
 
 session_storage_path = reg.get('paths.session')
 if not path.exists(session_storage_path):
@@ -75,20 +76,17 @@ def call_endpoint(name: str, args: dict=None):
     module_name = '.'.join(endpoint[0:len(endpoint)-1])
     callable_name = endpoint[-1]
 
-    try:
-        module = import_module(module_name)
-        if callable_name not in dir(module):
-            raise Exception("Callable {0} doesn't exists in module {1}.".format(callable_name, module_name))
+    module = import_module(module_name)
+    if callable_name not in dir(module):
+        logger.error("Callable '{}.{}' is not found.".format(module_name, callable_name))
+        raise NotFound()
 
-        callable_obj = getattr(module, callable_name)
-        if not hasattr(callable_obj, '__call__'):
-            raise Exception("'{0}' is not callable".format(callable_name))
+    callable_obj = getattr(module, callable_name)
+    if not hasattr(callable_obj, '__call__'):
+        logger.error("'{}.{}' is not callable".format(module_name, callable_name))
+        raise NotFound()
 
-        return callable_obj(args, request.values.to_dict())
-
-    except ImportError as e:
-        e.msg = "Cannot load module '{0}' specified in endpoint '{1}': {2}.".format(module_name, endpoint, e.msg)
-        raise e
+    return callable_obj(args, request.values.to_dict())
 
 
 def dispatch(env: dict, start_response: callable):
@@ -160,6 +158,7 @@ def dispatch(env: dict, start_response: callable):
     except Exception as e:
         metatag.set_tag('title', lang.t('pytsite.core@error', {'code': 500}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
+        logger.error(str(e))
         return Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 

@@ -27,8 +27,8 @@ class JSONResponse(Response):
     """JSON HTTP response.
     """
 
-    def __init__(self, content):
+    def __init__(self, content, status: int=200):
         """Init.
         """
 
-        super().__init__(json.dumps(content), content_type='application/json')
+        super().__init__(json.dumps(content), content_type='application/json', status=status)

@@ -42,12 +42,20 @@ def register_package(package_name: str, assets_dir: str='assets', languages_dir=
     }
 
 
+def add_link(path: str, collection: str):
+    if collection not in _links:
+        _links[collection] = []
+
+    if path not in _links[collection]:
+        _links[collection].append(path)
+
+
 def add_js(path: str):
-    _links['js'].append(path)
+    add_link(path, 'js')
 
 
 def add_css(path: str):
-    _links['css'].append(path)
+    add_link(path, 'css')
 
 
 def dump_js():

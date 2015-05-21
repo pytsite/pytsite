@@ -10,8 +10,7 @@ __import__('pytsite.jquery')
 from pytsite.core import router, assetman
 
 
-router.add_rule('/js_api/get/<string:endpoint>', 'pytsite.core.js_api.endpoints.request', methods=['GET'])
-router.add_rule('/js_api/post/<string:endpoint>', 'pytsite.core.js_api.endpoints.request', methods=['POST'])
+router.add_rule('/js_api/<string:endpoint>', 'pytsite.js_api.endpoints.request', methods=['GET', 'POST'])
 
 assetman.register_package(__name__)
 assetman.add_js('pytsite.js_api@js/common.js')

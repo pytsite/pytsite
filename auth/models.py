@@ -100,3 +100,12 @@ class Role(ODMModel):
             raise TypeError("String expected")
 
         return value
+
+
+class AnonymousUser(User):
+    def _setup(self):
+        super()._setup()
+        self.f_set('login', '__anonymous')
+
+    def _pre_save(self):
+        raise Exception('Anonymous user cannot be saved.')

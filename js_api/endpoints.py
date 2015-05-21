@@ -6,11 +6,14 @@ __license__ = 'MIT'
 
 from pytsite.core import router
 from pytsite.core.http.response import JSONResponse
-from pytsite.core.http.errors import NotFound
+from pytsite.core import logger
 
 
 def request(args: dict, inp: dict) -> JSONResponse:
     try:
-        router.call_endpoint(args.get('endpoint'))
+        return JSONResponse(router.call_endpoint(args.get('endpoint')))
     except ImportError:
-        raise NotFound()
+        return JSONResponse({'error': 'Not Found'}, status=404)
+    except Exception as e:
+        logger.error(str(e))
+        return JSONResponse({'error': str(e)}, status=500)
