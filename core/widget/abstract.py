@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 
 from abc import ABC, abstractmethod
-from pytsite.core.util import random_str
+from pytsite.core.util import random_str, dict_sort
 
 
 class AbstractWidget(ABC):
@@ -30,16 +30,15 @@ class AbstractWidget(ABC):
         self._label = kwargs.get('label')
         self._title = kwargs.get('title')
         self._placeholder = kwargs.get('placeholder')
-        self._classes = kwargs.get('classes', ())
+        self._cls = kwargs.get('cls', '')
         self._help = kwargs.get('help')
-        self._children = []
+        self._children = {}
 
     def add_child(self, widget, weight: int=0):
         """Add a child widget.
         """
 
-        self._children.append((widget, weight))
-
+        self._children[widget.name] = {'widget': widget, 'weight': weight}
         return self
 
     @property
@@ -47,7 +46,10 @@ class AbstractWidget(ABC):
         """Get children widgets.
         """
 
-        return self._children
+        r = []
+        for k, v in dict_sort(self._children).items():
+            r.append(v['widget'])
+        return r
 
     @abstractmethod
     def render(self) -> str:
@@ -106,21 +108,11 @@ class AbstractWidget(ABC):
         return self._placeholder
 
     @property
-    def classes(self):
+    def cls(self):
         """Get CSS classes of the widget.
         """
 
-        return self._classes
-
-    @classes.setter
-    def classes(self, classes: tuple):
-        """Set CSS classes of the widget.
-        """
-
-        if not isinstance(classes, tuple):
-            raise TypeError('Tuple expected')
-
-        self._classes = classes
+        return self._cls
 
     @property
     def help(self):

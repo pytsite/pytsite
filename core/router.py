@@ -237,6 +237,9 @@ def url(url: str, lang: str=None, strip_lang=False, query: dict=None) -> str:
 def current_url(strip_query_string=False):
     """Get current URL.
     """
+    if not request:
+        return 'http://' + reg.get('server_name')
+
     r = request.url
     if strip_query_string:
         r = urlparse(r)

@@ -15,8 +15,8 @@ lang.register_package(__name__)
 
 # ODM models
 from . import models
-odm.odm.register_model('user', models.User)
-odm.odm.register_model('role', models.Role)
+odm.odm_manager.register_model('user', models.User)
+odm.odm_manager.register_model('role', models.Role)
 
 # Routes
 router.add_rule('/auth/login', __name__ + '.endpoints.get_login', {}, ['GET'])
@@ -33,4 +33,5 @@ from .event_handlers import app_setup
 events.listen('app.setup', app_setup)
 
 # Permissions
-auth_manager.define_permission('admin', 'pytsite.auth@admin_permission_description')
+auth_manager.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
+auth_manager.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')

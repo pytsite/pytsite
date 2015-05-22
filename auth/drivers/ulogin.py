@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 from pytsite.core import tpl, form, router, reg, lang
 from pytsite.core.widget.abstract import AbstractWidget
-from pytsite.core.widget.hidden_input import HiddenInputWidget
+from pytsite.core.widget.input import HiddenInputWidget
 from pytsite.image import image_manager as image_manager
 from .. import auth_manager, errors
 from .abstract import AbstractDriver
@@ -39,11 +39,11 @@ class LoginForm(form.AbstractForm):
         """_setup() hook.
         """
 
-        self._add_widget(HiddenInputWidget(uid=self.uid + '-token', name='token'))
+        self.add_widget(HiddenInputWidget(uid=self.uid + '-token', name='token'))
         for k, v in router.request.values.items():
-            self._add_widget(HiddenInputWidget(uid=self.uid + '-' + k, name=k, value=v))
+            self.add_widget(HiddenInputWidget(uid=self.uid + '-' + k, name=k, value=v))
 
-        self._add_widget(LoginWidget())
+        self.add_widget(LoginWidget())
 
 
 class ULoginDriver(AbstractDriver):

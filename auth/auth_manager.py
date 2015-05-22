@@ -9,11 +9,13 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from pytsite.core import router, form, odm
 from .errors import *
-from .models import User, Role, AnonymousUser
+from .models import User, Role
 from .drivers.abstract import AbstractDriver
 
 __driver = None
+__permission_groups = {}
 __permissions = {}
+__anonymous_user = None
 
 
 def password_hash(secret: str)->str:
@@ -45,29 +47,39 @@ def get_driver()->AbstractDriver:
     """Get current driver.
     """
 
-    global __driver
     if not __driver:
         raise Exception("No driver selected.")
 
     return __driver
 
 
-def define_permission(name: str, description: str=None):
+def define_permission_group(name: str, description: str):
+    """Define permission group.
+    """
+
+    if name in __permission_groups:
+        raise KeyError("Permission group '{}' is already defined.".format(name))
+
+    __permission_groups[name] = description
+
+
+def define_permission(name: str, description: str=None, group: str='misc'):
     """Define permission.
     """
 
-    global __permissions
-    if name in __permissions:
-        raise ValueError("Permission '{0}' already defined.")
+    if group not in __permission_groups:
+        raise KeyError("Permission group '{}' is not defined.".format(group))
 
-    __permissions[name] = description
+    if name in __permissions:
+        raise ValueError("Permission '{0}' is already defined.".format(name))
+
+    __permissions[name] = description, group
 
 
 def get_permissions()->dict:
     """Get all defined permissions.
     """
 
-    global __permissions
     return __permissions
 
 
@@ -75,8 +87,8 @@ def is_permission_defined(name: str) -> bool:
     """Checks if the permission is defined.
     """
 
-    global __permissions
     return name in __permissions
+
 
 def get_login_form(uid: str=None) -> form.AbstractForm:
     """Get a login form.
@@ -108,7 +120,7 @@ def create_user(email: str, login: str=None, password: str=None) -> User:
     if get_user(login=login):
         raise Exception("User with login '{0}' already exists.".format(login))
 
-    user = odm.odm.dispense('user')
+    user = odm.odm_manager.dispense('user')
     user.f_set('login', login).f_set('email', email)
 
     if password:
@@ -122,24 +134,24 @@ def get_user(login: str=None, uid: str=None) -> User:
     """
 
     if login:
-        return odm.odm.find('user').where('login', '=', login).first()
+        return odm.odm_manager.find('user').where('login', '=', login).first()
     if uid:
-        return odm.odm.find('user').where('_id', '=', uid).first()
+        return odm.odm_manager.find('user').where('_id', '=', uid).first()
 
 
 def create_role(name: str, description: str=''):
     if get_role(name=name):
         raise Exception("Role with name '{0}' already exists.".format(name))
 
-    role = odm.odm.dispense('role')
+    role = odm.odm_manager.dispense('role')
     return role.f_set('name', name).f_set('description', description)
 
 
 def get_role(name: str=None, uid=None) -> Role:
     if name:
-        return odm.odm.find('role').where('name', '=', name).first()
+        return odm.odm_manager.find('role').where('name', '=', name).first()
     if uid:
-        return odm.odm.find('role').where('_id', '=', uid).first()
+        return odm.odm_manager.find('role').where('_id', '=', uid).first()
 
 
 def authorize(user: User)->User:
@@ -160,23 +172,34 @@ def authorize(user: User)->User:
     return user
 
 
+def get_anonymous_user() -> User:
+    """Get anonymous user.
+    """
+
+    global __anonymous_user
+    if not __anonymous_user:
+        __anonymous_user = create_user('__anonymous@nowhere.com', '__anonymous')
+
+    return __anonymous_user
+
+
 def get_current_user() -> User:
     """Get currently authorized user.
     """
 
     login = router.session.get('pytsite.auth.login')
     if not login:
-        return AnonymousUser()
+        return get_anonymous_user()
 
     try:
         user = get_user(login=login)
         if not user:
-            return AnonymousUser()
+            return get_anonymous_user()
 
         return authorize(user)
 
     except LoginIncorrect:
-        return None
+        return get_anonymous_user()
 
 
 def logout_current_user():

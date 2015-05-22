@@ -9,7 +9,7 @@ __import__('pytsite.auth')
 
 # Other imports
 from pytsite.core import lang, router, tpl, assetman
-from pytsite.auth import auth_manager as auth
+from pytsite.auth import auth_manager
 
 lang.register_package(__name__)
 tpl.register_package(__name__)
@@ -20,4 +20,5 @@ admin_route_filters = (
 )
 router.add_rule('/admin', __name__ + '.endpoints.dashboard', filters=admin_route_filters)
 
-auth.define_permission('admin.use', lang.t('pytsite.admin@use_admin_panel'))
+auth_manager.define_permission_group('admin', 'pytsite.admin@admin')
+auth_manager.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')

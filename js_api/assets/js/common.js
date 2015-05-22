@@ -1,6 +1,6 @@
 pytsite.js_api = {
     request: function(method, endpoint, data) {
-        $.ajax({
+        var response = $.ajax({
             url: '/js_api/' + endpoint,
             async: false,
             method: method,
@@ -8,9 +8,9 @@ pytsite.js_api = {
         })
     },
     get: function(endpoint, data) {
-        pytsite.js_api.request('GET', endpoint, data)
+        return pytsite.js_api.request('GET', endpoint, data)
     },
     post: function(endpoint, data) {
-        pytsite.js_api.request('POST', endpoint, data)
+        return pytsite.js_api.request('POST', endpoint, data)
     }
 };

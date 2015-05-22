@@ -281,7 +281,7 @@ class ODMModel:
         # Actual deletion from storage
         if not self.is_new():
             self.collection().delete_one({'_id': self.id()})
-            from .odm import cache_delete
+            from .odm_manager import cache_delete
             cache_delete(self)
 
         self._is_deleted = True

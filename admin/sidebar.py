@@ -73,26 +73,26 @@ def render() -> str:
 
     global __sections
 
-    aside_em = Aside(class_='main-sidebar')
-    sidebar_section_em = Section(class_='sidebar')
+    aside_em = Aside(cls='main-sidebar')
+    sidebar_section_em = Section(cls='sidebar')
     aside_em.append(sidebar_section_em)
 
-    root_menu_ul = Ul(class_='sidebar-menu')
+    root_menu_ul = Ul(cls='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
     for section_uid, section in dict_sort(__sections).items():
-        root_menu_ul.append(Li(section['title'], class_='header'))
+        root_menu_ul.append(Li(section['title'], cls='header'))
         for section_menu_uid, section_menu in dict_sort(section['menus']).items():
             if section_menu['children']:
                 pass
             else:
                 a = A(href=section_menu['href'])
                 if section_menu['icon']:
-                    a.append(I(class_=section_menu['icon']))
+                    a.append(I(cls=section_menu['icon']))
                 a.append(Span(section_menu['title']))
                 if section_menu['label']:
                     label_class = 'label pull-right label-' + section_menu['label_class']
-                    a.append(Span(section_menu['label'], class_=label_class))
+                    a.append(Span(section_menu['label'], cls=label_class))
 
                 root_menu_ul.append(Li().append(a))
 

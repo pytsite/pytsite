@@ -28,7 +28,7 @@ class Pager:
             end_visible_page = self._total_pages
             start_visible_page = end_visible_page - self._visible_pages
 
-        ul = Ul(class_='pagination')
+        ul = Ul(cls='pagination')
         for page_num in range(start_visible_page, end_visible_page):
             href = url(current_url(), query={'page': page_num})
 
@@ -42,9 +42,19 @@ class Pager:
         return ul.render()
 
     @property
-    def offset(self):
+    def skip(self):
+        if self._current_page == 1:
+            return 0
         return self._current_page * self._items_per_page
 
     @property
-    def per_page(self):
-        return self.per_page
+    def limit(self):
+        return self._items_per_page
+
+    @property
+    def total_items(self):
+        return self._total_items
+
+    @property
+    def total_pages(self):
+        return self._total_pages

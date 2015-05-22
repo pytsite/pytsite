@@ -12,7 +12,24 @@
 <div class="wrapper">
     {% include 'pytsite.admin@header' %}
     {% include 'pytsite.admin@sidebar' %}
-    {% include 'pytsite.admin@content' %}
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1>
+                {{ metatag.get_tag('title') }}
+                <small>{{ metatag.get_tag('description') }}</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+                <li class="active">Here</li>
+            </ol>
+        </section>
+
+        <section class="content">
+            {% block content %}{% endblock %}
+        </section>
+    </div>
+
     {% include 'pytsite.admin@footer' %}
     {% include 'pytsite.admin@control_sidebar' %}
 

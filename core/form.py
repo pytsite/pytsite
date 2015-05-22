@@ -7,6 +7,7 @@ __license__ = 'MIT'
 from abc import ABC, abstractmethod
 from .widget.abstract import AbstractWidget
 from .validation import Validator, Rule
+from .html import Div
 
 
 class AbstractForm(ABC):
@@ -21,6 +22,7 @@ class AbstractForm(ABC):
         self._legend = kwargs.get('legend', '')
         self._classes = kwargs.get('classes', '')
 
+        self._areas = {'header': [], 'body': [], 'footer': []}
         self._widgets = {}
         self._validator = Validator()
 
@@ -33,7 +35,7 @@ class AbstractForm(ABC):
     def _setup(self):
         """_setup() hook.
         """
-        pass
+        raise NotImplementedError()
 
     @property
     def uid(self) -> str:
@@ -48,7 +50,7 @@ class AbstractForm(ABC):
         return self._action
 
     @action.setter
-    def action(self, val) -> None:
+    def action(self, val):
         self._action = val
 
     @property
@@ -62,8 +64,6 @@ class AbstractForm(ABC):
     def fill(self, values: dict):
         """Fill form's widgets with values.
         """
-        if not isinstance(values, dict):
-            raise TypeError('Dict expected.')
 
         for field_name, field_value in values.items():
             if self._has_widget(field_name):
@@ -77,6 +77,7 @@ class AbstractForm(ABC):
     def add_rule(self, widget_id: str, rule: Rule):
         """Add a rule to the validator.
         """
+
         if widget_id not in self._widgets:
             raise KeyError("Widget '{0}' is not exists.".format(widget_id))
 
@@ -84,9 +85,10 @@ class AbstractForm(ABC):
 
         return self
 
-    def validate(self):
+    def validate(self) -> bool:
         """Validate the form.
         """
+
         return self._validator.validate()
 
     @property
@@ -95,51 +97,72 @@ class AbstractForm(ABC):
         """
         return self._validator.messages
 
-    def render(self)->str:
+    def render(self) -> str:
         """Render the form.
         """
-        header = self._render_header()
-        footer = self._render_footer()
-        body = []
-        for widget_data in sorted(self._widgets.items(), key=lambda item: item[1][1]):
-            body.append(widget_data[1][0].render())
 
-        return header + '\n'.join(body) + '\n' + footer
+        body = ''
+        for area in ['header', 'body', 'footer']:
+            rendered_area = self._render_widgets(area)
+            body += rendered_area
 
-    def _add_widget(self, widget: AbstractWidget, weight: int=0):
+        return self._render_header() + body + self._render_footer()
+
+    def add_widget(self, widget: AbstractWidget, weight: int=0, area: str='body'):
         """Add a widget.
         """
+
         uid = widget.uid
         if uid in self._widgets:
             raise KeyError("Widget '{0}' already exists.".format(uid))
 
         self._widgets[uid] = (widget, weight)
+        self._areas[area].append(uid)
 
         return self
 
-    def _has_widget(self, uid: str)->bool:
+    def _has_widget(self, uid: str) -> bool:
+
         return uid in self._widgets
 
-    def _get_widget(self, uid: str)->AbstractWidget:
+    def _get_widget(self, uid: str) -> AbstractWidget:
         """Get a widget.
         """
+
         if not self._has_widget(uid):
             raise KeyError("Widget '{0}' is not exists.".format(uid))
 
         return self._widgets[uid][0]
 
-    def _render_header(self):
+    def _render_header(self) -> str:
         """Render the header of the form.
         """
+
         css_class = ''
         if self._classes:
             css_class = 'class="{}"'.format(' '.join(self._classes))
 
         r = '<form action="{}" {} id="{}" name="{}">\n'.format(self.action, css_class, self._uid, self._name)
 
-        return r
+        return r + '\n'
 
-    def _render_footer(self)->str:
+    def _render_widgets(self, area: str) -> str:
+
+        widgets_to_render = {}
+        for widget_uid in self._areas[area]:
+            widgets_to_render[widget_uid] = self._widgets[widget_uid]
+
+        rendered_widgets = []
+        for widget_data in sorted(widgets_to_render.items(), key=lambda item: item[1][1]):
+            rendered_widgets.append(widget_data[1][0].render())
+
+        if not rendered_widgets:
+            return ''
+
+        return Div('\n'.join(rendered_widgets) + '\n', cls='box-' + area).render()
+
+    def _render_footer(self) -> str:
         """Render form's footer.
         """
+
         return '</form>\n'

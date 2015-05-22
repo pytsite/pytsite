@@ -6,7 +6,7 @@ from abc import ABC
 
 _common_tag_attrs = (
     'accesskey',
-    'class_',
+    'cls',
     'contenteditable',
     'contextmenu',
     'dir',
@@ -27,7 +27,14 @@ class ElementAttrs(dict):
     def __str__(self):
         r = ''
         for k, v in self.items():
-            r += ' {0}="{1}"'.format(str(k).rstrip('_'), str(v).strip())
+            v = v.strip()
+
+            if k == 'cls':
+                k = 'class'
+
+            if v:
+                r += ' {0}="{1}"'.format(k, v)
+
         return r
 
 
@@ -108,6 +115,8 @@ class Element(ABC):
             for child in self._children:
                 r += str(child)
         if self._content:
+            if self._children:
+                r += '&nbsp;'
             r += self._content
         r += "</{}>".format(self._tag_name)
 
@@ -126,7 +135,8 @@ class SingleTagElement(Element):
 
 
 class InlineElement(Element):
-    pass
+    def _get_valid_children(self):
+        return 'any_inline'
 
 
 class BlockElement(Element):
@@ -135,8 +145,7 @@ class BlockElement(Element):
 
 
 class Span(InlineElement):
-    def _get_valid_children(self):
-        return 'any_inline'
+    pass
 
 
 class B(Span):
@@ -149,6 +158,14 @@ class Strong(B):
 
 class I(Span):
     pass
+
+
+class Button(Span):
+    def _get_valid_attrs(self) -> tuple:
+        return 'type',
+
+    def _get_required_attrs(self):
+        return 'type',
 
 
 class A(Span):
@@ -234,7 +251,7 @@ class Td(BlockElement):
         return 'colspan', 'rowspan'
 
     def _get_valid_children(self):
-        return ()
+        return 'any'
 
 
 class Th(Td):
@@ -255,7 +272,7 @@ class TextArea(BlockElement):
 
 
 class Label(InlineElement):
-    def _get_required_attrs(self):
+    def _get_valid_attrs(self) -> tuple:
         return 'for',
 
 

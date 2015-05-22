@@ -6,10 +6,10 @@ from pytsite.core import util
 from pytsite.core.odm import I_ASC
 from pytsite.core.odm.model import ODMModel
 from pytsite.core.odm.fields import *
-from pytsite.odm_ui.model import UIModelMixin
+from pytsite.odm_ui.model import ODMUIModel
 
 
-class User(ODMModel, UIModelMixin):
+class User(ODMModel, ODMUIModel):
     """User.
     """
 
@@ -47,6 +47,10 @@ class User(ODMModel, UIModelMixin):
     def _pre_save(self):
         """_pre_save() hook.
         """
+
+        if self.f_get('login') == '__anonymous':
+            raise Exception('Anonymous user cannot be saved.')
+
         if not self.f_get('password'):
             self.f_set('password', util.random_password())
 
@@ -68,7 +72,7 @@ class User(ODMModel, UIModelMixin):
         if not auth_manager.is_permission_defined(name):
             raise KeyError("Permission '{}' is not defined.".format(name))
 
-        if self.has_role('admin'):
+        if self.is_admin():
             return True
 
         for role in self.f_get('roles'):
@@ -76,6 +80,18 @@ class User(ODMModel, UIModelMixin):
                 return True
 
         return False
+
+    def is_anonymous(self) -> bool:
+        """Check if the user is anonymous.
+        """
+
+        return self.f_get('login') == '__anonymous'
+
+    def is_admin(self):
+        """Check if the user is admin.
+        """
+
+        return self.has_role('admin')
 
 
 class Role(ODMModel):
@@ -100,12 +116,3 @@ class Role(ODMModel):
             raise TypeError("String expected")
 
         return value
-
-
-class AnonymousUser(User):
-    def _setup(self):
-        super()._setup()
-        self.f_set('login', '__anonymous')
-
-    def _pre_save(self):
-        raise Exception('Anonymous user cannot be saved.')
