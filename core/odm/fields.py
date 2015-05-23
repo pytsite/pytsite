@@ -61,7 +61,7 @@ class AbstractField(ABC):
         return self
 
     def get_val(self, **kwargs):
-        """Get value of the field
+        """Get value of the field.
         """
         return self._value
 
@@ -183,7 +183,7 @@ class RefField(AbstractField):
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        from .model import ODMModel
+        from .models import ODMModel
         if value and not isinstance(value, DBRef) and not isinstance(value, ODMModel):
             raise TypeError("Entity or DBRef expected, while {0} given.".format(type(value)))
 
@@ -226,7 +226,7 @@ class RefsListField(AbstractField):
 
         clean_value = []
         for item in value:
-            from .model import ODMModel
+            from .models import ODMModel
 
             if not isinstance(item, DBRef) and not isinstance(item, ODMModel):
                 raise TypeError("List of DBRefs or entities expected.")
@@ -254,7 +254,7 @@ class RefsListField(AbstractField):
         """Add a value to the field.
         """
 
-        from .model import ODMModel
+        from .models import ODMModel
         if not isinstance(value, DBRef) and not isinstance(value, ODMModel):
             raise TypeError("DBRef of entity expected.")
 
@@ -272,18 +272,36 @@ class RefsListField(AbstractField):
 class DateTimeField(AbstractField):
     """Datetime field.
     """
+
     def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+
         super().__init__(name, **kwargs)
         if self._value is None:
             self._value = datetime(1970, 1, 1)
 
-    def set_val(self, value: list, change_modified: bool=True, **kwargs):
-        """Set value of the field.
+    def set_val(self, value: datetime, change_modified: bool=True, **kwargs):
+        """Set field's value.
         """
-        if value and not isinstance(value, datetime):
-            raise TypeError("DateTime or None expected")
+
+        if not isinstance(value, datetime):
+            raise TypeError("DateTime expected")
 
         return super().set_val(value, change_modified)
+
+    def get_val(self, **kwargs):
+        """Get field's value.
+        """
+
+        value = super().get_val()
+        """:type : datetime"""
+
+        fmt = kwargs.get('fmt')
+        if fmt:
+            value = value.strftime(fmt)
+
+        return value
 
 
 class StringField(AbstractField):
@@ -336,7 +354,6 @@ class IntegerField(AbstractField):
         """
         self.set_val(self.get_val(**kwargs) + int(value))
         return self
-
 
 
 class VirtualField(AbstractField):

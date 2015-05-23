@@ -8,7 +8,8 @@ __license__ = 'MIT'
 __import__('pytsite.auth')
 __import__('pytsite.js_api')
 
-from pytsite.core import router, lang, tpl, assetman
+from pytsite.core import router, lang, tpl, assetman, events
+from . import event_handlers
 
 router.add_rule('/admin/odm/browse/<string:model>',
                 'pytsite.odm_ui.endpoints.browse', methods=['GET'])
@@ -24,3 +25,5 @@ router.add_rule('/admin/odm/delete/<string:model>/submit',
 lang.register_package(__name__)
 tpl.register_package(__name__)
 assetman.register_package(__name__)
+
+events.listen('pytsite.core.odm@register_model', event_handlers.odm_register_model)

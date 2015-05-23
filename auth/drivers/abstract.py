@@ -1,4 +1,4 @@
-"""Abstract auth driver.
+"""Abstract Auth Driver.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,10 +14,10 @@ class AbstractDriver(ABC):
     def get_login_form(self, uid: str) -> AbstractForm:
         """Login form get handler.
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def post_login_form(self, args: dict, inp: dict) -> RedirectResponse:
         """Login form post handler.
         """
-        pass
+        raise NotImplementedError()

@@ -142,7 +142,7 @@ class SingleTagElement(Element):
         """Render the element.
         """
 
-        return "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs))
+        return "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {'cls': 'class'}))
 
 
 class InlineElement(Element):

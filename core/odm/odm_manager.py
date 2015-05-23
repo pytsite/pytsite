@@ -3,39 +3,41 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from inspect import isclass
-from pytsite.core import db
+from pytsite.core import db, events
 from bson.dbref import DBRef
 from .errors import EntityNotFoundException
-from .model import ODMModel
+from .models import ODMModel
 
 __registered_models = {}
 __dispensed_entities = {}
 
 
-def register_model(model_name: str, model_class: type):
+def register_model(model: str, cls: type, replace: bool=False):
     """Register new ODM model.
     """
 
-    if is_model_registered(model_name):
-        raise Exception("Model '{}' already registered.".format(model_name))
-
-    if not isclass(model_class):
+    if not isclass(cls):
         raise Exception("Class expected.")
 
-    if not issubclass(model_class, ODMModel):
+    if not issubclass(cls, ODMModel):
         raise Exception("Subclass of Model is expected.")
 
-    __registered_models[model_name] = model_class
+    if is_model_registered(model) and not replace:
+        raise Exception("Model '{}' already registered.".format(model))
+
+    __registered_models[model] = cls
+
+    events.fire('pytsite.core.odm@register_model', model=model, cls=cls)
 
 
-def get_model_class(model_name: str) -> type:
+def get_model_class(model: str) -> type:
     """Get registered class for model name.
     """
 
-    if not is_model_registered(model_name):
-        raise Exception("ODM model '{}' is not registered".format(model_name))
+    if not is_model_registered(model):
+        raise Exception("ODM model '{}' is not registered".format(model))
 
-    return __registered_models[model_name]
+    return __registered_models[model]
 
 
 def is_model_registered(model_name: str) -> bool:
@@ -60,7 +62,7 @@ def _cache_put(entity: ODMModel) -> ODMModel:
     """
 
     if not entity.is_new():
-        cache_key = entity.model() + ':' + str(entity.id())
+        cache_key = entity.model + ':' + str(entity.id())
         __dispensed_entities[cache_key] = entity
 
     return entity
@@ -71,27 +73,27 @@ def cache_delete(entity: ODMModel):
     """
 
     if not entity.is_new():
-        cache_key = entity.model() + ':' + str(entity.id())
+        cache_key = entity.model + ':' + str(entity.id())
         if cache_key in __dispensed_entities:
             del __dispensed_entities[cache_key]
 
 
-def dispense(model_name: str, entity_id=None) -> ODMModel:
+def dispense(model: str, entity_id=None) -> ODMModel:
     """Dispense an entity.
     """
 
-    if not is_model_registered(model_name):
-        raise Exception("ODM model '{}' is not registered".format(model_name))
+    if not is_model_registered(model):
+        raise Exception("ODM model '{}' is not registered".format(model))
 
     # Try to get entity from cache
-    entity = _cache_get(model_name, entity_id)
+    entity = _cache_get(model, entity_id)
     if entity:
         return entity
 
     # Dispense entity
     try:
-        cls = get_model_class(model_name)
-        entity = cls(model_name, entity_id)
+        cls = get_model_class(model)
+        entity = cls(model, entity_id)
     except EntityNotFoundException:
         return None
 

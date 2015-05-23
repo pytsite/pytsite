@@ -4,7 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import ABC, abstractmethod
 from .util import xml_attrs_str, dict_sort
 from .widget.abstract import AbstractWidget
 from .widget.input import HiddenInputWidget
@@ -13,7 +12,7 @@ from .html import Div
 from . import router
 
 
-class AbstractForm(ABC):
+class AbstractForm:
     """Abstract form.
     """
 
@@ -39,11 +38,10 @@ class AbstractForm(ABC):
 
         self._setup()
 
-    @abstractmethod
     def _setup(self):
         """_setup() hook.
         """
-        raise NotImplementedError()
+        pass
 
     @property
     def uid(self) -> str:
@@ -77,9 +75,15 @@ class AbstractForm(ABC):
 
     @property
     def legend(self) -> str:
-        """Legend getter.
+        """Get legend.
         """
         return self._legend
+
+    @legend.setter
+    def legend(self, value: str):
+        """Set legend.
+        """
+        self._legend = value
 
     @property
     def cls(self) -> str:
@@ -98,8 +102,8 @@ class AbstractForm(ABC):
         """
 
         for field_name, field_value in values.items():
-            if self._has_widget(field_name):
-                self._get_widget(field_name).value = field_value
+            if self.has_widget(field_name):
+                self.get_widget(field_name).value = field_value
 
             if self._validator.has_field(field_name):
                 self._validator.set_value(field_name, field_value)
@@ -122,6 +126,16 @@ class AbstractForm(ABC):
         """
 
         return self._validator.validate()
+
+    def store_state(self, except_fields: tuple=None):
+        """Store state of the form into the session.
+        """
+        pass
+
+    def restore_state(self, except_fields: tuple=None):
+        """Store state of the form from the session.
+        """
+        pass
 
     def render(self) -> str:
         """Render the form.
@@ -147,17 +161,17 @@ class AbstractForm(ABC):
 
         return self
 
-    def _has_widget(self, uid: str) -> bool:
+    def has_widget(self, uid: str) -> bool:
         """Check if the form has widget.
         """
 
         return uid in self._widgets
 
-    def _get_widget(self, uid: str) -> AbstractWidget:
+    def get_widget(self, uid: str) -> AbstractWidget:
         """Get a widget.
         """
 
-        if not self._has_widget(uid):
+        if not self.has_widget(uid):
             raise KeyError("Widget '{0}' is not exists.".format(uid))
 
         return self._widgets[uid]['widget']
@@ -187,7 +201,7 @@ class AbstractForm(ABC):
             widgets_to_render[widget_uid] = self._widgets[widget_uid]
 
         rendered_widgets = []
-        for k, v in dict_sort(widgets_to_render).items():
+        for k, v in dict_sort(widgets_to_render):
             rendered_widgets.append(v['widget'].render())
 
         if not rendered_widgets:

@@ -4,7 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
@@ -14,14 +13,14 @@ from .fields import *
 
 
 class ODMModel:
-    def __init__(self, model_name: str, obj_id=None):
+    def __init__(self, model: str, obj_id=None):
         """Init.
         """
         if not hasattr(self, 'collection_name'):
             self._collection_name = None
 
         if self._collection_name is None:
-            self._collection_name = model_name + 's'
+            self._collection_name = model + 's'
 
         self._collection = db.get_collection(self._collection_name)
         self._is_new = True
@@ -32,7 +31,7 @@ class ODMModel:
         self.define_field(ObjectIdField('_id'))
         self.define_field(StringField('_model'))
         self.define_field(RefField('_parent'))
-        self.define_field(RefsListField('_children', model=model_name))
+        self.define_field(RefsListField('_children', model=model))
         self.define_field(DateTimeField('_created'))
         self.define_field(DateTimeField('_modified'))
 
@@ -52,14 +51,14 @@ class ODMModel:
                 obj_id = ObjectId(obj_id)
             data = self._collection.find_one({'_id': obj_id})
             if not data:
-                raise EntityNotFoundException("Entity '{0}' is not found in storage.".format(model_name + ':' + obj_id))
+                raise EntityNotFoundException("Entity '{0}' is not found in storage.".format(model + ':' + obj_id))
             for field_name, value in data.items():
                 if self.has_field(field_name):
                     self.get_field(field_name).set_val(value, False)
             self._is_new = False
         else:
             # Filling some fields with initial values
-            self.get_field('_model').set_val(model_name)
+            self.get_field('_model').set_val(model)
             self.get_field('_created').set_val(datetime.now())
             self.get_field('_modified').set_val(datetime.now())
 
@@ -74,7 +73,7 @@ class ODMModel:
 
             field_name, index_type = item
             if not self.has_field(field_name):
-                raise Exception("Entity {0} doesn't have field {1}.".format(self.model(), field_name))
+                raise Exception("Entity {0} doesn't have field {1}.".format(self.model, field_name))
             if index_type not in [I_ASC, I_DESC]:
                 raise ValueError("Invalid index type.")
 
@@ -84,7 +83,7 @@ class ODMModel:
         """Define a field.
         """
         if self.has_field(field_obj.get_name()):
-            raise Exception("Field '{0}' already defined in model '{1}'.".format(field_obj.get_name(), self.model()))
+            raise Exception("Field '{0}' already defined in model '{1}'.".format(field_obj.get_name(), self.model))
         self._fields[field_obj.get_name()] = field_obj
 
         return self
@@ -110,7 +109,7 @@ class ODMModel:
         """Get field's object.
         """
         if not self.has_field(field_name):
-            raise Exception("Unknown field '{0}' in model '{1}'".format(field_name, self.model()))
+            raise Exception("Unknown field '{0}' in model '{1}'".format(field_name, self.model))
         return self._fields[field_name]
 
     def get_fields(self)->dict:
@@ -130,7 +129,8 @@ class ODMModel:
             raise Exception("Entity must be stored before it can has reference.")
         return DBRef(self.collection().name, self.id())
 
-    def model(self)->str:
+    @property
+    def model(self) -> str:
         """Get model name.
         """
         return self.f_get('_model')
@@ -140,17 +140,17 @@ class ODMModel:
         """
         return self.f_get('_parent')
 
-    def children(self)->list:
+    def children(self) -> list:
         """Get children entities.
         """
         return self.f_get('_children')
 
-    def created(self)->datetime:
+    def created(self, **kwargs) -> datetime:
         """Get created date/time.
         """
         return self.f_get('_created')
 
-    def modified(self)->datetime:
+    def modified(self, **kwargs) -> datetime:
         """Get modified date/time.
         """
         return self.f_get('_modified')

@@ -5,62 +5,92 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core import router
+from pytsite.core.odm import odm_manager
 from pytsite.core.lang import t
 from pytsite.core.html import Div, Table, THead, TFoot, TBody, Tr, Th, Td, A, I, Label, Input
 from pytsite.core.pager import Pager
 from pytsite.core.http.errors import Forbidden
-from pytsite.core.odm import odm_manager
-from pytsite.core.odm.model import ODMModel
+from pytsite.core.odm.models import ODMModel
 from pytsite.auth import auth_manager
-from . import odm_ui_manager
+from .models import ODMUIMixin
 
 
 class ODMUIBrowser:
     def __init__(self, odm_model: str):
+        self._title = None
         self._model = odm_model
-        self._ui = odm_ui_manager.dispense_ui(odm_model)
         self._current_user = auth_manager.get_current_user()
+        self._head_columns = ()
 
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.{}'.format(odm_model)):
             raise Forbidden()
 
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @title.setter
+    def title(self, value):
+        self._title = value
+
+    @property
+    def head_columns(self) -> tuple:
+        return self._head_columns
+
+    @head_columns.setter
+    def head_columns(self, value: tuple):
+        if not isinstance(value, tuple):
+            raise TypeError('Tuple expected.')
+        self._head_columns = value
+
     def render(self) -> str:
+        mock = odm_manager.dispense(self._model)
+        if not isinstance(mock, ODMUIMixin):
+            raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
+
+        lang_pkg = mock.get_lang_package()
+
+        mock.setup_browser(self)
+
+        # Head columns
+        if not self.head_columns:
+            raise Exception("No head columns are defined.")
+
+        # Table skeleton
         table = Table(cls='table table-bordered table-hover')
         t_head = THead()
         t_body = TBody()
         t_foot = TFoot()
         table.append(t_head).append(t_body).append(t_foot)
 
-        # Table head and foot
+        # Table head row
         t_head_row = Tr()
+        t_head.append(t_head_row)
 
-        # Checkbox column
+        # Head checkbox column
         t_head_row.append(Th(cls='column-checkboxes').append(Input(type='checkbox', cls='check-all')))
 
-        # Head columns
-        head_columns = self._ui.get_browser_columns_head()
-        if not head_columns:
-            raise Exception("'get_browser_columns_head()' returns nothing.")
+        # Head cells
+        for col in self.head_columns:
+            t_head_row.append(Th(t(lang_pkg + '@' + col)))
 
-        for th in head_columns:
-            t_head_row.append(Th(th))
-
+        # Head 'action' cell
         t_head_row.append(Th(t('pytsite.odm_ui@actions'), cls='column-actions'))
-        t_head.append(t_head_row)
 
         # Table rows
         pager = Pager(odm_manager.find(self._model).count())
         finder = odm_manager.find(self._model).skip(pager.skip)
-        for entity in finder.get(pager.limit):
+        cursor = finder.get(pager.limit)
+        """:type : list[ODMUIMixin]"""
+        for entity in cursor:
             tr = Tr()
-            entity_ui = odm_ui_manager.dispense_ui(self._model, entity)
 
             # Getting contend for TDs
-            columns = entity_ui.get_browser_row(entity)
+            columns = entity.get_browser_row()
             if not columns:
                 raise Exception("'get_browser_row()' returns nothing.")
-            if len(columns) != len(head_columns):
+            if len(columns) != len(self.head_columns):
                 raise Exception("'get_browser_row()' returns invalid number of columns.")
 
             # Checkbox TD
@@ -77,7 +107,7 @@ class ODMUIBrowser:
 
         return table.render()
 
-    def _get_entity_action_buttons(self, entity: ODMModel) -> Div:
+    def _get_entity_action_buttons(self, entity) -> Div:
         """Get action buttons for entity.
         """
 

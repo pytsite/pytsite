@@ -1,3 +1,6 @@
 security: 'Безопасность'
 users: 'Пользователи'
 roles: 'Роли'
+login: 'Логин'
+email: 'Email'
+last_login: 'Последний вход'

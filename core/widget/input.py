@@ -34,12 +34,24 @@ class TextInputWidget(InputWidget):
     """Text Input Widget
     """
 
+    def __init__(self, **kwargs: dict):
+        """Init.
+        """
+
+        super().__init__(**kwargs)
+        self.cls = 'form-control'
+
     def render(self) -> str:
         """Render the widget
         """
 
-        placeholder = 'placeholder="{}"'.format(self._placeholder) if self._placeholder else ''
-        r = '<input type="text" id="{}" name="{}" {} value="{}">'.format(
-            self.uid, self.name, placeholder, self.value)
+        html_input = HtmlInputElement(
+            type='text',
+            id=self.uid,
+            name=self.name,
+            value=self.value,
+            cls=self.cls,
+            placeholder=self.placeholder
+        )
 
-        return self._group_wrap(r)
+        return self._group_wrap(html_input.render())

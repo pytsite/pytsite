@@ -80,9 +80,9 @@ def render() -> str:
     root_menu_ul = Ul(cls='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
-    for section_uid, section in dict_sort(__sections).items():
+    for section_uid, section in dict_sort(__sections):
         root_menu_ul.append(Li(section['title'], cls='header'))
-        for section_menu_uid, section_menu in dict_sort(section['menus']).items():
+        for section_menu_uid, section_menu in dict_sort(section['menus']):
             if section_menu['children']:
                 pass
             else:

@@ -49,7 +49,8 @@ class AbstractWidget(ABC):
         """
 
         r = []
-        for k, v in dict_sort(self._children).items():
+        for k, v in dict_sort(self._children):
+            print(v['weight'])
             r.append(v['widget'])
 
         return r
@@ -114,14 +115,18 @@ class AbstractWidget(ABC):
     def cls(self):
         """Get CSS classes of the widget.
         """
-
         return self._cls
+
+    @cls.setter
+    def cls(self, value: str):
+        """Set CSS classes of the widget.
+        """
+        self._cls = value
 
     @property
     def help(self):
         """Get help string of the widget.
         """
-
         return self._help
 
     @help.setter
@@ -139,6 +144,6 @@ class AbstractWidget(ABC):
         for cls in classes:
             classes_str = ' ' + cls
 
-        label_str = '<label for="{0}">{1}</label>'.format(self._uid, self._label) if self._label else ''
+        label_str = '<label for="{}">{}</label>'.format(self._uid, self._label) if self._label else ''
 
-        return '<div class="{0}">{1}{2}</div>'.format(classes_str, label_str, str_to_wrap)
+        return '<div class="{}">{}{}</div>'.format(classes_str, label_str, str_to_wrap)

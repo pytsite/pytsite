@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 
 from pymongo.cursor import Cursor, CursorType
-from .model import ODMModel
+from .models import ODMModel
 from .fields import *
 
 

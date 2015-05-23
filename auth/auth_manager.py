@@ -4,8 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from pytsite.core import router, form, odm
 from .errors import *
@@ -106,7 +104,6 @@ def get_login_form(uid: str=None) -> form.AbstractForm:
 def post_login_form(args: dict, inp: dict) -> router.RedirectResponse:
     """Post a login form.
     """
-
     return get_driver().post_login_form(args, inp)
 
 
@@ -164,8 +161,6 @@ def authorize(user: User)->User:
     if user.f_get('status') != 'active':
         logout_current_user()
         raise LoginIncorrect('pytsite.auth@authorization_error')
-
-    user.f_add('loginCount', 1).f_set('lastLogin', datetime.now()).save()
 
     router.session['pytsite.auth.login'] = user.f_get('login')
 

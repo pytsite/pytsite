@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import json
+from datetime import datetime
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from pytsite.core import tpl, form, router, reg, lang
@@ -112,6 +113,9 @@ class ULoginDriver(AbstractDriver):
 
             # Authorize
             auth_manager.authorize(user)
+
+            # Saving statistical information
+            user.f_add('loginCount', 1).f_set('lastLogin', datetime.now()).save()
 
             # Redirect to the final destination
             if 'redirect' in inp:

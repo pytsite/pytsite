@@ -71,9 +71,9 @@ def dict_sort(inp: dict, key: str='weight') -> dict:
     for k, v in inp.items():
         srt.append((k, v[key], v))
 
-    r = {}
+    r = []
     for item in sorted(srt, key=lambda x: x[1]):
-        r[item[0]] = item[2]
+        r.append((item[0], item[2]))
 
     return r
 
