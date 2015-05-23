@@ -4,41 +4,52 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.html import Button as HtmlButton, I
+from pytsite.core.html import Button as HtmlButton, I, A
 from .abstract import AbstractWidget
 
 
 class ButtonWidget(AbstractWidget):
+    """Button.
+    """
+
     def __init__(self, **kwargs: dict):
         """Init.
         """
 
         super().__init__(**kwargs)
         self._icon = kwargs.get('icon')
-        self._type = kwargs.get('type', 'button')
         self._color = kwargs.get('color', 'default')
-        self._cls += 'btn btn-' + self._color
+        self._cls += ' btn btn-' + self._color
+        self._html_em = HtmlButton(self.value, type='button')
 
     def render(self) -> str:
-        btn = HtmlButton(self.value, type=self.type, cls=self.cls)
+        self._html_em.set_attr('cls', self.cls)
+
         if self._icon:
-            btn.append(I(cls=self._icon))
+            self._html_em.append(I(cls=self._icon))
 
-        return btn.render()
-
-    @property
-    def type(self):
-        return self._type
-
-    @property
-    def icon(self):
-        return self._icon
+        return self._html_em.render()
 
 
 class SubmitButtonWidget(ButtonWidget):
+    """Submit Button.
+    """
+
     def __init__(self, **kwargs: dict):
         """Init.
         """
 
         super().__init__(**kwargs)
-        self._type = 'submit'
+        self._html_em = HtmlButton(self.value, type='submit')
+
+
+class LinkButtonWidget(ButtonWidget):
+    """Link Button.
+    """
+
+    def __init__(self, **kwargs: dict):
+        """Init.
+        """
+
+        super().__init__(**kwargs)
+        self._html_em = A(self.value, href=kwargs.get('href', '#'))

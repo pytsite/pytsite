@@ -32,6 +32,7 @@ class AbstractWidget(ABC):
         self._placeholder = kwargs.get('placeholder')
         self._cls = kwargs.get('cls', '')
         self._help = kwargs.get('help')
+        self._children_sep = '&nbsp;'
         self._children = {}
 
     def add_child(self, widget, weight: int=0):
@@ -39,6 +40,7 @@ class AbstractWidget(ABC):
         """
 
         self._children[widget.name] = {'widget': widget, 'weight': weight}
+
         return self
 
     @property
@@ -49,6 +51,7 @@ class AbstractWidget(ABC):
         r = []
         for k, v in dict_sort(self._children).items():
             r.append(v['widget'])
+
         return r
 
     @abstractmethod

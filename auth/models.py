@@ -6,7 +6,7 @@ from pytsite.core import util
 from pytsite.core.odm import I_ASC
 from pytsite.core.odm.model import ODMModel
 from pytsite.core.odm.fields import *
-from pytsite.odm_ui.model import ODMUIModel
+from pytsite.odm_ui.models import ODMUIModel
 
 
 class User(ODMModel, ODMUIModel):

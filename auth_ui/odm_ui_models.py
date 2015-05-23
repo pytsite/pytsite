@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.odm_ui.model import ODMUIModel
+from pytsite.odm_ui.models import ODMUIModel
 
 
 class UserUI(ODMUIModel):

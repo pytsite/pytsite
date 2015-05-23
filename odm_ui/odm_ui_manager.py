@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from pytsite.auth import auth_manager
 from pytsite.core.odm import odm_manager
 from pytsite.core.odm.model import ODMModel
-from .model import ODMUIModel
+from .models import ODMUIModel
 
 __models = {}
 
@@ -30,17 +30,7 @@ def register_model(odm_model: str, odm_ui_class: type, permission_group: str, la
     __models[odm_model] = odm_ui_class
 
 
-def get_ui_class(odm_model: str) -> type:
-    """Get ODM UI class for ODM model.
-    """
-
-    if odm_model not in __models:
-        raise KeyError("UI class for ODM model '{}' is not registered.".format(odm_model))
-
-    return __models[odm_model]
-
-
-def dispense(odm_model: str, odm_entity: ODMModel=None) -> ODMUIModel:
+def dispense_ui(odm_model: str, odm_entity: ODMModel=None) -> ODMUIModel:
     """Dispense an UI entity.
     """
 
@@ -48,6 +38,16 @@ def dispense(odm_model: str, odm_entity: ODMModel=None) -> ODMUIModel:
         if not isinstance(odm_entity, odm_manager.get_model_class(odm_model)):
             raise TypeError("ODM entity is instance of invalid class.")
 
-    ui_class = get_ui_class(odm_model)
+    ui_class = _get_ui_class(odm_model)
 
     return ui_class()
+
+
+def _get_ui_class(odm_model: str) -> type:
+    """Get ODM UI class for ODM model.
+    """
+
+    if odm_model not in __models:
+        raise KeyError("UI class for ODM model '{}' is not registered.".format(odm_model))
+
+    return __models[odm_model]

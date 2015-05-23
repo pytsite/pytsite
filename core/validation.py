@@ -25,6 +25,7 @@ class Rule(ABC):
     def value(self, value):
         """Set rule's value.
         """
+
         self.reset()
         self._value = value
 
@@ -49,7 +50,7 @@ class Rule(ABC):
     def validate(self, validator, field_name: str)->bool:
         """Validate the rule.
         """
-        pass
+        raise NotImplementedError()
 
 
 class NotEmptyRule(Rule):
@@ -88,7 +89,8 @@ class IntegerRule(Rule):
 class UrlRule(Rule):
     """URL validation rule.
     """
-    def validate(self, validator, field_name: str)->bool:
+
+    def validate(self, validator, field_name: str) -> bool:
         """Validate the rule.
         """
 
@@ -116,9 +118,10 @@ class UrlRule(Rule):
 class EmailRule(Rule):
     """Email validation rule.
     """
-    def validate(self, validator, field_name: str)->bool:
+    def validate(self, validator, field_name: str) -> bool:
         """Validate the rule.
         """
+
         import re
         try:
             regex = re.compile('[^@]+@[^@]+\.[^@]+')
@@ -141,8 +144,9 @@ class Validator:
         self._rules = {}
 
     def add_rule(self, field: str, rule: Rule):
-        """Add a rule to the validator's field.
+        """Add a rule to the validator field.
         """
+
         if field not in self._rules:
             self._rules[field] = []
 
@@ -150,7 +154,7 @@ class Validator:
 
         return self
 
-    def has_field(self, field: str)->bool:
+    def has_field(self, field: str) -> bool:
         """Whether the validator has a field.
         """
         return field in self._rules
@@ -158,6 +162,7 @@ class Validator:
     def set_value(self, field: str, value):
         """Set rule's value.
         """
+
         if not self.has_field(field):
             raise KeyError("Field '{0}' is not defined.". format(field))
 
@@ -166,9 +171,10 @@ class Validator:
 
         return self
 
-    def validate(self)->bool:
+    def validate(self) -> bool:
         """Validate the validator.
         """
+
         r = True
         for field_name, rules in self._rules.items():
             for rule in rules:

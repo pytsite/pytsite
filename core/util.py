@@ -76,3 +76,20 @@ def dict_sort(inp: dict, key: str='weight') -> dict:
         r[item[0]] = item[2]
 
     return r
+
+
+def xml_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
+    """Format dictionary as XML attributes string.
+    """
+
+    r = ''
+    for k, v in attrs.items():
+        k = k.strip()
+        if replace_keys and k in replace_keys:
+            k = replace_keys[k]
+
+        if v:
+            v = v.strip()
+            r += ' {}="{}"'.format(k, v)
+
+    return r

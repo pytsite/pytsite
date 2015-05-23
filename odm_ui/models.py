@@ -4,14 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 from pytsite.core.lang import t
-from pytsite.core.form import AbstractForm
 from pytsite.core.odm.model import ODMModel
-
-
-class ODMUIForm(AbstractForm):
-    def _setup(self):
-        pass
 
 
 class ODMUIModel:
@@ -24,7 +19,7 @@ class ODMUIModel:
     def get_browser_row(self, entity: ODMModel) -> tuple:
         return str(entity.id()),
 
-    def setup_modify_form(self, entity: ODMModel, form: ODMUIForm):
+    def setup_modify_form(self, entity: ODMModel, form):
         pass
 
     def submit_modify_form(self):

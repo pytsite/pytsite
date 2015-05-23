@@ -10,14 +10,16 @@ from .abstract import AbstractWidget
 
 class WrapperWidget(AbstractWidget):
     """Wrapper Widget.
+
+    Can contain only children widgets.
     """
 
     def render(self) -> str:
         """Render the widget.
         """
 
-        r = ''
+        r = []
         for child in self.children:
-            r += child.render()
+            r.append(child.render())
 
-        return Div(r, cls=self.cls).render()
+        return Div(self._children_sep.join(r), cls=self.cls).render()

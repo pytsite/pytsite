@@ -18,7 +18,7 @@ from . import odm_ui_manager
 class ODMUIBrowser:
     def __init__(self, odm_model: str):
         self._model = odm_model
-        self._ui = odm_ui_manager.dispense(odm_model)
+        self._ui = odm_ui_manager.dispense_ui(odm_model)
         self._current_user = auth_manager.get_current_user()
 
         # Checking permissions
@@ -54,7 +54,7 @@ class ODMUIBrowser:
         finder = odm_manager.find(self._model).skip(pager.skip)
         for entity in finder.get(pager.limit):
             tr = Tr()
-            entity_ui = odm_ui_manager.dispense(self._model, entity)
+            entity_ui = odm_ui_manager.dispense_ui(self._model, entity)
 
             # Getting contend for TDs
             columns = entity_ui.get_browser_row(entity)
@@ -71,14 +71,14 @@ class ODMUIBrowser:
                 tr.append(Td(columns))
 
             # Actions TD
-            tr.append(Td(self._get_row_action_buttons(entity).render()))
+            tr.append(Td(self._get_entity_action_buttons(entity).render()))
 
             t_body.append(tr)
 
         return table.render()
 
-    def _get_row_action_buttons(self, entity: ODMModel) -> Div:
-        """Get action buttons.
+    def _get_entity_action_buttons(self, entity: ODMModel) -> Div:
+        """Get action buttons for entity.
         """
 
         group = Div(cls='btn-group')
@@ -94,6 +94,9 @@ class ODMUIBrowser:
         return group
 
     def _check_entity_permission(self, permission_type: str, entity: ODMModel) -> bool:
+        """Check current user's entity permissions.
+        """
+
         if permission_type == 'create':
             return self._current_user.has_permission('pytsite.odm_ui.create.' + self._model)
 

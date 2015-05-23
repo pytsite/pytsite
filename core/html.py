@@ -3,6 +3,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC
+from .util import xml_attrs_str
 
 _common_tag_attrs = (
     'accesskey',
@@ -23,27 +24,12 @@ _common_tag_attrs = (
 )
 
 
-class ElementAttrs(dict):
-    def __str__(self):
-        r = ''
-        for k, v in self.items():
-            v = v.strip()
-
-            if k == 'cls':
-                k = 'class'
-
-            if v:
-                r += ' {0}="{1}"'.format(k, v)
-
-        return r
-
-
 class Element(ABC):
     def __init__(self, content: str=None, **kwargs):
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
         self._children = []
-        self._attrs = ElementAttrs()
+        self._attrs = {}
 
         for k, v in kwargs.items():
             self.set_attr(k, v)
@@ -62,7 +48,9 @@ class Element(ABC):
         return self._content
 
     def set_attr(self, attr: str, value: str):
-        global _common_tag_attrs
+        """Set attribute.
+        """
+
         if attr not in _common_tag_attrs and not attr.startswith('data-') and attr not in self._get_valid_attrs():
             raise AttributeError("Element '{0}' cannot have attribute: '{1}'".format(self._tag_name, attr))
 
@@ -71,12 +59,17 @@ class Element(ABC):
         return self
 
     def get_attr(self, attr):
-        global _common_tag_attrs
+        """Get attribute.
+        """
+
         if attr not in _common_tag_attrs:
             raise KeyError("Attribute '{0}' is not defined.".format(attr))
         return self._attrs[attr]
 
     def append(self, child):
+        """Append child.
+        """
+
         if not isinstance(child, Element):
             raise TypeError("Element expected.")
 
@@ -110,36 +103,60 @@ class Element(ABC):
         return ()
 
     def render(self) -> str:
-        r = "<{}{}>".format(self._tag_name, self._attrs)
+        """Render the element.
+        """
+
+        # Open tag
+        r = "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {'cls': 'class'}))
+
+        # Render children
         if self._children:
             for child in self._children:
                 r += str(child)
+
+        # Element's content
         if self._content:
             if self._children:
                 r += '&nbsp;'
             r += self._content
+
+        # Close tag
         r += "</{}>".format(self._tag_name)
 
         return r
 
     def __str__(self) -> str:
+        """Render the element.
+        """
         return self.render()
 
 
 class SingleTagElement(Element):
+    """Element without closing tag.
+    """
+
     def _validate_child(self, child):
-        raise ValueError("'{0}' element cannot contain children.".format(self._tag_name))
+        raise ValueError("'{}' element cannot contain children.".format(self._tag_name))
 
     def render(self) -> str:
-        return "<{0}{1}>".format(self._tag_name, self._attrs)
+        """Render the element.
+        """
+
+        return "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs))
 
 
 class InlineElement(Element):
+    """Inline element.
+    """
+
     def _get_valid_children(self):
         return 'any_inline'
 
 
 class BlockElement(Element):
+    """Block element.
+    """
+
     def _get_valid_children(self):
         return 'any'
 

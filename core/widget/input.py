@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import html
+from pytsite.core.html import Input as HtmlInputElement
 from .abstract import AbstractWidget
 
 
@@ -27,7 +27,7 @@ class HiddenInputWidget(InputWidget):
         """Render the widget.
         """
 
-        return html.Input(type='hidden', id=self.uid, name=self.name, value=self.value).render()
+        return HtmlInputElement(type='hidden', id=self.uid, name=self.name, value=self.value).render()
 
 
 class TextInputWidget(InputWidget):
