@@ -113,11 +113,11 @@ class ODMUIBrowser:
 
         group = Div(cls='btn-group')
         if self._check_entity_permission('modify', entity):
-            href = router.endpoint_url('pytsite.odm_ui.endpoints.get_modify_form',
+            href = router.endpoint_url('pytsite.odm_ui.eps.get_modify_form',
                                        {'model': entity.model(), 'id': entity.id()})
             group.append(A(cls='btn btn-sm bg-purple', href=href).append(I(cls='fa fa-edit')))
         if self._check_entity_permission('delete', entity):
-            href = router.endpoint_url('pytsite.odm_ui.endpoints.get_delete_form',
+            href = router.endpoint_url('pytsite.odm_ui.eps.get_delete_form',
                                        {'model': entity.model(), 'ids[]': entity.id()})
             group.append(A(cls='btn btn-sm btn-danger', href=href).append(I(cls='fa fa-remove')))
 

@@ -10,7 +10,6 @@ __import__('pytsite.odm_ui')
 from pytsite.core import lang, router
 from pytsite.core.odm import odm_manager
 from pytsite.admin import sidebar
-from pytsite.odm_ui import event_handlers
 from .models import UserUI
 
 lang.register_package(__name__)
@@ -19,12 +18,12 @@ lang.register_package(__name__)
 sidebar.add_section('auth', lang.t('pytsite.auth_ui@security'), 1000)
 
 # 'Users' admin sidebar menu
-url = router.endpoint_url('pytsite.odm_ui.endpoints.browse', {'model': 'user'})
+url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'user'})
 sidebar.add_section_menu('auth', 'users', lang.t('pytsite.auth_ui@users'), url, 'fa fa-user', weight=10)
 
 # 'Roles' admin sidebar menu
-url = router.endpoint_url('pytsite.odm_ui.endpoints.browse', {'model': 'role'})
+url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'role'})
 sidebar.add_section_menu('auth', 'roles', lang.t('pytsite.auth_ui@roles'), url, 'fa fa-users', weight=20)
 
-# Replacing 'user' model with UI-compatible
+# Replace 'user' model with UI-compatible
 odm_manager.register_model('user', UserUI, True)

@@ -10,7 +10,9 @@ from mimetypes import guess_extension
 from shutil import copyfile
 from urllib.request import urlopen
 from urllib.parse import urlparse
-from pytsite.core import util, reg, validation, odm
+from pytsite.core import util, reg, odm
+from pytsite.core.validation.validator import Validator
+from pytsite.core.validation.rules import UrlRule
 from .models import File
 
 
@@ -37,8 +39,8 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     """
 
     # Store remote file to the local if URL was specified
-    url_validator = validation.Validator()
-    url_validator.add_rule('url', validation.UrlRule(value=source_path))
+    url_validator = Validator()
+    url_validator.add_rule('url', UrlRule(value=source_path))
     if url_validator.validate():
         # Copying remote file to the temporary local file
         with urlopen(source_path) as src:

@@ -6,17 +6,31 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from importlib.util import find_spec
-from os import path
+from os import path, listdir
+from glob import glob
 import yaml
+from . import console
+
+
+class ConsoleCommand(console.AbstractCommand):
+    def get_name(self)->str:
+        return 'lang:build'
+
+    def get_description(self)->str:
+        return t('pytsite.core@lang_console_command_description')
+
+    def execute(self, **kwargs: dict):
+        _compile_translations()
 
 __languages = []
 __current_language = None
-__packages = {}
+_packages = {}
 
 
 def define_languages(languages: list):
     """Define available languages.
     """
+
     global __languages
     __languages = languages
     set_current_lang(languages[0])
@@ -49,18 +63,19 @@ def get_current_lang()->str:
     return __current_language
 
 
-def register_package(package_name: str, languages_dir: str='lang')->str:
+def register_package(package_name: str, languages_dir: str='lang') -> str:
     """Register language container.
     """
+
     spec = find_spec(package_name)
     if not spec:
-        raise Exception("Package '{0}' is not found.".format(package_name))
+        raise Exception("Package '{}' is not found.".format(package_name))
 
     lng_dir = path.join(path.dirname(spec.origin), languages_dir)
     if not path.isdir(lng_dir):
-        raise Exception("Directory '{0}' is not exists.".format(lng_dir))
+        raise Exception("Directory '{}' is not exists.".format(lng_dir))
 
-    __packages[package_name] = {'_path': lng_dir}
+    _packages[package_name] = {'__path': lng_dir}
 
 
 def t(msg_id: str, data: dict=None, language: str=None)->str:
@@ -70,7 +85,7 @@ def t(msg_id: str, data: dict=None, language: str=None)->str:
         language = get_current_lang()
 
     if language not in __languages:
-        raise Exception("Language '{0}' is not defined.".format(language))
+        raise Exception("Language '{}' is not defined.".format(language))
 
     # Determining package name and message ID
     package_name = 'app'
@@ -152,31 +167,46 @@ def transliterate(text: str)->str:
     return r
 
 
+def _compile_translations():
+    """Compile language translations.
+    """
+    output = {}
+    for lang_code in get_languages():
+        output[lang_code] = {}
+        for pkg_name, info in _packages.items():
+            output[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
+
+    print(output)
+
 def _load_file(package_name: str, language: str=None):
     """Load package's language file.
     """
-    # Is package registered?
-    if package_name not in __packages:
+
+    # Is the package registered?
+    if package_name not in _packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     if not language:
         language = get_current_lang()
 
     # Getting from cache
-    if language in __packages[package_name]:
-        return __packages[package_name][language]
+    if language in _packages[package_name]:
+        return _packages[package_name][language]
+
+    content = {}
 
     # Actual data loading
+    file_path = path.join(_packages[package_name]['__path'], language + '.yml')
+    if not path.exists(file_path):
+        return content
 
-    file_path = path.join(__packages[package_name]['_path'], language + '.yml')
-    file = open(file_path)
-    content = yaml.load(file)
-    file.close()
+    with open(file_path) as f:
+        content = yaml.load(f)
 
     if content is None:
-        content = dict()
+        content = {}
 
     # Caching
-    __packages[package_name][language] = content
+    _packages[package_name][language] = content
 
     return content

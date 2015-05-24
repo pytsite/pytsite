@@ -8,7 +8,7 @@ from abc import ABC
 from datetime import datetime
 from bson.objectid import ObjectId
 from bson.dbref import DBRef
-from pytsite.core import validation
+from pytsite.core.validation.rules import EmailRule
 
 
 class AbstractField(ABC):
@@ -321,9 +321,9 @@ class StringField(AbstractField):
             raise TypeError("String expected.")
 
         if self.get_option('validate_email'):
-            v = validation.Validator()
-            v.add_rule('email', validation.EmailRule(value=value))
-            if not v.validate():
+            r = EmailRule(value=value)
+
+            if not r.validate():
                 raise ValueError("Email expected.")
 
         return super().set_val(value, change_modified)

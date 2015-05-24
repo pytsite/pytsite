@@ -6,7 +6,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core.lang import t
-from pytsite.core.validation import Validator, EmailRule, NotEmptyRule
+from pytsite.core.validation.validator import Validator
+from pytsite.core.validation.rules import EmailRule, NotEmptyRule
 from . import auth_manager
 
 

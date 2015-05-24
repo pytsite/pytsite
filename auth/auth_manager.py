@@ -88,7 +88,7 @@ def is_permission_defined(name: str) -> bool:
     return name in __permissions
 
 
-def get_login_form(uid: str=None) -> form.AbstractForm:
+def get_login_form(uid: str=None) -> form.BaseForm:
     """Get a login form.
     """
 
@@ -96,7 +96,7 @@ def get_login_form(uid: str=None) -> form.AbstractForm:
         uid = 'auth-form'
 
     form = get_driver().get_login_form(uid)
-    form.action = router.endpoint_url('pytsite.auth.endpoints.post_login')
+    form.action = router.endpoint_url('pytsite.auth.eps.post_login')
 
     return form
 

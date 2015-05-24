@@ -2,6 +2,7 @@ cleanup_all_console_command_description: 'Очистка всех устарев
 cleanup_session_console_command_description: 'Очистка устаревших файлов сессий'
 cleanup_tmp_console_command_description: 'Очистка устаревших временных файлов'
 assetman_console_command_description: 'Компиляция ассетов'
+lang_console_command_description: 'Компиляция языковых переводов'
 cron_console_command_description: 'Запуск Cron'
 setup_console_command_description: 'Настройка приложения'
 setup_is_not_completed: 'Настройка приложения не завершена'

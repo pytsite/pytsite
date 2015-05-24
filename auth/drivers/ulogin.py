@@ -9,8 +9,8 @@ from datetime import datetime
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from pytsite.core import tpl, form, router, reg, lang
-from pytsite.core.widget.abstract import AbstractWidget
-from pytsite.core.widget.input import HiddenInputWidget
+from pytsite.core.widgets.abstract import AbstractWidget
+from pytsite.core.widgets.input import HiddenInputWidget
 from pytsite.image import image_manager as image_manager
 from .. import auth_manager, errors
 from .abstract import AbstractDriver
@@ -32,7 +32,7 @@ class LoginWidget(AbstractWidget):
         return tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
 
 
-class LoginForm(form.AbstractForm):
+class LoginForm(form.BaseForm):
     """ULogin Login Form.
     """
 
@@ -51,7 +51,7 @@ class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
 
-    def get_login_form(self, uid: str) -> form.AbstractForm:
+    def get_login_form(self, uid: str) -> form.BaseForm:
         """Get the login form.
         """
 
@@ -125,4 +125,4 @@ class ULoginDriver(AbstractDriver):
 
         except errors.LoginIncorrect:
             router.session.add_error(lang.t('pytsite.auth@authorization_error'))
-            return router.RedirectResponse(router.endpoint_url('pytsite.auth.endpoints.get_login', args=inp))
+            return router.RedirectResponse(router.endpoint_url('pytsite.auth.eps.get_login', args=inp))

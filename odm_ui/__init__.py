@@ -6,21 +6,26 @@ __license__ = 'MIT'
 
 # Dependencies
 __import__('pytsite.auth')
-__import__('pytsite.js_api')
+__import__('pytsite.admin')
 
 from pytsite.core import router, lang, tpl, assetman, events
 from . import event_handlers
 
+# Browse
 router.add_rule('/admin/odm/browse/<string:model>',
-                'pytsite.odm_ui.endpoints.browse', methods=['GET'])
+                'pytsite.odm_ui.eps.browse', methods=['GET'])
+
+# Create/modify
 router.add_rule('/admin/odm/modify/<string:model>/<string:id>',
-                'pytsite.odm_ui.endpoints.get_modify_form', methods=['GET'])
+                'pytsite.odm_ui.eps.get_m_form', methods=['GET'])
 router.add_rule('/admin/odm/modify/<string:model>/<string:id>/submit',
-                'pytsite.odm_ui.endpoints.post_modify_form', methods=['POST'])
+                'pytsite.odm_ui.eps.post_m_form', methods=['POST'])
+
+# Delete
 router.add_rule('/admin/odm/delete/<string:model>',
-                'pytsite.odm_ui.endpoints.get_delete_form', methods=['GET'])
+                'pytsite.odm_ui.eps.get_d_form', methods=['GET'])
 router.add_rule('/admin/odm/delete/<string:model>/submit',
-                'pytsite.odm_ui.endpoints.post_delete_form', methods=['POST'])
+                'pytsite.odm_ui.eps.post_d_form', methods=['POST'])
 
 lang.register_package(__name__)
 tpl.register_package(__name__)

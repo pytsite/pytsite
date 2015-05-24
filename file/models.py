@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from ..core import odm
+from pytsite.core import odm
 
 
 class File(odm.models.ODMModel):
@@ -26,7 +26,7 @@ class File(odm.models.ODMModel):
         self.define_field(odm.fields.StringField('description'))
         self.define_field(odm.fields.StringField('mime'))
         self.define_field(odm.fields.IntegerField('length'))
-        self.define_field(odm.fields.RefField('owner'))
+        self.define_field(odm.fields.RefField('author', model='user'))
 
     def _after_delete(self):
         """_after_delete() hook.

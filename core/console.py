@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from sys import argv, exit
 from re import sub
 from os import path
-from . import reg, lang
+from . import reg
 
 __commands = {}
 
@@ -89,6 +89,7 @@ def run():
 
     # Check if the setup completed
     if not path.exists(reg.get('paths.setup.lock')) and argv[1] != 'app:setup':
-        raise Exception(lang.t('pytsite.core@setup_is_not_completed'))
+        from pytsite.core.lang import t
+        raise Exception(t('pytsite.core@setup_is_not_completed'))
 
     return run_command(argv[1], **cmd_args)

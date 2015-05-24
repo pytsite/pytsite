@@ -4,7 +4,6 @@ __license__ = 'MIT'
 
 # Requirements
 __import__('pytsite.image')
-__import__('pytsite.jquery')
 
 # Other imports
 from pytsite.core import odm, router, tpl, lang, events
@@ -19,9 +18,9 @@ odm.odm_manager.register_model('user', models.User)
 odm.odm_manager.register_model('role', models.Role)
 
 # Routes
-router.add_rule('/auth/login', __name__ + '.endpoints.get_login', {}, ['GET'])
-router.add_rule('/auth/login/post', __name__ + '.endpoints.post_login', {}, ['GET'])
-router.add_rule('/auth/logout', __name__ + '.endpoints.get_logout', {}, ['GET'])
+router.add_rule('/auth/login', __name__ + '.eps.get_login', {}, ['GET'])
+router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ['GET'])
+router.add_rule('/auth/logout', __name__ + '.eps.get_logout', {}, ['GET'])
 
 # Default auth driver
 from . import auth_manager

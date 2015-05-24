@@ -69,6 +69,8 @@ console.register_command(CleanupSessionCommand())
 console.register_command(CleanupTmpCommand())
 console.register_command(CleanupAllCommand())
 console.register_command(SetupCommand())
+console.register_command(lang.ConsoleCommand())
+
 
 # Initializing router
 from .core import router
@@ -99,8 +101,15 @@ for pattern, opts in reg.get('routes', {}).items():
 
 # Initializing asset manager
 from pytsite.core import assetman
+console.register_command(assetman.ConsoleCommand())
 assetman.register_package('pytsite.core', 'resources/assets')
 assetman.add_js('pytsite.core@js/assetman.js')
+
+# Initializing JS API
+__import__('pytsite.core.js_api')
+
+# Initializing form API
+assetman.add_js('pytsite.core@js/form.js')
 
 # Initializing 'app' package
 from importlib import import_module

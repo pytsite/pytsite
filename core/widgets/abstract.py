@@ -7,6 +7,7 @@ __license__ = 'MIT'
 
 from abc import ABC, abstractmethod
 from pytsite.core.util import random_str, dict_sort
+from pytsite.core.html import Div, Label
 
 
 class AbstractWidget(ABC):
@@ -50,7 +51,6 @@ class AbstractWidget(ABC):
 
         r = []
         for k, v in dict_sort(self._children):
-            print(v['weight'])
             r.append(v['widget'])
 
         return r
@@ -136,14 +136,21 @@ class AbstractWidget(ABC):
 
         self._help = help_str
 
-    def _group_wrap(self, str_to_wrap: str, classes: tuple=())->str:
+    def _group_wrap(self, str_to_wrap: str, add_cls: str=None, add_data: dict=None) -> str:
         """Wrap input string into 'form-group' container.
         """
 
-        classes_str = 'form-group'
-        for cls in classes:
-            classes_str = ' ' + cls
+        cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
+        if add_cls:
+            cls += ' ' + add_cls
 
-        label_str = '<label for="{}">{}</label>'.format(self._uid, self._label) if self._label else ''
+        wrapper = Div(str_to_wrap, cls=cls, data_widget_uid=self.uid)
 
-        return '<div class="{}">{}{}</div>'.format(classes_str, label_str, str_to_wrap)
+        if add_data:
+            for k, v in add_data.items():
+                wrapper.set_attr('data_' + k, v)
+
+        if self.label:
+            wrapper.append(Label(self.label, label_for=self.uid))
+
+        return wrapper.render()

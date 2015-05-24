@@ -4,12 +4,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.widget.input import TextInputWidget
+from pytsite.core.widgets.input import TextInputWidget
+from pytsite.core.validation.rules import NotEmptyRule, EmailRule
 from pytsite.auth.models import User
 from pytsite.odm_ui.models import ODMUIMixin
-
+from pytsite.file.widgets import FilesUploadWidget
 
 class UserUI(User, ODMUIMixin):
+    """User UI.
+    """
 
     def get_permission_group(self) -> str:
         """Get permission group name.
@@ -37,7 +40,7 @@ class UserUI(User, ODMUIMixin):
     def setup_m_form(self, form):
         """Modify form setup hook.
 
-        :type form: pytsite.core.form.AbstractForm
+        :type form: pytsite.core.form.BaseForm
         """
         form.add_widget(TextInputWidget(
             uid='login',
@@ -50,3 +53,12 @@ class UserUI(User, ODMUIMixin):
             value=self.f_get('email'),
             label=self.t('email'),
         ), 20)
+
+        form.add_widget(FilesUploadWidget(
+            uid='picture',
+            label=self.t('avatar'),
+            model='image',
+        ), 30)
+
+        form.add_rule('login', NotEmptyRule()).add_rule('login', EmailRule())
+        form.add_rule('email', NotEmptyRule()).add_rule('email', EmailRule())

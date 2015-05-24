@@ -8,6 +8,7 @@ from os import path, makedirs, walk
 from shutil import rmtree, copy
 from webassets import Environment
 from webassets.script import CommandLineEnvironment
+from importlib.util import find_spec
 from . import console, lang, router, logger, reg
 
 
@@ -22,28 +23,23 @@ class ConsoleCommand(console.AbstractCommand):
         compile_assets()
 
 
-console.register_command(ConsoleCommand())
-
 _packages = dict()
 _links = {'js': [], 'css': []}
 
 
-def register_package(package_name: str, assets_dir: str='assets', languages_dir='lang'):
+def register_package(package_name: str, assets_dir: str='assets'):
     """Register assets container.
     """
 
-    from importlib.util import find_spec
     spec = find_spec(package_name)
     if not spec:
-        raise Exception("Package '{0}' is not found.".format(package_name))
+        raise Exception("Package '{}' is not found.".format(package_name))
 
-    assets_dir = path.join(path.dirname(spec.origin), assets_dir)
-    if not path.isdir(assets_dir):
-        raise Exception("Directory '{0}' is not exists.".format(assets_dir))
+    dir_path = path.join(path.dirname(spec.origin), assets_dir)
+    if not path.isdir(dir_path):
+        FileNotFoundError("Directory '{}' is not found.".format(dir_path))
 
-    _packages[package_name] = {
-        'assets_dir': assets_dir,
-    }
+    _packages[package_name] = dir_path
 
 
 def add_location(location: str, collection: str):
@@ -102,9 +98,8 @@ def compile_assets():
     if path.exists(static_dir):
         rmtree(static_dir)
 
-    for pkg_name in _packages:
+    for pkg_name, package_assets_dir in _packages.items():
         # Building package's assets absolute paths list
-        package_assets_dir = _packages[pkg_name]['assets_dir']
         files_list = []
         for root, dirs, files in walk(package_assets_dir):
             for file in files:
@@ -116,7 +111,7 @@ def compile_assets():
 
             dst = src.replace(package_assets_dir + path.sep, '')
             dst = path.join(static_dir, 'assets', pkg_name, dst)
-            print('Compiling {0} -> {1}'.format(src, dst))
+            print('Compiling {} -> {}'.format(src, dst))
 
             ext = path.splitext(src)[1]
             if ext in ['.js', '.css']:

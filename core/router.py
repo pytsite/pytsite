@@ -68,7 +68,7 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: list=Non
     __routes.add(rule)
 
 
-def call_endpoint(name: str, args: dict=None):
+def call_endpoint(name: str, args: dict=None, inp: dict=None):
     endpoint = name.split('.')
     if not len(endpoint):
         raise TypeError("Invalid format of endpoint specification: '{0}'".format(name))
@@ -86,7 +86,7 @@ def call_endpoint(name: str, args: dict=None):
         logger.error("'{}.{}' is not callable".format(module_name, callable_name))
         raise NotFound()
 
-    return callable_obj(args, request.values.to_dict())
+    return callable_obj(args, inp)
 
 
 def dispatch(env: dict, start_response: callable):
@@ -133,7 +133,7 @@ def dispatch(env: dict, start_response: callable):
 
         # Processing response from handler
         wsgi_response = Response(response='', status=200, content_type='text/html')
-        response_from_callable = call_endpoint(rule.endpoint, rule_args)
+        response_from_callable = call_endpoint(rule.endpoint, rule_args, request.values.to_dict())
         if isinstance(response_from_callable, str):
             if reg.get('output.minify'):
                 response_from_callable = minify(response_from_callable, True, True)

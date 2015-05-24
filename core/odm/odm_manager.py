@@ -62,7 +62,7 @@ def _cache_put(entity: ODMModel) -> ODMModel:
     """
 
     if not entity.is_new():
-        cache_key = entity.model + ':' + str(entity.id())
+        cache_key = entity.model + ':' + str(entity.id)
         __dispensed_entities[cache_key] = entity
 
     return entity
@@ -73,7 +73,7 @@ def cache_delete(entity: ODMModel):
     """
 
     if not entity.is_new():
-        cache_key = entity.model + ':' + str(entity.id())
+        cache_key = entity.model + ':' + str(entity.id)
         if cache_key in __dispensed_entities:
             del __dispensed_entities[cache_key]
 

@@ -51,8 +51,11 @@ class Element(ABC):
         """Set attribute.
         """
 
-        if attr not in _common_tag_attrs and not attr.startswith('data-') and attr not in self._get_valid_attrs():
+        if attr not in _common_tag_attrs and not attr.startswith('data_') and attr not in self._get_valid_attrs():
             raise AttributeError("Element '{0}' cannot have attribute: '{1}'".format(self._tag_name, attr))
+
+        if attr.startswith('data_'):
+            attr = attr.replace('_', '-')
 
         self._attrs[attr] = self._validate_attr(attr, value)
 
@@ -107,7 +110,10 @@ class Element(ABC):
         """
 
         # Open tag
-        r = "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {'cls': 'class'}))
+        r = "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {
+            'cls': 'class',
+            'label_for': 'for',
+        }))
 
         # Render children
         if self._children:
@@ -290,7 +296,7 @@ class TextArea(BlockElement):
 
 class Label(InlineElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'for',
+        return 'label_for',
 
 
 class Select(BlockElement):

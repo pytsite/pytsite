@@ -117,17 +117,21 @@ class ODMModel:
         """
         return self._fields
 
-    def id(self)->ObjectId:
+    @property
+    def id(self) -> ObjectId:
         """Get entity ID.
         """
         return self.f_get('_id')
 
-    def ref(self):
+    @property
+    def ref(self) -> DBRef:
         """Get entity's DBRef.
         """
+
         if self.is_new():
             raise Exception("Entity must be stored before it can has reference.")
-        return DBRef(self.collection().name, self.id())
+
+        return DBRef(self.collection().name, self.id)
 
     @property
     def model(self) -> str:
@@ -280,7 +284,7 @@ class ODMModel:
 
         # Actual deletion from storage
         if not self.is_new():
-            self.collection().delete_one({'_id': self.id()})
+            self.collection().delete_one({'_id': self.id})
             from .odm_manager import cache_delete
             cache_delete(self)
 

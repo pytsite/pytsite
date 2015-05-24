@@ -51,4 +51,4 @@ def filter_authorize(args: dict, inp: dict) -> router.RedirectResponse:
 
     # Redirecting to the authorization endpoint
     inp['redirect'] = escape(router.current_url(True))
-    return router.RedirectResponse(router.endpoint_url('pytsite.auth.endpoints.get_login', inp))
+    return router.RedirectResponse(router.endpoint_url('pytsite.auth.eps.get_login', inp))

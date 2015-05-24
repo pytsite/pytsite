@@ -5,14 +5,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from .util import xml_attrs_str, dict_sort
-from .widget.abstract import AbstractWidget
-from .widget.input import HiddenInputWidget
-from .validation import Validator, Rule
+from .widgets.abstract import AbstractWidget
+from .widgets.input import HiddenInputWidget
+from .validation.validator import Validator
+from .validation.rules import BaseRule
 from .html import Div
 from . import router
 
 
-class AbstractForm:
+class BaseForm:
     """Abstract form.
     """
 
@@ -25,7 +26,8 @@ class AbstractForm:
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
         self._legend = kwargs.get('legend', '')
-        self._cls = kwargs.get('cls', '')
+        self._cls = kwargs.get('cls', 'pytsite-form')
+        self._validation_ep = kwargs.get('validation_ep')
 
         self._areas = {'form': [], 'header': [], 'body': [], 'footer': []}
         self._widgets = {}
@@ -87,15 +89,33 @@ class AbstractForm:
 
     @property
     def cls(self) -> str:
-        """CSS classes getter.
+        """Get CSS classes.
         """
         return self._cls
+
+    @cls.setter
+    def cls(self, value):
+        """Set CSS classes.
+        """
+        self._cls = 'pytsite-form ' + value
 
     @property
     def messages(self):
         """Get validation messages.
         """
         return self._validator.messages
+
+    @property
+    def validation_ep(self) -> str:
+        """Get validation endpoint.
+        """
+        return self._validation_ep
+
+    @validation_ep.setter
+    def validation_ep(self, value):
+        """Set validation endpoint.
+        """
+        self._validation_ep = value
 
     def fill(self, values: dict):
         """Fill form's widgets with values.
@@ -110,14 +130,14 @@ class AbstractForm:
 
         return self
 
-    def add_rule(self, widget_id: str, rule: Rule):
+    def add_rule(self, widget_uid: str, rule: BaseRule):
         """Add a rule to the validator.
         """
 
-        if widget_id not in self._widgets:
-            raise KeyError("Widget '{0}' is not exists.".format(widget_id))
+        if widget_uid not in self._widgets:
+            raise KeyError("Widget '{0}' is not exists.".format(widget_uid))
 
-        self._validator.add_rule(widget_id, rule)
+        self._validator.add_rule(widget_uid, rule)
 
         return self
 
@@ -186,6 +206,7 @@ class AbstractForm:
             'class': self.cls,
             'action': self.action,
             'method': self.method,
+            'data-validation-ep': self.validation_ep,
         }
 
         r = '<form {}>\n'.format(xml_attrs_str(attrs))
