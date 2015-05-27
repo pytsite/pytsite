@@ -8,5 +8,4 @@ from werkzeug.wrappers import Request as Base
 class Request(Base):
     """HTTP request.
     """
-
     pass

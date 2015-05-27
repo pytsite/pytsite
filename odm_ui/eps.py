@@ -18,7 +18,11 @@ from .models import ODMUIMixin
 
 
 def browse(args: dict, inp: dict) -> str:
-    return tpl.render('pytsite.odm_ui@admin_browser', {'browser': ODMUIBrowser(args.get('model'))})
+    return tpl.render('pytsite.odm_ui@admin_browser', {'browser': ODMUIBrowser(args.get('model')).get_table_skeleton()})
+
+
+def get_browser_rows(args: dict, inp: dict) -> JSONResponse:
+    return JSONResponse(ODMUIBrowser(args.get('model')).get_rows())
 
 
 def get_m_form(args: dict, inp: dict) -> str:
@@ -33,11 +37,14 @@ def get_m_form(args: dict, inp: dict) -> str:
 def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
+    widget_messages = {}
+    global_messages = []
 
     form = _create_m_form(inp.get('__model'), inp.get('__entity_id'))
     v_status = form.fill(inp).validate()
+    widget_messages = form.messages
 
-    return {'status': v_status, 'messages': form.messages}
+    return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
 
 
 def post_m_form(args: dict, inp: dict) -> RedirectResponse:

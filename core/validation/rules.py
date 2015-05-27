@@ -7,6 +7,7 @@ __license__ = 'MIT'
 import re
 from abc import ABC, abstractmethod
 from pytsite.core.lang import t
+from .errors import ValidationError
 
 
 class BaseRule(ABC):
@@ -35,7 +36,7 @@ class BaseRule(ABC):
         self._value = value
 
     @property
-    def message(self)->str:
+    def message(self) -> str:
         """Get validation message.
         """
         if self._validation_state is None:
@@ -46,15 +47,28 @@ class BaseRule(ABC):
     def reset(self):
         """Reset rule.
         """
+
         self._value = None
         self._message = None
         self._validation_state = None
+
         return self
 
-    @abstractmethod
     def validate(self, validator=None, field_name: str=None) -> bool:
         """Validate the rule.
         """
+        try:
+            self._do_validate(validator, field_name)
+            self._validation_state = True
+        except ValidationError:
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_' + __name__
+            self._message = t(msg_id, {'name': field_name})
+            self._validation_state = False
+
+        return self._validation_state
+
+    @abstractmethod
+    def _do_validate(self, validator=None, field_name: str=None) -> bool:
         raise NotImplementedError()
 
 
@@ -62,84 +76,71 @@ class NotEmptyRule(BaseRule):
     """Not empty rule.
     """
 
-    def validate(self, validator=None, field_name: str=None) -> bool:
+    def _do_validate(self, validator=None, field_name: str=None):
         """Validate the rule.
         """
-        if self._value:
-            self._validation_state = True
-        else:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_not_empty'
-            self._message = t(msg_id, {'name': field_name})
-            self._validation_state = False
-
-        return self._validation_state
+        if not self._value:
+            raise ValidationError()
 
 
 class IntegerRule(BaseRule):
     """Integer rule.
     """
 
-    def validate(self, validator=None, field_name: str=None) -> bool:
+    def _do_validate(self, validator=None, field_name: str=None):
         """Validate the rule.
         """
+
         try:
             int(self._value)
-            self._validation_state = True
-
         except ValueError:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_integer'
-            self._message = t(msg_id, {'name': field_name})
-            self._validation_state = False
-
-        return self._validation_state
+            raise ValidationError()
 
 
 class UrlRule(BaseRule):
     """URL rule.
     """
 
-    def validate(self, validator=None, field_name: str=None) -> bool:
+    def _do_validate(self, validator=None, field_name: str=None):
         """Validate the rule.
         """
 
-        try:
-            regex = re.compile(
-                r'^(?:http|ftp)s?://'  # http:// or https://
-                r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
-                r'localhost|'  # localhost...
-                r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-                r'(?::\d+)?'  # optional port
-                r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        regex = re.compile(
+            r'^(?:http|ftp)s?://'  # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
+            r'localhost|'  # localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
-            if not regex.match(str(self._value)):
-                raise ValueError()
-
-            self._validation_state = True
-        except ValueError:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_url'
-            self._message = t(msg_id, {'name': field_name})
-            self._validation_state = False
-
-        return self._validation_state
+        if not regex.match(str(self._value)):
+            raise ValidationError()
 
 
 class EmailRule(BaseRule):
     """Email rule.
     """
 
-    def validate(self, validator=None, field_name: str=None) -> bool:
+    def _do_validate(self, validator=None, field_name: str=None):
         """Validate the rule.
         """
 
-        try:
-            regex = re.compile('[^@]+@[^@]+\.[^@]+')
-            if not regex.match(str(self._value)):
-                raise ValueError()
+        regex = re.compile('[^@]+@[^@]+\.[^@]+')
+        if not regex.match(str(self._value)):
+            raise ValidationError()
 
-            self._validation_state = True
-        except ValueError:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_email'
-            self._message = t(msg_id, {'name': field_name})
-            self._validation_state = False
 
-        return self._validation_state
+class ODMRefsListRule(BaseRule):
+    """Check if the value is a list of references.
+    """
+
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Validate the rule.
+        """
+
+        from pytsite.core.odm import odm_manager
+
+        if not isinstance(self._value, list):
+            raise ValidationError()
+        for v in self._value:
+            print(v)

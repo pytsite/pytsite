@@ -104,10 +104,37 @@ def dispense(model: str, entity_id=None) -> ODMModel:
 def dispense_by_ref(ref: DBRef):
     """Dispense entity by DBRef.
     """
+
     doc = db.get_database().dereference(ref)
     if not doc:
         return None
+
     return dispense(doc['_model'], doc['_id'])
+
+
+def resolve_ref(something) -> DBRef:
+    """Resolve ref from object.
+
+    :type something: str | ODMModel | DBRef
+    :rtype: DBRef
+    """
+
+    if isinstance(something, DBRef):
+        return something
+
+    if isinstance(something, ODMModel):
+        return something.ref
+
+    if isinstance(something, str):
+        parts = something.split(':')
+        if len(parts) != 2:
+            raise Exception('Cannot resolve ref.')
+        model, uid = parts
+        if not is_model_registered(model):
+            raise Exception("Mode '{}' is not registered.".format(model))
+        return DBRef(dispense(model).collection.name, uid)
+
+    raise Exception('Cannot resolve ref.')
 
 
 def find(model_name: str):

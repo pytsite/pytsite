@@ -102,6 +102,11 @@ class AbstractField(ABC):
         """
         pass
 
+    def __str__(self) -> str:
+        """Stringify field's value.
+        """
+        return str(self._value)
+
 
 class ObjectIdField(AbstractField):
     """ObjectId field.
@@ -188,7 +193,7 @@ class RefField(AbstractField):
             raise TypeError("Entity or DBRef expected, while {0} given.".format(type(value)))
 
         if isinstance(value, ODMModel):
-            value = value.ref()
+            value = value.ref
 
         return super().set_val(value, change_modified)
 
@@ -232,7 +237,7 @@ class RefsListField(AbstractField):
                 raise TypeError("List of DBRefs or entities expected.")
 
             if isinstance(item, ODMModel):
-                clean_value.append(item.ref())
+                clean_value.append(item.ref)
             elif isinstance(item, DBRef):
                 clean_value.append(item)
 
@@ -261,7 +266,7 @@ class RefsListField(AbstractField):
         if isinstance(value, DBRef):
             self._value.append(value)
         elif isinstance(value, ODMModel):
-            self._value.append(value.ref())
+            self._value.append(value.ref)
 
         if change_modified:
             self._modified = True

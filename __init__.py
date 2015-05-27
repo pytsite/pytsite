@@ -44,23 +44,28 @@ reg.set_val('output', {
 # Debug parameters
 reg.set_val('debug', {'enabled': False})
 
+
 # Switching registry to the file driver
 file_driver = reg.FileDriver(reg.get('paths.config'), reg.get('env.name'))
 reg.set_driver(file_driver)
 
-# Now it is possible to initialize language subsystem
+
+# Initializing language subsystem
 from pytsite.core import lang
 lang.define_languages(reg.get('lang.languages', ['en']))
 lang.register_package('pytsite.core', 'resources/lang')
 
-# Now it possible to initialize template engine
+
+# Initializing template subsystem
 from pytsite.core import tpl
 tpl.register_package('pytsite.core', 'resources/tpl')
+
 
 # Initializing event subsystem
 from pytsite.core import events
 
-# Initialize console
+
+# Initializing console
 from pytsite.core import console
 from pytsite.core.commands.cleanup import *
 from pytsite.core.commands.cron import *
@@ -74,6 +79,7 @@ console.register_command(lang.ConsoleCommand())
 
 # Initializing router
 from .core import router
+
 
 # Loading routes from the registry
 for pattern, opts in reg.get('routes', {}).items():
@@ -99,17 +105,22 @@ for pattern, opts in reg.get('routes', {}).items():
 
     router.add_rule(pattern, endpoint, defaults, methods, redirect)
 
+
 # Initializing asset manager
 from pytsite.core import assetman
 console.register_command(assetman.ConsoleCommand())
 assetman.register_package('pytsite.core', 'resources/assets')
 assetman.add_js('pytsite.core@js/assetman.js')
+assetman.add_js('pytsite.core@js/lang.js')
+
 
 # Initializing JS API
 __import__('pytsite.core.js_api')
 
-# Initializing form API
+
+# Initializing form JS API
 assetman.add_js('pytsite.core@js/form.js')
+
 
 # Initializing 'app' package
 from importlib import import_module

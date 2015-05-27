@@ -7,6 +7,7 @@ __license__ = 'MIT'
 from .util import xml_attrs_str, dict_sort
 from .widgets.abstract import AbstractWidget
 from .widgets.input import HiddenInputWidget
+from .widgets.wrapper import WrapperWidget
 from .validation.validator import Validator
 from .validation.rules import BaseRule
 from .html import Div
@@ -37,6 +38,7 @@ class BaseForm:
             self._name = uid
 
         self.add_widget(HiddenInputWidget(name='__form_location', value=router.current_url()), area='form')
+        self.add_widget(WrapperWidget(cls='form-messages'))
 
         self._setup()
 
@@ -141,10 +143,18 @@ class BaseForm:
 
         return self
 
+    def add_rules(self, widget_uid: str, rules: tuple):
+        """Add multiple rules to the validator.
+        """
+
+        for rule in rules:
+            self.add_rule(widget_uid, rule)
+
+        return self
+
     def validate(self) -> bool:
         """Validate the form.
         """
-
         return self._validator.validate()
 
     def store_state(self, except_fields: tuple=None):

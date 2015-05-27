@@ -4,7 +4,6 @@ __license__ = 'MIT'
 
 # Requirements
 __import__('pytsite.tbootstrap')
-__import__('pytsite.fontawesome')
 __import__('pytsite.auth')
 
 # Other imports
@@ -16,9 +15,9 @@ tpl.register_package(__name__)
 assetman.register_package(__name__)
 
 admin_route_filters = (
-    'pytsite.auth.endpoints.filter_authorize:permissions=admin.use',
+    'pytsite.auth.eps.filter_authorize:permissions=admin.use',
 )
-router.add_rule('/admin', __name__ + '.endpoints.dashboard', filters=admin_route_filters)
+router.add_rule('/admin', __name__ + '.eps.dashboard', filters=admin_route_filters)
 
 auth_manager.define_permission_group('admin', 'pytsite.admin@admin')
 auth_manager.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')

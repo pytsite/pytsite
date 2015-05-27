@@ -32,7 +32,7 @@ __url_adapter = __routes.bind(reg.get('server_name', 'localhost'))
 request = None
 """:type : pytsite.core.http.request.Request"""
 
-session = __session_store.new()
+session = None
 """:type : pytsite.core.http.session.Session"""
 
 
@@ -108,10 +108,25 @@ def dispatch(env: dict, start_response: callable):
             redirect_url += '?' + __url_adapter.query_args
         return RedirectResponse(redirect_url, 301)(env, start_response)
 
-    # Restoring session
+    # Session setup
     sid = request.cookies.get('PYTSITE_SESSION')
     if sid:
         session = __session_store.get(sid)
+    else:
+        session = __session_store.new()
+
+    request_values = {}
+    for part in request.values.lists():
+        k = part[0]
+        """:type: str"""
+
+        v = part[1]
+        """:type: list"""
+        if len(v) > 1:
+            k = k.rstrip('[]')
+            request_values[k] = v
+        else:
+            request_values[k] = v[0]
 
     try:
         rule, rule_args = __url_adapter.match(return_rule=True)
@@ -127,13 +142,13 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_endpoint(flt_endpoint, flt_args)
+            flt_response = call_endpoint(flt_endpoint, flt_args, request_values)
             if isinstance(flt_response, RedirectResponse):
                 return flt_response(env, start_response)
 
         # Processing response from handler
         wsgi_response = Response(response='', status=200, content_type='text/html')
-        response_from_callable = call_endpoint(rule.endpoint, rule_args, request.values.to_dict())
+        response_from_callable = call_endpoint(rule.endpoint, rule_args, request_values)
         if isinstance(response_from_callable, str):
             if reg.get('output.minify'):
                 response_from_callable = minify(response_from_callable, True, True)

@@ -133,6 +133,8 @@ def compile_assets():
                     makedirs(dst_dir, 0o755)
                 copy(src, dst)
 
+    lang.compile_translations()
+
 
 def __split_asset_location_info(location: str)->dict:
     """Split asset path into package name and asset path.

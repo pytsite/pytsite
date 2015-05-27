@@ -5,11 +5,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from importlib.util import find_spec
-from os import path, listdir
-from glob import glob
 import yaml
-from . import console
+import json
+from importlib.util import find_spec
+from os import path
+from . import console, reg
 
 
 class ConsoleCommand(console.AbstractCommand):
@@ -20,7 +20,7 @@ class ConsoleCommand(console.AbstractCommand):
         return t('pytsite.core@lang_console_command_description')
 
     def execute(self, **kwargs: dict):
-        _compile_translations()
+        compile_translations()
 
 __languages = []
 __current_language = None
@@ -167,16 +167,24 @@ def transliterate(text: str)->str:
     return r
 
 
-def _compile_translations():
+def compile_translations(print_output: bool=True):
     """Compile language translations.
     """
+
     output = {}
     for lang_code in get_languages():
         output[lang_code] = {}
         for pkg_name, info in _packages.items():
+            if print_output:
+                print("Compiling translations for {} ({})".format(pkg_name, lang_code))
             output[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
 
-    print(output)
+    output_file = path.join(reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
+    with open(output_file, 'wt') as f:
+        if print_output:
+            print("Writing translations into '{}'".format(output_file))
+        json.dump(output, f)
+
 
 def _load_file(package_name: str, language: str=None):
     """Load package's language file.

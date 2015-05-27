@@ -29,7 +29,7 @@ class ODMUIMixin:
         """
         raise NotImplementedError()
 
-    def get_browser_row(self) -> tuple:
+    def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         raise NotImplementedError()

@@ -5,10 +5,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core.widgets.input import TextInputWidget
-from pytsite.core.validation.rules import NotEmptyRule, EmailRule
+from pytsite.core.validation.rules import NotEmptyRule, EmailRule, ODMRefsListRule
 from pytsite.auth.models import User
 from pytsite.odm_ui.models import ODMUIMixin
+from pytsite.odm_ui.widgets import EntityCheckboxesWidget
 from pytsite.file.widgets import FilesUploadWidget
+
 
 class UserUI(User, ODMUIMixin):
     """User UI.
@@ -30,9 +32,9 @@ class UserUI(User, ODMUIMixin):
         :type browser: pytsite.odm_ui.browser.ODMUIBrowser
         :return: None
         """
-        browser.head_columns = 'login', 'email', 'last_login',
+        browser.data_fields = 'login', 'email', 'last_login'
 
-    def get_browser_row(self) -> tuple:
+    def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return self.f_get('login'), self.f_get('email'), self.f_get('lastLogin', fmt='%x %X')
@@ -42,6 +44,7 @@ class UserUI(User, ODMUIMixin):
 
         :type form: pytsite.core.form.BaseForm
         """
+
         form.add_widget(TextInputWidget(
             uid='login',
             value=self.f_get('login'),
@@ -54,11 +57,19 @@ class UserUI(User, ODMUIMixin):
             label=self.t('email'),
         ), 20)
 
-        form.add_widget(FilesUploadWidget(
-            uid='picture',
-            label=self.t('avatar'),
-            model='image',
+        form.add_widget(EntityCheckboxesWidget(
+            uid='roles',
+            label=self.t('roles'),
+            model='role',
+            caption_field='description'
         ), 30)
 
-        form.add_rule('login', NotEmptyRule()).add_rule('login', EmailRule())
-        form.add_rule('email', NotEmptyRule()).add_rule('email', EmailRule())
+        form.add_widget(FilesUploadWidget(
+            uid='picture',
+            label=self.t('picture'),
+            model='image',
+        ), 40)
+
+        form.add_rules('login', (NotEmptyRule(), EmailRule()))
+        form.add_rules('email', (NotEmptyRule(), EmailRule()))
+        form.add_rules('roles', (NotEmptyRule(),))

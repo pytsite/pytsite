@@ -150,16 +150,18 @@ class Finder:
         """Count documents in collection.
         """
 
-        collection = self._entity.collection()
+        collection = self._entity.collection
         flt = self._query.get_criteria()
         return collection.count(filter=flt, skip=self._skip, limit=self._limit)
 
-    def get(self, limit: int=0) -> list:
+    def get(self, limit: int=0):
         """Execute the query and return a cursor.
+
+        :rtype: list[ODMModel]
         """
 
         self._limit = limit
-        collection = self._entity.collection()
+        collection = self._entity.collection
         cursor = collection.find(
             self._query.get_criteria(),
             {'_id': True},

@@ -44,6 +44,12 @@ class AbstractWidget(ABC):
 
         return self
 
+    @abstractmethod
+    def render(self) -> str:
+        """Render the widget.
+        """
+        raise NotImplementedError()
+
     @property
     def children(self):
         """Get children widgets.
@@ -54,13 +60,6 @@ class AbstractWidget(ABC):
             r.append(v['widget'])
 
         return r
-
-    @abstractmethod
-    def render(self) -> str:
-        """Render the widget.
-        """
-
-        raise NotImplementedError()
 
     @property
     def uid(self) -> str:
@@ -133,7 +132,6 @@ class AbstractWidget(ABC):
     def help(self, help_str: str):
         """Set help string of the widget.
         """
-
         self._help = help_str
 
     def _group_wrap(self, str_to_wrap: str, add_cls: str=None, add_data: dict=None) -> str:

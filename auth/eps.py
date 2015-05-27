@@ -40,7 +40,7 @@ def filter_authorize(args: dict, inp: dict) -> router.RedirectResponse:
     user = auth_manager.get_current_user()
 
     # User is currently authorized
-    if user:
+    if not user.is_anonymous():
         # Checking requested permissions
         req_perms_str = args.get('permissions', '')
         if req_perms_str:

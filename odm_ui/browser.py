@@ -4,10 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import router
+from pytsite.core import router, assetman
 from pytsite.core.odm import odm_manager
-from pytsite.core.lang import t
-from pytsite.core.html import Div, Table, THead, TFoot, TBody, Tr, Th, Td, A, I, Label, Input
+from pytsite.core.lang import t, get_current_lang
+from pytsite.core.html import Div, Table, THead, Span, TBody, Tr, Th, Td, A, I, Input
 from pytsite.core.pager import Pager
 from pytsite.core.http.errors import Forbidden
 from pytsite.core.odm.models import ODMModel
@@ -26,6 +26,17 @@ class ODMUIBrowser:
         if not self._current_user.has_permission('pytsite.odm_ui.browse.{}'.format(odm_model)):
             raise Forbidden()
 
+        self._entity_mock = odm_manager.dispense(self._model)
+        """:type : ODMUIMixin"""
+        if not isinstance(self._entity_mock, ODMUIMixin):
+            raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
+
+        self._entity_mock.setup_browser(self)
+
+        # Head columns
+        if not self.data_fields:
+            raise Exception("No head columns are defined.")
+
     @property
     def title(self) -> str:
         return self._title
@@ -35,91 +46,110 @@ class ODMUIBrowser:
         self._title = value
 
     @property
-    def head_columns(self) -> tuple:
+    def data_fields(self) -> tuple:
         return self._head_columns
 
-    @head_columns.setter
-    def head_columns(self, value: tuple):
+    @data_fields.setter
+    def data_fields(self, value: tuple):
         if not isinstance(value, tuple):
             raise TypeError('Tuple expected.')
         self._head_columns = value
 
-    def render(self) -> str:
-        mock = odm_manager.dispense(self._model)
-        if not isinstance(mock, ODMUIMixin):
-            raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
+    def get_table_skeleton(self) -> str:
+        lang_pkg = self._entity_mock.get_lang_package()
+        data_url = router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
 
-        lang_pkg = mock.get_lang_package()
-
-        mock.setup_browser(self)
-
-        # Head columns
-        if not self.head_columns:
-            raise Exception("No head columns are defined.")
+        # Toolbar
+        toolbar = Div(id='odm-ui-browser-toolbar')
+        toolbar.append(A('Hello', href='#'))
 
         # Table skeleton
-        table = Table(cls='table table-bordered table-hover')
+        table = Table(
+            cls='table table-bordered table-hover',
+            data_toggle='table',
+            data_url=data_url,
+            data_toolbar='#odm-ui-browser-toolbar',
+            data_show_columns='true',
+            data_show_refresh='true',
+            data_search='true',
+            data_click_to_select='true',
+            data_pagination='true',
+            data_side_pagination='server',
+            data_page_list='[25,50,100]'
+        )
         t_head = THead()
         t_body = TBody()
-        t_foot = TFoot()
-        table.append(t_head).append(t_body).append(t_foot)
+        table.append(t_head).append(t_body)
 
         # Table head row
         t_head_row = Tr()
         t_head.append(t_head_row)
 
-        # Head checkbox column
-        t_head_row.append(Th(cls='column-checkboxes').append(Input(type='checkbox', cls='check-all')))
+        # Checkbox column
+        t_head_row.append(Th(data_field='__state', data_checkbox='true'))
 
         # Head cells
-        for col in self.head_columns:
-            t_head_row.append(Th(t(lang_pkg + '@' + col)))
+        for col in self.data_fields:
+            th = Th(t(lang_pkg + '@' + col), data_field=col, data_sortable='true')
+            t_head_row.append(th)
 
-        # Head 'action' cell
-        t_head_row.append(Th(t('pytsite.odm_ui@actions'), cls='column-actions'))
+        # Actions column
+        t_head_row.append(Th(t('pytsite.odm_ui@actions'), data_field='__actions'))
 
-        # Table rows
-        pager = Pager(odm_manager.find(self._model).count())
-        finder = odm_manager.find(self._model).skip(pager.skip)
-        cursor = finder.get(pager.limit)
+        assetman.add_css('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.css')
+        assetman.add_js('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.js')
+
+        current_lang = get_current_lang()
+        locale = current_lang + '-' + current_lang.upper()
+        if current_lang == 'uk':
+            locale = 'uk-UA'
+        assetman.add_js('pytsite.tbootstrap@plugins/bootstrap-table/locale/bootstrap-table-{}.min.js'. format(locale))
+
+        return toolbar.render() + table.render()
+
+    def get_rows(self, offset: int=0, limit: int=0) -> list:
+        r = {'total': 0, 'rows': []}
+
+        finder = odm_manager.find(self._model)
+        r['total'] = finder.count()
+        cursor = finder.get()
         """:type : list[ODMUIMixin]"""
         for entity in cursor:
-            tr = Tr()
-
             # Getting contend for TDs
-            columns = entity.get_browser_row()
-            if not columns:
+            cells = entity.get_browser_data_row()
+            if not cells:
                 raise Exception("'get_browser_row()' returns nothing.")
-            if len(columns) != len(self.head_columns):
-                raise Exception("'get_browser_row()' returns invalid number of columns.")
-
-            # Checkbox TD
-            tr.append(Td().append(Input(type='checkbox')))
+            if len(cells) != len(self.data_fields):
+                raise Exception("'get_browser_row()' returns invalid number of cells.")
 
             # Data TDs
-            for columns in columns:
-                tr.append(Td(columns))
+            cell = {}
+            for f_name, cell_content in zip(self.data_fields, cells):
+                cell[f_name] = cell_content
 
-            # Actions TD
-            tr.append(Td(self._get_entity_action_buttons(entity).render()))
+            # Action buttons
+            cell['__actions'] = self._get_entity_action_buttons(entity).render()
 
-            t_body.append(tr)
+            r['rows'].append(cell)
 
-        return table.render()
+        return r
 
     def _get_entity_action_buttons(self, entity) -> Div:
         """Get action buttons for entity.
         """
 
-        group = Div(cls='btn-group')
+        group = Div()
+
         if self._check_entity_permission('modify', entity):
-            href = router.endpoint_url('pytsite.odm_ui.eps.get_modify_form',
-                                       {'model': entity.model(), 'id': entity.id()})
-            group.append(A(cls='btn btn-sm bg-purple', href=href).append(I(cls='fa fa-edit')))
+            href = router.endpoint_url('pytsite.odm_ui.eps.get_m_form',
+                                       {'model': entity.model, 'id': entity.id})
+            group.append(A(cls='btn btn-xs btn-default', href=href).append(I(cls='fa fa-edit')))
+
         if self._check_entity_permission('delete', entity):
-            href = router.endpoint_url('pytsite.odm_ui.eps.get_delete_form',
-                                       {'model': entity.model(), 'ids[]': entity.id()})
-            group.append(A(cls='btn btn-sm btn-danger', href=href).append(I(cls='fa fa-remove')))
+            group.append(Span('&nbsp;'))
+            href = router.endpoint_url('pytsite.odm_ui.eps.get_d_form',
+                                       {'model': entity.model, 'ids[]': entity.id})
+            group.append(A(cls='btn btn-xs btn-danger', href=href).append(I(cls='fa fa-remove')))
 
         return group
 
@@ -134,7 +164,7 @@ class ODMUIBrowser:
             if self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '.' + self._model):
                 return True
             elif self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '_own.' + self._model):
-                if entity.has_field('author') and entity.f_get('author').id() == self._current_user.id():
+                if entity.has_field('author') and entity.f_get('author').id == self._current_user.id:
                     return True
 
         return False

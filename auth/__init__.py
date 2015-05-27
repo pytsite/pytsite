@@ -19,7 +19,7 @@ odm.odm_manager.register_model('role', models.Role)
 
 # Routes
 router.add_rule('/auth/login', __name__ + '.eps.get_login', {}, ['GET'])
-router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ['GET'])
+router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ['POST'])
 router.add_rule('/auth/logout', __name__ + '.eps.get_logout', {}, ['GET'])
 
 # Default auth driver
