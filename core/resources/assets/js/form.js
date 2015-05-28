@@ -21,6 +21,9 @@ $(function() {
         var form = $(this);
 
         form.submit(function(e) {
+            if(form.hasClass('validated'))
+                return true;
+
             var validation_ep = form.data('validationEp');
 
             // Cleaning up error messages
@@ -44,22 +47,23 @@ $(function() {
                             for(i in w_messages[widget_uid])
                                 w_group.append('<span class="help-block error">' + w_messages[widget_uid][i] + '</span>');
                         }
+
+                        if(data.messages.global.length) {
+                            var g_messages = data.messages.global;
+                            for(i in g_messages)
+                                form.find('.form-messages').append('<div class="alert alert-danger" role="alert">' + g_messages[i] + '</div>')
+                        }
+                    }
+                    else {
+                        form.addClass('validated');
+                        form.submit()
                     }
 
-                    if(data.messages.global.length) {
-                        var g_messages = data.messages.global;
-                        for(i in g_messages)
-                            form.find('.form-messages').append('<div class="alert alert-danger" role="alert">' + g_messages[i] + '</div>')
-                    }
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     form.find('.form-messages')
-                        .append('<div class="alert alert-danger" role="alert">' + textStatus + '</div>');
-                    form.find('.form-messages')
                         .append('<div class="alert alert-danger" role="alert">' + errorThrown + '</div>');
                 });
-
-
 
             return false;
         });

@@ -60,15 +60,17 @@ class BaseRule(ABC):
         try:
             self._do_validate(validator, field_name)
             self._validation_state = True
-        except ValidationError:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_rule_' + __name__
-            self._message = t(msg_id, {'name': field_name})
+        except ValidationError as e:
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_' + self.__class__.__name__.lower()
+            self._message = t(msg_id, {'field_name': field_name, 'error_detail': str(e)})
             self._validation_state = False
 
         return self._validation_state
 
     @abstractmethod
     def _do_validate(self, validator=None, field_name: str=None) -> bool:
+        """Do actual validation of the rule.
+        """
         raise NotImplementedError()
 
 
@@ -77,8 +79,9 @@ class NotEmptyRule(BaseRule):
     """
 
     def _do_validate(self, validator=None, field_name: str=None):
-        """Validate the rule.
+        """Do actual validation of the rule.
         """
+
         if not self._value:
             raise ValidationError()
 
@@ -88,7 +91,7 @@ class IntegerRule(BaseRule):
     """
 
     def _do_validate(self, validator=None, field_name: str=None):
-        """Validate the rule.
+        """Do actual validation of the rule.
         """
 
         try:
@@ -102,7 +105,7 @@ class UrlRule(BaseRule):
     """
 
     def _do_validate(self, validator=None, field_name: str=None):
-        """Validate the rule.
+        """Do actual validation of the rule.
         """
 
         regex = re.compile(
@@ -122,25 +125,9 @@ class EmailRule(BaseRule):
     """
 
     def _do_validate(self, validator=None, field_name: str=None):
-        """Validate the rule.
+        """Do actual validation of the rule.
         """
 
         regex = re.compile('[^@]+@[^@]+\.[^@]+')
         if not regex.match(str(self._value)):
             raise ValidationError()
-
-
-class ODMRefsListRule(BaseRule):
-    """Check if the value is a list of references.
-    """
-
-    def _do_validate(self, validator=None, field_name: str=None):
-        """Validate the rule.
-        """
-
-        from pytsite.core.odm import odm_manager
-
-        if not isinstance(self._value, list):
-            raise ValidationError()
-        for v in self._value:
-            print(v)

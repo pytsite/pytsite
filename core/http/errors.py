@@ -11,3 +11,7 @@ class NotFound(exceptions.NotFound):
 
 class Forbidden(exceptions.Forbidden):
     pass
+
+
+class ServerError(exceptions.InternalServerError):
+    pass

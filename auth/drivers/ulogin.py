@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 from urllib.parse import urlencode
 from urllib.request import urlopen
-from pytsite.core import tpl, form, router, reg, lang
+from pytsite.core import tpl, forms, router, reg, lang
 from pytsite.core.widgets.abstract import AbstractWidget
 from pytsite.core.widgets.input import HiddenInputWidget
 from pytsite.image import image_manager as image_manager
@@ -32,7 +32,7 @@ class LoginWidget(AbstractWidget):
         return tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
 
 
-class LoginForm(form.BaseForm):
+class LoginForm(forms.BaseForm):
     """ULogin Login Form.
     """
 
@@ -51,7 +51,7 @@ class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
 
-    def get_login_form(self, uid: str) -> form.BaseForm:
+    def get_login_form(self, uid: str) -> forms.BaseForm:
         """Get the login form.
         """
 
@@ -93,10 +93,12 @@ class ULoginDriver(AbstractDriver):
                 # Full name
                 full_name = ''
                 if 'first_name' in ulogin_data:
+                    user.f_set('first_name', ulogin_data['first_name'])
                     full_name += ulogin_data['first_name']
                 if 'last_name' in ulogin_data:
+                    user.f_set('last_name', ulogin_data['last_name'])
                     full_name += ' ' + ulogin_data['last_name']
-                user.f_set('fullName', full_name)
+                user.f_set('full_name', full_name)
 
                 # Gender
                 if 'sex' in ulogin_data:
@@ -115,7 +117,7 @@ class ULoginDriver(AbstractDriver):
             auth_manager.authorize(user)
 
             # Saving statistical information
-            user.f_add('loginCount', 1).f_set('lastLogin', datetime.now()).save()
+            user.f_add('login_count', 1).f_set('last_login', datetime.now()).save()
 
             # Redirect to the final destination
             if 'redirect' in inp:

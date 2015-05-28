@@ -9,7 +9,7 @@ setup_is_not_completed: 'Настройка приложения не завер
 untitled_document: 'Безымянный Документ'
 error: 'Ошибка :code'
 
-validation_rule_not_empty: 'Обязательно для заполнения'
-validation_rule_integer: 'Должно быть целым значением'
-validation_rule_email: 'Некорректный email'
-validation_rule_odm_refs_list: 'Некорректный email'
+validation_notemptyrule: 'Обязательно для заполнения'
+validation_integerrule: 'Должно быть целым значением'
+validation_emailrule: 'Некорректный email'
+validation_odmentitieslistrule: ':error_detail'

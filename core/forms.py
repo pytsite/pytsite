@@ -119,6 +119,15 @@ class BaseForm:
         """
         self._validation_ep = value
 
+    @property
+    def values(self) -> dict:
+
+        r = {}
+        for k, v in self._widgets.items():
+            r[k] = v['widget'].value
+
+        return r
+
     def fill(self, values: dict):
         """Fill form's widgets with values.
         """
@@ -126,9 +135,8 @@ class BaseForm:
         for field_name, field_value in values.items():
             if self.has_widget(field_name):
                 self.get_widget(field_name).value = field_value
-
-            if self._validator.has_field(field_name):
-                self._validator.set_value(field_name, field_value)
+                if self._validator.has_field(field_name):
+                    self._validator.set_value(field_name, self.get_widget(field_name).value)
 
         return self
 

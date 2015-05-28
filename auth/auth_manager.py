@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from pytsite.core import router, form, odm
+from pytsite.core import router, forms, odm
+from pytsite.core.lang import t
 from .errors import *
 from .models import User, Role
 from .drivers.abstract import AbstractDriver
@@ -41,7 +42,7 @@ def set_driver(driver: AbstractDriver):
     __driver = driver
 
 
-def get_driver()->AbstractDriver:
+def get_driver() -> AbstractDriver:
     """Get current driver.
     """
 
@@ -88,7 +89,7 @@ def is_permission_defined(name: str) -> bool:
     return name in __permissions
 
 
-def get_login_form(uid: str=None) -> form.BaseForm:
+def get_login_form(uid: str=None) -> forms.BaseForm:
     """Get a login form.
     """
 
@@ -203,3 +204,14 @@ def logout_current_user():
 
     if 'pytsite.auth.login' in router.session:
         del router.session['pytsite.auth.login']
+
+
+def get_user_statuses() -> list:
+    """Get available user statuses.
+    """
+
+    return [
+        ('active', t('pytsite.auth@status_active')),
+        ('waiting', t('pytsite.auth@status_waiting')),
+        ('disabled', t('pytsite.auth@status_disabled')),
+    ]

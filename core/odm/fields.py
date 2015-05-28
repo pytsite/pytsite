@@ -337,6 +337,7 @@ class StringField(AbstractField):
 class IntegerField(AbstractField):
     """Integer field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -359,6 +360,24 @@ class IntegerField(AbstractField):
         """
         self.set_val(self.get_val(**kwargs) + int(value))
         return self
+
+
+class BoolField(AbstractField):
+    """Integer field.
+    """
+
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, **kwargs)
+        if self._value is None:
+            self._value = False
+
+    def set_val(self, value: bool, change_modified: bool=True, **kwargs):
+        """Set value of the field.
+        """
+
+        return super().set_val(bool(value), change_modified)
 
 
 class VirtualField(AbstractField):

@@ -16,26 +16,32 @@ class User(ODMModel):
         """_setup() hook.
         """
 
+        # Fields
         self.define_field(StringField('login', required=True))
         self.define_field(StringField('email', required=True, validate_email=True))
         self.define_field(StringField('password', required=True))
         self.define_field(StringField('token', required=True))
-        self.define_field(StringField('fullName'))
-        self.define_field(DateTimeField('lastLogin'))
-        self.define_field(IntegerField('loginCount'))
+        self.define_field(StringField('first_name'))
+        self.define_field(StringField('last_name'))
+        self.define_field(StringField('full_name'))
+        self.define_field(DateTimeField('last_login'))
+        self.define_field(IntegerField('login_count'))
         self.define_field(StringField('status', default='active'))
         self.define_field(RefsListField('roles', model='role'))
+        self.define_field(BoolField('profile_is_public'))
         self.define_field(IntegerField('gender'))
         self.define_field(StringField('phone'))
         self.define_field(DictField('options'))
         self.define_field(RefField('picture'))
 
+        # Indices
         self.define_index([('login', I_ASC)], unique=True)
         self.define_index([('token', I_ASC)], unique=True)
 
     def _on_f_set(self, field_name: str, orig_value, **kwargs):
         """_on_f_set() hook.
         """
+
         if field_name == 'password':
             from .auth_manager import password_hash
             orig_value = password_hash(orig_value)

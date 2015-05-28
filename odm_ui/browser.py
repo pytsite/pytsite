@@ -60,7 +60,7 @@ class ODMUIBrowser:
         data_url = router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
 
         # Toolbar
-        toolbar = Div(id='odm-ui-browser-toolbar')
+        toolbar = Div(uid='odm-ui-browser-toolbar')
         toolbar.append(A('Hello', href='#'))
 
         # Table skeleton

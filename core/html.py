@@ -14,7 +14,7 @@ _common_tag_attrs = (
     'draggable',
     'dropzone',
     'hidden',
-    'id',
+    'uid',
     'lang',
     'spellcheck',
     'style',
@@ -51,7 +51,8 @@ class Element(ABC):
         """Set attribute.
         """
 
-        if attr not in _common_tag_attrs and not attr.startswith('data_') and attr not in self._get_valid_attrs():
+        if attr not in _common_tag_attrs and not attr.startswith('data_') \
+                and attr not in self._get_valid_attrs() and attr not in self._get_required_attrs():
             raise AttributeError("Element '{0}' cannot have attribute: '{1}'".format(self._tag_name, attr))
 
         if attr.startswith('data_'):
@@ -90,6 +91,12 @@ class Element(ABC):
 
         return self
 
+    def wrap(self, wrapper):
+        if not isinstance(wrapper, Element):
+            raise TypeError('Element expected.')
+
+        return wrapper.append(self)
+
     def _validate_attr(self, attr: str, value: str) -> str:
         return value
 
@@ -111,6 +118,7 @@ class Element(ABC):
 
         # Open tag
         r = "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {
+            'uid': 'id',
             'cls': 'class',
             'label_for': 'for',
         }))
@@ -148,7 +156,7 @@ class SingleTagElement(Element):
         """Render the element.
         """
 
-        return "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {'cls': 'class'}))
+        return "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
 
 
 class InlineElement(Element):
@@ -184,26 +192,20 @@ class I(Span):
 
 
 class Button(Span):
-    def _get_valid_attrs(self) -> tuple:
-        return 'type',
-
     def _get_required_attrs(self):
         return 'type',
 
 
 class A(Span):
-    def _get_required_attrs(self):
-        return 'href',
-
-    def _get_valid_attrs(self):
+    def _get_required_attrs(self) -> tuple:
         return 'href',
 
 
 class Img(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'src', 'width', 'height'
+        return 'width', 'height'
 
-    def _get_required_attrs(self):
+    def _get_required_attrs(self) -> tuple:
         return 'src',
 
 
@@ -232,7 +234,7 @@ class P(BlockElement):
 
 
 class Ul(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'li',
 
 
@@ -245,35 +247,35 @@ class Li(Span):
 
 
 class Table(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'thead', 'tbody', 'tfoot', 'tr'
 
 
 class THead(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'tr',
 
 
 class TBody(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'tr',
 
 
 class TFoot(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'tr',
 
 
 class Tr(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'td', 'th'
 
 
 class Td(BlockElement):
-    def _get_valid_attrs(self):
+    def _get_valid_attrs(self) -> tuple:
         return 'colspan', 'rowspan'
 
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'any'
 
 
@@ -287,7 +289,10 @@ class Form(BlockElement):
 
 class Input(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'name', 'type', 'value', 'placeholder'
+        return 'value', 'placeholder', 'checked', 'selected'
+
+    def _get_required_attrs(self) -> tuple:
+        return 'type', 'name'
 
 
 class TextArea(BlockElement):
@@ -300,10 +305,10 @@ class Label(InlineElement):
 
 
 class Select(BlockElement):
-    def _get_valid_children(self):
+    def _get_valid_children(self) -> tuple:
         return 'option',
 
 
 class Option(InlineElement):
-    def _get_required_attrs(self):
+    def _get_required_attrs(self) -> tuple:
         return 'value',

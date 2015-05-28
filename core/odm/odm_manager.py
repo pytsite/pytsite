@@ -5,6 +5,7 @@ __license__ = 'MIT'
 from inspect import isclass
 from pytsite.core import db, events
 from bson.dbref import DBRef
+from bson.objectid import ObjectId
 from .errors import EntityNotFoundException
 from .models import ODMModel
 
@@ -106,14 +107,11 @@ def dispense_by_ref(ref: DBRef):
     """
 
     doc = db.get_database().dereference(ref)
-    if not doc:
-        return None
-
-    return dispense(doc['_model'], doc['_id'])
+    return dispense(doc['_model'], doc['_id']) if doc else None
 
 
 def resolve_ref(something) -> DBRef:
-    """Resolve ref from object.
+    """Resolve DB object ref.
 
     :type something: str | ODMModel | DBRef
     :rtype: DBRef
@@ -128,13 +126,15 @@ def resolve_ref(something) -> DBRef:
     if isinstance(something, str):
         parts = something.split(':')
         if len(parts) != 2:
-            raise Exception('Cannot resolve ref.')
+            raise Exception('Invalid string reference format: {}'.format(something))
+
         model, uid = parts
         if not is_model_registered(model):
-            raise Exception("Mode '{}' is not registered.".format(model))
-        return DBRef(dispense(model).collection.name, uid)
+            raise Exception("Model '{}' is not registered.".format(model))
 
-    raise Exception('Cannot resolve ref.')
+        return DBRef(dispense(model).collection.name, ObjectId(uid))
+
+    raise Exception('Cannot resolve reference.')
 
 
 def find(model_name: str):

@@ -35,6 +35,7 @@ class AbstractWidget(ABC):
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
         self._children = {}
+        self._h_size = kwargs.get('h_size')
 
     def add_child(self, widget, weight: int=0):
         """Add a child widget.
@@ -79,28 +80,24 @@ class AbstractWidget(ABC):
     def value(self):
         """Get value of the widget.
         """
-
         return self._value
 
     @value.setter
     def value(self, val):
         """Set value of the widget.
         """
-
         self._value = val
 
     @property
     def label(self) -> str:
         """Get label of the widget.
         """
-
         return self._label
 
     @property
     def title(self) -> str:
         """Get title of the widget.
         """
-
         return self._title
 
     @property
@@ -111,7 +108,7 @@ class AbstractWidget(ABC):
         return self._placeholder
 
     @property
-    def cls(self):
+    def cls(self) -> str:
         """Get CSS classes of the widget.
         """
         return self._cls
@@ -134,21 +131,24 @@ class AbstractWidget(ABC):
         """
         self._help = help_str
 
-    def _group_wrap(self, str_to_wrap: str, add_cls: str=None, add_data: dict=None) -> str:
+    def _group_wrap(self, str_to_wrap: str, add_cls: str=None, add_data: dict=None, render_label: bool=True) -> str:
         """Wrap input string into 'form-group' container.
         """
+
+        if self._h_size:
+            str_to_wrap = Div(str_to_wrap, cls=self._h_size).wrap(Div(cls='row')).render()
 
         cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
         if add_cls:
             cls += ' ' + add_cls
 
-        wrapper = Div(str_to_wrap, cls=cls, data_widget_uid=self.uid)
+        group_wrapper = Div(str_to_wrap, cls=cls, data_widget_uid=self.uid)
 
         if add_data:
             for k, v in add_data.items():
-                wrapper.set_attr('data_' + k, v)
+                group_wrapper.set_attr('data_' + k, v)
 
-        if self.label:
-            wrapper.append(Label(self.label, label_for=self.uid))
+        if render_label and self.label:
+            group_wrapper.append(Label(self.label, label_for=self.uid))
 
-        return wrapper.render()
+        return group_wrapper.render()

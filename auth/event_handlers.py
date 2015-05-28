@@ -33,7 +33,7 @@ def app_setup():
     if not v.validate():
         raise Exception(v.messages)
     admin_user = auth_manager.create_user(email)
-    admin_user.f_set('fullName', t('pytsite.auth@administrator'))
+    admin_user.f_set('full_name', t('pytsite.auth@administrator'))
     admin_user.f_add('roles', auth_manager.get_role('admin'))
     admin_user.save()
     print(t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))

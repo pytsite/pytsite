@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core import tpl
-from pytsite.core.form import BaseForm
+from pytsite.core.forms import BaseForm
+from pytsite.core.http.errors import ServerError
 from pytsite.core.http.response import RedirectResponse, JSONResponse
 from pytsite.core.odm import odm_manager
 from pytsite.core.lang import t
@@ -37,7 +38,7 @@ def get_m_form(args: dict, inp: dict) -> str:
 def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
-    widget_messages = {}
+
     global_messages = []
 
     form = _create_m_form(inp.get('__model'), inp.get('__entity_id'))
@@ -57,9 +58,18 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
     form = _create_m_form(model, entity_id)
 
     if not form.fill(inp).validate():
-        pass
+        raise ServerError()
 
     entity = _dispense_entity(model, entity_id)
+    """:type: pytsite.core.odm.models.ODMModel"""
+
+    for f_name, f_value in form.values.items():
+        if entity.has_field(f_name):
+            entity.f_set(f_name, f_value)
+
+    entity.save()
+
+    return RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
 
 
 def _create_m_form(model: str, entity_id: str) -> BaseForm:
