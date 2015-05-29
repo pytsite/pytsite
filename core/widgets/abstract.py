@@ -27,7 +27,7 @@ class AbstractWidget(ABC):
 
         self._uid = uid
         self._name = name
-        self._value = kwargs.get('value', '')
+        self._value = None
         self._label = kwargs.get('label')
         self._title = kwargs.get('title')
         self._placeholder = kwargs.get('placeholder')
@@ -36,6 +36,9 @@ class AbstractWidget(ABC):
         self._children_sep = '&nbsp;'
         self._children = {}
         self._h_size = kwargs.get('h_size')
+
+        # It is important to filter value through the setter-method
+        self.set_value(kwargs.get('value'))
 
     def add_child(self, widget, weight: int=0):
         """Add a child widget.
@@ -50,6 +53,17 @@ class AbstractWidget(ABC):
         """Render the widget.
         """
         raise NotImplementedError()
+
+    def get_value(self, **kwargs: dict):
+        """Get value of the widget.
+        """
+        return self._value
+
+    def set_value(self, val, **kwargs: dict):
+        """Set value of the widget.
+        """
+        self._value = val
+        return self
 
     @property
     def children(self):
@@ -77,18 +91,6 @@ class AbstractWidget(ABC):
         return self._name
 
     @property
-    def value(self):
-        """Get value of the widget.
-        """
-        return self._value
-
-    @value.setter
-    def value(self, val):
-        """Set value of the widget.
-        """
-        self._value = val
-
-    @property
     def label(self) -> str:
         """Get label of the widget.
         """
@@ -113,36 +115,26 @@ class AbstractWidget(ABC):
         """
         return self._cls
 
-    @cls.setter
-    def cls(self, value: str):
-        """Set CSS classes of the widget.
-        """
-        self._cls = value
-
     @property
     def help(self):
         """Get help string of the widget.
         """
         return self._help
 
-    @help.setter
-    def help(self, help_str: str):
-        """Set help string of the widget.
-        """
-        self._help = help_str
-
-    def _group_wrap(self, str_to_wrap: str, add_cls: str=None, add_data: dict=None, render_label: bool=True) -> str:
+    def _group_wrap(self, content, add_cls: str=None, add_data: dict=None, render_label: bool=True) -> str:
         """Wrap input string into 'form-group' container.
         """
 
+        content = str(content)
+
         if self._h_size:
-            str_to_wrap = Div(str_to_wrap, cls=self._h_size).wrap(Div(cls='row')).render()
+            content = Div(content, cls=self._h_size).wrap(Div(cls='row')).render()
 
         cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
         if add_cls:
             cls += ' ' + add_cls
 
-        group_wrapper = Div(str_to_wrap, cls=cls, data_widget_uid=self.uid)
+        group_wrapper = Div(content, cls=cls, data_widget_uid=self.uid)
 
         if add_data:
             for k, v in add_data.items():

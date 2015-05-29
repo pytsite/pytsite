@@ -20,7 +20,7 @@ class ButtonWidget(AbstractWidget):
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
         self._cls += ' btn btn-' + self._color
-        self._html_em = HtmlButton(self.value, type='button')
+        self._html_em = HtmlButton(self.get_value(), type='button')
 
     def render(self) -> str:
         self._html_em.set_attr('cls', self.cls)
@@ -40,7 +40,7 @@ class SubmitButtonWidget(ButtonWidget):
         """
 
         super().__init__(**kwargs)
-        self._html_em = HtmlButton(self.value, type='submit')
+        self._html_em = HtmlButton(self.get_value(), type='submit')
 
 
 class LinkButtonWidget(ButtonWidget):
@@ -52,4 +52,4 @@ class LinkButtonWidget(ButtonWidget):
         """
 
         super().__init__(**kwargs)
-        self._html_em = A(self.value, href=kwargs.get('href', '#'))
+        self._html_em = A(self.get_value(), href=kwargs.get('href', '#'))

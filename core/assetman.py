@@ -13,17 +13,18 @@ from . import console, lang, router, logger, reg
 
 
 class ConsoleCommand(console.AbstractCommand):
-    def get_name(self)->str:
+    def get_name(self) -> str:
         return 'assetman:build'
 
-    def get_description(self)->str:
+    def get_description(self) -> str:
         return lang.t('pytsite.core@assetman_console_command_description')
 
     def execute(self, **kwargs: dict):
         compile_assets()
+        lang.compile_translations()
 
 
-_packages = dict()
+_packages = {}
 _links = {'js': [], 'css': []}
 
 
@@ -67,23 +68,41 @@ def add_css(location: str):
     add_location(location, 'css')
 
 
-def dump_js():
+def reset():
+    """Clear added locations.
+    """
+
+    for k in _links:
+        _links[k] = []
+
+    add_js('pytsite.core@js/assetman.js')
+    add_js('pytsite.core@js/lang.js')
+
+
+def dump_js() -> str:
+    """Dump JS links.
+    """
+
     r = ''
     for location in _links['js']:
         r += '<script type="text/javascript" src="{0}"></script>\n'.format(get_url(location))
     return r
 
 
-def dump_css():
+def dump_css() -> str:
+    """Dump CSS links.
+    """
+
     r = ''
     for location in _links['css']:
         r += '<link rel="stylesheet" href="{0}">\n'.format(get_url(location))
     return r
 
 
-def get_url(location: str)->str:
+def get_url(location: str) -> str:
     """Get URL of an asset.
     """
+
     package_name, asset_path = __split_asset_location_info(location)
     return router.url('/assets/{0}/{1}'.format(package_name, asset_path), strip_lang=True)
 
@@ -133,10 +152,8 @@ def compile_assets():
                     makedirs(dst_dir, 0o755)
                 copy(src, dst)
 
-    lang.compile_translations()
 
-
-def __split_asset_location_info(location: str)->dict:
+def __split_asset_location_info(location: str) -> dict:
     """Split asset path into package name and asset path.
     """
     package_name = 'app'

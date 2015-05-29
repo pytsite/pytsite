@@ -201,8 +201,8 @@ class RefField(AbstractField):
         """Get value of the field.
         """
         if isinstance(self._value, DBRef):
-            from .odm_manager import dispense_by_ref
-            referenced_entity = dispense_by_ref(self._value)
+            from .odm_manager import get_by_ref
+            referenced_entity = get_by_ref(self._value)
             if not referenced_entity:
                 self.set_val(None)  # Updating field's value about missing entity
             return referenced_entity
@@ -248,8 +248,8 @@ class RefsListField(AbstractField):
         """
         r = []
         for ref in self._value:
-            from .odm_manager import dispense_by_ref
-            entity = dispense_by_ref(ref)
+            from .odm_manager import get_by_ref
+            entity = get_by_ref(ref)
             if entity:
                 r.append(entity)
 

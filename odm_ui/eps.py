@@ -13,7 +13,7 @@ from pytsite.core.lang import t
 from pytsite.core import router
 from pytsite.core.widgets.input import HiddenInputWidget
 from pytsite.core.widgets.wrapper import WrapperWidget
-from pytsite.core.widgets.button import SubmitButtonWidget, LinkButtonWidget
+from pytsite.core.widgets.buttons import SubmitButtonWidget, LinkButtonWidget
 from .browser import ODMUIBrowser
 from .models import ODMUIMixin
 
@@ -42,7 +42,7 @@ def validate_m_form(args: dict, inp: dict) -> dict:
     global_messages = []
 
     form = _create_m_form(inp.get('__model'), inp.get('__entity_id'))
-    v_status = form.fill(inp).validate()
+    v_status = form.fill(inp, validation_mode=True).validate()
     widget_messages = form.messages
 
     return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
@@ -58,6 +58,7 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
     form = _create_m_form(model, entity_id)
 
     if not form.fill(inp).validate():
+        router.session.add_error(str(form.messages))
         raise ServerError()
 
     entity = _dispense_entity(model, entity_id)

@@ -95,7 +95,7 @@ def xml_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
                 if v:
                     r += ' {}'.format(k)
             else:
-                v = v.strip()
+                v = str(v).strip()
                 r += ' {}="{}"'.format(k, v)
 
     return r

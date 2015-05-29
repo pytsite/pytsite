@@ -14,6 +14,8 @@ def post_upload(args: dict, inp: dict):
     r = []
     model = args.get('model')
     files = router.request.files
+    print(files)
+    print(inp)
     for field_name, f in files.items():
         tmp_path = path.join(reg.get('paths.tmp'), util.random_str())
         f.save(tmp_path)

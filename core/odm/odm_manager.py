@@ -102,11 +102,11 @@ def dispense(model: str, entity_id=None) -> ODMModel:
     return _cache_put(entity)
 
 
-def dispense_by_ref(ref: DBRef):
+def get_by_ref(ref: DBRef):
     """Dispense entity by DBRef.
     """
 
-    doc = db.get_database().dereference(ref)
+    doc = db.get_database().dereference(resolve_ref(ref))
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 

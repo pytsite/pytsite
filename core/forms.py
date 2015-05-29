@@ -11,7 +11,7 @@ from .widgets.wrapper import WrapperWidget
 from .validation.validator import Validator
 from .validation.rules import BaseRule
 from .html import Div
-from . import router
+from . import router, assetman
 
 
 class BaseForm:
@@ -41,6 +41,9 @@ class BaseForm:
         self.add_widget(WrapperWidget(cls='form-messages'))
 
         self._setup()
+
+        # Initializing form JS API
+        assetman.add_js('pytsite.core@js/form.js')
 
     def _setup(self):
         """_setup() hook.
@@ -124,19 +127,21 @@ class BaseForm:
 
         r = {}
         for k, v in self._widgets.items():
-            r[k] = v['widget'].value
+            r[k] = v['widget'].get_value()
 
         return r
 
-    def fill(self, values: dict):
+    def fill(self, values: dict, **kwargs: dict):
         """Fill form's widgets with values.
         """
 
         for field_name, field_value in values.items():
             if self.has_widget(field_name):
-                self.get_widget(field_name).value = field_value
+                self.get_widget(field_name).set_value(field_value, **kwargs)
+
+                # Setting value of the validator
                 if self._validator.has_field(field_name):
-                    self._validator.set_value(field_name, self.get_widget(field_name).value)
+                    self._validator.set_value(field_name, self.get_widget(field_name).get_value())
 
         return self
 

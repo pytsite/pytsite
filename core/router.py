@@ -92,7 +92,7 @@ def call_endpoint(name: str, args: dict=None, inp: dict=None):
 def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
-    from pytsite.core import tpl, metatag, lang
+    from pytsite.core import tpl, metatag, lang, events
     global __url_adapter, __session_store, request, session
 
     # Replace url adapter with environment-based
@@ -115,21 +115,10 @@ def dispatch(env: dict, start_response: callable):
     else:
         session = __session_store.new()
 
-    request_values = {}
-    for part in request.values.lists():
-        k = part[0]
-        """:type: str"""
-
-        v = part[1]
-        """:type: list"""
-        if len(v) > 1:
-            k = k.rstrip('[]')
-            request_values[k] = v
-        else:
-            request_values[k] = v[0]
-
     try:
         rule, rule_args = __url_adapter.match(return_rule=True)
+
+        events.fire('pytsite.core.router.dispatch')
 
         # Processing rule filters
         for flt in rule.filters:
@@ -142,13 +131,13 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_endpoint(flt_endpoint, flt_args, request_values)
+            flt_response = call_endpoint(flt_endpoint, flt_args, request.get_values_dict())
             if isinstance(flt_response, RedirectResponse):
                 return flt_response(env, start_response)
 
         # Processing response from handler
         wsgi_response = Response(response='', status=200, content_type='text/html')
-        response_from_callable = call_endpoint(rule.endpoint, rule_args, request_values)
+        response_from_callable = call_endpoint(rule.endpoint, rule_args, request.get_values_dict())
         if isinstance(response_from_callable, str):
             if reg.get('output.minify'):
                 response_from_callable = minify(response_from_callable, True, True)

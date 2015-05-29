@@ -171,19 +171,22 @@ def compile_translations(print_output: bool=True):
     """Compile language translations.
     """
 
-    output = {}
+    translations = {}
     for lang_code in get_languages():
-        output[lang_code] = {}
+        translations[lang_code] = {}
         for pkg_name, info in _packages.items():
             if print_output:
                 print("Compiling translations for {} ({})".format(pkg_name, lang_code))
-            output[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
+            translations[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
 
+    str_output = 'pytsite.lang.languages={};'.format(json.dumps(get_languages()))
+    str_output += 'pytsite.lang.current="{}";'.format(get_current_lang())
+    str_output += 'pytsite.lang.translations={};'.format(json.dumps(translations))
     output_file = path.join(reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
     with open(output_file, 'wt') as f:
         if print_output:
             print("Writing translations into '{}'".format(output_file))
-        json.dump(output, f)
+        f.write(str_output)
 
 
 def _load_file(package_name: str, language: str=None):

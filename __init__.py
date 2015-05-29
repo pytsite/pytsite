@@ -110,16 +110,11 @@ for pattern, opts in reg.get('routes', {}).items():
 from pytsite.core import assetman
 console.register_command(assetman.ConsoleCommand())
 assetman.register_package('pytsite.core', 'resources/assets')
-assetman.add_js('pytsite.core@js/assetman.js')
-assetman.add_js('pytsite.core@js/lang.js')
+events.listen('pytsite.core.router.dispatch', assetman.reset)
 
 
 # Initializing JS API
 __import__('pytsite.core.js_api')
-
-
-# Initializing form JS API
-assetman.add_js('pytsite.core@js/form.js')
 
 
 # Initializing 'app' package
@@ -131,3 +126,4 @@ templates_dir = 'themes' + path.sep + theme + path.sep + 'tpl'
 tpl.register_package('app', templates_dir)
 assets_dir = 'themes' + path.sep + theme + path.sep + 'assets'
 assetman.register_package('app', assets_dir)
+events.listen('pytsite.core.router.dispatch', lambda: assetman.add_js('js/translations.js'))

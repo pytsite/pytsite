@@ -10,7 +10,9 @@ from mimetypes import guess_extension
 from shutil import copyfile
 from urllib.request import urlopen
 from urllib.parse import urlparse
-from pytsite.core import util, reg, odm
+from bson.dbref import DBRef
+from pytsite.core import util, reg
+from pytsite.core.odm import odm_manager
 from pytsite.core.validation.validator import Validator
 from pytsite.core.validation.rules import UrlRule
 from .models import File
@@ -75,7 +77,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 
     # Create File entity
     storage_dir = reg.get('paths.storage')
-    file_entity = odm.odm_manager.dispense(model)
+    file_entity = odm_manager.dispense(model)
     if not isinstance(file_entity, File):
         raise Exception('File entity expected.')
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
@@ -95,6 +97,20 @@ def get(uid: str=None, rel_path: str=None, model: str='file') -> File:
         raise Exception("Not enough arguments.")
 
     if uid:
-        return odm.odm_manager.find(model).where('_id', '=', uid).first()
+        return odm_manager.find(model).where('_id', '=', uid).first()
     elif rel_path:
-        return odm.odm_manager.find(model).where('path', '=', rel_path).first()
+        return odm_manager.find(model).where('path', '=', rel_path).first()
+
+
+def get_by_ref(ref: DBRef) -> File:
+    """Get file by ref.
+    """
+
+    entity = odm_manager.get_by_ref(ref)
+    if not entity:
+        return
+
+    if not isinstance(entity, File):
+        raise Exception('Entity is not File.')
+
+    return entity

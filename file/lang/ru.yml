@@ -1,0 +1,5 @@
+drop_files_here_to_upload: 'Перетащите файлы в эту область'
+file_too_big: 'Размер файла :file_name превышает :max_size МБ'
+remove_file: 'Удалить'
+file_has_invalid_type: 'Неверный тип файла'
+max_files_exceeded: 'Достигнуто максимальное количество файлов'

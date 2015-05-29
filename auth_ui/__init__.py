@@ -6,6 +6,7 @@ __license__ = 'MIT'
 
 __import__('pytsite.auth')
 __import__('pytsite.odm_ui')
+__import__('pytsite.file')
 
 from pytsite.core import lang, router
 from pytsite.core.odm import odm_manager

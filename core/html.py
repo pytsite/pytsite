@@ -25,7 +25,13 @@ _common_tag_attrs = (
 
 
 class Element(ABC):
+    """Base HTML Element.
+    """
+
     def __init__(self, content: str=None, **kwargs):
+        """Init.
+        """
+
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
         self._children = []
@@ -307,6 +313,9 @@ class Label(InlineElement):
 class Select(BlockElement):
     def _get_valid_children(self) -> tuple:
         return 'option',
+
+    def _get_required_attrs(self) -> tuple:
+        return 'name',
 
 
 class Option(InlineElement):

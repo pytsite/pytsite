@@ -19,13 +19,10 @@ def listen(event: str, listener: callable):
     __listeners[event].append(listener)
 
 
-def fire(event: str, **kwargs: dict):
+def fire(event: str, stop_after: int=None, **kwargs: dict):
     """Fires an event to listeners.
     """
 
-    stop_after = kwargs.get('stop_after', 0)
-
-    global __listeners
     if event not in __listeners:
         return
 
