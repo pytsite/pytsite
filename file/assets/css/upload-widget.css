@@ -1,24 +1,48 @@
-.widget-files-upload .dropzone,
-.widget-files-upload .add-button {
+.widget-files-upload .slots {
     display: inline-block;
 }
 
-.widget-files-upload .dropzone {
-    border: 0;
-    padding: 0;
-    min-height: 0;
-}
-
-.widget-files-upload .dz-default.dz-message {
-    display: none;
+.widget-files-upload .slot {
+    display: inline-block;
+    position: relative;
+    margin: 0 2em 0 0;
+    border: 1px solid #ccc;
 }
 
 .widget-files-upload .add-button {
-
+    display: inline-block;
+    position: relative;
 }
 
-.widget-files-upload .dropzone .dz-preview .dz-image {
-    border-radius: 0;
-    border: 1px solid #ccc;
-    padding: 4px;
+.widget-files-upload .slot .btn-remove,
+.widget-files-upload .slot .number {
+    position: absolute;
+    top: 0;
+}
+
+.widget-files-upload .add-button {
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.widget-files-upload input[type=file] {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+}
+
+.widget-files-upload .slot .btn-remove {
+    right: 0;
+}
+
+.widget-files-upload .slot .number {
+    background: #fff;
+    padding: 5px 8px;
+    left: 0;
+}
+
+.widget-files-upload .processing {
+    font-size: 2em;
 }

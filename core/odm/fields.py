@@ -190,7 +190,7 @@ class RefField(AbstractField):
         """
         from .models import ODMModel
         if value and not isinstance(value, DBRef) and not isinstance(value, ODMModel):
-            raise TypeError("Entity or DBRef expected, while {0} given.".format(type(value)))
+            raise TypeError("Entity or DBRef expected, but '{}' given.".format(str(value)))
 
         if isinstance(value, ODMModel):
             value = value.ref
@@ -227,7 +227,7 @@ class RefsListField(AbstractField):
         """Set value of the field.
         """
         if not isinstance(value, list):
-            raise TypeError("List of DBRefs or entities expected.")
+            raise TypeError("List of DBRefs or entities expected, but '{}' given.".format(value))
 
         clean_value = []
         for item in value:

@@ -20,18 +20,19 @@ class FilesUploadWidget(AbstractWidget):
         super().__init__(**kwargs)
 
         # Processing setter filtering
-        self.value = self._value
+        self.set_value(self._value)
 
         self._model = model
-
         self._max_file_size = int(kwargs.get('max_file_size', 2))
         self._max_files = int(kwargs.get('max_files', 0))
         self._accept_files = kwargs.get('accept_files', '*/*')
 
         assetman.add_css('pytsite.file@css/upload-widget.css')
-        assetman.add_js('pytsite.file@js/jquery.iframe-transport.js')
-        assetman.add_js('pytsite.file@js/jquery.fileupload.js')
         assetman.add_js('pytsite.file@js/upload-widget.js')
+
+    @property
+    def accept_files(self) -> str:
+        return self._accept_files
 
     def render(self) -> str:
         data = {
@@ -44,7 +45,7 @@ class FilesUploadWidget(AbstractWidget):
         if self._max_files:
             data['max_files'] = self._max_files
 
-        widget_content = tpl.render('pytsite.file@file_upload_widget')
+        widget_content = tpl.render('pytsite.file@file_upload_widget', {'widget': self})
 
         return self._group_wrap(widget_content, 'widget-files-upload', data)
 
@@ -60,6 +61,8 @@ class FilesUploadWidget(AbstractWidget):
 
         clean_val = []
         for val in value:
+            if not val:
+                continue
             entity = file_manager.get_by_ref(val)
             if entity:
                 clean_val.append(entity)
@@ -70,6 +73,9 @@ class FilesUploadWidget(AbstractWidget):
                 if isinstance(to_delete, str):
                     to_delete = [to_delete]
 
+                print(to_delete)
+
                 for ref in to_delete:
-                    file = file_manager.get_by_ref(ref)
-                    file.delete()
+                    file_manager.get_by_ref(ref).delete()
+
+        self._value = clean_val

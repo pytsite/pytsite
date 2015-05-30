@@ -1,4 +1,22 @@
-<div class="jquery-file-upload">
-    <input type="file" multiple>
-    <button type="button" class="add-button btn btn-default btn-md"><i class="fa fa-fw fa-plus"></i></button>
+<div class="files-upload-wrapper">
+    <div class="slots">
+        {% for item in widget.get_value() %}
+            {% set fid = item.model~':'~item.id %}
+            <div class="slot" data-fid="{{ fid }}">
+                <div class="thumb"><img src="{{ item.f_get('thumb_url') }}">
+                </div>
+                <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>
+                <span class="number"></span>
+                <input type="hidden" name="{{ widget.uid }}" value="{{ fid }}">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="add-button btn btn-default btn-md">
+        <i class="fa fa-fw fa-plus"></i>
+        <input type="file" multiple accept="{{ widget.accept_files }}">
+    </div>
+
+    <span class="processing"><i class="fa fa-clock-o"></i></span>
+
+    <input type="hidden" name="{{ widget.uid }}" value="">
 </div>

@@ -13,7 +13,7 @@ from pytsite.auth import auth_manager
 from pytsite.auth.models import User
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import EntityCheckboxesWidget
-from pytsite.file.widgets import FilesUploadWidget
+from pytsite.image.widgets import ImagesUploadWidget
 
 
 class UserUI(User, ODMUIMixin):
@@ -81,13 +81,12 @@ class UserUI(User, ODMUIMixin):
             h_size='col-sm-5 col-md-4 col-lg-3',
         ), 50)
 
-        form.add_widget(FilesUploadWidget(
+        form.add_widget(ImagesUploadWidget(
             uid='picture',
             label=self.t('picture'),
-            model='image',
+            value=self.f_get('picture'),
             max_files=1,
             max_file_size=1,
-            accept_files='image/*',
         ), 60)
 
         form.add_widget(EntityCheckboxesWidget(

@@ -16,10 +16,19 @@ odm_manager.register_model('file', File)
 
 assetman.register_package(__name__)
 
-router.add_rule('/pytsite/file/upload/<string:model>',
-                'pytsite.file.eps.post_upload',
-                filters=('pytsite.auth.eps.filter_authorize',),
-                methods=['POST'])
+router.add_rule(
+    '/pytsite/file/upload/<string:model>',
+    'pytsite.file.eps.post_upload',
+    filters=('pytsite.auth.eps.filter_authorize',),
+    methods=['POST'],
+)
+
+router.add_rule(
+    '/<string:model>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',
+    'pytsite.file.eps.get_download',
+    methods=['GET'],
+)
+
 
 lang.register_package(__name__)
 

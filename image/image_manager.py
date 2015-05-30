@@ -9,13 +9,6 @@ from pytsite.file import file_manager as file_manager
 from .models import Image as ImageModel
 
 
-def get_storage_root() -> str:
-    """Get image storage root.
-    """
-
-    return file_manager.get_storage_root('image')
-
-
 def create(source_path: str, name: str=None, description: str=None) -> ImageModel:
     """Create an image from URL or local file.
     """

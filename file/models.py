@@ -4,17 +4,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import odm
+from os import path
+from pytsite.core import odm, router, reg
 
 
 class File(odm.models.ODMModel):
     """File Model.
     """
-
-    def get_thumbnail_url(self, width: int=64, height: int=64) -> str:
-        """Get thumbnail URL.
-        """
-        raise NotImplementedError()
 
     def _setup(self):
 
@@ -27,6 +23,8 @@ class File(odm.models.ODMModel):
         self.define_field(odm.fields.StringField('mime'))
         self.define_field(odm.fields.IntegerField('length'))
         self.define_field(odm.fields.RefField('author', model='user'))
+        self.define_field(odm.fields.VirtualField('url'))
+        self.define_field(odm.fields.VirtualField('thumb_url'))
 
     def _after_delete(self):
         """_after_delete() hook.
@@ -44,8 +42,18 @@ class File(odm.models.ODMModel):
         """
 
         if field_name == 'abs_path':
-            from os import path
-            from ..core import reg
             return path.join(reg.get('paths.storage'), self.f_get('path'))
+
+        if field_name == 'url':
+            p = str(self.f_get('path')).split('/')
+            return router.endpoint_url('pytsite.file.eps.get_download', {
+                'model': p[0],
+                'p1': p[1],
+                'p2': p[2],
+                'filename': p[3]
+            })
+
+        if field_name == 'thumb_url':
+            raise NotImplementedError()
 
         return super()._on_f_get(field_name, orig_value)

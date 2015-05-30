@@ -18,12 +18,8 @@ from pytsite.core.validation.rules import UrlRule
 from .models import File
 
 
-def get_storage_root(model: str='file') -> str:
-    return path.join(reg.get('paths.storage'), model)
-
-
 def _create_store_path(mime: str, model: str='file')->str:
-    storage_dir = get_storage_root(model)
+    storage_dir = path.join(reg.get('paths.storage'), model)
     store_path = ''
     rnd_str = util.random_str
     extension = guess_extension(mime)
@@ -49,7 +45,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
             data = src.read()
 
         tmp_file = util.mk_tmp_file()
-        write(tmp_file[0], data)
+        write(int(tmp_file[0]), data)
 
         if not name:
             name = urlparse(source_path).path.split('/')[-1]
