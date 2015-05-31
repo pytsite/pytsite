@@ -141,7 +141,7 @@ class Finder:
 
         for f in fields:
             if not self._entity.has_field(f[0]):
-                raise Exception("Unknown field '{0}' in model '{1}'".format(f[0], self._model_name))
+                raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model_name))
         self._sort = fields
 
         return self

@@ -8,12 +8,13 @@ from pytsite.core.widgets.input import *
 from pytsite.core.widgets.selectable import *
 from pytsite.core.widgets.static import *
 from pytsite.core.validation.rules import NotEmptyRule, EmailRule
-from pytsite.core.odm.validation import ODMEntitiesListRule
+from pytsite.core.odm.validation import ODMEntitiesListRule, ODMFieldUniqueRule
 from pytsite.auth import auth_manager
 from pytsite.auth.models import User
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import EntityCheckboxesWidget
 from pytsite.image.widgets import ImagesUploadWidget
+from pytsite.core.lang import t
 
 
 class UserUI(User, ODMUIMixin):
@@ -36,12 +37,17 @@ class UserUI(User, ODMUIMixin):
         :type browser: pytsite.odm_ui.browser.ODMUIBrowser
         :return: None
         """
-        browser.data_fields = 'login', 'email', 'last_login'
+        browser.data_fields = 'login', 'email', 'status', 'last_login'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        return self.f_get('login'), self.f_get('email'), self.f_get('last_login', fmt='%x %X')
+        return (
+            self.f_get('login'),
+            self.f_get('email'),
+            t('pytsite.auth@status_'+self.f_get('status')),
+            self.f_get('last_login', fmt='%x %X')
+        )
 
     def setup_m_form(self, form):
         """Modify form setup hook.
@@ -97,12 +103,16 @@ class UserUI(User, ODMUIMixin):
             value=self.f_get('roles'),
         ), 70)
 
-        form.add_widget(StaticTextWidget(
-            uid='token',
-            value=self.f_get('token'),
-            label=self.t('token'),
-        ), 80)
+        if not self.is_new:
+            form.add_widget(StaticControlWidget(
+                uid='token',
+                value=self.f_get('token'),
+                label=self.t('token'),
+            ), 80)
 
-        form.add_rules('login', (NotEmptyRule(), EmailRule()))
+        form.add_rules('login', (NotEmptyRule(), EmailRule(), ODMFieldUniqueRule('user', 'login', (self.id,))))
         form.add_rules('email', (NotEmptyRule(), EmailRule()))
-        form.add_rules('roles', (NotEmptyRule(), ODMEntitiesListRule(model='role'),))
+        form.add_rules('roles', (NotEmptyRule(), ODMEntitiesListRule(model='role')))
+
+    def get_d_form_description(self) -> str:
+        return self.f_get('login')

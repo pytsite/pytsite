@@ -41,10 +41,10 @@ class ODMUIMixin:
         """
         pass
 
-    def submit_m_form(self):
-        """Modify form submit hook.
+    def get_d_form_description(self) -> str:
+        """Get delete form description.
         """
-        pass
+        raise NotImplementedError()
 
     def t(self, msg_id: str) -> str:
         return t(self.get_lang_package() + '@' + msg_id)

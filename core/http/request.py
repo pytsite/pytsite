@@ -12,13 +12,12 @@ class Request(Base):
     def get_values_dict(self) -> dict:
         request_values = {}
         for part in self.values.lists():
-            k = part[0]
+            k = part[0].rstrip('[]')
             """:type: str"""
 
             v = part[1]
             """:type: list"""
             if len(v) > 1:
-                k = k.rstrip('[]')
                 request_values[k] = v
             else:
                 request_values[k] = v[0]

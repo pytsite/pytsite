@@ -8,9 +8,10 @@ from .util import xml_attrs_str, dict_sort
 from .widgets.abstract import AbstractWidget
 from .widgets.input import HiddenInputWidget
 from .widgets.wrapper import WrapperWidget
+from .widgets.static import HtmlWidget
 from .validation.validator import Validator
 from .validation.rules import BaseRule
-from .html import Div
+from .html import Div, H3
 from . import router, assetman
 
 
@@ -23,10 +24,10 @@ class BaseForm:
         """
 
         self._uid = uid
-        self._name = kwargs.get('name', '')
+        self._name = kwargs.get('name', None)
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
-        self._legend = kwargs.get('legend', '')
+        self._legend = kwargs.get('legend', None)
         self._cls = kwargs.get('cls', 'pytsite-form')
         self._validation_ep = kwargs.get('validation_ep')
 
@@ -184,6 +185,9 @@ class BaseForm:
         """Render the form.
         """
 
+        if self._legend:
+            self.add_widget(HtmlWidget(value=self._legend, html_em=H3, cls='box-title'), area='header')
+
         body = ''
         for area in ['form', 'header', 'body', 'footer']:
             rendered_area = self._render_widgets(area)
@@ -260,7 +264,10 @@ class BaseForm:
         if area == 'form':
             return content + '\n'
         else:
-            return Div(content + '\n', cls='box-' + area).render()
+            cls = 'box-' + area
+            if area == 'header':
+                cls += ' with-border'
+            return Div(content + '\n', cls=cls).render()
 
     def _render_close_tag(self) -> str:
         """Render form's close tag.

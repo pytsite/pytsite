@@ -44,7 +44,7 @@ class AbstractWidget(ABC):
         """Add a child widget.
         """
 
-        self._children[widget.name] = {'widget': widget, 'weight': weight}
+        self._children[widget.uid] = {'widget': widget, 'weight': weight}
 
         return self
 

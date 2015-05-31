@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+from bson.objectid import ObjectId
 from pytsite.core.validation.rules import BaseRule
 from pytsite.core.validation.errors import ValidationError
 from . import odm_manager
@@ -15,7 +16,7 @@ class ODMEntitiesListRule(BaseRule):
     """Check if the value is a list of references.
     """
 
-    def __init__(self, msg_id: str=None, value=None, model: str=None):
+    def __init__(self, model: str, msg_id: str=None, value=None):
         """Init.
         """
 
@@ -37,3 +38,31 @@ class ODMEntitiesListRule(BaseRule):
                 raise ValidationError('Instance of ODMModel expected.')
             if self._model and v.model != self._model:
                 raise ValidationError("Instance of '{}' model expected, but '{}' given.".format(self._model, v.model))
+
+
+class ODMFieldUniqueRule(BaseRule):
+    def __init__(self, model: str, field: str, exclude_ids: tuple=(), msg_id: str=None, value=None):
+        """Init.
+        """
+
+        super().__init__(msg_id, value)
+        self._model = model
+        self._field = field
+
+        if isinstance(exclude_ids, str):
+            exclude_ids = (exclude_ids,)
+        self._exclude_ids = exclude_ids
+
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+
+        f = odm_manager.find(self._model).where(self._field, '=', self._value)
+
+        for oid in self._exclude_ids:
+            if not isinstance(oid, ObjectId):
+                oid = ObjectId(oid)
+            f.where('_id', '!=', oid)
+
+        if f.first():
+            raise ValidationError()

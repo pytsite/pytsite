@@ -62,7 +62,7 @@ def _cache_put(entity: ODMModel) -> ODMModel:
     """Put entity to the cache.
     """
 
-    if not entity.is_new():
+    if not entity.is_new:
         cache_key = entity.model + ':' + str(entity.id)
         __dispensed_entities[cache_key] = entity
 
@@ -73,7 +73,7 @@ def cache_delete(entity: ODMModel):
     """Delete entity from the cache.
     """
 
-    if not entity.is_new():
+    if not entity.is_new:
         cache_key = entity.model + ':' + str(entity.id)
         if cache_key in __dispensed_entities:
             del __dispensed_entities[cache_key]
@@ -137,9 +137,9 @@ def resolve_ref(something) -> DBRef:
     raise Exception('Cannot resolve reference.')
 
 
-def find(model_name: str):
+def find(model: str):
     """Get ODM finder.
     """
 
     from .finder import Finder
-    return Finder(model_name)
+    return Finder(model)

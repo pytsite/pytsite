@@ -13,6 +13,9 @@ from .fields import *
 
 
 class ODMModel:
+    """ODM Model.
+    """
+
     def __init__(self, model: str, obj_id=None):
         """Init.
         """
@@ -107,14 +110,15 @@ class ODMModel:
             return False
         return True
 
-    def get_field(self, field_name)->AbstractField:
+    def get_field(self, field_name) -> AbstractField:
         """Get field's object.
         """
         if not self.has_field(field_name):
             raise Exception("Unknown field '{0}' in model '{1}'".format(field_name, self.model))
         return self._fields[field_name]
 
-    def get_fields(self)->dict:
+    @property
+    def fields(self) -> dict:
         """Get all field objects.
         """
         return self._fields
@@ -130,7 +134,7 @@ class ODMModel:
         """Get entity's DBRef.
         """
 
-        if self.is_new():
+        if self._is_new:
             raise Exception("Entity must be stored before it can has reference.")
 
         return DBRef(self.collection.name, self.id)
@@ -195,20 +199,24 @@ class ODMModel:
         """
         return value
 
-    def is_new(self)->bool:
+    @property
+    def is_new(self) -> bool:
         """Is the entity new or already stored in a database?
         """
         return self._is_new
 
-    def is_modified(self)->bool:
+    @property
+    def is_modified(self) -> bool:
         """Is the entity has been modified?
         """
-        for field_name, field in self.get_fields().items():
+
+        for field_name, field in self._fields.items():
             if field.is_modified():
                 return True
         return False
 
-    def is_deleted(self)->bool:
+    @property
+    def is_deleted(self) -> bool:
         """Is the entity has been deleted?
         """
         return self._is_deleted
@@ -216,11 +224,11 @@ class ODMModel:
     def save(self):
         """Save the entity.
         """
-        if self.is_deleted():
+        if self.is_deleted:
             raise Exception("Entity has been deleted from the storage.")
 
         # Don't save entity if it wasn't changed
-        if not self.is_modified():
+        if not self.is_modified:
             return self
 
         # Pre-save hook
@@ -237,17 +245,17 @@ class ODMModel:
             data[f_name] = field.get_storable_val()
 
         # Let MongoDB to calculate object's ID
-        if self.is_new():
+        if self._is_new:
             del data['_id']
 
         # Saving data into collection
-        if self.is_new():
+        if self._is_new:
             self._collection.insert_one(data)
         else:
             self._collection.replace_one({'_id': data['_id']}, data)
 
         # Getting assigned ID from MongoDB
-        if self.is_new():
+        if self._is_new:
             self.f_set('_id', data['_id'])
 
         # After save hook
@@ -258,7 +266,7 @@ class ODMModel:
             field.reset_modified()
 
         # Entity is not new anymore
-        if self.is_new():
+        if self._is_new:
             self._is_new = False
 
         return self
@@ -285,7 +293,7 @@ class ODMModel:
             field.delete()
 
         # Actual deletion from storage
-        if not self.is_new():
+        if not self._is_new:
             self.collection.delete_one({'_id': self.id})
             from .odm_manager import cache_delete
             cache_delete(self)

@@ -15,10 +15,14 @@ from pytsite.core import util, reg
 from pytsite.core.odm import odm_manager
 from pytsite.core.validation.validator import Validator
 from pytsite.core.validation.rules import UrlRule
+from pytsite.auth import auth_manager
 from .models import File
 
 
-def _create_store_path(mime: str, model: str='file')->str:
+def _build_store_path(mime: str, model: str='file') -> str:
+    """Build unique path to store file on the filesystem.
+    """
+
     storage_dir = path.join(reg.get('paths.storage'), model)
     store_path = ''
     rnd_str = util.random_str
@@ -32,7 +36,7 @@ def _create_store_path(mime: str, model: str='file')->str:
     return store_path
 
 
-def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False)->File:
+def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False) -> File:
     """Create a file from path or URL.
     """
 
@@ -56,7 +60,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
         source_path = tmp_file[1]
 
     mime = magic.from_file(source_path, True).decode()
-    abs_target_path = _create_store_path(mime, model)
+    abs_target_path = _build_store_path(mime, model)
 
     target_dir = path.dirname(abs_target_path)
     if not path.exists(target_dir):
@@ -81,6 +85,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     file_entity.f_set('description', description)
     file_entity.f_set('mime', mime)
     file_entity.f_set('length', stat(abs_target_path).st_size)
+    file_entity.f_set('author', auth_manager.get_current_user())
 
     return file_entity.save()
 

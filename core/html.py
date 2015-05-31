@@ -235,6 +235,30 @@ class Aside(Section):
     pass
 
 
+class H1(BlockElement):
+    pass
+
+
+class H2(BlockElement):
+    pass
+
+
+class H3(BlockElement):
+    pass
+
+
+class H4(BlockElement):
+    pass
+
+
+class H5(BlockElement):
+    pass
+
+
+class H6(BlockElement):
+    pass
+
+
 class P(BlockElement):
     pass
 

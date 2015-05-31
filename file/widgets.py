@@ -72,10 +72,9 @@ class FilesUploadWidget(AbstractWidget):
             if to_delete:
                 if isinstance(to_delete, str):
                     to_delete = [to_delete]
-
-                print(to_delete)
-
                 for ref in to_delete:
-                    file_manager.get_by_ref(ref).delete()
+                    file = file_manager.get_by_ref(ref)
+                    if file:
+                        file.delete()
 
         self._value = clean_val
