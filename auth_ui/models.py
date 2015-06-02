@@ -9,8 +9,9 @@ from pytsite.core.widgets.selectable import *
 from pytsite.core.widgets.static import *
 from pytsite.core.validation.rules import NotEmptyRule, EmailRule
 from pytsite.core.odm.validation import ODMEntitiesListRule, ODMFieldUniqueRule
+from pytsite.core.html import Span, Div, Input, Label
 from pytsite.auth import auth_manager
-from pytsite.auth.models import User
+from pytsite.auth.models import User, Role
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import EntityCheckboxesWidget
 from pytsite.image.widgets import ImagesUploadWidget
@@ -21,10 +22,10 @@ class UserUI(User, ODMUIMixin):
     """User UI.
     """
 
-    def get_permission_group(self) -> str:
-        """Get permission group name.
+    def get_permission_group(self) -> tuple:
+        """Get permission group spec.
         """
-        return 'auth'
+        return 'auth', 'pytsite.auth_ui@security'
 
     def get_lang_package(self) -> str:
         """Get language package name.
@@ -115,4 +116,85 @@ class UserUI(User, ODMUIMixin):
         form.add_rules('roles', (NotEmptyRule(), ODMEntitiesListRule(model='role')))
 
     def get_d_form_description(self) -> str:
+        """Get delete form description.
+        """
         return self.f_get('login')
+
+
+class RoleUI(Role, ODMUIMixin):
+    """Role UI.
+    """
+
+    def get_permission_group(self) -> tuple:
+        """Get permission group spec.
+        """
+        return 'auth', 'pytsite.auth_ui@security'
+
+    def get_lang_package(self) -> str:
+        return 'pytsite.auth_ui'
+
+    def setup_browser(self, browser):
+        """Setup ODM UI browser hook.
+
+        :type browser: pytsite.odm_ui.browser.ODMUIBrowser
+        :return: None
+        """
+        browser.data_fields = 'name', 'description', 'permissions'
+
+    def get_browser_data_row(self) -> tuple:
+        """Get single UI browser row hook.
+        """
+        perms = []
+        for perm_name in self.f_get('permissions'):
+            perm = auth_manager.get_permission(perm_name)
+            cls = 'label label-default permission-' + perm[0]
+            if perm[0] == 'admin':
+                cls += ' label-danger'
+            perms.append(str(Span(t(perm[1]), cls=cls)))
+
+        return (
+            self.f_get('name'),
+            t(self.f_get('description')),
+            ' '.join(perms)
+        )
+
+    def setup_m_form(self, form):
+        """Modify form setup hook.
+
+        :type form: pytsite.core.forms.BaseForm
+        """
+
+        form.add_widget(TextInputWidget(
+            uid='name',
+            value=self.f_get('name'),
+            label=self.t('name'),
+        ), 10)
+
+        form.add_widget(TextInputWidget(
+            uid='description',
+            value=self.f_get('description'),
+            label=self.t('description'),
+        ), 20)
+
+        perms_tabs = TabsWidget(uid='permissions', label=self.t('permissions'))
+        for group in auth_manager.get_permission_groups():
+            tab_content = Div()
+            for perm in auth_manager.get_permissions(group[0]):
+                p_name = perm[0]
+                tab_content.append(
+                    Div(cls='checkbox').append(
+                        Label(t(perm[1]), label_for='permissions-checkbox-' + p_name).append(
+                            Input(type='checkbox', uid='permissions-checkbox-' + p_name,
+                                  name='permissions', value=p_name, checked=p_name in self.f_get('permissions'))
+                        )
+                    )
+                )
+            perms_tabs.add_tab('permissions-' + group[0], t(group[1]), tab_content.render())
+
+        form.add_widget(HiddenInputWidget(name='permissions', value=''))
+        form.add_widget(perms_tabs, 30)
+
+    def get_d_form_description(self) -> str:
+        """Get delete form description.
+        """
+        return t(self.f_get('description'))

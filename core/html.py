@@ -3,7 +3,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC
-from .util import xml_attrs_str
+from .util import html_attrs_str
 
 _common_tag_attrs = (
     'accesskey',
@@ -20,7 +20,8 @@ _common_tag_attrs = (
     'style',
     'tabindex',
     'title',
-    'translate'
+    'translate',
+    'role',
 )
 
 
@@ -56,9 +57,11 @@ class Element(ABC):
     def set_attr(self, attr: str, value: str):
         """Set attribute.
         """
-
-        if attr not in _common_tag_attrs and not attr.startswith('data_') \
-                and attr not in self._get_valid_attrs() and attr not in self._get_required_attrs():
+        if attr not in _common_tag_attrs \
+                and not attr.startswith('data_') \
+                and not attr.startswith('aria_') \
+                and attr not in self._get_valid_attrs() \
+                and attr not in self._get_required_attrs():
             raise AttributeError("Element '{0}' cannot have attribute: '{1}'".format(self._tag_name, attr))
 
         if attr.startswith('data_'):
@@ -100,7 +103,6 @@ class Element(ABC):
     def wrap(self, wrapper):
         if not isinstance(wrapper, Element):
             raise TypeError('Element expected.')
-
         return wrapper.append(self)
 
     def _validate_attr(self, attr: str, value: str) -> str:
@@ -123,7 +125,7 @@ class Element(ABC):
         """
 
         # Open tag
-        r = "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {
+        r = "<{}{}>".format(self._tag_name, html_attrs_str(self._attrs, {
             'uid': 'id',
             'cls': 'class',
             'label_for': 'for',
@@ -162,7 +164,7 @@ class SingleTagElement(Element):
         """Render the element.
         """
 
-        return "<{}{}>".format(self._tag_name, xml_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
+        return "<{}{}>".format(self._tag_name, html_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
 
 
 class InlineElement(Element):

@@ -78,7 +78,7 @@ def dict_sort(inp: dict, key: str='weight') -> dict:
     return r
 
 
-def xml_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
+def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
     """Format dictionary as XML attributes string.
     """
 

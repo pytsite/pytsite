@@ -9,16 +9,21 @@ from pytsite.core.html import Aside, Section, Ul, Li, Span, A, I
 
 
 __sections = {}
+__last_section_weight = 0
 
 
 def add_section(uid: str, title: str, weight: int=0):
     """Add a section.
     """
-
-    global __sections
+    global __last_section_weight, __sections
 
     if uid in __sections:
         raise KeyError("Section '{}' already exists.".format(uid))
+
+    if not weight:
+        weight = __last_section_weight + 100
+
+    __last_section_weight = weight
 
     __sections[uid] = {'title': title, 'weight': weight, 'menus': {}}
 
@@ -27,7 +32,6 @@ def add_section_menu(section_uid: str, menu_uid: str, title: str, href: str='#',
                      label: str=None, label_class: str='primary', weight: int=0):
     """Add a menu to a section.
     """
-
     global __sections
 
     if section_uid not in __sections:
@@ -51,7 +55,6 @@ def add_section_menu(section_uid: str, menu_uid: str, title: str, href: str='#',
 def get_section_menu(section_uid: str, menu_uid: str) -> dict:
     """Get a menu of a section.
     """
-
     global __sections
 
     if section_uid not in __sections:
@@ -70,7 +73,6 @@ def add_section_menu_child(section_uid: str, menu_uid: str, title: str, href: st
 def render() -> str:
     """Render the admin sidebar.
     """
-
     global __sections
 
     aside_em = Aside(cls='main-sidebar')

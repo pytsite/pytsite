@@ -20,8 +20,8 @@ class Image(File):
         """
 
         super()._setup()
-        self.define_field(IntegerField('width'))
-        self.define_field(IntegerField('height'))
+        self._define_field(IntegerField('width'))
+        self._define_field(IntegerField('height'))
 
     def _pre_save(self):
         image = PILImage.open(self.f_get('abs_path'))

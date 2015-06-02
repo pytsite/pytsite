@@ -11,7 +11,7 @@ __import__('pytsite.file')
 from pytsite.core import lang, router
 from pytsite.core.odm import odm_manager
 from pytsite.admin import sidebar
-from .models import UserUI
+from .models import UserUI, RoleUI
 
 lang.register_package(__name__)
 
@@ -28,3 +28,4 @@ sidebar.add_section_menu('auth', 'roles', lang.t('pytsite.auth_ui@roles'), url, 
 
 # Replace 'user' model with UI-compatible
 odm_manager.register_model('user', UserUI, True)
+odm_manager.register_model('role', RoleUI, True)

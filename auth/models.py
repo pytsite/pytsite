@@ -17,26 +17,26 @@ class User(ODMModel):
         """
 
         # Fields
-        self.define_field(StringField('login', required=True))
-        self.define_field(StringField('email', required=True, validate_email=True))
-        self.define_field(StringField('password', required=True))
-        self.define_field(StringField('token', required=True))
-        self.define_field(StringField('first_name'))
-        self.define_field(StringField('last_name'))
-        self.define_field(StringField('full_name'))
-        self.define_field(DateTimeField('last_login'))
-        self.define_field(IntegerField('login_count'))
-        self.define_field(StringField('status', default='active'))
-        self.define_field(RefsListField('roles', model='role'))
-        self.define_field(BoolField('profile_is_public'))
-        self.define_field(IntegerField('gender'))
-        self.define_field(StringField('phone'))
-        self.define_field(DictField('options'))
-        self.define_field(RefsListField('picture', model='image'))
+        self._define_field(StringField('login'))
+        self._define_field(StringField('email'))
+        self._define_field(StringField('password'))
+        self._define_field(StringField('token'))
+        self._define_field(StringField('first_name'))
+        self._define_field(StringField('last_name'))
+        self._define_field(StringField('full_name'))
+        self._define_field(DateTimeField('last_login'))
+        self._define_field(IntegerField('login_count'))
+        self._define_field(StringField('status'))
+        self._define_field(RefsListField('roles', model='role'))
+        self._define_field(BoolField('profile_is_public'))
+        self._define_field(IntegerField('gender'))
+        self._define_field(StringField('phone'))
+        self._define_field(DictField('options'))
+        self._define_field(RefsListField('picture', model='image'))
 
         # Indices
-        self.define_index([('login', I_ASC)], unique=True)
-        self.define_index([('token', I_ASC)], unique=True)
+        self._define_index([('login', I_ASC)], unique=True)
+        self._define_index([('token', I_ASC)], unique=True)
 
     def _on_f_set(self, field_name: str, orig_value, **kwargs):
         """_on_f_set() hook.
@@ -107,11 +107,11 @@ class Role(ODMModel):
         """_setup() hook.
         """
 
-        self.define_field(StringField('name', required=True))
-        self.define_field(StringField('description'))
-        self.define_field(ListField('permissions'))
+        self._define_field(StringField('name'))
+        self._define_field(StringField('description'))
+        self._define_field(ListField('permissions'))
 
-        self.define_index([('name', I_ASC)], unique=True)
+        self._define_index([('name', I_ASC)], unique=True)
 
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """_on_f_add() hook.

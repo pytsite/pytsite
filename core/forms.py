@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from .util import xml_attrs_str, dict_sort
+from .util import html_attrs_str, dict_sort
 from .widgets.abstract import AbstractWidget
 from .widgets.input import HiddenInputWidget
 from .widgets.wrapper import WrapperWidget
@@ -236,7 +236,7 @@ class BaseForm:
             'data-validation-ep': self.validation_ep,
         }
 
-        r = '<form {}>\n'.format(xml_attrs_str(attrs))
+        r = '<form {}>\n'.format(html_attrs_str(attrs))
 
         return r + '\n'
 

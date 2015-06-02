@@ -71,15 +71,12 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
         router.session.add_error(str(form.messages))
         raise ServerError()
 
-    try:
-        entity = _dispense_entity(model, entity_id)
-        for f_name, f_value in form.values.items():
-            if entity.has_field(f_name):
-                entity.f_set(f_name, f_value)
+    entity = _dispense_entity(model, entity_id)
+    for f_name, f_value in form.values.items():
+        if entity.has_field(f_name):
+            entity.f_set(f_name, f_value)
 
-        entity.save()
-    except Exception as e:
-        router.session.add_error(str(e))
+    entity.save()
 
     return RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
 
@@ -141,7 +138,11 @@ def _create_m_form(model: str, entity_id: str) -> BaseForm:
     entity = _dispense_entity(model, entity_id)
     entity.setup_m_form(form)
 
-    legend = entity.t(model + '_create_form_legend') if entity.is_new else entity.t(model + '_modify_form_legend')
+    if entity.is_new:
+        legend = entity.t('odm_ui_' + model + '_create_form_legend')
+    else:
+        legend = entity.t('odm_ui_' + model + '_modify_form_legend')
+
     metatag.set_tag('title', legend)
 
     return form

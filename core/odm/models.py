@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from abc import ABC, abstractmethod
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
@@ -12,7 +13,7 @@ from .errors import EntityNotFoundException
 from .fields import *
 
 
-class ODMModel:
+class ODMModel(ABC):
     """ODM Model.
     """
 
@@ -31,12 +32,12 @@ class ODMModel:
         self._indices = []
         self._fields = {}
 
-        self.define_field(ObjectIdField('_id'))
-        self.define_field(StringField('_model'))
-        self.define_field(RefField('_parent'))
-        self.define_field(RefsListField('_children', model=model))
-        self.define_field(DateTimeField('_created'))
-        self.define_field(DateTimeField('_modified'))
+        self._define_field(ObjectIdField('_id'))
+        self._define_field(StringField('_model', default=model))
+        self._define_field(RefField('_parent', model=model))
+        self._define_field(RefsListField('_children', model=model))
+        self._define_field(DateTimeField('_created'))
+        self._define_field(DateTimeField('_modified'))
 
         # setup() hook
         self._setup()
@@ -65,7 +66,7 @@ class ODMModel:
             self.get_field('_created').set_val(datetime.now())
             self.get_field('_modified').set_val(datetime.now())
 
-    def define_index(self, fields: list, unique=False):
+    def _define_index(self, fields: list, unique=False):
         """Define an index.
         """
         for item in fields:
@@ -82,32 +83,29 @@ class ODMModel:
 
             self._indices.append((fields, {'unique': unique}))
 
-    def define_field(self, field_obj: AbstractField):
+    def _define_field(self, field_obj: AbstractField):
         """Define a field.
         """
+
         if self.has_field(field_obj.get_name()):
             raise Exception("Field '{0}' already defined in model '{1}'.".format(field_obj.get_name(), self.model))
         self._fields[field_obj.get_name()] = field_obj
 
         return self
 
+    @abstractmethod
     def _setup(self):
         """setup() hook.
         """
         pass
 
-    @property
-    def collection(self) -> Collection:
-        """Get entity's collection.
-        """
-
-        return self._collection
-
     def has_field(self, name)->bool:
         """Check if the entity has field.
         """
+
         if name not in self._fields:
             return False
+
         return True
 
     def get_field(self, field_name) -> AbstractField:
@@ -116,6 +114,12 @@ class ODMModel:
         if not self.has_field(field_name):
             raise Exception("Unknown field '{0}' in model '{1}'".format(field_name, self.model))
         return self._fields[field_name]
+
+    @property
+    def collection(self) -> Collection:
+        """Get entity's collection.
+        """
+        return self._collection
 
     @property
     def fields(self) -> dict:
@@ -224,6 +228,7 @@ class ODMModel:
     def save(self):
         """Save the entity.
         """
+
         if self.is_deleted:
             raise Exception("Entity has been deleted from the storage.")
 

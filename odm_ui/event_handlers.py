@@ -24,10 +24,15 @@ def odm_register_model(model: str, cls: type):
     if not isinstance(mock, ODMUIMixin):
         return
 
+    # Registering permission group if doesn't already registered
+    perm_group = mock.get_permission_group()
+    if not auth_manager.get_permission_group(perm_group[0]):
+        auth_manager.define_permission_group(*perm_group)
+
     # Registering permissions
     for perm_name in 'create', 'browse', 'browse_own', 'modify', 'modify_own', 'delete', 'delete_own':
         perm_description = mock.get_lang_package() + '@odm_ui_permission_' + perm_name + '_' + model
         perm_full_name = 'pytsite.odm_ui.' + perm_name + '.' + model
-        auth_manager.define_permission(perm_full_name, perm_description, mock.get_permission_group())
+        auth_manager.define_permission(perm_full_name, perm_description, mock.get_permission_group()[0])
 
     __models[model] = model

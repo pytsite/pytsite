@@ -16,15 +16,15 @@ class File(odm.models.ODMModel):
 
         """_setup() hook.
         """
-        self.define_field(odm.fields.StringField('path'))
-        self.define_field(odm.fields.VirtualField('abs_path'))
-        self.define_field(odm.fields.StringField('name'))
-        self.define_field(odm.fields.StringField('description'))
-        self.define_field(odm.fields.StringField('mime'))
-        self.define_field(odm.fields.IntegerField('length'))
-        self.define_field(odm.fields.RefField('author', model='user'))
-        self.define_field(odm.fields.VirtualField('url'))
-        self.define_field(odm.fields.VirtualField('thumb_url'))
+        self._define_field(odm.fields.StringField('path'))
+        self._define_field(odm.fields.VirtualField('abs_path'))
+        self._define_field(odm.fields.StringField('name'))
+        self._define_field(odm.fields.StringField('description'))
+        self._define_field(odm.fields.StringField('mime'))
+        self._define_field(odm.fields.IntegerField('length'))
+        self._define_field(odm.fields.RefField('author', model='user'))
+        self._define_field(odm.fields.VirtualField('url'))
+        self._define_field(odm.fields.VirtualField('thumb_url'))
 
     def _after_delete(self):
         """_after_delete() hook.

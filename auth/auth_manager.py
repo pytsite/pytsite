@@ -12,29 +12,26 @@ from .models import User, Role
 from .drivers.abstract import AbstractDriver
 
 __driver = None
-__permission_groups = {}
-__permissions = {}
+__permission_groups = []
+__permissions = []
 __anonymous_user = None
 
 
-def password_hash(secret: str)->str:
+def password_hash(secret: str) -> str:
     """Hash string.
     """
-
     return generate_password_hash(secret)
 
 
-def password_verify(clear_text: str, hashed: str)->bool:
+def password_verify(clear_text: str, hashed: str) -> bool:
     """Verify hashed string.
     """
-
     return check_password_hash(hashed, clear_text)
 
 
 def set_driver(driver: AbstractDriver):
     """Change current driver.
     """
-
     if not isinstance(driver, AbstractDriver):
         raise TypeError('Instance of AbstractDriver expected.')
 
@@ -45,54 +42,76 @@ def set_driver(driver: AbstractDriver):
 def get_driver() -> AbstractDriver:
     """Get current driver.
     """
-
     if not __driver:
         raise Exception("No driver selected.")
 
     return __driver
 
 
+def get_permission_group(name: str) -> tuple:
+    """Get permission group spec.
+    """
+    for group in __permission_groups:
+        if group[0] == name:
+            return group
+
+
 def define_permission_group(name: str, description: str):
     """Define permission group.
     """
-
-    if name in __permission_groups:
+    if get_permission_group(name):
         raise KeyError("Permission group '{}' is already defined.".format(name))
 
-    __permission_groups[name] = description
+    __permission_groups.append((name, description))
 
 
-def define_permission(name: str, description: str=None, group: str='misc'):
-    """Define permission.
+def get_permission_groups() -> list:
+    """Get all defined permission groups.
     """
-
-    if group not in __permission_groups:
-        raise KeyError("Permission group '{}' is not defined.".format(group))
-
-    if name in __permissions:
-        raise ValueError("Permission '{0}' is already defined.".format(name))
-
-    __permissions[name] = description, group
+    return __permission_groups
 
 
-def get_permissions()->dict:
-    """Get all defined permissions.
+def get_permission(name: str) -> tuple:
+    """Get permission spec.
     """
-
-    return __permissions
+    for perm in __permissions:
+        if perm[0] == name:
+            return perm
 
 
 def is_permission_defined(name: str) -> bool:
     """Checks if the permission is defined.
     """
+    return bool(get_permission(name))
 
-    return name in __permissions
+
+def define_permission(name: str, description: str, group: str):
+    """Define permission.
+    """
+    if not get_permission_group(group):
+        raise KeyError("Permission group '{}' is not defined.".format(group))
+
+    if get_permission(name):
+        raise ValueError("Permission '{0}' is already defined.".format(name))
+
+    __permissions.append((name, description, group))
+
+
+def get_permissions(group: str=None) -> list:
+    """Get all defined permissions.
+    """
+    r = []
+    for perm in __permissions:
+        if group and perm[2] != group:
+            continue
+        r.append(perm)
+
+    return r
 
 
 def get_login_form(uid: str=None) -> forms.BaseForm:
     """Get a login form.
     """
-
     if not uid:
         uid = 'auth-form'
 
