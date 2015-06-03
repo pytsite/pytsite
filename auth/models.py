@@ -9,7 +9,7 @@ from pytsite.core.odm.fields import *
 
 
 class User(ODMModel):
-    """User.
+    """User Model.
     """
 
     def _setup(self):
@@ -24,9 +24,10 @@ class User(ODMModel):
         self._define_field(StringField('first_name'))
         self._define_field(StringField('last_name'))
         self._define_field(StringField('full_name'))
+        self._define_field(DateTimeField('birth_date'))
         self._define_field(DateTimeField('last_login'))
         self._define_field(IntegerField('login_count'))
-        self._define_field(StringField('status'))
+        self._define_field(StringField('status', default='active'))
         self._define_field(RefsListField('roles', model='role'))
         self._define_field(BoolField('profile_is_public'))
         self._define_field(IntegerField('gender'))
@@ -41,7 +42,6 @@ class User(ODMModel):
     def _on_f_set(self, field_name: str, orig_value, **kwargs):
         """_on_f_set() hook.
         """
-
         if field_name == 'password':
             from .auth_manager import password_hash
             orig_value = password_hash(orig_value)
@@ -52,7 +52,6 @@ class User(ODMModel):
     def _pre_save(self):
         """_pre_save() hook.
         """
-
         if self.f_get('login') == '__anonymous':
             raise Exception('Anonymous user cannot be saved.')
 
@@ -60,9 +59,8 @@ class User(ODMModel):
             self.f_set('password', util.random_password())
 
     def has_role(self, name: str) -> bool:
-        """Checks if the user has role.
+        """Checks if the user has a role.
         """
-
         for role in self.f_get('roles'):
             if role.f_get('name') == name:
                 return True
@@ -72,11 +70,11 @@ class User(ODMModel):
     def has_permission(self, name: str) -> bool:
         """Checks if the user has permission.
         """
-
         from . import auth_manager
         if not auth_manager.is_permission_defined(name):
             raise KeyError("Permission '{}' is not defined.".format(name))
 
+        # Admin 'has' any role
         if self.is_admin():
             return True
 
@@ -89,13 +87,11 @@ class User(ODMModel):
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-
         return self.f_get('login') == '__anonymous'
 
-    def is_admin(self):
-        """Check if the user is admin.
+    def is_admin(self) -> bool:
+        """Check if the user has the 'admin' role.
         """
-
         return self.has_role('admin')
 
 
@@ -109,7 +105,7 @@ class Role(ODMModel):
 
         self._define_field(StringField('name'))
         self._define_field(StringField('description'))
-        self._define_field(ListField('permissions'))
+        self._define_field(UniqueListField('permissions'))
 
         self._define_index([('name', I_ASC)], unique=True)
 

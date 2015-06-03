@@ -9,7 +9,7 @@ class NotFound(exceptions.NotFound):
     pass
 
 
-class Forbidden(exceptions.Forbidden):
+class ForbiddenError(exceptions.Forbidden):
     pass
 
 

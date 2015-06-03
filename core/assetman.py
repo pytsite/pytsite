@@ -9,7 +9,7 @@ from shutil import rmtree, copy
 from webassets import Environment
 from webassets.script import CommandLineEnvironment
 from importlib.util import find_spec
-from . import console, lang, router, logger, reg
+from . import console, lang, router, logger, reg, events
 
 
 class ConsoleCommand(console.AbstractCommand):
@@ -71,12 +71,13 @@ def add_css(location: str):
 def reset():
     """Clear added locations.
     """
-
     for k in _links:
         _links[k] = []
 
     add_js('pytsite.core@js/assetman.js')
     add_js('pytsite.core@js/lang.js')
+
+    events.fire('pytsite.core.assetman.request')
 
 
 def dump_js() -> str:

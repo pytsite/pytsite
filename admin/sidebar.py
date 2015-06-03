@@ -4,77 +4,107 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.util import dict_sort
+from copy import deepcopy
+from pytsite.core.util import weight_sort
 from pytsite.core.html import Aside, Section, Ul, Li, Span, A, I
+from pytsite.auth import auth_manager
 
-
-__sections = {}
+__sections = []
 __last_section_weight = 0
 
 
-def add_section(uid: str, title: str, weight: int=0):
+def get_section(sid: str) -> dict:
+    """Get section.
+    """
+    for s in __sections:
+        if s['sid'] == sid:
+            return s
+
+
+def add_section(sid: str, title: str, weight: int=0, permissions: tuple=()):
     """Add a section.
     """
     global __last_section_weight, __sections
 
-    if uid in __sections:
-        raise KeyError("Section '{}' already exists.".format(uid))
+    if get_section(sid):
+        raise KeyError("Section '{}' already exists.".format(sid))
 
     if not weight:
         weight = __last_section_weight + 100
 
     __last_section_weight = weight
+    __sections.append({
+        'sid': sid,
+        'title': title,
+        'weight': weight,
+        'children': [],
+        'permissions': permissions
+    })
 
-    __sections[uid] = {'title': title, 'weight': weight, 'menus': {}}
+    __sections = weight_sort(__sections)
 
 
-def add_section_menu(section_uid: str, menu_uid: str, title: str, href: str='#', icon: str=None,
-                     label: str=None, label_class: str='primary', weight: int=0):
+def get_menu(sid: str, mid: str) -> dict:
+    """Get a menu of a section.
+    """
+    section = get_section(sid)
+
+    if not section:
+        raise KeyError("Section '{}' is not exists.".format(sid))
+
+    for m in section['children']:
+        if m['mid'] == mid:
+            return m
+
+
+def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
+             label: str=None, label_class: str='primary', weight: int=0, permissions: tuple=()):
     """Add a menu to a section.
     """
-    global __sections
+    section = get_section(sid)
 
-    if section_uid not in __sections:
-        raise KeyError("Section '{}' is not exists.".format(section_uid))
+    if get_menu(sid, mid):
+        raise KeyError("Menu '{}' already defined in section '{}'.".format(mid, sid))
 
-    section = __sections[section_uid]
-    if menu_uid in section['menus']:
-        raise KeyError("Menu '{}' already defined in section '{}'.".format(menu_uid, section_uid))
-
-    section['menus'][menu_uid] = {
+    section['children'].append({
+        'sid': sid,
+        'mid': mid,
         'title': title,
         'href': href,
         'icon': icon,
         'label': label,
         'label_class': label_class,
         'weight': weight,
-        'children': []
-    }
+        'children': [],
+        'permissions': permissions
+    })
+
+    section['children'] = weight_sort(section['children'])
 
 
-def get_section_menu(section_uid: str, menu_uid: str) -> dict:
-    """Get a menu of a section.
+def add_menu_child(sid: str, mid: str, title: str, href: str, weight: 0, permissions: tuple=()):
+    """Add a child to the menu.
     """
-    global __sections
+    menu = get_menu(sid, mid)
 
-    if section_uid not in __sections:
-        raise KeyError("Section '{}' is not exists.".format(section_uid))
+    if not menu:
+        raise KeyError("Menu '{}' is not defined in section '{}'.".format(mid, sid))
 
-    section = __sections[section_uid]
-    if menu_uid not in section['children']:
-        raise KeyError("Menu '{}' is not defined in section '{}'.".format(menu_uid, section_uid))
+    menu['children'].append({
+        'sid': sid,
+        'mid': mid,
+        'title': title,
+        'href': href,
+        'weight': weight,
+        'permissions': permissions,
+    })
 
-
-def add_section_menu_child(section_uid: str, menu_uid: str, title: str, href: str, weight: 0):
-    menu = get_section_menu(section_uid, menu_uid)
-    menu['children'].append({'title': title, 'href': href, 'weight': weight})
+    menu['children'] = weight_sort(menu['children'])
 
 
 def render() -> str:
     """Render the admin sidebar.
     """
-    global __sections
-
     aside_em = Aside(cls='main-sidebar')
     sidebar_section_em = Section(cls='sidebar')
     aside_em.append(sidebar_section_em)
@@ -82,20 +112,50 @@ def render() -> str:
     root_menu_ul = Ul(cls='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
-    for section_uid, section in dict_sort(__sections):
+    for section in _filter_permissions(deepcopy(__sections)):
+        if not len(section['children']):
+            continue
+
         root_menu_ul.append(Li(section['title'], cls='header'))
-        for section_menu_uid, section_menu in dict_sort(section['menus']):
-            if section_menu['children']:
+
+        # Building top level menu item
+        for menu in section['children']:
+            if menu['children']:
+                # TODO
                 pass
             else:
-                a = A(href=section_menu['href'])
-                if section_menu['icon']:
-                    a.append(I(cls=section_menu['icon']))
-                a.append(Span(section_menu['title']))
-                if section_menu['label']:
-                    label_class = 'label pull-right label-' + section_menu['label_class']
-                    a.append(Span(section_menu['label'], cls=label_class))
-
+                a = A(href=menu['href'])
+                if menu['icon']:
+                    a.append(I(cls=menu['icon']))
+                a.append(Span(menu['title']))
+                if menu['label']:
+                    label_class = 'label pull-right label-' + menu['label_class']
+                    a.append(Span(menu['label'], cls=label_class))
                 root_menu_ul.append(Li().append(a))
 
     return aside_em.render()
+
+
+def _filter_permissions(container: list) -> list:
+    for k, item in enumerate(container):
+        if isinstance(item, dict):
+            if not _check_permissions(item):
+                del container[k]
+            elif 'children' in item:
+                _filter_permissions(item['children'])
+
+    return container
+
+
+def _check_permissions(container: dict) -> bool:
+    user = auth_manager.get_current_user()
+    if user.is_anonymous():
+        return False
+
+    for p in container['permissions']:
+        if p == '*':
+            return True
+        elif user.has_permission(p):
+            return True
+
+    return False

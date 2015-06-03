@@ -24,4 +24,5 @@ def register_model(model: str, cls: type, menu_weight: int=0, menu_icon: str='fa
     """:type: pytsite.taxonomy.models.AbstractTerm"""
 
     menu_url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    sidebar.add_section_menu('taxonomy', model, mock.t_plural(model), menu_url, menu_icon, weight=menu_weight)
+    sidebar.add_menu('taxonomy', model, mock.t_plural(model), menu_url, menu_icon, weight=menu_weight,
+                     permissions=('pytsite.odm_ui.browse.' + model,))

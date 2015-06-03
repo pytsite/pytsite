@@ -66,16 +66,8 @@ def random_password(size=16):
     return random_str(size, chars)
 
 
-def dict_sort(inp: dict, key: str='weight') -> dict:
-    srt = []
-    for k, v in inp.items():
-        srt.append((k, v[key], v))
-
-    r = []
-    for item in sorted(srt, key=lambda x: x[1]):
-        r.append((item[0], item[2]))
-
-    return r
+def weight_sort(inp: list, key: str='weight') -> list:
+    return sorted(inp, key=lambda x: x[key])
 
 
 def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:

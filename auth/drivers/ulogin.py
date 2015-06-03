@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import json
+from time import strptime
 from datetime import datetime
 from urllib.parse import urlencode
 from urllib.request import urlopen
@@ -87,8 +88,8 @@ class ULoginDriver(AbstractDriver):
                 picture_url = ulogin_data['photo_big'] if 'photo_big' in ulogin_data else None
                 if not picture_url:
                     picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
-                if picture_url:
-                    user.f_set('picture', image_manager.create(picture_url))
+                    if picture_url:
+                        user.f_set('picture', image_manager.create(picture_url))
 
                 # Full name
                 full_name = ''
@@ -103,6 +104,11 @@ class ULoginDriver(AbstractDriver):
                 # Gender
                 if 'sex' in ulogin_data:
                     user.f_set('gender', ulogin_data['sex'])
+
+                # Birth date
+                if 'bdate' in ulogin_data:
+                    b_date = strptime(ulogin_data['bdate'], '%d.%m.%Y')
+                    user.f_set('birth_date', datetime(*b_date[0:5]))
 
                 # Options
                 user.f_set('options', {'ulogin': ulogin_data})

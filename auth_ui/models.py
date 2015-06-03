@@ -10,12 +10,13 @@ from pytsite.core.widgets.static import *
 from pytsite.core.validation.rules import NotEmptyRule, EmailRule
 from pytsite.core.odm.validation import ODMEntitiesListRule, ODMFieldUniqueRule
 from pytsite.core.html import Span, Div, Input, Label
+from pytsite.core.lang import t
+from pytsite.core.http.errors import ForbiddenError
 from pytsite.auth import auth_manager
 from pytsite.auth.models import User, Role
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import EntityCheckboxesWidget
 from pytsite.image.widgets import ImagesUploadWidget
-from pytsite.core.lang import t
 
 
 class UserUI(User, ODMUIMixin):
@@ -38,14 +39,22 @@ class UserUI(User, ODMUIMixin):
         :type browser: pytsite.odm_ui.browser.ODMUIBrowser
         :return: None
         """
-        browser.data_fields = 'login', 'email', 'status', 'last_login'
+        browser.data_fields = 'login', 'email', 'roles', 'status', 'last_login'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
+        groups_cell = ''
+        for g in self.f_get('roles'):
+            cls = 'label label-default'
+            if g.f_get('name') == 'admin':
+                cls += ' label-danger'
+            groups_cell += str(Span(t(g.f_get('description')), cls=cls)) + ' '
+
         return (
             self.f_get('login'),
             self.f_get('email'),
+            groups_cell,
             t('pytsite.auth@status_'+self.f_get('status')),
             self.f_get('last_login', fmt='%x %X')
         )
@@ -144,6 +153,9 @@ class RoleUI(Role, ODMUIMixin):
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
+        if self.f_get('name') == 'admin':
+            return
+
         perms = []
         for perm_name in self.f_get('permissions'):
             perm = auth_manager.get_permission(perm_name)
@@ -163,6 +175,8 @@ class RoleUI(Role, ODMUIMixin):
 
         :type form: pytsite.core.forms.BaseForm
         """
+        if self.f_get('name') == 'admin':
+            raise ForbiddenError()
 
         form.add_widget(TextInputWidget(
             uid='name',
@@ -181,6 +195,8 @@ class RoleUI(Role, ODMUIMixin):
             tab_content = Div()
             for perm in auth_manager.get_permissions(group[0]):
                 p_name = perm[0]
+                if p_name == 'admin':
+                    continue
                 tab_content.append(
                     Div(cls='checkbox').append(
                         Label(t(perm[1]), label_for='permissions-checkbox-' + p_name).append(
@@ -197,4 +213,7 @@ class RoleUI(Role, ODMUIMixin):
     def get_d_form_description(self) -> str:
         """Get delete form description.
         """
+        if self.f_get('name') == 'admin':
+            raise ForbiddenError()
+
         return t(self.f_get('description'))

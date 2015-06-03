@@ -8,7 +8,7 @@ from pytsite.core import router, assetman, metatag
 from pytsite.core.odm import odm_manager, I_ASC, I_DESC
 from pytsite.core.lang import t, get_current_lang
 from pytsite.core.html import Div, Table, THead, Span, TBody, Tr, Th, Td, A, I, Input
-from pytsite.core.http.errors import Forbidden
+from pytsite.core.http.errors import ForbiddenError
 from pytsite.core.odm.models import ODMModel
 from pytsite.auth import auth_manager
 from .models import ODMUIMixin
@@ -29,7 +29,7 @@ class ODMUIBrowser:
 
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.{}'.format(model)):
-            raise Forbidden()
+            raise ForbiddenError()
 
         self._entity_mock = odm_manager.dispense(self._model)
         """:type : ODMUIMixin"""
@@ -156,6 +156,10 @@ class ODMUIBrowser:
         for entity in cursor:
             # Getting contend for TDs
             cells = entity.get_browser_data_row()
+
+            if cells is None:
+                continue
+
             if not cells:
                 raise Exception("'get_browser_row()' returns nothing.")
             if len(cells) != len(self.data_fields):

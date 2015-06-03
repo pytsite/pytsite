@@ -16,12 +16,12 @@ class File(odm.models.ODMModel):
 
         """_setup() hook.
         """
-        self._define_field(odm.fields.StringField('path'))
-        self._define_field(odm.fields.VirtualField('abs_path'))
-        self._define_field(odm.fields.StringField('name'))
+        self._define_field(odm.fields.StringField('path', not_empty=True))
+        self._define_field(odm.fields.VirtualField('abs_path', not_empty=True))
+        self._define_field(odm.fields.StringField('name', not_empty=True))
         self._define_field(odm.fields.StringField('description'))
-        self._define_field(odm.fields.StringField('mime'))
-        self._define_field(odm.fields.IntegerField('length'))
+        self._define_field(odm.fields.StringField('mime', not_empty=True))
+        self._define_field(odm.fields.IntegerField('length', not_empty=True))
         self._define_field(odm.fields.RefField('author', model='user'))
         self._define_field(odm.fields.VirtualField('url'))
         self._define_field(odm.fields.VirtualField('thumb_url'))

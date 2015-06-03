@@ -5,12 +5,16 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC, abstractmethod
+from collections import OrderedDict
+from datetime import datetime
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC
+from bson.dbref import DBRef
+from bson.objectid import ObjectId
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
-from .. import db
+from pytsite.core import db
 from .errors import EntityNotFoundException
-from .fields import *
+from .fields import AbstractField, ObjectIdField, StringField, DateTimeField, RefField, RefsListField, VirtualField
 
 
 class ODMModel(ABC):
@@ -30,7 +34,7 @@ class ODMModel(ABC):
         self._is_new = True
         self._is_deleted = False
         self._indices = []
-        self._fields = {}
+        self._fields = OrderedDict()
 
         self._define_field(ObjectIdField('_id'))
         self._define_field(StringField('_model', default=model))
@@ -139,7 +143,7 @@ class ODMModel(ABC):
         """
 
         if self._is_new:
-            raise Exception("Entity must be stored before it can has reference.")
+            raise Exception("Entity must be stored first.")
 
         return DBRef(self.collection.name, self.id)
 

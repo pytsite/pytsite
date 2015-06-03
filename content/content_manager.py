@@ -23,4 +23,4 @@ def register_model(model: str, cls: type, menu_weight: int=0, menu_icon: str='fa
     """:type: pytsite.odm_ui.models.ODMUIMixin"""
 
     menu_url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    sidebar.add_section_menu('content', model, mock.t_plural(model), menu_url, menu_icon, weight=menu_weight)
+    sidebar.add_menu('content', model, mock.t_plural(model), menu_url, menu_icon, weight=menu_weight)

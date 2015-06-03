@@ -85,7 +85,10 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     file_entity.f_set('description', description)
     file_entity.f_set('mime', mime)
     file_entity.f_set('length', stat(abs_target_path).st_size)
-    file_entity.f_set('author', auth_manager.get_current_user())
+
+    user = auth_manager.get_current_user()
+    if not user.is_anonymous():
+        file_entity.f_set('author', user)
 
     return file_entity.save()
 

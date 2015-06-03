@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 
 from abc import ABC, abstractmethod
-from pytsite.core.util import random_str, dict_sort
+from pytsite.core.util import random_str, weight_sort
 from pytsite.core.html import Div, Label
 
 
@@ -34,7 +34,7 @@ class AbstractWidget(ABC):
         self._cls = kwargs.get('cls', '')
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
-        self._children = {}
+        self._children = []
         self._h_size = kwargs.get('h_size')
 
         # It is important to filter value through the setter-method
@@ -43,9 +43,7 @@ class AbstractWidget(ABC):
     def add_child(self, widget, weight: int=0):
         """Add a child widget.
         """
-
-        self._children[widget.uid] = {'widget': widget, 'weight': weight}
-
+        self._children.append({'widget': widget, 'weight': weight})
         return self
 
     @abstractmethod
@@ -71,7 +69,7 @@ class AbstractWidget(ABC):
         """
 
         r = []
-        for k, v in dict_sort(self._children):
+        for v in weight_sort(self._children):
             r.append(v['widget'])
 
         return r
@@ -80,14 +78,12 @@ class AbstractWidget(ABC):
     def uid(self) -> str:
         """Get UID of the widget.
         """
-
         return self._uid
 
     @property
     def name(self) -> str:
         """Get name of the widget.
         """
-
         return self._name
 
     @property
@@ -106,7 +102,6 @@ class AbstractWidget(ABC):
     def placeholder(self):
         """Get placeholder of the widget.
         """
-
         return self._placeholder
 
     @property
@@ -124,7 +119,6 @@ class AbstractWidget(ABC):
     def _group_wrap(self, content, add_cls: str=None, add_data: dict=None, render_label: bool=True) -> str:
         """Wrap input string into 'form-group' container.
         """
-
         content = str(content)
 
         if self._h_size:

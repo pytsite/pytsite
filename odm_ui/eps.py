@@ -28,11 +28,11 @@ def browse(args: dict, inp: dict) -> str:
 def get_browser_rows(args: dict, inp: dict) -> JSONResponse:
     """Get browser rows via AJAX request.
     """
-
     offset = int(inp.get('offset', 0))
     limit = int(inp.get('limit', 0))
     sort_field = inp.get('sort', None)
     sort_order = inp.get('order', None)
+
     return JSONResponse(ODMUIBrowser(args.get('model')).get_rows(offset, limit, sort_field, sort_order))
 
 

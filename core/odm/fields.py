@@ -121,7 +121,7 @@ class ListField(AbstractField):
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        if isinstance(value, str):
+        if not isinstance(value, list):
             value = [value]
 
         if not isinstance(value, list):
@@ -150,10 +150,35 @@ class ListField(AbstractField):
 
         return self
 
+    def get_val(self, **kwargs) -> list:
+        """Get value of the field.
+        """
+        return super().get_val(**kwargs)
 
-class SetField(ListField):
-    """Set field.
+
+class UniqueListField(ListField):
+    """Unique List field.
     """
+
+    def set_val(self, value: list, change_modified: bool=True, **kwargs):
+        """Set value of the field.
+        """
+
+        clean_val = []
+        for v in value:
+            if v and v not in clean_val:
+                clean_val.append(v)
+
+        super().set_val(clean_val, change_modified, **kwargs)
+        return self
+
+    def add_val(self, value, change_modified: bool=True, **kwargs):
+        """Add a value to the field.
+        """
+        current_val = self.get_val()
+        current_val.append(value)
+
+        return self.set_val(current_val)
 
 
 class DictField(AbstractField):
@@ -223,19 +248,18 @@ class RefsListField(ListField):
         """Set value of the field.
         """
         if not isinstance(value, list):
-            raise TypeError("List of DBRefs or entities expected, but '{}' given.".format(value))
+            value = [list]
 
         clean_value = []
         for item in value:
             from .models import ODMModel
 
-            if not isinstance(item, DBRef) and not isinstance(item, ODMModel):
-                raise TypeError("List of DBRefs or entities expected.")
-
             if isinstance(item, ODMModel):
                 clean_value.append(item.ref)
             elif isinstance(item, DBRef):
                 clean_value.append(item)
+            else:
+                raise TypeError("List of DBRefs or entities expected.")
 
         return super().set_val(clean_value, change_modified)
 

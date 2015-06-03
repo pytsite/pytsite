@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from .util import html_attrs_str, dict_sort
+from .util import html_attrs_str, weight_sort
 from .widgets.abstract import AbstractWidget
 from .widgets.input import HiddenInputWidget
 from .widgets.wrapper import WrapperWidget
@@ -244,12 +244,12 @@ class BaseForm:
         """Render widgets.
         """
 
-        widgets_to_render = {}
-        for widget_uid in self._areas[area]:
-            widgets_to_render[widget_uid] = self._widgets[widget_uid]
+        widgets_to_render = []
+        for wid in self._areas[area]:
+            widgets_to_render.append(self._widgets[wid])
 
         rendered_widgets = []
-        for k, v in dict_sort(widgets_to_render):
+        for v in weight_sort(widgets_to_render):
             rendered_widgets.append(v['widget'].render())
 
         if not rendered_widgets:

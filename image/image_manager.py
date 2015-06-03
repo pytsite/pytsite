@@ -23,11 +23,8 @@ def create(source_path: str, name: str=None, description: str=None) -> ImageMode
     img_obj = Image.open(img_entity.f_get('abs_path'))
     size = img_obj.size
     img_obj.close()
-    img_entity.f_set('width', size[0])
-    img_entity.f_set('height', size[1])
-    img_entity.save()
 
-    return img_entity
+    return img_entity.f_set('width', size[0]).f_set('height', size[1]).save()
 
 
 def get(uid: str=None, rel_path: str=None) -> ImageModel:
