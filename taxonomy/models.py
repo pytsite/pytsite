@@ -27,18 +27,6 @@ class AbstractTerm(ODMModel, ODMUIMixin):
         self._define_index([('weight', I_ASC)])
         self._define_index([('order', I_ASC)])
 
-    @abstractmethod
-    def get_permission_group(self) -> tuple:
-        """Get permission group name hook.
-        """
-        pass
-
-    @abstractmethod
-    def get_lang_package(self) -> str:
-        """Get language package name hook.
-        """
-        pass
-
     def setup_browser(self, browser):
         """Setup ODM UI browser hook.
 

@@ -55,7 +55,7 @@ class AbstractField(ABC):
     def get_storable_val(self):
         """Get value suitable to store in a database.
         """
-        if self._not_empty and not self._value:
+        if self._not_empty and not len(self._value):
             raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
 
         return self._value
@@ -105,7 +105,7 @@ class ObjectIdField(AbstractField):
         if not isinstance(value, ObjectId):
             raise TypeError("ObjectId expected")
 
-        return super().set_val(value, change_modified)
+        return super().set_val(value, change_modified, **kwargs)
 
 
 class ListField(AbstractField):
@@ -127,7 +127,7 @@ class ListField(AbstractField):
         if not isinstance(value, list):
             raise TypeError("List expected")
 
-        return super().set_val(value, change_modified)
+        return super().set_val(value, change_modified, **kwargs)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
@@ -198,7 +198,7 @@ class DictField(AbstractField):
         if not isinstance(value, dict):
             raise TypeError("Dictionary expected")
 
-        return super().set_val(value, change_modified)
+        return super().set_val(value, change_modified, **kwargs)
 
 
 class RefField(AbstractField):
@@ -221,7 +221,7 @@ class RefField(AbstractField):
         if isinstance(value, ODMModel):
             value = value.ref
 
-        return super().set_val(value, change_modified)
+        return super().set_val(value, change_modified, **kwargs)
 
     def get_val(self, **kwargs):
         """Get value of the field.
@@ -261,7 +261,7 @@ class RefsListField(ListField):
             else:
                 raise TypeError("List of DBRefs or entities expected.")
 
-        return super().set_val(clean_value, change_modified)
+        return super().set_val(clean_value, change_modified, **kwargs)
 
     def get_val(self, **kwargs):
         """Get value of the field.
@@ -309,7 +309,7 @@ class DateTimeField(AbstractField):
         if not isinstance(value, datetime):
             raise TypeError("DateTime expected")
 
-        return super().set_val(value, change_modified)
+        return super().set_val(value, change_modified, **kwargs)
 
     def get_val(self, fmt: str=None, **kwargs):
         """Get field's value.
@@ -335,7 +335,8 @@ class StringField(AbstractField):
     def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        return super().set_val(str(value), change_modified)
+        value = '' if value is None else str(value)
+        return super().set_val(value, change_modified, **kwargs)
 
 
 class IntegerField(AbstractField):
@@ -350,7 +351,7 @@ class IntegerField(AbstractField):
     def set_val(self, value: int, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        return super().set_val(int(value), change_modified)
+        return super().set_val(int(value), change_modified, **kwargs)
 
     def add_val(self, value: int, change_modified: bool=True, **kwargs):
         """Add a value to the value of the field.
@@ -370,7 +371,7 @@ class BoolField(AbstractField):
     def set_val(self, value: bool, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        return super().set_val(bool(value), change_modified)
+        return super().set_val(bool(value), change_modified, **kwargs)
 
 
 class StringListField(ListField):

@@ -328,7 +328,8 @@ class Input(InlineElement, SingleTagElement):
 
 
 class TextArea(BlockElement):
-    pass
+    def _get_valid_attrs(self) -> tuple:
+        return 'name',
 
 
 class Label(InlineElement):

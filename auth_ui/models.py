@@ -23,16 +23,6 @@ class UserUI(User, ODMUIMixin):
     """User UI.
     """
 
-    def get_permission_group(self) -> tuple:
-        """Get permission group spec.
-        """
-        return 'auth', 'pytsite.auth_ui@security'
-
-    def get_lang_package(self) -> str:
-        """Get language package name.
-        """
-        return 'pytsite.auth_ui'
-
     def setup_browser(self, browser):
         """Setup ODM UI browser hook.
 
@@ -134,14 +124,6 @@ class RoleUI(Role, ODMUIMixin):
     """Role UI.
     """
 
-    def get_permission_group(self) -> tuple:
-        """Get permission group spec.
-        """
-        return 'auth', 'pytsite.auth_ui@security'
-
-    def get_lang_package(self) -> str:
-        return 'pytsite.auth_ui'
-
     def setup_browser(self, browser):
         """Setup ODM UI browser hook.
 
@@ -192,11 +174,12 @@ class RoleUI(Role, ODMUIMixin):
 
         perms_tabs = TabsWidget(uid='permissions', label=self.t('permissions'))
         for group in auth_manager.get_permission_groups():
+            if group[0] == 'auth':
+                continue
+
             tab_content = Div()
             for perm in auth_manager.get_permissions(group[0]):
                 p_name = perm[0]
-                if p_name == 'admin':
-                    continue
                 tab_content.append(
                     Div(cls='checkbox').append(
                         Label(t(perm[1]), label_for='permissions-checkbox-' + p_name).append(
@@ -209,6 +192,9 @@ class RoleUI(Role, ODMUIMixin):
 
         form.add_widget(HiddenInputWidget(name='permissions', value=''))
         form.add_widget(perms_tabs, 30)
+
+        form.add_rules('name', (NotEmptyRule(),))
+        form.add_rules('description', (NotEmptyRule(),))
 
     def get_d_form_description(self) -> str:
         """Get delete form description.

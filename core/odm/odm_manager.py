@@ -16,9 +16,10 @@ __dispensed_entities = {}
 def register_model(model: str, cls: type, replace: bool=False):
     """Register new ODM model.
     """
-
-    if not isclass(cls):
-        raise Exception("Class expected.")
+    if isinstance(cls, str):
+        class_fqn = cls.split('.')
+        class_name = class_fqn[-1:]
+        cls = __import__('.'.join(class_fqn[:-1]), fromlist=[class_name]).class_name
 
     if not issubclass(cls, ODMModel):
         raise Exception("Subclass of Model is expected.")

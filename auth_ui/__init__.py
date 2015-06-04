@@ -30,4 +30,4 @@ sidebar.add_menu('auth', 'users', lang.t('pytsite.auth_ui@users'), url, 'fa fa-u
 # 'Roles' admin sidebar menu
 url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'role'})
 sidebar.add_menu('auth', 'roles', lang.t('pytsite.auth_ui@roles'), url, 'fa fa-users', weight=20,
-                 permissions=('pytsite.odm_ui.browse.user',))
+                 permissions=('pytsite.odm_ui.browse.role',))

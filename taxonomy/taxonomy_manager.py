@@ -14,7 +14,6 @@ from .models import AbstractTerm
 def register_model(model: str, cls: type, menu_weight: int=0, menu_icon: str='fa fa-tags'):
     """Register taxonomy model.
     """
-
     if not issubclass(cls, AbstractTerm):
         raise TypeError('Subclass of AbstractTerm expected.')
 

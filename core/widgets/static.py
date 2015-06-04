@@ -46,8 +46,8 @@ class TabsWidget(AbstractWidget):
     def add_tab(self, tid: str, title: str, content: str):
         """Add a tab.
         """
+        tid = tid.replace('.', '-')
         self._tabs.append((tid, title, content))
-
         return self
 
     def render(self) -> str:

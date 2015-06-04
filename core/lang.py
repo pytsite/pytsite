@@ -12,6 +12,10 @@ from os import path
 from . import console, reg
 
 
+class TranslationError(Exception):
+    pass
+
+
 class ConsoleCommand(console.AbstractCommand):
     def get_name(self)->str:
         return 'lang:build'
@@ -24,7 +28,7 @@ class ConsoleCommand(console.AbstractCommand):
 
 __languages = []
 __current_language = None
-_packages = {}
+__packages = {}
 
 
 def define_languages(languages: list):
@@ -63,19 +67,27 @@ def get_current_lang()->str:
     return __current_language
 
 
-def register_package(package_name: str, languages_dir: str='lang') -> str:
+def is_package_registered(pkg_name):
+    """Check if the package already registered.
+    """
+    return pkg_name in __packages
+
+
+def register_package(pkg_name: str, languages_dir: str='lang') -> str:
     """Register language container.
     """
+    if is_package_registered(pkg_name):
+        raise Exception("Package '{}' is already registered.")
 
-    spec = find_spec(package_name)
+    spec = find_spec(pkg_name)
     if not spec:
-        raise Exception("Package '{}' is not found.".format(package_name))
+        raise Exception("Package '{}' is not found.".format(pkg_name))
 
     lng_dir = path.join(path.dirname(spec.origin), languages_dir)
     if not path.isdir(lng_dir):
         raise Exception("Directory '{}' is not exists.".format(lng_dir))
 
-    _packages[package_name] = {'__path': lng_dir}
+    __packages[pkg_name] = {'__path': lng_dir}
 
 
 def t(msg_id: str, data: dict=None, language: str=None)->str:
@@ -85,7 +97,7 @@ def t(msg_id: str, data: dict=None, language: str=None)->str:
         language = get_current_lang()
 
     if language not in __languages:
-        raise Exception("Language '{}' is not defined.".format(language))
+        raise TranslationError("Language '{}' is not defined.".format(language))
 
     # Determining package name and message ID
     package_name = 'app'
@@ -98,7 +110,7 @@ def t(msg_id: str, data: dict=None, language: str=None)->str:
 
     content = _load_file(package_name, language)
     if msg_id not in content:
-        return package_name + '@' + msg_id
+        raise TranslationError("Translation is not found for '{}'".format(package_name + '@' + msg_id))
 
     msg = content[msg_id]
     """:type : str"""
@@ -174,7 +186,7 @@ def compile_translations(print_output: bool=True):
     translations = {}
     for lang_code in get_languages():
         translations[lang_code] = {}
-        for pkg_name, info in _packages.items():
+        for pkg_name, info in __packages.items():
             if print_output:
                 print("Compiling translations for {} ({})".format(pkg_name, lang_code))
             translations[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
@@ -194,20 +206,20 @@ def _load_file(package_name: str, language: str=None):
     """
 
     # Is the package registered?
-    if package_name not in _packages:
+    if package_name not in __packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     if not language:
         language = get_current_lang()
 
     # Getting from cache
-    if language in _packages[package_name]:
-        return _packages[package_name][language]
+    if language in __packages[package_name]:
+        return __packages[package_name][language]
 
     content = {}
 
     # Actual data loading
-    file_path = path.join(_packages[package_name]['__path'], language + '.yml')
+    file_path = path.join(__packages[package_name]['__path'], language + '.yml')
     if not path.exists(file_path):
         return content
 
@@ -218,6 +230,6 @@ def _load_file(package_name: str, language: str=None):
         content = {}
 
     # Caching
-    _packages[package_name][language] = content
+    __packages[package_name][language] = content
 
     return content

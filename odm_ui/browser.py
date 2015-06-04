@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from pytsite.core import router, assetman, metatag
 from pytsite.core.odm import odm_manager, I_ASC, I_DESC
 from pytsite.core.lang import t, get_current_lang
-from pytsite.core.html import Div, Table, THead, Span, TBody, Tr, Th, Td, A, I, Input
+from pytsite.core.html import Div, Table, THead, Span, TBody, Tr, Th, A, I
 from pytsite.core.http.errors import ForbiddenError
 from pytsite.core.odm.models import ODMModel
 from pytsite.auth import auth_manager
@@ -21,14 +21,14 @@ class ODMUIBrowser:
     def __init__(self, model: str):
         """Init.
         """
-
         self._title = None
         self._model = model
         self._current_user = auth_manager.get_current_user()
         self._head_columns = ()
 
         # Checking permissions
-        if not self._current_user.has_permission('pytsite.odm_ui.browse.{}'.format(model)):
+        if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
+                and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
             raise ForbiddenError()
 
         self._entity_mock = odm_manager.dispense(self._model)
@@ -75,24 +75,29 @@ class ODMUIBrowser:
         """Get browser table skeleton.
         """
 
-        lang_pkg = self._entity_mock.get_lang_package()
         data_url = router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
 
         # Toolbar
         toolbar = Div(uid='odm-ui-browser-toolbar')
-        create_form_url = router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {'model': self._model, 'id': '0'})
-        toolbar.append(
-            A(href=create_form_url, cls='btn btn-default add-button').append(
-                I(cls='fa fa-plus')
+
+        # 'Create' toolbar button
+        if self._check_entity_permission('create'):
+            create_form_url = router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {'model': self._model, 'id': '0'})
+            toolbar.append(
+                A(href=create_form_url, cls='btn btn-default add-button').append(
+                    I(cls='fa fa-plus')
+                )
             )
-        )
-        toolbar.append(Span('&nbsp;'))
-        delete_form_url = router.endpoint_url('pytsite.odm_ui.eps.get_d_form', {'model': self._model})
-        toolbar.append(
-            A(href=delete_form_url, cls='btn btn-danger mass-delete-button').append(
-                I(cls='fa fa-remove')
+            toolbar.append(Span('&nbsp;'))
+
+        # 'Delete' toolbar button
+        if self._check_entity_permission('delete'):
+            delete_form_url = router.endpoint_url('pytsite.odm_ui.eps.get_d_form', {'model': self._model})
+            toolbar.append(
+                A(href=delete_form_url, cls='btn btn-danger mass-delete-button').append(
+                    I(cls='fa fa-remove')
+                )
             )
-        )
 
         # Table skeleton
         table = Table(
@@ -120,7 +125,7 @@ class ODMUIBrowser:
 
         # Head cells
         for col in self.data_fields:
-            th = Th(t(lang_pkg + '@' + col), data_field=col, data_sortable='true')
+            th = Th(self._entity_mock.t(col), data_field=col, data_sortable='true')
             t_head_row.append(th)
 
         # Actions column
@@ -196,7 +201,7 @@ class ODMUIBrowser:
 
         return group
 
-    def _check_entity_permission(self, permission_type: str, entity: ODMModel) -> bool:
+    def _check_entity_permission(self, permission_type: str, entity: ODMModel=None) -> bool:
         """Check current user's entity permissions.
         """
 
@@ -207,7 +212,7 @@ class ODMUIBrowser:
             if self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '.' + self._model):
                 return True
             elif self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '_own.' + self._model):
-                if entity.has_field('author') and entity.f_get('author').id == self._current_user.id:
+                if entity and entity.has_field('author') and entity.f_get('author').id == self._current_user.id:
                     return True
 
         return False
