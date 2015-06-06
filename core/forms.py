@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from collections import OrderedDict
 from .util import html_attrs_str, weight_sort
 from .widgets.abstract import AbstractWidget
 from .widgets.input import HiddenInputWidget
@@ -32,7 +33,7 @@ class BaseForm:
         self._validation_ep = kwargs.get('validation_ep')
 
         self._areas = {'form': [], 'header': [], 'body': [], 'footer': []}
-        self._widgets = {}
+        self._widgets = OrderedDict()
         self._validator = Validator()
 
         if not self._name:
@@ -125,8 +126,7 @@ class BaseForm:
 
     @property
     def values(self) -> dict:
-
-        r = {}
+        r = OrderedDict()
         for k, v in self._widgets.items():
             r[k] = v['widget'].get_value()
 

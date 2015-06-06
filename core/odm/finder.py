@@ -10,7 +10,7 @@ from .models import ODMModel
 from .fields import *
 
 
-class Query:
+class ODMQuery:
     """Query Representation.
     """
 
@@ -83,7 +83,7 @@ class Query:
         return self._criteria
 
 
-class Result:
+class ODMFinderResult:
     def __init__(self, model_name: str, cursor: Cursor):
         self._model_name = model_name
         self._cursor = cursor
@@ -99,7 +99,7 @@ class Result:
         return dispense(self._model_name, doc['_id'])
 
 
-class Finder:
+class ODMFinder:
     def __init__(self, model_name: str):
         """Init.
         """
@@ -108,7 +108,7 @@ class Finder:
 
         self._model_name = model_name
         self._entity = dispense(model_name)
-        self._query = Query(self._entity)
+        self._query = ODMQuery(self._entity)
         self._skip = 0
         self._limit = 0
         self._sort = None
@@ -172,7 +172,7 @@ class Finder:
             self._sort
         )
 
-        return Result(self._model_name, cursor)
+        return ODMFinderResult(self._model_name, cursor)
 
     def first(self)->ODMModel:
         """Execute the query and return a first result.

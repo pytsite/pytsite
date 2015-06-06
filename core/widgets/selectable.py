@@ -78,15 +78,15 @@ class CheckboxesWidget(SelectWidget):
 
         self._selected_items = kwargs.get('selected_items', self._value)
 
-    def set_value(self, val: list, **kwargs):
+    def set_value(self, value: list, **kwargs):
         """Set value of the widget.
         """
 
-        if not isinstance(val, list):
+        if not isinstance(value, list):
             raise TypeError('List expected')
 
-        self._value = val
-        self._selected_items = val
+        self._value = value
+        self._selected_items = value
 
     def render(self) -> str:
         """Render the widget.

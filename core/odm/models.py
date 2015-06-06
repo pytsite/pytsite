@@ -28,7 +28,10 @@ class ODMModel(ABC):
             self._collection_name = None
 
         if self._collection_name is None:
-            self._collection_name = model + 's'
+            if model[-1:] in ('s', 'h'):
+                self._collection_name = model + 'es'
+            else:
+                self._collection_name = model + 's'
 
         self._collection = db.get_collection(self._collection_name)
         self._is_new = True
@@ -181,10 +184,10 @@ class ODMModel(ABC):
 
         return self
 
-    def _on_f_set(self, field_name: str, orig_value, **kwargs):
+    def _on_f_set(self, field_name: str, value, **kwargs):
         """On set field's value hook.
         """
-        return orig_value
+        return value
 
     def f_get(self, field_name: str, **kwargs):
         """Get field's value.
@@ -247,7 +250,7 @@ class ODMModel(ABC):
         self.f_set('_modified', datetime.now())
 
         # Getting storable data from each field
-        data = dict()
+        data = {}
         for f_name, field in self._fields.items():
             if isinstance(field, VirtualField):
                 continue

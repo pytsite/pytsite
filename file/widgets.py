@@ -16,8 +16,9 @@ class FilesUploadWidget(AbstractWidget):
     def __init__(self, model: str, **kwargs: dict):
         """Init.
         """
-
         super().__init__(**kwargs)
+
+        self._group_cls = ' '.join((self._group_cls, 'widget-files-upload'))
 
         # Processing setter filtering
         self.set_value(self._value)
@@ -47,7 +48,7 @@ class FilesUploadWidget(AbstractWidget):
 
         widget_content = tpl.render('pytsite.file@file_upload_widget', {'widget': self})
 
-        return self._group_wrap(widget_content, 'widget-files-upload', data)
+        return self._group_wrap(widget_content, data)
 
     def set_value(self, value: list, **kwargs):
         """Set value of the widget.

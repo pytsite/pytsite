@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core import tpl
-from pytsite.core.http.errors import ServerError
+from pytsite.core.http.errors import InternalServerError
 from pytsite.core.http.response import RedirectResponse, JSONResponse
 from pytsite.core.lang import t
 from pytsite.core import router
@@ -59,7 +59,7 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
 
     if not form.fill(inp).validate():
         router.session.add_error(str(form.messages))
-        raise ServerError()
+        raise InternalServerError()
 
     entity = odm_ui_manager.dispense_entity(model, entity_id)
     for f_name, f_value in form.values.items():

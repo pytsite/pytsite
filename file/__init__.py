@@ -4,9 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 __import__('pytsite.auth')
-__import__('pytsite.jquery_ui')
 
 from pytsite.core.odm import odm_manager
 from pytsite.core import assetman, router, lang, tpl

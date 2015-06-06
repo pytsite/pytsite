@@ -8,7 +8,6 @@ from pytsite.core import events, router, assetman
 
 
 def dispatch_event_handler():
-    assetman.add_js(__name__ + '@js/jquery-2.1.4.min.js')
     assetman.add_js(__name__ + '@js/js_api.js')
 
 assetman.register_package(__name__)

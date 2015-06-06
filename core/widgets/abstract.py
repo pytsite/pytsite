@@ -17,11 +17,11 @@ class AbstractWidget(ABC):
     def __init__(self, **kwargs: dict):
         """Init.
         """
-
         uid = kwargs.get('uid')
-        name = kwargs.get('name')
         if not uid:
             uid = 'uid_' + random_str()
+
+        name = kwargs.get('name')
         if not name:
             name = uid
 
@@ -32,6 +32,7 @@ class AbstractWidget(ABC):
         self._title = kwargs.get('title')
         self._placeholder = kwargs.get('placeholder')
         self._cls = kwargs.get('cls', '')
+        self._group_cls = kwargs.get('group_cls', '')
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
         self._children = []
@@ -50,24 +51,24 @@ class AbstractWidget(ABC):
     def render(self) -> str:
         """Render the widget.
         """
-        raise NotImplementedError()
+        pass
 
     def get_value(self, **kwargs: dict):
         """Get value of the widget.
         """
         return self._value
 
-    def set_value(self, val, **kwargs: dict):
+    def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
-        self._value = val
+        self._value = value
+
         return self
 
     @property
     def children(self):
         """Get children widgets.
         """
-
         r = []
         for v in weight_sort(self._children):
             r.append(v['widget'])
@@ -116,7 +117,7 @@ class AbstractWidget(ABC):
         """
         return self._help
 
-    def _group_wrap(self, content, add_cls: str=None, add_data: dict=None, render_label: bool=True) -> str:
+    def _group_wrap(self, content, add_data: dict=None, render_label: bool=True) -> str:
         """Wrap input string into 'form-group' container.
         """
         content = str(content)
@@ -125,9 +126,7 @@ class AbstractWidget(ABC):
             content = Div(content, cls=self._h_size).wrap(Div(cls='row')).render()
 
         cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
-        if add_cls:
-            cls += ' ' + add_cls
-
+        cls = ' '.join((cls, self._group_cls))
         group_wrapper = Div(content, cls=cls, data_widget_uid=self.uid)
 
         if add_data:

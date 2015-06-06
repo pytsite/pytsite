@@ -4,19 +4,51 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.widgets.selectable import CheckboxesWidget
+from pytsite.core.widgets.selectable import CheckboxesWidget, SelectWidget
 from pytsite.core.odm import odm_manager, I_ASC
+from pytsite.core.odm.models import ODMModel
 from pytsite.core.lang import t
 
 
-class EntityCheckboxesWidget(CheckboxesWidget):
+class ODMSelectWidget(SelectWidget):
+    """Select Entity with Select Widget.
+    """
+    def __init__(self, **kwargs: dict):
+        """Init.
+        """
+        super().__init__(**kwargs)
+
+        self.set_value(kwargs.get('value'))
+        self._model = kwargs.get('model')
+        self._caption_field = kwargs.get('caption_field')
+
+        if not self._model:
+            raise ValueError('Model is not specified.')
+        if not self._caption_field:
+            raise ValueError('Caption field is not specified.')
+
+        finder = odm_manager.find(self._model).sort([(self._caption_field, I_ASC)])
+        for entity in finder.get():
+            k = entity.model + ':' + str(entity.id)
+            self._items.append((k, t(str(entity.get_field(self._caption_field)))))
+
+    def set_value(self, value: ODMModel, **kwargs):
+        """Set value of the widget.
+        """
+        if isinstance(value, str):
+            model, eid = value.split(':')
+            value = odm_manager.find(model).where('_id', '=', eid).first()
+
+        return super().set_value(value, **kwargs)
+
+
+class ODMCheckboxesWidget(CheckboxesWidget):
     """Select Entities with Checkboxes Widget.
     """
 
     def __init__(self, **kwargs: dict):
         """Init.
         """
-
         super().__init__(**kwargs)
 
         self.set_value(kwargs.get('value'))

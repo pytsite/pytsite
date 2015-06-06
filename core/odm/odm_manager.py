@@ -142,5 +142,5 @@ def find(model: str):
     """Get ODM finder.
     """
 
-    from .finder import Finder
-    return Finder(model)
+    from .finder import ODMFinder
+    return ODMFinder(model)

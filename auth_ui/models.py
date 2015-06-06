@@ -15,7 +15,7 @@ from pytsite.core.http.errors import ForbiddenError
 from pytsite.auth import auth_manager
 from pytsite.auth.models import User, Role
 from pytsite.odm_ui.models import ODMUIMixin
-from pytsite.odm_ui.widgets import EntityCheckboxesWidget
+from pytsite.odm_ui.widgets import ODMCheckboxesWidget
 from pytsite.image.widgets import ImagesUploadWidget
 
 
@@ -95,7 +95,7 @@ class UserUI(User, ODMUIMixin):
             max_file_size=1,
         ), 60)
 
-        form.add_widget(EntityCheckboxesWidget(
+        form.add_widget(ODMCheckboxesWidget(
             uid='roles',
             label=self.t('roles'),
             model='role',

@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from copy import deepcopy
+from pytsite.core import router
 from pytsite.core.util import weight_sort
 from pytsite.core.html import Aside, Section, Ul, Li, Span, A, I
 from pytsite.auth import auth_manager
@@ -124,14 +125,18 @@ def render() -> str:
                 # TODO
                 pass
             else:
-                a = A(href=menu['href'])
+                href = menu['href']
+                a = A(href=href)
                 if menu['icon']:
                     a.append(I(cls=menu['icon']))
                 a.append(Span(menu['title']))
                 if menu['label']:
                     label_class = 'label pull-right label-' + menu['label_class']
                     a.append(Span(menu['label'], cls=label_class))
-                root_menu_ul.append(Li().append(a))
+                li = Li()
+                if href.find(router.current_url()) >= 0:
+                    li.set_attr('cls', 'active')
+                root_menu_ul.append(li.append(a))
 
     return aside_em.render()
 

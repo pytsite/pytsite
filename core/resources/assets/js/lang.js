@@ -8,7 +8,7 @@ pytsite.lang = {
             msg_id = msg_parts[1];
         }
 
-        var pkg_strings = pytsite.lang.translations[pytsite.lang.current][pkg];
+        var pkg_strings = pytsite.lang.translations[pytsite.lang.current_language][pkg];
         if(pkg_strings === undefined)
             return pkg + '@' + msg_id;
 
@@ -21,11 +21,8 @@ pytsite.lang = {
 
         return translation;
     },
-
     languages: [],
-
-    current: null,
-
+    current_language: null,
     translations: {}
 };
 

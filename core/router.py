@@ -11,12 +11,12 @@ from werkzeug.routing import Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore
 from importlib import import_module
-from re import sub
+from re import sub, match
 from htmlmin import minify
 from .http.request import Request
 from .http.response import Response, RedirectResponse
 from .http.session import Session
-from .http.errors import NotFound
+from .http.errors import NotFoundError, InternalServerError
 from . import reg, logger
 
 session_storage_path = reg.get('paths.session')
@@ -24,10 +24,10 @@ if not path.exists(session_storage_path):
     makedirs(session_storage_path, 0o755, True)
 
 __session_store = FilesystemSessionStore(path=session_storage_path, session_class=Session)
-
 __routes = Map()
-
 __url_adapter = __routes.bind(reg.get('server_name', 'localhost'))
+__path_aliases = {}
+
 
 request = None
 """:type : pytsite.core.http.request.Request"""
@@ -68,7 +68,13 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: list=Non
     __routes.add(rule)
 
 
+def add_path_alias(alias: str, target: str):
+    __path_aliases[alias] = target
+
+
 def call_endpoint(name: str, args: dict=None, inp: dict=None):
+    """Call an endpoint.
+    """
     endpoint = name.split('.')
     if not len(endpoint):
         raise TypeError("Invalid format of endpoint specification: '{0}'".format(name))
@@ -78,13 +84,11 @@ def call_endpoint(name: str, args: dict=None, inp: dict=None):
 
     module = import_module(module_name)
     if callable_name not in dir(module):
-        logger.error("Callable '{}.{}' is not found.".format(module_name, callable_name))
-        raise NotFound()
+        raise Exception("'{}.{}' is not callable".format(module_name, callable_name))
 
     callable_obj = getattr(module, callable_name)
     if not hasattr(callable_obj, '__call__'):
-        logger.error("'{}.{}' is not callable".format(module_name, callable_name))
-        raise NotFound()
+        raise Exception("'{}.{}' is not callable".format(module_name, callable_name))
 
     return callable_obj(args, inp)
 
@@ -95,9 +99,28 @@ def dispatch(env: dict, start_response: callable):
     from pytsite.core import tpl, metatag, lang, events
     global __url_adapter, __session_store, request, session
 
+    # Detect language from path
+    languages = lang.get_languages()
+    if len(languages) > 1:
+        if match(r'/[a-z]{2}(/|$)', env['PATH_INFO']):
+            lang_code = env['PATH_INFO'][1:3]
+            lang.set_current_lang(lang_code)
+            env['PATH_INFO'] = env['PATH_INFO'][4:]
+            if lang_code == languages[0]:
+                return RedirectResponse(env['PATH_INFO'], 301)(env, start_response)
+        else:
+            lang.set_current_lang(languages[0])
+
+    # Notify listeners
+    events.fire('pytsite.core.router.pre_dispatch', path_info=env['PATH_INFO'])
+
+    # Loading path alias
+    env['PATH_INFO'] = __path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
+
     # Replace url adapter with environment-based
     __url_adapter = __routes.bind_to_environ(env)
 
+    # Creating request
     request = Request(env)
 
     # Remove trailing slash
@@ -118,6 +141,7 @@ def dispatch(env: dict, start_response: callable):
     try:
         rule, rule_args = __url_adapter.match(return_rule=True)
 
+        # Notify listeners
         events.fire('pytsite.core.router.dispatch')
 
         # Processing rule filters
@@ -210,7 +234,7 @@ def base_url(language: str=None):
     return scheme() + '://' + server_name() + base_path(language)
 
 
-def url(url: str, lang: str=None, strip_lang=False, query: dict=None) -> str:
+def url(url: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False) -> str:
     """Generate an URL.
     """
 
@@ -235,7 +259,12 @@ def url(url: str, lang: str=None, strip_lang=False, query: dict=None) -> str:
     if not strip_lang:
         r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
 
-    return urlunparse(r)
+    r = urlunparse(r)
+
+    if relative:
+        r = sub(r'^https?://[\w\.\-]+/', '/', r)
+
+    return r
 
 
 def current_url(strip_query_string=False):
@@ -252,9 +281,9 @@ def current_url(strip_query_string=False):
     return r
 
 
-def endpoint_url(endpoint: str, args: dict=None)->str:
+def endpoint_url(endpoint: str, args: dict=None, relative: bool=False)->str:
     """Get URL for endpoint.
     """
 
     global __url_adapter
-    return url(__url_adapter.build(endpoint, args))
+    return url(__url_adapter.build(endpoint, args), relative=relative)

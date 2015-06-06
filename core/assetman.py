@@ -57,15 +57,24 @@ def add_location(location: str, collection: str):
 def add_js(location: str):
     """Add a JS asset location to the collection.
     """
-
     add_location(location, 'js')
 
 
 def add_css(location: str):
     """Add a CSS asset location to the collection.
     """
-
     add_location(location, 'css')
+
+
+def add(location: str):
+    """Shortcut.
+    """
+    if location.endswith('.js'):
+        add_js(location)
+    elif location.endswith('.css'):
+        add_css(location)
+    else:
+        raise ValueError("Cannot detect collection to add for '{}'.".format(location))
 
 
 def reset():
@@ -74,8 +83,14 @@ def reset():
     for k in _links:
         _links[k] = []
 
+    add_js('pytsite.core@js/jquery-2.1.4.min.js')
     add_js('pytsite.core@js/assetman.js')
     add_js('pytsite.core@js/lang.js')
+
+    if reg.get('core.jquery_ui.enabled'):
+        add_css('pytsite.core@jquery-ui/jquery-ui.min.css')
+        add_js('pytsite.core@jquery-ui/jquery-ui.min.js')
+        add_js('pytsite.core@jquery-ui/i18n/datepicker-{}.js'.format(lang.get_current_lang()))
 
     events.fire('pytsite.core.assetman.request')
 

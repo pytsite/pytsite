@@ -39,15 +39,15 @@ class User(ODMModel):
         self._define_index([('login', I_ASC)], unique=True)
         self._define_index([('token', I_ASC)], unique=True)
 
-    def _on_f_set(self, field_name: str, orig_value, **kwargs):
+    def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
         """
         if field_name == 'password':
             from .auth_manager import password_hash
-            orig_value = password_hash(orig_value)
+            value = password_hash(value)
             self.f_set('token', hashlib.md5(util.random_password().encode()).hexdigest())
 
-        return orig_value
+        return value
 
     def _pre_save(self):
         """_pre_save() hook.

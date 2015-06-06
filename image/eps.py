@@ -10,7 +10,7 @@ from math import floor
 from PIL import Image
 from pytsite.core import reg
 from pytsite.core.http.response import RedirectResponse
-from pytsite.core.http.errors import NotFound
+from pytsite.core.http.errors import NotFoundError
 from . import image_manager
 
 
@@ -21,7 +21,7 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
 
     image_entity = image_manager.get(rel_path=file_path)
     if not image_entity:
-        raise NotFound()
+        raise NotFoundError()
 
     # Sizes cannot be negative
     width = width if width >= 0 else 0

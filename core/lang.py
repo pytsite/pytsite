@@ -52,6 +52,9 @@ def set_current_lang(code: str):
     if code not in __languages:
         raise Exception("Language '{0}' is not defined.".format(code))
 
+    global __current_language
+    __current_language = code
+
 
 def get_current_lang()->str:
     """Get current language.

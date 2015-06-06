@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from werkzeug import exceptions
 
 
-class NotFound(exceptions.NotFound):
+class NotFoundError(exceptions.NotFound):
     pass
 
 
@@ -13,5 +13,5 @@ class ForbiddenError(exceptions.Forbidden):
     pass
 
 
-class ServerError(exceptions.InternalServerError):
+class InternalServerError(exceptions.InternalServerError):
     pass

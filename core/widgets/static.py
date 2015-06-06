@@ -25,6 +25,11 @@ class HtmlWidget(AbstractWidget):
 class StaticControlWidget(HtmlWidget):
     """Static Text Widget.
     """
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._group_cls = ' '.join((self._group_cls, 'widget-static-control'))
 
     def render(self) -> str:
         """Render the widget.

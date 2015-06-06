@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re
+from datetime import datetime
 from abc import ABC, abstractmethod
 from pytsite.core.lang import t
 from .errors import ValidationError
@@ -130,4 +131,17 @@ class EmailRule(BaseRule):
 
         regex = re.compile('[^@]+@[^@]+\.[^@]+')
         if not regex.match(str(self._value)):
+            raise ValidationError()
+
+
+class DateTimeRule(BaseRule):
+    """Date/time Rule.
+    """
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        if isinstance(self._value, str):
+            if not re.match(r'\d{2}\.\d{2}\.\d{4}\s\d{2}\.\d{2}', self._value):
+                raise ValidationError()
+        elif not isinstance(self._value, datetime):
             raise ValidationError()

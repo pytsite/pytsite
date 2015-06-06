@@ -55,8 +55,11 @@ class AbstractField(ABC):
     def get_storable_val(self):
         """Get value suitable to store in a database.
         """
-        if self._not_empty and not len(self._value):
-            raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
+        if self._not_empty:
+            if hasattr(self, '__len__') and not len(self._value):
+                raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
+            elif self._value is None:
+                raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
 
         return self._value
 
@@ -215,11 +218,15 @@ class RefField(AbstractField):
         """Set value of the field.
         """
         from .models import ODMModel
-        if value and not isinstance(value, DBRef) and not isinstance(value, ODMModel):
-            raise TypeError("Entity or DBRef expected, but '{}' given.".format(str(value)))
 
-        if isinstance(value, ODMModel):
+        if isinstance(value, DBRef) or value is None:
+            pass
+        elif isinstance(value, ODMModel):
+            if value.model != self._model:
+                raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
+        else:
+            raise TypeError("Entity or DBRef expected, but '{}' given.".format(str(value)))
 
         return super().set_val(value, change_modified, **kwargs)
 
@@ -251,10 +258,11 @@ class RefsListField(ListField):
             value = [list]
 
         clean_value = []
+        from .models import ODMModel
         for item in value:
-            from .models import ODMModel
-
             if isinstance(item, ODMModel):
+                if item.model != self._model:
+                    raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
                 clean_value.append(item.ref)
             elif isinstance(item, DBRef):
                 clean_value.append(item)
@@ -278,7 +286,6 @@ class RefsListField(ListField):
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
-
         from .models import ODMModel
         if not isinstance(value, DBRef) and not isinstance(value, ODMModel):
             raise TypeError("DBRef of entity expected.")
