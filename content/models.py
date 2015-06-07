@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import router
+from pytsite.core import router, assetman
 from pytsite.core.html import A, Span
 from pytsite.core.lang import t, t_plural, TranslationError
 from pytsite.core.odm.models import ODMModel
@@ -18,6 +18,7 @@ from pytsite.core.validation.rules import NotEmptyRule, DateTimeRule
 from pytsite.auth import auth_manager
 from pytsite.route_alias import route_alias_manager
 from pytsite.taxonomy.models import AbstractTerm
+from pytsite.taxonomy.widgets import TermTokenInputWidget
 
 
 class SectionModel(AbstractTerm):
@@ -127,6 +128,7 @@ class ContentModel(ODMModel, ODMUIMixin):
         """Modify form setup hook.
         """
         from . import content_manager
+        assetman.add('pytsite.content@js/content.js')
 
         form.add_widget(ODMSelectWidget(
             uid='section',
@@ -134,17 +136,29 @@ class ContentModel(ODMModel, ODMUIMixin):
             caption_field='title',
             label=self.t('section'),
             value=self.f_get('section'),
+            h_size='col-sm-6',
         ), 10)
         form.add_widget(TextInputWidget(
             uid='title',
             label=self.t('title'),
             value=self.f_get('title'),
+        ), 20)
+        form.add_widget(TextInputWidget(
+            uid='description',
+            label=self.t('description'),
+            value=self.f_get('description'),
         ), 30)
+        form.add_widget(TermTokenInputWidget(
+            uid='tags',
+            model='tag',
+            label=self.t_plural('tag'),
+            value=self.f_get('tags'),
+        ), 40)
         form.add_widget(WYSIWYGWidget(
             uid='body',
             label=self.t('body'),
             value=self.f_get('body'),
-        ), 40)
+        ), 50)
         form.add_widget(DateTimeInputWidget(
             uid='publish_time',
             label=self.t('publish_time'),

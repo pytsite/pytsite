@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from bson.dbref import DBRef
 from pytsite.core.widgets.selectable import CheckboxesWidget, SelectWidget
 from pytsite.core.odm import odm_manager, I_ASC
 from pytsite.core.odm.models import ODMModel
@@ -30,16 +31,25 @@ class ODMSelectWidget(SelectWidget):
         finder = odm_manager.find(self._model).sort([(self._caption_field, I_ASC)])
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
-            self._items.append((k, t(str(entity.get_field(self._caption_field)))))
+            self._items.append((k, str(entity.get_field(self._caption_field))))
 
     def set_value(self, value: ODMModel, **kwargs):
         """Set value of the widget.
         """
-        if isinstance(value, str):
+        if isinstance(value, ODMModel):
+            self._selected_item = value.model + ':' + str(value.id)
+        elif isinstance(value, str):
+            self._selected_item = value
             model, eid = value.split(':')
             value = odm_manager.find(model).where('_id', '=', eid).first()
+        elif isinstance(value, DBRef):
+            value = odm_manager.get_by_ref(value)
+            self._selected_item = value.model + ':' + str(value.id)
 
-        return super().set_value(value, **kwargs)
+        print(self._selected_item)
+
+        self._value = value
+        return self
 
 
 class ODMCheckboxesWidget(CheckboxesWidget):

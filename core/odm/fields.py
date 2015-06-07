@@ -28,7 +28,7 @@ class AbstractField(ABC):
         """
         return self._name
 
-    def is_modified(self)->bool:
+    def is_modified(self) -> bool:
         """Is the field has been modified?
         """
         return self._modified
@@ -63,7 +63,7 @@ class AbstractField(ABC):
 
         return self._value
 
-    def clear_val(self, reset_modified: bool=True):
+    def clear_val(self, reset_modified: bool=True, **kwargs):
         """Clears a value of the field.
         """
         raise Exception('Not implemented yet.')
@@ -73,23 +73,23 @@ class AbstractField(ABC):
         """
         raise Exception('Not implemented yet.')
 
-    def subtract_val(self, value, change_modified: bool=True):
+    def subtract_val(self, value, change_modified: bool=True, **kwargs):
         """Remove a value from the field.
         """
         raise Exception('Not implemented yet.')
 
-    def increment_val(self, change_modified: bool=True):
+    def increment_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
         raise Exception('Not implemented yet.')
 
-    def decrement_val(self, change_modified: bool=True):
+    def decrement_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
         raise Exception('Not implemented yet.')
 
     def delete(self):
-        """Entity will be deleted from storage.
+        """Hook method to provide for the entity notification mechanism about its deletion.
         """
         pass
 
@@ -181,7 +181,7 @@ class UniqueListField(ListField):
         current_val = self.get_val()
         current_val.append(value)
 
-        return self.set_val(current_val)
+        return self.set_val(current_val, change_modified, **kwargs)
 
 
 class DictField(AbstractField):
@@ -342,7 +342,7 @@ class StringField(AbstractField):
     def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        value = '' if value is None else str(value)
+        value = '' if value is None else str(value).strip()
         return super().set_val(value, change_modified, **kwargs)
 
 
@@ -363,7 +363,7 @@ class IntegerField(AbstractField):
     def add_val(self, value: int, change_modified: bool=True, **kwargs):
         """Add a value to the value of the field.
         """
-        return self.set_val(self.get_val(**kwargs) + int(value))
+        return self.set_val(self.get_val(**kwargs) + int(value), change_modified, **kwargs)
 
 
 class BoolField(AbstractField):

@@ -5,12 +5,13 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from pytsite.core.lang import t, t_plural, TranslationError
+from pytsite.core.lang import t, t_plural, TranslationError, get_current_lang, get_lang_title
 from pytsite.core.validation.rules import NotEmptyRule
 from pytsite.core.odm.models import ODMModel
-from pytsite.core.odm import I_ASC
+from pytsite.core.odm import I_ASC, I_DESC
 from pytsite.core.odm.fields import *
 from pytsite.core.widgets.input import TextInputWidget, IntegerInputWidget
+from pytsite.core.widgets.selectable import SelectLanguageWidget
 from pytsite.odm_ui.models import ODMUIMixin
 
 
@@ -19,23 +20,50 @@ class AbstractTerm(ODMModel, ODMUIMixin):
     """
 
     def _setup(self):
+        """Hook.
+        """
         self._define_field(StringField('title', not_empty=True))
         self._define_field(StringField('alias', not_empty=True))
-        self._define_field(StringField('language', not_empty=True))
+        self._define_field(StringField('language', not_empty=True, default=get_current_lang()))
         self._define_field(IntegerField('weight'))
         self._define_field(IntegerField('order'))
 
         self._define_index([('alias', I_ASC), ('language', I_ASC)], unique=True)
+        self._define_index([('language', I_ASC), ('weight', I_DESC)])
         self._define_index([('weight', I_ASC)])
         self._define_index([('order', I_ASC)])
 
+    def _on_f_set(self, field_name: str, value, **kwargs):
+        """Hook.
+        """
+        if field_name == 'alias':
+            from .taxonomy_manager import sanitize_alias_string
+            value = sanitize_alias_string(self.model, value)
+
+        return super()._on_f_set(field_name, value, **kwargs)
+
+    def _pre_save(self):
+        """Hook.
+        """
+        if not self.f_get('alias'):
+            self.f_set('alias', self.f_get('title'))
+
+    def save(self):
+        if self.is_new:
+            from . import taxonomy_manager
+            title = self.f_get('title')
+            if taxonomy_manager.find(self.model).where('title', 'regex_i', '^' + title + '$').count():
+                return
+
+        return super().save()
+
     def setup_browser(self, browser):
-        """Setup ODM UI browser hook.
+        """Hook.
 
         :type browser: pytsite.odm_ui.browser.ODMUIBrowser
         :return: None
         """
-        browser.data_fields = ('title', 'alias', 'weight', 'order')
+        browser.data_fields = ('title', 'alias', 'weight', 'order', 'language')
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -45,10 +73,11 @@ class AbstractTerm(ODMModel, ODMUIMixin):
             self.f_get('alias'),
             self.f_get('weight'),
             self.f_get('order'),
+            get_lang_title(self.f_get('language')),
         )
 
     def setup_m_form(self, form):
-        """Modify form setup hook.
+        """Hook.
 
         :type form: pytsite.core.forms.BaseForm
         :return: None
@@ -83,10 +112,18 @@ class AbstractTerm(ODMModel, ODMUIMixin):
             h_size='col-sm-3 col-md-2 col-lg-1',
         ))
 
+        form.add_widget(SelectLanguageWidget(
+            weight=50,
+            uid='language',
+            label=self.t('language'),
+            value=self.f_get('language'),
+            h_size='col-sm-4 col-md-3 col-lg-2',
+        ))
+
         form.add_rule('title', NotEmptyRule())
 
     def get_d_form_description(self) -> str:
-        """Get delete form description.
+        """Hook.
         """
         return self.f_get('title')
 

@@ -54,7 +54,7 @@ class Element(ABC):
     def content(self):
         return self._content
 
-    def set_attr(self, attr: str, value: str):
+    def set_attr(self, attr: str, value):
         """Set attribute.
         """
         if attr not in _common_tag_attrs \
@@ -321,7 +321,7 @@ class Form(BlockElement):
 
 class Input(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'value', 'placeholder', 'checked', 'selected'
+        return 'value', 'placeholder', 'checked'
 
     def _get_required_attrs(self) -> tuple:
         return 'type', 'name'
@@ -348,3 +348,6 @@ class Select(BlockElement):
 class Option(InlineElement):
     def _get_required_attrs(self) -> tuple:
         return 'value',
+
+    def _get_valid_attrs(self):
+        return 'selected',

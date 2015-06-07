@@ -21,20 +21,19 @@ class ODMQuery:
         self._model = model
         self._criteria = dict()
 
-    def _resolve_logical_op(self, op: str)->str:
+    def _resolve_logical_op(self, op: str) -> str:
         """Resolve logical operator.
         """
-
         if op not in ('and', 'or', '$and', '$or'):
             raise TypeError("Invalid logical operator: '{0}'.".format(op))
         if not op.startswith('$'):
             op = '$' + op
+
         return op
 
     def _resolve_comparison_op(self, op: str) -> str:
         """Resolve comparison operator.
         """
-
         if op in ('=', 'eq', '$eq'):
             return '$eq'
         elif op in ('>', 'gt', '$gt'):
@@ -53,13 +52,14 @@ class ODMQuery:
             return '$nin'
         elif op in ('regex', '$regex'):
             return '$regex'
+        elif op in ('regex_i', '$regex_i'):
+            return '$regex_i'
         else:
             raise TypeError("Invalid comparison operator: '{0}'.".format(op))
 
     def add_criteria(self, logical_op: str, field_name: str, comparison_op: str, arg):
         """Add find criteria.
         """
-
         field = self._model.get_field(field_name)
         logical_op = self._resolve_logical_op(logical_op)
         comparison_op = self._resolve_comparison_op(comparison_op)
@@ -74,12 +74,14 @@ class ODMQuery:
             self._criteria[logical_op] = []
 
         # Finally adding the criteria itself
-        self._criteria[logical_op].append({field_name: {comparison_op: arg}})
+        if comparison_op == '$regex_i':
+            self._criteria[logical_op].append({field_name: {'$regex': arg, '$options': 'i'}})
+        else:
+            self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 
     def get_criteria(self) -> list:
         """Get criteria.
         """
-
         return self._criteria
 
 
@@ -103,7 +105,6 @@ class ODMFinder:
     def __init__(self, model_name: str):
         """Init.
         """
-
         from .odm_manager import dispense
 
         self._model_name = model_name
@@ -116,9 +117,7 @@ class ODMFinder:
     def where(self, field_name: str, comparison_op: str, arg):
         """Add '$and' criteria.
         """
-
         self._query.add_criteria('$and', field_name, comparison_op, arg)
-
         return self
 
     def or_where(self, field_name: str, comparison_op: str, arg):
@@ -130,15 +129,12 @@ class ODMFinder:
     def skip(self, num: int):
         """Set number of records to skip in result cursor.
         """
-
         self._skip = num
-
         return self
 
     def sort(self, fields=None):
         """Set sort criteria.
         """
-
         for f in fields:
             if not self._entity.has_field(f[0]):
                 raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model_name))
@@ -149,7 +145,6 @@ class ODMFinder:
     def count(self) -> int:
         """Count documents in collection.
         """
-
         collection = self._entity.collection
         flt = self._query.get_criteria()
         return collection.count(filter=flt, skip=self._skip, limit=self._limit)
@@ -159,7 +154,6 @@ class ODMFinder:
 
         :rtype: list[ODMModel]
         """
-
         self._limit = limit
         collection = self._entity.collection
         cursor = collection.find(
@@ -174,7 +168,7 @@ class ODMFinder:
 
         return ODMFinderResult(self._model_name, cursor)
 
-    def first(self)->ODMModel:
+    def first(self) -> ODMModel:
         """Execute the query and return a first result.
         """
         result = list(self.get(1))

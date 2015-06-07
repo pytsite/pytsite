@@ -100,7 +100,7 @@ def dispatch(env: dict, start_response: callable):
     global __url_adapter, __session_store, request, session
 
     # Detect language from path
-    languages = lang.get_languages()
+    languages = lang.get_langs()
     if len(languages) > 1:
         if match(r'/[a-z]{2}(/|$)', env['PATH_INFO']):
             lang_code = env['PATH_INFO'][1:3]
@@ -193,9 +193,9 @@ def dispatch(env: dict, start_response: callable):
 def base_path(language: str=None)->str:
     """Get base path of application.
     """
-    from .lang import get_current_lang, get_languages
+    from .lang import get_current_lang, get_langs
     current_lang = get_current_lang()
-    available_langs = get_languages()
+    available_langs = get_langs()
 
     if not language:
         language = get_current_lang()

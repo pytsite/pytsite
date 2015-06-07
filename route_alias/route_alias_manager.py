@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re
-from pytsite.core.lang import transliterate, get_current_lang
+from pytsite.core.util import transform_str_1
+from pytsite.core.lang import get_current_lang
 from pytsite.core.odm import odm_manager
 from .models import RouteAliasModel
 
@@ -24,24 +25,10 @@ def create(alias: str, target: str=None) -> RouteAliasModel:
 def sanitize_alias_string(string: str) -> str:
     """Sanitize a path string.
     """
-    mapping = {
-        '!': '', '@': '', '#': '', '$': '', '%': '', '^': '', '&': '', '*': '', '(': '', ')': '', '_': '',
-        '=': '', '+': '', '"': '', "'": '', '{': '', '}': '', '[': '', ']': '', '`': '', '~': '', '|': '', '\\': '',
-        '?': '', '.': '', ',': '', '<': '', '>': '', '«': '', '»': '', '№': '', ':': '', ';': '',
-    }
-
-    for k, v in mapping.items():
-        string = string.replace(k, v)
-
-    string = transliterate(string.lower())
-    string = re.sub(r'/{2,}', '-', string)
-    string = re.sub(r'[^a-zA-Z0-9/]', '-', string)
-    string = re.sub(r'-{2,}', '-', string)
+    string = transform_str_1(string)
 
     if not string.startswith('/'):
         string = '/' + string
-
-    string = re.sub(r'^/-', '/', string)
 
     itr = 0
     while True:

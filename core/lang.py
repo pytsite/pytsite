@@ -40,7 +40,7 @@ def define_languages(languages: list):
     set_current_lang(languages[0])
 
 
-def get_languages():
+def get_langs():
     """Get all available languages.
     """
     return __languages
@@ -147,39 +147,10 @@ def t_plural(msg_id: str, num: int=2, language: str=None)->str:
         return t(msg_id + '_plural_one')
 
 
-def transliterate(text: str)->str:
-    """Transliterate a string.
+def get_lang_title(code: str) -> str:
+    """Get human readable language name.
     """
-    cyrillic = [
-        "Щ", "щ", 'Ё', 'Ж', 'Х', 'Ц', 'Ч', 'Ш', 'Ю', 'Я',
-        'ё', 'ж', 'х', 'ц', 'ч', 'ш', 'ю', 'я', 'А', 'Б',
-        'В', 'Г', 'Д', 'Е', 'З', 'И', 'Й', 'К', 'Л', 'М',
-        'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Ь', 'Ы',
-        'Ъ', 'Э', 'а', 'б', 'в', 'г', 'д', 'е', 'з', 'и',
-        'і', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с',
-        'т', 'у', 'ф', 'ь', 'ы', 'ъ', 'э', 'Ї', 'ї', 'Є',
-        'є', 'Ґ', 'ґ']
-
-    roman = [
-        "Sch", "sch", 'Yo', 'Zh', 'Kh', 'Ts', 'Ch', 'Sh', 'Yu', 'Ya',
-        'yo', 'zh', 'kh', 'ts', 'ch', 'sh', 'yu', 'ya', 'A', 'B',
-        'V', 'G', 'D', 'E', 'Z', 'I', 'Y', 'K', 'L', 'M',
-        'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', '', 'Y',
-        '', 'E', 'a', 'b', 'v', 'g', 'd', 'e', 'z', 'i',
-        'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's',
-        't', 'u', 'f', '', 'y', '', 'e', 'i', 'i', 'Ye',
-        'ye', 'G', 'g'
-    ]
-
-    r = ''
-    for ch in text:
-        try:
-            i = cyrillic.index(ch)
-            r += roman[i]
-        except ValueError:
-            r += ch
-
-    return r
+    return t('lang_title_' + code)
 
 
 def compile_translations(print_output: bool=True):
@@ -187,14 +158,14 @@ def compile_translations(print_output: bool=True):
     """
 
     translations = {}
-    for lang_code in get_languages():
+    for lang_code in get_langs():
         translations[lang_code] = {}
         for pkg_name, info in __packages.items():
             if print_output:
                 print("Compiling translations for {} ({})".format(pkg_name, lang_code))
             translations[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
 
-    str_output = 'pytsite.lang.languages={};'.format(json.dumps(get_languages()))
+    str_output = 'pytsite.lang.languages={};'.format(json.dumps(get_langs()))
     str_output += 'pytsite.lang.current="{}";'.format(get_current_lang())
     str_output += 'pytsite.lang.translations={};'.format(json.dumps(translations))
     output_file = path.join(reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')

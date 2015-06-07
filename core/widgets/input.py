@@ -4,8 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import abstractmethod
 from datetime import datetime
+
+from abc import abstractmethod
 from pytsite.core import assetman
 from pytsite.core.html import Input as HtmlInput
 from .abstract import AbstractWidget
@@ -56,6 +57,9 @@ class TextInputWidget(InputWidget):
 
 
 class IntegerInputWidget(TextInputWidget):
+    """Integer Input Widget.
+    """
+
     def __init__(self, **kwargs):
         """Init.
         """
@@ -63,6 +67,13 @@ class IntegerInputWidget(TextInputWidget):
         assetman.add('pytsite.core.widgets@js/jquery.inputmask.bundle.min.js')
         assetman.add('pytsite.core.widgets@js/integer.js')
         self._group_cls = self._group_cls.replace('widget-text-input', 'widget-integer-input')
+
+    def set_value(self, value, **kwargs: dict):
+        """Set value of the widget.
+        """
+        if not value:
+            value = 0
+        return super().set_value(int(value), **kwargs)
 
 
 class DateTimeInputWidget(TextInputWidget):

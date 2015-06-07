@@ -67,6 +67,8 @@ def random_password(size=16):
 
 
 def weight_sort(inp: list, key: str='weight') -> list:
+    """Sort list by weight.
+    """
     return sorted(inp, key=lambda x: x[key])
 
 
@@ -82,7 +84,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
         if replace_keys and k in replace_keys:
             k = replace_keys[k]
 
-        if v:
+        if v is not None:
             if k in single_attrs:
                 if v:
                     r += ' {}'.format(k)
@@ -91,3 +93,61 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
                 r += ' {}="{}"'.format(k, v)
 
     return r
+
+
+def transliterate(text: str)->str:
+    """Transliterate a string.
+    """
+    cyrillic = [
+        "Щ", "щ", 'Ё', 'Ж', 'Х', 'Ц', 'Ч', 'Ш', 'Ю', 'Я',
+        'ё', 'ж', 'х', 'ц', 'ч', 'ш', 'ю', 'я', 'А', 'Б',
+        'В', 'Г', 'Д', 'Е', 'З', 'И', 'Й', 'К', 'Л', 'М',
+        'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Ь', 'Ы',
+        'Ъ', 'Э', 'а', 'б', 'в', 'г', 'д', 'е', 'з', 'и',
+        'і', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с',
+        'т', 'у', 'ф', 'ь', 'ы', 'ъ', 'э', 'Ї', 'ї', 'Є',
+        'є', 'Ґ', 'ґ']
+
+    roman = [
+        "Sch", "sch", 'Yo', 'Zh', 'Kh', 'Ts', 'Ch', 'Sh', 'Yu', 'Ya',
+        'yo', 'zh', 'kh', 'ts', 'ch', 'sh', 'yu', 'ya', 'A', 'B',
+        'V', 'G', 'D', 'E', 'Z', 'I', 'Y', 'K', 'L', 'M',
+        'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', '', 'Y',
+        '', 'E', 'a', 'b', 'v', 'g', 'd', 'e', 'z', 'i',
+        'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's',
+        't', 'u', 'f', '', 'y', '', 'e', 'i', 'i', 'Ye',
+        'ye', 'G', 'g'
+    ]
+
+    r = ''
+    for ch in text:
+        try:
+            i = cyrillic.index(ch)
+            r += roman[i]
+        except ValueError:
+            r += ch
+
+    return r
+
+
+def transform_str_1(string: str) -> str:
+    """Transform a string, variant 1.
+    """
+    import re
+
+    mapping = {
+        '!': '', '@': '', '#': '', '$': '', '%': '', '^': '', '&': '', '*': '', '(': '', ')': '', '_': '',
+        '=': '', '+': '', '"': '', "'": '', '{': '', '}': '', '[': '', ']': '', '`': '', '~': '', '|': '', '\\': '',
+        '?': '', '.': '', ',': '', '<': '', '>': '', '«': '', '»': '', '№': '', ':': '', ';': '',
+    }
+
+    for k, v in mapping.items():
+        string = string.replace(k, v)
+
+    string = transliterate(string.lower())
+    string = re.sub(r'/{2,}', '-', string)
+    string = re.sub(r'[^a-zA-Z0-9/]', '-', string)
+    string = re.sub(r'-{2,}', '-', string)
+    string = re.sub(r'(^-|-$)', '', string)
+
+    return string
