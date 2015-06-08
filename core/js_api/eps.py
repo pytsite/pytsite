@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import router
+from pytsite.core import router, logger
 from pytsite.core.http.response import JSONResponse
 from pytsite.core.http.errors import NotFoundError
 from pytsite.core import logger

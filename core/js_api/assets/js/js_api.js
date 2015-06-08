@@ -1,7 +1,7 @@
 pytsite.js_api = {
     request: function(method, endpoint, data) {
         return $.ajax({
-            url: '/pytsite/core/js_api/' + endpoint,
+            url: '/core/js_api/' + endpoint,
             method: method,
             data: data
         });

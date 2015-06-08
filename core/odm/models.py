@@ -12,8 +12,9 @@ from bson.dbref import DBRef
 from bson.objectid import ObjectId
 from pymongo.collection import Collection
 from pymongo.errors import OperationFailure
-from pytsite.core import db
-from .errors import EntityNotFoundException
+from pytsite.core import db, events
+from pytsite.core.lang import t, t_plural
+from .errors import EntityNotFound
 from .fields import AbstractField, ObjectIdField, StringField, DateTimeField, RefField, RefsListField, VirtualField
 
 
@@ -62,7 +63,7 @@ class ODMModel(ABC):
                 obj_id = ObjectId(obj_id)
             data = self._collection.find_one({'_id': obj_id})
             if not data:
-                raise EntityNotFoundException("Entity '{0}' is not found in storage.".format(model + ':' + obj_id))
+                raise EntityNotFound("Entity '{0}' is not found in storage.".format(model + ':' + obj_id))
             for field_name, value in data.items():
                 if self.has_field(field_name):
                     self.get_field(field_name).set_val(value, False)
@@ -235,7 +236,6 @@ class ODMModel(ABC):
     def save(self):
         """Save the entity.
         """
-
         if self.is_deleted:
             raise Exception("Entity has been deleted from the storage.")
 
@@ -298,6 +298,8 @@ class ODMModel(ABC):
         """
 
         # Pre delete hook
+        events.fire('odm.pre_delete', entity=self)
+        events.fire('odm.pre_delete.' + self.model, entity=self)
         self._pre_delete()
 
         # Notify fields about entity deletion
@@ -326,3 +328,18 @@ class ODMModel(ABC):
         """After delete hook.
         """
         pass
+
+    def package(self) -> str:
+        """Get instance's package name.
+        """
+        return '.'.join(self.__class__.__module__.split('.')[:-1])
+
+    def t(self, msg_id: str) -> str:
+        """Translate a string in model context.
+        """
+        return t(self.package() + '@' + msg_id)
+
+    def t_plural(self, msg_id: str, num: int=2) -> str:
+        """Translate a string into plural form.
+        """
+        return t_plural(self.package() + '@' + msg_id, num)

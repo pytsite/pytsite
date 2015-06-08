@@ -64,10 +64,13 @@ class ODMQuery:
         logical_op = self._resolve_logical_op(logical_op)
         comparison_op = self._resolve_comparison_op(comparison_op)
 
-        # Convert str to ObjectId if it's necessary
-        if isinstance(field, ObjectIdField):
-            if isinstance(arg, str):
-                arg = ObjectId(arg)
+        # Convert str to ObjectId
+        if isinstance(field, ObjectIdField) and isinstance(arg, str):
+            arg = ObjectId(arg)
+
+        # Convert instance to DBRef
+        if isinstance(field, RefField) and isinstance(arg, ODMModel):
+            arg = arg.ref
 
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:

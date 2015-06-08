@@ -58,7 +58,7 @@ class AbstractField(ABC):
         if self._not_empty:
             if hasattr(self, '__len__') and not len(self._value):
                 raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
-            elif self._value is None:
+            elif not self._value:
                 raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
 
         return self._value
@@ -299,6 +299,25 @@ class RefsListField(ListField):
             self._modified = True
 
         return self
+
+
+class RefsUniqueList(RefsListField):
+    """Unique list of DBRefs field.
+    """
+
+    def set_val(self, value: list, change_modified: bool=True, **kwargs):
+        super().set_val(value, change_modified, **kwargs)
+        clean_val = []
+        ids = []
+        for v in self.get_val():
+            if v.id not in ids:
+                clean_val.append(v)
+                ids.append(v.id)
+        return super().set_val(clean_val, change_modified, **kwargs)
+
+    def add_val(self, value, change_modified: bool=True, **kwargs):
+        super().add_val(value, change_modified, **kwargs)
+        return self.set_val(self.get_val(**kwargs), change_modified, **kwargs)
 
 
 class DateTimeField(AbstractField):

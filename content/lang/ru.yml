@@ -12,6 +12,9 @@ status_unpublished: 'Отключено'
 section: 'Раздел'
 section_plural_two: 'Разделы'
 tag_plural_two: 'Теги'
+referenced_entity_exists: "существует ссылка из сущности :model (':title')"
+language: 'Язык'
+image_plural_two: 'Изображения'
 
 odm_ui_section_browser_title: 'Обзор разделов'
 odm_ui_section_create_form_legend: 'Создание раздела'

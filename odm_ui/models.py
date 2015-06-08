@@ -5,17 +5,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC, abstractmethod
-from pytsite.core.lang import t, t_plural
 
 
 class ODMUIMixin(ABC):
     """Base ODM UI Model.
     """
-
-    def package(self) -> str:
-        """Get instance's package name.
-        """
-        return '.'.join(self.__class__.__module__.split('.')[:-1])
 
     @abstractmethod
     def setup_browser(self, browser):
@@ -46,13 +40,3 @@ class ODMUIMixin(ABC):
         """Get delete form description.
         """
         pass
-
-    def t(self, msg_id: str) -> str:
-        """Translate a string.
-        """
-        return t(self.package() + '@' + msg_id)
-
-    def t_plural(self, msg_id: str, num: int=2) -> str:
-        """Translate a string into plural form.
-        """
-        return t_plural(self.package() + '@' + msg_id, num)

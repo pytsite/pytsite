@@ -116,7 +116,7 @@ class CheckboxesWidget(SelectWidget):
         return self._group_wrap(div.render())
 
 
-class SelectLanguageWidget(SelectWidget):
+class LanguageSelectWidget(SelectWidget):
     """Select Language Widget
     """
 
@@ -146,11 +146,13 @@ class TokenSelectWidget(AbstractWidget):
         self._remote_source = kwargs.get('remote_source')
 
     def render(self) -> str:
+        """Render the widget.
+        """
         html_input = HtmlInput(
             type='text',
             uid=self._uid,
             name=self._name,
-            value=' '.join(self.get_value()),
+            value=','.join(self.get_value()),
             cls=' '.join(('form-control', self._cls)),
         )
 

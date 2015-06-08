@@ -9,6 +9,7 @@ from pytsite.core.http.errors import InternalServerError
 from pytsite.core.http.response import RedirectResponse, JSONResponse
 from pytsite.core.lang import t
 from pytsite.core import router
+from pytsite.core.odm.errors import ForbidEntityDelete
 from . import odm_ui_manager
 from .browser import ODMUIBrowser
 
@@ -99,7 +100,7 @@ def post_d_form(args: dict, inp: dict) -> RedirectResponse:
         for eid in ids:
             odm_ui_manager.dispense_entity(model, eid).delete()
         router.session.add_info(t('pytsite.odm_ui@operation_successful'))
-    except Exception as e:
-        router.session.add_error(str(e))
+    except ForbidEntityDelete as e:
+        router.session.add_error(t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
 
     return RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))

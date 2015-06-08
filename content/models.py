@@ -12,13 +12,14 @@ from pytsite.core.odm.fields import *
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import ODMSelectWidget
 from pytsite.core.widgets.input import TextInputWidget, DateTimeInputWidget
-from pytsite.core.widgets.selectable import SelectWidget
+from pytsite.core.widgets.selectable import SelectWidget, LanguageSelectWidget
 from pytsite.core.widgets.wysiwyg import WYSIWYGWidget
 from pytsite.core.validation.rules import NotEmptyRule, DateTimeRule
 from pytsite.auth import auth_manager
 from pytsite.route_alias import route_alias_manager
 from pytsite.taxonomy.models import AbstractTerm
 from pytsite.taxonomy.widgets import TermTokenInputWidget
+from pytsite.image.widgets import ImagesUploadWidget
 
 
 class SectionModel(AbstractTerm):
@@ -39,15 +40,15 @@ class ContentModel(ODMModel, ODMUIMixin):
         self._define_field(DateTimeField('publish_time', default=datetime.now(), not_empty=True))
         self._define_field(IntegerField('views_count'))
         self._define_field(IntegerField('comments_count'))
-        self._define_field(RefsListField('images', model='image'))
+        self._define_field(RefsUniqueList('images', model='image'))
         self._define_field(StringListField('video'))
         self._define_field(StringListField('links'))
         self._define_field(StringField('status', default='published', not_empty=True))
-        self._define_field(RefsListField('localizations', model=self.model))
+        self._define_field(RefsUniqueList('localizations', model=self.model))
         self._define_field(RefField('author', model='user', not_empty=True))
         self._define_field(StringField('language', not_empty=True))
-        self._define_field(RefsListField('tags', model='tag'))
-        self._define_field(RefField('section', model='section'))
+        self._define_field(RefsUniqueList('tags', model='tag'))
+        self._define_field(RefField('section', model='section', not_empty=True))
         self._define_field(RefField('location', model='location'))
         self._define_field(BoolField('starred'))
 
@@ -154,6 +155,11 @@ class ContentModel(ODMModel, ODMUIMixin):
             label=self.t_plural('tag'),
             value=self.f_get('tags'),
         ), 40)
+        form.add_widget(ImagesUploadWidget(
+            uid='images',
+            label=self.t_plural('image'),
+            value=self.f_get('images'),
+        ), 50)
         form.add_widget(WYSIWYGWidget(
             uid='body',
             label=self.t('body'),
@@ -172,13 +178,20 @@ class ContentModel(ODMModel, ODMUIMixin):
             h_size='col-sm-4 col-md-3 col-md-2',
             items=content_manager.get_publish_statuses(),
         ), 80)
+        form.add_widget(LanguageSelectWidget(
+            uid='language',
+            label=self.t('language'),
+            value=self.f_get('language'),
+            h_size='col-sm-4 col-md-3 col-md-2',
+        ), 90)
         form.add_widget(TextInputWidget(
             uid='path',
             label=self.t('path'),
             value=self.f_get('path').f_get('alias') if self.f_get('path') else '',
-        ), 90)
+        ), 100)
 
         form.add_rule('title', NotEmptyRule())
+        form.add_rule('section', NotEmptyRule())
         form.add_rules('publish_time', (NotEmptyRule(), DateTimeRule()))
 
     def get_d_form_description(self) -> str:

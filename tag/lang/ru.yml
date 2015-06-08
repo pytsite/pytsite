@@ -15,3 +15,5 @@ odm_ui_permission_modify_tag: 'Изменение ЛЮБЫХ тегов'
 odm_ui_permission_modify_own_tag: 'Изменение тегов'
 odm_ui_permission_delete_tag: 'Удаление ЛЮБЫХ тегов'
 odm_ui_permission_delete_own_tag: 'Удаление тегов'
+
+odm_ui_tag_delete_form_legend: 'Удаление тегов'

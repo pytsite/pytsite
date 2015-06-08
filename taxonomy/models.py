@@ -11,7 +11,7 @@ from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm import I_ASC, I_DESC
 from pytsite.core.odm.fields import *
 from pytsite.core.widgets.input import TextInputWidget, IntegerInputWidget
-from pytsite.core.widgets.selectable import SelectLanguageWidget
+from pytsite.core.widgets.selectable import LanguageSelectWidget
 from pytsite.odm_ui.models import ODMUIMixin
 
 
@@ -112,7 +112,7 @@ class AbstractTerm(ODMModel, ODMUIMixin):
             h_size='col-sm-3 col-md-2 col-lg-1',
         ))
 
-        form.add_widget(SelectLanguageWidget(
+        form.add_widget(LanguageSelectWidget(
             weight=50,
             uid='language',
             label=self.t('language'),

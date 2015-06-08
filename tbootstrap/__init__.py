@@ -11,4 +11,4 @@ def dispatch_event_handler():
     assetman.add_js(__name__ + '@bootstrap/js/bootstrap.min.js')
 
 assetman.register_package(__name__)
-events.listen('pytsite.core.router.dispatch', dispatch_event_handler)
+events.listen('core.router.dispatch', dispatch_event_handler)

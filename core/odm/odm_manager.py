@@ -6,7 +6,7 @@ from inspect import isclass
 from pytsite.core import db, events
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
-from .errors import EntityNotFoundException
+from .errors import EntityNotFound
 from .models import ODMModel
 
 __registered_models = {}
@@ -96,7 +96,7 @@ def dispense(model: str, entity_id=None) -> ODMModel:
     try:
         cls = get_model_class(model)
         entity = cls(model, entity_id)
-    except EntityNotFoundException:
+    except EntityNotFound:
         return None
 
     # Cache entity if it has ID

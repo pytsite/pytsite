@@ -42,6 +42,17 @@ def is_model_registered(model: str) -> bool:
     return model in __models
 
 
+def dispense(model: str, title: str):
+    """Create new term or dispense existing.
+    """
+    title = title.strip()
+    term = find(model).where('title', 'regex_i', '^' + title + '$').first()
+    if not term:
+        term = odm_manager.dispense(model).f_set('title', title)
+
+    return term
+
+
 def find(model: str) -> ODMFinder:
     """Get finder for the taxonomy model.
     """

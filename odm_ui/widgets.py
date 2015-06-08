@@ -46,8 +46,6 @@ class ODMSelectWidget(SelectWidget):
             value = odm_manager.get_by_ref(value)
             self._selected_item = value.model + ':' + str(value.id)
 
-        print(self._selected_item)
-
         self._value = value
         return self
 

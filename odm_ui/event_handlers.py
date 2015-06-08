@@ -6,6 +6,7 @@ __license__ = 'MIT'
 
 from pytsite.core import lang
 from pytsite.core.odm import odm_manager
+from pytsite.core.odm.models import ODMModel
 from pytsite.auth import auth_manager
 from .models import ODMUIMixin
 
@@ -25,6 +26,7 @@ def odm_register_model(model: str, cls: type):
     if not isinstance(mock, ODMUIMixin):
         return
 
+    assert isinstance(mock, ODMModel)  # Just for correct type hinting in PyCharm
     pkg_name = mock.package()
 
     # Registering package's language container
@@ -38,6 +40,8 @@ def odm_register_model(model: str, cls: type):
 
     # Registering permissions
     for perm_name in 'create', 'browse', 'browse_own', 'modify', 'modify_own', 'delete', 'delete_own':
+        if perm_name.endswith('_own') and not mock.has_field('author'):
+            continue
         perm_description = pkg_name + '@odm_ui_permission_' + perm_name + '_' + model
         perm_full_name = 'pytsite.odm_ui.' + perm_name + '.' + model
         auth_manager.define_permission(perm_full_name, perm_description, pkg_name)

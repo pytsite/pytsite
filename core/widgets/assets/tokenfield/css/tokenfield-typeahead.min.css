@@ -120,7 +120,8 @@
 }
 
 .tokenfield .twitter-typeahead {
-    width: auto
+    width: 20px;
+    overflow: visible;
 }
 
 .tokenfield .twitter-typeahead .tt-hint {

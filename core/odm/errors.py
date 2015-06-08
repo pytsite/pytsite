@@ -5,5 +5,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class EntityNotFoundException(Exception):
+class EntityNotFound(Exception):
+    pass
+
+
+class ForbidEntityDelete(Exception):
     pass
