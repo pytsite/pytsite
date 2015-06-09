@@ -16,6 +16,5 @@ setup(
         'Pillow',
         'python-magic',
         'htmlmin',
-        'html',
     ]
 )
