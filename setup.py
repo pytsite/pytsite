@@ -16,5 +16,6 @@ setup(
         'Pillow',
         'python-magic',
         'htmlmin',
-    ]
+    ],
+    packages=find_packages()
 )

@@ -1,1 +1,13 @@
-
+admin
+article
+auth
+auth_ui
+content
+core
+file
+image
+odm_ui
+route_alias
+tag
+taxonomy
+tbootstrap

@@ -1,3 +1,7 @@
 PyYAML
 Werkzeug
 Jinja2
+webassets
+Pillow
+python-magic
+htmlmin
