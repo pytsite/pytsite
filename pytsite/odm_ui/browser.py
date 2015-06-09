@@ -37,7 +37,7 @@ class ODMUIBrowser:
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
 
         self._title = self._entity_mock.t('odm_ui_' + model + '_browser_title')
-        metatag.set_tag('title', self._title)
+        metatag.t_set('title', self._title)
 
         self._entity_mock.setup_browser(self)
 

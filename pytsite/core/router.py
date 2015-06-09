@@ -179,12 +179,12 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except HTTPException as e:
-        metatag.set_tag('title', lang.t('pytsite.core@error', {'code': e.code}))
+        metatag.t_set('title', lang.t('pytsite.core@error', {'code': e.code}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
         return Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
-        metatag.set_tag('title', lang.t('pytsite.core@error', {'code': 500}))
+        metatag.t_set('title', lang.t('pytsite.core@error', {'code': 500}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
         logger.error(str(e))
         return Response(wsgi_response, 500, content_type='text/html')(env, start_response)
@@ -227,19 +227,20 @@ def scheme():
     return r
 
 
-def base_url(language: str=None):
+def base_url(language: str=None, query: dict=None):
     """Get base URL of application.
     """
+    r = scheme() + '://' + server_name() + base_path(language)
+    if query:
+        r = url(r, query=query)
 
-    return scheme() + '://' + server_name() + base_path(language)
 
-
-def url(url: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False) -> str:
+def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False) -> str:
     """Generate an URL.
     """
 
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
-    parsed_url = urlparse(url)
+    parsed_url = urlparse(url_str)
     r = [
         parsed_url[0] if parsed_url[0] else scheme(),  # 0, Scheme
         parsed_url[1] if parsed_url[1] else server_name(),  # 1, Netloc

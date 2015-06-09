@@ -27,7 +27,7 @@ class LoginWidget(AbstractWidget):
         super().__init__()
         self._redirect_url = kwargs.get('redirect_url', '')
 
-    def render(self)->str:
+    def render(self) -> str:
         """Render the widget.
         """
         return tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
@@ -40,10 +40,11 @@ class LoginForm(forms.BaseForm):
     def _setup(self):
         """_setup() hook.
         """
-
-        self.add_widget(HiddenInputWidget(uid=self.uid + '-token', name='token'))
         for k, v in router.request.values.items():
             self.add_widget(HiddenInputWidget(uid=self.uid + '-' + k, name=k, value=v))
+
+        if not self.has_widget(self.uid + '-token'):
+            self.add_widget(HiddenInputWidget(uid=self.uid + '-token', name='token'))
 
         self.add_widget(LoginWidget())
 
@@ -52,10 +53,9 @@ class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
 
-    def get_login_form(self, uid: str) -> forms.BaseForm:
+    def get_login_form(self, uid: str='pytsite-auth-login') -> forms.BaseForm:
         """Get the login form.
         """
-
         return LoginForm(uid=uid)
 
     def post_login_form(self, args: dict, inp: dict)->router.RedirectResponse:
@@ -130,6 +130,12 @@ class ULoginDriver(AbstractDriver):
                 redirect = inp['redirect']
                 del inp['redirect']
                 return router.RedirectResponse(router.url(redirect, query=inp))
+            elif '__form_location' in inp:
+                redirect = inp['__form_location']
+                del inp['__form_location']
+                return router.RedirectResponse(router.url(redirect, query=inp))
+            else:
+                return router.RedirectResponse(router.base_url(query=inp))
 
         except errors.LoginIncorrect:
             router.session.add_error(lang.t('pytsite.auth@authorization_error'))

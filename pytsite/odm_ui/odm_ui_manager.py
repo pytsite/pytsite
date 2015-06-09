@@ -53,7 +53,7 @@ def get_m_form(model: str, eid: str=None) -> BaseForm:
     else:
         legend = entity.t('odm_ui_' + model + '_modify_form_legend')
 
-    metatag.set_tag('title', legend)
+    metatag.t_set('title', legend)
 
     return form
 
@@ -69,7 +69,7 @@ def get_d_form(model: str, ids: list) -> BaseForm:
     ol = Ol()
 
     mock = dispense_entity(model)
-    metatag.set_tag('title', mock.t('odm_ui_' + model + '_delete_form_legend'))
+    metatag.t_set('title', mock.t('odm_ui_' + model + '_delete_form_legend'))
 
     for eid in ids:
         entity = dispense_entity(model, eid)

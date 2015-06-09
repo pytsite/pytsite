@@ -6,7 +6,8 @@ __license__ = 'MIT'
 __import__('pytsite.image')
 
 # Other imports
-from pytsite.core import odm, router, tpl, lang, events
+from pytsite.core import router, tpl, lang, events
+from pytsite.core.odm import odm_manager
 
 # Resources
 tpl.register_package(__name__)
@@ -14,8 +15,8 @@ lang.register_package(__name__)
 
 # ODM models
 from . import models
-odm.odm_manager.register_model('user', models.User)
-odm.odm_manager.register_model('role', models.Role)
+odm_manager.register_model('user', models.User)
+odm_manager.register_model('role', models.Role)
 
 # Routes
 router.add_rule('/auth/login', __name__ + '.eps.get_login', {}, ['GET'])

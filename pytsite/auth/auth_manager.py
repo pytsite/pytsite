@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from pytsite.core import router, forms, odm
+from pytsite.core import router, forms
+from pytsite.core.odm import odm_manager
 from pytsite.core.lang import t
 from .errors import *
 from .models import User, Role
@@ -137,7 +138,7 @@ def create_user(email: str, login: str=None, password: str=None) -> User:
     if get_user(login=login):
         raise Exception("User with login '{0}' already exists.".format(login))
 
-    user = odm.odm_manager.dispense('user')
+    user = odm_manager.dispense('user')
     user.f_set('login', login).f_set('email', email)
 
     if password:
@@ -151,24 +152,24 @@ def get_user(login: str=None, uid: str=None) -> User:
     """
 
     if login:
-        return odm.odm_manager.find('user').where('login', '=', login).first()
+        return odm_manager.find('user').where('login', '=', login).first()
     if uid:
-        return odm.odm_manager.find('user').where('_id', '=', uid).first()
+        return odm_manager.find('user').where('_id', '=', uid).first()
 
 
 def create_role(name: str, description: str=''):
     if get_role(name=name):
         raise Exception("Role with name '{0}' already exists.".format(name))
 
-    role = odm.odm_manager.dispense('role')
+    role = odm_manager.dispense('role')
     return role.f_set('name', name).f_set('description', description)
 
 
 def get_role(name: str=None, uid=None) -> Role:
     if name:
-        return odm.odm_manager.find('role').where('name', '=', name).first()
+        return odm_manager.find('role').where('name', '=', name).first()
     if uid:
-        return odm.odm_manager.find('role').where('_id', '=', uid).first()
+        return odm_manager.find('role').where('_id', '=', uid).first()
 
 
 def authorize(user: User)->User:

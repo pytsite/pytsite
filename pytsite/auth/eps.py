@@ -11,14 +11,13 @@ from . import auth_manager
 def get_login(args: dict, inp: dict) -> str:
     """Get login form.
     """
-    metatag.set_tag('title', lang.t('pytsite.auth@authorization'))
+    metatag.t_set('title', lang.t('pytsite.auth@authorization'))
     return tpl.render('pytsite.auth@views/login', {'form': auth_manager.get_login_form()})
 
 
 def post_login(args: dict, inp: dict) -> router.RedirectResponse:
     """Process login form submit.
     """
-
     return auth_manager.post_login_form(args, inp)
 
 
