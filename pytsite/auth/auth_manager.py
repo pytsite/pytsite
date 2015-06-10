@@ -110,13 +110,13 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(uid: str=None) -> forms.BaseForm:
+def get_login_form(uid: str=None, cls: str=None) -> forms.BaseForm:
     """Get a login form.
     """
     if not uid:
         uid = 'auth-form'
 
-    form = get_driver().get_login_form(uid)
+    form = get_driver().get_login_form(uid, cls)
     form.action = router.endpoint_url('pytsite.auth.eps.post_login')
 
     return form
@@ -221,7 +221,6 @@ def get_current_user() -> User:
 def logout_current_user():
     """Log out current user.
     """
-
     if 'pytsite.auth.login' in router.session:
         del router.session['pytsite.auth.login']
 
@@ -235,3 +234,9 @@ def get_user_statuses() -> list:
         ('waiting', t('pytsite.auth@status_waiting')),
         ('disabled', t('pytsite.auth@status_disabled')),
     ]
+
+
+def get_logout_url() -> str:
+    """Get logout URL.
+    """
+    return router.endpoint_url('pytsite.auth.eps.get_logout', {'redirect': router.current_url()})

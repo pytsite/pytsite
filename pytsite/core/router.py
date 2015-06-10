@@ -190,7 +190,7 @@ def dispatch(env: dict, start_response: callable):
         return Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 
-def base_path(language: str=None)->str:
+def base_path(language: str=None) -> str:
     """Get base path of application.
     """
     from .lang import get_current_lang, get_langs
@@ -233,6 +233,17 @@ def base_url(language: str=None, query: dict=None):
     r = scheme() + '://' + server_name() + base_path(language)
     if query:
         r = url(r, query=query)
+
+    return r
+
+
+def is_base_url(compare: str=None) -> bool:
+    """Check if the given URL is base.
+    """
+    if not compare:
+        compare = current_url(True)
+
+    return base_url() == compare
 
 
 def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False) -> str:

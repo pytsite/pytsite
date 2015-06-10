@@ -75,3 +75,9 @@ def render(template: str, data: dict=None)->str:
     if not data:
         data = dict()
     return __env.get_template(template).render(data)
+
+
+def register_global(name: str, obj):
+    """Register global.
+    """
+    __env.globals[name] = obj

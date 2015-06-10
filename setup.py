@@ -13,9 +13,12 @@ setup(
         'PyYAML',
         'Werkzeug',
         'Jinja2',
+        'pymongo',
         'webassets',
         'Pillow',
         'python-magic',
         'htmlmin',
+        'rjsmin',
+        'cssutils',
     ]
 )

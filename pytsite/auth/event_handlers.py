@@ -5,6 +5,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from pytsite.core.console import print_success
 from pytsite.core.lang import t
 from pytsite.core.validation.validator import Validator
 from pytsite.core.validation.rules import EmailRule, NotEmptyRule
@@ -24,7 +25,7 @@ def app_setup():
             if role_entity.f_get('name') == 'admin':
                 role_entity.f_add('permissions', 'admin')
             role_entity.save()
-            print(t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
+            print_success(t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
 
     # Creating administrator
     email = input(t('pytsite.auth@enter_admin_email') + ': ')
@@ -36,4 +37,4 @@ def app_setup():
     admin_user.f_set('full_name', t('pytsite.auth@administrator'))
     admin_user.f_add('roles', auth_manager.get_role('admin'))
     admin_user.save()
-    print(t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
+    print_success(t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))

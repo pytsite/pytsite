@@ -5,7 +5,8 @@ assetman_console_command_description: 'Compile assets'
 lang_console_command_description: 'Compile translations'
 cron_console_command_description: 'Run Cron'
 setup_console_command_description: 'Setup application'
-setup_is_not_completed: 'Application setup is not completed'
+setup_is_not_completed: "Application setup is not completed. Run the application with 'app:setup' argument."
+setup_has_been_completed: 'Application setup has been sucessfully completed..'
 untitled_document: 'Untitles Document'
 error: 'Error :code'
 

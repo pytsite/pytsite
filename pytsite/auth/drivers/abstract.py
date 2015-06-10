@@ -11,7 +11,7 @@ from pytsite.core.forms import BaseForm
 
 class AbstractDriver(ABC):
     @abstractmethod
-    def get_login_form(self, uid: str='pytsite-auth-login') -> BaseForm:
+    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> BaseForm:
         """Login form get handler.
         """
         raise NotImplementedError()

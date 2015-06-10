@@ -4,9 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import re
 from os import path, makedirs, walk
 from shutil import rmtree, copy
-from webassets import Environment
+from webassets import Environment, Bundle
 from webassets.script import CommandLineEnvironment
 from importlib.util import find_spec
 from . import console, lang, router, logger, reg, events
@@ -24,14 +25,13 @@ class ConsoleCommand(console.AbstractCommand):
         lang.compile_translations()
 
 
-_packages = {}
-_links = {'js': [], 'css': []}
+__packages = {}
+__links = {'js': [], 'css': []}
 
 
 def register_package(package_name: str, assets_dir: str='assets'):
     """Register assets container.
     """
-
     spec = find_spec(package_name)
     if not spec:
         raise Exception("Package '{}' is not found.".format(package_name))
@@ -40,18 +40,18 @@ def register_package(package_name: str, assets_dir: str='assets'):
     if not path.isdir(dir_path):
         FileNotFoundError("Directory '{}' is not found.".format(dir_path))
 
-    _packages[package_name] = dir_path
+    __packages[package_name] = dir_path
 
 
 def add_location(location: str, collection: str):
     """Add an asset location to the collection.
     """
 
-    if collection not in _links:
-        _links[collection] = []
+    if collection not in __links:
+        __links[collection] = []
 
-    if location not in _links[collection]:
-        _links[collection].append(location)
+    if location not in __links[collection]:
+        __links[collection].append(location)
 
 
 def add_js(location: str):
@@ -80,8 +80,8 @@ def add(location: str):
 def reset():
     """Clear added locations.
     """
-    for k in _links:
-        _links[k] = []
+    for k in __links:
+        __links[k] = []
 
     add_js('pytsite.core@js/jquery-2.1.4.min.js')
     add_js('pytsite.core@js/assetman.js')
@@ -100,7 +100,7 @@ def dump_js() -> str:
     """
 
     r = ''
-    for location in _links['js']:
+    for location in __links['js']:
         r += '<script type="text/javascript" src="{0}"></script>\n'.format(get_url(location))
     return r
 
@@ -110,7 +110,7 @@ def dump_css() -> str:
     """
 
     r = ''
-    for location in _links['css']:
+    for location in __links['css']:
         r += '<link rel="stylesheet" href="{0}">\n'.format(get_url(location))
     return r
 
@@ -126,14 +126,13 @@ def get_url(location: str) -> str:
 def compile_assets():
     """Compile assets.
     """
-
     static_dir = reg.get('paths.static')
     debug = reg.get('debug.enabled')
 
     if path.exists(static_dir):
         rmtree(static_dir)
 
-    for pkg_name, package_assets_dir in _packages.items():
+    for pkg_name, package_assets_dir in __packages.items():
         # Building package's assets absolute paths list
         files_list = []
         for root, dirs, files in walk(package_assets_dir):
@@ -146,22 +145,30 @@ def compile_assets():
 
             dst = src.replace(package_assets_dir + path.sep, '')
             dst = path.join(static_dir, 'assets', pkg_name, dst)
-            print('Compiling {} -> {}'.format(src, dst))
 
             ext = path.splitext(src)[1]
-            if ext in ['.js', '.css']:
-                filters = None
+            if ext in ['.js', '.css', '.less']:
+                filters = []
 
-                if ext == '.js' and not src.endswith('.min.js'):
-                    filters = 'rjsmin'
+                if ext == '.less':
+                    filters.append('less')
+                    dst = re.sub(r'\.less$', '.css', dst)
+                    ext = '.css'
 
-                if ext == '.css' and not src.endswith('.min.css'):
-                    filters = 'cssutil'
+                if ext == '.js' and reg.get('output.minify') and not src.endswith('.min.js'):
+                    filters.append('rjsmin')
 
-                env = Environment(directory=package_assets_dir, filters=filters, debug=debug)
-                env.register('bundle', src, output=dst)
+                if ext == '.css' and reg.get('output.minify') and not src.endswith('.min.css'):
+                    filters.append('cssutils')
+
+                bundle = Bundle(src, filters=filters)
+                env = Environment(directory=package_assets_dir, debug=debug, versions=False,
+                                  manifest=False, cache=False)
+                env.register('bundle', bundle, output=dst)
+
+                print('Compiling {} -> {}'.format(src, dst))
                 cmd = CommandLineEnvironment(env, logger)
-                cmd.invoke('build', dict())
+                cmd.invoke('build', {})
             elif '.webassets-cache' not in src:
                 dst_dir = path.dirname(dst)
                 if not path.exists(dst_dir):
@@ -179,7 +186,7 @@ def __split_asset_location_info(location: str) -> dict:
         package_name = path_parts[0]
         asset_path = path_parts[1]
 
-    if package_name not in _packages:
+    if package_name not in __packages:
         raise Exception("Package '{0}' is not registered.".format(package_name))
 
     return package_name, asset_path

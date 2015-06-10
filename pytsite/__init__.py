@@ -34,10 +34,8 @@ reg.set_val('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'
 
 # Output parameters
 reg.set_val('output', {
-    'minify': True,
+    'minify': False,
     'theme': 'default',
-    'compress_css': False,
-    'compress_js': False,
     'base_tpl': 'app@html',
 })
 
@@ -86,24 +84,17 @@ for pattern, opts in reg.get('routes', {}).items():
     if '_endpoint' not in opts and '_redirect' not in opts:
         raise Exception("'_endpoint' or '_redirect' is not defined for route '{0}'".format(pattern))
 
-    endpoint = None
-    if '_endpoint' in opts:
-        endpoint = opts['_endpoint']
-
-    redirect = None
-    if '_redirect' in opts:
-        redirect = opts['_redirect']
+    endpoint = opts.get('_endpoint')
+    redirect = opts.get('_redirect')
+    methods = opts.get('_methods', ['GET'])
+    filters = opts.get('_filters', [])
 
     defaults = {}
     for k, v in opts.items():
-        if not v.startswith('_'):
+        if not k.startswith('_'):
             defaults[k] = v
 
-    methods = ('GET', 'POST')
-    if '_methods' in opts:
-        methods = opts['_methods']
-
-    router.add_rule(pattern, endpoint, defaults, methods, redirect)
+    router.add_rule(pattern, endpoint, defaults, methods, redirect, filters)
 
 
 # Initializing asset manager

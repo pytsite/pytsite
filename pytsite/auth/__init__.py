@@ -28,6 +28,9 @@ from . import auth_manager
 from .drivers.ulogin import ULoginDriver
 auth_manager.set_driver(ULoginDriver())
 
+# Template engine globals
+tpl.register_global('auth', auth_manager)
+
 # Event handlers
 from .event_handlers import app_setup
 events.listen('app.setup', app_setup)

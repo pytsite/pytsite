@@ -53,10 +53,10 @@ class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
 
-    def get_login_form(self, uid: str='pytsite-auth-login') -> forms.BaseForm:
+    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> forms.BaseForm:
         """Get the login form.
         """
-        return LoginForm(uid=uid)
+        return LoginForm(uid=uid, cls=cls)
 
     def post_login_form(self, args: dict, inp: dict)->router.RedirectResponse:
         """Process submit of the login form.
@@ -129,6 +129,7 @@ class ULoginDriver(AbstractDriver):
             if 'redirect' in inp:
                 redirect = inp['redirect']
                 del inp['redirect']
+                del inp['__form_location']
                 return router.RedirectResponse(router.url(redirect, query=inp))
             elif '__form_location' in inp:
                 redirect = inp['__form_location']

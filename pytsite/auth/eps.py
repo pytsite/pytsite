@@ -4,6 +4,7 @@ __license__ = 'MIT'
 
 from werkzeug.utils import escape
 from pytsite.core import metatag, lang, router, tpl
+from pytsite.core.http.response import RedirectResponse
 from pytsite.core.http.errors import ForbiddenError
 from . import auth_manager
 
@@ -11,6 +12,12 @@ from . import auth_manager
 def get_login(args: dict, inp: dict) -> str:
     """Get login form.
     """
+    if not auth_manager.get_current_user().is_anonymous():
+        redirect_url = router.base_url()
+        if 'redirect' in inp:
+            redirect_url = router.url(inp['redirect'])
+        return RedirectResponse(redirect_url)
+
     metatag.t_set('title', lang.t('pytsite.auth@authorization'))
     return tpl.render('pytsite.auth@views/login', {'form': auth_manager.get_login_form()})
 
@@ -24,7 +31,6 @@ def post_login(args: dict, inp: dict) -> router.RedirectResponse:
 def get_logout(args: dict, inp: dict) -> router.RedirectResponse:
     """Logout endpoint.
     """
-
     auth_manager.logout_current_user()
     redirect_url = router.base_url()
     if 'redirect' in inp:

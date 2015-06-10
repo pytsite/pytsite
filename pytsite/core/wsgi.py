@@ -6,8 +6,7 @@ __license__ = 'MIT'
 
 
 from os import path
-from importlib import import_module
-from pytsite.core import reg, router
+from pytsite.core import reg, router, lang
 
 
 def dispatch(env, start_response):
@@ -17,8 +16,4 @@ def dispatch(env, start_response):
 
 # Check if the setup completed
 if not path.exists(reg.get('paths.setup.lock')):
-    raise Exception('pytsite.core@setup_is_not_completed')
-
-# Auto load modules
-for module_name in reg.get('autoload', []):
-    import_module(module_name)
+    raise Exception(lang.t('pytsite.core@setup_is_not_completed'))

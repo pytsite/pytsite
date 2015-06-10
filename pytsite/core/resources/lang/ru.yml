@@ -5,7 +5,8 @@ assetman_console_command_description: 'Компиляция ассетов'
 lang_console_command_description: 'Компиляция языковых переводов'
 cron_console_command_description: 'Запуск Cron'
 setup_console_command_description: 'Настройка приложения'
-setup_is_not_completed: 'Настройка приложения не завершена'
+setup_is_not_completed: "Настройка приложения не завершена. Запустите приложение с аргументом 'app:setup'."
+setup_has_been_completed: 'Настройка приложения успешно завершена.'
 untitled_document: 'Безымянный Документ'
 error: 'Ошибка :code'
 
