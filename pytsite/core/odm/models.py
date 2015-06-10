@@ -94,11 +94,18 @@ class ODMModel(ABC):
     def _define_field(self, field_obj: AbstractField):
         """Define a field.
         """
-
         if self.has_field(field_obj.get_name()):
-            raise Exception("Field '{0}' already defined in model '{1}'.".format(field_obj.get_name(), self.model))
+            raise Exception("Field '{}' already defined in model '{}'.".format(field_obj.get_name(), self.model))
         self._fields[field_obj.get_name()] = field_obj
 
+        return self
+
+    def _remove_field(self, field_name: str):
+        """Remove field definition.
+        """
+        if not self.has_field(field_name):
+            raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
+        del self._fields[field_name]
         return self
 
     @abstractmethod
@@ -120,7 +127,7 @@ class ODMModel(ABC):
         """Get field's object.
         """
         if not self.has_field(field_name):
-            raise Exception("Unknown field '{0}' in model '{1}'".format(field_name, self.model))
+            raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
         return self._fields[field_name]
 
     @property

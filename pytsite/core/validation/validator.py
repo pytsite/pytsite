@@ -33,6 +33,13 @@ class Validator:
         """
         return field in self._rules
 
+    def remove_rules(self, field: str):
+        """Remove all rules for the field.
+        """
+        if field in self._rules:
+            del self._rules[field]
+        return self
+
     def set_value(self, field: str, value):
         """Set rule's value.
         """

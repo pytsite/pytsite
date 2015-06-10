@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime
-from pytsite.core import router
+from pytsite.core import router, util
 from pytsite.core.lang import t
 from pytsite.core.odm import odm_manager
 from pytsite.core.odm.finder import ODMFinder
@@ -15,9 +15,12 @@ from .models import ContentModel
 __models = []
 
 
-def register_model(model: str, cls: type, menu_weight: int=0, menu_icon: str='fa fa-file-text-o'):
+def register_model(model: str, cls, menu_weight: int=0, menu_icon: str='fa fa-file-text-o'):
     """Register content model.
     """
+    if isinstance(cls, str):
+        cls = util.get_class(cls)
+
     if not issubclass(cls, ContentModel):
         raise TypeError('Subclass of ContentModel expected.')
 

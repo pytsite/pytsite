@@ -2,8 +2,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from inspect import isclass
-from pytsite.core import db, events
+from pytsite.core import db, events, util
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
 from .errors import EntityNotFound
@@ -17,9 +16,7 @@ def register_model(model: str, cls: type, replace: bool=False):
     """Register new ODM model.
     """
     if isinstance(cls, str):
-        class_fqn = cls.split('.')
-        class_name = class_fqn[-1:]
-        cls = __import__('.'.join(class_fqn[:-1]), fromlist=[class_name]).class_name
+        cls = util.get_class(cls)
 
     if not issubclass(cls, ODMModel):
         raise Exception("Subclass of Model is expected.")
@@ -141,6 +138,5 @@ def resolve_ref(something) -> DBRef:
 def find(model: str):
     """Get ODM finder.
     """
-
     from .finder import ODMFinder
     return ODMFinder(model)

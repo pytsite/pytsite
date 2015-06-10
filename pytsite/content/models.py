@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite.core import router, assetman
 from pytsite.core.html import A, Span
-from pytsite.core.lang import t, t_plural, TranslationError
+from pytsite.core.lang import t, t_plural, TranslationError, get_current_lang
 from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm.fields import *
 from pytsite.odm_ui.models import ODMUIMixin
@@ -31,12 +31,12 @@ class ContentModel(ODMModel, ODMUIMixin):
     """
 
     def _setup(self):
-        """_setup() hook.
+        """Hook.
         """
         self._define_field(StringField('title', not_empty=True))
         self._define_field(StringField('body'))
         self._define_field(StringField('description'))
-        self._define_field(RefField('path', model='route_alias', not_empty=True))
+        self._define_field(RefField('route_alias', model='route_alias', not_empty=True))
         self._define_field(DateTimeField('publish_time', default=datetime.now(), not_empty=True))
         self._define_field(IntegerField('views_count'))
         self._define_field(IntegerField('comments_count'))
@@ -46,8 +46,8 @@ class ContentModel(ODMModel, ODMUIMixin):
         self._define_field(StringField('status', default='published', not_empty=True))
         self._define_field(RefsUniqueList('localizations', model=self.model))
         self._define_field(RefField('author', model='user', not_empty=True))
-        self._define_field(StringField('language', not_empty=True))
-        self._define_field(RefsUniqueList('tags', model='tag'))
+        self._define_field(StringField('language', not_empty=True, default=get_current_lang()))
+        self._define_field(RefsUniqueList('tags', model='tag',))
         self._define_field(RefField('section', model='section', not_empty=True))
         self._define_field(RefField('location', model='location'))
         self._define_field(BoolField('starred'))
@@ -55,7 +55,7 @@ class ContentModel(ODMModel, ODMUIMixin):
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
-        if field_name == 'path':
+        if field_name == 'route_alias':
             if isinstance(value, str):
                 value = value.strip()
                 if not value:
@@ -64,7 +64,7 @@ class ContentModel(ODMModel, ODMUIMixin):
                 if self.is_new:
                     value = route_alias_manager.create(value).save()
                 else:
-                    orig_value = self.f_get('path')
+                    orig_value = self.f_get('route_alias')
                     if orig_value.f_get('alias') != value:
                         orig_value.f_set('alias', value).save()
                     value = orig_value
@@ -74,17 +74,17 @@ class ContentModel(ODMModel, ODMUIMixin):
     def _pre_save(self):
         """Hook.
         """
-        if not self.f_get('path'):
-            self.f_set('path', '')
-
         if not self.f_get('author'):
             self.f_set('author', auth_manager.get_current_user())
+
+        if not self.f_get('route_alias'):
+            self.f_set('route_alias', '')
 
     def _after_save(self):
         """Hook.
         """
-        if not self.f_get('path').f_get('target'):
-            self.f_get('path').f_set('target', router.endpoint_url('pytsite.content.eps.view', {
+        if not self.f_get('route_alias').f_get('target'):
+            self.f_get('route_alias').f_set('target', router.endpoint_url('pytsite.content.eps.view', {
                 'model': self.model,
                 'eid': self.id,
             }, True)).save()
@@ -92,7 +92,7 @@ class ContentModel(ODMModel, ODMUIMixin):
     def _after_delete(self):
         """Hook.
         """
-        self.f_get('path').delete()
+        self.f_get('route_alias').delete()
 
         for i in self.f_get('images'):
             i.delete()
@@ -108,7 +108,7 @@ class ContentModel(ODMModel, ODMUIMixin):
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        title = str(A(self.f_get('title'), href=self.f_get('path').f_get('alias')))
+        title = str(A(self.f_get('title'), href=self.f_get('route_alias').f_get('alias')))
 
         status = self.f_get('status')
         status_str = self.t('status_' + status)
@@ -126,73 +126,86 @@ class ContentModel(ODMModel, ODMUIMixin):
         )
 
     def setup_m_form(self, form):
-        """Modify form setup hook.
+        """Hook.
+
+        :type form: pytsite.core.forms.BaseForm
         """
         from . import content_manager
         assetman.add('pytsite.content@js/content.js')
 
-        form.add_widget(ODMSelectWidget(
-            uid='section',
-            model='section',
-            caption_field='title',
-            label=self.t('section'),
-            value=self.f_get('section'),
-            h_size='col-sm-6',
-        ), 10)
-        form.add_widget(TextInputWidget(
-            uid='title',
-            label=self.t('title'),
-            value=self.f_get('title'),
-        ), 20)
+        if self.has_field('section'):
+            form.add_widget(ODMSelectWidget(
+                uid='section',
+                model='section',
+                caption_field='title',
+                label=self.t('section'),
+                value=self.f_get('section'),
+                h_size='col-sm-6',
+            ), 10)
+            form.add_rule('section', NotEmptyRule())
+
+        if self.has_field('title'):
+            form.add_widget(TextInputWidget(
+                uid='title',
+                label=self.t('title'),
+                value=self.f_get('title'),
+            ), 20)
+            form.add_rule('title', NotEmptyRule())
+
         form.add_widget(TextInputWidget(
             uid='description',
             label=self.t('description'),
             value=self.f_get('description'),
         ), 30)
+
         form.add_widget(TermTokenInputWidget(
             uid='tags',
             model='tag',
             label=self.t_plural('tag'),
             value=self.f_get('tags'),
         ), 40)
+
         form.add_widget(ImagesUploadWidget(
             uid='images',
             label=self.t_plural('image'),
             value=self.f_get('images'),
         ), 50)
+
         form.add_widget(WYSIWYGWidget(
             uid='body',
             label=self.t('body'),
             value=self.f_get('body'),
         ), 50)
-        form.add_widget(DateTimeInputWidget(
-            uid='publish_time',
-            label=self.t('publish_time'),
-            value=self.f_get('publish_time'),
-            h_size='col-sm-4 col-md-3 col-md-2',
-        ), 70)
-        form.add_widget(SelectWidget(
-            uid='status',
-            label=self.t('status'),
-            value=self.f_get('status'),
-            h_size='col-sm-4 col-md-3 col-md-2',
-            items=content_manager.get_publish_statuses(),
-        ), 80)
-        form.add_widget(LanguageSelectWidget(
-            uid='language',
-            label=self.t('language'),
-            value=self.f_get('language'),
-            h_size='col-sm-4 col-md-3 col-md-2',
-        ), 90)
-        form.add_widget(TextInputWidget(
-            uid='path',
-            label=self.t('path'),
-            value=self.f_get('path').f_get('alias') if self.f_get('path') else '',
-        ), 100)
 
-        form.add_rule('title', NotEmptyRule())
-        form.add_rule('section', NotEmptyRule())
-        form.add_rules('publish_time', (NotEmptyRule(), DateTimeRule()))
+        if auth_manager.get_current_user().is_admin():
+            form.add_widget(DateTimeInputWidget(
+                uid='publish_time',
+                label=self.t('publish_time'),
+                value=datetime.now() if self.is_new else self.f_get('publish_time'),
+                h_size='col-sm-4 col-md-3 col-md-2',
+            ), 70)
+            form.add_rules('publish_time', (NotEmptyRule(), DateTimeRule()))
+
+            form.add_widget(SelectWidget(
+                uid='status',
+                label=self.t('status'),
+                value=self.f_get('status'),
+                h_size='col-sm-4 col-md-3 col-md-2',
+                items=content_manager.get_publish_statuses(),
+            ), 80)
+
+            form.add_widget(LanguageSelectWidget(
+                uid='language',
+                label=self.t('language'),
+                value=self.f_get('language'),
+                h_size='col-sm-4 col-md-3 col-md-2',
+            ), 90)
+
+            form.add_widget(TextInputWidget(
+                uid='route_alias',
+                label=self.t('path'),
+                value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',
+            ), 100)
 
     def get_d_form_description(self) -> str:
         """Get delete form description.

@@ -84,42 +84,42 @@ class ULoginDriver(AbstractDriver):
             if not user:
                 user = auth_manager.create_user(login=email, email=email)
 
-                # Picture
+            # Picture
+            if not user.f_get('picture'):
                 picture_url = ulogin_data['photo_big'] if 'photo_big' in ulogin_data else None
                 if not picture_url:
                     picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
-                    if picture_url:
-                        user.f_set('picture', image_manager.create(picture_url))
+                if picture_url:
+                    user.f_set('picture', image_manager.create(picture_url))
 
-                # Full name
-                full_name = ''
-                if 'first_name' in ulogin_data:
-                    user.f_set('first_name', ulogin_data['first_name'])
-                    full_name += ulogin_data['first_name']
-                if 'last_name' in ulogin_data:
-                    user.f_set('last_name', ulogin_data['last_name'])
-                    full_name += ' ' + ulogin_data['last_name']
-                user.f_set('full_name', full_name)
+            # Name
+            full_name = ''
+            if 'first_name' in ulogin_data:
+                user.f_set('first_name', ulogin_data['first_name'])
+                full_name += ulogin_data['first_name']
+            if 'last_name' in ulogin_data:
+                user.f_set('last_name', ulogin_data['last_name'])
+                full_name += ' ' + ulogin_data['last_name']
+            user.f_set('full_name', full_name)
 
-                # Gender
-                if 'sex' in ulogin_data:
-                    user.f_set('gender', ulogin_data['sex'])
+            # Gender
+            if 'sex' in ulogin_data:
+                user.f_set('gender', ulogin_data['sex'])
 
-                # Birth date
-                if 'bdate' in ulogin_data:
-                    b_date = strptime(ulogin_data['bdate'], '%d.%m.%Y')
-                    user.f_set('birth_date', datetime(*b_date[0:5]))
+            # Birth date
+            if 'bdate' in ulogin_data:
+                b_date = strptime(ulogin_data['bdate'], '%d.%m.%Y')
+                user.f_set('birth_date', datetime(*b_date[0:5]))
 
-                # Options
-                user.f_set('options', {'ulogin': ulogin_data})
-
-                user.save()
+            # Options
+            user.f_set('options', {'ulogin': ulogin_data})
 
             # Unneeded uLogin token
             if 'token' in inp:
                 del inp['token']
 
             # Authorize
+            user.save()
             auth_manager.authorize(user)
 
             # Saving statistical information

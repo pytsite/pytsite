@@ -65,6 +65,12 @@ class AbstractWidget(ABC):
 
         return self
 
+    def hide(self):
+        """Hides the widget.
+        """
+        self._group_cls += ' hidden'
+        return self
+
     @property
     def children(self):
         """Get children widgets.
@@ -74,6 +80,15 @@ class AbstractWidget(ABC):
             r.append(v['widget'])
 
         return r
+
+    def get_child(self, uid: str):
+        """Get child widget by uid.
+
+        :rtype: pytsite.core.widgets.abstract.AbstractWidget
+        """
+        for v in self._children:
+            if v['widget'].uid == uid:
+                return v['widget']
 
     @property
     def uid(self) -> str:
@@ -92,6 +107,12 @@ class AbstractWidget(ABC):
         """Get label of the widget.
         """
         return self._label
+
+    @label.setter
+    def label(self, value: str):
+        """Set label of the widget.
+        """
+        self._label = value
 
     @property
     def title(self) -> str:

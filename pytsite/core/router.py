@@ -16,7 +16,6 @@ from htmlmin import minify
 from .http.request import Request
 from .http.response import Response, RedirectResponse
 from .http.session import Session
-from .http.errors import NotFoundError, InternalServerError
 from . import reg, logger
 
 session_storage_path = reg.get('paths.session')
@@ -48,7 +47,7 @@ class Rule(_Rule):
         super().__init__(string, **kwargs)
 
 
-def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: list=None, redirect_to: str=None,
+def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: tuple=None, redirect_to: str=None,
              filters: tuple=None):
     """Add a rule to the router.
     """
@@ -97,7 +96,7 @@ def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
     from pytsite.core import tpl, metatag, lang, events
-    global __url_adapter, __session_store, request, session
+    global __url_adapter, request, session
 
     # Detect language from path
     languages = lang.get_langs()
@@ -212,7 +211,7 @@ def base_path(language: str=None) -> str:
 
 def server_name():
     from . import reg
-    name = reg.get('console.server_name', 'localhost')
+    name = reg.get('server_name', 'localhost')
     if __url_adapter:
         name = __url_adapter.server_name
 
@@ -249,7 +248,6 @@ def is_base_url(compare: str=None) -> bool:
 def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False) -> str:
     """Generate an URL.
     """
-
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = urlparse(url_str)
     r = [
@@ -279,7 +277,19 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     return r
 
 
-def current_url(strip_query_string=False):
+def current_path(strip_query_string: bool=False) -> str:
+    """Get current path.
+    """
+    if not request:
+        return '/'
+
+    r = urlparse(request.url)
+    if strip_query_string:
+        return urlunparse(('', '', r[2], r[3], '', ''))
+
+    return urlunparse(('', '', r[2], r[3], r[4], r[5]))
+
+def current_url(strip_query_string: bool=False) -> str:
     """Get current URL.
     """
     if not request:
@@ -293,9 +303,7 @@ def current_url(strip_query_string=False):
     return r
 
 
-def endpoint_url(endpoint: str, args: dict=None, relative: bool=False)->str:
+def endpoint_url(endpoint: str, args: dict=None, relative: bool=False) -> str:
     """Get URL for endpoint.
     """
-
-    global __url_adapter
     return url(__url_adapter.build(endpoint, args), relative=relative)

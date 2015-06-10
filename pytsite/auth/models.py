@@ -33,7 +33,7 @@ class User(ODMModel):
         self._define_field(IntegerField('gender'))
         self._define_field(StringField('phone'))
         self._define_field(DictField('options'))
-        self._define_field(RefsListField('picture', model='image'))
+        self._define_field(RefField('picture', model='image'))
 
         # Indices
         self._define_index([('login', I_ASC)], unique=True)

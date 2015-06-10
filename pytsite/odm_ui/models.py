@@ -31,7 +31,6 @@ class ODMUIMixin(ABC):
         """Modify form setup hook.
 
         :type form: pytsite.core.forms.BaseForm
-        :return: None
         """
         pass
 

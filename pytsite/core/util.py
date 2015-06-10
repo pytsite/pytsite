@@ -151,3 +151,9 @@ def transform_str_1(string: str) -> str:
     string = re.sub(r'(^-|-$)', '', string)
 
     return string
+
+def get_class(cls: str) -> type:
+    class_fqn = cls.split('.')
+    class_name = class_fqn[-1:][0]
+    module = __import__('.'.join(class_fqn[:-1]), fromlist=[class_name])
+    return getattr(module, class_name)

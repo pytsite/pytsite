@@ -26,6 +26,8 @@ def sanitize_alias_string(string: str) -> str:
     """Sanitize a path string.
     """
     string = transform_str_1(string)
+    if not string:
+        raise Exception('Alias cannot be empty.')
 
     if not string.startswith('/'):
         string = '/' + string

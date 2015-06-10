@@ -15,6 +15,8 @@ class RouteAliasModel(ODMModel):
     """
 
     def _setup(self):
+        """Hook.
+        """
         self._define_field(StringField('alias', not_empty=True))
         self._define_field(StringField('target'))
         self._define_field(StringField('language', not_empty=True))

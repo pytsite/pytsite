@@ -32,7 +32,7 @@ class BaseForm:
         self._cls = kwargs.get('cls', 'pytsite-form')
         self._validation_ep = kwargs.get('validation_ep')
 
-        self._areas = {'form': [], 'header': [], 'body': [], 'footer': []}
+        self._areas = ('form', 'header', 'body', 'footer')
         self._widgets = OrderedDict()
         self._validator = Validator()
 
@@ -135,21 +135,20 @@ class BaseForm:
     def fill(self, values: dict, **kwargs: dict):
         """Fill form's widgets with values.
         """
-
         for field_name, field_value in values.items():
             if self.has_widget(field_name):
                 self.get_widget(field_name).set_value(field_value, **kwargs)
 
-                # Setting value of the validator
-                if self._validator.has_field(field_name):
-                    self._validator.set_value(field_name, self.get_widget(field_name).get_value())
+        # Setting values of the validator
+        for uid in self._widgets:
+            if self._validator.has_field(uid):
+                self._validator.set_value(uid, self.get_widget(uid).get_value())
 
         return self
 
     def add_rule(self, widget_uid: str, rule: BaseRule):
         """Add a rule to the validator.
         """
-
         if widget_uid not in self._widgets:
             raise KeyError("Widget '{0}' is not exists.".format(widget_uid))
 
@@ -189,7 +188,7 @@ class BaseForm:
             self.add_widget(HtmlWidget(value=self._legend, html_em=H3, cls='box-title'), area='header')
 
         body = ''
-        for area in ['form', 'header', 'body', 'footer']:
+        for area in self._areas:
             rendered_area = self._render_widgets(area)
             body += rendered_area
 
@@ -198,13 +197,11 @@ class BaseForm:
     def add_widget(self, widget: AbstractWidget, weight: int=0, area: str='body'):
         """Add a widget.
         """
-
         uid = widget.uid
         if uid in self._widgets:
             raise KeyError("Widget '{0}' already exists.".format(uid))
 
-        self._widgets[uid] = {'widget': widget, 'weight': weight}
-        self._areas[area].append(uid)
+        self._widgets[uid] = {'widget': widget, 'weight': weight, 'area': area}
 
         return self
 
@@ -223,10 +220,19 @@ class BaseForm:
 
         return self._widgets[uid]['widget']
 
+    def remove_widget(self, uid):
+        """Remove widget from the form.
+        """
+        if uid in self._widgets:
+            del self._widgets[uid]
+
+        self._validator.remove_rules(uid)
+
+        return self
+
     def _render_open_tag(self) -> str:
         """Render form's open tag.
         """
-
         attrs = {
             'id': self.uid,
             'name': self.name,
@@ -243,10 +249,10 @@ class BaseForm:
     def _render_widgets(self, area: str) -> str:
         """Render widgets.
         """
-
         widgets_to_render = []
-        for wid in self._areas[area]:
-            widgets_to_render.append(self._widgets[wid])
+        for uid, w in self._widgets.items():
+            if w['area'] == area:
+                widgets_to_render.append(self._widgets[uid])
 
         rendered_widgets = []
         for v in weight_sort(widgets_to_render):

@@ -64,6 +64,7 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
 
     entity = odm_ui_manager.dispense_entity(model, entity_id)
     for f_name, f_value in form.values.items():
+        print(f_name)
         if entity.has_field(f_name):
             entity.f_set(f_name, f_value)
 

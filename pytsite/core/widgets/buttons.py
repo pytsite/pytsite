@@ -23,6 +23,8 @@ class ButtonWidget(AbstractWidget):
         self._html_em = HtmlButton(self.get_value(), type='button')
 
     def render(self) -> str:
+        """Render the widget.
+        """
         self._html_em.set_attr('cls', self.cls)
 
         if self._icon:
@@ -38,9 +40,8 @@ class SubmitButtonWidget(ButtonWidget):
     def __init__(self, **kwargs: dict):
         """Init.
         """
-
         super().__init__(**kwargs)
-        self._html_em = HtmlButton(self.get_value(), type='submit')
+        self._html_em = HtmlButton(self.get_value(), uid=self._uid, type='submit')
 
 
 class LinkButtonWidget(ButtonWidget):
@@ -50,6 +51,14 @@ class LinkButtonWidget(ButtonWidget):
     def __init__(self, **kwargs: dict):
         """Init.
         """
-
         super().__init__(**kwargs)
-        self._html_em = A(self.get_value(), href=kwargs.get('href', '#'))
+        self._href = kwargs.get('href', '#')
+        self._html_em = A(self.get_value(), uid=self._uid, href=self._href)
+
+    @property
+    def href(self) -> str:
+        return self._href
+
+    @href.setter
+    def href(self, value: str):
+        self._html_em.set_attr('href', value)

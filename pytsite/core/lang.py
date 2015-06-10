@@ -80,7 +80,7 @@ def register_package(pkg_name: str, languages_dir: str='lang') -> str:
     """Register language container.
     """
     if is_package_registered(pkg_name):
-        raise Exception("Package '{}' is already registered.")
+        return
 
     spec = find_spec(pkg_name)
     if not spec:

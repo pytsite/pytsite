@@ -8,7 +8,7 @@ from datetime import datetime
 
 from abc import abstractmethod
 from pytsite.core import assetman
-from pytsite.core.html import Input as HtmlInput
+from pytsite.core.html import Input as HtmlInput, TextArea as HtmlTextArea
 from .abstract import AbstractWidget
 
 
@@ -30,6 +30,28 @@ class HiddenInputWidget(InputWidget):
         """
         return HtmlInput(type='hidden', uid=self._uid, name=self.name, value=self.get_value()).render()
 
+
+class TextAreaInputWidget(AbstractWidget):
+    """Text Area Input Widget.
+    """
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._group_cls = ' '.join((self._group_cls, 'widget-textarea-input'))
+
+    def render(self) -> str:
+        """Render the widget.
+        """
+        html_input = HtmlTextArea(
+            uid=self._uid,
+            name=self._name,
+            value=self.get_value(),
+            cls=' '.join(('form-control', self._cls)),
+            placeholder=self.placeholder
+        )
+
+        return self._group_wrap(html_input.render())
 
 class TextInputWidget(InputWidget):
     """Text Input Widget

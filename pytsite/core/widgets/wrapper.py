@@ -17,7 +17,6 @@ class WrapperWidget(AbstractWidget):
     def render(self) -> str:
         """Render the widget.
         """
-
         r = []
         for child in self.children:
             r.append(child.render())
