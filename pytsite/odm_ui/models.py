@@ -34,6 +34,13 @@ class ODMUIMixin(ABC):
         """
         pass
 
+    def submit_m_form(self, form):
+        """Modify form submit hook.
+
+        :type form: pytsite.core.forms.BaseForm
+        """
+        pass
+
     @abstractmethod
     def get_d_form_description(self) -> str:
         """Get delete form description.

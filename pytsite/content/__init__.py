@@ -13,6 +13,7 @@ from .models import SectionModel
 
 # Dependencies
 __import__('pytsite.auth')
+__import__('pytsite.auth_ui')
 __import__('pytsite.admin')
 __import__('pytsite.image')
 __import__('pytsite.route_alias')
@@ -30,7 +31,7 @@ def _section_pre_delete_handler(entity: ODMModel):
 lang.register_package(__name__)
 assetman.register_package(__name__)
 
-router.add_rule('/content/view/<string:model>/<string:eid>', 'pytsite.content.eps.view', methods=['GET'])
+router.add_rule('/content/view/<string:model>/<string:eid>', 'pytsite.content.eps.view')
 
 taxonomy_manager.register_model('section', SectionModel)
 events.listen('odm.pre_delete.section', _section_pre_delete_handler)

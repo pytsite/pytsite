@@ -36,7 +36,7 @@ class CheckboxWidget(InputWidget):
 
         div.append(HtmlInput(type='hidden', name=self._name))
 
-        return self._group_wrap(div.render(), render_label=False)
+        return self._group_wrap(div.render(), False)
 
 
 class SelectWidget(InputWidget):
@@ -144,6 +144,10 @@ class TokenSelectWidget(AbstractWidget):
 
         self._local_source = kwargs.get('local_source')
         self._remote_source = kwargs.get('remote_source')
+        self._group_data = {
+            'local_source': self._local_source,
+            'remote_source': self._remote_source,
+        }
 
     def render(self) -> str:
         """Render the widget.
@@ -156,7 +160,4 @@ class TokenSelectWidget(AbstractWidget):
             cls=' '.join(('form-control', self._cls)),
         )
 
-        return self._group_wrap(html_input.render(), {
-            'local_source': self._local_source,
-            'remote_source': self._remote_source,
-        })
+        return self._group_wrap(html_input.render())

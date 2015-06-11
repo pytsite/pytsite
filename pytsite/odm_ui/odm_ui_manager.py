@@ -21,6 +21,8 @@ from .models import ODMUIMixin
 def get_m_form(model: str, eid: str=None) -> BaseForm:
     """Get entity modification form.
     """
+    eid = eid if eid != '0' else None
+
     if not eid and not _check_permissions('create', model):
         raise ForbiddenError()
     elif eid and not _check_permissions('modify', model, [eid]):
@@ -28,9 +30,10 @@ def get_m_form(model: str, eid: str=None) -> BaseForm:
 
     form = BaseForm('odm-ui-form')
 
-    # Action and validation endpoints
+    # Action, redirect and validation endpoints
     form.validation_ep = 'pytsite.odm_ui.eps.validate_m_form'
     form.action = router.endpoint_url('pytsite.odm_ui.eps.post_m_form', {'model': model, 'id': eid if eid else '0'})
+    form.redirect = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
 
     # Action buttons
     submit_button = SubmitButtonWidget(uid='action_submit', value=t('pytsite.odm_ui@save'), color='primary', icon='fa fa-save')

@@ -4,7 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 from abc import ABC, abstractmethod
 from pytsite.core.util import random_str, weight_sort
 from pytsite.core.html import Div, Label
@@ -33,6 +32,7 @@ class AbstractWidget(ABC):
         self._placeholder = kwargs.get('placeholder')
         self._cls = kwargs.get('cls', '')
         self._group_cls = kwargs.get('group_cls', '')
+        self._group_data = kwargs.get('group_data', {})
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
         self._children = []
@@ -138,7 +138,7 @@ class AbstractWidget(ABC):
         """
         return self._help
 
-    def _group_wrap(self, content, add_data: dict=None, render_label: bool=True) -> str:
+    def _group_wrap(self, content, render_label: bool=True) -> str:
         """Wrap input string into 'form-group' container.
         """
         content = str(content)
@@ -150,8 +150,8 @@ class AbstractWidget(ABC):
         cls = ' '.join((cls, self._group_cls))
         group_wrapper = Div(content, cls=cls, data_widget_uid=self.uid)
 
-        if add_data:
-            for k, v in add_data.items():
+        if isinstance(self._group_data, dict):
+            for k, v in self._group_data.items():
                 group_wrapper.set_attr('data_' + k, v)
 
         if render_label and self.label:

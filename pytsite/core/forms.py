@@ -23,6 +23,9 @@ class BaseForm:
     def __init__(self, uid: str, **kwargs: dict):
         """Init.
         """
+        self._areas = ('form', 'header', 'body', 'footer')
+        self._widgets = OrderedDict()
+        self._validator = Validator()
 
         self._uid = uid
         self._name = kwargs.get('name', None)
@@ -32,15 +35,12 @@ class BaseForm:
         self._cls = kwargs.get('cls', 'pytsite-form')
         self._validation_ep = kwargs.get('validation_ep')
 
-        self._areas = ('form', 'header', 'body', 'footer')
-        self._widgets = OrderedDict()
-        self._validator = Validator()
+        self.add_widget(HiddenInputWidget(uid='__form_location', value=router.current_url()), area='form')
+        self.add_widget(HiddenInputWidget(uid='__form_redirect', value=router.current_url()), area='form')
+        self.add_widget(WrapperWidget(cls='form-messages'))
 
         if not self._name:
             self._name = uid
-
-        self.add_widget(HiddenInputWidget(name='__form_location', value=router.current_url()), area='form')
-        self.add_widget(WrapperWidget(cls='form-messages'))
 
         self._setup()
 
@@ -132,6 +132,14 @@ class BaseForm:
 
         return r
 
+    @property
+    def redirect(self) -> str:
+        return self.get_widget('__form_redirect').get_value()
+
+    @redirect.setter
+    def redirect(self, value):
+        self.get_widget('__form_redirect').set_value(value)
+
     def fill(self, values: dict, **kwargs: dict):
         """Fill form's widgets with values.
         """
@@ -197,9 +205,12 @@ class BaseForm:
     def add_widget(self, widget: AbstractWidget, weight: int=0, area: str='body'):
         """Add a widget.
         """
+        if area not in self._areas:
+            raise ValueError("Invalid area: '{}'".format(area))
+
         uid = widget.uid
         if uid in self._widgets:
-            raise KeyError("Widget '{0}' already exists.".format(uid))
+            raise KeyError("Widget '{}' already exists.".format(uid))
 
         self._widgets[uid] = {'widget': widget, 'weight': weight, 'area': area}
 
@@ -208,15 +219,13 @@ class BaseForm:
     def has_widget(self, uid: str) -> bool:
         """Check if the form has widget.
         """
-
         return uid in self._widgets
 
     def get_widget(self, uid: str) -> AbstractWidget:
         """Get a widget.
         """
-
         if not self.has_widget(uid):
-            raise KeyError("Widget '{0}' is not exists.".format(uid))
+            raise KeyError("Widget '{}' is not exists.".format(uid))
 
         return self._widgets[uid]['widget']
 

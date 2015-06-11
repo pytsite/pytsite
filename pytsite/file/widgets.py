@@ -28,6 +28,16 @@ class FilesUploadWidget(AbstractWidget):
         self._max_files = int(kwargs.get('max_files', 0))
         self._accept_files = kwargs.get('accept_files', '*/*')
 
+        self._group_data = {
+            'url': router.endpoint_url('pytsite.file.eps.post_upload', {'model': self._model}),
+            'model': self._model,
+            'max_file_size': self._max_file_size,
+            'accept_files': self._accept_files,
+        }
+
+        if self._max_files:
+            self._group_data['max_files'] = self._max_files
+
         assetman.add_css('pytsite.file@css/upload-widget.css')
         assetman.add_js('pytsite.file@js/upload-widget.js')
 
@@ -36,19 +46,8 @@ class FilesUploadWidget(AbstractWidget):
         return self._accept_files
 
     def render(self) -> str:
-        data = {
-            'url': router.endpoint_url('pytsite.file.eps.post_upload', {'model': self._model}),
-            'model': self._model,
-            'max_file_size': self._max_file_size,
-            'accept_files': self._accept_files,
-        }
-
-        if self._max_files:
-            data['max_files'] = self._max_files
-
         widget_content = tpl.render('pytsite.file@file_upload_widget', {'widget': self})
-
-        return self._group_wrap(widget_content, data)
+        return self._group_wrap(widget_content)
 
     def set_value(self, value: list, **kwargs):
         """Set value of the widget.
@@ -57,7 +56,7 @@ class FilesUploadWidget(AbstractWidget):
         if value is None:
             return
 
-        if isinstance(value, str):
+        if not isinstance(value, list):
             value = [value]
 
         clean_val = []

@@ -41,7 +41,6 @@ def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
     global_messages = []
-
     form = odm_ui_manager.get_m_form(inp.get('__model'), inp.get('__entity_id'))
     v_status = form.fill(inp, validation_mode=True).validate()
     widget_messages = form.messages
@@ -64,13 +63,14 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
 
     entity = odm_ui_manager.dispense_entity(model, entity_id)
     for f_name, f_value in form.values.items():
-        print(f_name)
         if entity.has_field(f_name):
             entity.f_set(f_name, f_value)
 
     entity.save()
 
-    return RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+    entity.submit_m_form(form)
+
+    return RedirectResponse(form.redirect)
 
 
 def get_d_form(args: dict, inp: dict) -> str:

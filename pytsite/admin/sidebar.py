@@ -134,7 +134,8 @@ def render() -> str:
                     label_class = 'label pull-right label-' + menu['label_class']
                     a.append(Span(menu['label'], cls=label_class))
                 li = Li()
-                if href.find(router.current_url()) >= 0:
+                cu = router.current_url()
+                if not cu.endswith('/admin') and cu.find(href) >= 0:
                     li.set_attr('cls', 'active')
                 root_menu_ul.append(li.append(a))
 

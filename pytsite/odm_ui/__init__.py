@@ -12,33 +12,27 @@ from pytsite.core import router, lang, tpl, assetman, events
 from . import event_handlers
 
 # Browse
-router.add_rule('/admin/odm/browse/<string:model>',
+router.add_rule('/admin/odm/<string:model>',
                 'pytsite.odm_ui.eps.browse',
-                methods=['GET'],
                 filters=('pytsite.auth.eps.filter_authorize',))
 router.add_rule('/admin/odm/get_browser_rows/<string:model>',
                 'pytsite.odm_ui.eps.get_browser_rows',
-                methods=['GET'],
                 filters=('pytsite.auth.eps.filter_authorize',))
 
 # Create/modify
-router.add_rule('/admin/odm/modify/<string:model>/<string:id>',
+router.add_rule('/admin/odm/<string:model>/modify/<string:id>',
                 'pytsite.odm_ui.eps.get_m_form',
-                methods=['GET'],
                 filters=('pytsite.auth.eps.filter_authorize',))
-router.add_rule('/admin/odm/modify/<string:model>/<string:id>/submit',
-                'pytsite.odm_ui.eps.post_m_form',
-                methods=['POST'],
+router.add_rule('/admin/odm/<string:model>/modify/<string:id>/submit',
+                'pytsite.odm_ui.eps.post_m_form', methods=('POST',),
                 filters=('pytsite.auth.eps.filter_authorize',))
 
 # Delete
-router.add_rule('/admin/odm/delete/<string:model>',
+router.add_rule('/admin/odm/<string:model>/delete',
                 'pytsite.odm_ui.eps.get_d_form',
-                methods=['GET'],
                 filters=('pytsite.auth.eps.filter_authorize',))
-router.add_rule('/admin/odm/delete/<string:model>/submit',
-                'pytsite.odm_ui.eps.post_d_form',
-                methods=['POST'],
+router.add_rule('/admin/odm/<string:model>/delete/submit',
+                'pytsite.odm_ui.eps.post_d_form',methods=('POST',),
                 filters=('pytsite.auth.eps.filter_authorize',))
 
 lang.register_package(__name__)

@@ -28,6 +28,11 @@ class TermTokenInputWidget(TokenSelectWidget):
             'query': '__QUERY'
         })
 
+        self._group_data = {
+            'local_source': self._local_source,
+            'remote_source': self._remote_source,
+        }
+
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
@@ -57,7 +62,4 @@ class TermTokenInputWidget(TokenSelectWidget):
             cls=' '.join(('form-control', self._cls)),
         )
 
-        return self._group_wrap(html_input, {
-            'local_source': self._local_source,
-            'remote_source': self._remote_source,
-        })
+        return self._group_wrap(html_input)

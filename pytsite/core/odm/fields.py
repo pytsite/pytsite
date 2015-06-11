@@ -9,7 +9,6 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from bson.dbref import DBRef
 
-
 class AbstractField(ABC):
     """Base field.
     """
@@ -219,6 +218,9 @@ class RefField(AbstractField):
         """
         from .models import ODMModel
 
+        if isinstance(value, list) or isinstance(value, tuple):
+            value = value[0]
+
         if isinstance(value, DBRef) or value is None:
             pass
         elif isinstance(value, ODMModel):
@@ -226,7 +228,7 @@ class RefField(AbstractField):
                 raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
         else:
-            raise TypeError("Entity or DBRef expected, but '{}' given.".format(str(value)))
+            raise TypeError("Field '{}': entity or DBRef expected, but '{}' given.".format(self._name, str(value)))
 
         return super().set_val(value, change_modified, **kwargs)
 

@@ -118,7 +118,8 @@ def dump_css() -> str:
 def get_url(location: str) -> str:
     """Get URL of an asset.
     """
-
+    if location.startswith('http'):
+        return location
     package_name, asset_path = __split_asset_location_info(location)
     return router.url('/assets/{0}/{1}'.format(package_name, asset_path), strip_lang=True)
 

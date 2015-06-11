@@ -141,7 +141,7 @@ def dispatch(env: dict, start_response: callable):
         rule, rule_args = __url_adapter.match(return_rule=True)
 
         # Notify listeners
-        events.fire('core.router.dispatch')
+        events.fire('router.dispatch')
 
         # Processing rule filters
         for flt in rule.filters:
