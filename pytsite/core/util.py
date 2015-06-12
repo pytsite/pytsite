@@ -76,6 +76,8 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
     """Format dictionary as XML attributes string.
     """
 
+    from werkzeug.utils import escape
+
     single_attrs = 'checked', 'selected', 'required'
 
     r = ''
@@ -90,7 +92,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
                     r += ' {}'.format(k)
             else:
                 v = str(v).strip()
-                r += ' {}="{}"'.format(k, v)
+                r += ' {}="{}"'.format(k, escape(v))
 
     return r
 

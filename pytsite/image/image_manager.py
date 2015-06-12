@@ -12,7 +12,6 @@ from .models import Image as ImageModel
 def create(source_path: str, name: str=None, description: str=None) -> ImageModel:
     """Create an image from URL or local file.
     """
-
     img_entity = file_manager.create(source_path, name, description, 'image')
 
     mime = str(img_entity.f_get('mime'))
@@ -30,5 +29,4 @@ def create(source_path: str, name: str=None, description: str=None) -> ImageMode
 def get(uid: str=None, rel_path: str=None) -> ImageModel:
     """Get image.
     """
-
     return file_manager.get(uid, rel_path, 'image')

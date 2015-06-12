@@ -44,6 +44,6 @@ class Image(File):
             })
 
         if field_name == 'thumb_url':
-            return self.f_get('url', height=int(kwargs.get('height', 256)))
+            return self.f_get('url', width=int(kwargs.get('width', 422)), height=int(kwargs.get('height', 422)))
 
         return super()._on_f_get(field_name, orig_value, **kwargs)

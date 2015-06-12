@@ -1,22 +1,26 @@
 <div class="files-upload-wrapper">
-    <div class="slots">
+    <div class="slots row">
         {% for item in widget.get_value() %}
             {% set fid = item.model~':'~item.id %}
-            <div class="slot" data-fid="{{ fid }}">
-                <div class="thumb"><img src="{{ item.f_get('thumb_url') }}">
+            <div class="slot col-xs-B-12 col-xs-6 col-md-4 col-lg-3" data-fid="{{ fid }}">
+                <div class="inner">
+                    <div class="thumb"><img class="img-responsive" src="{{ item.f_get('thumb_url') }}"></div>
+                    <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>
+                    <span class="number"></span>
+                    <input type="hidden" name="{{ widget.uid }}" value="{{ fid }}">
                 </div>
-                <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>
-                <span class="number"></span>
-                <input type="hidden" name="{{ widget.uid }}" value="{{ fid }}">
             </div>
         {% endfor %}
-    </div>
-    <div class="add-button btn btn-default btn-md">
-        <i class="fa fa-fw fa-plus"></i>
-        <input type="file" multiple accept="{{ widget.accept_files }}">
+        <div class="add-button col-xs-B-12 col-xs-6 col-md-4 col-lg-3">
+            <div class="btn btn btn-default">
+                <i class="fa fa-fw fa-plus"></i> {{ widget.add_btn_label }}
+                <input type="file" multiple accept="{{ widget.accept_files }}">
+            </div>
+        </div>
     </div>
 
-    <span class="processing"><i class="fa fa-clock-o"></i></span>
+
+    <span class="processing hidden"><i class="fa fa-clock-o"></i></span>
 
     <input type="hidden" name="{{ widget.uid }}" value="">
 </div>

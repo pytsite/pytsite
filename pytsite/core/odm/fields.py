@@ -198,7 +198,7 @@ class DictField(AbstractField):
         """Set value of the field.
         """
         if not isinstance(value, dict):
-            raise TypeError("Dictionary expected")
+            raise TypeError("Field '{}': dictionary expected".format(self._name))
 
         return super().set_val(value, change_modified, **kwargs)
 

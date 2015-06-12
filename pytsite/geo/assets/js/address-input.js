@@ -12,17 +12,16 @@ $(function () {
 
     $('.widget-geo-address-input').each(function () {
         var widget = $(this);
-        var searchInput = widget.find('input[type=text]').first();
-        var addressInput = $('<input type="hidden" name="' + widget.data('widgetUid') + '[address]">');
-        var nameInput = $('<input type="hidden" name="' + widget.data('widgetUid') + '[name]">');
-        var latlngInput = $('<input type="hidden" name="' + widget.data('widgetUid') + '[latlng]">');
+        var uid = widget.data('widget-uid');
+        var searchInput = widget.find('input[name="' + uid + '[search]"]');
+        var addressInput = widget.find('input[name="' + uid + '[address]"]');
+        var nameInput = widget.find('input[name="' + uid + '[name]"]');
+        var latLngInput = widget.find('input[name="' + uid + '[lat_lng]"]');
+        var componentsInput = widget.find('input[name="' + uid + '[components]"]');
         var autocomplete = new google.maps.places.Autocomplete(searchInput[0], {
             types: ['geocode']
         });
 
-        widget.append(addressInput);
-        widget.append(nameInput);
-        widget.append(latlngInput);
         setBounds(autocomplete);
 
         widget.keydown(function (event) {
@@ -38,18 +37,27 @@ $(function () {
 
         searchInput.blur(function () {
             if (!$(this).val().length) {
-                searchInput.val('');
                 addressInput.val('');
-                latlngInput.val('');
+                nameInput.val('');
+                latLngInput.val('');
             }
+
+            setTimeout(function () {
+                if (addressInput.val())
+                    searchInput.val(addressInput.val());
+                else
+                    searchInput.val('');
+            }, 50);
         });
 
         google.maps.event.addListener(autocomplete, 'place_changed', function () {
             var place = autocomplete.getPlace();
             if (place.hasOwnProperty('geometry')) {
+                var loc = place.geometry.location;
                 addressInput.val(place.formatted_address);
                 nameInput.val(place.name);
-                latlngInput.val(place.geometry.location.lat() + ',' + place.geometry.location.lng());
+                latLngInput.val(JSON.stringify([loc.lat(), loc.lng()]));
+                componentsInput.val(JSON.stringify(place.address_components));
             }
         });
 
@@ -61,9 +69,12 @@ $(function () {
                 geoCoder.geocode({'latLng': latLng}, function (results, status) {
                     if (status == google.maps.GeocoderStatus.OK && results.length) {
                         var place = results[0];
+                        var loc = place.geometry.location;
                         searchInput.val(place.formatted_address);
                         addressInput.val(place.formatted_address);
-                        latlngInput.val(place.geometry.location.lat() + ',' + place.geometry.location.lng());
+                        nameInput.val(place.formatted_address);
+                        latLngInput.val(JSON.stringify([loc.lat(), loc.lng()]));
+                        componentsInput.val(JSON.stringify(place.address_components));
                     }
                 });
             });

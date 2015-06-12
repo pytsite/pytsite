@@ -1,6 +1,7 @@
 $.fn.extend({
-    widgetFilesUpload: function() {
+    widgetFilesUpload: function () {
         var widget = this;
+        var slots = widget.find('.slots');
         var widgetUid = widget.data('widgetUid');
         var addBtn = widget.find('.add-button');
         var processIcon = widget.find('.processing');
@@ -12,50 +13,53 @@ $.fn.extend({
         var filesCount = 0;
         var acceptedFileTypes = fileInput.prop('accept');
 
-        if(acceptedFileTypes != '*/*')
+        if (acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
 
-        var setupSlot = function(slot) {
-            $(slot).find('.btn-remove').click(function() {
+        var setupSlot = function (slot) {
+            $(slot).find('.btn-remove').click(function () {
                 removeSlot(slot)
             });
 
             return $(slot);
         };
 
-        var createSlot = function(fid, thumb_url) {
-            var slot = $('<div class="slot" data-fid="'+fid+'">');
-            slot.append($('<div class="thumb"><img src="{u}"></div>'.replace('{u}', thumb_url)));
-            slot.append($('<button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>'));
-            slot.append($('<span class="number">'));
-            widget.append('<input type="hidden" name="'+widgetUid+'" value="'+fid+'">');
+        var createSlot = function (fid, thumb_url) {
+            var slot = $('<div class="slot col-xs-B-12 col-xs-6 col-md-4 col-lg-3" data-fid="' + fid + '">');
+            var inner = $('<div class="inner">');
+            slot.append(inner);
+            inner.append($('<div class="thumb"><img class="img-responsive" src="{u}"></div>'.replace('{u}', thumb_url)));
+            inner.append($('<button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>'));
+            inner.append($('<span class="number">'));
+            widget.append('<input type="hidden" name="' + widgetUid + '" value="' + fid + '">');
             return setupSlot(slot);
         };
 
         var renumberSlots = function () {
             var n = 1;
             filesCount = 0;
-            widget.find('.slot .number').each(function() {
+            widget.find('.slot .number').each(function () {
                 $(this).text(n++);
                 ++filesCount;
             });
 
-            if(filesCount >= maxFiles) {
+            if (filesCount >= maxFiles) {
                 addBtn.hide();
                 widget.addClass('max-files-reached');
             }
         };
 
-        var appendSlot = function(slot) {
-            widget.find('.slots').append(slot);
+        var appendSlot = function (slot) {
+            slots.append(slot);
+            widget.find('.add-button').insertAfter(slots.find('.slot:last-child'));
             renumberSlots();
         };
 
-        var removeSlot = function(slot) {
+        var removeSlot = function (slot) {
             var fid = $(slot).data('fid');
-            if(confirm(t('pytsite.file@really_delete'))) {
-                widget.find('input[value="'+fid+'"]').remove();
-                widget.append('<input type="hidden" name="'+widgetUid+'_to_delete" value="'+fid+'">');
+            if (confirm(t('pytsite.file@really_delete'))) {
+                widget.find('input[value="' + fid + '"]').remove();
+                widget.append('<input type="hidden" name="' + widgetUid + '_to_delete" value="' + fid + '">');
                 $(slot.remove());
                 renumberSlots();
 
@@ -65,69 +69,88 @@ $.fn.extend({
             }
         };
 
-        fileInput.change(function(e) {
-            var files = this.files;
+        var uploadFile = function (file) {
+            if (acceptedFileTypes != '*/*' && file.type.split('/')[0] != acceptedFileTypes) {
+                alert(t('pytsite.file@file_has_invalid_type'));
+                return false;
+            }
+
+            if (maxFileSize && file.size > maxFileSize) {
+                alert(t('pytsite.file@file_too_big', {
+                    file_name: file.name,
+                    max_size: maxFileSizeMB
+                }));
+                return false;
+            }
+
+            var formData = new FormData();
+            formData.append(widgetUid, file);
+
+            ++filesCount;
+
+            if (filesCount == maxFiles) {
+                addBtn.hide();
+                widget.addClass('max-files-reached');
+            }
+
+            if (filesCount > maxFiles) {
+                --filesCount;
+                processIcon.hide();
+                alert(t('pytsite.file@max_files_exceeded'));
+                return false;
+            }
 
             processIcon.show();
 
-            for(var i = 0; i < files.length; i++) {
+            $.ajax({
+                type: 'POST',
+                url: postUrl,
+                data: formData,
+                processData: false,
+                contentType: false
+            }).success(function (data, textStatus, jqXHR) {
+                $.each(data, function (k, v) {
+                    processIcon.hide();
+                    appendSlot(createSlot(v['fid'], v['thumb_url']));
+                })
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                --filesCount;
+                addBtn.show();
+                widget.removeClass('max-files-reached');
+                processIcon.hide();
+                alert(errorThrown);
+            });
+        };
+
+        fileInput.change(function (e) {
+            var files = this.files;
+
+            for (var i = 0; i < files.length; i++) {
                 var file = files[i];
-                var formData = new FormData();
 
-                if(acceptedFileTypes != '*/*' && file.type.split('/')[0] != acceptedFileTypes) {
-                    alert(t('pytsite.file@file_has_invalid_type'));
-                    continue;
+                // Image resizing
+                var maxWidth = parseInt(widget.data('imageMaxWidth'));
+                var maxHeight = parseInt(widget.data('imageMaxHeight'));
+                if (file.type.split('/')[0] == 'image' && (maxWidth || maxHeight)) {
+                    loadImage(file, function (canvas) {
+                        canvas.toBlob(function (blob) {
+                            uploadFile(blob);
+                        });
+                    }, {
+                        canvas: true,
+                        maxWidth: maxWidth,
+                        maxHeight: maxHeight,
+                        contain: true
+                    });
                 }
-
-                if(maxFileSize && file.size > maxFileSize) {
-                    alert(t('pytsite.file@file_too_big', {
-                        file_name: file.name,
-                        max_size: maxFileSizeMB
-                    }));
-                    continue;
-                }
-
-                ++filesCount;
-
-                if(filesCount == maxFiles) {
-                    addBtn.hide();
-                    widget.addClass('max-files-reached');
-                }
-
-                if(filesCount > maxFiles) {
-                    --filesCount;
-                    processIcon.hide();
-                    alert(t('pytsite.file@max_files_exceeded'));
-                    return false;
-                }
-
-                formData.append(widgetUid, file);
-
-                $.ajax({
-                    type: 'POST',
-                    url: postUrl,
-                    data: formData,
-                    processData: false,
-                    contentType: false
-                }).success(function(data, textStatus, jqXHR) {
-                    $.each(data, function(k, v) {
-                        appendSlot(createSlot(v['fid'], v['thumb_url']));
-                    })
-                }).fail(function(jqXHR, textStatus, errorThrown ) {
-                    --filesCount;
-                    addBtn.show();
-                    widget.removeClass('max-files-reached');
-                    processIcon.hide();
-                    alert(errorThrown);
-                });
+                else
+                    uploadFile(file);
             }
-
-            processIcon.hide();
         });
 
         // Initial setup of existing slots
-        processIcon.hide();
-        widget.find('.slot').each(function() {
+        processIcon.removeClass('hidden').hide();
+        widget.find('.slot').each(function () {
             setupSlot(this);
         });
         renumberSlots();
@@ -135,7 +158,6 @@ $.fn.extend({
 });
 
 
-
-$(function() {
+$(function () {
     $('.widget-files-upload').widgetFilesUpload();
 });

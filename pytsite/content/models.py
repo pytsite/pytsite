@@ -13,13 +13,14 @@ from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import ODMSelectWidget
 from pytsite.core.widgets.input import TextInputWidget, DateTimeInputWidget
 from pytsite.core.widgets.selectable import SelectWidget, LanguageSelectWidget
-from pytsite.core.widgets.wysiwyg import WYSIWYGWidget
+from pytsite.core.widgets.wysiwyg import CKEditorWidget
 from pytsite.core.validation.rules import NotEmptyRule, DateTimeRule
 from pytsite.auth import auth_manager
 from pytsite.route_alias import route_alias_manager
 from pytsite.taxonomy.models import AbstractTerm
 from pytsite.taxonomy.widgets import TermTokenInputWidget
 from pytsite.image.widgets import ImagesUploadWidget
+from pytsite.geo.widgets import GeoAddressInputWidget
 
 
 class SectionModel(AbstractTerm):
@@ -49,7 +50,7 @@ class ContentModel(ODMModel, ODMUIMixin):
         self._define_field(StringField('language', not_empty=True, default=get_current_lang()))
         self._define_field(RefsUniqueList('tags', model='tag',))
         self._define_field(RefField('section', model='section', not_empty=True))
-        self._define_field(RefField('location', model='location'))
+        self._define_field(DictField('location'))
         self._define_field(BoolField('starred'))
 
     def _on_f_set(self, field_name: str, value, **kwargs):
@@ -135,77 +136,95 @@ class ContentModel(ODMModel, ODMUIMixin):
 
         if self.has_field('section'):
             form.add_widget(ODMSelectWidget(
+                weight=10,
                 uid='section',
                 model='section',
                 caption_field='title',
                 label=self.t('section'),
                 value=self.f_get('section'),
                 h_size='col-sm-6',
-            ), 10)
+            ))
             form.add_rule('section', NotEmptyRule())
 
         if self.has_field('title'):
             form.add_widget(TextInputWidget(
+                weight=20,
                 uid='title',
                 label=self.t('title'),
                 value=self.f_get('title'),
-            ), 20)
+            ))
             form.add_rule('title', NotEmptyRule())
 
         form.add_widget(TextInputWidget(
+            weight=30,
             uid='description',
             label=self.t('description'),
             value=self.f_get('description'),
-        ), 30)
+        ))
 
         form.add_widget(TermTokenInputWidget(
+            weight=40,
             uid='tags',
             model='tag',
             label=self.t_plural('tag'),
             value=self.f_get('tags'),
-        ), 40)
+        ))
 
         form.add_widget(ImagesUploadWidget(
+            weight=50,
             uid='images',
             label=self.t_plural('image'),
             value=self.f_get('images'),
-        ), 50)
+        ))
 
-        form.add_widget(WYSIWYGWidget(
+        form.add_widget(CKEditorWidget(
+            weight=60,
             uid='body',
             label=self.t('body'),
             value=self.f_get('body'),
-        ), 50)
+        ))
+
+        # Location
+        form.add_widget(GeoAddressInputWidget(
+            weight=70,
+            uid='location',
+            label=self.t('location'),
+            value=self.f_get('location'),
+        ))
 
         if auth_manager.get_current_user().is_admin():
             form.add_widget(DateTimeInputWidget(
+                weight=80,
                 uid='publish_time',
                 label=self.t('publish_time'),
                 value=datetime.now() if self.is_new else self.f_get('publish_time'),
                 h_size='col-sm-4 col-md-3 col-md-2',
-            ), 70)
+            ))
             form.add_rules('publish_time', (NotEmptyRule(), DateTimeRule()))
 
             form.add_widget(SelectWidget(
+                weight=90,
                 uid='status',
                 label=self.t('status'),
                 value=self.f_get('status'),
                 h_size='col-sm-4 col-md-3 col-md-2',
                 items=content_manager.get_publish_statuses(),
-            ), 80)
+            ))
 
             form.add_widget(LanguageSelectWidget(
+                weight=100,
                 uid='language',
                 label=self.t('language'),
                 value=self.f_get('language'),
                 h_size='col-sm-4 col-md-3 col-md-2',
-            ), 90)
+            ))
 
             form.add_widget(TextInputWidget(
+                weight=110,
                 uid='route_alias',
                 label=self.t('path'),
                 value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',
-            ), 100)
+            ))
 
     def get_d_form_description(self) -> str:
         """Get delete form description.

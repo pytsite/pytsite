@@ -36,11 +36,13 @@ def get_m_form(model: str, eid: str=None) -> BaseForm:
     form.redirect = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
 
     # Action buttons
-    submit_button = SubmitButtonWidget(uid='action_submit', value=t('pytsite.odm_ui@save'), color='primary', icon='fa fa-save')
+    submit_button = SubmitButtonWidget(weight=10, uid='action_submit', value=t('pytsite.odm_ui@save'),
+                                       color='primary', icon='fa fa-save')
     cancel_button_url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    cancel_button = LinkButtonWidget(uid='action_cancel', value=t('pytsite.odm_ui@cancel'), href=cancel_button_url, icon='fa fa-ban')
+    cancel_button = LinkButtonWidget(weight=20, uid='action_cancel', value=t('pytsite.odm_ui@cancel'),
+                                     href=cancel_button_url, icon='fa fa-ban')
     actions_wrapper = WrapperWidget(uid='actions')
-    actions_wrapper.add_child(submit_button, 10).add_child(cancel_button, 20)
+    actions_wrapper.add_child(submit_button).add_child(cancel_button)
     form.add_widget(actions_wrapper, area='footer')
 
     # Metadata
@@ -82,11 +84,11 @@ def get_d_form(model: str, ids: list) -> BaseForm:
     form.add_widget(StaticControlWidget(html_em=Div, value=str(ol)))
 
     # Action buttons
-    submit_button = SubmitButtonWidget(value=t('pytsite.odm_ui@delete'), color='danger', icon='fa fa-save')
+    submit_button = SubmitButtonWidget(weight=10, value=t('pytsite.odm_ui@delete'), color='danger', icon='fa fa-save')
     cancel_button_url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    cancel_button = LinkButtonWidget(value=t('pytsite.odm_ui@cancel'), href=cancel_button_url, icon='fa fa-ban')
+    cancel_button = LinkButtonWidget(weight=20, value=t('pytsite.odm_ui@cancel'), href=cancel_button_url, icon='fa fa-ban')
     actions_wrapper = WrapperWidget()
-    actions_wrapper.add_child(submit_button, 10).add_child(cancel_button, 20)
+    actions_wrapper.add_child(submit_button).add_child(cancel_button)
     form.add_widget(actions_wrapper, area='footer')
 
     return form

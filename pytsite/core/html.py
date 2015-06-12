@@ -163,7 +163,6 @@ class SingleTagElement(Element):
     def render(self) -> str:
         """Render the element.
         """
-
         return "<{}{}>".format(self._tag_name, html_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
 
 

@@ -26,6 +26,7 @@ class AbstractWidget(ABC):
 
         self._uid = uid
         self._name = name
+        self._weight = kwargs.get('weight', 0)
         self._value = None
         self._label = kwargs.get('label')
         self._title = kwargs.get('title')
@@ -41,10 +42,10 @@ class AbstractWidget(ABC):
         # It is important to filter value through the setter-method
         self.set_value(kwargs.get('value'))
 
-    def add_child(self, widget, weight: int=0):
+    def add_child(self, widget):
         """Add a child widget.
         """
-        self._children.append({'widget': widget, 'weight': weight})
+        self._children.append(widget)
         return self
 
     @abstractmethod
@@ -72,12 +73,16 @@ class AbstractWidget(ABC):
         return self
 
     @property
-    def children(self):
+    def children(self) -> list:
         """Get children widgets.
         """
+        sort = []
+        for w in self._children:
+            sort.append({'widget': w, 'weight': w.weight})
+
         r = []
-        for v in weight_sort(self._children):
-            r.append(v['widget'])
+        for w in weight_sort(sort):
+            r.append(w['widget'])
 
         return r
 
@@ -86,9 +91,9 @@ class AbstractWidget(ABC):
 
         :rtype: pytsite.core.widgets.abstract.AbstractWidget
         """
-        for v in self._children:
-            if v['widget'].uid == uid:
-                return v['widget']
+        for w in self._children:
+            if w.uid == uid:
+                return w
 
     @property
     def uid(self) -> str:
@@ -101,6 +106,14 @@ class AbstractWidget(ABC):
         """Get name of the widget.
         """
         return self._name
+
+    @property
+    def weight(self) -> int:
+        return self._weight
+
+    @weight.setter
+    def weight(self, value: int):
+        self._weight = int(value)
 
     @property
     def label(self) -> str:

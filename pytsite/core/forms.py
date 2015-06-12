@@ -202,17 +202,17 @@ class BaseForm:
 
         return self._render_open_tag() + body + self._render_close_tag()
 
-    def add_widget(self, widget: AbstractWidget, weight: int=0, area: str='body'):
+    def add_widget(self, widget: AbstractWidget, area: str='body'):
         """Add a widget.
         """
         if area not in self._areas:
-            raise ValueError("Invalid area: '{}'".format(area))
+            raise ValueError("Invalid form area: '{}'".format(area))
 
         uid = widget.uid
         if uid in self._widgets:
             raise KeyError("Widget '{}' already exists.".format(uid))
 
-        self._widgets[uid] = {'widget': widget, 'weight': weight, 'area': area}
+        self._widgets[uid] = {'widget': widget, 'area': area}
 
         return self
 
@@ -261,7 +261,8 @@ class BaseForm:
         widgets_to_render = []
         for uid, w in self._widgets.items():
             if w['area'] == area:
-                widgets_to_render.append(self._widgets[uid])
+                widget = w['widget']
+                widgets_to_render.append({'weight': widget.weight, 'widget': widget})
 
         rendered_widgets = []
         for v in weight_sort(widgets_to_render):
@@ -275,7 +276,6 @@ class BaseForm:
     def _render_area(self, area: str, content: str):
         """Render area.
         """
-
         if area == 'form':
             return content + '\n'
         else:
@@ -287,5 +287,4 @@ class BaseForm:
     def _render_close_tag(self) -> str:
         """Render form's close tag.
         """
-
         return '</form>\n'

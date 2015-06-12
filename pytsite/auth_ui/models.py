@@ -56,59 +56,67 @@ class UserUI(User, ODMUIMixin):
         """
 
         form.add_widget(CheckboxWidget(
+            weight=10,
             uid='profile_is_public',
             value=self.f_get('profile_is_public'),
             label=self.t('profile_is_public'),
-        ), 10)
+        ))
 
         form.add_widget(TextInputWidget(
+            weight=20,
             uid='login',
             value=self.f_get('login'),
             label=self.t('login'),
-        ), 20)
+        ))
 
         form.add_widget(TextInputWidget(
+            weight=30,
             uid='email',
             value=self.f_get('email'),
             label=self.t('email'),
-        ), 30)
+        ))
 
         form.add_widget(TextInputWidget(
+            weight=40,
             uid='full_name',
             value=self.f_get('full_name'),
             label=self.t('name'),
-        ), 40)
+        ))
 
         form.add_widget(SelectWidget(
+            weight=50,
             uid='status',
             value=self.f_get('status'),
             label=self.t('status'),
             items=auth_manager.get_user_statuses(),
             h_size='col-sm-5 col-md-4 col-lg-3',
-        ), 50)
+        ))
 
         form.add_widget(ImagesUploadWidget(
+            weight=60,
             uid='picture',
             label=self.t('picture'),
             value=self.f_get('picture'),
             max_files=1,
             max_file_size=1,
-        ), 60)
+        ))
 
         form.add_widget(ODMCheckboxesWidget(
+            weight=70,
             uid='roles',
             label=self.t('roles'),
             model='role',
             caption_field='description',
             value=self.f_get('roles'),
-        ), 70)
+        ))
 
         if not self.is_new:
             form.add_widget(StaticControlWidget(
+                weight=80,
                 uid='token',
                 value=self.f_get('token'),
                 label=self.t('token'),
-            ), 80)
+            ))
 
         form.add_rules('login', (NotEmptyRule(), EmailRule(), ODMFieldUniqueRule('user', 'login', (self.id,))))
         form.add_rules('email', (NotEmptyRule(), EmailRule()))
@@ -161,16 +169,18 @@ class RoleUI(Role, ODMUIMixin):
             raise ForbiddenError()
 
         form.add_widget(TextInputWidget(
+            weight=10,
             uid='name',
             value=self.f_get('name'),
             label=self.t('name'),
-        ), 10)
+        ))
 
         form.add_widget(TextInputWidget(
+            weight=20,
             uid='description',
             value=self.f_get('description'),
             label=self.t('description'),
-        ), 20)
+        ))
 
         perms_tabs = TabsWidget(uid='permissions', label=self.t('permissions'))
         for group in auth_manager.get_permission_groups():

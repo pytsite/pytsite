@@ -18,7 +18,6 @@ class BaseRule(ABC):
     def __init__(self, msg_id: str=None, value=None):
         """Init.
         """
-
         self._value = value
         self._msg_id = msg_id
         self._message = None
@@ -32,7 +31,6 @@ class BaseRule(ABC):
     def value(self, value):
         """Set rule's value.
         """
-
         self.reset()
         self._value = value
 
@@ -48,7 +46,6 @@ class BaseRule(ABC):
     def reset(self):
         """Reset rule.
         """
-
         self._value = None
         self._message = None
         self._validation_state = None
@@ -72,7 +69,7 @@ class BaseRule(ABC):
     def _do_validate(self, validator=None, field_name: str=None) -> bool:
         """Do actual validation of the rule.
         """
-        raise NotImplementedError()
+        pass
 
 
 class NotEmptyRule(BaseRule):
@@ -82,9 +79,40 @@ class NotEmptyRule(BaseRule):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-
-        if not self._value:
+        if isinstance(self.value, dict):
+            empty = True
+            for v in self.value.values():
+                if v:
+                    empty = False
+                    break
+            if empty:
+                raise ValidationError()
+        elif not self._value:
             raise ValidationError()
+
+
+class DictValueNotEmptyRule(BaseRule):
+    """Check if a dict value is empty.
+    """
+
+    def __init__(self, msg_id: str=None, value=None, keys: tuple=()):
+        """Init.
+        """
+        super().__init__(msg_id, value)
+        self._keys = keys
+
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        if not isinstance(self._value, dict):
+            raise ValidationError('Value is not a dict.')
+
+        if not self._keys:
+            return
+
+        for k in self._keys:
+            if k in self._value and not self._value[k]:
+                raise ValidationError()
 
 
 class IntegerRule(BaseRule):
@@ -94,7 +122,6 @@ class IntegerRule(BaseRule):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-
         try:
             int(self._value)
         except ValueError:
@@ -128,7 +155,6 @@ class EmailRule(BaseRule):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-
         regex = re.compile('[^@]+@[^@]+\.[^@]+')
         if not regex.match(str(self._value)):
             raise ValidationError()

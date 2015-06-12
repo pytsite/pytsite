@@ -1,5 +1,5 @@
 $(function() {
-    $('.widget-wysiwyg').each(function() {
+    $('.widget-ckeditor').each(function() {
         var widget = $(this);
         widget.find('textarea').ckeditor({
             extraPlugins: 'youtube',

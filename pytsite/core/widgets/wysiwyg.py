@@ -9,17 +9,19 @@ from pytsite.core.html import TextArea
 from .abstract import AbstractWidget
 
 
-class WYSIWYGWidget(AbstractWidget):
+class CKEditorWidget(AbstractWidget):
+    """CKEditor Widget.
+    """
 
     def __init__(self, **kwargs: dict):
         """Init.
         """
         super().__init__(**kwargs)
-        self._group_cls = ' '.join((self._group_cls, 'widget-wysiwyg'))
+        self._group_cls = ' '.join((self._group_cls, 'widget-ckeditor'))
         assetman.add_css('pytsite.core.widgets@ckeditor/skins/moono/editor.css')
         assetman.add_js('pytsite.core.widgets@ckeditor/ckeditor.js')
         assetman.add_js('pytsite.core.widgets@ckeditor/adapters/jquery.js')
-        assetman.add_js('pytsite.core.widgets@js/wysiwyg.js')
+        assetman.add_js('pytsite.core.widgets@js/ckeditor.js')
 
     def render(self) -> str:
         """Render the widget.
