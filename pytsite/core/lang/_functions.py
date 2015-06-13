@@ -1,30 +1,14 @@
 """PytSite Language Support.
 """
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import yaml
-import json
 from importlib.util import find_spec
 from os import path
-from . import console, reg
+from .errors import TranslationError
 
-
-class TranslationError(Exception):
-    pass
-
-
-class ConsoleCommand(console.AbstractCommand):
-    def get_name(self)->str:
-        return 'lang:build'
-
-    def get_description(self)->str:
-        return t('pytsite.core@lang_console_command_description')
-
-    def execute(self, **kwargs: dict):
-        compile_translations()
 
 __languages = []
 __current_language = None
@@ -93,6 +77,10 @@ def register_package(pkg_name: str, languages_dir: str='lang') -> str:
     __packages[pkg_name] = {'__path': lng_dir}
 
 
+def get_packages() -> dict:
+    return __packages
+
+
 def t(msg_id: str, data: dict=None, language: str=None)->str:
     """Translate a string.
     """
@@ -111,7 +99,7 @@ def t(msg_id: str, data: dict=None, language: str=None)->str:
     else:
         msg_id = msg_id[0]
 
-    content = _load_file(package_name, language)
+    content = load_lang_file(package_name, language)
     if msg_id not in content:
         raise TranslationError("Translation is not found for '{}'".format(package_name + '@' + msg_id))
 
@@ -153,29 +141,7 @@ def get_lang_title(code: str) -> str:
     return t('lang_title_' + code)
 
 
-def compile_translations(print_output: bool=True):
-    """Compile language translations.
-    """
-
-    translations = {}
-    for lang_code in get_langs():
-        translations[lang_code] = {}
-        for pkg_name, info in __packages.items():
-            if print_output:
-                print("Compiling translations for {} ({})".format(pkg_name, lang_code))
-            translations[lang_code][pkg_name] = _load_file(pkg_name, lang_code)
-
-    str_output = 'pytsite.lang.langs={};'.format(json.dumps(get_langs()))
-    str_output += 'pytsite.lang.current_lang="{}";'.format(get_current_lang())
-    str_output += 'pytsite.lang.translations={};'.format(json.dumps(translations))
-    output_file = path.join(reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
-    with open(output_file, 'wt') as f:
-        if print_output:
-            print("Writing translations into '{}'".format(output_file))
-        f.write(str_output)
-
-
-def _load_file(package_name: str, language: str=None):
+def load_lang_file(package_name: str, language: str=None):
     """Load package's language file.
     """
 

@@ -1,4 +1,4 @@
-"""Validation Exceptions.
+"""Validation Exceptions
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

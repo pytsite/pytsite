@@ -45,7 +45,7 @@ class Validator:
         """
 
         if not self.has_field(field):
-            raise KeyError("Field '{0}' is not defined.". format(field))
+            raise KeyError("Field '{}' is not defined.". format(field))
 
         for rule in self._rules[field]:
             rule.value = value

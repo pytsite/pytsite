@@ -7,7 +7,7 @@ __license__ = 'MIT'
 __import__('pytsite.odm_ui')
 __import__('pytsite.file')
 
-from pytsite.core import lang, router
+from pytsite.core import router, lang
 from pytsite.core.odm import odm_manager
 from pytsite.admin import sidebar
 from .models import UserUI, RoleUI

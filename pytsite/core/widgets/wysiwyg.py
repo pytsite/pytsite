@@ -18,10 +18,10 @@ class CKEditorWidget(AbstractWidget):
         """
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-ckeditor'))
-        assetman.add_css('pytsite.core.widgets@ckeditor/skins/moono/editor.css')
-        assetman.add_js('pytsite.core.widgets@ckeditor/ckeditor.js')
-        assetman.add_js('pytsite.core.widgets@ckeditor/adapters/jquery.js')
-        assetman.add_js('pytsite.core.widgets@js/ckeditor.js')
+        assetman.add('pytsite.core.widgets@ckeditor/skins/moono/editor.css')
+        assetman.add('pytsite.core.widgets@ckeditor/ckeditor.js')
+        assetman.add('pytsite.core.widgets@ckeditor/adapters/jquery.js')
+        assetman.add('pytsite.core.widgets@js/ckeditor.js')
 
     def render(self) -> str:
         """Render the widget.

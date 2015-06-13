@@ -9,7 +9,8 @@ from time import strptime
 from datetime import datetime
 from urllib.parse import urlencode
 from urllib.request import urlopen
-from pytsite.core import tpl, forms, router, reg, lang
+from pytsite.core import tpl, forms, router, reg
+from pytsite.core.lang import t
 from pytsite.core.widgets.abstract import AbstractWidget
 from pytsite.core.widgets.input import HiddenInputWidget
 from pytsite.image import image_manager as image_manager
@@ -139,5 +140,5 @@ class ULoginDriver(AbstractDriver):
                 return router.RedirectResponse(router.base_url(query=inp))
 
         except errors.LoginIncorrect:
-            router.session.add_error(lang.t('pytsite.auth@authorization_error'))
+            router.session.add_error(t('pytsite.auth@authorization_error'))
             return router.RedirectResponse(router.endpoint_url('pytsite.auth.eps.get_login', args=inp))

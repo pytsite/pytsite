@@ -8,8 +8,10 @@ __license__ = 'MIT'
 __import__('pytsite.auth')
 __import__('pytsite.admin')
 
-from pytsite.core import router, lang, tpl, assetman, events
-from . import event_handlers
+from pytsite.core import router, tpl, assetman, events, lang
+from . import event_handlers as __event_handlers
+
+from .models import ODMUIMixin
 
 # Browse
 router.add_rule('/admin/odm/<string:model>',
@@ -39,4 +41,4 @@ lang.register_package(__name__)
 tpl.register_package(__name__)
 assetman.register_package(__name__)
 
-events.listen('pytsite.core.odm@register_model', event_handlers.odm_register_model)
+events.listen('pytsite.core.odm@register_model', __event_handlers.odm_register_model)

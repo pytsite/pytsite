@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import lang, router, assetman, events
+from pytsite.core import router, assetman, events, lang
 from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm.errors import ForbidEntityDelete
 from pytsite.admin import sidebar

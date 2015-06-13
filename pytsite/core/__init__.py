@@ -5,20 +5,20 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from os import path, environ
+from getpass import getuser
+from socket import gethostname
 from . import reg
 
 if 'PYTSITE_APP_ROOT' not in environ:
     raise Exception("The 'PYTSITE_APP_ROOT' environment variable is not defined.")
 
 # Environment
-from getpass import getuser
-from socket import gethostname
 reg.set_val('env.name', getuser() + '@' + gethostname())
 
 # Base filesystem paths
 root_path = path.abspath(environ['PYTSITE_APP_ROOT'])
 if not path.exists(root_path) or not path.isdir(root_path):
-    raise Exception("{0} is not exists or it is not a directory.")
+    raise Exception("{} is not exists or it is not a directory.".format(root_path))
 app_path = path.join(root_path, 'app')
 static_path = path.join(root_path, 'static')
 reg.set_val('paths.root', root_path)
@@ -55,7 +55,6 @@ lang.register_package('pytsite.core', 'resources/lang')
 
 # Initializing template subsystem
 from . import tpl
-tpl.register_package('pytsite.core', 'resources/tpl')
 
 
 # Initializing event subsystem
@@ -63,15 +62,7 @@ from . import events
 
 
 # Initializing console
-from . import console
-from .commands.cleanup import CleanupAllCommand, CleanupSessionCommand, CleanupTmpCommand
-from .commands.cron import CronCommand
-from .commands.setup import SetupCommand
-console.register_command(CleanupSessionCommand())
-console.register_command(CleanupTmpCommand())
-console.register_command(CleanupAllCommand())
-console.register_command(SetupCommand())
-console.register_command(lang.ConsoleCommand())
+__import__('pytsite.core.console')
 
 
 # Initializing router
@@ -98,9 +89,7 @@ for pattern, opts in reg.get('routes', {}).items():
 
 # Initializing asset manager
 from pytsite.core import assetman
-console.register_command(assetman.ConsoleCommand())
 assetman.register_package('pytsite.core', 'resources/assets')
-events.listen('router.dispatch', assetman.reset)
 
 
 # Initializing JS API
@@ -113,4 +102,3 @@ lang.register_package('app')
 theme = reg.get('output.theme')
 tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
 assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
-events.listen('router.dispatch', lambda: assetman.add_js('js/translations.js'))

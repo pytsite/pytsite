@@ -131,15 +131,15 @@ class ODMUIBrowser:
         # Actions column
         t_head_row.append(Th(t('pytsite.odm_ui@actions'), data_field='__actions'))
 
-        assetman.add_css('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.css')
-        assetman.add_js('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.js')
-        assetman.add_js('pytsite.odm_ui@js/browser.js')
+        assetman.add('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.css')
+        assetman.add('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.js')
+        assetman.add('pytsite.odm_ui@js/browser.js')
 
         current_lang = get_current_lang()
         locale = current_lang + '-' + current_lang.upper()
         if current_lang == 'uk':
             locale = 'uk-UA'
-        assetman.add_js('pytsite.tbootstrap@plugins/bootstrap-table/locale/bootstrap-table-{}.min.js'. format(locale))
+        assetman.add('pytsite.tbootstrap@plugins/bootstrap-table/locale/bootstrap-table-{}.min.js'. format(locale))
 
         return toolbar.render() + table.render()
 

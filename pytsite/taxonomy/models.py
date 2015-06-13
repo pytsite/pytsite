@@ -5,10 +5,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from pytsite.core.lang import t, t_plural, TranslationError, get_current_lang, get_lang_title
+from pytsite.core.lang import t, t_plural, get_current_lang, get_lang_title
+from pytsite.core.lang.errors import TranslationError
 from pytsite.core.validation.rules import NotEmptyRule
-from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm import I_ASC, I_DESC
+from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm.fields import *
 from pytsite.core.widgets.input import TextInputWidget, IntegerInputWidget
 from pytsite.core.widgets.selectable import LanguageSelectWidget

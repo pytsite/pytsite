@@ -1,0 +1,7 @@
+validation_notemptyrule: 'Обязательно для заполнения'
+validation_integerrule: 'Должно быть целым значением'
+validation_emailrule: 'Некорректный email'
+validation_datetimerule: 'Некорректная дата'
+validation_odmentitieslistrule: ':error_detail'
+validation_odmfielduniquerule: 'Должно быть уникальным'
+validation_urlrule: 'Некорректный URL'

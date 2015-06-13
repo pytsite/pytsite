@@ -95,7 +95,7 @@ def call_endpoint(name: str, args: dict=None, inp: dict=None):
 def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
-    from pytsite.core import tpl, metatag, lang, events
+    from pytsite.core import tpl, metatag, events, lang
     global __url_adapter, request, session
 
     # Detect language from path

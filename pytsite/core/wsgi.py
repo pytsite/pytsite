@@ -6,7 +6,8 @@ __license__ = 'MIT'
 
 
 from os import path
-from pytsite.core import reg, router, lang
+from pytsite.core import reg, router
+from pytsite.core.lang import t
 
 
 def dispatch(env, start_response):
@@ -16,4 +17,4 @@ def dispatch(env, start_response):
 
 # Check if the setup completed
 if not path.exists(reg.get('paths.setup.lock')):
-    raise Exception(lang.t('pytsite.core@setup_is_not_completed'))
+    raise Exception(t('pytsite.core@setup_is_not_completed'))

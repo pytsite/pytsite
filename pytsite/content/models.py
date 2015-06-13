@@ -6,7 +6,8 @@ __license__ = 'MIT'
 
 from pytsite.core import router, assetman
 from pytsite.core.html import A, Span
-from pytsite.core.lang import t, t_plural, TranslationError, get_current_lang
+from pytsite.core.lang import t, t_plural, get_current_lang
+from pytsite.core.lang.errors import TranslationError
 from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm.fields import *
 from pytsite.odm_ui.models import ODMUIMixin

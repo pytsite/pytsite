@@ -1,4 +1,4 @@
-"""PytSite Core Init.
+"""PytSite Init.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

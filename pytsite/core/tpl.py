@@ -5,9 +5,9 @@ __license__ = 'MIT'
 from importlib import import_module
 from os import path
 from jinja2 import Environment, BaseLoader, TemplateNotFound
-from . import router, lang, metatag, reg, assetman
+from . import router, metatag, reg, assetman, lang
 
-_packages = dict()
+_packages = {}
 
 
 class TemplateLoader(BaseLoader):

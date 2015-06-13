@@ -34,9 +34,9 @@ class FilesUploadWidget(AbstractWidget):
         if self._max_files:
             self._group_data['max_files'] = self._max_files
 
-        assetman.add_css('pytsite.file@css/upload-widget.css')
-        assetman.add_js('pytsite.file@js/load-image.all.min.js')
-        assetman.add_js('pytsite.file@js/upload-widget.js')
+        assetman.add('pytsite.file@css/upload-widget.css')
+        assetman.add('pytsite.file@js/load-image.all.min.js')
+        assetman.add('pytsite.file@js/upload-widget.js')
 
     @property
     def accept_files(self) -> str:

@@ -4,4 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC
+from pymongo import ASCENDING, DESCENDING
+from . import models
+
+I_ASC = ASCENDING
+I_DESC = DESCENDING
+
+ODMModel = models.ODMModel

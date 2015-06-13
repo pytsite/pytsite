@@ -6,6 +6,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core.console import print_success
+from pytsite.core.console.errors import ConsoleRuntimeError
 from pytsite.core.lang import t
 from pytsite.core.validation.validator import Validator
 from pytsite.core.validation.rules import EmailRule, NotEmptyRule
@@ -15,7 +16,6 @@ from . import auth_manager
 def app_setup():
     """'app.setup' Event Handler.
     """
-
     # Creating roles
     admin_role = ('admin', 'pytsite.auth@admin_role_description')
     user_role = ('user', 'pytsite.auth@user_role_description')
@@ -28,13 +28,16 @@ def app_setup():
             print_success(t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
 
     # Creating administrator
-    email = input(t('pytsite.auth@enter_admin_email') + ': ')
-    v = Validator()
-    v.add_rule('email', NotEmptyRule()).add_rule('email', EmailRule()).set_value('email', email)
-    if not v.validate():
-        raise Exception(v.messages)
-    admin_user = auth_manager.create_user(email)
-    admin_user.f_set('full_name', t('pytsite.auth@administrator'))
-    admin_user.f_add('roles', auth_manager.get_role('admin'))
-    admin_user.save()
-    print_success(t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
+    try:
+        email = input(t('pytsite.auth@enter_admin_email') + ': ')
+        v = Validator()
+        v.add_rule('email', NotEmptyRule()).add_rule('email', EmailRule()).set_value('email', email)
+        if not v.validate():
+            raise Exception(v.messages)
+        admin_user = auth_manager.create_user(email)
+        admin_user.f_set('full_name', t('pytsite.auth@administrator'))
+        admin_user.f_add('roles', auth_manager.get_role('admin'))
+        admin_user.save()
+        print_success(t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
+    except Exception as e:
+        raise ConsoleRuntimeError(e)

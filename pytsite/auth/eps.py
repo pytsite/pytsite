@@ -3,7 +3,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from werkzeug.utils import escape
-from pytsite.core import metatag, lang, router, tpl
+from pytsite.core import metatag, router, tpl
+from pytsite.core.lang import t
 from pytsite.core.http.response import RedirectResponse
 from pytsite.core.http.errors import ForbiddenError
 from . import auth_manager
@@ -18,7 +19,7 @@ def get_login(args: dict, inp: dict) -> str:
             redirect_url = router.url(inp['redirect'])
         return RedirectResponse(redirect_url)
 
-    metatag.t_set('title', lang.t('pytsite.auth@authorization'))
+    metatag.t_set('title', t('pytsite.auth@authorization'))
     return tpl.render('pytsite.auth@views/login', {'form': auth_manager.get_login_form()})
 
 

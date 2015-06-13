@@ -4,6 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from .core import console
+from pytsite.core import console
 
 console.run()

@@ -59,7 +59,7 @@ class BaseRule(ABC):
             self._do_validate(validator, field_name)
             self._validation_state = True
         except ValidationError as e:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core@validation_' + self.__class__.__name__.lower()
+            msg_id = self._msg_id if self._msg_id else 'pytsite.core.validation@validation_' + self.__class__.__name__.lower()
             self._message = t(msg_id, {'field_name': field_name, 'error_detail': str(e)})
             self._validation_state = False
 

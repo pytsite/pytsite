@@ -1,0 +1,7 @@
+validation_notemptyrule: 'Required'
+validation_integerrule: 'Integer expected'
+validation_emailrule: 'Invalid email'
+validation_datetimerule: 'Invalid date'
+validation_odmentitieslistrule: ':error_detail'
+validation_odmfielduniquerule: 'Must be unique'
+validation_urlrule: 'Invalid URL'

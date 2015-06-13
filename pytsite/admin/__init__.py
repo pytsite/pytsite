@@ -6,7 +6,7 @@ __license__ = 'MIT'
 __import__('pytsite.tbootstrap')
 __import__('pytsite.auth')
 
-from pytsite.core import lang, router, tpl, assetman, events
+from pytsite.core import router, tpl, assetman, lang
 from pytsite.auth import auth_manager
 
 
