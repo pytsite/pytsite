@@ -1,4 +1,4 @@
-"""Image model.
+"""Image Models.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,26 +12,26 @@ from pytsite.core.router import endpoint_url
 
 
 class Image(File):
-    """Image model.
+    """Image Model.
     """
 
     def _setup(self):
-        """_setup() hook.
+        """Hook.
         """
-
         super()._setup()
         self._define_field(IntegerField('width'))
         self._define_field(IntegerField('height'))
 
     def _pre_save(self):
+        """Hook.
+        """
         image = PILImage.open(self.f_get('abs_path'))
         self.f_set('width', image.size[0])
         self.f_set('height', image.size[1])
 
     def _on_f_get(self, field_name: str, orig_value, **kwargs):
-        """_on_f_get() hook.
+        """Hook.
         """
-
         if field_name == 'url':
             p = str(self.f_get('path')).split(path.sep)
 
