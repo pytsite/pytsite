@@ -37,6 +37,7 @@ class FilesUploadWidget(AbstractWidget):
         client.include('imagesloaded')
         assetman.add('pytsite.file@css/upload-widget.css')
         assetman.add('pytsite.file@js/load-image.all.min.js')
+        assetman.add('pytsite.file@js/canvas-to-blob.min.js')
         assetman.add('pytsite.file@js/upload-widget.js')
 
     @property
