@@ -37,7 +37,7 @@ $(function() {
             if(typeof validation_ep == 'undefined')
                 return true;
 
-            pytsite.js_api.post(validation_ep, form.serializeForm())
+            pytsite.js.post(validation_ep, form.serializeForm())
                 .done(function(data, textStatus, jqXHR) {
                     if(!data.status) {
                         var w_messages = data.messages.widgets;

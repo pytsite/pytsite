@@ -6,11 +6,12 @@ __license__ = 'MIT'
 
 from os import path
 from importlib.util import find_spec
-from pytsite.core import lang, router, reg, events
+from pytsite.core import router
 
 __packages = {}
-__links = {'js': [], 'css': []}
-
+__global_links = {'css': [], 'js': []}
+__pattern_links = {}
+__links = {}
 
 def register_package(package_name: str, assets_dir: str='assets'):
     """Register assets container.
@@ -30,62 +31,81 @@ def get_packages() -> dict:
     return __packages
 
 
-def add_location(location: str, collection: str):
+def add_location(location: str, collection: str, route_path: str=None):
     """Add an asset location to the collection.
     """
+    if not route_path:
+        route_path = router.current_path(True)
 
-    if collection not in __links:
-        __links[collection] = []
+    if route_path == '*':
+        __global_links[collection].append(location)
+    elif route_path.endswith('*'):
+        if route_path.endswith('/*'):
+            route_path = route_path.replace('/*', '*')
+        if route_path not in __pattern_links:
+            __pattern_links[route_path] = {'css': [], 'js': []}
+        if location not in __pattern_links[route_path][collection]:
+            __pattern_links[route_path][collection].append(location)
+    else:
+        if route_path not in __links:
+            __links[route_path] = {'css': [], 'js': []}
+        if location not in __links[route_path][collection]:
+            __links[route_path][collection].append(location)
 
-    if location not in __links[collection]:
-        __links[collection].append(location)
 
-
-def add_js(location: str):
+def add_js(location: str, route_path: str=None):
     """Add a JS asset location to the collection.
     """
-    add_location(location, 'js')
+    add_location(location, 'js', route_path)
 
 
-def add_css(location: str):
+def add_css(location: str, route_path: str=None):
     """Add a CSS asset location to the collection.
     """
-    add_location(location, 'css')
+    add_location(location, 'css', route_path)
 
 
-def add(location: str):
+def add(location: str, route_path: str=None):
     """Shortcut.
     """
     if location.endswith('.js'):
-        add_js(location)
+        add_js(location, route_path)
     elif location.endswith('.css'):
-        add_css(location)
+        add_css(location, route_path)
     else:
         raise ValueError("Cannot detect collection to add for '{}'.".format(location))
 
 
-def reset():
-    """Clear added locations.
-    """
-    for k in __links:
-        __links[k] = []
+def get_locations(collection: str) -> list:
+    r = []
+    current_path = router.current_path(True)
 
-    add('pytsite.core@js/jquery-2.1.4.min.js')
-    add('pytsite.core@js/assetman.js')
-    add('pytsite.core@js/lang.js')
+    # Links for every path
+    for location in __global_links[collection]:
+        r.append(location)
 
-    if reg.get('core.jquery_ui.enabled'):
-        add('pytsite.core@jquery-ui/jquery-ui.min.css')
-        add('pytsite.core@jquery-ui/jquery-ui.min.js')
-        add('pytsite.core@jquery-ui/i18n/datepicker-{}.js'.format(lang.get_current_lang()))
+    # Links for pattern paths
+    for glob_key in __pattern_links:
+        if current_path.startswith(glob_key.rstrip('*')):
+            for location in __pattern_links[glob_key][collection]:
+                if location not in r:
+                    r.append(location)
 
+    # Links for exact path
+    if current_path in __links:
+        for location in __links[current_path][collection]:
+            if location not in r:
+                r.append(location)
+
+    return r
 
 def dump_js() -> str:
     """Dump JS links.
     """
     r = ''
-    for location in __links['js']:
+    for location in get_locations('js'):
         r += '<script type="text/javascript" src="{}"></script>\n'.format(get_url(location))
+
     return r
 
 
@@ -93,8 +113,9 @@ def dump_css() -> str:
     """Dump CSS links.
     """
     r = ''
-    for location in __links['css']:
+    for location in get_locations('css'):
         r += '<link rel="stylesheet" href="{}">\n'.format(get_url(location))
+
     return r
 
 

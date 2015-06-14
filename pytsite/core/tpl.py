@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from importlib import import_module
 from os import path
 from jinja2 import Environment, BaseLoader, TemplateNotFound
-from . import router, metatag, reg, assetman, lang
+from . import router, metatag, reg, assetman, lang, client
 
 _packages = {}
 
@@ -53,6 +53,7 @@ __env.globals['reg'] = reg
 __env.globals['router'] = router
 __env.globals['metatag'] = metatag
 __env.globals['assetman'] = assetman
+__env.globals['client'] = client
 
 
 def register_package(package_name: str, templates_dir: str='tpl'):

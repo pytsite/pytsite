@@ -4,9 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from datetime import datetime
-
 from abc import abstractmethod
+
 from pytsite.core import assetman
 from pytsite.core.html import Input as HtmlInput, TextArea as HtmlTextArea
 from .abstract import AbstractWidget
@@ -96,40 +95,3 @@ class IntegerInputWidget(TextInputWidget):
         if not value:
             value = 0
         return super().set_value(int(value), **kwargs)
-
-
-class DateTimeInputWidget(TextInputWidget):
-    def __init__(self, **kwargs):
-        """Init.
-        """
-        super().__init__(**kwargs)
-        assetman.add('pytsite.core.widgets@css/jquery.datetimepicker.css')
-        assetman.add('pytsite.core.widgets@js/jquery.datetimepicker.js')
-        assetman.add('pytsite.core.widgets@js/datetime.js')
-        self._group_cls = self._group_cls.replace('widget-text-input', 'widget-datetime-input')
-
-    def set_value(self, value, **kwargs: dict):
-        """Set value of the widget.
-        """
-        if value and isinstance(value, str):
-            value = datetime.strptime(value, '%d.%m.%Y %H:%M')
-
-        return super().set_value(value, **kwargs)
-
-    def get_value(self, **kwargs: dict) -> datetime:
-        """Get value of the widget.
-        """
-        return super().get_value(**kwargs)
-
-    def render(self) -> str:
-        """Render the widget
-        """
-        html_input = HtmlInput(
-            type='text',
-            uid=self._uid,
-            name=self._name,
-            value=self.get_value().strftime('%d.%m.%Y %H:%M'),
-            cls=' '.join(('form-control', self._cls)),
-        )
-
-        return self._group_wrap(html_input.render())

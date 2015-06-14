@@ -10,7 +10,6 @@ from shutil import rmtree, copy
 from webassets import Environment, Bundle
 from webassets.script import CommandLineEnvironment
 from pytsite.core import reg, logger
-from pytsite.core.lang import t
 from pytsite.core.console import AbstractConsoleCommand, print_info, run_console_command
 from ._functions import get_packages
 
@@ -20,6 +19,7 @@ class BuildAssets(AbstractConsoleCommand):
         return 'assetman:build'
 
     def get_description(self) -> str:
+        from pytsite.core.lang import t
         return t('pytsite.core@assetman_console_command_description')
 
     def execute(self, **kwargs: dict):

@@ -1,7 +1,9 @@
 """Checkboxes Widgets.
 """
-from pytsite.core import assetman
+from datetime import datetime
+from pytsite.core import assetman, client
 from pytsite.core.widgets.abstract import AbstractWidget
+from pytsite.core.widgets.input import TextInputWidget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -136,10 +138,7 @@ class TokenSelectWidget(AbstractWidget):
         """
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
-        assetman.add('pytsite.core.widgets@js/typeahead.bundle.min.js')
-        assetman.add('pytsite.core.widgets@tokenfield/css/bootstrap-tokenfield.min.css')
-        assetman.add('pytsite.core.widgets@tokenfield/css/tokenfield-typeahead.min.css')
-        assetman.add('pytsite.core.widgets@tokenfield/bootstrap-tokenfield.min.js')
+        client.include('tokenfield')
         assetman.add('pytsite.core.widgets@js/token.js')
 
         self._local_source = kwargs.get('local_source')
@@ -157,6 +156,42 @@ class TokenSelectWidget(AbstractWidget):
             uid=self._uid,
             name=self._name,
             value=','.join(self.get_value()),
+            cls=' '.join(('form-control', self._cls)),
+        )
+
+        return self._group_wrap(html_input.render())
+
+
+class DateTimeWidget(TextInputWidget):
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        client.include('datetimepicker')
+        assetman.add('pytsite.core.widgets@js/datetime.js')
+        self._group_cls = self._group_cls.replace('widget-text-input', 'widget-datetime-input')
+
+    def set_value(self, value, **kwargs: dict):
+        """Set value of the widget.
+        """
+        if value and isinstance(value, str):
+            value = datetime.strptime(value, '%d.%m.%Y %H:%M')
+
+        return super().set_value(value, **kwargs)
+
+    def get_value(self, **kwargs: dict) -> datetime:
+        """Get value of the widget.
+        """
+        return super().get_value(**kwargs)
+
+    def render(self) -> str:
+        """Render the widget
+        """
+        html_input = HtmlInput(
+            type='text',
+            uid=self._uid,
+            name=self._name,
+            value=self.get_value().strftime('%d.%m.%Y %H:%M'),
             cls=' '.join(('form-control', self._cls)),
         )
 

@@ -3,10 +3,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 # Requirements
-__import__('pytsite.tbootstrap')
 __import__('pytsite.auth')
 
-from pytsite.core import router, tpl, assetman, lang
+from pytsite.core import router, tpl, assetman, lang, client
 from pytsite.auth import auth_manager
 
 
@@ -23,3 +22,6 @@ admin_route_filters = (
     'pytsite.auth.eps.filter_authorize:permissions=admin.use',
 )
 router.add_rule('/admin', __name__ + '.eps.dashboard', filters=admin_route_filters)
+
+client.include('bootstrap', '/admin*')
+client.include('font-awesome', '/admin*')

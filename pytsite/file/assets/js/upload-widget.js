@@ -134,8 +134,10 @@ $.fn.extend({
                 if (file.type.split('/')[0] == 'image' && (maxWidth || maxHeight)) {
                     loadImage(file, function (canvas) {
                         canvas.toBlob(function (blob) {
+                            blob.name = file.name;
+                            blob.type = file.type;
                             uploadFile(blob);
-                        });
+                        }, file.type);
                     }, {
                         canvas: true,
                         maxWidth: maxWidth,

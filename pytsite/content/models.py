@@ -12,8 +12,8 @@ from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm.fields import *
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import ODMSelectWidget
-from pytsite.core.widgets.input import TextInputWidget, DateTimeInputWidget
-from pytsite.core.widgets.selectable import SelectWidget, LanguageSelectWidget
+from pytsite.core.widgets.input import TextInputWidget
+from pytsite.core.widgets.selectable import SelectWidget, LanguageSelectWidget, DateTimeWidget
 from pytsite.core.widgets.wysiwyg import CKEditorWidget
 from pytsite.core.validation.rules import NotEmptyRule, DateTimeRule
 from pytsite.auth import auth_manager
@@ -194,7 +194,7 @@ class ContentModel(ODMModel, ODMUIMixin):
         ))
 
         if auth_manager.get_current_user().is_admin():
-            form.add_widget(DateTimeInputWidget(
+            form.add_widget(DateTimeWidget(
                 weight=80,
                 uid='publish_time',
                 label=self.t('publish_time'),

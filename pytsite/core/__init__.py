@@ -92,8 +92,8 @@ from pytsite.core import assetman
 assetman.register_package('pytsite.core', 'resources/assets')
 
 
-# Initializing JS API
-__import__('pytsite.core.js_api')
+# Initializing client components
+__import__('pytsite.core.client')
 
 
 # Initializing 'app' package

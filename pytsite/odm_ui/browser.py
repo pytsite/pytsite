@@ -4,9 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import router, assetman, metatag
+from pytsite.core import router, assetman, metatag, client
 from pytsite.core.odm import odm_manager, I_ASC, I_DESC
-from pytsite.core.lang import t, get_current_lang
+from pytsite.core.lang import t
 from pytsite.core.html import Div, Table, THead, Span, TBody, Tr, Th, A, I
 from pytsite.core.http.errors import ForbiddenError
 from pytsite.core.odm.models import ODMModel
@@ -44,6 +44,10 @@ class ODMUIBrowser:
         # Head columns
         if not self.data_fields:
             raise Exception("No head columns are defined.")
+
+        client.include('bootstrap-table')
+        client.include('font-awesome')
+        assetman.add('pytsite.odm_ui@js/browser.js')
 
     @property
     def title(self) -> str:
@@ -130,16 +134,6 @@ class ODMUIBrowser:
 
         # Actions column
         t_head_row.append(Th(t('pytsite.odm_ui@actions'), data_field='__actions'))
-
-        assetman.add('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.css')
-        assetman.add('pytsite.tbootstrap@plugins/bootstrap-table/bootstrap-table.min.js')
-        assetman.add('pytsite.odm_ui@js/browser.js')
-
-        current_lang = get_current_lang()
-        locale = current_lang + '-' + current_lang.upper()
-        if current_lang == 'uk':
-            locale = 'uk-UA'
-        assetman.add('pytsite.tbootstrap@plugins/bootstrap-table/locale/bootstrap-table-{}.min.js'. format(locale))
 
         return toolbar.render() + table.render()
 

@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core.widgets.abstract import AbstractWidget
-from pytsite.core import assetman, router, tpl
+from pytsite.core import assetman, router, tpl, client
 from . import file_manager
 
 
@@ -34,6 +34,7 @@ class FilesUploadWidget(AbstractWidget):
         if self._max_files:
             self._group_data['max_files'] = self._max_files
 
+        client.include('imagesloaded')
         assetman.add('pytsite.file@css/upload-widget.css')
         assetman.add('pytsite.file@js/load-image.all.min.js')
         assetman.add('pytsite.file@js/upload-widget.js')

@@ -1,15 +1,17 @@
-pytsite.js_api = {
+pytsite = {};
+
+pytsite.js = {
     request: function(method, endpoint, data) {
         return $.ajax({
-            url: '/core/js_api/' + endpoint,
+            url: '/core/js/' + endpoint,
             method: method,
             data: data
         });
     },
     get: function(endpoint, data) {
-        return pytsite.js_api.request('GET', endpoint, data)
+        return pytsite.js.request('GET', endpoint, data)
     },
     post: function(endpoint, data) {
-        return pytsite.js_api.request('POST', endpoint, data)
+        return pytsite.js.request('POST', endpoint, data)
     }
 };

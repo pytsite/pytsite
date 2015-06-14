@@ -1,6 +1,6 @@
 {% set user = auth.get_current_user() %}
 {% set user_full_name = user.f_get('full_name') %}
-{% set user_pic = user.f_get('picture').f_get('thumb_url', width=160) %}
+{% set user_pic = user.f_get('picture').f_get('thumb_url') %}
 {% set user_created = user.f_get('_created', fmt='%d.%m.%Y') %}
 <header class="main-header">
 
@@ -132,7 +132,7 @@
                     <ul class="dropdown-menu">
                         <!-- The user image in the menu -->
                         <li class="user-header">
-                            <img alt="User Image" class="img-circle" src="{{ auth.get_current_user().f_get('picture').f_get('thumb_url', width=160) }}">
+                            <img alt="User Image" class="img-circle" src="{{ user_pic }}">
 
                             <p>
                                 {{ auth.get_current_user().f_get('full_name') }}

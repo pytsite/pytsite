@@ -9,12 +9,14 @@ from .lang import t
 __tags = {
     'charset': 'UTF-8',
     'title': t('pytsite.core@untitled_document'),
+    'viewport': 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
 }
 __allowed_tags = (
     'title',
     'author',
     'description',
     'charset',
+    'viewport',
 )
 
 
@@ -55,6 +57,8 @@ def dump(tag: str) -> str:
         r = '<meta charset="{}">\n'.format(__tags[tag])
     elif tag == 'title':
         r = '<title>{} | {}</title>\n'.format(__tags[tag], t('app_name'))
+    else:
+        r = '<meta name="{}" content="{}">'.format(tag, __tags[tag])
 
     return r
 
