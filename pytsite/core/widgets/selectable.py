@@ -139,6 +139,7 @@ class TokenSelectWidget(AbstractWidget):
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
         client.include('tokenfield')
+        assetman.add('pytsite.core.widgets@css/token.css')
         assetman.add('pytsite.core.widgets@js/token.js')
 
         self._local_source = kwargs.get('local_source')

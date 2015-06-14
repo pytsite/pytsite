@@ -54,10 +54,10 @@
     border: 1px solid #d9d9d9;
     background-color: #ededed;
     white-space: nowrap;
-    margin: 4px 5px 5px 0;
-    height: 22px;
-    vertical-align: top;
-    cursor: default
+    margin: 4px 7px 4px 0;
+    height: auto;
+    vertical-align: middle;
+    cursor: default;
 }
 
 .tokenfield .token:hover {
@@ -104,33 +104,34 @@
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-left: 4px;
-    vertical-align: top
+    padding: 3px 5px;
+    vertical-align: middle;
+    font-size: 1.1em;
 }
 
 .tokenfield .token .close {
     font-family: Arial;
     display: inline-block;
     line-height: 100%;
-    font-size: 1.1em;
-    line-height: 1.49em;
+    font-size: 1.7em;
     margin-left: 5px;
     float: none;
     height: 100%;
     vertical-align: top;
-    padding-right: 4px
+    padding: 3px 4px 3px 0;
 }
 
 .tokenfield .token-input {
     background: 0 0;
-    width: 60px;
+    /*width: 60px;*/
     min-width: 60px;
     border: 0;
-    height: 20px;
+    height: auto;
     padding: 0;
-    margin-bottom: 6px;
+    /*margin-top: 6px;*/
     -webkit-box-shadow: none;
-    box-shadow: none
+    box-shadow: none;
+    vertical-align: middle;
 }
 
 .tokenfield .token-input:focus {
@@ -230,4 +231,8 @@
 .tokenfield.rtl .token .token-label {
     padding-left: 0;
     padding-right: 4px
+}
+
+.tokenfield .twitter-typeahead {
+    vertical-align: middle;
 }
