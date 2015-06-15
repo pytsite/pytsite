@@ -56,7 +56,7 @@ $.fn.extend({
 
         var appendSlot = function (slot) {
             slots.append(slot);
-            progressBar.insertAfter(slots.find('.slot:last-child'));
+            progressSlot.insertAfter(slots.find('.slot:last-child'));
             addBtn.insertAfter(slots.find('.slot:last-child'));
             renumberSlots();
         };
