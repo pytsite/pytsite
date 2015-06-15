@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from os import path
+from os import path, unlink
 from pytsite.core import odm, router, reg
 
 
@@ -17,21 +17,18 @@ class File(odm.models.ODMModel):
         """_setup() hook.
         """
         self._define_field(odm.fields.StringField('path', not_empty=True))
-        self._define_field(odm.fields.VirtualField('abs_path', not_empty=True))
         self._define_field(odm.fields.StringField('name', not_empty=True))
         self._define_field(odm.fields.StringField('description'))
         self._define_field(odm.fields.StringField('mime', not_empty=True))
         self._define_field(odm.fields.IntegerField('length', not_empty=True))
         self._define_field(odm.fields.RefField('author', model='user'))
+        self._define_field(odm.fields.VirtualField('abs_path'))
         self._define_field(odm.fields.VirtualField('url'))
         self._define_field(odm.fields.VirtualField('thumb_url'))
 
     def _after_delete(self):
         """_after_delete() hook.
         """
-
-        from os import path, unlink
-        from ..core import reg
         storage_dir = reg.get('paths.storage')
         file_abs_path = path.join(storage_dir, self.f_get('path'))
         if path.exists(file_abs_path):

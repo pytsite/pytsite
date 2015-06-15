@@ -38,11 +38,9 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
     orig_height = image_entity.f_get('height')
     orig_ratio = orig_width / orig_height
 
-    # Calculate size to preserve proportions
-    resize_width = None
-    resize_height = None
     need_resize = True
-    need_crop = False
+
+    # Calculate size
     if not requested_width and not requested_height:
         resize_width = orig_width
         resize_height = orig_height
@@ -55,8 +53,7 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
         resize_height = requested_height
     else:
         resize_width = requested_width
-        resize_height = floor(requested_width / orig_ratio)
-        need_crop = True
+        resize_height = requested_height
 
     # Checking source file
     source_path = image_entity.f_get('path')
@@ -72,30 +69,34 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
         makedirs(target_dir, 0o755, True)
 
     if not path.exists(target_abs_path):
+        # Open source image
         image = Image.open(source_abs_path)
+        """:type : PIL.Image.Image"""
 
-        # Resizing image
+        # Resize
         if need_resize:
-            """:type : PIL.Image.Image"""
-            image = image.resize((resize_width, resize_height))
+            # Crop
+            crop_ratio = resize_width / resize_height
+            crop_width = orig_width
+            crop_height = floor(crop_width / crop_ratio)
+            crop_top = floor(orig_height / 2) - floor(crop_height / 2)
+            crop_left = 0
+            if crop_height > orig_height:
+                crop_height = orig_height
+                crop_width = floor(crop_height * crop_ratio)
+                crop_top = 0
+                crop_left = floor(orig_width / 2) - floor(crop_width / 2)
+            crop_right = crop_left + crop_width
+            crop_bottom = crop_top + crop_height
 
-        # Cropping image
-        if need_crop:
-            if resize_height > requested_height:
-                left = 0
-                right = resize_width
-                top = floor(resize_height / 2) - floor(requested_height / 2)
-                bottom = top + requested_height
-                image = image.crop((left, top, right, bottom))
-            elif resize_height < requested_height:
-                overlay = Image.new(image.mode, (requested_width, requested_height), '#ffffff')
-                left = 0
-                right = image.size[0]
-                top = floor(overlay.size[1] / 2) - floor(image.size[1] / 2)
-                bottom = top + image.size[1]
-                overlay.paste(image, (left, top, right, bottom))
-                image = overlay
+            cropped = image.crop((crop_left, crop_top, crop_right, crop_bottom))
+            image.close()
+
+            # Resize
+            resized = cropped.resize((resize_width, resize_height))
+            image = resized
 
         image.save(target_abs_path)
+        image.close()
 
     return RedirectResponse(image_entity.f_get('url', width=requested_width, height=requested_height))

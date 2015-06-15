@@ -22,11 +22,14 @@ from .models import File
 def _build_store_path(mime: str, model: str='file') -> str:
     """Build unique path to store file on the filesystem.
     """
-
     storage_dir = path.join(reg.get('paths.storage'), model)
     store_path = ''
     rnd_str = util.random_str
+
     extension = guess_extension(mime)
+    if extension == '.jpe':
+        extension = '.jpg'
+
     while True:
         possible_target_path = path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
         if not path.exists(possible_target_path):

@@ -16,6 +16,7 @@ setup(
         'pymongo',
         'webassets',
         'Pillow',
+        'ExifRead',
         'python-magic',
         'htmlmin',
         'rjsmin',

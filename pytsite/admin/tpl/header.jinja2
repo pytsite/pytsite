@@ -1,7 +1,11 @@
 {% set user = auth.get_current_user() %}
 {% set user_full_name = user.f_get('full_name') %}
-{% set user_pic = user.f_get('picture').f_get('thumb_url') %}
+{% set user_pic = user.f_get('picture') %}
 {% set user_created = user.f_get('_created', fmt='%d.%m.%Y') %}
+
+{% if user_pic %}
+    {% set user_pic_url = user_pic.f_get('thumb_url') %}
+{% endif %}
 <header class="main-header">
 
     <!-- Logo -->
@@ -37,7 +41,7 @@
 {#                                    <a href="#">#}
 {#                                        <div class="pull-left">#}
 {#                                            <!-- User Image -->#}
-{#                                            <img alt="User Image" class="img-circle" src="{{ user_pic }}">#}
+{#                                            <img alt="User Image" class="img-circle" src="{{  }}">#}
 {#                                        </div>#}
 {#                                        <!-- Message title and timestamp -->#}
 {#                                        <h4>#}
@@ -125,14 +129,18 @@
                     <!-- Menu Toggle Button -->
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <!-- The user image in the navbar-->
-                        <img alt="User Image" class="user-image" src="{{ user_pic }}">
+                        {% if user_pic_url %}
+                            <img alt="User Image" class="user-image" src="{{ user_pic_url }}">
+                        {% endif %}
                         <!-- hidden-xs hides the username on small devices so only the image appears. -->
                         <span class="hidden-xs">{{ user_full_name }}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- The user image in the menu -->
                         <li class="user-header">
-                            <img alt="User Image" class="img-circle" src="{{ user_pic }}">
+                            {% if user_pic_url %}
+                                <img alt="User Image" class="img-circle" src="{{ user_pic_url }}">
+                            {% endif %}
 
                             <p>
                                 {{ auth.get_current_user().f_get('full_name') }}

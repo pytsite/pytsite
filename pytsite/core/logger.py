@@ -20,12 +20,12 @@ if not path.exists(_log_dir):
 _format = '%(asctime)s %(name)s %(levelname)-8s "%(message)s"'
 logging.basicConfig(filename=_log_path, datefmt='%Y-%m-%d %H:%M:%S', format=_format)
 _logger = logging.getLogger(reg.get('env.name', 'default'))
+_logger.setLevel(logging.INFO)
 
 
 def info(msg: str, *args, **kwargs):
     """Log an info message.
     """
-
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
 

@@ -153,17 +153,25 @@ $.fn.extend({
                 var maxWidth = parseInt(widget.data('imageMaxWidth'));
                 var maxHeight = parseInt(widget.data('imageMaxHeight'));
                 if (file.type.split('/')[0] == 'image' && (maxWidth || maxHeight)) {
+                    // Resizing image
                     loadImage(file, function (canvas) {
-                        canvas.toBlob(function (blob) {
-                            blob.name = file.name;
-                            blob.type = file.type;
-                            uploadFile(blob);
+                        canvas.toBlob(function (resizedImage) {
+                            resizedImage.name = file.name;
+                            // Attaching metadata
+                            loadImage.parseMetaData(file, function (metaData) {
+                                if (metaData.imageHead) {
+                                    resizedImage = new Blob([
+                                        metaData.imageHead,
+                                        loadImage.blobSlice.call(resizedImage, 20)
+                                    ], {type: resizedImage.type, name: resizedImage.name});
+                                }
+                                uploadFile(resizedImage);
+                            });
                         }, file.type);
                     }, {
                         canvas: true,
                         maxWidth: maxWidth,
                         maxHeight: maxHeight
-                        //contain: true
                     });
                 }
                 else
