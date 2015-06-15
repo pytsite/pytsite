@@ -41,21 +41,22 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
     # Calculate size to preserve proportions
     resize_width = None
     resize_height = None
-    prevent_crop = False
+    need_resize = True
+    need_crop = False
     if not requested_width and not requested_height:
         resize_width = orig_width
         resize_height = orig_height
+        need_resize = False
     elif requested_width and not requested_height:
         resize_width = requested_width
         resize_height = floor(requested_width / orig_ratio)
-        prevent_crop = True
     elif requested_height and not requested_width:
         resize_width = floor(requested_height * orig_ratio)
         resize_height = requested_height
-        prevent_crop = True
     else:
         resize_width = requested_width
         resize_height = floor(requested_width / orig_ratio)
+        need_crop = True
 
     # Checking source file
     source_path = image_entity.f_get('path')
@@ -71,28 +72,30 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
         makedirs(target_dir, 0o755, True)
 
     if not path.exists(target_abs_path):
+        image = Image.open(source_abs_path)
+
         # Resizing image
-        orig_image = Image.open(source_abs_path)
-        """:type : PIL.Image.Image"""
-        transformed = orig_image.resize((resize_width, resize_height))
+        if need_resize:
+            """:type : PIL.Image.Image"""
+            image = image.resize((resize_width, resize_height))
 
         # Cropping image
-        if not prevent_crop:
+        if need_crop:
             if resize_height > requested_height:
                 left = 0
                 right = resize_width
                 top = floor(resize_height / 2) - floor(requested_height / 2)
                 bottom = top + requested_height
-                transformed = transformed.crop((left, top, right, bottom))
+                image = image.crop((left, top, right, bottom))
             elif resize_height < requested_height:
-                overlay = Image.new(transformed.mode, (requested_width, requested_height), '#ffffff')
+                overlay = Image.new(image.mode, (requested_width, requested_height), '#ffffff')
                 left = 0
-                right = transformed.size[0]
-                top = floor(overlay.size[1] / 2) - floor(transformed.size[1] / 2)
-                bottom = top + transformed.size[1]
-                overlay.paste(transformed, (left, top, right, bottom))
-                transformed = overlay
+                right = image.size[0]
+                top = floor(overlay.size[1] / 2) - floor(image.size[1] / 2)
+                bottom = top + image.size[1]
+                overlay.paste(image, (left, top, right, bottom))
+                image = overlay
 
-        transformed.save(target_abs_path)
+        image.save(target_abs_path)
 
     return RedirectResponse(image_entity.f_get('url', width=requested_width, height=requested_height))

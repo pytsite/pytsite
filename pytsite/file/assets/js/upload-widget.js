@@ -121,7 +121,7 @@ $.fn.extend({
                     var myXhr = $.ajaxSettings.xhr();
                     if (myXhr.upload) { // Check if upload property exists
                         myXhr.upload.addEventListener('progress', function (evt) {
-                            var percentage = parseInt(evt.loaded / evt.total) * 100;
+                            var percentage = parseInt(evt.loaded / evt.total * 100);
                             progressBar.css('width', percentage + '%');
                             progressBar.attr('aria-valuenow', percentage);
                             progressBar.text(percentage + '%');
@@ -162,8 +162,8 @@ $.fn.extend({
                     }, {
                         canvas: true,
                         maxWidth: maxWidth,
-                        maxHeight: maxHeight,
-                        contain: true
+                        maxHeight: maxHeight
+                        //contain: true
                     });
                 }
                 else
