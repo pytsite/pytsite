@@ -11,8 +11,8 @@ $.fn.extend({
         var fileInput = widget.find('input[type=file]');
         var filesCount = 0;
         var acceptedFileTypes = fileInput.prop('accept');
-        var progress = widget.find('.progress');
-        var progressBar = progress.find('.progress-bar');
+        var progressSlot = widget.find('.progress');
+        var progressBar = progressSlot.find('.progress-bar');
 
         if (acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
@@ -56,7 +56,8 @@ $.fn.extend({
 
         var appendSlot = function (slot) {
             slots.append(slot);
-            widget.find('.add-button').insertAfter(slots.find('.slot:last-child'));
+            progressBar.insertAfter(slots.find('.slot:last-child'));
+            addBtn.insertAfter(slots.find('.slot:last-child'));
             renumberSlots();
         };
 
@@ -93,14 +94,12 @@ $.fn.extend({
 
             ++filesCount;
 
-            if (filesCount == maxFiles) {
-                addBtn.hide();
+            if (filesCount == maxFiles)
                 widget.addClass('max-files-reached');
-            }
 
             if (filesCount > maxFiles) {
                 --filesCount;
-                progress.hide();
+                progressSlot.hide();
                 alert(t('pytsite.file@max_files_exceeded'));
                 return false;
             }
@@ -115,7 +114,7 @@ $.fn.extend({
                     progressBar.css('width', '0');
                     progressBar.attr('aria-valuenow', '0');
                     progressBar.text('0%');
-                    progress.show();
+                    progressSlot.show();
                     addBtn.hide();
                 },
                 xhr: function () {  // Custom XMLHttpRequest
@@ -132,12 +131,12 @@ $.fn.extend({
                 }
             }).success(function (data, textStatus, jqXHR) {
                 $.each(data, function (k, v) {
-                    progress.hide();
+                    progressSlot.hide();
                     appendSlot(createSlot(v['fid'], v['thumb_url']));
                 })
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 --filesCount;
-                progress.hide();
+                progressSlot.hide();
                 addBtn.show();
                 widget.removeClass('max-files-reached');
                 alert(errorThrown);
@@ -173,7 +172,7 @@ $.fn.extend({
         });
 
         // Initial setup of existing slots
-        progress.removeClass('hidden').hide();
+        progressSlot.removeClass('hidden').hide();
         widget.find('.slot').each(function () {
             setupSlot(this);
         });
