@@ -170,7 +170,7 @@ $.fn.extend({
         });
 
         // Initial setup of existing slots
-        processIcon.removeClass('hidden').hide();
+        progress.removeClass('hidden').hide();
         widget.find('.slot').each(function () {
             setupSlot(this);
         });
