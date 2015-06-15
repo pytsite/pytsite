@@ -13,7 +13,6 @@ $.fn.extend({
         var acceptedFileTypes = fileInput.prop('accept');
         var progress = widget.find('.progress');
         var progressBar = progress.find('.progress-bar');
-        var progressText = progress.find('.progress-text');
 
         if (acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
@@ -111,7 +110,7 @@ $.fn.extend({
                 beforeSend: function () {
                     progressBar.css('width', '0');
                     progressBar.attr('aria-valuenow', '0');
-                    progressText.text('0%');
+                    progressBar.text('0%');
                     progress.show();
                 },
                 xhr: function () {  // Custom XMLHttpRequest
@@ -121,8 +120,7 @@ $.fn.extend({
                             var percentage = (evt.loaded / evt.total) * 100;
                             progressBar.css('width', percentage + '%');
                             progressBar.attr('aria-valuenow', percentage);
-                            progressText.text(percentage + '%');
-                            console.log(percentage);
+                            progressBar.text(percentage + '%');
                         });
                     }
                     return myXhr;
