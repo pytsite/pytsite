@@ -4,7 +4,6 @@ $.fn.extend({
         var slots = widget.find('.slots');
         var widgetUid = widget.data('widgetUid');
         var addBtn = widget.find('.add-button');
-        var processIcon = widget.find('.processing');
         var postUrl = widget.data('url');
         var maxFiles = parseInt(widget.data('maxFiles'));
         var maxFileSizeMB = parseInt(widget.data('maxFileSize'));
@@ -12,6 +11,9 @@ $.fn.extend({
         var fileInput = widget.find('input[type=file]');
         var filesCount = 0;
         var acceptedFileTypes = fileInput.prop('accept');
+        var progress = widget.find('.progress');
+        var progressBar = progress.find('.progress-bar');
+        var progressText = progress.find('.progress-text');
 
         if (acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
@@ -95,29 +97,46 @@ $.fn.extend({
 
             if (filesCount > maxFiles) {
                 --filesCount;
-                processIcon.hide();
+                progress.hide();
                 alert(t('pytsite.file@max_files_exceeded'));
                 return false;
             }
-
-            processIcon.show();
 
             $.ajax({
                 type: 'POST',
                 url: postUrl,
                 data: formData,
                 processData: false,
-                contentType: false
+                contentType: false,
+                beforeSend: function () {
+                    progressBar.css('width', '0');
+                    progressBar.attr('aria-valuenow', '0');
+                    progressText.text('0%');
+                    progress.show();
+                },
+                xhr: function () {  // Custom XMLHttpRequest
+                    var myXhr = $.ajaxSettings.xhr();
+                    if (myXhr.upload) { // Check if upload property exists
+                        myXhr.upload.addEventListener('progress', function (evt) {
+                            var percentage = (evt.loaded / evt.total) * 100;
+                            progressBar.css('width', percentage + '%');
+                            progressBar.attr('aria-valuenow', percentage);
+                            progressText.text(percentage + '%');
+                            console.log(percentage);
+                        });
+                    }
+                    return myXhr;
+                }
             }).success(function (data, textStatus, jqXHR) {
                 $.each(data, function (k, v) {
-                    processIcon.hide();
+                    progress.hide();
                     appendSlot(createSlot(v['fid'], v['thumb_url']));
                 })
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 --filesCount;
                 addBtn.show();
                 widget.removeClass('max-files-reached');
-                processIcon.hide();
+                progress.hide();
                 alert(errorThrown);
             });
         };
