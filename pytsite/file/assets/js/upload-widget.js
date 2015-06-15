@@ -98,7 +98,7 @@ $.fn.extend({
                 widget.addClass('max-files-reached');
 
             if (filesCount > maxFiles) {
-                --filesCount;
+                filesCount = maxFiles;
                 progressSlot.hide();
                 alert(t('pytsite.file@max_files_exceeded'));
                 return false;

@@ -5,10 +5,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from pytsite.core import router, forms
+from pytsite.core import router, forms, reg
 from pytsite.core.odm import odm_manager
 from pytsite.core.lang import t
-from .errors import *
+from .errors import LoginIncorrect
 from .models import User, Role
 from .drivers.abstract import AbstractDriver
 
@@ -131,18 +131,25 @@ def post_login_form(args: dict, inp: dict) -> router.RedirectResponse:
 def create_user(email: str, login: str=None, password: str=None) -> User:
     """Create new user.
     """
-
     if not login:
         login = email
 
     if get_user(login=login):
-        raise Exception("User with login '{0}' already exists.".format(login))
+        raise Exception("User with login '{}' already exists.".format(login))
 
     user = odm_manager.dispense('user')
     user.f_set('login', login).f_set('email', email)
 
     if password:
         user.f_set('password', password)
+
+    # Automatic roles for new users
+    if reg.get('auth.auto_signup'):
+        for role_name in reg.get('auth.signup_roles', ['user']):
+            print(role_name)
+            role = get_role(role_name)
+            if role:
+                user.f_add('roles', role)
 
     return user
 
@@ -166,6 +173,8 @@ def create_role(name: str, description: str=''):
 
 
 def get_role(name: str=None, uid=None) -> Role:
+    """Get role by name or by UID.
+    """
     if name:
         return odm_manager.find('role').where('name', '=', name).first()
     if uid:

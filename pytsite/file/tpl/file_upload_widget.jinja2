@@ -1,23 +1,25 @@
 <div class="files-upload-wrapper">
     <div class="slots row">
-        {% for item in widget.get_value() %}
-            {% set fid = item.model~':'~item.id %}
-            <div class="slot col-xs-B-12 col-xs-6 col-md-4 col-lg-3" data-fid="{{ fid }}">
-                <div class="inner">
-                    <div class="thumb"><img class="img-responsive" src="{{ item.f_get('thumb_url') }}"></div>
-                    <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>
-                    <span class="number"></span>
-                    <input type="hidden" name="{{ widget.uid }}" value="{{ fid }}">
+        {% if widget.get_value() %}
+            {% for item in widget.get_value() %}
+                {% set fid = item.model~':'~item.id %}
+                <div class="slot col-xs-B-12 col-xs-6 col-md-4 col-lg-3" data-fid="{{ fid }}">
+                    <div class="inner">
+                        <div class="thumb"><img class="img-responsive" src="{{ item.f_get('thumb_url') }}"></div>
+                        <button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i>
+                        </button>
+                        <span class="number"></span>
+                        <input type="hidden" name="{{ widget.uid }}" value="{{ fid }}">
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
         <div class="hidden slot progress col-xs-B-12 col-xs-6 col-md-4 col-lg-3">
             <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
-                 style="width: 0%;">
-                0%
+                 style="width: 0;">0%
             </div>
         </div>
-        <div class="slot add-button text-center col-xs-B-12 col-xs-6 col-md-4 col-lg-3">
+        <div class="slot add-button col-xs-B-12 col-xs-6 col-md-4 col-lg-3">
             <div class="btn btn btn-default">
                 <i class="fa fa-fw fa-plus"></i> {{ widget.add_btn_label }}
                 <input type="file" multiple accept="{{ widget.accept_files }}">

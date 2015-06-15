@@ -72,6 +72,7 @@ class FilesUploadWidget(AbstractWidget):
         self._group_data = {
             'url': router.endpoint_url('pytsite.file.eps.post_upload', {'model': self._model}),
             'model': self._model,
+            'max_files': self._max_files,
             'max_file_size': self._max_file_size,
             'accept_files': self._accept_files,
             'image_max_width': self._image_max_width,

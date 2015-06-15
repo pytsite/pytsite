@@ -99,6 +99,8 @@ class UserUI(User, ODMUIMixin):
             value=self.f_get('picture'),
             max_files=1,
             max_file_size=1,
+            image_max_width=256,
+            image_max_height=256,
         ))
 
         form.add_widget(ODMCheckboxesWidget(
@@ -120,7 +122,7 @@ class UserUI(User, ODMUIMixin):
 
         form.add_rules('login', (NotEmptyRule(), EmailRule(), ODMFieldUniqueRule('user', 'login', (self.id,))))
         form.add_rules('email', (NotEmptyRule(), EmailRule()))
-        form.add_rules('roles', (NotEmptyRule(), ODMEntitiesListRule(model='role')))
+        form.add_rules('roles', (ODMEntitiesListRule(model='role'),))
 
     def get_d_form_description(self) -> str:
         """Get delete form description.
@@ -182,7 +184,7 @@ class RoleUI(Role, ODMUIMixin):
             label=self.t('description'),
         ))
 
-        perms_tabs = TabsWidget(uid='permissions', label=self.t('permissions'))
+        perms_tabs = TabsWidget(weight=30, uid='permissions', label=self.t('permissions'))
         for group in auth_manager.get_permission_groups():
             if group[0] == 'auth':
                 continue
@@ -201,7 +203,7 @@ class RoleUI(Role, ODMUIMixin):
             perms_tabs.add_tab('permissions-' + group[0], t(group[1]), tab_content.render())
 
         form.add_widget(HiddenInputWidget(name='permissions', value=''))
-        form.add_widget(perms_tabs, 30)
+        form.add_widget(perms_tabs)
 
         form.add_rules('name', (NotEmptyRule(),))
         form.add_rules('description', (NotEmptyRule(),))
