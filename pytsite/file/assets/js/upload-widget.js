@@ -48,6 +48,10 @@ $.fn.extend({
                 addBtn.hide();
                 widget.addClass('max-files-reached');
             }
+            else {
+                addBtn.show();
+                widget.removeClass('max-files-reached');
+            }
         };
 
         var appendSlot = function (slot) {
@@ -112,6 +116,7 @@ $.fn.extend({
                     progressBar.attr('aria-valuenow', '0');
                     progressBar.text('0%');
                     progress.show();
+                    addBtn.hide();
                 },
                 xhr: function () {  // Custom XMLHttpRequest
                     var myXhr = $.ajaxSettings.xhr();
@@ -132,9 +137,9 @@ $.fn.extend({
                 })
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 --filesCount;
+                progress.hide();
                 addBtn.show();
                 widget.removeClass('max-files-reached');
-                progress.hide();
                 alert(errorThrown);
             });
         };
