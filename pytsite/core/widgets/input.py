@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from abc import abstractmethod
 
-from pytsite.core import assetman
+from pytsite.core import assetman, client
 from pytsite.core.html import Input as HtmlInput, TextArea as HtmlTextArea
 from .abstract import AbstractWidget
 
@@ -75,6 +75,16 @@ class TextInputWidget(InputWidget):
         )
 
         return self._group_wrap(html_input.render())
+
+
+class TypeaheadTextInputWidget(TextInputWidget):
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._group_cls = ' '.join((self._group_cls, 'typeahead-text-input'))
+        client.include('typeahead')
+        assetman.add('pytsite.core.widgets@js/typeahead.js')
 
 
 class IntegerInputWidget(TextInputWidget):

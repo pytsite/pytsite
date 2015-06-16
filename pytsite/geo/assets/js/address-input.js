@@ -16,7 +16,7 @@ $(function () {
         var searchInput = widget.find('input[name="' + uid + '[search]"]');
         var addressInput = widget.find('input[name="' + uid + '[address]"]');
         var nameInput = widget.find('input[name="' + uid + '[name]"]');
-        var latLngInput = widget.find('input[name="' + uid + '[lat_lng]"]');
+        var lngLatInput = widget.find('input[name="' + uid + '[lng_lat]"]');
         var componentsInput = widget.find('input[name="' + uid + '[components]"]');
         var autocomplete = new google.maps.places.Autocomplete(searchInput[0], {
             types: ['geocode']
@@ -39,7 +39,8 @@ $(function () {
             if (!$(this).val().length) {
                 addressInput.val('');
                 nameInput.val('');
-                latLngInput.val('');
+                lngLatInput.val('');
+                componentsInput.val('');
             }
 
             setTimeout(function () {
@@ -56,7 +57,7 @@ $(function () {
                 var loc = place.geometry.location;
                 addressInput.val(place.formatted_address);
                 nameInput.val(place.name);
-                latLngInput.val(JSON.stringify([loc.lat(), loc.lng()]));
+                lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()]));
                 componentsInput.val(JSON.stringify(place.address_components));
             }
         });
@@ -73,7 +74,7 @@ $(function () {
                         searchInput.val(place.formatted_address);
                         addressInput.val(place.formatted_address);
                         nameInput.val(place.formatted_address);
-                        latLngInput.val(JSON.stringify([loc.lat(), loc.lng()]));
+                        lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()]));
                         componentsInput.val(JSON.stringify(place.address_components));
                     }
                 });

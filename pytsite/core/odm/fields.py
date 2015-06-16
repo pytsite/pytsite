@@ -402,7 +402,7 @@ class BoolField(AbstractField):
         return super().set_val(bool(value), change_modified, **kwargs)
 
 
-class StringListField(ListField):
+class StringsListField(ListField):
     pass
 
 

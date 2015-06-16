@@ -4,12 +4,14 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from datetime import datetime
 from pytsite.core import router, assetman
 from pytsite.core.html import A, Span
 from pytsite.core.lang import t, t_plural, get_current_lang
 from pytsite.core.lang.errors import TranslationError
 from pytsite.core.odm.models import ODMModel
-from pytsite.core.odm.fields import *
+from pytsite.core.odm.fields import StringField, RefField, DateTimeField, IntegerField, RefsUniqueList, \
+    StringsListField, BoolField
 from pytsite.odm_ui.models import ODMUIMixin
 from pytsite.odm_ui.widgets import ODMSelectWidget
 from pytsite.core.widgets.input import TextInputWidget
@@ -21,7 +23,8 @@ from pytsite.route_alias import route_alias_manager
 from pytsite.taxonomy.models import AbstractTerm
 from pytsite.taxonomy.widgets import TermTokenInputWidget
 from pytsite.image.widgets import ImagesUploadWidget
-from pytsite.geo.widgets import GeoAddressInputWidget
+from pytsite.geo.fields import GeoLocationField
+from pytsite.geo.widgets import GeoSearchAddressWidget
 
 
 class SectionModel(AbstractTerm):
@@ -43,15 +46,15 @@ class ContentModel(ODMModel, ODMUIMixin):
         self._define_field(IntegerField('views_count'))
         self._define_field(IntegerField('comments_count'))
         self._define_field(RefsUniqueList('images', model='image'))
-        self._define_field(StringListField('video'))
-        self._define_field(StringListField('links'))
+        self._define_field(StringsListField('video'))
+        self._define_field(StringsListField('links'))
         self._define_field(StringField('status', default='published', not_empty=True))
         self._define_field(RefsUniqueList('localizations', model=self.model))
         self._define_field(RefField('author', model='user', not_empty=True))
         self._define_field(StringField('language', not_empty=True, default=get_current_lang()))
         self._define_field(RefsUniqueList('tags', model='tag',))
         self._define_field(RefField('section', model='section', not_empty=True))
-        self._define_field(DictField('location'))
+        self._define_field(GeoLocationField('location'))
         self._define_field(BoolField('starred'))
 
     def _on_f_set(self, field_name: str, value, **kwargs):
@@ -186,7 +189,7 @@ class ContentModel(ODMModel, ODMUIMixin):
         ))
 
         # Location
-        form.add_widget(GeoAddressInputWidget(
+        form.add_widget(GeoSearchAddressWidget(
             weight=70,
             uid='location',
             label=self.t('location'),

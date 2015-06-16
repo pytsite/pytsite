@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from bson.dbref import DBRef
+from pytsite.core.widgets.input import TextInputWidget
 from pytsite.core.widgets.selectable import CheckboxesWidget, SelectWidget
 from pytsite.core.odm import odm_manager, I_ASC
 from pytsite.core.odm.models import ODMModel
@@ -100,3 +101,14 @@ class ODMCheckboxesWidget(CheckboxesWidget):
                 self._selected_items.append(entity.model + ':' + str(entity.id))
 
         self._value = clean_val
+
+class ODMSearchInputWidget(TextInputWidget):
+    """ODM Search Input Widget.
+    """
+    def __init__(self, model: str, title_field: str, **kwargs: dict):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._model = model
+        self._title_field = title_field
+
