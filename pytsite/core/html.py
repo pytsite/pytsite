@@ -32,7 +32,6 @@ class Element(ABC):
     def __init__(self, content: str=None, **kwargs):
         """Init.
         """
-
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
         self._children = []
@@ -328,7 +327,7 @@ class Input(InlineElement, SingleTagElement):
 
 class TextArea(BlockElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'name', 'value', 'placeholder'
+        return 'name', 'placeholder'
 
 
 class Label(InlineElement):

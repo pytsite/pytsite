@@ -43,9 +43,9 @@ class TextAreaInputWidget(AbstractWidget):
         """Render the widget.
         """
         html_input = HtmlTextArea(
+            content=self.get_value(),
             uid=self._uid,
             name=self._name,
-            value=self.get_value(),
             cls=' '.join(('form-control', self._cls)),
             placeholder=self.placeholder
         )
