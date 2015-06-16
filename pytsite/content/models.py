@@ -9,6 +9,7 @@ from pytsite.core import router, assetman
 from pytsite.core.html import A, Span
 from pytsite.core.lang import t, t_plural, get_current_lang
 from pytsite.core.lang.errors import TranslationError
+from pytsite.core.odm import I_ASC, I_GEO2D
 from pytsite.core.odm.models import ODMModel
 from pytsite.core.odm.fields import StringField, RefField, DateTimeField, IntegerField, RefsUniqueList, \
     StringsListField, BoolField
@@ -56,6 +57,8 @@ class ContentModel(ODMModel, ODMUIMixin):
         self._define_field(RefField('section', model='section', not_empty=True))
         self._define_field(GeoLocationField('location'))
         self._define_field(BoolField('starred'))
+
+        self._define_index([('location.lng_lat', I_GEO2D)])
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.

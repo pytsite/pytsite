@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime
-from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC
+from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
 from pymongo.collection import Collection
@@ -79,14 +79,14 @@ class ODMModel(ABC):
         """
         for item in fields:
             if not isinstance(item, tuple):
-                raise TypeError("'fields' argument must be list of tuples.")
+                raise TypeError("'fields' argument must be a list of tuples.")
             if len(item) != 2:
                 raise ValueError("Field definition tuple must have exactly 2 members.")
 
             field_name, index_type = item
-            if not self.has_field(field_name):
-                raise Exception("Entity {0} doesn't have field {1}.".format(self.model, field_name))
-            if index_type not in [I_ASC, I_DESC]:
+            if not self.has_field(field_name.split('.')[0]):
+                raise Exception("Entity {} doesn't have field {}.".format(self.model, field_name))
+            if index_type not in [I_ASC, I_DESC, I_GEO2D]:
                 raise ValueError("Invalid index type.")
 
             self._indices.append((fields, {'unique': unique}))

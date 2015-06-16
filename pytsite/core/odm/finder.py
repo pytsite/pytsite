@@ -82,7 +82,7 @@ class ODMQuery:
         else:
             self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 
-    def get_criteria(self) -> list:
+    def compile(self) -> list:
         """Get criteria.
         """
         return self._criteria
@@ -110,9 +110,9 @@ class ODMFinder:
         """
         from .odm_manager import dispense
 
-        self._model_name = model_name
-        self._entity = dispense(model_name)
-        self._query = ODMQuery(self._entity)
+        self._model = model_name
+        self._entity_mock = dispense(model_name)
+        self._query = ODMQuery(self._entity_mock)
         self._skip = 0
         self._limit = 0
         self._sort = None
@@ -139,8 +139,8 @@ class ODMFinder:
         """Set sort criteria.
         """
         for f in fields:
-            if not self._entity.has_field(f[0]):
-                raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model_name))
+            if not self._entity_mock.has_field(f[0]):
+                raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model))
         self._sort = fields
 
         return self
@@ -148,8 +148,8 @@ class ODMFinder:
     def count(self) -> int:
         """Count documents in collection.
         """
-        collection = self._entity.collection
-        flt = self._query.get_criteria()
+        collection = self._entity_mock.collection
+        flt = self._query.compile()
         return collection.count(filter=flt, skip=self._skip, limit=self._limit)
 
     def get(self, limit: int=0):
@@ -158,9 +158,9 @@ class ODMFinder:
         :rtype: list[ODMModel]
         """
         self._limit = limit
-        collection = self._entity.collection
+        collection = self._entity_mock.collection
         cursor = collection.find(
-            self._query.get_criteria(),
+            self._query.compile(),
             {'_id': True},
             self._skip,
             self._limit,
@@ -169,7 +169,7 @@ class ODMFinder:
             self._sort
         )
 
-        return ODMFinderResult(self._model_name, cursor)
+        return ODMFinderResult(self._model, cursor)
 
     def first(self) -> ODMModel:
         """Execute the query and return a first result.
@@ -179,3 +179,14 @@ class ODMFinder:
             return None
 
         return result[0]
+
+    def distinct(self, field_name: str) -> list:
+        from .odm_manager import get_by_ref
+        values = self._entity_mock.collection.distinct(field_name, self._query.compile())
+        r = []
+        for v in values:
+            if isinstance(v, DBRef):
+                v = get_by_ref(v)
+            r.append(v)
+
+        return r

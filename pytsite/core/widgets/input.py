@@ -78,13 +78,14 @@ class TextInputWidget(InputWidget):
 
 
 class TypeaheadTextInputWidget(TextInputWidget):
-    def __init__(self, **kwargs):
+    def __init__(self, source_url: str, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
-        self._group_cls = ' '.join((self._group_cls, 'typeahead-text-input'))
+        self._group_cls = ' '.join((self._group_cls, 'widget-typeahead-text-input'))
         client.include('typeahead')
         assetman.add('pytsite.core.widgets@js/typeahead.js')
+        self._group_data['source_url'] = source_url
 
 
 class IntegerInputWidget(TextInputWidget):

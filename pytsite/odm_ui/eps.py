@@ -9,6 +9,7 @@ from pytsite.core.http.errors import InternalServerError
 from pytsite.core.http.response import RedirectResponse, JSONResponse
 from pytsite.core.lang import t
 from pytsite.core import router
+from pytsite.core.odm import odm_manager
 from pytsite.core.odm.errors import ForbidEntityDelete
 from . import odm_ui_manager
 from .browser import ODMUIBrowser
