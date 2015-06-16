@@ -184,12 +184,13 @@ class ContentModel(ODMModel, ODMUIMixin):
             value=self.f_get('images'),
         ))
 
-        form.add_widget(CKEditorWidget(
-            weight=60,
-            uid='body',
-            label=self.t('body'),
-            value=self.f_get('body'),
-        ))
+        if self.has_field('body'):
+            form.add_widget(CKEditorWidget(
+                weight=60,
+                uid='body',
+                label=self.t('body'),
+                value=self.f_get('body'),
+            ))
 
         # Location
         form.add_widget(GeoSearchAddressWidget(
