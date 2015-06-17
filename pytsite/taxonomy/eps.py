@@ -4,8 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.http.response import JSONResponse
-from . import taxonomy_manager
+from pytsite.core.http._response import JSONResponse
+from . import _manager
 
 
 def search_terms(args: dict, inp: dict) -> JSONResponse:
@@ -19,7 +19,7 @@ def search_terms(args: dict, inp: dict) -> JSONResponse:
         exclude = [exclude]
 
     r = []
-    finder = taxonomy_manager.find(model).where('title', 'regex_i', query).where('title', 'nin', exclude)
+    finder = _manager.find(model).where('title', 'regex_i', query).where('title', 'nin', exclude)
     for e in finder.get(5):
         r.append(e.f_get('title'))
 

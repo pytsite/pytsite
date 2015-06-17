@@ -1,16 +1,14 @@
 """PytSite Console.
 """
-from pytsite.core.console._commands import Abstract
+from pytsite.core.console._command import Abstract
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from sys import argv, exit
-from re import sub
-from os import path
-from pytsite.core.console.errors import ConsoleRuntimeError
 from pytsite.core import reg
+from . import _error
+
 
 __commands = {}
 
@@ -64,6 +62,8 @@ def usage():
 def run():
     """Run the console.
     """
+    from sys import argv, exit
+
     if len(argv) < 2:
         print(usage())
         exit(-1)
@@ -71,6 +71,7 @@ def run():
     cmd_args = {}
     for arg in argv[2:]:
         if arg.startswith('--'):
+            from re import sub
             arg = sub(r'^--', '', arg)
             arg_split = arg.split('=')
             if len(arg_split) == 1:
@@ -81,13 +82,14 @@ def run():
 
     try:
         # Check if the setup completed
+        from os import path
         if not path.exists(reg.get('paths.setup.lock')) and argv[1] != 'app:setup':
             from pytsite.core.lang import t
-            raise ConsoleRuntimeError(t('pytsite.core@setup_is_not_completed'))
+            raise _error.ConsoleRuntimeError(t('pytsite.core@setup_is_not_completed'))
 
         return run_console_command(argv[1], **cmd_args)
 
-    except ConsoleRuntimeError as e:
+    except _error.ConsoleRuntimeError as e:
         print_error(str(e))
         exit(-1)
 

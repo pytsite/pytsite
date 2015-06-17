@@ -4,22 +4,16 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import tpl
-from pytsite.core.http.errors import InternalServerError
-from pytsite.core.http.response import RedirectResponse, JSONResponse
-from pytsite.core.lang import t
-from pytsite.core import router
-from pytsite.core.odm import odm_manager
-from pytsite.core.odm.errors import ForbidEntityDelete
-from . import odm_ui_manager
-from .browser import ODMUIBrowser
+from pytsite.core import tpl, lang,  http, router, odm
+from . import _manager
+from ._browser import ODMUIBrowser
 
 
 def browse(args: dict, inp: dict) -> str:
     return tpl.render('pytsite.odm_ui@admin_browser', {'browser': ODMUIBrowser(args.get('model')).get_table_skeleton()})
 
 
-def get_browser_rows(args: dict, inp: dict) -> JSONResponse:
+def get_browser_rows(args: dict, inp: dict) -> http.response.JSONResponse:
     """Get browser rows via AJAX request.
     """
     offset = int(inp.get('offset', 0))
@@ -27,14 +21,14 @@ def get_browser_rows(args: dict, inp: dict) -> JSONResponse:
     sort_field = inp.get('sort', None)
     sort_order = inp.get('order', None)
 
-    return JSONResponse(ODMUIBrowser(args.get('model')).get_rows(offset, limit, sort_field, sort_order))
+    return http.response.JSONResponse(ODMUIBrowser(args.get('model')).get_rows(offset, limit, sort_field, sort_order))
 
 
 def get_m_form(args: dict, inp: dict) -> str:
     """Get entity create/modify form.
     """
     eid = args.get('id') if args.get('id') != '0' else None
-    form = odm_ui_manager.get_m_form(args.get('model'), eid)
+    form = _manager.get_m_form(args.get('model'), eid)
     return tpl.render('pytsite.odm_ui@admin_modify_form', {'form': form})
 
 
@@ -42,27 +36,27 @@ def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
     global_messages = []
-    form = odm_ui_manager.get_m_form(inp.get('__model'), inp.get('__entity_id'))
+    form = _manager.get_m_form(inp.get('__model'), inp.get('__entity_id'))
     v_status = form.fill(inp, validation_mode=True).validate()
     widget_messages = form.messages
 
     return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
 
 
-def post_m_form(args: dict, inp: dict) -> RedirectResponse:
+def post_m_form(args: dict, inp: dict) -> http.response.RedirectResponse:
     """Process submit of modify form.
     """
 
     model = args.get('model')
     entity_id = args.get('id')
 
-    form = odm_ui_manager.get_m_form(model, entity_id)
+    form = _manager.get_m_form(model, entity_id)
 
     if not form.fill(inp).validate():
         router.session.add_error(str(form.messages))
-        raise InternalServerError()
+        raise http.error.InternalServerError()
 
-    entity = odm_ui_manager.dispense_entity(model, entity_id)
+    entity = _manager.dispense_entity(model, entity_id)
     for f_name, f_value in form.values.items():
         if entity.has_field(f_name):
             entity.f_set(f_name, f_value)
@@ -71,7 +65,7 @@ def post_m_form(args: dict, inp: dict) -> RedirectResponse:
 
     entity.submit_m_form(form)
 
-    return RedirectResponse(form.redirect)
+    return http.response.RedirectResponse(form.redirect)
 
 
 def get_d_form(args: dict, inp: dict) -> str:
@@ -82,14 +76,14 @@ def get_d_form(args: dict, inp: dict) -> str:
         ids = [ids]
 
     if not ids:
-        return RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+        return http.response.RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
 
-    form = odm_ui_manager.get_d_form(model, ids)
+    form = _manager.get_d_form(model, ids)
 
     return tpl.render('pytsite.odm_ui@admin_delete_form', {'form': form})
 
 
-def post_d_form(args: dict, inp: dict) -> RedirectResponse:
+def post_d_form(args: dict, inp: dict) -> http.response.RedirectResponse:
     """Submit delete form.
     """
 
@@ -100,9 +94,9 @@ def post_d_form(args: dict, inp: dict) -> RedirectResponse:
 
     try:
         for eid in ids:
-            odm_ui_manager.dispense_entity(model, eid).delete()
-        router.session.add_info(t('pytsite.odm_ui@operation_successful'))
-    except ForbidEntityDelete as e:
-        router.session.add_error(t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
+            _manager.dispense_entity(model, eid).delete()
+        router.session.add_info(lang.t('pytsite.odm_ui@operation_successful'))
+    except odm.error.ForbidEntityDelete as e:
+        router.session.add_error(lang.t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
 
-    return RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+    return http.response.RedirectResponse(router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))

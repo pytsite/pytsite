@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from pytsite.content.models import ContentModel
+from pytsite.content._models import ContentModel
 
 
 class ArticleModel(ContentModel):

@@ -1,4 +1,4 @@
-"""PytSite Language Support.
+"""PytSite Language Support
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -7,7 +7,7 @@ __license__ = 'MIT'
 import yaml
 from importlib.util import find_spec
 from os import path
-from .errors import TranslationError
+from ._error import TranslationError
 
 
 __languages = []

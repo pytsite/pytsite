@@ -2,8 +2,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import ABC
-from .util import html_attrs_str
+from abc import ABC as __ABC
+from pytsite.core import util as _util
 
 _common_tag_attrs = (
     'accesskey',
@@ -25,10 +25,9 @@ _common_tag_attrs = (
 )
 
 
-class Element(ABC):
+class Element(__ABC):
     """Base HTML Element.
     """
-
     def __init__(self, content: str=None, **kwargs):
         """Init.
         """
@@ -81,7 +80,6 @@ class Element(ABC):
     def append(self, child):
         """Append child.
         """
-
         if not isinstance(child, Element):
             raise TypeError("Element expected.")
 
@@ -124,7 +122,7 @@ class Element(ABC):
         """
 
         # Open tag
-        r = "<{}{}>".format(self._tag_name, html_attrs_str(self._attrs, {
+        r = "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {
             'uid': 'id',
             'cls': 'class',
             'label_for': 'for',
@@ -162,7 +160,7 @@ class SingleTagElement(Element):
     def render(self) -> str:
         """Render the element.
         """
-        return "<{}{}>".format(self._tag_name, html_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
+        return "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
 
 
 class InlineElement(Element):

@@ -8,20 +8,18 @@ __license__ = 'MIT'
 from os import path, makedirs
 from math import floor
 from PIL import Image
-from pytsite.core import reg
-from pytsite.core.http.response import RedirectResponse
-from pytsite.core.http.errors import NotFoundError
-from . import image_manager
+from pytsite.core import reg, http
+from . import _manager
 
 
-def get_resize(args: dict, inp: dict) -> RedirectResponse:
+def get_resize(args: dict, inp: dict) -> http.response.RedirectResponse:
     requested_width = args['width']
     requested_height = args['height']
     file_path = path.join('image', args['p1'], args['p2'], args['filename'])
 
-    image_entity = image_manager.get(rel_path=file_path)
+    image_entity = _manager.get(rel_path=file_path)
     if not image_entity:
-        raise NotFoundError()
+        raise http.error.NotFoundError()
 
     # Sizes cannot be negative
     requested_width = requested_width if requested_width >= 0 else 0
@@ -59,7 +57,7 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
     source_path = image_entity.f_get('path')
     source_abs_path = image_entity.f_get('abs_path')
     if not path.exists(source_abs_path):
-        return RedirectResponse('http://placehold.it/{}x{}'.format(requested_width, requested_height))
+        return http.response.RedirectResponse('http://placehold.it/{}x{}'.format(requested_width, requested_height))
 
     # Calculating target file location
     target_abs_path = path.join(reg.get('paths.static'), 'image', 'resize', str(requested_width), str(requested_height),
@@ -99,4 +97,4 @@ def get_resize(args: dict, inp: dict) -> RedirectResponse:
         image.save(target_abs_path)
         image.close()
 
-    return RedirectResponse(image_entity.f_get('url', width=requested_width, height=requested_height))
+    return http.response.RedirectResponse(image_entity.f_get('url', width=requested_width, height=requested_height))

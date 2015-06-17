@@ -13,9 +13,9 @@ from werkzeug.contrib.sessions import FilesystemSessionStore
 from importlib import import_module
 from re import sub, match
 from htmlmin import minify
-from .http.request import Request
-from .http.response import Response, RedirectResponse
-from .http.session import Session
+from .http._request import Request
+from .http._response import Response, RedirectResponse
+from .http._session import Session
 from . import reg, logger
 
 session_storage_path = reg.get('paths.session')

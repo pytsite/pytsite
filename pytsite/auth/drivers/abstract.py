@@ -6,12 +6,12 @@ __license__ = 'MIT'
 
 from abc import ABC, abstractmethod
 from pytsite.core.router import RedirectResponse
-from pytsite.core.forms import BaseForm
+from pytsite.core.form import Base
 
 
 class AbstractDriver(ABC):
     @abstractmethod
-    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> BaseForm:
+    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> Base:
         """Login form get handler.
         """
         raise NotImplementedError()

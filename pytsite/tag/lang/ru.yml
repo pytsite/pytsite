@@ -1,4 +1,4 @@
-tag_plural_two: 'Теги'
+tags: 'Теги'
 odm_ui_tag_browser_title: 'Обзор тегов'
 odm_ui_tag_create_form_legend: 'Создание тега'
 odm_ui_tag_modify_form_legend: 'Изменение тега'

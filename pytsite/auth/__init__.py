@@ -2,39 +2,51 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-# Requirements
-__import__('pytsite.image')
+def __init():
+    """Init wrapper.
+    """
+    # Requirements
+    __import__('pytsite.image')
 
-# Other imports
-from pytsite.core import router, tpl, events, lang
-from pytsite.core.odm import odm_manager
+    # Other imports
+    from pytsite.core import router, tpl, events, lang, odm
 
-# Resources
-tpl.register_package(__name__)
-lang.register_package(__name__)
+    # Resources
+    tpl.register_package(__name__)
+    lang.register_package(__name__)
 
-# ODM models
-from . import models
-odm_manager.register_model('user', models.User)
-odm_manager.register_model('role', models.Role)
+    # ODM models
+    from . import _model
+    odm.manager.register_model('user', _model.User)
+    odm.manager.register_model('role', _model.Role)
 
-# Routes
-router.add_rule('/auth/login', __name__ + '.eps.get_login', {})
-router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ('POST',))
-router.add_rule('/auth/logout', __name__ + '.eps.get_logout', {})
+    # Routes
+    router.add_rule('/auth/login', __name__ + '.eps.get_login', {})
+    router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ('POST',))
+    router.add_rule('/auth/logout', __name__ + '.eps.get_logout', {})
 
-# Default auth driver
-from . import auth_manager
-from .drivers.ulogin import ULoginDriver
-auth_manager.set_driver(ULoginDriver())
+    # Default auth driver
+    from . import _manager
+    from .drivers.ulogin import ULoginDriver
+    _manager.set_driver(ULoginDriver())
 
-# Template engine globals
-tpl.register_global('auth', auth_manager)
+    # Template engine globals
+    tpl.register_global('auth', _manager)
 
-# Event handlers
-from .event_handlers import app_setup
-events.listen('app.setup', app_setup)
+    # Event handlers
+    from ._event_handlers import app_setup
+    events.listen('app.setup', app_setup)
 
-# Permissions
-auth_manager.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
-auth_manager.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
+    # Permissions
+    _manager.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
+    _manager.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
+
+
+__init()
+
+
+# Public API
+from . import _error, _manager, _model
+error = _error
+manager = _manager
+model = _model
