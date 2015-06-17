@@ -1,11 +1,12 @@
-"""Forms.
+"""Pytsite Form
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from collections import OrderedDict as _OrderedDict
-from . import util, widget, html, router, assetman, validation
+from . import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
+    validation as _validation
 
 
 class Base:
@@ -16,7 +17,7 @@ class Base:
         """
         self._areas = ('form', 'header', 'body', 'footer')
         self._widgets = _OrderedDict()
-        self._validator = validation.Validator()
+        self._validator = _validation.Validator()
 
         self._uid = uid
         self._name = kwargs.get('name', None)
@@ -26,9 +27,9 @@ class Base:
         self._cls = kwargs.get('cls', 'pytsite-form')
         self._validation_ep = kwargs.get('validation_ep')
 
-        self.add_widget(widget.input.Hidden(uid='__form_location', value=router.current_url()), area='form')
-        self.add_widget(widget.input.Hidden(uid='__form_redirect', value=router.current_url()), area='form')
-        self.add_widget(widget.wrapper.Wrapper(cls='form-messages'))
+        self.add_widget(_widget.input.Hidden(uid='__form_location', value=_router.current_url()), area='form')
+        self.add_widget(_widget.input.Hidden(uid='__form_redirect', value=_router.current_url()), area='form')
+        self.add_widget(_widget.static.Wrapper(cls='form-messages'))
 
         if not self._name:
             self._name = uid
@@ -36,7 +37,7 @@ class Base:
         self._setup()
 
         # Initializing form JS API
-        assetman.add('pytsite.core@js/form.js')
+        _assetman.add('pytsite.core@js/form.js')
 
     def _setup(self):
         """_setup() hook.
@@ -119,7 +120,7 @@ class Base:
     def values(self) -> dict:
         r = _OrderedDict()
         for k, v in self._widgets.items():
-            r[k] = v['widget'].get_value()
+            r[k] = v['_widget'].get_value()
 
         return r
 
@@ -145,7 +146,7 @@ class Base:
 
         return self
 
-    def add_rule(self, widget_uid: str, rule: validation.rule.Base):
+    def add_rule(self, widget_uid: str, rule: _validation.rule.Base):
         """Add a rule to the validator.
         """
         if widget_uid not in self._widgets:
@@ -158,7 +159,6 @@ class Base:
     def add_rules(self, widget_uid: str, rules: tuple):
         """Add multiple rules to the validator.
         """
-
         for rule in rules:
             self.add_rule(widget_uid, rule)
 
@@ -182,9 +182,8 @@ class Base:
     def render(self) -> str:
         """Render the form.
         """
-
         if self._legend:
-            self.add_widget(widget.static.Html(value=self._legend, html_em=html.H3, cls='box-title'), area='header')
+            self.add_widget(_widget.static.Html(value=self._legend, html_em=_html.H3, cls='box-title'), area='header')
 
         body = ''
         for area in self._areas:
@@ -193,8 +192,8 @@ class Base:
 
         return self._render_open_tag() + body + self._render_close_tag()
 
-    def add_widget(self, w: widget.base.Widget, area: str='body'):
-        """Add a widget.
+    def add_widget(self, w: _widget.base.Widget, area: str='body'):
+        """Add a _widget.
         """
         if area not in self._areas:
             raise ValueError("Invalid form area: '{}'".format(area))
@@ -203,7 +202,7 @@ class Base:
         if uid in self._widgets:
             raise KeyError("Widget '{}' already exists.".format(uid))
 
-        self._widgets[uid] = {'widget': w, 'area': area}
+        self._widgets[uid] = {'_widget': w, 'area': area}
 
         return self
 
@@ -212,13 +211,13 @@ class Base:
         """
         return uid in self._widgets
 
-    def get_widget(self, uid: str) -> widget.base.Widget:
+    def get_widget(self, uid: str) -> _widget.base.Widget:
         """Get a widget.
         """
         if not self.has_widget(uid):
             raise KeyError("Widget '{}' is not exists.".format(uid))
 
-        return self._widgets[uid]['widget']
+        return self._widgets[uid]['_widget']
 
     def remove_widget(self, uid):
         """Remove widget from the form.
@@ -239,10 +238,10 @@ class Base:
             'class': self.cls,
             'action': self.action,
             'method': self.method,
-            'data-validation-ep': self.validation_ep,
+            'data-_validation-ep': self.validation_ep,
         }
 
-        r = '<form {}>\n'.format(util.html_attrs_str(attrs))
+        r = '<form {}>\n'.format(_util.html_attrs_str(attrs))
 
         return r + '\n'
 
@@ -252,12 +251,12 @@ class Base:
         widgets_to_render = []
         for uid, w in self._widgets.items():
             if w['area'] == area:
-                widget = w['widget']
-                widgets_to_render.append({'weight': widget.weight, 'widget': widget})
+                _widget = w['_widget']
+                widgets_to_render.append({'weight': _widget.weight, '_widget': _widget})
 
         rendered_widgets = []
-        for v in util.weight_sort(widgets_to_render):
-            rendered_widgets.append(v['widget'].render())
+        for v in _util.weight_sort(widgets_to_render):
+            rendered_widgets.append(v['_widget'].render())
 
         if not rendered_widgets:
             return ''
@@ -273,7 +272,7 @@ class Base:
             cls = 'box-' + area
             if area == 'header':
                 cls += ' with-border'
-            return html.Div(content + '\n', cls=cls).render()
+            return _html.Div(content + '\n', cls=cls).render()
 
     def _render_close_tag(self) -> str:
         """Render form's close tag.

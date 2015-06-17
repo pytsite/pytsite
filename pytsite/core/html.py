@@ -2,7 +2,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import ABC as __ABC
+from abc import ABC as _ABC
 from pytsite.core import util as _util
 
 _common_tag_attrs = (
@@ -25,7 +25,7 @@ _common_tag_attrs = (
 )
 
 
-class Element(__ABC):
+class Element(_ABC):
     """Base HTML Element.
     """
     def __init__(self, content: str=None, **kwargs):

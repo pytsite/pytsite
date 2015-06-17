@@ -4,29 +4,31 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__import__('pytsite.odm_ui')
-__import__('pytsite.file')
 
-from pytsite.core import router, lang, odm
-from pytsite import admin
-from .models import UserUI, RoleUI
+def init():
+    __import__('pytsite.odm_ui')
+    __import__('pytsite.file')
 
-lang.register_package(__name__)
+    from pytsite import admin as _admin
+    from pytsite.core import lang, odm, router
+    from . import _model
 
-# Replace 'user' model with UI-compatible
-odm.manager.register_model('user', UserUI, True)
-odm.manager.register_model('role', RoleUI, True)
+    lang.register_package(__name__)
 
-# 'Security' admin sidebar section
-admin.sidebar.add_section('auth', 'pytsite.auth_ui@security', 1000,
-                    permissions=('pytsite.odm_ui.browse.user', 'pytsite.odm_ui.browse.role'))
+    # Replace 'user' model with UI-compatible
+    odm.manager.register_model('user', _model.UserUI, True)
+    odm.manager.register_model('role', _model.RoleUI, True)
 
-# 'Users' admin sidebar menu
-url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'user'})
-admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_ui@users', url, 'fa fa-user', weight=10,
-                 permissions=('pytsite.odm_ui.browse.user',))
+    # 'Security' admin sidebar section
+    _admin.sidebar.add_section('auth', 'pytsite.auth_ui@security', 1000,
+                                permissions=('pytsite.odm_ui.browse.user', 'pytsite.odm_ui.browse.role'))
 
-# 'Roles' admin sidebar menu
-url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'role'})
-admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_ui@roles', url, 'fa fa-users', weight=20,
-                 permissions=('pytsite.odm_ui.browse.role',))
+    # 'Users' admin sidebar menu
+    url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'user'})
+    _admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_ui@users', url, 'fa fa-user', weight=10,
+                            permissions=('pytsite.odm_ui.browse.user',))
+
+    # 'Roles' admin sidebar menu
+    url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'role'})
+    _admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_ui@roles', url, 'fa fa-users', weight=20,
+                            permissions=('pytsite.odm_ui.browse.role',))

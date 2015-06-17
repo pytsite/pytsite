@@ -1,34 +1,32 @@
-"""Registry.
+"""Registry
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import yaml
-from abc import ABC, abstractmethod
-from os import path
-from pytsite.core.util import dict_merge
+import yaml as _yaml
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from . import util as _util
 
 
-class RegistryDriver(ABC):
+class RegistryDriver(_ABC):
     """Abstract registry driver.
     """
+    _storage = {}
 
-    _storage = dict()
-
-    @abstractmethod
+    @_abstractmethod
     def set_val(self, key: str, value):
         """Set value of the registry.
         """
         pass
 
-    @abstractmethod
+    @_abstractmethod
     def get_val(self, key: str, default):
         """Get value from the registry.
         """
         pass
 
-    @abstractmethod
+    @_abstractmethod
     def merge(self, other: dict):
         """Merge other dictionary onto the registry storage.
         """
@@ -44,7 +42,6 @@ class MemoryDriver(RegistryDriver):
     def set_val(self, key: str, value):
         """Set value of the registry.
         """
-
         current = self._storage
         parts = key.split('.')
         i = 1
@@ -86,7 +83,7 @@ class MemoryDriver(RegistryDriver):
     def merge(self, other: dict):
         """Merges data into the registry.
         """
-        self._storage = dict_merge(self._storage, other)
+        self._storage = _util.dict_merge(self._storage, other)
 
 
 class FileDriver(MemoryDriver):
@@ -95,11 +92,12 @@ class FileDriver(MemoryDriver):
         self.root_dir = root_dir
         self.env_name = env_name
 
+        from os import path
         for name in ('default.yml', env_name + '.yml'):
             file_path = root_dir + path.sep + name
             if path.isfile(file_path):
                 file = open(file_path, 'r')
-                self.merge(yaml.load(file))
+                self.merge(_yaml.load(file))
                 file.close()
 
     def get_val(self, key: str, default=None):

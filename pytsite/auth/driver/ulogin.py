@@ -4,24 +4,21 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import json
-from time import strptime
-from datetime import datetime
-from urllib.parse import urlencode
-from urllib.request import urlopen
-from pytsite.core import tpl, form, router, reg
-from pytsite.core.lang import t
-from pytsite.core.widget._abstract import Widget
-from pytsite.core.widget._input import Hidden
-from pytsite.image import _manager as image_manager
+import json as _json
+from time import strptime as _strptime
+from datetime import datetime as _datetime
+from urllib.parse import urlencode as _urlencode
+from urllib.request import urlopen as _urlopen
+from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, widget as _widget, \
+    http as _http
+from pytsite import image as _image
 from .. import _manager, _error
 from .abstract import AbstractDriver
 
 
-class Login(Widget):
+class Login(_widget.base.Widget):
     """ULogin Widget.
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -31,21 +28,21 @@ class Login(Widget):
     def render(self) -> str:
         """Render the widget.
         """
-        return tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
+        return _tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
 
 
-class LoginForm(form.Base):
+class LoginForm(_form.Base):
     """ULogin Login Form.
     """
 
     def _setup(self):
         """_setup() hook.
         """
-        for k, v in router.request.values.items():
-            self.add_widget(Hidden(uid=self.uid + '-' + k, name=k, value=v))
+        for k, v in _router.request.values.items():
+            self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v))
 
         if not self.has_widget(self.uid + '-token'):
-            self.add_widget(Hidden(uid=self.uid + '-token', name='token'))
+            self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token'))
 
         self.add_widget(Login())
 
@@ -54,20 +51,20 @@ class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
 
-    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> form.Base:
+    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> _form.Base:
         """Get the login form.
         """
         return LoginForm(uid=uid, cls=cls)
 
-    def post_login_form(self, args: dict, inp: dict)->router.RedirectResponse:
+    def post_login_form(self, args: dict, inp: dict) -> _http.response.RedirectResponse:
         """Process submit of the login form.
         """
 
         # Reading response from uLogin
-        response = urlopen('http://ulogin.ru/token.php?{0}'.format(urlencode(inp)))
+        response = _urlopen('http://ulogin.ru/token.php?{0}'.format(_urlencode(inp)))
         if response.status != 200:
             raise Exception("Bad response status code from uLogin: {0}.".format(response.status))
-        ulogin_data = json.loads(response.read().decode('utf-8'))
+        ulogin_data = _json.loads(response.read().decode('utf-8'))
         if 'error' in ulogin_data:
             raise Exception("Bad response from uLogin: '{0}'.".format(ulogin_data['error']))
         if 'email' not in ulogin_data or ulogin_data['verified_email'] != '1':
@@ -78,7 +75,7 @@ class ULoginDriver(AbstractDriver):
 
         try:
             # User is not exists and its creation is not allowed
-            if not user and not reg.get('auth.auto_signup'):
+            if not user and not _reg.get('auth.auto_signup'):
                 raise _error.LoginIncorrect()
 
             # Create new user
@@ -91,7 +88,7 @@ class ULoginDriver(AbstractDriver):
                 if not picture_url:
                     picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
                 if picture_url:
-                    user.f_set('picture', image_manager.create(picture_url))
+                    user.f_set('picture', _image.manager.create(picture_url))
 
             # Name
             full_name = ''
@@ -109,8 +106,8 @@ class ULoginDriver(AbstractDriver):
 
             # Birth date
             if 'bdate' in ulogin_data:
-                b_date = strptime(ulogin_data['bdate'], '%d.%m.%Y')
-                user.f_set('birth_date', datetime(*b_date[0:5]))
+                b_date = _strptime(ulogin_data['bdate'], '%d.%m.%Y')
+                user.f_set('birth_date', _datetime(*b_date[0:5]))
 
             # Options
             user.f_set('options', {'ulogin': ulogin_data})
@@ -124,21 +121,21 @@ class ULoginDriver(AbstractDriver):
             _manager.authorize(user)
 
             # Saving statistical information
-            user.f_add('login_count', 1).f_set('last_login', datetime.now()).save()
+            user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
 
             # Redirect to the final destination
             if 'redirect' in inp:
                 redirect = inp['redirect']
                 del inp['redirect']
                 del inp['__form_location']
-                return router.RedirectResponse(router.url(redirect, query=inp))
+                return _http.response.RedirectResponse(_router.url(redirect, query=inp))
             elif '__form_location' in inp:
                 redirect = inp['__form_location']
                 del inp['__form_location']
-                return router.RedirectResponse(router.url(redirect, query=inp))
+                return _http.response.RedirectResponse(_router.url(redirect, query=inp))
             else:
-                return router.RedirectResponse(router.base_url(query=inp))
+                return _http.response.RedirectResponse(_router.base_url(query=inp))
 
         except _error.LoginIncorrect:
-            router.session.add_error(t('pytsite.auth@authorization_error'))
-            return router.RedirectResponse(router.endpoint_url('pytsite.auth.eps.get_login', args=inp))
+            _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
+            return _http.response.RedirectResponse(_router.endpoint_url('pytsite.auth.eps.get_login', args=inp))

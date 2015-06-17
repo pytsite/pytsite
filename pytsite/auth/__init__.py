@@ -27,7 +27,7 @@ def __init():
 
     # Default auth driver
     from . import _manager
-    from .drivers.ulogin import ULoginDriver
+    from .driver.ulogin import ULoginDriver
     _manager.set_driver(ULoginDriver())
 
     # Template engine globals

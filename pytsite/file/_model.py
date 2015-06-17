@@ -4,11 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from os import path, unlink
-from pytsite.core import odm, router, reg
+from os import path as _path, unlink as _unlink
+from pytsite.core import odm as _odm, router as _router, reg as _reg
 
 
-class File(odm._model.ODMModel):
+class File(_odm.model.ODMModel):
     """File Model.
     """
 
@@ -16,34 +16,34 @@ class File(odm._model.ODMModel):
 
         """_setup() hook.
         """
-        self._define_field(odm._field.String('path', not_empty=True))
-        self._define_field(odm._field.String('name', not_empty=True))
-        self._define_field(odm._field.String('description'))
-        self._define_field(odm._field.String('mime', not_empty=True))
-        self._define_field(odm._field.Integer('length', not_empty=True))
-        self._define_field(odm._field.Ref('author', model='user'))
-        self._define_field(odm._field.Virtual('abs_path'))
-        self._define_field(odm._field.Virtual('url'))
-        self._define_field(odm._field.Virtual('thumb_url'))
+        self._define_field(_odm.field.String('path', not_empty=True))
+        self._define_field(_odm.field.String('name', not_empty=True))
+        self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.String('mime', not_empty=True))
+        self._define_field(_odm.field.Integer('length', not_empty=True))
+        self._define_field(_odm.field.Ref('author', model='user'))
+        self._define_field(_odm.field.Virtual('abs_path'))
+        self._define_field(_odm.field.Virtual('url'))
+        self._define_field(_odm.field.Virtual('thumb_url'))
 
     def _after_delete(self):
         """_after_delete() hook.
         """
-        storage_dir = reg.get('paths.storage')
-        file_abs_path = path.join(storage_dir, self.f_get('path'))
-        if path.exists(file_abs_path):
-            unlink(file_abs_path)
+        storage_dir = _reg.get('paths.storage')
+        file_abs_path = _path.join(storage_dir, self.f_get('path'))
+        if _path.exists(file_abs_path):
+            _unlink(file_abs_path)
 
     def _on_f_get(self, field_name: str, orig_value, **kwargs):
         """_on_f_get() hook.
         """
 
         if field_name == 'abs_path':
-            return path.join(reg.get('paths.storage'), self.f_get('path'))
+            return _path.join(_reg.get('paths.storage'), self.f_get('path'))
 
         if field_name == 'url':
             p = str(self.f_get('path')).split('/')
-            return router.endpoint_url('pytsite.file.eps.get_download', {
+            return _router.endpoint_url('pytsite.file.eps.get_download', {
                 'model': p[0],
                 'p1': p[1],
                 'p2': p[2],

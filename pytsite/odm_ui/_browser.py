@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import auth
-from pytsite.core import router, assetman, metatag, client, odm, lang, http, html
+from pytsite.core import router as _router, assetman as _assetman, metatag as _metatag, client as _client, odm as _odm,\
+    lang as _lang, http as _http, html as _html
 from ._model import ODMUIMixin
 
 
@@ -24,15 +25,15 @@ class ODMUIBrowser:
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
                 and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
-            raise http.error.ForbiddenError()
+            raise _http.error.ForbiddenError()
 
-        self._entity_mock = odm.manager.dispense(self._model)
-        """:type : odm.models.ODMModel|ODMUIMixin"""
+        self._entity_mock = _odm.manager.dispense(self._model)
+        """:type : _odm.models.ODMModel|ODMUIMixin"""
         if not isinstance(self._entity_mock, ODMUIMixin):
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
 
         self._title = self._entity_mock.t('odm_ui_' + model + '_browser_title')
-        metatag.t_set('title', self._title)
+        _metatag.t_set('title', self._title)
 
         self._entity_mock.setup_browser(self)
 
@@ -40,9 +41,9 @@ class ODMUIBrowser:
         if not self.data_fields:
             raise Exception("No head columns are defined.")
 
-        client.include('bootstrap-table')
-        client.include('font-awesome')
-        assetman.add('pytsite.odm_ui@js/browser.js')
+        _client.include('bootstrap-table')
+        _client.include('font-awesome')
+        _assetman.add('pytsite.odm_ui@js/browser.js')
 
     @property
     def title(self) -> str:
@@ -74,32 +75,32 @@ class ODMUIBrowser:
         """Get browser table skeleton.
         """
 
-        data_url = router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
+        data_url = _router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
 
         # Toolbar
-        toolbar = html.Div(uid='odm-ui-browser-toolbar')
+        toolbar = _html.Div(uid='odm-ui-browser-toolbar')
 
         # 'Create' toolbar button
         if self._check_entity_permission('create'):
-            create_form_url = router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {'model': self._model, 'id': '0'})
+            create_form_url = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {'model': self._model, 'id': '0'})
             toolbar.append(
-                html.A(href=create_form_url, cls='btn btn-default add-button').append(
-                    html.I(cls='fa fa-plus')
+                _html.A(href=create_form_url, cls='btn btn-default add-button').append(
+                    _html.I(cls='fa fa-plus')
                 )
             )
-            toolbar.append(html.Span('&nbsp;'))
+            toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
         if self._check_entity_permission('delete'):
-            delete_form_url = router.endpoint_url('pytsite.odm_ui.eps.get_d_form', {'model': self._model})
+            delete_form_url = _router.endpoint_url('pytsite.odm_ui.eps.get_d_form', {'model': self._model})
             toolbar.append(
-                html.A(href=delete_form_url, cls='btn btn-danger mass-delete-button').append(
-                    html.I(cls='fa fa-remove')
+                _html.A(href=delete_form_url, cls='btn btn-danger mass-delete-button').append(
+                    _html.I(cls='fa fa-remove')
                 )
             )
 
         # Table skeleton
-        table = html.Table(
+        table = _html.Table(
             data_toggle='table',
             data_url=data_url,
             data_toolbar='#odm-ui-browser-toolbar',
@@ -111,24 +112,24 @@ class ODMUIBrowser:
             data_click_to_select='false',
             data_striped='true',
         )
-        t_head = html.THead()
-        t_body = html.TBody()
+        t_head = _html.THead()
+        t_body = _html.TBody()
         table.append(t_head).append(t_body)
 
         # Table head row
-        t_head_row = html.Tr()
+        t_head_row = _html.Tr()
         t_head.append(t_head_row)
 
         # Checkbox column
-        t_head_row.append(html.Th(data_field='__state', data_checkbox='true'))
+        t_head_row.append(_html.Th(data_field='__state', data_checkbox='true'))
 
         # Head cells
         for col in self.data_fields:
-            th = html.Th(self._entity_mock.t(col), data_field=col, data_sortable='true')
+            th = _html.Th(self._entity_mock.t(col), data_field=col, data_sortable='true')
             t_head_row.append(th)
 
         # Actions column
-        t_head_row.append(html.Th(lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
+        t_head_row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
         return toolbar.render() + table.render()
 
@@ -138,11 +139,11 @@ class ODMUIBrowser:
 
         r = {'total': 0, 'rows': []}
 
-        finder = odm.manager.find(self._model)
+        finder = _odm.manager.find(self._model)
         r['total'] = finder.count()
 
         if sort_field:
-            sort_order = odm.I_DESC if sort_order.lower() == 'desc' else odm.I_ASC
+            sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC
             finder.sort([(sort_field, sort_order)])
 
         cursor = finder.skip(offset).get(limit)
@@ -171,25 +172,25 @@ class ODMUIBrowser:
 
         return r
 
-    def _get_entity_action_buttons(self, entity) -> html.Div:
+    def _get_entity_action_buttons(self, entity) -> _html.Div:
         """Get action buttons for entity.
         """
-        group = html.Div(cls='entity-actions', data_entity_id=str(entity.id))
+        group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
         if self._check_entity_permission('modify', entity):
-            href = router.endpoint_url('pytsite.odm_ui.eps.get_m_form',
+            href = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form',
                                        {'model': entity.model, 'id': entity.id})
-            group.append(html.A(cls='btn btn-xs btn-default', href=href).append(html.I(cls='fa fa-edit')))
+            group.append(_html.A(cls='btn btn-xs btn-default', href=href).append(_html.I(cls='fa fa-edit')))
 
         if self._check_entity_permission('delete', entity):
-            group.append(html.Span('&nbsp;'))
-            href = router.endpoint_url('pytsite.odm_ui.eps.get_d_form',
+            group.append(_html.Span('&nbsp;'))
+            href = _router.endpoint_url('pytsite.odm_ui.eps.get_d_form',
                                        {'model': entity.model, 'ids': entity.id})
-            group.append(html.A(cls='btn btn-xs btn-danger', href=href).append(html.I(cls='fa fa-remove')))
+            group.append(_html.A(cls='btn btn-xs btn-danger', href=href).append(_html.I(cls='fa fa-remove')))
 
         return group
 
-    def _check_entity_permission(self, permission_type: str, entity: odm.model.ODMModel=None) -> bool:
+    def _check_entity_permission(self, permission_type: str, entity: _odm.model.ODMModel=None) -> bool:
         """Check current user's entity permissions.
         """
         if permission_type == 'create':

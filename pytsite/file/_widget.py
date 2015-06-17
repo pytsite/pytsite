@@ -4,12 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.widget._abstract import Widget
-from pytsite.core import assetman, router, tpl, client
+from pytsite.core import widget as _widget, assetman as _assetman, router as _router, tpl as _tpl, client as _client
 from . import _manager
 
 
-class FilesUpload(Widget):
+class FilesUpload(_widget.base.Widget):
     """Files Upload Widget.
     """
 
@@ -34,11 +33,11 @@ class FilesUpload(Widget):
         if self._max_files:
             self._group_data['max_files'] = self._max_files
 
-        client.include('imagesloaded')
-        assetman.add('pytsite.file@css/upload-widget.css')
-        assetman.add('pytsite.file@js/load-image.all.min.js')
-        assetman.add('pytsite.file@js/canvas-to-blob.min.js')
-        assetman.add('pytsite.file@js/upload-widget.js')
+        _client.include('imagesloaded')
+        _assetman.add('pytsite.file@css/upload-widget.css')
+        _assetman.add('pytsite.file@js/load-image.all.min.js')
+        _assetman.add('pytsite.file@js/canvas-to-blob.min.js')
+        _assetman.add('pytsite.file@js/upload-widget.js')
 
     @property
     def accept_files(self) -> str:
@@ -70,7 +69,7 @@ class FilesUpload(Widget):
 
     def render(self) -> str:
         self._group_data = {
-            'url': router.endpoint_url('pytsite.file.eps.post_upload', {'model': self._model}),
+            'url': _router.endpoint_url('pytsite.file.eps.post_upload', {'model': self._model}),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,
@@ -78,7 +77,7 @@ class FilesUpload(Widget):
             'image_max_width': self._image_max_width,
             'image_max_height': self._image_max_height,
         }
-        widget_content = tpl.render('pytsite.file@file_upload_widget', {'widget': self})
+        widget_content = _tpl.render('pytsite.file@file_upload_widget', {'widget': self})
         return self._group_wrap(widget_content)
 
     def set_value(self, value: list, **kwargs):
@@ -100,7 +99,7 @@ class FilesUpload(Widget):
                 clean_val.append(entity)
 
         if not kwargs.get('validation_mode'):
-            to_delete = router.request.values_dict.get(self._uid + '_to_delete')
+            to_delete = _router.request.values_dict.get(self._uid + '_to_delete')
             if to_delete:
                 if isinstance(to_delete, str):
                     to_delete = [to_delete]

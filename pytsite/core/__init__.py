@@ -6,7 +6,6 @@ __license__ = 'MIT'
 
 
 def __init():
-
     from os import path, environ
     from getpass import getuser
     from socket import gethostname
@@ -65,7 +64,7 @@ def __init():
     # Initializing router
     from . import router
 
-        # Loading routes from the registry
+    # Loading routes from the registry
     for pattern, opts in reg.get('routes', {}).items():
         if '_endpoint' not in opts and '_redirect' not in opts:
             raise Exception("'_endpoint' or '_redirect' is not defined for route '{0}'".format(pattern))

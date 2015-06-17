@@ -1,20 +1,20 @@
 """Database Connection.
 """
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pymongo import MongoClient
-from pymongo.database import Database
-from pymongo.collection import Collection
-from pytsite.core import util, reg
+from pymongo import MongoClient as _MongoClient
+from pymongo.database import Database as _Database
+from pymongo.collection import Collection as _Collection
+from pytsite.core import util as _util, reg as _reg
+
 
 __client = None
 __database = None
 
 
-def get_client() -> MongoClient:
+def get_client() -> _MongoClient:
     """Get client.
     """
 
@@ -27,14 +27,14 @@ def get_client() -> MongoClient:
         'port': 27017,
     }
 
-    config = util.dict_merge(default, reg.get('db', {}))
+    config = _util.dict_merge(default, _reg.get('db', {}))
 
-    __client = MongoClient(config['host'], config['port'])
+    __client = _MongoClient(config['host'], config['port'])
 
     return __client
 
 
-def get_database() -> Database:
+def get_database() -> _Database:
     """Get database.
     """
 
@@ -42,12 +42,12 @@ def get_database() -> Database:
     if __database:
         return __database
 
-    __database = get_client().get_database(reg.get('db.database', 'test'))
+    __database = get_client().get_database(_reg.get('db.database', 'test'))
 
     return __database
 
 
-def get_collection(name: str) -> Collection:
+def get_collection(name: str) -> _Collection:
     """Get collection.
     """
     return get_database().get_collection(name)

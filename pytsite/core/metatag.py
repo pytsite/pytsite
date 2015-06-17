@@ -4,11 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from .lang import t
+from . import lang as _lang
+
 
 __tags = {
     'charset': 'UTF-8',
-    'title': t('pytsite.core@untitled_document'),
+    'title': _lang.t('pytsite.core@untitled_document'),
     'viewport': 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
 }
 __allowed_tags = (
@@ -56,7 +57,7 @@ def dump(tag: str) -> str:
     if tag == 'charset':
         r = '<meta charset="{}">\n'.format(__tags[tag])
     elif tag == 'title':
-        r = '<title>{} | {}</title>\n'.format(__tags[tag], t('app_name'))
+        r = '<title>{} | {}</title>\n'.format(__tags[tag], _lang.t('app_name'))
     else:
         r = '<meta name="{}" content="{}">'.format(tag, __tags[tag])
 

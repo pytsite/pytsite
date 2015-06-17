@@ -5,41 +5,42 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime
-from pytsite import auth, taxonomy, odm_ui, route_alias, image, geo
-from pytsite.core import router, assetman, html, lang, odm, widget, validation
+from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
+    image as _image, geo as _geo
+from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
+    lang as _lang, assetman as assetman
 
 
-class SectionModel(taxonomy.model.Term):
+class SectionModel(_taxonomy.model.Term):
     pass
 
 
-class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
+class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
     """Content Model.
     """
-
     def _setup(self):
         """Hook.
         """
-        self._define_field(odm.field.String('title', not_empty=True))
-        self._define_field(odm.field.String('body'))
-        self._define_field(odm.field.String('description'))
-        self._define_field(odm.field.Ref('route_alias', model='route_alias', not_empty=True))
-        self._define_field(odm.field.DateTime('publish_time', default=datetime.now(), not_empty=True))
-        self._define_field(odm.field.Integer('views_count'))
-        self._define_field(odm.field.Integer('comments_count'))
-        self._define_field(odm.field.RefsUniqueList('images', model='image'))
-        self._define_field(odm.field.StringsListField('video'))
-        self._define_field(odm.field.StringsListField('links'))
-        self._define_field(odm.field.String('status', default='published', not_empty=True))
-        self._define_field(odm.field.RefsUniqueList('localizations', model=self.model))
-        self._define_field(odm.field.Ref('author', model='user', not_empty=True))
-        self._define_field(odm.field.String('language', not_empty=True, default=lang.get_current_lang()))
-        self._define_field(odm.field.RefsUniqueList('tags', model='tag',))
-        self._define_field(odm.field.Ref('section', model='section', not_empty=True))
-        self._define_field(geo.field.GeoLocationField('location'))
-        self._define_field(odm.field.Bool('starred'))
+        self._define_field(_odm.field.String('title', not_empty=True))
+        self._define_field(_odm.field.String('body'))
+        self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.Ref('route_alias', model='route_alias', not_empty=True))
+        self._define_field(_odm.field.DateTime('publish_time', default=datetime.now(), not_empty=True))
+        self._define_field(_odm.field.Integer('views_count'))
+        self._define_field(_odm.field.Integer('comments_count'))
+        self._define_field(_odm.field.RefsUniqueList('images', model='image'))
+        self._define_field(_odm.field.StringsListField('video'))
+        self._define_field(_odm.field.StringsListField('links'))
+        self._define_field(_odm.field.String('status', default='published', not_empty=True))
+        self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
+        self._define_field(_odm.field.Ref('author', model='user', not_empty=True))
+        self._define_field(_odm.field.String('language', not_empty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
+        self._define_field(_odm.field.Ref('section', model='section', not_empty=True))
+        self._define_field(_geo.field.GeoLocationField('location'))
+        self._define_field(_odm.field.Bool('starred'))
 
-        self._define_index([('location.lng_lat', odm.I_GEO2D)])
+        self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -51,7 +52,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
                     value = self.f_get('title')
 
                 if self.is_new:
-                    value = route_alias.manager.create(value).save()
+                    value = _route_alias.manager.create(value).save()
                 else:
                     orig_value = self.f_get('route_alias')
                     if orig_value.f_get('alias') != value:
@@ -64,7 +65,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
         """Hook.
         """
         if not self.f_get('author'):
-            self.f_set('author', auth.manager.get_current_user())
+            self.f_set('author', _auth.manager.get_current_user())
 
         if not self.f_get('route_alias'):
             self.f_set('route_alias', '')
@@ -73,7 +74,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
         """Hook.
         """
         if not self.f_get('route_alias').f_get('target'):
-            self.f_get('route_alias').f_set('target', router.endpoint_url('pytsite.content.eps.view', {
+            self.f_get('route_alias').f_set('target', _router.endpoint_url('pytsite.content.eps.view', {
                 'model': self.model,
                 'eid': self.id,
             }, True)).save()
@@ -97,7 +98,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        title = str(html.A(self.f_get('title'), href=self.f_get('route_alias').f_get('alias')))
+        title = str(_html.A(self.f_get('title'), href=self.f_get('route_alias').f_get('alias')))
 
         status = self.f_get('status')
         status_str = self.t('status_' + status)
@@ -109,7 +110,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
 
         return (
             title,
-            str(html.Span(status_str, cls='label label-' + status_cls)),
+            str(_html.Span(status_str, cls='label label-' + status_cls)),
             self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
             self.f_get('author').f_get('full_name')
         )
@@ -120,10 +121,10 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
         :type form: pytsite.core.form.Base
         """
         from . import _manager
-        assetman.add('pytsite.content@js/content.js')
+        _assetman.add('pytsite.content@js/content.js')
 
         if self.has_field('section'):
-            form.add_widget(odm_ui.widget.ODMSelect(
+            form.add_widget(_odm_ui.widget.ODMSelect(
                 weight=10,
                 uid='section',
                 model='section',
@@ -132,25 +133,25 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
                 value=self.f_get('section'),
                 h_size='col-sm-6',
             ))
-            form.add_rule('section', validation.rule.NotEmpty())
+            form.add_rule('section', _validation.rule.NotEmpty())
 
         if self.has_field('title'):
-            form.add_widget(widget.input.Text(
+            form.add_widget(_widget.input.Text(
                 weight=20,
                 uid='title',
                 label=self.t('title'),
                 value=self.f_get('title'),
             ))
-            form.add_rule('title', validation.rule.NotEmpty())
+            form.add_rule('title', _validation.rule.NotEmpty())
 
-        form.add_widget(widget.input.Text(
+        form.add_widget(_widget.input.Text(
             weight=30,
             uid='description',
             label=self.t('description'),
             value=self.f_get('description'),
         ))
 
-        form.add_widget(taxonomy.widget.TermTokens(
+        form.add_widget(_taxonomy.widget.TermTokens(
             weight=40,
             uid='tags',
             model='tag',
@@ -158,7 +159,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
             value=self.f_get('tags'),
         ))
 
-        form.add_widget(image.widget.ImagesUploadWidget(
+        form.add_widget(_image.widget.ImagesUploadWidget(
             weight=50,
             uid='images',
             label=self.t('images'),
@@ -166,7 +167,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
         ))
 
         if self.has_field('body'):
-            form.add_widget(widget.wysiwyg.CKEditor(
+            form.add_widget(_widget.wysiwyg.CKEditor(
                 weight=60,
                 uid='body',
                 label=self.t('body'),
@@ -174,24 +175,24 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
             ))
 
         # Location
-        form.add_widget(geo.widget.SearchAddress(
+        form.add_widget(_geo.widget.SearchAddress(
             weight=70,
             uid='location',
             label=self.t('location'),
             value=self.f_get('location'),
         ))
 
-        if auth.manager.get_current_user().is_admin():
-            form.add_widget(widget.select.DateTimeSelect(
+        if _auth.manager.get_current_user().is_admin():
+            form.add_widget(_widget.select.DateTimeSelect(
                 weight=80,
                 uid='publish_time',
                 label=self.t('publish_time'),
                 value=datetime.now() if self.is_new else self.f_get('publish_time'),
                 h_size='col-sm-4 col-md-3 col-md-2',
             ))
-            form.add_rules('publish_time', (validation.rule.NotEmpty(), validation.rule.DateTime()))
+            form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
 
-            form.add_widget(widget.select.Select(
+            form.add_widget(_widget.select.Select(
                 weight=90,
                 uid='status',
                 label=self.t('status'),
@@ -200,7 +201,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
                 items=_manager.get_publish_statuses(),
             ))
 
-            form.add_widget(widget.select.LanguageSelect(
+            form.add_widget(_widget.select.Language(
                 weight=100,
                 uid='language',
                 label=self.t('language'),
@@ -208,7 +209,7 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
                 h_size='col-sm-4 col-md-3 col-md-2',
             ))
 
-            form.add_widget(widget.input.Text(
+            form.add_widget(_widget.input.Text(
                 weight=110,
                 uid='route_alias',
                 label=self.t('path'),
@@ -224,14 +225,14 @@ class ContentModel(odm.model.ODMModel, odm_ui.model.ODMUIMixin):
         """Translate a string.
         """
         try:
-            return lang.t(self.package() + '@' + msg_id)
-        except lang.error.TranslationError:
-            return lang.t('pytsite.content@' + msg_id)
+            return _lang.t(self.package() + '@' + msg_id)
+        except _lang.error.TranslationError:
+            return _lang.t('pytsite.content@' + msg_id)
 
     def t_plural(self, msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.
         """
         try:
-            return lang.t_plural(self.package() + '@' + msg_id, num)
-        except lang.error.TranslationError:
-            return lang.t_plural('pytsite.content@' + msg_id, num)
+            return _lang.t_plural(self.package() + '@' + msg_id, num)
+        except _lang.error.TranslationError:
+            return _lang.t_plural('pytsite.content@' + msg_id, num)

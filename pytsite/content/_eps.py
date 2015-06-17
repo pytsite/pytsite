@@ -4,8 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import content
-from pytsite.core import reg, router, http
+from pytsite import core as _core, content as _content
 
 def view(args: dict, inp: dict):
     """View entity.
@@ -13,10 +12,10 @@ def view(args: dict, inp: dict):
     model = args.get('model')
     eid = args.get('eid')
 
-    entity = content.manager.find(model).where('_id', '=', eid)
+    entity = _content.manager.find(model).where('_id', '=', eid)
     if not entity:
-        raise http.error.NotFoundError()
+        raise _core.http.error.NotFoundError()
 
-    endpoint = reg.get('content.endpoints.view.' + model, 'app.endpoints.' + model + '_view')
+    endpoint = _core.reg.get('content.endpoints.view.' + model, 'app.endpoints.' + model + '_view')
 
-    return router.call_endpoint(endpoint, {'entity': entity})
+    return _core.router.call_endpoint(endpoint, {'entity': entity})

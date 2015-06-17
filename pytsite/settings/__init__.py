@@ -5,14 +5,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-# Public API
-from ._functions import define_setting
-
 # Init wrapper
 def __init():
     from pytsite.core import router, lang, odm
     from pytsite import admin
-    from ._models import SettingModel
+    from ._model import SettingModel
 
     # Language package
     lang.register_package(__name__)
@@ -29,3 +26,6 @@ def __init():
 
 # Package initialization
 __init()
+
+# Public API
+from ._functions import define_setting

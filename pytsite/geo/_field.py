@@ -4,10 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.odm._field import Dict
+from pytsite.core import odm as _odm
 
 
-class GeoLocationField(Dict):
+class GeoLocationField(_odm.field.Dict):
     """Geo Location Field.
     """
 

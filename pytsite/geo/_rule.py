@@ -4,9 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import validation
+from pytsite.core import validation as _validation
 
-class GeoAddressNotEmptyRule(validation.rule.DictValueNotEmpty):
+class GeoAddressNotEmptyRule(_validation.rule.DictValueNotEmpty):
     """Check if an address structure is empty.
     """
 

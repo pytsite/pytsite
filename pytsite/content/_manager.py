@@ -5,9 +5,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime
-from pytsite import admin
-from pytsite.core import router, util, odm, lang
-from ._models import ContentModel
+from pytsite import admin as _admin
+from pytsite.core import odm as _odm, util as _util, router as _router, lang as _lang
+from . import _model
 
 __models = []
 
@@ -16,16 +16,16 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     """Register content model.
     """
     if isinstance(cls, str):
-        cls = util.get_class(cls)
+        cls = _util.get_class(cls)
 
-    if not issubclass(cls, ContentModel):
+    if not issubclass(cls, _model.ContentModel):
         raise TypeError('Subclass of ContentModel expected.')
 
-    odm.manager.register_model(model, cls)
+    _odm.manager.register_model(model, cls)
     __models.append(model)
 
-    menu_url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    admin.sidebar.add_menu('content', model, menu_title, menu_url, menu_icon, weight=menu_weight, permissions=(
+    menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
+    _admin.sidebar.add_menu('content', model, menu_title, menu_url, menu_icon, weight=menu_weight, permissions=(
         'pytsite.odm_ui.browse.' + model,
         'pytsite.odm_ui.browse_own.' + model,
     ))
@@ -43,13 +43,13 @@ def get_registered_models() -> list:
     return __models
 
 
-def find(model: str, status='published', check_publish_time=True) -> odm.finder.ODMFinder:
+def find(model: str, status='published', check_publish_time=True) -> _odm.finder.ODMFinder:
     """Get content entity.
     """
     if not is_model_registered(model):
         raise Exception("Model '{}' is not registered as content model.".format(model))
 
-    f = odm.manager.find(model)
+    f = _odm.manager.find(model)
     if status:
         f.where('status', '=', status)
     if check_publish_time:
@@ -63,6 +63,6 @@ def get_publish_statuses() -> list:
     """
     r = []
     for s in ('published', 'waiting', 'unpublished'):
-        r.append((s, lang.t('pytsite.content@status_' + s)))
+        r.append((s, _lang.t('pytsite.content@status_' + s)))
 
     return r

@@ -4,11 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core.http._response import JSONResponse
+from pytsite.core import http as _http
 from . import _manager
 
 
-def search_terms(args: dict, inp: dict) -> JSONResponse:
+def search_terms(args: dict, inp: dict) -> _http.response.JSONResponse:
     """Get taxonomy terms.
     """
     model = args.get('model')
@@ -23,4 +23,4 @@ def search_terms(args: dict, inp: dict) -> JSONResponse:
     for e in finder.get(5):
         r.append(e.f_get('title'))
 
-    return JSONResponse(r)
+    return _http.response.JSONResponse(r)

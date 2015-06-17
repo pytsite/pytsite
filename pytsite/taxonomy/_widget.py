@@ -4,14 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import router
-from pytsite.core.widget._select import TokenSelect
-from pytsite.core.html import Input
-from pytsite.core.odm._model import ODMModel
+from pytsite.core import router as _router, widget as _widget, html as _html, odm as _odm
 from . import _manager
 
 
-class TermTokens(TokenSelect):
+class TermTokens(_widget.select.Tokens):
 
     def __init__(self, **kwargs):
         """Init.
@@ -23,7 +20,7 @@ class TermTokens(TokenSelect):
         if not self._model:
             raise Exception('Model is required.')
 
-        self._remote_source = router.endpoint_url('pytsite.taxonomy.eps.search_terms', {
+        self._remote_source = _router.endpoint_url('pytsite.taxonomy.eps.search_terms', {
             'model': self._model,
             'query': '__QUERY'
         })
@@ -44,7 +41,7 @@ class TermTokens(TokenSelect):
 
         clean_value = []
         for v in value:
-            if isinstance(v, ODMModel):
+            if isinstance(v, _odm.model.ODMModel):
                 clean_value.append(v)
             elif isinstance(v, str):
                 clean_value.append(_manager.dispense(self._model, v).save())
@@ -54,7 +51,7 @@ class TermTokens(TokenSelect):
     def render(self) -> str:
         """Render the widget.
         """
-        html_input = Input(
+        html_input = _html.Input(
             type='text',
             uid=self._uid,
             name=self._name,

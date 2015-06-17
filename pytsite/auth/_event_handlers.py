@@ -1,11 +1,10 @@
 """Event Handlers.
 """
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import console, lang, validation
+from pytsite.core import lang as _lang, console as _console, validation as _validation
 from . import _manager
 
 
@@ -21,21 +20,23 @@ def app_setup():
             if role_entity.f_get('name') == 'admin':
                 role_entity.f_add('permissions', 'admin')
             role_entity.save()
-            console.print_success(lang.t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
+            _console.print_success(_lang.t('pytsite.auth@role_has_been_created',
+                                                     {'name': role_entity.f_get('name')}))
 
     # Creating administrator
     try:
-        email = input(lang.t('pytsite.auth@enter_admin_email') + ': ')
-        v = validation.Validator()
+        email = input(_lang.t('pytsite.auth@enter_admin_email') + ': ')
+        v = _validation.Validator()
         v\
-            .add_rule('email', validation.rule.NotEmpty())\
-            .add_rule('email', validation.rule.Email()).set_value('email', email)
+            .add_rule('email', _validation.rule.NotEmpty())\
+            .add_rule('email', _validation.rule.Email()).set_value('email', email)
         if not v.validate():
             raise Exception(v.messages)
         admin_user = _manager.create_user(email)
-        admin_user.f_set('full_name', lang.t('pytsite.auth@administrator'))
+        admin_user.f_set('full_name', _lang.t('pytsite.auth@administrator'))
         admin_user.f_add('roles', _manager.get_role('admin'))
         admin_user.save()
-        console.print_success(lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
+        _console.print_success(_lang.t('pytsite.auth@user_has_been_created',
+                                                 {'login': admin_user.f_get('login')}))
     except Exception as e:
-        raise console.error.ConsoleRuntimeError(e)
+        raise _console.error.ConsoleRuntimeError(e)

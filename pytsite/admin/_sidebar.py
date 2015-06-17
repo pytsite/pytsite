@@ -4,8 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth
-from pytsite.core import router, lang, util, html
+from pytsite import auth as _auth
+from pytsite.core import util as _util, html as _html, lang as _lang, router as _router
+
 
 __sections = []
 __last_section_weight = 0
@@ -39,7 +40,7 @@ def add_section(sid: str, title: str, weight: int=0, permissions: tuple=()):
         'permissions': permissions
     })
 
-    __sections = util.weight_sort(__sections)
+    __sections = _util.weight_sort(__sections)
 
 
 def get_menu(sid: str, mid: str) -> dict:
@@ -77,7 +78,7 @@ def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
         'permissions': permissions
     })
 
-    section['children'] = util.weight_sort(section['children'])
+    section['children'] = _util.weight_sort(section['children'])
 
 
 def add_menu_child(sid: str, mid: str, title: str, href: str, weight: 0, permissions: tuple=()):
@@ -97,17 +98,17 @@ def add_menu_child(sid: str, mid: str, title: str, href: str, weight: 0, permiss
         'permissions': permissions,
     })
 
-    menu['children'] = util.weight_sort(menu['children'])
+    menu['children'] = _util.weight_sort(menu['children'])
 
 
 def render() -> str:
     """Render the admin sidebar.
     """
-    aside_em = html.Aside(cls='main-sidebar')
-    sidebar_section_em = html.Section(cls='sidebar')
+    aside_em = _html.Aside(cls='main-sidebar')
+    sidebar_section_em = _html.Section(cls='sidebar')
     aside_em.append(sidebar_section_em)
 
-    root_menu_ul = html.Ul(cls='sidebar-menu')
+    root_menu_ul = _html.Ul(cls='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
     from copy import deepcopy
@@ -115,7 +116,8 @@ def render() -> str:
         if not len(section['children']):
             continue
 
-        root_menu_ul.append(html.Li(lang.t(section['title']), cls='header', data_section_weight=section['weight']))
+        root_menu_ul.append(
+            _html.Li(_lang.t(section['title']), cls='header', data_section_weight=section['weight']))
 
         # Building top level menu item
         for menu in section['children']:
@@ -125,25 +127,25 @@ def render() -> str:
             else:
                 # Link
                 href = menu['href']
-                a = html.A(href=href)
+                a = _html.A(href=href)
 
                 # Icon
                 if menu['icon']:
-                    a.append(html.I(cls=menu['icon']))
+                    a.append(_html.I(cls=menu['icon']))
 
                 # Title
-                a.append(html.Span(lang.t(menu['title'])))
+                a.append(_html.Span(_lang.t(menu['title'])))
 
                 # Label
                 if menu['label']:
                     label_class = 'label pull-right label-' + menu['label_class']
-                    a.append(html.Span(lang.t(menu['label']), cls=label_class))
+                    a.append(_html.Span(_lang.t(menu['label']), cls=label_class))
 
                 # List element
-                li = html.Li(data_menu_weight=menu['weight'])
+                li = _html.Li(data_menu_weight=menu['weight'])
 
                 # 'active' CSS class
-                current_url = router.current_url()
+                current_url = _router.current_url()
                 if not current_url.endswith('/admin') and current_url.find(href) >= 0:
                     li.set_attr('cls', 'active')
 
@@ -164,7 +166,7 @@ def _filter_permissions(container: list) -> list:
 
 
 def _check_permissions(container: dict) -> bool:
-    user = auth.manager.get_current_user()
+    user = _auth.manager.get_current_user()
     if user.is_anonymous():
         return False
 

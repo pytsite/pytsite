@@ -5,10 +5,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from pytsite.taxonomy._model import Term
+from pytsite import taxonomy as _taxonomy
 
 
-class Tag(Term):
+class Tag(_taxonomy._model.Term):
     """Tag Model.
     """
     pass

@@ -1,19 +1,15 @@
 """Checkboxes Widgets.
 """
-from datetime import datetime
-from pytsite.core import assetman, client
-from pytsite.core.widget._abstract import Widget
-from pytsite.core.widget._input import Text
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import lang, html
-from ._input import Input as InputWidget
+from datetime import datetime as _datetime
+from pytsite.core import assetman as _assetman, client as _client, lang as _lang, html as _html
+from . import _input
 
 
-class Checkbox(InputWidget):
+class Checkbox(_input.Input):
     """Single Checkbox Widget.
     """
 
@@ -31,16 +27,16 @@ class Checkbox(InputWidget):
         """Render the widget.
         """
 
-        em = html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value)
-        em = em.wrap(html.Label(self._label, label_for=self._uid))
-        div = em.wrap(html.Div(cls='checkbox'))
+        em = _html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value)
+        em = em.wrap(_html.Label(self._label, label_for=self._uid))
+        div = em.wrap(_html.Div(cls='checkbox'))
 
-        div.append(html.Input(type='hidden', name=self._name))
+        div.append(_html.Input(type='hidden', name=self._name))
 
         return self._group_wrap(div.render(), False)
 
 
-class Select(InputWidget):
+class Select(_input.Input):
     """Select Widget.
     """
 
@@ -63,9 +59,9 @@ class Select(InputWidget):
     def render(self):
         """Render the widget.
         """
-        select = html.Select(name=self.uid, cls='form-control')
+        select = _html.Select(name=self.uid, cls='form-control')
         for item in self._items:
-            option = html.Option(item[1], value=item[0])
+            option = _html.Option(item[1], value=item[0])
             if item[0] == self._selected_item:
                 option.set_attr('selected', True)
             select.append(option)
@@ -102,14 +98,14 @@ class Checkboxes(Select):
     def render(self) -> str:
         """Render the widget.
         """
-        div = html.Div()
-        div.append(html.Input(type='hidden', name=self.uid))
+        div = _html.Div()
+        div.append(_html.Input(type='hidden', name=self.uid))
         for item in self._items:
             checked = True if item[0] in self._selected_items else False
             div.append(
-                html.Div(cls='checkbox').append(
-                    html.Label(item[1]).append(
-                        html.Input(type='checkbox', name=self.uid, value=item[0], checked=checked)
+                _html.Div(cls='checkbox').append(
+                    _html.Label(item[1]).append(
+                        _html.Input(type='checkbox', name=self.uid, value=item[0], checked=checked)
                     )
                 )
             )
@@ -117,7 +113,7 @@ class Checkboxes(Select):
         return self._group_wrap(div.render())
 
 
-class LanguageSelect(Select):
+class Language(Select):
     """Select Language Widget
     """
 
@@ -127,19 +123,19 @@ class LanguageSelect(Select):
         super().__init__(**kwargs)
         self._items = kwargs.get('items', [])
 
-        for code in lang.get_langs():
-            self._items.append((code, lang.get_lang_title(code)))
+        for code in _lang.get_langs():
+            self._items.append((code, _lang.get_lang_title(code)))
 
 
-class TokenSelect(Widget):
+class Tokens(_input.Input):
     def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
-        client.include('tokenfield')
-        assetman.add('pytsite.core.widget@css/token.css')
-        assetman.add('pytsite.core.widget@js/token.js')
+        _client.include('tokenfield')
+        _assetman.add('pytsite.core.widget@css/token.css')
+        _assetman.add('pytsite.core.widget@js/token.js')
 
         self._local_source = kwargs.get('local_source')
         self._remote_source = kwargs.get('remote_source')
@@ -151,7 +147,7 @@ class TokenSelect(Widget):
     def render(self) -> str:
         """Render the widget.
         """
-        html_input = html.Input(
+        html_input = _html.Input(
             type='text',
             uid=self._uid,
             name=self._name,
@@ -162,24 +158,24 @@ class TokenSelect(Widget):
         return self._group_wrap(html_input.render())
 
 
-class DateTimeSelect(Text):
+class DateTimeSelect(_input.Text):
     def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
-        client.include('datetimepicker')
-        assetman.add('pytsite.core.widget@js/datetime.js')
+        _client.include('datetimepicker')
+        _assetman.add('pytsite.core.widget@js/datetime.js')
         self._group_cls = self._group_cls.replace('widget-text-input', 'widget-datetime-input')
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
         if value and isinstance(value, str):
-            value = datetime.strptime(value, '%d.%m.%Y %H:%M')
+            value = _datetime.strptime(value, '%d.%m.%Y %H:%M')
 
         return super().set_value(value, **kwargs)
 
-    def get_value(self, **kwargs: dict) -> datetime:
+    def get_value(self, **kwargs: dict) -> _datetime:
         """Get value of the widget.
         """
         return super().get_value(**kwargs)
@@ -187,7 +183,7 @@ class DateTimeSelect(Text):
     def render(self) -> str:
         """Render the widget
         """
-        html_input = html.Input(
+        html_input = _html.Input(
             type='text',
             uid=self._uid,
             name=self._name,

@@ -12,11 +12,10 @@ def __init():
 __init()
 
 # Public API
-from . import _abstract, _button, _input, _select, _static, _wrapper, _wysiwyg
-base = _abstract
+from . import _base, _button, _input, _select, _static, _wysiwyg
+base = _base
 button = _button
 input = _input
 select = _select
 static = _static
-wrapper = _wrapper
 wysiwyg = _wysiwyg

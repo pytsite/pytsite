@@ -5,9 +5,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from json import dumps as _json_dumps, loads as _json_loads
-from pytsite.core import assetman, lang, widget, html
+from pytsite.core import assetman as _assetman, lang as _lang, widget as _widget, html as _html
 
-class SearchAddress(widget.base.Widget):
+
+class SearchAddress(_widget.base.Widget):
     """Geo Address Input Widget.
     """
     def __init__(self, **kwargs: dict):
@@ -15,9 +16,9 @@ class SearchAddress(widget.base.Widget):
         """
         super().__init__(**kwargs)
 
-        lng = lang.get_current_lang()
-        assetman.add_js('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng)
-        assetman.add('pytsite.geo@js/address-input.js')
+        lng = _lang.get_current_lang()
+        _assetman.add_js('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng)
+        _assetman.add('pytsite.geo@js/address-input.js')
 
         self._group_cls += ' widget-geo-address-input'
 
@@ -56,10 +57,10 @@ class SearchAddress(widget.base.Widget):
         lng_lat_value = _json_dumps(self._value['lng_lat']) if self._value else ''
         components_value = _json_dumps(self._value['components']) if self._value else ''
         inputs = [
-            html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value),
-            html.Input(type='hidden', name=self._uid + '[address]', value=address_value),
-            html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value),
-            html.Input(type='hidden', name=self._uid + '[components]', value=components_value),
+            _html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value),
+            _html.Input(type='hidden', name=self._uid + '[address]', value=address_value),
+            _html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value),
+            _html.Input(type='hidden', name=self._uid + '[components]', value=components_value),
         ]
 
         r_inputs = ''

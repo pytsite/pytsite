@@ -5,10 +5,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core import html as _html
-from ._abstract import Widget
+from . import _base
 
 
-class Button(Widget):
+class Button(_base.Widget):
     """Button.
     """
     def __init__(self, **kwargs: dict):

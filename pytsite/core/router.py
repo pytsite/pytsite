@@ -4,27 +4,25 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import re as _re
 from os import path, makedirs
 from traceback import format_exc
 from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
-from werkzeug.routing import Map, Rule as _Rule
-from werkzeug.exceptions import HTTPException
-from werkzeug.contrib.sessions import FilesystemSessionStore
-from importlib import import_module
-from re import sub, match
-from htmlmin import minify
-from .http._request import Request
-from .http._response import Response, RedirectResponse
-from .http._session import Session
-from . import reg, logger
+from werkzeug.routing import Map as _Map, Rule as _Rule
+from werkzeug.exceptions import HTTPException as _HTTPException
+from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
+from importlib import import_module as _import_module
+from htmlmin import minify as _minify
+from . import reg as _reg, logger as _logger, http as _http
 
-session_storage_path = reg.get('paths.session')
+
+session_storage_path = _reg.get('paths.session')
 if not path.exists(session_storage_path):
     makedirs(session_storage_path, 0o755, True)
 
-__session_store = FilesystemSessionStore(path=session_storage_path, session_class=Session)
-__routes = Map()
-__url_adapter = __routes.bind(reg.get('server_name', 'localhost'))
+__session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
+__routes = _Map()
+__url_adapter = __routes.bind(_reg.get('server_name', 'localhost'))
 __path_aliases = {}
 
 
@@ -81,7 +79,7 @@ def call_endpoint(name: str, args: dict=None, inp: dict=None):
     module_name = '.'.join(endpoint[0:len(endpoint)-1])
     callable_name = endpoint[-1]
 
-    module = import_module(module_name)
+    module = _import_module(module_name)
     if callable_name not in dir(module):
         raise Exception("'{}.{}' is not callable".format(module_name, callable_name))
 
@@ -101,12 +99,12 @@ def dispatch(env: dict, start_response: callable):
     # Detect language from path
     languages = lang.get_langs()
     if len(languages) > 1:
-        if match(r'/[a-z]{2}(/|$)', env['PATH_INFO']):
+        if _re.match(r'/[a-z]{2}(/|$)', env['PATH_INFO']):
             lang_code = env['PATH_INFO'][1:3]
             lang.set_current_lang(lang_code)
             env['PATH_INFO'] = env['PATH_INFO'][4:]
             if lang_code == languages[0]:
-                return RedirectResponse(env['PATH_INFO'], 301)(env, start_response)
+                return _http.response.RedirectResponse(env['PATH_INFO'], 301)(env, start_response)
         else:
             lang.set_current_lang(languages[0])
 
@@ -120,15 +118,15 @@ def dispatch(env: dict, start_response: callable):
     __url_adapter = __routes.bind_to_environ(env)
 
     # Creating request
-    request = Request(env)
+    request = _http.request.Request(env)
 
     # Remove trailing slash
     path_info = __url_adapter.path_info
     if len(path_info) > 1 and path_info.endswith('/'):
-        redirect_url = sub(r'/$', '', path_info)
+        redirect_url = _re.sub(r'/$', '', path_info)
         if __url_adapter.query_args:
             redirect_url += '?' + __url_adapter.query_args
-        return RedirectResponse(redirect_url, 301)(env, start_response)
+        return _http.response.RedirectResponse(redirect_url, 301)(env, start_response)
 
     # Session setup
     sid = request.cookies.get('PYTSITE_SESSION')
@@ -155,17 +153,17 @@ def dispatch(env: dict, start_response: callable):
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
             flt_response = call_endpoint(flt_endpoint, flt_args, request.values_dict)
-            if isinstance(flt_response, RedirectResponse):
+            if isinstance(flt_response, _http.response.RedirectResponse):
                 return flt_response(env, start_response)
 
         # Processing response from handler
-        wsgi_response = Response(response='', status=200, content_type='text/html')
+        wsgi_response = _http.response.Response(response='', status=200, content_type='text/html')
         response_from_callable = call_endpoint(rule.endpoint, rule_args, request.values_dict)
         if isinstance(response_from_callable, str):
-            if reg.get('output.minify'):
-                response_from_callable = minify(response_from_callable, True, True)
+            if _reg.get('output.minify'):
+                response_from_callable = _minify(response_from_callable, True, True)
             wsgi_response.data = response_from_callable
-        elif isinstance(response_from_callable, Response):
+        elif isinstance(response_from_callable, _http.response.Response):
             wsgi_response = response_from_callable
         else:
             wsgi_response.data = ''
@@ -177,16 +175,16 @@ def dispatch(env: dict, start_response: callable):
 
         return wsgi_response(env, start_response)
 
-    except HTTPException as e:
+    except _HTTPException as e:
         metatag.t_set('title', lang.t('pytsite.core@error', {'code': e.code}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
-        return Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
+        return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
         metatag.t_set('title', lang.t('pytsite.core@error', {'code': 500}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
-        logger.error(str(e))
-        return Response(wsgi_response, 500, content_type='text/html')(env, start_response)
+        _logger.error(str(e))
+        return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 
 def base_path(language: str=None) -> str:
@@ -272,7 +270,7 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     r = urlunparse(r)
 
     if relative:
-        r = sub(r'^https?://[\w\.\-]+/', '/', r)
+        r = _re.sub(r'^https?://[\w\.\-]+/', '/', r)
 
     return r
 
@@ -293,7 +291,7 @@ def current_url(strip_query_string: bool=False) -> str:
     """Get current URL.
     """
     if not request:
-        return 'http://' + reg.get('server_name')
+        return 'http://' + _reg.get('server_name')
 
     r = request.url
     if strip_query_string:

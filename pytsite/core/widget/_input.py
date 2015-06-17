@@ -1,18 +1,18 @@
-"""Input Widgets.
+"""Input Widgets
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import abstractmethod
-from pytsite.core import assetman, client, html
-from ._abstract import Widget
+from abc import abstractmethod as _abstractmethod
+from pytsite.core import assetman as _assetman, client as _client, html as _html
+from . import _base
 
 
-class Input(Widget):
+class Input(_base.Widget):
     """Input Widget.
     """
-    @abstractmethod
+    @_abstractmethod
     def render(self) -> str:
         pass
 
@@ -24,10 +24,10 @@ class Hidden(Input):
     def render(self) -> str:
         """Render the widget.
         """
-        return html.Input(type='hidden', uid=self._uid, name=self.name, value=self.get_value()).render()
+        return _html.Input(type='hidden', uid=self._uid, name=self.name, value=self.get_value()).render()
 
 
-class TextArea(Widget):
+class TextArea(_base.Widget):
     """Text Area Input Widget.
     """
     def __init__(self, **kwargs):
@@ -39,7 +39,7 @@ class TextArea(Widget):
     def render(self) -> str:
         """Render the widget.
         """
-        html_input = html.TextArea(
+        html_input = _html.TextArea(
             content=self.get_value(),
             uid=self._uid,
             name=self._name,
@@ -48,6 +48,7 @@ class TextArea(Widget):
         )
 
         return self._group_wrap(html_input.render())
+
 
 class Text(Input):
     """Text Input Widget
@@ -62,7 +63,7 @@ class Text(Input):
     def render(self) -> str:
         """Render the widget
         """
-        html_input = html.Input(
+        html_input = _html.Input(
             type='text',
             uid=self._uid,
             name=self._name,
@@ -80,8 +81,8 @@ class TypeaheadText(Text):
         """
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-typeahead-text-input'))
-        client.include('typeahead')
-        assetman.add('pytsite.core.widget@js/typeahead.js')
+        _client.include('typeahead')
+        _assetman.add('pytsite.core.widget@js/typeahead.js')
         self._group_data['source_url'] = source_url
 
 
@@ -93,8 +94,8 @@ class Integer(Text):
         """Init.
         """
         super().__init__(**kwargs)
-        assetman.add('pytsite.core.widget@js/jquery.inputmask.bundle.min.js')
-        assetman.add('pytsite.core.widget@js/integer.js')
+        _assetman.add('pytsite.core.widget@js/jquery.inputmask.bundle.min.js')
+        _assetman.add('pytsite.core.widget@js/integer.js')
         self._group_cls = self._group_cls.replace('widget-text-input', 'widget-integer-input')
 
     def set_value(self, value, **kwargs: dict):

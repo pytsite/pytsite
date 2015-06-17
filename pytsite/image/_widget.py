@@ -4,10 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.file._widget import FilesUpload
+from pytsite import file as _file
 
 
-class ImagesUploadWidget(FilesUpload):
+class ImagesUploadWidget(_file.widget.FilesUpload):
     """Images Upload Widget.
     """
 

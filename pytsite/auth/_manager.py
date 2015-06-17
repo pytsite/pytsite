@@ -4,12 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from werkzeug.security import generate_password_hash, check_password_hash
-from pytsite.core import router, form, reg, odm
-from pytsite.core.lang import t
-from ._error import LoginIncorrect
-from ._model import User, Role
-from .drivers.abstract import AbstractDriver
+from pytsite.core import reg as _reg, http as _http, router as _router, odm as _odm, form as _form, lang as _lang
+from .driver.abstract import AbstractDriver as _AbstractDriver
+from . import _error, _model
 
 __driver = None
 __permission_groups = []
@@ -20,26 +17,28 @@ __anonymous_user = None
 def password_hash(secret: str) -> str:
     """Hash string.
     """
+    from werkzeug.security import generate_password_hash
     return generate_password_hash(secret)
 
 
 def password_verify(clear_text: str, hashed: str) -> bool:
     """Verify hashed string.
     """
+    from werkzeug.security import check_password_hash
     return check_password_hash(hashed, clear_text)
 
 
-def set_driver(driver: AbstractDriver):
+def set_driver(driver: _AbstractDriver):
     """Change current driver.
     """
-    if not isinstance(driver, AbstractDriver):
+    if not isinstance(driver, _AbstractDriver):
         raise TypeError('Instance of AbstractDriver expected.')
 
     global __driver
     __driver = driver
 
 
-def get_driver() -> AbstractDriver:
+def get_driver() -> _AbstractDriver:
     """Get current driver.
     """
     if not __driver:
@@ -109,25 +108,25 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(uid: str=None, cls: str=None) -> form.Base:
+def get_login_form(uid: str=None, cls: str=None) -> _form.Base:
     """Get a login form.
     """
     if not uid:
         uid = 'auth-form'
 
     form = get_driver().get_login_form(uid, cls)
-    form.action = router.endpoint_url('pytsite.auth.eps.post_login')
+    form.action = _router.endpoint_url('pytsite.auth.eps.post_login')
 
     return form
 
 
-def post_login_form(args: dict, inp: dict) -> router.RedirectResponse:
+def post_login_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Post a login form.
     """
     return get_driver().post_login_form(args, inp)
 
 
-def create_user(email: str, login: str=None, password: str=None) -> User:
+def create_user(email: str, login: str=None, password: str=None) -> _model.User:
     """Create new user.
     """
     if not login:
@@ -136,15 +135,15 @@ def create_user(email: str, login: str=None, password: str=None) -> User:
     if get_user(login=login):
         raise Exception("User with login '{}' already exists.".format(login))
 
-    user = odm.manager.dispense('user')
+    user = _odm.manager.dispense('user')
     user.f_set('login', login).f_set('email', email)
 
     if password:
         user.f_set('password', password)
 
     # Automatic roles for new users
-    if reg.get('auth.auto_signup'):
-        for role_name in reg.get('auth.signup_roles', ['user']):
+    if _reg.get('auth.auto_signup'):
+        for role_name in _reg.get('auth.signup_roles', ['user']):
             print(role_name)
             role = get_role(role_name)
             if role:
@@ -153,50 +152,49 @@ def create_user(email: str, login: str=None, password: str=None) -> User:
     return user
 
 
-def get_user(login: str=None, uid: str=None) -> User:
+def get_user(login: str=None, uid: str=None) -> _model.User:
     """Get user by login.
     """
 
     if login:
-        return odm.manager.find('user').where('login', '=', login).first()
+        return _odm.manager.find('user').where('login', '=', login).first()
     if uid:
-        return odm.manager.find('user').where('_id', '=', uid).first()
+        return _odm.manager.find('user').where('_id', '=', uid).first()
 
 
 def create_role(name: str, description: str=''):
     if get_role(name=name):
         raise Exception("Role with name '{0}' already exists.".format(name))
 
-    role = odm.manager.dispense('role')
+    role = _odm.manager.dispense('role')
     return role.f_set('name', name).f_set('description', description)
 
 
-def get_role(name: str=None, uid=None) -> Role:
+def get_role(name: str=None, uid=None) -> _model.Role:
     """Get role by name or by UID.
     """
     if name:
-        return odm.manager.find('role').where('name', '=', name).first()
+        return _odm.manager.find('role').where('name', '=', name).first()
     if uid:
-        return odm.manager.find('role').where('_id', '=', uid).first()
+        return _odm.manager.find('role').where('_id', '=', uid).first()
 
 
-def authorize(user: User)->User:
+def authorize(user: _model.User) -> _model.User:
     """Authorize user.
     """
-
     if not user:
-        raise LoginIncorrect('pytsite.auth@authorization_error')
+        raise _error.LoginIncorrect('pytsite.auth@authorization_error')
 
     if user.f_get('status') != 'active':
         logout_current_user()
-        raise LoginIncorrect('pytsite.auth@authorization_error')
+        raise _error.LoginIncorrect('pytsite.auth@authorization_error')
 
-    router.session['pytsite.auth.login'] = user.f_get('login')
+    _router.session['pytsite.auth.login'] = user.f_get('login')
 
     return user
 
 
-def get_anonymous_user() -> User:
+def get_anonymous_user() -> _model.User:
     """Get anonymous user.
     """
 
@@ -207,11 +205,11 @@ def get_anonymous_user() -> User:
     return __anonymous_user
 
 
-def get_current_user() -> User:
+def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
 
-    login = router.session.get('pytsite.auth.login')
+    login = _router.session.get('pytsite.auth.login')
     if not login:
         return get_anonymous_user()
 
@@ -222,15 +220,15 @@ def get_current_user() -> User:
 
         return authorize(user)
 
-    except LoginIncorrect:
+    except _error.LoginIncorrect:
         return get_anonymous_user()
 
 
 def logout_current_user():
     """Log out current user.
     """
-    if 'pytsite.auth.login' in router.session:
-        del router.session['pytsite.auth.login']
+    if 'pytsite.auth.login' in _router.session:
+        del _router.session['pytsite.auth.login']
 
 
 def get_user_statuses() -> list:
@@ -238,13 +236,13 @@ def get_user_statuses() -> list:
     """
 
     return [
-        ('active', t('pytsite.auth@status_active')),
-        ('waiting', t('pytsite.auth@status_waiting')),
-        ('disabled', t('pytsite.auth@status_disabled')),
+        ('active', _lang.t('pytsite.auth@status_active')),
+        ('waiting', _lang.t('pytsite.auth@status_waiting')),
+        ('disabled', _lang.t('pytsite.auth@status_disabled')),
     ]
 
 
 def get_logout_url() -> str:
     """Get logout URL.
     """
-    return router.endpoint_url('pytsite.auth.eps.get_logout', {'redirect': router.current_url()})
+    return _router.endpoint_url('pytsite.auth.eps.get_logout', {'redirect': _router.current_url()})

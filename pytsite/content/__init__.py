@@ -7,7 +7,7 @@ __license__ = 'MIT'
 def __init():
     from pytsite import admin, taxonomy
     from pytsite.core import router, assetman, events, lang, odm
-    from ._models import SectionModel
+    from ._model import SectionModel
 
     # Dependencies
     __import__('pytsite.auth')
@@ -39,5 +39,6 @@ __init()
 
 
 # Public API
-from . import _manager
+from . import _manager, _model
 manager = _manager
+model = _model

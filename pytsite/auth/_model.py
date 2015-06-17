@@ -1,43 +1,38 @@
 """ Auth Models.
 """
 
-import hashlib
-from pytsite.core import util
-from pytsite.core.odm import I_ASC
-from pytsite.core.odm._model import ODMModel
-from pytsite.core.odm._field import *
+import hashlib as _hashlib
+from pytsite.core import odm as _odm, util as _util
 
 
-class User(ODMModel):
+class User(_odm.model.ODMModel):
     """User Model.
     """
-
     def _setup(self):
         """_setup() hook.
         """
-
         # Fields
-        self._define_field(String('login'))
-        self._define_field(String('email'))
-        self._define_field(String('password'))
-        self._define_field(String('token'))
-        self._define_field(String('first_name'))
-        self._define_field(String('last_name'))
-        self._define_field(String('full_name'))
-        self._define_field(DateTime('birth_date'))
-        self._define_field(DateTime('last_login'))
-        self._define_field(Integer('login_count'))
-        self._define_field(String('status', default='active'))
-        self._define_field(RefsListField('roles', model='role'))
-        self._define_field(Bool('profile_is_public'))
-        self._define_field(Integer('gender'))
-        self._define_field(String('phone'))
-        self._define_field(Dict('options'))
-        self._define_field(Ref('picture', model='image'))
+        self._define_field(_odm.field.String('login'))
+        self._define_field(_odm.field.String('email'))
+        self._define_field(_odm.field.String('password'))
+        self._define_field(_odm.field.String('token'))
+        self._define_field(_odm.field.String('first_name'))
+        self._define_field(_odm.field.String('last_name'))
+        self._define_field(_odm.field.String('full_name'))
+        self._define_field(_odm.field.DateTime('birth_date'))
+        self._define_field(_odm.field.DateTime('last_login'))
+        self._define_field(_odm.field.Integer('login_count'))
+        self._define_field(_odm.field.String('status', default='active'))
+        self._define_field(_odm.field.RefsListField('roles', model='role'))
+        self._define_field(_odm.field.Bool('profile_is_public'))
+        self._define_field(_odm.field.Integer('gender'))
+        self._define_field(_odm.field.String('phone'))
+        self._define_field(_odm.field.Dict('options'))
+        self._define_field(_odm.field.Ref('picture', model='image'))
 
         # Indices
-        self._define_index([('login', I_ASC)], unique=True)
-        self._define_index([('token', I_ASC)], unique=True)
+        self._define_index([('login', _odm.I_ASC)], unique=True)
+        self._define_index([('token', _odm.I_ASC)], unique=True)
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
@@ -45,7 +40,7 @@ class User(ODMModel):
         if field_name == 'password':
             from ._manager import password_hash
             value = password_hash(value)
-            self.f_set('token', hashlib.md5(util.random_password().encode()).hexdigest())
+            self.f_set('token', _hashlib.md5(_util.random_password().encode()).hexdigest())
 
         return value
 
@@ -56,7 +51,7 @@ class User(ODMModel):
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.f_get('password'):
-            self.f_set('password', util.random_password())
+            self.f_set('password', _util.random_password())
 
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.
@@ -95,7 +90,7 @@ class User(ODMModel):
         return self.has_role('admin')
 
 
-class Role(ODMModel):
+class Role(_odm.model.ODMModel):
     """Role.
     """
 
@@ -103,11 +98,11 @@ class Role(ODMModel):
         """_setup() hook.
         """
 
-        self._define_field(String('name'))
-        self._define_field(String('description'))
-        self._define_field(UniqueListField('permissions'))
+        self._define_field(_odm.field.String('name'))
+        self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.UniqueListField('permissions'))
 
-        self._define_index([('name', I_ASC)], unique=True)
+        self._define_index([('name', _odm.I_ASC)], unique=True)
 
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """_on_f_add() hook.
