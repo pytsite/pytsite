@@ -30,6 +30,8 @@ class Element(_ABC):
     """
     def __init__(self, content: str=None, **kwargs):
         """Init.
+
+        :param cls
         """
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
@@ -51,6 +53,10 @@ class Element(_ABC):
     @property
     def content(self):
         return self._content
+
+    @property
+    def children(self) -> list:
+        return self._children
 
     def set_attr(self, attr: str, value):
         """Set attribute.

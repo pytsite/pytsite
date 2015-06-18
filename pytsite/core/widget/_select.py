@@ -39,7 +39,6 @@ class Checkbox(_input.Input):
 class Select(_input.Input):
     """Select Widget.
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """

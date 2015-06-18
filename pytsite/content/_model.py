@@ -1,4 +1,4 @@
-"""Content Models.
+"""Content Models
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -8,10 +8,12 @@ from datetime import datetime
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, geo as _geo
 from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
-    lang as _lang, assetman as assetman
+    lang as _lang, assetman as _assetman
 
 
 class SectionModel(_taxonomy.model.Term):
+    """Section Model.
+    """
     pass
 
 

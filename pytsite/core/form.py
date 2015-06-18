@@ -172,18 +172,23 @@ class Base:
     def store_state(self, except_fields: tuple=None):
         """Store state of the form into the session.
         """
+        # TODO
         pass
 
     def restore_state(self, except_fields: tuple=None):
         """Store state of the form from the session.
         """
+        # TODO
         pass
 
     def render(self) -> str:
         """Render the form.
         """
-        if self._legend:
-            self.add_widget(_widget.static.Html(value=self._legend, html_em=_html.H3, cls='box-title'), area='header')
+        if self._legend and not self.has_widget('__form_legend'):
+            self.add_widget(
+                _widget.static.Html(uid='__form_legend', value=self._legend, html_em=_html.H3, cls='box-title'),
+                area='header'
+            )
 
         body = ''
         for area in self._areas:
@@ -238,7 +243,7 @@ class Base:
             'class': self.cls,
             'action': self.action,
             'method': self.method,
-            'data-_validation-ep': self.validation_ep,
+            'data-validation-ep': self.validation_ep,
         }
 
         r = '<form {}>\n'.format(_util.html_attrs_str(attrs))

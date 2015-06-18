@@ -2,8 +2,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import core as _core
+from pytsite.core import metatag as _metatag, lang as _lang, tpl as _tpl
+
 
 def dashboard(args: dict, inp: dict):
-    _core.metatag.t_set('title', _core.lang.t('pytsite.admin@dashboard'))
-    return _core.tpl.render('pytsite.admin@html')
+    _metatag.t_set('title', _lang.t('pytsite.admin@dashboard'))
+    return _tpl.render('pytsite.admin@html')

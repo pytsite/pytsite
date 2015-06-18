@@ -164,3 +164,20 @@ class DateTime(Base):
                 raise _error.ValidationError()
         elif not isinstance(self._value, datetime):
             raise _error.ValidationError()
+
+class GreaterThan(Base):
+    def __init__(self, msg_id: str=None, value=None, than: int=0):
+        """Init.
+        """
+        super().__init__(msg_id, value)
+        self._than = than
+
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        try:
+            value = float(self._value)
+            if value <= self._than:
+                raise _error.ValidationError()
+        except ValueError:
+            raise _error.ValidationError()

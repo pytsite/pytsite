@@ -1,6 +1,9 @@
 $.fn.extend({
     widgetFilesUpload: function () {
         var widget = this;
+        if(!widget.length)
+            return;
+
         var slots = widget.find('.slots');
         var widgetUid = widget.data('widgetUid');
         var addBtn = widget.find('.add-button');
@@ -14,7 +17,7 @@ $.fn.extend({
         var progressSlot = widget.find('.progress');
         var progressBar = progressSlot.find('.progress-bar');
 
-        if (acceptedFileTypes != '*/*')
+        if(acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
 
         var setupSlot = function (slot) {
@@ -187,7 +190,6 @@ $.fn.extend({
         renumberSlots();
     }
 });
-
 
 $(function () {
     $('.widget-files-upload').widgetFilesUpload();

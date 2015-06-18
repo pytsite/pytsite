@@ -18,17 +18,15 @@ class Button(_base.Widget):
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
         self._cls += ' btn btn-' + self._color
-        self._html_em = _html.Button(self.get_value(), type='button')
+
+        self._em = _html.Button(self.get_value(), uid=self._uid, type='button', cls=self.cls)
 
     def render(self) -> str:
         """Render the widget.
         """
-        self._html_em.set_attr('cls', self.cls)
-
-        if self._icon:
-            self._html_em.append(_html.I(cls=self._icon))
-
-        return self._html_em.render()
+        if self._icon and not self._em.children:
+            self._em.append(_html.I(cls=self._icon))
+        return self._em.render()
 
 
 class Submit(Button):
@@ -38,23 +36,22 @@ class Submit(Button):
         """Init.
         """
         super().__init__(**kwargs)
-        self._html_em = _html.Button(self.get_value(), uid=self._uid, type='submit')
+        self._em = _html.Button(self.get_value(), uid=self._uid, type='submit', cls=self._cls)
 
 
 class Link(Button):
     """Link Button.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, href: str, **kwargs: dict):
         """Init.
         """
         super().__init__(**kwargs)
-        self._href = kwargs.get('href', '#')
-        self._html_em = _html.A(self.get_value(), uid=self._uid, href=self._href)
+        self._em = _html.A(self.get_value(), uid=self._uid, href=href, cls=self._cls)
 
     @property
     def href(self) -> str:
-        return self._href
+        return self._em.get_attr('href')
 
     @href.setter
     def href(self, value: str):
-        self._html_em.set_attr('href', value)
+        self._em.set_attr('href', value)

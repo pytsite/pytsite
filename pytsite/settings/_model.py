@@ -8,7 +8,7 @@ __license__ = 'MIT'
 from pytsite.core import odm as _odm
 
 
-class SettingModel(_odm.model.ODMModel):
+class Setting(_odm.model.ODMModel):
     def _setup(self):
         """Hook.
         """

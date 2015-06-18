@@ -159,7 +159,7 @@ class Widget(_ABC):
 
         cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
         cls = ' '.join((cls, self._group_cls))
-        group_wrapper = _html.Div(content, cls=cls, data_widget_uid=self.uid)
+        group_wrapper = _html.Div(content, cls=cls, data_widget_uid=self.uid, data_widget_weight=self.weight)
 
         if isinstance(self._group_data, dict):
             for k, v in self._group_data.items():

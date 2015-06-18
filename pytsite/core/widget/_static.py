@@ -1,12 +1,10 @@
 """Static Widgets.
 """
-from pytsite.core.widget._base import Widget
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import html as _html, html
+from pytsite.core import html as _html
 from . import _base
 
 
@@ -89,4 +87,4 @@ class Wrapper(_base.Widget):
         for child in self.children:
             r.append(child.render())
 
-        return html.Div(self._children_sep.join(r), cls=self.cls).render()
+        return _html.Div(self._children_sep.join(r), cls=self.cls).render()

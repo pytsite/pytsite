@@ -1,5 +1,5 @@
 $(function () {
-    $('.widget-input-integer').each(function () {
+    $('.widget-input-float').each(function () {
         var widget = $(this);
         var options = {
             allowMinus: false
@@ -8,6 +8,6 @@ $(function () {
         if(widget.data('allowMinus'))
             options.allowMinus = true;
 
-        widget.find('input').inputmask('integer', options);
+        widget.find('input').inputmask('decimal', options);
     });
 });

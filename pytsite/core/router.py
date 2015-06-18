@@ -27,10 +27,10 @@ __path_aliases = {}
 
 
 request = None
-""":type : pytsite.core.http.request.Request"""
+""":type : pytsite.core.http._request.Request"""
 
 session = None
-""":type : pytsite.core.http.session.Session"""
+""":type : pytsite.core.http._session.Session"""
 
 
 class Rule(_Rule):
