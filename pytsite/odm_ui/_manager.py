@@ -34,7 +34,7 @@ def get_m_form(model: str, eid: str=None) -> _form.Base:
     cancel_button_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
     cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('pytsite.odm_ui@cancel'),
                                         href=cancel_button_url, icon='fa fa-remove')
-    actions_wrapper = _widget.static.Wrapper(uid='actions', cls='actions-wrapper text-xs-center text-sm-left')
+    actions_wrapper = _widget.static.Wrapper(uid='actions', cls='actions-wrapper text-xs-B-center text-sm-left')
     actions_wrapper.add_child(submit_button).add_child(cancel_button)
     frm.add_widget(actions_wrapper, area='footer')
 
