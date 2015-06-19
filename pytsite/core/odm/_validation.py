@@ -15,7 +15,6 @@ class ODMEntitiesList(_core_validation.rule.Base):
     def __init__(self, model: str, msg_id: str=None, value=None):
         """Init.
         """
-
         super().__init__(msg_id, value)
         self._model = model
 

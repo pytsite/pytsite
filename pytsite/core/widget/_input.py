@@ -59,12 +59,13 @@ class Text(Input):
         self._prepend = prepend
         self._append = append
         self._group_cls = ' '.join((self._group_cls, 'widget-text-input'))
+        self._type = 'text'
 
     def render(self) -> str:
         """Render the widget
         """
         inp = _html.Input(
-            type='text',
+            type=self._type,
             uid=self._uid,
             name=self._name,
             value=self.get_value(),
@@ -102,6 +103,7 @@ class Integer(Text):
         """Init.
         """
         super().__init__(**kwargs)
+        self._type = 'number'
         self._group_cls = self._group_cls.replace('widget-text-input', 'widget-input-integer')
 
     def set_value(self, value, **kwargs: dict):
@@ -123,6 +125,7 @@ class Float(Text):
         """Init.
         """
         super().__init__(**kwargs)
+        self._type = 'tel'
         self._group_cls = self._group_cls.replace('widget-text-input', 'widget-input-float')
 
     def set_value(self, value, **kwargs: dict):

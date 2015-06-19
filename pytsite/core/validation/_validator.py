@@ -10,7 +10,6 @@ from . import _rule
 class Validator:
     """Validator.
     """
-
     def __init__(self):
         """Init.
         """
@@ -19,7 +18,6 @@ class Validator:
     def add_rule(self, field: str, rule: _rule.Base):
         """Add a rule to the validator field.
         """
-
         if field not in self._rules:
             self._rules[field] = []
 
@@ -37,12 +35,12 @@ class Validator:
         """
         if field in self._rules:
             del self._rules[field]
+
         return self
 
     def set_value(self, field: str, value):
         """Set rule's value.
         """
-
         if not self.has_field(field):
             raise KeyError("Field '{}' is not defined.". format(field))
 
@@ -54,7 +52,6 @@ class Validator:
     def validate(self) -> bool:
         """Validate the validator.
         """
-
         r = True
         for field_name, rules in self._rules.items():
             for rule in rules:

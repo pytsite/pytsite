@@ -14,6 +14,7 @@ def include(lib: str, route_path: str=None):
     elif lib == 'bootstrap':
         assetman.add(__name__ + '@bootstrap/css/bootstrap.min.css', route_path)
         assetman.add(__name__ + '@bootstrap/css/add-columns.css', route_path)
+        assetman.add(__name__ + '@bootstrap/css/add-texts.css', route_path)
         assetman.add(__name__ + '@bootstrap/js/bootstrap.min.js', route_path)
     elif lib == 'bootstrap-table':
         assetman.add(__name__ + '@bootstrap-table/bootstrap-table.min.css', route_path)

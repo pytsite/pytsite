@@ -25,6 +25,17 @@ def form(args: dict, inp: dict) -> str:
     return _tpl.render('pytsite.settings@form', {'form': frm})
 
 
+def form_validate(args: dict, inp: dict) -> dict:
+    """Validate entity create/modify form.
+    """
+    global_messages = []
+    uid = inp.get('__setting_uid')
+    frm = _functions.get_form(uid)
+    v_status = frm.fill(inp, validation_mode=True).validate()
+    widget_messages = frm.messages
+
+    return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
+
 def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Process settings form submit.
     """
@@ -41,6 +52,6 @@ def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
 
     _functions.set_setting(uid, value)
 
-    _router.session.add_success('settings_has_been_saved')
+    _router.session.add_success(_lang.t('pytsite.settings@settings_has_been_saved'))
 
     return _http.response.RedirectResponse(frm.values['__form_location'])

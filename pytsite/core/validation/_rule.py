@@ -17,6 +17,7 @@ class Base(_ABC):
         """
         self._value = value
         self._msg_id = msg_id
+        self._msg_trans_args = {}
         self._message = None
         self._validation_state = None
 
@@ -56,9 +57,11 @@ class Base(_ABC):
             self._do_validate(validator, field_name)
             self._validation_state = True
         except _error.ValidationError as e:
-            msg_id = self._msg_id if self._msg_id else 'pytsite.core.validation@validation_' + \
-                                                       self.__class__.__name__.lower()
-            self._message = _lang.t(msg_id, {'field_name': field_name, 'error_detail': str(e)})
+            if not self._msg_id:
+                self._msg_id = 'pytsite.core.validation@validation_' + self.__class__.__name__.lower()
+            self._msg_trans_args['field_name'] = field_name
+            self._msg_trans_args['error_detail'] = str(e)
+            self._message = _lang.t(self._msg_id, self._msg_trans_args)
             self._validation_state = False
 
         return self._validation_state
@@ -170,7 +173,7 @@ class GreaterThan(Base):
         """Init.
         """
         super().__init__(msg_id, value)
-        self._than = than
+        self._than = self._msg_trans_args['than'] = than
 
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.

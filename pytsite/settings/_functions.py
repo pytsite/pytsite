@@ -33,7 +33,15 @@ def get_definition(uid: str):
 def get_form(uid) -> _form.Base:
     frm_class = get_definition(uid)['form_cls']
     frm = frm_class('settings-' + uid)
+    """:type : _form.Base """
+
     frm.action = _router.endpoint_url('pytsite.settings.eps.form_submit', {'uid': uid})
+    frm.validation_ep = 'pytsite.settings.eps.form_validate'
+
+    frm.add_widget(_widget.input.Hidden(
+        uid='__setting_uid',
+        value=uid
+    ), 'form')
 
     actions = _widget.static.Wrapper(uid='actions')
     actions.add_child(_widget.button.Submit(
