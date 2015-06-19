@@ -140,18 +140,3 @@ def find(model: str):
     """
     from ._finder import ODMFinder
     return ODMFinder(model)
-
-
-def distinct(self, model: str, field_name: str):
-    """Get distinct values for field.
-    """
-    if not is_model_registered(model):
-        raise Exception("ODM model '{}' is not registered".format(model))
-
-    mock = dispense(model)
-    if not mock.has_field(field_name.split('.')[0]):
-        raise Exception("ODM model '{}' doesn't have field '{}'.".format(model, field_name))
-
-    r = []
-    for k, v in mock.collection.distinct(field_name):
-        print(v)

@@ -169,7 +169,7 @@ class DateTime(Base):
             raise _error.ValidationError()
 
 class GreaterThan(Base):
-    def __init__(self, msg_id: str=None, value=None, than: int=0):
+    def __init__(self, msg_id: str=None, value=None, than: float=0.0):
         """Init.
         """
         super().__init__(msg_id, value)

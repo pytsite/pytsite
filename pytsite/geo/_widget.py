@@ -52,19 +52,14 @@ class SearchAddress(_widget.base.Widget):
     def render(self) -> str:
         """Render the widget.
         """
-        print(self._value)
         address_value = self._value['address'] if self._value else ''
         lng_lat_value = _json_dumps(self._value['lng_lat']) if self._value else ''
         components_value = _json_dumps(self._value['components']) if self._value else ''
-        inputs = [
-            _html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value),
-            _html.Input(type='hidden', name=self._uid + '[address]', value=address_value),
-            _html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value),
-            _html.Input(type='hidden', name=self._uid + '[components]', value=components_value),
-        ]
 
-        r_inputs = ''
-        for v in inputs:
-            r_inputs += v.render()
+        inputs = _html.Div()
+        inputs.append(_html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[address]', value=address_value))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[components]', value=components_value))
 
-        return self._group_wrap(r_inputs)
+        return self._group_wrap(inputs)

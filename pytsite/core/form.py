@@ -125,6 +125,10 @@ class Base:
         return r
 
     @property
+    def fields(self) -> list:
+        return self._widgets.keys()
+
+    @property
     def redirect(self) -> str:
         return self.get_widget('__form_redirect').get_value()
 
@@ -139,18 +143,13 @@ class Base:
             if self.has_widget(field_name):
                 self.get_widget(field_name).set_value(field_value, **kwargs)
 
-        # Setting values of the validator
-        for uid in self._widgets:
-            if self._validator.has_field(uid):
-                self._validator.set_value(uid, self.get_widget(uid).get_value())
-
         return self
 
     def add_rule(self, widget_uid: str, rule: _validation.rule.Base):
         """Add a rule to the validator.
         """
         if widget_uid not in self._widgets:
-            raise KeyError("Widget '{0}' is not exists.".format(widget_uid))
+            raise KeyError("Widget '{}' is not exists.".format(widget_uid))
 
         self._validator.add_rule(widget_uid, rule)
 
@@ -167,6 +166,11 @@ class Base:
     def validate(self) -> bool:
         """Validate the form.
         """
+        # Setting values of the validator
+        for uid in self.fields:
+            if self._validator.has_field(uid):
+                self._validator.set_value(uid, self.get_widget(uid).get_value(validation_mode=True))
+
         return self._validator.validate()
 
     def store_state(self, except_fields: tuple=None):
@@ -261,7 +265,7 @@ class Base:
 
         rendered_widgets = []
         for v in _util.weight_sort(widgets_to_render):
-            rendered_widgets.append(v['_widget'].render())
+            rendered_widgets.append(str(v['_widget'].render()))
 
         if not rendered_widgets:
             return ''

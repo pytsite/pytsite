@@ -33,7 +33,7 @@ class Checkbox(_input.Input):
 
         div.append(_html.Input(type='hidden', name=self._name))
 
-        return self._group_wrap(div.render(), False)
+        return self._group_wrap(div, False)
 
 
 class Select(_input.Input):
@@ -65,7 +65,7 @@ class Select(_input.Input):
                 option.set_attr('selected', True)
             select.append(option)
 
-        return self._group_wrap(select.render())
+        return self._group_wrap(select)
 
 
 class Checkboxes(Select):
@@ -109,7 +109,7 @@ class Checkboxes(Select):
                 )
             )
 
-        return self._group_wrap(div.render())
+        return self._group_wrap(div)
 
 
 class Language(Select):
@@ -154,7 +154,7 @@ class Tokens(_input.Input):
             cls=' '.join(('form-control', self._cls)),
         )
 
-        return self._group_wrap(html_input.render())
+        return self._group_wrap(html_input)
 
 
 class DateTimeSelect(_input.Text):
@@ -190,4 +190,4 @@ class DateTimeSelect(_input.Text):
             cls=' '.join(('form-control', self._cls)),
         )
 
-        return self._group_wrap(html_input.render())
+        return self._group_wrap(html_input)

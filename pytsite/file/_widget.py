@@ -4,7 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import widget as _widget, assetman as _assetman, router as _router, tpl as _tpl, client as _client
+from pytsite.core import widget as _widget, assetman as _assetman, router as _router, tpl as _tpl, client as _client, \
+    html as _html
 from . import _manager
 
 
@@ -77,7 +78,7 @@ class FilesUpload(_widget.base.Widget):
             'image_max_width': self._image_max_width,
             'image_max_height': self._image_max_height,
         }
-        widget_content = _tpl.render('pytsite.file@file_upload_widget', {'widget': self})
+        widget_content = _html.Div(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
         return self._group_wrap(widget_content)
 
     def set_value(self, value: list, **kwargs):
@@ -98,14 +99,14 @@ class FilesUpload(_widget.base.Widget):
             if entity:
                 clean_val.append(entity)
 
-        if not kwargs.get('validation_mode'):
-            to_delete = _router.request.values_dict.get(self._uid + '_to_delete')
-            if to_delete:
-                if isinstance(to_delete, str):
-                    to_delete = [to_delete]
-                for ref in to_delete:
-                    file = _manager.get_by_ref(ref)
-                    if file:
-                        file.delete()
+        # Delete files which are has been removed from the widget.
+        to_delete = _router.request.values_dict.get(self._uid + '_to_delete')
+        if to_delete and not kwargs.get('validation_mode'):  # IMPORTANT: not in form validation mode
+            if isinstance(to_delete, str):
+                to_delete = [to_delete]
+            for ref in to_delete:
+                file = _manager.get_by_ref(ref)
+                if file:
+                    file.delete()
 
         self._value = clean_val

@@ -28,3 +28,4 @@ __init()
 
 # Public API
 from ._functions import get_currencies
+from . import _widget as widget, _odm_field as odm_field

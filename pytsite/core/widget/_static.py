@@ -43,7 +43,6 @@ class Tabs(_base.Widget):
         """Init.
         """
         super().__init__(**kwargs)
-
         self._tabs = []
 
     def add_tab(self, tid: str, title: str, content: str):
@@ -72,7 +71,7 @@ class Tabs(_base.Widget):
             content.append(_html.Div(tab[2], cls=content_cls, uid=tab_uid))
             i += 1
 
-        return self._group_wrap(wrapper.render())
+        return self._group_wrap(wrapper)
 
 
 class Wrapper(_base.Widget):

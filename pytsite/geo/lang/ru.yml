@@ -1,1 +1,1 @@
-validation_geoaddressnotemptyrule: 'Обязательно для заполнения'
+validation_geoaddressnotempty: 'Введите адрес'

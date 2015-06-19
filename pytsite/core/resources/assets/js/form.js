@@ -21,10 +21,11 @@ $(function() {
         var form = $(this);
 
         form.submit(function(e) {
-            if(form.hasClass('validated'))
-                return true;
-
             var validation_ep = form.data('validationEp');
+            if(typeof validation_ep == 'undefined' || form.hasClass('validated')) {
+                form.trigger('pytsite.core.form.submit');
+                return true;
+            }
 
             // Cleaning up error messages
             form.find('.form-messages > div').remove();
@@ -33,10 +34,7 @@ $(function() {
                 $(this).find('.help-block.error').remove();
             });
 
-            // No validation is defined, submitting form
-            if(typeof validation_ep == 'undefined')
-                return true;
-
+            form.trigger('pytsite:core:form:validation');
             pytsite.js.post(validation_ep, form.serializeForm())
                 .done(function(data, textStatus, jqXHR) {
                     if(!data.status) {
@@ -53,9 +51,12 @@ $(function() {
                             for(i in g_messages)
                                 form.find('.form-messages').append('<div class="alert alert-danger" role="alert">' + g_messages[i] + '</div>')
                         }
+
+                        form.trigger('pytsite:core:form:validation:fail');
                     }
                     else {
                         form.addClass('validated');
+                        form.trigger('pytsite:core:form:validation:success');
                         form.submit()
                     }
 
@@ -63,6 +64,8 @@ $(function() {
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     form.find('.form-messages')
                         .append('<div class="alert alert-danger" role="alert">' + errorThrown + '</div>');
+
+                    form.trigger('pytsite:core:form:validation:fail');
                 });
 
             return false;

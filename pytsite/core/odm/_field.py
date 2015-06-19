@@ -166,7 +166,6 @@ class UniqueListField(List):
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-
         clean_val = []
         for v in value:
             if v and v not in clean_val:
@@ -369,7 +368,6 @@ class String(Abstract):
 class Integer(Abstract):
     """Integer field.
     """
-
     def __init__(self, name: str, default=0, not_empty: bool=False):
         """Init.
         """
@@ -378,12 +376,39 @@ class Integer(Abstract):
     def set_val(self, value: int, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
+        if not isinstance(value, int):
+            raise ValueError('Integer expected.')
         return super().set_val(int(value), change_modified, **kwargs)
 
     def add_val(self, value: int, change_modified: bool=True, **kwargs):
         """Add a value to the value of the field.
         """
-        return self.set_val(self.get_val(**kwargs) + int(value), change_modified, **kwargs)
+        if not isinstance(value, int):
+            raise ValueError('Integer expected.')
+        return self.set_val(self.get_val(**kwargs) + value, change_modified, **kwargs)
+
+class Float(Abstract):
+    """Float field.
+    """
+    def __init__(self, name: str, default=0.0, not_empty: bool=False):
+        """Init.
+        """
+        super().__init__(name, default=default, not_empty=not_empty)
+
+    def set_val(self, value: float, change_modified: bool=True, **kwargs):
+        """Set value of the field.
+        """
+        if not isinstance(value, float):
+            raise ValueError('Float expected.')
+        return super().set_val(value, change_modified, **kwargs)
+
+    def add_val(self, value: float, change_modified: bool=True, **kwargs):
+        """Add a value to the value of the field.
+        """
+        if not isinstance(value, float):
+            raise ValueError('Float expected.')
+        return self.set_val(self.get_val(**kwargs) + value, change_modified, **kwargs)
+
 
 
 class Bool(Abstract):

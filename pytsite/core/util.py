@@ -75,7 +75,6 @@ def weight_sort(inp: list, key: str='weight') -> list:
 def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
     """Format dictionary as XML attributes string.
     """
-
     from werkzeug.utils import escape
 
     single_attrs = 'checked', 'selected', 'required'

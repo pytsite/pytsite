@@ -55,8 +55,16 @@ class Element(_ABC):
         return self._content
 
     @property
-    def children(self) -> list:
+    def children(self):
+        """ Get children
+
+        :rtype: list[Element]
+        """
         return self._children
+
+    @property
+    def attrs(self) -> dict:
+        return self._attrs
 
     def set_attr(self, attr: str, value):
         """Set attribute.
@@ -75,13 +83,10 @@ class Element(_ABC):
 
         return self
 
-    def get_attr(self, attr):
+    def get_attr(self, attr) -> str:
         """Get attribute.
         """
-
-        if attr not in _common_tag_attrs:
-            raise KeyError("Attribute '{0}' is not defined.".format(attr))
-        return self._attrs[attr]
+        return self._attrs[attr] if attr in self._attrs else None
 
     def append(self, child):
         """Append child.
@@ -102,6 +107,21 @@ class Element(_ABC):
         self._children.append(self._validate_child(child))
 
         return self
+
+    def get_child_by_uid(self, uid: str, parent=None):
+        """Get child by ID.
+
+        :rtype: Element|None
+        """
+        if not parent:
+            parent = self
+
+        for child in parent.children:
+            child_uid = child.get_attr('uid')
+            if child_uid == uid:
+                return child
+            elif child.children:
+                return self.get_child_by_uid(uid, child)
 
     def wrap(self, wrapper):
         if not isinstance(wrapper, Element):

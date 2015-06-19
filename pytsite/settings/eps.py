@@ -40,8 +40,6 @@ def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Process settings form submit.
     """
     uid = args.get('uid')
-    setting = _functions.get_definition(uid)
-
     frm = _functions.get_form(uid).fill(inp)
 
     value = {}
@@ -51,7 +49,6 @@ def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
             value[k] = v
 
     _functions.set_setting(uid, value)
-
     _router.session.add_success(_lang.t('pytsite.settings@settings_has_been_saved'))
 
     return _http.response.RedirectResponse(frm.values['__form_location'])

@@ -144,7 +144,6 @@ def create_user(email: str, login: str=None, password: str=None) -> _model.User:
     # Automatic roles for new users
     if _reg.get('auth.auto_signup'):
         for role_name in _reg.get('auth.signup_roles', ['user']):
-            print(role_name)
             role = get_role(role_name)
             if role:
                 user.f_add('roles', role)

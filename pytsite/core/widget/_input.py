@@ -13,7 +13,7 @@ class Input(_base.Widget):
     """Input Widget.
     """
     @_abstractmethod
-    def render(self) -> str:
+    def render(self) -> _html.Element:
         pass
 
 
@@ -46,7 +46,7 @@ class TextArea(_base.Widget):
             placeholder=self.placeholder
         )
 
-        return self._group_wrap(html_input.render())
+        return self._group_wrap(html_input)
 
 
 class Text(Input):
@@ -61,7 +61,7 @@ class Text(Input):
         self._group_cls = ' '.join((self._group_cls, 'widget-text-input'))
         self._type = 'text'
 
-    def render(self) -> str:
+    def render(self) -> _html.Element:
         """Render the widget
         """
         inp = _html.Input(
@@ -82,7 +82,7 @@ class Text(Input):
                 group.append(_html.Div(self._append, cls='input-group-addon'))
             inp = group
 
-        return self._group_wrap(inp.render())
+        return self._group_wrap(inp)
 
 
 class TypeaheadText(Text):

@@ -8,6 +8,6 @@ $(function () {
         if(widget.data('allowMinus'))
             options.allowMinus = true;
 
-        widget.find('input').inputmask('decimal', options);
+        widget.find('input[type=text],input[type=tel]').inputmask('decimal', options);
     });
 });

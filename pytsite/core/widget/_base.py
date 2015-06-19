@@ -149,17 +149,18 @@ class Widget(_ABC):
         """
         return self._help
 
-    def _group_wrap(self, content, render_label: bool=True) -> str:
+    def _group_wrap(self, content: _html.Element, render_label: bool=True) -> _html.Element:
         """Wrap input string into 'form-group' container.
-        """
-        content = str(content)
 
+        :type content: pytsite.core.html.Element | str
+        """
         if self._h_size:
-            content = _html.Div(content, cls=self._h_size).wrap(_html.Div(cls='row')).render()
+            content = content.wrap(_html.Div(cls=self._h_size))
+            content = content.wrap(_html.Div(cls='row'))
 
         cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
         cls = ' '.join((cls, self._group_cls))
-        group_wrapper = _html.Div(content, cls=cls, data_widget_uid=self.uid, data_widget_weight=self.weight)
+        group_wrapper = _html.Div(cls=cls, data_widget_uid=self.uid, data_widget_weight=self.weight)
 
         if isinstance(self._group_data, dict):
             for k, v in self._group_data.items():
@@ -168,4 +169,6 @@ class Widget(_ABC):
         if render_label and self.label:
             group_wrapper.append(_html.Label(self.label, label_for=self.uid))
 
-        return group_wrapper.render()
+        group_wrapper.append(content)
+
+        return group_wrapper
