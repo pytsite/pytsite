@@ -51,7 +51,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
             if isinstance(value, str):
                 value = value.strip()
                 if not value:
-                    value = self.f_get('title')
+                    return
 
                 if self.is_new:
                     value = _route_alias.manager.create(value).save()
@@ -70,7 +70,8 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
             self.f_set('author', _auth.manager.get_current_user())
 
         if not self.f_get('route_alias'):
-            self.f_set('route_alias', '')
+            route_alias = _route_alias.manager.create(self.f_get('title')).save()
+            self.f_set('route_alias', route_alias)
 
     def _after_save(self):
         """Hook.

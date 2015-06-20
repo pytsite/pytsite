@@ -102,7 +102,7 @@ class ULoginDriver(AbstractDriver):
 
             # Gender
             if 'sex' in ulogin_data:
-                user.f_set('gender', ulogin_data['sex'])
+                user.f_set('gender', int(ulogin_data['sex']))
 
             # Birth date
             if 'bdate' in ulogin_data:
