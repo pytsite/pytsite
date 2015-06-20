@@ -4,14 +4,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from datetime import datetime
+import re as _re
+from datetime import datetime as _datetime
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, geo as _geo
 from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
     lang as _lang, assetman as _assetman
 
 
-class SectionModel(_taxonomy.model.Term):
+class Section(_taxonomy.model.Term):
     """Section Model.
     """
     pass
@@ -27,7 +28,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         self._define_field(_odm.field.String('body'))
         self._define_field(_odm.field.String('description'))
         self._define_field(_odm.field.Ref('route_alias', model='route_alias', not_empty=True))
-        self._define_field(_odm.field.DateTime('publish_time', default=datetime.now(), not_empty=True))
+        self._define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), not_empty=True))
         self._define_field(_odm.field.Integer('views_count'))
         self._define_field(_odm.field.Integer('comments_count'))
         self._define_field(_odm.field.RefsUniqueList('images', model='image'))
@@ -69,8 +70,17 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         if not self.f_get('author'):
             self.f_set('author', _auth.manager.get_current_user())
 
-        if not self.f_get('route_alias'):
-            route_alias = _route_alias.manager.create(self.f_get('title')).save()
+        section_alias = self.f_get('section').f_get('alias')
+        route_alias = self.f_get('route_alias')
+        if route_alias:
+            # If section has been changed, route alias part also needs to be changed
+            route_alias_str = route_alias.f_get('alias')
+            new_route_alias_str = _re.sub('^/\w+/', '/' + section_alias + '/', route_alias_str)
+            if new_route_alias_str != route_alias_str:
+                route_alias.f_set('alias', new_route_alias_str).save()
+        else:
+            new_route_alias_str = section_alias + '/' + self.f_get('title')
+            route_alias = _route_alias.manager.create(new_route_alias_str).save()
             self.f_set('route_alias', route_alias)
 
     def _after_save(self):
@@ -96,7 +106,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         :type browser: pytsite.odm_ui._browser.ODMUIBrowser
         :return: None
         """
-        browser.data_fields = 'title', 'status', 'publish_time', 'author'
+        browser.data_fields = 'title', 'section', 'status', 'publish_time', 'author'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -113,6 +123,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
 
         return (
             title,
+            self.f_get('section').f_get('title'),
             str(_html.Span(status_str, cls='label label-' + status_cls)),
             self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
             self.f_get('author').f_get('full_name')
@@ -190,7 +201,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
                 weight=80,
                 uid='publish_time',
                 label=self.t('publish_time'),
-                value=datetime.now() if self.is_new else self.f_get('publish_time'),
+                value=_datetime.now() if self.is_new else self.f_get('publish_time'),
                 h_size='col-sm-4 col-md-3 col-md-2',
             ))
             form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))

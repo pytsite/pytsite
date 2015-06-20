@@ -7,7 +7,7 @@ __license__ = 'MIT'
 def __init():
     from pytsite import admin, taxonomy
     from pytsite.core import router, assetman, events, lang, odm
-    from ._model import SectionModel
+    from ._model import Section
 
     # Dependencies
     __import__('pytsite.auth')
@@ -30,7 +30,7 @@ def __init():
 
     router.add_rule('/content/view/<string:model>/<string:eid>', 'pytsite.content.eps.view')
 
-    taxonomy.manager.register_model('section', SectionModel, __name__ + '@sections')
+    taxonomy.manager.register_model('section', Section, __name__ + '@sections')
     events.listen('odm.pre_delete.section', _section_pre_delete_handler)
 
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))

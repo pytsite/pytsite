@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime
-from pytsite import admin as _admin
+from pytsite import admin as _admin, taxonomy as _taxonomy
 from pytsite.core import odm as _odm, util as _util, router as _router, lang as _lang
 from . import _model
 
@@ -66,3 +66,7 @@ def get_publish_statuses() -> list:
         r.append((s, _lang.t('pytsite.content@status_' + s)))
 
     return r
+
+
+def get_section(alias: str) -> _model.Section:
+    return _taxonomy.manager.find('section').where('alias', '=', alias).first()

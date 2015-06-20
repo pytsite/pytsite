@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from bson import DBRef as _DBRef
+from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from . import _model, _field
 
@@ -66,7 +66,7 @@ class ODMQuery:
 
         # Convert str to ObjectId
         if isinstance(field, _field.ObjectId) and isinstance(arg, str):
-            arg = _field.ObjectId(arg)
+            arg = _ObjectId(arg)
 
         # Convert instance to DBRef
         if isinstance(field, _field.Ref) and isinstance(arg, _model.ODMModel):
