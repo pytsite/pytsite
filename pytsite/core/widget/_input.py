@@ -58,12 +58,14 @@ class Text(Input):
         super().__init__(**kwargs)
         self._prepend = prepend
         self._append = append
-        self._group_cls = ' '.join((self._group_cls, 'widget-text-input'))
+        self._group_cls = ' '.join((self._group_cls, 'widget-input-text'))
         self._type = 'text'
 
     def render(self) -> _html.Element:
         """Render the widget
         """
+        _assetman.add('pytsite.core.widget@js/text.js')
+
         inp = _html.Input(
             type=self._type,
             uid=self._uid,
@@ -103,8 +105,10 @@ class Integer(Text):
         """Init.
         """
         super().__init__(**kwargs)
-        self._type = 'number'
-        self._group_cls = self._group_cls.replace('widget-text-input', 'widget-input-integer')
+        self._type = 'tel'
+        self._allow_minus = kwargs.get('allow_minus', False)
+        self._group_cls = ' '.join((self._group_cls, 'widget-input-integer'))
+        self._group_data['allow_minus'] = self._allow_minus
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -126,7 +130,9 @@ class Float(Text):
         """
         super().__init__(**kwargs)
         self._type = 'tel'
-        self._group_cls = self._group_cls.replace('widget-text-input', 'widget-input-float')
+        self._allow_minus = kwargs.get('allow_minus', False)
+        self._group_cls = ' '.join((self._group_cls, 'widget-input-float'))
+        self._group_data['allow_minus'] = self._allow_minus
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.

@@ -178,6 +178,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
             uid='images',
             label=self.t('images'),
             value=self.f_get('images'),
+            max_files=10
         ))
 
         if self.has_field('body'):

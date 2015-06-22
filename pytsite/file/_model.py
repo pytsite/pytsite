@@ -34,7 +34,7 @@ class File(_odm.model.ODMModel):
         if _path.exists(file_abs_path):
             _unlink(file_abs_path)
 
-    def _on_f_get(self, field_name: str, orig_value, **kwargs):
+    def _on_f_get(self, field_name: str, value, **kwargs):
         """_on_f_get() hook.
         """
 
@@ -53,4 +53,4 @@ class File(_odm.model.ODMModel):
         if field_name == 'thumb_url':
             raise NotImplementedError()
 
-        return super()._on_f_get(field_name, orig_value)
+        return super()._on_f_get(field_name, value)

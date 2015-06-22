@@ -10,7 +10,7 @@ from . import _functions, _widget
 class Settings(_form.Base):
     def _setup(self):
         weight = 10
-        main_cur = _functions.get_main()
+        main_cur = _functions.get_main_currency()
         for cur in _functions.get_currencies(False):
             self.add_widget(_widget.Currency(
                 uid='setting_exchange_rate_' + cur,

@@ -25,11 +25,13 @@ class FilesUpload(_widget.base.Widget):
 
         self._model = model
         self._max_file_size = int(kwargs.get('max_file_size', 2))
-        self._max_files = int(kwargs.get('max_files', 0))
+        self._max_files = int(kwargs.get('max_files', 1))
         self._accept_files = kwargs.get('accept_files', '*/*')
         self._add_btn_label = kwargs.get('add_btn_label', '')
+        self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
+        self._slot_cls = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3 text-xs-B-center'
 
         if self._max_files:
             self._group_data['max_files'] = self._max_files
@@ -53,6 +55,14 @@ class FilesUpload(_widget.base.Widget):
         self._add_btn_label = value
 
     @property
+    def add_btn_icon(self) -> str:
+        return self._add_btn_icon
+
+    @add_btn_icon.setter
+    def add_btn_icon(self, value):
+        self._add_btn_icon = value
+
+    @property
     def image_max_width(self) -> int:
         return self._image_max_width
 
@@ -68,6 +78,22 @@ class FilesUpload(_widget.base.Widget):
     def image_max_height(self, value):
         self._image_max_height = value
 
+    @property
+    def max_files(self) -> int:
+        return self._max_files
+
+    @max_files.setter
+    def max_files(self, value: int):
+        self._max_files = value
+
+    @property
+    def slot_cls(self) -> str:
+        return self._slot_cls
+
+    @slot_cls.setter
+    def slot_cls(self, value):
+        self._slot_cls = value
+
     def render(self) -> str:
         self._group_data = {
             'url': _router.endpoint_url('pytsite.file.eps.post_upload', {'model': self._model}),
@@ -77,6 +103,7 @@ class FilesUpload(_widget.base.Widget):
             'accept_files': self._accept_files,
             'image_max_width': self._image_max_width,
             'image_max_height': self._image_max_height,
+            'slot_cls': self._slot_cls
         }
         widget_content = _html.Div(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
         return self._group_wrap(widget_content)

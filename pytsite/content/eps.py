@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import content as _content
-from pytsite.core import reg as _reg, http as _http, router as _router
+from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag
 
 def view(args: dict, inp: dict):
     """View entity.
@@ -16,6 +16,8 @@ def view(args: dict, inp: dict):
     entity = _content.manager.find(model).where('_id', '=', eid).first()
     if not entity:
         raise _http.error.NotFoundError()
+
+    _metatag.t_set('title', entity.f_get('title'))
 
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 

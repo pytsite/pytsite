@@ -8,7 +8,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite.core import lang, reg
+    from pytsite.core import lang, reg, tpl
     from pytsite import settings
     from . import _functions, _form
 
@@ -21,6 +21,9 @@ def __init():
 
     # Setting
     settings.define('currency', _form.Settings, __name__ + '@currency', 'fa fa-dollar')
+
+    # Tpl globals
+    tpl.register_global('currency', _functions)
 
 
 # Package initialization

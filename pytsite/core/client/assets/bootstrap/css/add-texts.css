@@ -1,4 +1,4 @@
-@media (max-width: 480px) {
+@media (min-width: 0) {
     .text-xs-B-left {
         text-align: left;
     }

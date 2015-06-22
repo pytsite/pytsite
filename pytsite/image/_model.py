@@ -57,7 +57,7 @@ class Image(file.model.File):
 
         image.close()
 
-    def _on_f_get(self, field_name: str, orig_value, **kwargs):
+    def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
         if field_name == 'url':
@@ -75,4 +75,4 @@ class Image(file.model.File):
         if field_name == 'thumb_url':
             return self.f_get('url', width=int(kwargs.get('width', 422)), height=int(kwargs.get('height', 422)))
 
-        return super()._on_f_get(field_name, orig_value, **kwargs)
+        return super()._on_f_get(field_name, value, **kwargs)

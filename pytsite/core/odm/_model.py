@@ -198,10 +198,10 @@ class ODMModel(_ABC):
         """
         return self._on_f_get(field_name, self.get_field(field_name).get_val(**kwargs), **kwargs)
 
-    def _on_f_get(self, field_name: str, orig_value, **kwargs):
+    def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.
         """
-        return orig_value
+        return value
 
     def f_add(self, field_name: str, value):
         """Add a value to the field.

@@ -29,8 +29,14 @@ class Term(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         """Hook.
         """
         if field_name == 'alias':
-            from ._manager import sanitize_alias_string
-            value = sanitize_alias_string(self.model, value)
+            from . import _manager
+            value = value.strip()
+            if not self.is_new:
+                term = _manager.find(self.model).where('alias', '=', value).first()
+                if not term or term.id != self.id:
+                    value = _manager.sanitize_alias_string(self.model, value)
+            else:
+                value = _manager.sanitize_alias_string(self.model, value)
 
         return super()._on_f_set(field_name, value, **kwargs)
 
@@ -93,7 +99,7 @@ class Term(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
             uid='weight',
             label=self.t('weight'),
             value=self.f_get('weight'),
-            h_size='col-sm-3 col-md-2 col-lg-1',
+            h_size='col-sm-3 col-md-2 col-lg-1'
         ))
 
         form.add_widget(_widget.input.Integer(
@@ -102,6 +108,7 @@ class Term(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
             label=self.t('order'),
             value=self.f_get('order'),
             h_size='col-sm-3 col-md-2 col-lg-1',
+            allow_minus=True
         ))
 
         form.add_widget(_widget.select.Language(

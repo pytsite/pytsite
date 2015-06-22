@@ -19,16 +19,20 @@ class ODMSelect(_widget.select.Select):
         self.set_value(kwargs.get('value'))
         self._model = kwargs.get('model')
         self._caption_field = kwargs.get('caption_field')
+        self._sort_field = kwargs.get('sort_field', self._caption_field)
 
         if not self._model:
             raise ValueError('Model is not specified.')
         if not self._caption_field:
             raise ValueError('Caption field is not specified.')
 
-        finder = _odm.manager.find(self._model).sort([(self._caption_field, _odm.I_ASC)])
-        for entity in finder.get():
-            k = entity.model + ':' + str(entity.id)
-            self._items.append((k, str(entity.get_field(self._caption_field))))
+    @property
+    def sort_field(self) -> str:
+        return self._sort_field
+
+    @sort_field.setter
+    def sort_field(self, value: str):
+        self._sort_field = value
 
     def set_value(self, value: _odm.model.ODMModel, **kwargs):
         """Set value of the widget.
@@ -46,11 +50,18 @@ class ODMSelect(_widget.select.Select):
         self._value = value
         return self
 
+    def render(self):
+        finder = _odm.manager.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
+        for entity in finder.get():
+            k = entity.model + ':' + str(entity.id)
+            self._items.append((k, str(entity.get_field(self._caption_field))))
+
+        return super().render()
+
 
 class ODMCheckboxes(_widget.select.Checkboxes):
     """Select Entities with Checkboxes Widget.
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -59,6 +70,7 @@ class ODMCheckboxes(_widget.select.Checkboxes):
         self.set_value(kwargs.get('value'))
         self._model = kwargs.get('model')
         self._caption_field = kwargs.get('caption_field')
+        self._sort_field = kwargs.get('sort_field', self._caption_field)
 
         if not self._model:
             raise ValueError('Model is not specified.')
@@ -68,10 +80,13 @@ class ODMCheckboxes(_widget.select.Checkboxes):
         # Available items
         self._items = []
 
-        finder = _odm.manager.find(self._model).sort([(self._caption_field, _odm.I_ASC)])
-        for entity in finder.get():
-            k = entity.model + ':' + str(entity.id)
-            self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))
+    @property
+    def sort_field(self) -> str:
+        return self._sort_field
+
+    @sort_field.setter
+    def sort_field(self, value: str):
+        self._sort_field = value
 
     def set_value(self, value, **kwargs):
         """Set value of the widget.
@@ -97,3 +112,12 @@ class ODMCheckboxes(_widget.select.Checkboxes):
                 self._selected_items.append(entity.model + ':' + str(entity.id))
 
         self._value = clean_val
+        return self
+
+    def render(self):
+        finder = _odm.manager.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
+        for entity in finder.get():
+            k = entity.model + ':' + str(entity.id)
+            self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))
+
+        return super().render()

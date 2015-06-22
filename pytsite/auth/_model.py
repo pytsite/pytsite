@@ -1,8 +1,7 @@
-""" Auth Models.
+"""Auth Models
 """
-
 import hashlib as _hashlib
-from pytsite.core import odm as _odm, util as _util
+from pytsite.core import odm as _odm, util as _util, router as _router
 
 
 class User(_odm.model.ODMModel):
@@ -29,6 +28,7 @@ class User(_odm.model.ODMModel):
         self._define_field(_odm.field.String('phone'))
         self._define_field(_odm.field.Dict('options'))
         self._define_field(_odm.field.Ref('picture', model='image'))
+        self._define_field(_odm.field.Virtual('picture_url'))
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)
@@ -89,15 +89,26 @@ class User(_odm.model.ODMModel):
         """
         return self.has_role('admin')
 
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        if field_name == 'picture_url':
+            pic = self.f_get('picture')
+            size = kwargs.get('size', 128)
+            """:type: pytsite.image._model.Image"""
+            if pic:
+                value = pic.f_get('url', width=size, height=size)
+            else:
+                email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
+                value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
+
+        return value
+
 
 class Role(_odm.model.ODMModel):
     """Role.
     """
-
     def _setup(self):
         """_setup() hook.
         """
-
         self._define_field(_odm.field.String('name'))
         self._define_field(_odm.field.String('description'))
         self._define_field(_odm.field.UniqueListField('permissions'))
@@ -107,7 +118,6 @@ class Role(_odm.model.ODMModel):
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """_on_f_add() hook.
         """
-
         if field_name == 'permissions' and not isinstance(value, str):
             raise TypeError("String expected")
 

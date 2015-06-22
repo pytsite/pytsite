@@ -16,7 +16,7 @@ class Currency(_widget.input.Float):
         super().__init__(**kwargs)
 
         if not currency:
-            currency = _functions.get_main()
+            currency = _functions.get_main_currency()
         currency = currency.upper()
 
         self._currency = currency
@@ -26,7 +26,7 @@ class Currency(_widget.input.Float):
         """Set value of the widget.
         """
         if not value:
-            value = {'amount': 0.0, 'currency': _functions.get_main()}
+            value = {'amount': 0.0, 'currency': _functions.get_main_currency()}
 
         if not isinstance(value, dict):
             raise ValueError('Dict expected.')

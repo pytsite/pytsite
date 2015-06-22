@@ -219,7 +219,7 @@ class Ref(Abstract):
         from ._model import ODMModel
 
         if isinstance(value, list) or isinstance(value, tuple):
-            value = value[0]
+            value = value[0] if len(value) else None
 
         if isinstance(value, _bson_DBRef) or value is None:
             pass
