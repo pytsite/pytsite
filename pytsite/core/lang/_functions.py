@@ -6,6 +6,7 @@ __license__ = 'MIT'
 
 import yaml
 from importlib.util import find_spec
+from datetime import datetime as _datetime
 from os import path
 from ._error import TranslationError
 
@@ -173,3 +174,38 @@ def load_lang_file(package_name: str, language: str=None):
     __packages[package_name][language] = content
 
     return content
+
+def time_ago(time: _datetime) -> str:
+    diff = _datetime.now() - time
+    """:type: datetime.timedelta"""
+
+    if diff.days:
+        if diff.days > 365:
+            years = diff.days // 365
+            return '{} {}'.format(years, t_plural('pytsite.core.lang@year', years))
+        elif diff.days > 31:
+            months = diff.days // 12
+            return '{} {}'.format(months, t_plural('pytsite.core.lang@month', months))
+        elif diff.days > 7:
+            weeks = diff.days // 7
+            return '{} {}'.format(weeks, t_plural('pytsite.core.lang@week', weeks))
+        else:
+            return '{} {}'.format(diff.days, t_plural('pytsite.core.lang@day', diff.days))
+    else:
+        if diff.seconds > 3600:
+            hours = diff.seconds // 3600
+            return '{} {}'.format(hours, t_plural('pytsite.core.lang@hour', hours))
+        elif diff.seconds > 60:
+            minutes = diff.seconds // 60
+            return '{} {}'.format(minutes, t_plural('pytsite.core.lang@minute', minutes))
+        else:
+            return '{} {}'.format(diff.seconds, t_plural('pytsite.core.lang@second', diff.seconds))
+
+def pretty_date(time: _datetime) -> str:
+    r = '{} {}'.format(time.day, t_plural('pytsite.core.lang@month_' + str(time.month)))
+
+    diff = _datetime.now() - time
+    if diff.days > 365:
+        r += ' ' + str(time.year)
+
+    return r

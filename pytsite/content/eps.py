@@ -11,9 +11,7 @@ def view(args: dict, inp: dict):
     """View entity.
     """
     model = args.get('model')
-    eid = args.get('eid')
-
-    entity = _content.manager.find(model).where('_id', '=', eid).first()
+    entity = _content.manager.find(model).where('_id', '=', args.get('id')).first()
     if not entity:
         raise _http.error.NotFoundError()
 

@@ -2,6 +2,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from datetime import datetime as _datetime
 
 def dd(var):
     """Debug dump.

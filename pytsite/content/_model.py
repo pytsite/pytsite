@@ -42,6 +42,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         self._define_field(_odm.field.Ref('section', model='section', not_empty=True))
         self._define_field(_geo.field.GeoLocationField('location'))
         self._define_field(_odm.field.Bool('starred'))
+        self._define_field(_odm.field.Virtual('url'))
 
         self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 
@@ -63,6 +64,18 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
                     value = orig_value
 
         return super()._on_f_set(field_name, value, **kwargs)
+
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        """Hook.
+        """
+        if field_name == 'url':
+            if not self.is_new:
+                target = _router.endpoint_url('pytsite.content.eps.view', {'model': self.model, 'id': str(self.id)},
+                                              relative=True)
+                r_alias = _route_alias.manager.find_by_target(target)
+                value = r_alias.f_get('alias') if r_alias else target
+
+        return value
 
     def _pre_save(self):
         """Hook.

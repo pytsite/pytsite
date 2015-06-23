@@ -9,3 +9,5 @@ assetman_console_command_description: 'Компиляция ассетов'
 lang_console_command_description: 'Компиляция языковых переводов'
 untitled_document: 'Безымянный Документ'
 error: 'Ошибка :code'
+ago: 'назад'
+

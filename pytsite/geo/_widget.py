@@ -59,7 +59,17 @@ class SearchAddress(_widget.base.Widget):
         inputs = _html.Div()
         inputs.append(_html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value))
         inputs.append(_html.Input(type='hidden', name=self._uid + '[address]', value=address_value))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[name]', value=address_value))
         inputs.append(_html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value))
         inputs.append(_html.Input(type='hidden', name=self._uid + '[components]', value=components_value))
 
         return self._group_wrap(inputs)
+
+
+class StaticMap(_widget.base.Widget):
+    def __init__(self, **kwargs: dict):
+        """Init.
+        """
+        super().__init__(**kwargs)
+
+        lng = _lang.get_current_lang()

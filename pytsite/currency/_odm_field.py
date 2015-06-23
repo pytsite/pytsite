@@ -20,8 +20,7 @@ class Currency(_odm.field.Abstract):
             if req not in value:
                 raise ValueError("'{}' is not in value.".format(req))
 
-        if not isinstance(value['amount'], float):
-            raise ValueError('Amount must be a float.')
+        value['amount'] = float(value['amount'])
 
         if value['currency'] not in _functions.get_currencies():
             raise ValueError("{} is not valid currency.".format(value['currency']))

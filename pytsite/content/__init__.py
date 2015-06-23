@@ -28,7 +28,7 @@ def __init():
     lang.register_package(__name__)
     assetman.register_package(__name__)
 
-    router.add_rule('/content/view/<string:model>/<string:eid>', 'pytsite.content.eps.view')
+    router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.eps.view')
 
     taxonomy.manager.register_model('section', Section, __name__ + '@sections')
     events.listen('odm.pre_delete.section', _section_pre_delete_handler)

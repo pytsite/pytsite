@@ -8,6 +8,7 @@ from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
+from pytsite.core import lang as _lang
 
 
 class Abstract(_ABC):
@@ -345,7 +346,12 @@ class DateTime(Abstract):
         """:type : _datetime"""
 
         if fmt:
-            value = value.strftime(fmt)
+            if fmt == 'ago':
+                value = _lang.time_ago(value)
+            elif fmt == 'pretty_date':
+                value = _lang.pretty_date(value)
+            else:
+                value = value.strftime(fmt)
 
         return value
 

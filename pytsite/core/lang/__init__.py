@@ -14,6 +14,6 @@ __init()
 
 # Public API
 from ._functions import t, t_plural, register_package, define_languages, get_packages, get_langs, load_lang_file,\
-    get_current_lang, set_current_lang, is_package_registered, get_lang_title
+    get_current_lang, set_current_lang, is_package_registered, get_lang_title, time_ago, pretty_date
 from . import _error
 error = _error

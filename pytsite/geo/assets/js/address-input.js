@@ -44,8 +44,8 @@ $(function () {
             }
 
             setTimeout(function () {
-                if (addressInput.val())
-                    searchInput.val(addressInput.val());
+                if (nameInput.val())
+                    searchInput.val(nameInput.val());
                 else
                     searchInput.val('');
             }, 50);
@@ -56,7 +56,7 @@ $(function () {
             if (place.hasOwnProperty('geometry')) {
                 var loc = place.geometry.location;
                 addressInput.val(place.formatted_address);
-                nameInput.val(place.name);
+                nameInput.val(searchInput.val());
                 lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()]));
                 componentsInput.val(JSON.stringify(place.address_components));
             }

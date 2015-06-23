@@ -48,17 +48,29 @@ def get_currency(code: str) -> str:
     return code
 
 
-def fmt(value: dict, decimal_places: int=2, omit_zeroes: bool=True):
+def fmt(value: dict, decimal_places: int=2, html=False):
     """Format currency.
     """
     currency = value['currency']
     exp = '%.' + str(decimal_places) + 'f'
     amount = exp % value['amount']
+    symbol_before = get_symbol_before(currency)
+    symbol_after = get_symbol_after(currency)
 
-    if omit_zeroes:
-        amount = _re.sub('\.0+$', '', amount)
+    if html:
+        integer = _re.sub('^(\d+).+$', '<span class="amount-integer">\\1</span>', amount)
+        decimal = ''
+        if decimal_places:
+            decimal = _re.sub('^\d+\.(\d+)$',
+                              '<span class="amount-point">.</span><span class="amount-decimal">\\1</span>', amount)
 
-    r = '{} {} {}'.format(get_symbol_before(currency), amount, get_symbol_after(currency)).strip()
+        amount = '{}{}'.format(integer, decimal)
+        if symbol_before:
+            symbol_before = '<span class="symbol-before">{}</span>'.format(symbol_before)
+        if symbol_after:
+            symbol_after = '<span class="symbol-after">{}</span>'.format(symbol_after)
+
+    r = '{} {} {}'.format(symbol_before, amount, symbol_after).strip()
 
     return r
 

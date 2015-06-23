@@ -44,12 +44,12 @@ def get_registered_models() -> list:
 
 
 def find(model: str, status='published', check_publish_time=True) -> _odm.finder.ODMFinder:
-    """Get content entity.
+    """Get entity finder.
     """
     if not is_model_registered(model):
         raise Exception("Model '{}' is not registered as content model.".format(model))
 
-    f = _odm.manager.find(model)
+    f = _odm.manager.find(model).sort([('publish_time', _odm.I_DESC)])
     if status:
         f.where('status', '=', status)
     if check_publish_time:

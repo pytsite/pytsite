@@ -40,3 +40,9 @@ def sanitize_alias_string(string: str) -> str:
             string += '-1'
         else:
             string = re.sub(r'-\d+$', '-' + str(itr), string)
+
+def find_by_target(target: str) -> _model.RouteAliasModel:
+    """Find route alias by target.
+    """
+    lng = _lang.get_current_lang()
+    return _odm.manager.find('route_alias').where('target', '=', target).where('language', '=', lng).first()
