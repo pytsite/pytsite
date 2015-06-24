@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from json import dumps as _json_dumps, loads as _json_loads
+from urllib.parse import quote_plus as _urlquote
 from pytsite.core import assetman as _assetman, lang as _lang, widget as _widget, html as _html
 
 
@@ -77,8 +78,8 @@ class StaticMap(_widget.base.Widget):
         self._center = kwargs.get('center', '40.714728,-73.998672')
         self._width = kwargs.get('width', 320)
         self._height = kwargs.get('height', 240)
-        self._markers = kwargs.get('markers', ({'location': self._center},))
-        self._link_location = kwargs.get('link_location', '')
+        self._address = kwargs.get('address', '')
+        self._link = kwargs.get('link', True)
 
         self._group_cls += 'widget-geo-static-map'
 
@@ -90,13 +91,11 @@ class StaticMap(_widget.base.Widget):
         size = '{}x{}'.format(str(self._width), str(self._height))
         url = 'https://maps.googleapis.com/maps/api/staticmap?'
         url += 'center={}&zoom={}&size={}'.format(self._center, self._zoom, size)
-        if self._markers:
-            url += '&markers='
-            for m in self._markers:
-                url += m['location']
+        url += '&markers=' + self._center
         img = _html.Img(src=url, cls='img-responsive')
 
-        if self._link_location:
-            img = img.wrap(_html.A(href='https://www.google.com/maps?q=' + self._link_location, target='_blank'))
+        if self._address and self._link:
+            url = 'https://www.google.com/maps/place/' + _urlquote(self._address) + '/@' + self._center
+            img = img.wrap(_html.A(href=url, target='_blank'))
 
         return self._group_wrap(img)
