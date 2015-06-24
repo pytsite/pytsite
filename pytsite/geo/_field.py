@@ -10,7 +10,6 @@ from pytsite.core import odm as _odm
 class GeoLocationField(_odm.field.Dict):
     """Geo Location Field.
     """
-
     def set_val(self, value: dict, change_modified: bool=True, **kwargs):
         if isinstance(value, dict) and value:
             if 'address' not in value or not value['address']:

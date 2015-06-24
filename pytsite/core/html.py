@@ -227,6 +227,9 @@ class Button(Span):
 
 
 class A(Span):
+    def _get_valid_attrs(self) -> tuple:
+        return 'target',
+
     def _get_required_attrs(self) -> tuple:
         return 'href',
 

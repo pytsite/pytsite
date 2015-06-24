@@ -72,4 +72,31 @@ class StaticMap(_widget.base.Widget):
         """
         super().__init__(**kwargs)
 
-        lng = _lang.get_current_lang()
+        self._language = _lang.get_current_lang()
+        self._zoom = kwargs.get('zoom', 13)
+        self._center = kwargs.get('center', '40.714728,-73.998672')
+        self._width = kwargs.get('width', 320)
+        self._height = kwargs.get('height', 240)
+        self._markers = kwargs.get('markers', ({'location': self._center},))
+        self._link_location = kwargs.get('link_location', '')
+
+        self._group_cls += 'widget-geo-static-map'
+
+    @property
+    def language(self) -> str:
+        return self._language
+
+    def render(self) -> _html.Element:
+        size = '{}x{}'.format(str(self._width), str(self._height))
+        url = 'https://maps.googleapis.com/maps/api/staticmap?'
+        url += 'center={}&zoom={}&size={}'.format(self._center, self._zoom, size)
+        if self._markers:
+            url += '&markers='
+            for m in self._markers:
+                url += m['location']
+        img = _html.Img(src=url, cls='img-responsive')
+
+        if self._link_location:
+            img = img.wrap(_html.A(href='https://www.google.com/maps?q=' + self._link_location, target='_blank'))
+
+        return self._group_wrap(img)
