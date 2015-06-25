@@ -5,8 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from json import dumps as _json_dumps, loads as _json_loads
-from urllib.parse import quote_plus as _urlquote
 from pytsite.core import assetman as _assetman, lang as _lang, widget as _widget, html as _html
+from . import _functions
 
 
 class SearchAddress(_widget.base.Widget):
@@ -75,7 +75,9 @@ class StaticMap(_widget.base.Widget):
 
         self._language = _lang.get_current_lang()
         self._zoom = kwargs.get('zoom', 13)
-        self._center = kwargs.get('center', '40.714728,-73.998672')
+        self._lat = kwargs.get('lat', 51.4800)
+        self._lng = kwargs.get('lng', 0.0)
+        self._center = '%f,%f' % (self._lat, self._lng)
         self._width = kwargs.get('width', 320)
         self._height = kwargs.get('height', 240)
         self._address = kwargs.get('address', '')
@@ -94,8 +96,8 @@ class StaticMap(_widget.base.Widget):
         url += '&markers=' + self._center
         img = _html.Img(src=url, cls='img-responsive')
 
-        if self._address and self._link:
-            url = 'https://www.google.com/maps/place/' + _urlquote(self._address) + '/@' + self._center
-            img = img.wrap(_html.A(href=url, target='_blank'))
+        if self._link:
+            link = _functions.get_map_link(self._address, self._lat, self._lng)
+            img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('pytsite.geo@show_on_map')))
 
         return self._group_wrap(img)

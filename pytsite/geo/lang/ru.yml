@@ -1,1 +1,2 @@
 validation_geoaddressnotempty: 'Введите адрес'
+show_on_map: 'Показать на карте'

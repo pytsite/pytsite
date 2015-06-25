@@ -12,7 +12,8 @@ def __init():
 __init()
 
 # Public API
-from . import _widget, _field, _rule
+from . import _widget, _field, _rule, _functions
 widget = _widget
 field = _field
 rule = _rule
+functions = _functions
