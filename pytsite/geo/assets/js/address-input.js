@@ -15,7 +15,6 @@ $(function () {
         var uid = widget.data('widget-uid');
         var searchInput = widget.find('input[name="' + uid + '[search]"]');
         var addressInput = widget.find('input[name="' + uid + '[address]"]');
-        var nameInput = widget.find('input[name="' + uid + '[name]"]');
         var lngLatInput = widget.find('input[name="' + uid + '[lng_lat]"]');
         var componentsInput = widget.find('input[name="' + uid + '[components]"]');
         var autocomplete = new google.maps.places.Autocomplete(searchInput[0], {
@@ -36,16 +35,15 @@ $(function () {
         });
 
         searchInput.blur(function () {
-            if (!$(this).val().length) {
+            if(!$(this).val().length) {
                 addressInput.val('');
-                nameInput.val('');
-                lngLatInput.val('');
+                lngLatInput.val('').trigger('change');
                 componentsInput.val('');
             }
 
             setTimeout(function () {
-                if (nameInput.val())
-                    searchInput.val(nameInput.val());
+                if(addressInput.val())
+                    searchInput.val(addressInput.val());
                 else
                     searchInput.val('');
             }, 50);
@@ -55,9 +53,8 @@ $(function () {
             var place = autocomplete.getPlace();
             if (place.hasOwnProperty('geometry')) {
                 var loc = place.geometry.location;
-                addressInput.val(place.formatted_address);
-                nameInput.val(searchInput.val());
-                lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()]));
+                addressInput.val(searchInput.val());
+                lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()])).trigger('change');
                 componentsInput.val(JSON.stringify(place.address_components));
             }
         });
@@ -73,8 +70,7 @@ $(function () {
                         var loc = place.geometry.location;
                         searchInput.val(place.formatted_address);
                         addressInput.val(place.formatted_address);
-                        nameInput.val(place.formatted_address);
-                        lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()]));
+                        lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()])).trigger('change');
                         componentsInput.val(JSON.stringify(place.address_components));
                     }
                 });

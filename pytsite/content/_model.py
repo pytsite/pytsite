@@ -18,7 +18,7 @@ class Section(_taxonomy.model.Term):
     pass
 
 
-class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
+class ContentModel(_odm.model.Model, _odm_ui.model.ODMUIMixin):
     """Content Model.
     """
     def _setup(self):
@@ -40,7 +40,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         self._define_field(_odm.field.String('language', not_empty=True, default=_lang.get_current_lang()))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
         self._define_field(_odm.field.Ref('section', model='section', not_empty=True))
-        self._define_field(_geo.field.GeoLocationField('location'))
+        self._define_field(_geo.field.Location('location'))
         self._define_field(_odm.field.Bool('starred'))
         self._define_field(_odm.field.Virtual('url'))
 
@@ -102,7 +102,7 @@ class ContentModel(_odm.model.ODMModel, _odm_ui.model.ODMUIMixin):
         if not self.f_get('route_alias').f_get('target'):
             self.f_get('route_alias').f_set('target', _router.endpoint_url('pytsite.content.eps.view', {
                 'model': self.model,
-                'eid': self.id,
+                'id': self.id,
             }, True)).save()
 
     def _after_delete(self):

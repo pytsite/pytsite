@@ -4,7 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import ABC as _ABC, abstractmethod
+import re as _re
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D
@@ -12,11 +13,11 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db, events, lang
+from pytsite.core import db as _db, events, lang
 from . import _error, _field
 
 
-class ODMModel(_ABC):
+class Model(_ABC):
     """ODM Model.
     """
     def __init__(self, model: str, obj_id=None):
@@ -31,10 +32,10 @@ class ODMModel(_ABC):
             else:
                 self._collection_name = model + 's'
 
-        self._collection = db.get_collection(self._collection_name)
+        self._collection = _db.get_collection(self._collection_name)
         self._is_new = True
         self._is_deleted = False
-        self._indices = []
+        self._defined_indices = []
         self._fields = _OrderedDict()
 
         self._define_field(_field.ObjectId('_id'))
@@ -47,12 +48,9 @@ class ODMModel(_ABC):
         # setup() hook
         self._setup()
 
-        # Creating indices
-        try:
-            self._collection.index_information()
-        except _OperationFailure:
-            for index_data in self._indices:
-                self._collection.create_index(index_data[0], **index_data[1])
+        # Automatically create indices on new collections
+        if self._collection_name not in _db.get_collection_names():
+            self._create_indices()
 
         # Loading fields data from collection
         if obj_id:
@@ -86,7 +84,7 @@ class ODMModel(_ABC):
             if index_type not in [I_ASC, I_DESC, I_GEO2D]:
                 raise ValueError("Invalid index type.")
 
-            self._indices.append((fields, {'unique': unique}))
+            self._defined_indices.append((fields, {'unique': unique}))
 
     def _define_field(self, field_obj: _field.Abstract):
         """Define a field.
@@ -105,16 +103,35 @@ class ODMModel(_ABC):
         del self._fields[field_name]
         return self
 
-    @abstractmethod
+    def _create_indices(self):
+        """Create indices.
+        """
+        for index_data in self._defined_indices:
+            self._collection.create_index(index_data[0], **index_data[1])
+
+    def reindex(self):
+        """Rebuild indices.
+        """
+        try:
+            # Drop existing indices
+            indices = self._collection.index_information()
+            for i_name, i_val in indices.items():
+                if i_name != '_id_':
+                    self._collection.drop_index(i_name)
+
+            self._create_indices()
+        except _OperationFailure:  # Collection does not exist
+            self._create_indices()
+
+    @_abstractmethod
     def _setup(self):
         """setup() hook.
         """
         pass
 
-    def has_field(self, name)->bool:
+    def has_field(self, name: str) -> bool:
         """Check if the entity has field.
         """
-
         if name not in self._fields:
             return False
 
@@ -160,22 +177,26 @@ class ODMModel(_ABC):
         """
         return self.f_get('_model')
 
+    @property
     def parent(self):
         """Get parent entity.
         """
         return self.f_get('_parent')
 
+    @property
     def children(self) -> list:
         """Get children entities.
         """
         return self.f_get('_children')
 
-    def created(self, **kwargs) -> _datetime:
+    @property
+    def created(self) -> _datetime:
         """Get created date/time.
         """
         return self.f_get('_created')
 
-    def modified(self, **kwargs) -> _datetime:
+    @property
+    def modified(self) -> _datetime:
         """Get modified date/time.
         """
         return self.f_get('_modified')

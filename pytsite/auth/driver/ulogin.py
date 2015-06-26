@@ -9,8 +9,8 @@ from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
-from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, widget as _widget, \
-    http as _http
+from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, \
+    widget as _widget, http as _http
 from pytsite import image as _image
 from .. import _manager, _error
 from .abstract import AbstractDriver
@@ -34,7 +34,6 @@ class Login(_widget.base.Widget):
 class LoginForm(_form.Base):
     """ULogin Login Form.
     """
-
     def _setup(self):
         """_setup() hook.
         """
@@ -50,7 +49,6 @@ class LoginForm(_form.Base):
 class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
-
     def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> _form.Base:
         """Get the login form.
         """
@@ -122,6 +120,9 @@ class ULoginDriver(AbstractDriver):
 
             # Saving statistical information
             user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
+
+            if '__form_redirect' in inp:
+                del inp['__form_redirect']
 
             # Redirect to the final destination
             if 'redirect' in inp:

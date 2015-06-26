@@ -5,9 +5,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from os import path, makedirs
-from traceback import format_exc
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+from os import path as _path, makedirs as _makedirs
+from traceback import format_exc as _format_exc
+from urllib import parse as _urlparse
 from werkzeug.routing import Map as _Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
@@ -17,8 +17,8 @@ from . import reg as _reg, logger as _logger, http as _http
 
 
 session_storage_path = _reg.get('paths.session')
-if not path.exists(session_storage_path):
-    makedirs(session_storage_path, 0o755, True)
+if not _path.exists(session_storage_path):
+    _makedirs(session_storage_path, 0o755, True)
 
 __session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
 __routes = _Map()
@@ -95,6 +95,11 @@ def dispatch(env: dict, start_response: callable):
     """
     from pytsite.core import tpl, metatag, events, lang
     global __url_adapter, request, session
+
+    if _path.exists(_reg.get('paths.maintenance.lock')):
+        wsgi_response = _http.response.Response(response='We are in maintenance mode now. Please try again later.',
+                                                status=503, content_type='text/html')
+        return wsgi_response(env, start_response)
 
     # Detect language from path
     languages = lang.get_langs()
@@ -177,12 +182,12 @@ def dispatch(env: dict, start_response: callable):
 
     except _HTTPException as e:
         metatag.t_set('title', lang.t('pytsite.core@error', {'code': e.code}))
-        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
+        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
         return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
         metatag.t_set('title', lang.t('pytsite.core@error', {'code': 500}))
-        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': format_exc()})
+        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
         _logger.error(str(e))
         return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
@@ -247,7 +252,7 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     """Generate an URL.
     """
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
-    parsed_url = urlparse(url_str)
+    parsed_url = _urlparse.urlparse(url_str)
     r = [
         parsed_url[0] if parsed_url[0] else scheme(),  # 0, Scheme
         parsed_url[1] if parsed_url[1] else server_name(),  # 1, Netloc
@@ -259,15 +264,15 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
 
     # Attaching additional query arguments
     if query:
-        parsed_qs = parse_qs(parsed_url[4])
+        parsed_qs = _urlparse.parse_qs(parsed_url[4])
         parsed_qs.update(query)
-        r[4] = urlencode(parsed_qs, doseq=True)
+        r[4] = _urlparse.urlencode(parsed_qs, doseq=True)
 
     # Adding language suffix
     if not strip_lang:
         r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
 
-    r = urlunparse(r)
+    r = _urlparse.urlunparse(r)
 
     if relative:
         r = _re.sub(r'^https?://[\w\.\-]+/', '/', r)
@@ -275,31 +280,32 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     return r
 
 
-def current_path(strip_query_string: bool=False) -> str:
+def current_path(strip_query_string: bool=False, resolve_alias: bool=True) -> str:
     """Get current path.
     """
     if not request:
         return '/'
 
-    r = urlparse(request.url)
-    if strip_query_string:
-        return urlunparse(('', '', r[2], r[3], '', ''))
+    r = _urlparse.urlparse(request.url)
+    path = _urlparse.urlunparse(('', '', r[2], r[3], '', ''))
+    query = _urlparse.urlunparse(('', '', '', '', r[4], r[5]))
 
-    return urlunparse(('', '', r[2], r[3], r[4], r[5]))
+    if resolve_alias:
+        for k, v in __path_aliases.items():
+            if path == v:
+                path = k
+                break
 
-def current_url(strip_query_string: bool=False) -> str:
-    """Get current URL.
-    """
-    if not request:
-        return 'http://' + _reg.get('server_name')
-
-    r = request.url
-    if strip_query_string:
-        r = urlparse(r)
-        r = urlunparse((r[0], r[1], r[2], r[3], '', ''))
+    r = str(path)
+    if not strip_query_string:
+        r += str(query)
 
     return r
 
+def current_url(strip_query_string: bool=False, resolve_alias: bool=True) -> str:
+    """Get current URL.
+    """
+    return 'http://' + _reg.get('server_name') + current_path(strip_query_string)
 
 def endpoint_url(endpoint: str, args: dict=None, relative: bool=False) -> str:
     """Get URL for endpoint.

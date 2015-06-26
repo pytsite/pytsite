@@ -22,7 +22,7 @@ def odm_register_model(model: str, cls: type):
     if not isinstance(mock, ODMUIMixin):
         return
 
-    assert isinstance(mock, _odm.model.ODMModel)  # Just for correct type hinting in PyCharm
+    assert isinstance(mock, _odm.model.Model)  # Just for correct type hinting in PyCharm
     pkg_name = mock.package()
 
     # Registering package's language container

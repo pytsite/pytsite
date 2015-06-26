@@ -19,7 +19,7 @@ def register_model(model: str, cls, replace: bool=False):
     if isinstance(cls, str):
         cls = util.get_class(cls)
 
-    if not issubclass(cls, _model.ODMModel):
+    if not issubclass(cls, _model.Model):
         raise Exception("Subclass of Model is expected.")
 
     if is_model_registered(model) and not replace:
@@ -33,7 +33,6 @@ def register_model(model: str, cls, replace: bool=False):
 def get_model_class(model: str) -> type:
     """Get registered class for model name.
     """
-
     if not is_model_registered(model):
         raise Exception("ODM model '{}' is not registered".format(model))
 
@@ -43,8 +42,13 @@ def get_model_class(model: str) -> type:
 def is_model_registered(model_name: str) -> bool:
     """Checks if the model already registered.
     """
-
     return model_name in __registered_models
+
+
+def get_registered_models() -> list:
+    """Get registered models names.
+    """
+    return __registered_models.keys()
 
 
 def _cache_get(model_name: str, entity_id):
@@ -57,7 +61,7 @@ def _cache_get(model_name: str, entity_id):
         return __dispensed_entities[cache_key]
 
 
-def _cache_put(entity: _model.ODMModel) -> _model.ODMModel:
+def _cache_put(entity: _model.Model) -> _model.Model:
     """Put entity to the cache.
     """
 
@@ -68,7 +72,7 @@ def _cache_put(entity: _model.ODMModel) -> _model.ODMModel:
     return entity
 
 
-def cache_delete(entity: _model.ODMModel):
+def cache_delete(entity: _model.Model):
     """Delete entity from the cache.
     """
 
@@ -78,7 +82,7 @@ def cache_delete(entity: _model.ODMModel):
             del __dispensed_entities[cache_key]
 
 
-def dispense(model: str, entity_id=None) -> _model.ODMModel:
+def dispense(model: str, entity_id=None) -> _model.Model:
     """Dispense an entity.
     """
 
@@ -118,7 +122,7 @@ def resolve_ref(something) -> _DBRef:
     if isinstance(something, _DBRef):
         return something
 
-    if isinstance(something, _model.ODMModel):
+    if isinstance(something, _model.Model):
         return something.ref
 
     if isinstance(something, str):

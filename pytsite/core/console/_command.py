@@ -1,31 +1,30 @@
-"""Core Console Commands
+"""Console Commands
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import pickle
-from abc import ABC, abstractmethod
-from datetime import datetime
-from os import listdir, path, unlink, makedirs
-from time import time
-from pytsite.core import reg, events
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from datetime import datetime as _datetime
+from os import listdir as _listdir, path as _path, unlink as _unlink, makedirs as _makedirs
+from time import time as _time
+from pytsite.core import reg as _reg, events as _events
 from . import _error
 
 
-class Abstract(ABC):
+class Abstract(_ABC):
     """Abstract command.
     """
-
-    @abstractmethod
+    @_abstractmethod
     def get_name(self) -> str:
         pass
 
-    @abstractmethod
+    @_abstractmethod
     def get_description(self) -> str:
         pass
 
-    @abstractmethod
+    @_abstractmethod
     def execute(self, **kwargs: dict):
         pass
 
@@ -33,7 +32,6 @@ class Abstract(ABC):
 class Cleanup(Abstract):
     """Cleanup All Command.
     """
-
     def get_name(self) -> str:
         """Get name of the command.
         """
@@ -48,15 +46,14 @@ class Cleanup(Abstract):
     def execute(self, **kwargs: dict):
         """Execute the command.
         """
-        from ._functions import run_console_command
-        run_console_command('cleanup:tmp', **kwargs)
-        run_console_command('cleanup:session', **kwargs)
+        from ._functions import run_command
+        run_command('cleanup:tmp', **kwargs)
+        run_command('cleanup:session', **kwargs)
 
 
 class CleanupTmpFiles(Abstract):
     """Cleanup Tmp Files Command.
     """
-
     def get_name(self) -> str:
         return 'app:cleanup:tmp'
 
@@ -65,17 +62,16 @@ class CleanupTmpFiles(Abstract):
         return t('pytsite.core@cleanup_tmp_console_command_description')
 
     def execute(self, **kwargs: dict):
-        tmp_dir = reg.get('paths.tmp')
-        for file_name in listdir(tmp_dir):
-            file_path = path.join(tmp_dir, file_name)
-            if path.isfile(file_path):
-                unlink(file_path)
+        tmp_dir = _reg.get('paths.tmp')
+        for file_name in _listdir(tmp_dir):
+            file_path = _path.join(tmp_dir, file_name)
+            if _path.isfile(file_path):
+                _unlink(file_path)
 
 
 class CleanupOldSessions(Abstract):
     """Cleanup Old Session Files Command.
     """
-
     def get_name(self) -> str:
         return 'app:cleanup:session'
 
@@ -84,12 +80,12 @@ class CleanupOldSessions(Abstract):
         return t('pytsite.core@cleanup_session_console_command_description')
 
     def execute(self, **kwargs: dict):
-        session_dir = reg.get('paths.session')
-        ttl = int(reg.get('session.ttl', 21600))  # 6 hours
-        for file_name in listdir(session_dir):
-            file_path = path.join(session_dir, file_name)
-            if path.isfile(file_path) and (time() - path.getmtime(file_path)) >= ttl:
-                unlink(file_path)
+        session_dir = _reg.get('paths.session')
+        ttl = int(_reg.get('session.ttl', 21600))  # 6 hours
+        for file_name in _listdir(session_dir):
+            file_path = _path.join(session_dir, file_name)
+            if _path.isfile(file_path) and (_time() - _path.getmtime(file_path)) >= ttl:
+                _unlink(file_path)
 
 
 class Cron(Abstract):
@@ -110,20 +106,20 @@ class Cron(Abstract):
         """Execute the command.
         """
         lock_path = self._get_lock_file_path()
-        if path.exists(lock_path):
+        if _path.exists(lock_path):
             raise Exception('Lock file exists.')
 
         self._lock_file_op(True)
 
         d = self._get_descriptor()
-        now = datetime.now()
+        now = _datetime.now()
         for evt in 'hourly', 'daily', 'weekly', 'monthly':
             delta = now - d[evt]
             if evt == 'hourly' and delta.total_seconds() >= 3600\
                     or evt == 'daily' and delta.total_seconds() >= 86400\
                     or evt == 'weekly' and delta.total_seconds() >= 604800\
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
-                events.fire(__name__ + '@' + evt)
+                _events.fire(__name__ + '@' + evt)
                 self._update_descriptor(evt)
 
         self._lock_file_op(False)
@@ -132,12 +128,12 @@ class Cron(Abstract):
         """Get descriptor file path.
         """
 
-        return path.join(reg.get('paths.storage'), 'cron.data')
+        return _path.join(_reg.get('paths.storage'), 'cron.data')
 
     def _get_lock_file_path(self) -> str:
         """Get lock file path.
         """
-        return path.join(reg.get('paths.storage'), 'cron.lock')
+        return _path.join(_reg.get('paths.storage'), 'cron.lock')
 
     def _lock_file_op(self, op: bool):
         """Operation with lock file.
@@ -145,21 +141,21 @@ class Cron(Abstract):
         file_path = self._get_lock_file_path()
         if op:
             with open(file_path, 'wt') as f:
-                f.write(datetime.now().isoformat())
-        elif path.exists(file_path):
-            unlink(file_path)
+                f.write(_datetime.now().isoformat())
+        elif _path.exists(file_path):
+            _unlink(file_path)
 
     def _get_descriptor(self) -> dict:
         """Get descriptor info.
         """
         data = None
         file_path = self._get_descriptor_file_path()
-        if not path.exists(file_path):
+        if not _path.exists(file_path):
             data = {
-                'hourly': datetime.fromtimestamp(0),
-                'daily': datetime.fromtimestamp(0),
-                'weekly': datetime.fromtimestamp(0),
-                'monthly': datetime.fromtimestamp(0),
+                'hourly': _datetime.fromtimestamp(0),
+                'daily': _datetime.fromtimestamp(0),
+                'weekly': _datetime.fromtimestamp(0),
+                'monthly': _datetime.fromtimestamp(0),
             }
             with open(file_path, 'wb') as f:
                 pickle.dump(data, f)
@@ -174,17 +170,47 @@ class Cron(Abstract):
         """Update descriptor.
         """
         data = self._get_descriptor()
-        data[part] = datetime.now()
+        data[part] = _datetime.now()
         with open(self._get_descriptor_file_path(), 'wb') as f:
             pickle.dump(data, f)
 
         return data
 
 
+class Maintenance(Abstract):
+    """Maintenance Command.
+    """
+    def get_name(self) -> str:
+        """Get name of the command.
+        """
+        return 'app:maintenance'
+
+    def get_description(self) -> str:
+        """Get description of the command.
+        """
+        from pytsite.core.lang import t
+        return t('pytsite.core@maintenance_console_command_description')
+
+    def execute(self, **kwargs: dict):
+        """Execute the command.
+        """
+        from pytsite.core.lang import t
+        from . import _functions
+        lock_path = _reg.get('paths.maintenance.lock')
+
+        if 'enable' in kwargs:
+            with open(lock_path, 'wt') as f:
+                f.write(str(_datetime.now()))
+            _functions.print_success(t('pytsite.core@maintenance_mode_enabled'))
+
+        if 'disable' in kwargs:
+            _unlink(lock_path)
+            _functions.print_success(t('pytsite.core@maintenance_mode_disabled'))
+
+
 class Setup(Abstract):
     """Setup Command.
     """
-
     def get_name(self) -> str:
         """Get name of the command.
         """
@@ -201,18 +227,41 @@ class Setup(Abstract):
         """
         from pytsite.core.lang import t
 
-        lock_path = reg.get('paths.setup.lock')
-        if path.exists(lock_path):
+        lock_path = _reg.get('paths.setup.lock')
+        if _path.exists(lock_path):
             raise _error.ConsoleRuntimeError(t('pytsite.core@setup_already_completed'))
 
-        events.fire('app.setup')
+        _events.fire('app.setup')
 
         # Writing lock file
-        lock_dir = path.dirname(lock_path)
-        if not path.isdir(lock_dir):
-            makedirs(lock_dir, 0o755, True)
+        lock_dir = _path.dirname(lock_path)
+        if not _path.isdir(lock_dir):
+            _makedirs(lock_dir, 0o755, True)
         with open(lock_path, 'wt') as f:
-            f.write(datetime.now().isoformat())
+            f.write(_datetime.now().isoformat())
 
         from ._functions import print_info
         print_info(t('pytsite.core@setup_has_been_completed'))
+
+class Update(Abstract):
+    """Setup Command.
+    """
+    def get_name(self) -> str:
+        """Get name of the command.
+        """
+        return 'app:update'
+
+    def get_description(self) -> str:
+        """Get description of the command.
+        """
+        from pytsite.core.lang import t
+        return t('pytsite.core@update_console_command_description')
+
+    def execute(self, **kwargs: dict):
+        """Execute the command.
+        """
+        from . import _functions
+
+        _functions.run_command('app:maintenance', enable=True)
+        _events.fire('app.update')
+        _functions.run_command('app:maintenance', disable=True)

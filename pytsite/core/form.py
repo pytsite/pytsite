@@ -130,10 +130,14 @@ class Base:
 
     @property
     def redirect(self) -> str:
+        """Get after form submit redirect URL.
+        """
         return self.get_widget('__form_redirect').get_value()
 
     @redirect.setter
     def redirect(self, value):
+        """Set after form submit redirect URL.
+        """
         self.get_widget('__form_redirect').set_value(value)
 
     def fill(self, values: dict, **kwargs: dict):

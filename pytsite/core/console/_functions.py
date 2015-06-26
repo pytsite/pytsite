@@ -1,6 +1,6 @@
 """PytSite Console.
 """
-from pytsite.core.console._command import Abstract
+from . import _command
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,14 +22,14 @@ COLOR_UNDERLINE = '\033[4m'
 COLOR_END = '\033[0m'
 
 
-def register_command(obj: Abstract):
+def register_command(obj: _command.Abstract):
     """Register a console command.
     """
     global __commands
     __commands[obj.get_name()] = obj
 
 
-def get_command(name: str)->Abstract:
+def get_command(name: str) -> _command.Abstract:
     """Get a console command.
     """
 
@@ -40,10 +40,9 @@ def get_command(name: str)->Abstract:
     return __commands[name]
 
 
-def run_console_command(name: str, **kwargs: dict):
+def run_command(name: str, **kwargs: dict):
     """Run a console command.
     """
-
     return get_command(name).execute(**kwargs)
 
 
@@ -87,7 +86,7 @@ def run():
             from pytsite.core.lang import t
             raise _error.ConsoleRuntimeError(t('pytsite.core@setup_is_not_completed'))
 
-        return run_console_command(argv[1], **cmd_args)
+        return run_command(argv[1], **cmd_args)
 
     except _error.ConsoleRuntimeError as e:
         print_error(str(e))

@@ -217,14 +217,14 @@ class Ref(Abstract):
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        from ._model import ODMModel
+        from ._model import Model
 
         if isinstance(value, list) or isinstance(value, tuple):
             value = value[0] if len(value) else None
 
         if isinstance(value, _bson_DBRef) or value is None:
             pass
-        elif isinstance(value, ODMModel):
+        elif isinstance(value, Model):
             if value.model != self._model:
                 raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
@@ -261,9 +261,9 @@ class RefsListField(List):
             value = [list]
 
         clean_value = []
-        from ._model import ODMModel
+        from ._model import Model
         for item in value:
-            if isinstance(item, ODMModel):
+            if isinstance(item, Model):
                 if item.model != self._model:
                     raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
                 clean_value.append(item.ref)
@@ -289,13 +289,13 @@ class RefsListField(List):
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
-        from ._model import ODMModel
-        if not isinstance(value, _bson_DBRef) and not isinstance(value, ODMModel):
+        from ._model import Model
+        if not isinstance(value, _bson_DBRef) and not isinstance(value, Model):
             raise TypeError("DBRef of entity expected.")
 
         if isinstance(value, _bson_DBRef):
             self._value.append(value)
-        elif isinstance(value, ODMModel):
+        elif isinstance(value, Model):
             self._value.append(value.ref)
 
         if change_modified:

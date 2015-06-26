@@ -190,7 +190,7 @@ class ODMUIBrowser:
 
         return group
 
-    def _check_entity_permission(self, permission_type: str, entity: _odm.model.ODMModel=None) -> bool:
+    def _check_entity_permission(self, permission_type: str, entity: _odm.model.Model=None) -> bool:
         """Check current user's entity permissions.
         """
         if permission_type == 'create':

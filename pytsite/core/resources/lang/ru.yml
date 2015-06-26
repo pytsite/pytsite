@@ -10,4 +10,7 @@ lang_console_command_description: 'Компиляция языковых пер�
 untitled_document: 'Безымянный Документ'
 error: 'Ошибка :code'
 ago: 'назад'
-
+update_console_command_description: 'Обновление приложения'
+maintenance_console_command_description: 'Режим обслуживания'
+maintenance_mode_enabled: 'Режим обслуживания ВКЛЮЧЁН'
+maintenance_mode_disabled: 'Режим обслуживания ВЫКЛЮЧЕН'

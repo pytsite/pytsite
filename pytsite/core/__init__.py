@@ -32,6 +32,7 @@ def __init():
     # Additional filesystem paths
     reg.set_val('paths.session', path.join(reg.get('paths.tmp'), 'session'))
     reg.set_val('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
+    reg.set_val('paths.maintenance.lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
 
     # Output parameters
     reg.set_val('output', {

@@ -22,6 +22,7 @@ def get_m_form(model: str, eid: str=None) -> _form.Base:
         raise _http.error.ForbiddenError()
 
     frm = _form.Base('odm-ui-form')
+    frm.cls += ' odm-ui-form odm-ui-form-' + model
 
     # Action, redirect and validation endpoints
     frm.validation_ep = 'pytsite.odm_ui.eps.validate_m_form'

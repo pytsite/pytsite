@@ -47,7 +47,7 @@ class Widget(_ABC):
         return self
 
     @_abstractmethod
-    def render(self) -> str:
+    def render(self) -> _html.Element:
         """Render the widget.
         """
         pass

@@ -17,7 +17,7 @@ def __init():
     __import__('pytsite.route_alias')
     __import__('pytsite.tag')
 
-    def _section_pre_delete_handler(entity: odm.model.ODMModel):
+    def _section_pre_delete_handler(entity: odm.model.Model):
         from . import _manager
         for model in _manager.get_registered_models():
             r_entity = _manager.find(model, None, False).where('section', '=', entity).first()

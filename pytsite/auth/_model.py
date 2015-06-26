@@ -4,7 +4,7 @@ import hashlib as _hashlib
 from pytsite.core import odm as _odm, util as _util, router as _router
 
 
-class User(_odm.model.ODMModel):
+class User(_odm.model.Model):
     """User Model.
     """
     def _setup(self):
@@ -103,7 +103,7 @@ class User(_odm.model.ODMModel):
         return value
 
 
-class Role(_odm.model.ODMModel):
+class Role(_odm.model.Model):
     """Role.
     """
     def _setup(self):

@@ -33,6 +33,7 @@ class TextArea(_base.Widget):
         """Init.
         """
         super().__init__(**kwargs)
+        self._rows = kwargs.get('rows', 5)
         self._group_cls = ' '.join((self._group_cls, 'widget-textarea-input'))
 
     def render(self) -> str:
@@ -43,7 +44,8 @@ class TextArea(_base.Widget):
             uid=self._uid,
             name=self._name,
             cls=' '.join(('form-control', self._cls)),
-            placeholder=self.placeholder
+            placeholder=self.placeholder,
+            rows=self._rows
         )
 
         return self._group_wrap(html_input)

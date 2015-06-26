@@ -17,7 +17,6 @@ __database = None
 def get_client() -> _MongoClient:
     """Get client.
     """
-
     global __client
     if __client:
         return __client
@@ -37,7 +36,6 @@ def get_client() -> _MongoClient:
 def get_database() -> _Database:
     """Get database.
     """
-
     global __database
     if __database:
         return __database
@@ -51,3 +49,9 @@ def get_collection(name: str) -> _Collection:
     """Get collection.
     """
     return get_database().get_collection(name)
+
+
+def get_collection_names(include_system: bool=False) -> list:
+    """Get existing collection names.
+    """
+    return get_database().collection_names(include_system)

@@ -34,10 +34,10 @@ class ODMSelect(_widget.select.Select):
     def sort_field(self, value: str):
         self._sort_field = value
 
-    def set_value(self, value: _odm.model.ODMModel, **kwargs):
+    def set_value(self, value: _odm.model.Model, **kwargs):
         """Set value of the widget.
         """
-        if isinstance(value, _odm.model.ODMModel):
+        if isinstance(value, _odm.model.Model):
             self._selected_item = value.model + ':' + str(value.id)
         elif isinstance(value, str):
             self._selected_item = value

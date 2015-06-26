@@ -4,7 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from . import _model, _field
@@ -13,13 +12,11 @@ from . import _model, _field
 class ODMQuery:
     """Query Representation.
     """
-
-    def __init__(self, model: _model.ODMModel):
+    def __init__(self, model: _model.Model):
         """Init.
         """
-
         self._model = model
-        self._criteria = dict()
+        self._criteria = {}
 
     def _resolve_logical_op(self, op: str) -> str:
         """Resolve logical operator.
@@ -60,17 +57,19 @@ class ODMQuery:
     def add_criteria(self, logical_op: str, field_name: str, comparison_op: str, arg):
         """Add find criteria.
         """
-        field = self._model.get_field(field_name)
         logical_op = self._resolve_logical_op(logical_op)
         comparison_op = self._resolve_comparison_op(comparison_op)
 
-        # Convert str to ObjectId
-        if isinstance(field, _field.ObjectId) and isinstance(arg, str):
-            arg = _ObjectId(arg)
+        if field_name.find('.') < 0:
+            field = self._model.get_field(field_name)
 
-        # Convert instance to DBRef
-        if isinstance(field, _field.Ref) and isinstance(arg, _model.ODMModel):
-            arg = arg.ref
+            # Convert str to ObjectId
+            if isinstance(field, _field.ObjectId) and isinstance(arg, str):
+                arg = _ObjectId(arg)
+
+            # Convert instance to DBRef
+            if isinstance(field, _field.Ref) and isinstance(arg, _model.Model):
+                arg = arg.ref
 
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:
@@ -171,7 +170,7 @@ class ODMFinder:
 
         return ODMFinderResult(self._model, cursor)
 
-    def first(self) -> _model.ODMModel:
+    def first(self) -> _model.Model:
         """Execute the query and return a first result.
         """
         result = list(self.get(1))

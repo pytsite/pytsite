@@ -29,7 +29,7 @@ class ODMEntitiesList(_core_validation.rule.Base):
             raise _core_validation.error.ValidationError('List expected.')
 
         for v in self._value:
-            if not isinstance(v, _model.ODMModel):
+            if not isinstance(v, _model.Model):
                 raise _core_validation.error.ValidationError('Instance of ODMModel expected.')
             if self._model and v.model != self._model:
                 raise _core_validation.error.ValidationError("Instance of '{}' model expected, but '{}' given.".format(self._model, v.model))
