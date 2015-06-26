@@ -235,6 +235,18 @@ class Model(_ABC):
         """
         return value
 
+    def f_inc(self, field_name: str):
+        """Increment value of the field.
+        """
+        self.get_field(field_name).inc_val()
+        return self
+
+    def f_dec(self, field_name: str):
+        """Decrement value of the field
+        """
+        self.get_field(field_name).dec_val()
+        return self
+
     @property
     def is_new(self) -> bool:
         """Is the entity new or already stored in a database?

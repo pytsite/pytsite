@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import content as _content, disqus as _disqus
-from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag
+from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman
 
 
 def view(args: dict, inp: dict):
@@ -25,4 +25,19 @@ def view(args: dict, inp: dict):
 
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 
+    _assetman.add('pytsite.content@js/content.js')
+
     return _router.call_endpoint(endpoint, {'entity': entity})
+
+
+def view_count(args: dict, inp: dict) -> int:
+    model = inp.get('model')
+    eid = inp.get('id')
+
+    if model and eid:
+        entity = _content.manager.find(model).where('_id', '=', eid).first()
+        if entity:
+            entity.f_inc('views_count').save()
+            return entity.f_get('views_count')
+
+    return 0

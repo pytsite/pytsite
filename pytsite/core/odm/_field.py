@@ -79,12 +79,12 @@ class Abstract(_ABC):
         """
         raise Exception('Not implemented yet.')
 
-    def increment_val(self, change_modified: bool=True, **kwargs):
+    def inc_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
         raise Exception('Not implemented yet.')
 
-    def decrement_val(self, change_modified: bool=True, **kwargs):
+    def dec_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
         raise Exception('Not implemented yet.')
@@ -392,6 +392,16 @@ class Integer(Abstract):
         if not isinstance(value, int):
             raise ValueError('Integer expected.')
         return self.set_val(self.get_val(**kwargs) + value, change_modified, **kwargs)
+
+    def inc_val(self, change_modified: bool=True, **kwargs):
+        """Increment field's value.
+        """
+        return self.set_val(self.get_val(**kwargs) + 1, change_modified, **kwargs)
+
+    def dec_val(self, change_modified: bool=True, **kwargs):
+        """Increment field's value.
+        """
+        return self.set_val(self.get_val(**kwargs) - 1, change_modified, **kwargs)
 
 class Float(Abstract):
     """Float field.
