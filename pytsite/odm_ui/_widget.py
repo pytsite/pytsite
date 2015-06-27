@@ -34,24 +34,24 @@ class ODMSelect(_widget.select.Select):
     def sort_field(self, value: str):
         self._sort_field = value
 
-    def set_value(self, value: _odm.model.Model, **kwargs):
+    def set_value(self, value: _odm.Model, **kwargs):
         """Set value of the widget.
         """
-        if isinstance(value, _odm.model.Model):
+        if isinstance(value, _odm.Model):
             self._selected_item = value.model + ':' + str(value.id)
         elif isinstance(value, str):
             self._selected_item = value
             model, eid = value.split(':')
-            value = _odm.manager.find(model).where('_id', '=', eid).first()
+            value = _odm.find(model).where('_id', '=', eid).first()
         elif isinstance(value, _DBRef):
-            value = _odm.manager.get_by_ref(value)
+            value = _odm.get_by_ref(value)
             self._selected_item = value.model + ':' + str(value.id)
 
         self._value = value
         return self
 
     def render(self):
-        finder = _odm.manager.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
+        finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
             self._items.append((k, str(entity.get_field(self._caption_field))))
@@ -106,7 +106,7 @@ class ODMCheckboxes(_widget.select.Checkboxes):
         for v in value:
             if not v:
                 continue
-            entity = _odm.manager.get_by_ref(_odm.manager.resolve_ref(v))
+            entity = _odm.get_by_ref(_odm.resolve_ref(v))
             if entity:
                 clean_val.append(entity)
                 self._selected_items.append(entity.model + ':' + str(entity.id))
@@ -115,7 +115,7 @@ class ODMCheckboxes(_widget.select.Checkboxes):
         return self
 
     def render(self):
-        finder = _odm.manager.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
+        finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
             self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))

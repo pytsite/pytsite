@@ -41,7 +41,7 @@ class TermTokens(_widget.select.Tokens):
 
         clean_value = []
         for v in value:
-            if isinstance(v, _odm.model.Model):
+            if isinstance(v, _odm.Model):
                 clean_value.append(v)
             elif isinstance(v, str):
                 clean_value.append(_manager.dispense(self._model, v).save())

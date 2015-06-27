@@ -27,7 +27,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     if not issubclass(cls, Term):
         raise TypeError('Subclass of AbstractTerm expected.')
 
-    _odm.manager.register_model(model, cls)
+    _odm.register_model(model, cls)
     __models.append(model)
 
     menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
@@ -47,18 +47,18 @@ def dispense(model: str, title: str):
     title = title.strip()
     term = find(model).where('title', 'regex_i', '^' + title + '$').first()
     if not term:
-        term = _odm.manager.dispense(model).f_set('title', title)
+        term = _odm.dispense(model).f_set('title', title)
 
     return term
 
 
-def find(model: str) -> _odm.finder.ODMFinder:
+def find(model: str):
     """Get finder for the taxonomy model.
     """
     if not is_model_registered(model):
         raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
 
-    return _odm.manager.find(model).where('language', '=', _lang.get_current_lang()).sort([('weight', _odm.I_DESC)])
+    return _odm.find(model).where('language', '=', _lang.get_current_lang()).sort([('weight', _odm.I_DESC)])
 
 
 def sanitize_alias_string(model: str, string: str) -> str:

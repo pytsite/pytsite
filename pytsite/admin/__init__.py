@@ -16,8 +16,8 @@ def __init():
     assetman.register_package(__name__)
 
     # Permissions
-    auth.manager.define_permission_group('admin', 'pytsite.admin@admin')
-    auth.manager.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
+    auth.define_permission_group('admin', 'pytsite.admin@admin')
+    auth.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
 
     # Routes
     admin_route_filters = (

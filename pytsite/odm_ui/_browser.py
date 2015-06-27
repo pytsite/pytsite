@@ -19,7 +19,7 @@ class ODMUIBrowser:
         """
         self._title = None
         self._model = model
-        self._current_user = auth.manager.get_current_user()
+        self._current_user = auth.get_current_user()
         self._head_columns = ()
 
         # Checking permissions
@@ -27,7 +27,7 @@ class ODMUIBrowser:
                 and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
             raise _http.error.ForbiddenError()
 
-        self._entity_mock = _odm.manager.dispense(self._model)
+        self._entity_mock = _odm.dispense(self._model)
         """:type : _odm.models.ODMModel|ODMUIMixin"""
         if not isinstance(self._entity_mock, ODMUIMixin):
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
@@ -139,7 +139,7 @@ class ODMUIBrowser:
 
         r = {'total': 0, 'rows': []}
 
-        finder = _odm.manager.find(self._model)
+        finder = _odm.find(self._model)
         r['total'] = finder.count()
 
         if sort_field:
@@ -190,7 +190,7 @@ class ODMUIBrowser:
 
         return group
 
-    def _check_entity_permission(self, permission_type: str, entity: _odm.model.Model=None) -> bool:
+    def _check_entity_permission(self, permission_type: str, entity: _odm.Model=None) -> bool:
         """Check current user's entity permissions.
         """
         if permission_type == 'create':

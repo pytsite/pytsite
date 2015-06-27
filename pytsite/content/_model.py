@@ -18,7 +18,7 @@ class Section(_taxonomy.model.Term):
     pass
 
 
-class ContentModel(_odm.model.Model, _odm_ui.model.ODMUIMixin):
+class ContentModel(_odm.Model, _odm_ui.model.ODMUIMixin):
     """Content Model.
     """
     def _setup(self):
@@ -81,7 +81,7 @@ class ContentModel(_odm.model.Model, _odm_ui.model.ODMUIMixin):
         """Hook.
         """
         if not self.f_get('author'):
-            self.f_set('author', _auth.manager.get_current_user())
+            self.f_set('author', _auth.get_current_user())
 
         section_alias = self.f_get('section').f_get('alias')
         route_alias = self.f_get('route_alias')
@@ -210,7 +210,7 @@ class ContentModel(_odm.model.Model, _odm_ui.model.ODMUIMixin):
             value=self.f_get('location'),
         ))
 
-        if _auth.manager.get_current_user().is_admin():
+        if _auth.get_current_user().is_admin():
             form.add_widget(_widget.select.DateTimeSelect(
                 weight=80,
                 uid='publish_time',

@@ -65,7 +65,7 @@ def get_setting(uid) -> dict:
     if uid not in __settings:
         raise KeyError("Setting '{}' is not defined.".format(uid))
 
-    entity = _odm.manager.find('setting').where('uid', '=', uid).first()
+    entity = _odm.find('setting').where('uid', '=', uid).first()
     if not entity:
         return {}
 
@@ -73,8 +73,8 @@ def get_setting(uid) -> dict:
 
 
 def set_setting(uid, value: dict):
-    entity = _odm.manager.find('setting').where('uid', '=', uid).first()
+    entity = _odm.find('setting').where('uid', '=', uid).first()
     if not entity:
-        entity = _odm.manager.dispense('setting').f_set('uid', uid)
+        entity = _odm.dispense('setting').f_set('uid', uid)
 
     entity.f_set('value', value).save()

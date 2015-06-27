@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from pytsite.core import odm as _odm
 
 
-class CommentCount(_odm.model.Model):
+class CommentCount(_odm.Model):
     def _setup(self):
         self._define_field(_odm.field.String('thread', not_empty=True))
         self._define_field(_odm.field.Integer('count'))

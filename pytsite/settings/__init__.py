@@ -18,7 +18,7 @@ def __init():
     tpl.register_package(__name__)
 
     # ODM model
-    odm.manager.register_model('setting', Setting)
+    odm.register_model('setting', Setting)
 
     # Routing
     router.add_rule('/admin/settings/<string:uid>', 'pytsite.settings.eps.form')

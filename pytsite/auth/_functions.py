@@ -135,7 +135,7 @@ def create_user(email: str, login: str=None, password: str=None) -> _model.User:
     if get_user(login=login):
         raise Exception("User with login '{}' already exists.".format(login))
 
-    user = _odm.manager.dispense('user')
+    user = _odm.dispense('user')
     user.f_set('login', login).f_set('email', email)
 
     if password:
@@ -156,16 +156,16 @@ def get_user(login: str=None, uid: str=None) -> _model.User:
     """
 
     if login:
-        return _odm.manager.find('user').where('login', '=', login).first()
+        return _odm.find('user').where('login', '=', login).first()
     if uid:
-        return _odm.manager.find('user').where('_id', '=', uid).first()
+        return _odm.find('user').where('_id', '=', uid).first()
 
 
 def create_role(name: str, description: str=''):
     if get_role(name=name):
         raise Exception("Role with name '{0}' already exists.".format(name))
 
-    role = _odm.manager.dispense('role')
+    role = _odm.dispense('role')
     return role.f_set('name', name).f_set('description', description)
 
 
@@ -173,9 +173,9 @@ def get_role(name: str=None, uid=None) -> _model.Role:
     """Get role by name or by UID.
     """
     if name:
-        return _odm.manager.find('role').where('name', '=', name).first()
+        return _odm.find('role').where('name', '=', name).first()
     if uid:
-        return _odm.manager.find('role').where('_id', '=', uid).first()
+        return _odm.find('role').where('_id', '=', uid).first()
 
 
 def authorize(user: _model.User) -> _model.User:

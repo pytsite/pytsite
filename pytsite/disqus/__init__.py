@@ -8,7 +8,7 @@ def __init():
     import sys
     from pytsite.core import tpl, odm
 
-    odm.manager.register_model('disqus_comment_count', 'pytsite.disqus._model.CommentCount')
+    odm.register_model('disqus_comment_count', 'pytsite.disqus._model.CommentCount')
     tpl.register_package(__name__)
     tpl.register_global('disqus', sys.modules[__package__])
 

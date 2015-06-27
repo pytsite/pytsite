@@ -1,3 +1,5 @@
+"""Pytsite Validation Package.
+"""
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -10,7 +12,6 @@ __init()
 
 # Public API
 from . import _validator, _rule, _error
-
 Validator = _validator.Validator
 rule = _rule
 error = _error

@@ -9,7 +9,7 @@ def __router_pre_dispatch_handler(path_info: str):
     """Router pre-dispatch event handler.
     """
     from pytsite.core import odm, lang, router
-    p = odm.manager.find('route_alias')\
+    p = odm.find('route_alias')\
         .where('alias', '=', path_info)\
         .where('language', '=', lang.get_current_lang())\
         .first()
@@ -21,7 +21,7 @@ def __init():
     from pytsite.core import events, odm
     from ._model import RouteAliasModel
     events.listen('pytsite.core.router.pre_dispatch', __router_pre_dispatch_handler)
-    odm.manager.register_model('route_alias', RouteAliasModel)
+    odm.register_model('route_alias', RouteAliasModel)
 
 
 __init()

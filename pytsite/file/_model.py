@@ -8,7 +8,7 @@ from os import path as _path, unlink as _unlink
 from pytsite.core import odm as _odm, router as _router, reg as _reg
 
 
-class File(_odm.model.Model):
+class File(_odm.Model):
     """File Model.
     """
 

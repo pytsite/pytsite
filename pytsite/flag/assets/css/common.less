@@ -1,0 +1,15 @@
+@color-flagged: #ffac33;
+
+.widget-flag a {
+  color: inherit;
+  &:hover {
+    color: @color-flagged;
+  }
+}
+
+.widget-flag.flagged a {
+  color: @color-flagged;
+  &:hover {
+    color: inherit;
+  }
+}

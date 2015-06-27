@@ -12,7 +12,7 @@ from urllib.request import urlopen as _urlopen
 from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, \
     widget as _widget, http as _http
 from pytsite import image as _image
-from .. import _manager, _error
+from .. import _functions, _error
 from .abstract import AbstractDriver
 
 
@@ -69,7 +69,7 @@ class ULoginDriver(AbstractDriver):
             raise Exception("Email '{0}' is not verified by uLogin.".format(ulogin_data['email']))
 
         email = ulogin_data['email']
-        user = _manager.get_user(email)
+        user = _functions.get_user(email)
 
         try:
             # User is not exists and its creation is not allowed
@@ -78,7 +78,7 @@ class ULoginDriver(AbstractDriver):
 
             # Create new user
             if not user:
-                user = _manager.create_user(login=email, email=email)
+                user = _functions.create_user(login=email, email=email)
 
             # Picture
             if not user.f_get('picture'):
@@ -116,7 +116,7 @@ class ULoginDriver(AbstractDriver):
 
             # Authorize
             user.save()
-            _manager.authorize(user)
+            _functions.authorize(user)
 
             # Saving statistical information
             user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()

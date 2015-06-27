@@ -17,10 +17,10 @@ def __init():
     __import__('pytsite.route_alias')
     __import__('pytsite.tag')
 
-    def _section_pre_delete_handler(entity: odm.model.Model):
+    def _section_pre_delete_handler(entity: odm.Model):
         from . import _manager
-        for model in _manager.get_registered_models():
-            r_entity = _manager.find(model, None, False).where('section', '=', entity).first()
+        for m in _manager.get_registered_models():
+            r_entity = _manager.find(m, None, False).where('section', '=', entity).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
                 raise odm.error.ForbidEntityDelete(lang.t('pytsite.content@referenced_entity_exists', error_args))

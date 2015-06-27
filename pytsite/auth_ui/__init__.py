@@ -16,8 +16,8 @@ def __init():
     lang.register_package(__name__)
 
     # Replace 'user' model with UI-compatible
-    odm.manager.register_model('user', _model.UserUI, True)
-    odm.manager.register_model('role', _model.RoleUI, True)
+    odm.register_model('user', _model.UserUI, True)
+    odm.register_model('role', _model.RoleUI, True)
 
     # 'Security' admin sidebar section
     admin.sidebar.add_section('auth', 'pytsite.auth_ui@security', 1000,

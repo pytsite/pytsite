@@ -17,8 +17,8 @@ def __init():
 
     # ODM models
     from . import _model
-    odm.manager.register_model('user', _model.User)
-    odm.manager.register_model('role', _model.Role)
+    odm.register_model('user', _model.User)
+    odm.register_model('role', _model.Role)
 
     # Routes
     router.add_rule('/auth/login', __name__ + '.eps.get_login', {})
@@ -26,27 +26,29 @@ def __init():
     router.add_rule('/auth/logout', __name__ + '.eps.get_logout', {})
 
     # Default auth driver
-    from . import _manager
+    from . import _functions
     from .driver.ulogin import ULoginDriver
-    _manager.set_driver(ULoginDriver())
+    _functions.set_driver(ULoginDriver())
 
     # Template engine globals
-    tpl.register_global('auth', _manager)
+    tpl.register_global('auth', _functions)
 
     # Event handlers
     from ._event_handlers import app_setup
     events.listen('app.setup', app_setup)
 
     # Permissions
-    _manager.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
-    _manager.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
+    _functions.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
+    _functions.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
 
 
 __init()
 
 
 # Public API
-from . import _error, _manager, _model
+from . import _error, _functions, _model
 error = _error
-manager = _manager
 model = _model
+
+from ._functions import define_permission_group,  define_permission, get_current_user, get_permission, \
+    get_permission_groups, get_permissions, get_user_statuses, get_permission_group

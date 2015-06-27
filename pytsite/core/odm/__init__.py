@@ -13,7 +13,7 @@ def _app_update_event():
     console.run_command('odm:reindex')
 
 
-def _init():
+def __init():
     from pytsite.core import lang, console, events
     from . import _console_commands
 
@@ -23,15 +23,18 @@ def _init():
 
     events.listen('app.update', _app_update_event)
 
-_init()
+__init()
 
 # Public API
 I_ASC = _pymongo.ASCENDING
 I_DESC = _pymongo.DESCENDING
 I_GEO2D = _pymongo.GEO2D
-finder = _finder
-model = _model
+Model = _model.Model
 field = _field
-manager = _manager
 validation = _validation
 error = _error
+register_model = _manager.register_model
+find = _manager.find
+dispense = _manager.dispense
+get_by_ref = _manager.get_by_ref
+resolve_ref = _manager.resolve_ref

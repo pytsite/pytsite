@@ -8,7 +8,7 @@ from pytsite import odm_ui as _odm_ui
 from pytsite.core import lang as _lang, validation as _validation, odm as _odm, widget as _widget
 
 
-class Term(_odm.model.Model, _odm_ui.model.ODMUIMixin):
+class Term(_odm.Model, _odm_ui.model.ODMUIMixin):
     """Taxonomy Term Model.
     """
     def _setup(self):

@@ -82,7 +82,7 @@ class UserUI(_auth.model.User, _odm_ui.model.ODMUIMixin):
             uid='status',
             value=self.f_get('status'),
             label=self.t('status'),
-            items=_auth.manager.get_user_statuses(),
+            items=_auth.get_user_statuses(),
             h_size='col-sm-5 col-md-4 col-lg-3',
         ))
 
@@ -141,7 +141,7 @@ class RoleUI(_auth.model.Role, _odm_ui.model.ODMUIMixin):
 
         perms = []
         for perm_name in self.f_get('permissions'):
-            perm = _auth.manager.get_permission(perm_name)
+            perm = _auth.get_permission(perm_name)
             cls = 'label label-default permission-' + perm[0]
             if perm[0] == 'admin':
                 cls += ' label-danger'
@@ -176,12 +176,12 @@ class RoleUI(_auth.model.Role, _odm_ui.model.ODMUIMixin):
         ))
 
         perms_tabs = _widget.static.Tabs(weight=30, uid='permissions', label=self.t('permissions'))
-        for group in _auth.manager.get_permission_groups():
+        for group in _auth.get_permission_groups():
             if group[0] == 'auth':
                 continue
 
             tab_content = _html.Div()
-            for perm in _auth.manager.get_permissions(group[0]):
+            for perm in _auth.get_permissions(group[0]):
                 p_name = perm[0]
                 tab_content.append(
                     _html.Div(cls='checkbox').append(

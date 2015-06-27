@@ -12,7 +12,7 @@ from . import _model
 def create(alias: str, target: str=None) -> _model.RouteAliasModel:
     """Create a route alias instance.
     """
-    entity = _odm.manager.dispense('route_alias')
+    entity = _odm.dispense('route_alias')
     entity.f_set('alias', alias)
     entity.f_set('target', target)
     entity.f_set('language', _lang.get_current_lang())
@@ -32,7 +32,7 @@ def sanitize_alias_string(string: str) -> str:
 
     itr = 0
     while True:
-        if not _odm.manager.find('route_alias').where('alias', '=', string).first():
+        if not _odm.find('route_alias').where('alias', '=', string).first():
             return string
 
         itr += 1
@@ -45,4 +45,4 @@ def find_by_target(target: str) -> _model.RouteAliasModel:
     """Find route alias by target.
     """
     lng = _lang.get_current_lang()
-    return _odm.manager.find('route_alias').where('target', '=', target).where('language', '=', lng).first()
+    return _odm.find('route_alias').where('target', '=', target).where('language', '=', lng).first()

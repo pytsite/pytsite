@@ -6,32 +6,32 @@ __license__ = 'MIT'
 
 from werkzeug.utils import escape as _escape
 from pytsite.core import router as _router, lang as _lang, http as _http, metatag as _metatag, tpl as _tpl
-from . import _manager
+from . import _functions
 
 
 def get_login(args: dict, inp: dict) -> str:
     """Get login form.
     """
-    if not _manager.get_current_user().is_anonymous():
+    if not _functions.get_current_user().is_anonymous():
         redirect_url = _router.base_url()
         if 'redirect' in inp:
             redirect_url = _router.url(inp['redirect'])
         return _http.response.RedirectResponse(redirect_url)
 
     _metatag.t_set('title', _lang.t('pytsite.auth@authorization'))
-    return _tpl.render('pytsite.auth@views/login', {'form': _manager.get_login_form()})
+    return _tpl.render('pytsite.auth@views/login', {'form': _functions.get_login_form()})
 
 
 def post_login(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Process login form submit.
     """
-    return _manager.post_login_form(args, inp)
+    return _functions.post_login_form(args, inp)
 
 
 def get_logout(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Logout endpoint.
     """
-    _manager.logout_current_user()
+    _functions.logout_current_user()
     redirect_url = _router.base_url()
     if 'redirect' in inp:
         redirect_url = _router.url(inp['redirect'])
@@ -41,7 +41,7 @@ def get_logout(args: dict, inp: dict) -> _http.response.RedirectResponse:
 def filter_authorize(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Authorization filter.
     """
-    user = _manager.get_current_user()
+    user = _functions.get_current_user()
     if not user.is_anonymous():
         # Checking requested permissions
         req_perms_str = args.get('permissions', '')

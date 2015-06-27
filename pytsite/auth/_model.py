@@ -4,7 +4,7 @@ import hashlib as _hashlib
 from pytsite.core import odm as _odm, util as _util, router as _router
 
 
-class User(_odm.model.Model):
+class User(_odm.Model):
     """User Model.
     """
     def _setup(self):
@@ -38,7 +38,7 @@ class User(_odm.model.Model):
         """_on_f_set() hook.
         """
         if field_name == 'password':
-            from ._manager import password_hash
+            from ._functions import password_hash
             value = password_hash(value)
             self.f_set('token', _hashlib.md5(_util.random_password().encode()).hexdigest())
 
@@ -65,8 +65,8 @@ class User(_odm.model.Model):
     def has_permission(self, name: str) -> bool:
         """Checks if the user has permission.
         """
-        from . import _manager
-        if not _manager.is_permission_defined(name):
+        from . import _functions
+        if not _functions.is_permission_defined(name):
             raise KeyError("Permission '{}' is not defined.".format(name))
 
         # Admin 'has' any role
@@ -103,7 +103,7 @@ class User(_odm.model.Model):
         return value
 
 
-class Role(_odm.model.Model):
+class Role(_odm.Model):
     """Role.
     """
     def _setup(self):

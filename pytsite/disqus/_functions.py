@@ -24,13 +24,13 @@ def get_comments_count(thread_url: str) -> int:
     if not short_name:
         raise ValueError("Configuration parameter 'disqus.short_name' is not defined.")
 
-    entity = _odm.manager.find('disqus_comment_count').where('thread', '=', thread_url).first()
+    entity = _odm.find('disqus_comment_count').where('thread', '=', thread_url).first()
     if entity:
         time_diff = _datetime.now() - entity.modified
         if time_diff.seconds <= 1800:  # 30 min
             return entity.f_get('count')
     else:
-        entity = _odm.manager.dispense('disqus_comment_count').f_set('thread', thread_url)
+        entity = _odm.dispense('disqus_comment_count').f_set('thread', thread_url)
 
     data = _urllib_parse.urlencode({
         'api_secret': api_secret,

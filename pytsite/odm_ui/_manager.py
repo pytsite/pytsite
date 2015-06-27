@@ -97,7 +97,7 @@ def dispense_entity(model: str, entity_id: str=None):
 
     if not entity_id or entity_id == '0':
         entity_id = None
-    entity = _odm.manager.dispense(model, entity_id)
+    entity = _odm.dispense(model, entity_id)
     if not isinstance(entity, _model.ODMUIMixin):
         raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(model))
 
@@ -105,7 +105,7 @@ def dispense_entity(model: str, entity_id: str=None):
 
 
 def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
-    user = _auth.manager.get_current_user()
+    user = _auth.get_current_user()
 
     if user.is_anonymous():
         return False

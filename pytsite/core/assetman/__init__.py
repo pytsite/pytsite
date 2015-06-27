@@ -10,7 +10,7 @@ def _app_update_event():
     console.run_command('assetman:build')
 
 
-def _init():
+def __init():
     from pytsite.core import console, events
     from . import _commands
 
@@ -20,7 +20,7 @@ def _init():
     # Events
     events.listen('app.update', _app_update_event)
 
-_init()
+__init()
 
 
 # Public API

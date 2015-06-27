@@ -9,7 +9,7 @@ def __init():
     from pytsite.core import odm, router
     from ._model import Image
 
-    odm.manager.register_model('image', Image)
+    odm.register_model('image', Image)
 
     router.add_rule(
         '/image/resize/<int:width>/<int:height>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',

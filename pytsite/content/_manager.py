@@ -21,7 +21,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     if not issubclass(cls, _model.ContentModel):
         raise TypeError('Subclass of ContentModel expected.')
 
-    _odm.manager.register_model(model, cls)
+    _odm.register_model(model, cls)
     __models.append(model)
 
     menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
@@ -43,13 +43,13 @@ def get_registered_models() -> list:
     return __models
 
 
-def find(model: str, status='published', check_publish_time=True) -> _odm.finder.ODMFinder:
+def find(model: str, status='published', check_publish_time=True):
     """Get entity finder.
     """
     if not is_model_registered(model):
         raise Exception("Model '{}' is not registered as content model.".format(model))
 
-    f = _odm.manager.find(model).sort([('publish_time', _odm.I_DESC)])
+    f = _odm.find(model).sort([('publish_time', _odm.I_DESC)])
     if status:
         f.where('status', '=', status)
     if check_publish_time:

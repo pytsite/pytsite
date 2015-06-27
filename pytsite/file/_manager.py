@@ -76,7 +76,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 
     # Create File entity
     storage_dir = _reg.get('paths.storage')
-    file_entity = _odm.manager.dispense(model)
+    file_entity = _odm.dispense(model)
     if not isinstance(file_entity, _model.File):
         raise Exception('File entity expected.')
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
@@ -86,7 +86,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     file_entity.f_set('length', _os.stat(abs_target_path).st_size)
 
     from pytsite import auth
-    user = auth.manager.get_current_user()
+    user = auth.get_current_user()
     if not user.is_anonymous():
         file_entity.f_set('author', user)
 
@@ -101,16 +101,16 @@ def get(uid: str=None, rel_path: str=None, model: str='file') -> _model.File:
         raise Exception("Not enough arguments.")
 
     if uid:
-        return _odm.manager.find(model).where('_id', '=', uid).first()
+        return _odm.find(model).where('_id', '=', uid).first()
     elif rel_path:
-        return _odm.manager.find(model).where('path', '=', rel_path).first()
+        return _odm.find(model).where('path', '=', rel_path).first()
 
 
 def get_by_ref(ref: _DBRef) -> _model.File:
     """Get file by ref.
     """
 
-    entity = _odm.manager.get_by_ref(ref)
+    entity = _odm.get_by_ref(ref)
     if not entity:
         return
 

@@ -18,11 +18,11 @@ def odm_register_model(model: str, cls: type):
         raise KeyError("Model '{}' is already registered.".format(model))
 
     # Checking inheritance
-    mock = _odm.manager.dispense(model)
+    mock = _odm.dispense(model)
     if not isinstance(mock, ODMUIMixin):
         return
 
-    assert isinstance(mock, _odm.model.Model)  # Just for correct type hinting in PyCharm
+    assert isinstance(mock, _odm.Model)  # Just for correct type hinting in PyCharm
     pkg_name = mock.package()
 
     # Registering package's language container
@@ -31,8 +31,8 @@ def odm_register_model(model: str, cls: type):
 
     # Registering permission group if doesn't already registered
     permission_group = pkg_name
-    if not _auth.manager.get_permission_group(permission_group):
-        _auth.manager.define_permission_group(permission_group, pkg_name + '@odm_ui_permission_group_description')
+    if not _auth.get_permission_group(permission_group):
+        _auth.define_permission_group(permission_group, pkg_name + '@odm_ui_permission_group_description')
 
     # Registering permissions
     for perm_name in 'create', 'browse', 'browse_own', 'modify', 'modify_own', 'delete', 'delete_own':
@@ -40,6 +40,6 @@ def odm_register_model(model: str, cls: type):
             continue
         perm_description = pkg_name + '@odm_ui_permission_' + perm_name + '_' + model
         perm_full_name = 'pytsite.odm_ui.' + perm_name + '.' + model
-        _auth.manager.define_permission(perm_full_name, perm_description, pkg_name)
+        _auth.define_permission(perm_full_name, perm_description, pkg_name)
 
     __models[model] = model

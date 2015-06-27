@@ -10,7 +10,7 @@ def __init():
     from pytsite.core import assetman, router, tpl, lang, odm
     from ._model import File
 
-    odm.manager.register_model('file', File)
+    odm.register_model('file', File)
 
     assetman.register_package(__name__)
 
