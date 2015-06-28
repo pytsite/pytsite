@@ -1,4 +1,4 @@
-"""ODM UI.
+"""Pytsite ODM UI.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,7 +12,7 @@ def __init():
 
     from pytsite.core import router, tpl, assetman, lang, events
     from . import _event_handlers
-    from ._model import ODMUIMixin
+    from ._model import UIMixin
 
     # Browse
     router.add_rule('/admin/odm/<string:model>',
@@ -48,8 +48,6 @@ __init()
 
 
 # Public API
-from . import _browser, _manager, _model, _widget
-browser = _browser
-manager = _manager
-model = _model
-widget = _widget
+from . import _functions, _model, _widget as widget
+UIMixin = _model.UIMixin
+get_m_form = _functions.get_m_form

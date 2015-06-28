@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite.core import lang as _lang, odm as _odm
 from pytsite import auth as _auth
-from ._model import ODMUIMixin
+from ._model import UIMixin
 
 __models = {}
 
@@ -19,7 +19,7 @@ def odm_register_model(model: str, cls: type):
 
     # Checking inheritance
     mock = _odm.dispense(model)
-    if not isinstance(mock, ODMUIMixin):
+    if not isinstance(mock, UIMixin):
         return
 
     assert isinstance(mock, _odm.Model)  # Just for correct type hinting in PyCharm

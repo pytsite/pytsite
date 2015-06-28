@@ -18,7 +18,7 @@ class Section(_taxonomy.model.Term):
     pass
 
 
-class ContentModel(_odm.Model, _odm_ui.model.ODMUIMixin):
+class ContentModel(_odm.Model, _odm_ui.UIMixin):
     """Content Model.
     """
     def _setup(self):
@@ -116,7 +116,7 @@ class ContentModel(_odm.Model, _odm_ui.model.ODMUIMixin):
     def setup_browser(self, browser):
         """Setup ODM UI browser hook.
 
-        :type browser: pytsite.odm_ui._browser.ODMUIBrowser
+        :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
         browser.data_fields = 'title', 'section', 'status', 'publish_time', 'author'
@@ -142,9 +142,13 @@ class ContentModel(_odm.Model, _odm_ui.model.ODMUIMixin):
             self.f_get('author').f_get('full_name')
         )
 
+    def browser_search(self, finder: _odm.Finder, query: str):
+        """Hook.
+        """
+        finder.or_where('title', 'regex_i', query)
+
     def setup_m_form(self, form):
         """Hook.
-
         :type form: pytsite.core.form.Base
         """
         from . import _manager

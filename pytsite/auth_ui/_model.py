@@ -8,14 +8,14 @@ from pytsite import auth as _auth, odm_ui as _odm_ui, image as _image
 from pytsite.core import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
     http as _http
 
-class UserUI(_auth.model.User, _odm_ui.model.ODMUIMixin):
+class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """User UI.
     """
 
     def setup_browser(self, browser):
         """Setup ODM UI browser hook.
 
-        :type browser: pytsite.odm_ui._browser.ODMUIBrowser
+        :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
         browser.data_fields = 'login', 'email', 'roles', 'status', 'last_login'
@@ -121,14 +121,14 @@ class UserUI(_auth.model.User, _odm_ui.model.ODMUIMixin):
         return self.f_get('login')
 
 
-class RoleUI(_auth.model.Role, _odm_ui.model.ODMUIMixin):
+class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
     """Role UI.
     """
 
     def setup_browser(self, browser):
         """Setup ODM UI browser hook.
 
-        :type browser: pytsite.odm_ui._browser.ODMUIBrowser
+        :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
         browser.data_fields = 'name', 'description', 'permissions'

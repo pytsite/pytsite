@@ -7,10 +7,11 @@ __license__ = 'MIT'
 from pytsite import auth
 from pytsite.core import router as _router, assetman as _assetman, metatag as _metatag, client as _client, odm as _odm,\
     lang as _lang, http as _http, html as _html
-from ._model import ODMUIMixin
+from ._model import UIMixin
+from . import _functions
 
 
-class ODMUIBrowser:
+class Browser:
     """ODM Entities Browser.
     """
 
@@ -29,7 +30,7 @@ class ODMUIBrowser:
 
         self._entity_mock = _odm.dispense(self._model)
         """:type : _odm.models.ODMModel|ODMUIMixin"""
-        if not isinstance(self._entity_mock, ODMUIMixin):
+        if not isinstance(self._entity_mock, UIMixin):
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
 
         self._title = self._entity_mock.t('odm_ui_' + model + '_browser_title')
@@ -133,18 +134,24 @@ class ODMUIBrowser:
 
         return toolbar.render() + table.render()
 
-    def get_rows(self, offset: int=0, limit: int=0, sort_field: str=None, sort_order: str=None) -> list:
+    def get_rows(self, offset: int=0, limit: int=0, sort_field: str=None, sort_order: str=None,
+                 search: str=None) -> list:
         """Get browser rows.
         """
-
         r = {'total': 0, 'rows': []}
 
         finder = _odm.find(self._model)
         r['total'] = finder.count()
 
+        # Sort
         if sort_field:
             sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC
             finder.sort([(sort_field, sort_order)])
+
+        # Search
+        if search:
+            mock = _functions.dispense_entity(self._model)
+            mock.browser_search(finder, search)
 
         cursor = finder.skip(offset).get(limit)
         """:type : list[ODMUIMixin|ODMModel]"""
@@ -156,9 +163,9 @@ class ODMUIBrowser:
                 continue
 
             if not cells:
-                raise Exception("'get_browser_row()' returns nothing.")
+                raise Exception("'get_browser_data_row()' returns nothing.")
             if len(cells) != len(self.data_fields):
-                raise Exception("'get_browser_row()' returns invalid number of cells.")
+                raise Exception("'get_browser_data_row()' returns invalid number of cells.")
 
             # Data TDs
             cell = {}

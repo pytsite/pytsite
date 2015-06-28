@@ -142,5 +142,5 @@ def resolve_ref(something) -> _DBRef:
 def find(model: str):
     """Get ODM finder.
     """
-    from ._finder import ODMFinder
-    return ODMFinder(model)
+    from ._finder import Finder
+    return Finder(model)

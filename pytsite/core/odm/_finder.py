@@ -9,7 +9,7 @@ from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from . import _model, _field
 
 
-class ODMQuery:
+class Query:
     """Query Representation.
     """
     def __init__(self, model: _model.Model):
@@ -87,7 +87,7 @@ class ODMQuery:
         return self._criteria
 
 
-class ODMFinderResult:
+class Result:
     def __init__(self, model_name: str, cursor: _Cursor):
         self._model_name = model_name
         self._cursor = cursor
@@ -103,42 +103,51 @@ class ODMFinderResult:
         return dispense(self._model_name, doc['_id'])
 
 
-class ODMFinder:
+class Finder:
     def __init__(self, model_name: str):
         """Init.
         """
         from ._manager import dispense
 
         self._model = model_name
-        self._entity_mock = dispense(model_name)
-        self._query = ODMQuery(self._entity_mock)
+        self._mock = dispense(model_name)
+        self._query = Query(self._mock)
         self._skip = 0
         self._limit = 0
         self._sort = None
+
+    @property
+    def mock(self) -> _model.Model:
+        """Get entity mock.
+        """
+        return self._mock
 
     def where(self, field_name: str, comparison_op: str, arg):
         """Add '$and' criteria.
         """
         self._query.add_criteria('$and', field_name, comparison_op, arg)
+
         return self
 
     def or_where(self, field_name: str, comparison_op: str, arg):
-        """Add '$or' criteria
+        """Add '$or' criteria.
         """
         self._query.add_criteria('$or', field_name, comparison_op, arg)
+
         return self
 
     def skip(self, num: int):
         """Set number of records to skip in result cursor.
         """
         self._skip = num
+
         return self
 
     def sort(self, fields=None):
         """Set sort criteria.
         """
         for f in fields:
-            if not self._entity_mock.has_field(f[0]):
+            if not self._mock.has_field(f[0]):
                 raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model))
         self._sort = fields
 
@@ -147,7 +156,7 @@ class ODMFinder:
     def count(self) -> int:
         """Count documents in collection.
         """
-        collection = self._entity_mock.collection
+        collection = self._mock.collection
         flt = self._query.compile()
         return collection.count(filter=flt, skip=self._skip, limit=self._limit)
 
@@ -157,7 +166,7 @@ class ODMFinder:
         :rtype: list[ODMModel]
         """
         self._limit = limit
-        collection = self._entity_mock.collection
+        collection = self._mock.collection
         cursor = collection.find(
             self._query.compile(),
             {'_id': True},
@@ -168,7 +177,7 @@ class ODMFinder:
             self._sort
         )
 
-        return ODMFinderResult(self._model, cursor)
+        return Result(self._model, cursor)
 
     def first(self) -> _model.Model:
         """Execute the query and return a first result.
@@ -181,7 +190,7 @@ class ODMFinder:
 
     def distinct(self, field_name: str) -> list:
         from ._manager import get_by_ref
-        values = self._entity_mock.collection.distinct(field_name, self._query.compile())
+        values = self._mock.collection.distinct(field_name, self._query.compile())
         r = []
         for v in values:
             if isinstance(v, _DBRef):

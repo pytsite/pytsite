@@ -30,6 +30,7 @@ I_ASC = _pymongo.ASCENDING
 I_DESC = _pymongo.DESCENDING
 I_GEO2D = _pymongo.GEO2D
 Model = _model.Model
+Finder = _finder.Finder
 field = _field
 validation = _validation
 error = _error

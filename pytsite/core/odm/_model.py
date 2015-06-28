@@ -4,7 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
@@ -36,7 +35,9 @@ class Model(_ABC):
         self._is_new = True
         self._is_deleted = False
         self._defined_indices = []
+
         self._fields = _OrderedDict()
+        """:type: dict[str, _field.Abstract]"""
 
         self._define_field(_field.ObjectId('_id'))
         self._define_field(_field.String('_model', default=model))
@@ -151,8 +152,10 @@ class Model(_ABC):
         return self._collection
 
     @property
-    def fields(self) -> dict:
+    def fields(self):
         """Get all field objects.
+
+        ":rtype: int
         """
         return self._fields
 

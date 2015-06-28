@@ -8,7 +8,7 @@ from pytsite import odm_ui as _odm_ui
 from pytsite.core import lang as _lang, validation as _validation, odm as _odm, widget as _widget
 
 
-class Term(_odm.Model, _odm_ui.model.ODMUIMixin):
+class Term(_odm.Model, _odm_ui.UIMixin):
     """Taxonomy Term Model.
     """
     def _setup(self):
@@ -58,7 +58,7 @@ class Term(_odm.Model, _odm_ui.model.ODMUIMixin):
     def setup_browser(self, browser):
         """Hook.
 
-        :type browser: pytsite.odm_ui._browser.ODMUIBrowser
+        :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
         browser.data_fields = ('title', 'alias', 'weight', 'order', 'language')

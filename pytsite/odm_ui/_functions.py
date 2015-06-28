@@ -92,13 +92,12 @@ def get_d_form(model: str, ids: list) -> _form.Base:
 def dispense_entity(model: str, entity_id: str=None):
     """Dispense entity.
 
-    :rtype: _model.ODMUIMixin|odm.model.ODMModel
+    :rtype: _model.UIMixin|odm.model.ODMModel
     """
-
     if not entity_id or entity_id == '0':
         entity_id = None
     entity = _odm.dispense(model, entity_id)
-    if not isinstance(entity, _model.ODMUIMixin):
+    if not isinstance(entity, _model.UIMixin):
         raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(model))
 
     return entity
