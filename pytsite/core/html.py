@@ -28,22 +28,22 @@ _common_tag_attrs = (
 class Element(_ABC):
     """Base HTML Element.
     """
-    def __init__(self, content: str=None, **kwargs):
+    def __init__(self, content: str=None, child_separator: str='', **kwargs):
         """Init.
-
         :param cls
         """
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
         self._children = []
         self._attrs = {}
+        self._child_separator = child_separator
 
         for k, v in kwargs.items():
             self.set_attr(k, v)
 
         for attr in self._get_required_attrs():
             if attr not in self._attrs:
-                raise AttributeError("Required attribute '{0}' is not specified for element '{1}'.".
+                raise AttributeError("Required attribute '{}' is not specified for element '{}'.".
                                      format(attr, self.tag_name))
 
     @property
@@ -155,9 +155,11 @@ class Element(_ABC):
         }))
 
         # Render children
+        children = []
         if self._children:
             for child in self._children:
-                r += str(child)
+                children.append(str(child))
+        r += self._child_separator.join(children)
 
         # Element's content
         if self._content:

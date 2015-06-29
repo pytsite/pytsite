@@ -84,11 +84,11 @@ class Cloud(_widget.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        root = _html.Div()
+        root = _html.Div(child_separator='&nbsp;')
         weight = 10
         for term in _functions.find(self._model).get(self._num):
             title = self._title_pattern % term.f_get('title')
-            a_cls='term {} weight-{} {}'.format(self._model, weight, self._term_css)
+            a_cls = 'term {} weight-{} {}'.format(self._model, weight, self._term_css)
             a = _html.A(title, href=self._link_pattern % term.f_get('alias'), cls=a_cls)
             root.append(a)
             weight -= 1
