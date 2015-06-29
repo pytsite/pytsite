@@ -1,4 +1,4 @@
-"""Abstract Widget
+"""Abstract Widget.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -8,7 +8,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite.core import util as _util, html as _html
 
 
-class Widget(_ABC):
+class Base(_ABC):
     """Abstract widget.
     """
     def __init__(self, **kwargs: dict):
@@ -143,6 +143,10 @@ class Widget(_ABC):
         """
         return self._cls
 
+    @cls.setter
+    def cls(self, value):
+        self._cls = value
+
     @property
     def help(self):
         """Get help string of the widget.
@@ -172,3 +176,6 @@ class Widget(_ABC):
         group_wrapper.append(content)
 
         return group_wrapper
+
+    def __str__(self) -> str:
+        return str(self.render())

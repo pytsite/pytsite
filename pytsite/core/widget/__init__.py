@@ -1,4 +1,4 @@
-"""Widgets Package.
+"""Pytsite Widgets Package Init.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,10 +12,5 @@ def __init():
 __init()
 
 # Public API
-from . import _base, _button, _input, _select, _static, _wysiwyg
-base = _base
-button = _button
-input = _input
-select = _select
-static = _static
-wysiwyg = _wysiwyg
+from . import _base, _button as button, _input as input, _select as select, _static as static
+Base = _base.Base

@@ -8,5 +8,5 @@ __license__ = 'MIT'
 from pytsite import content as _content
 
 
-class ArticleModel(_content.model.ContentModel):
+class Article(_content.model.Content):
     pass

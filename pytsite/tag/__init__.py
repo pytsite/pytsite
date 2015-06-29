@@ -6,11 +6,17 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite.core import lang
+    import sys
+    from pytsite.core import lang, tpl
     from pytsite import taxonomy
     from . import _model
 
     lang.register_package(__name__)
-    taxonomy.manager.register_model('tag', _model.Tag, __name__ + '@tags')
+    tpl.register_global('tag', sys.modules[__package__])
+    taxonomy.register_model('tag', _model.Tag, __name__ + '@tags')
 
 __init()
+
+
+# Public API
+from . import _widget as widget

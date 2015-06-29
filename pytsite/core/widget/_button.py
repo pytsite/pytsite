@@ -8,7 +8,7 @@ from pytsite.core import html as _html
 from . import _base
 
 
-class Button(_base.Widget):
+class Button(_base.Base):
     """Button.
     """
     def __init__(self, **kwargs: dict):

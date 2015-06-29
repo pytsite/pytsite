@@ -18,7 +18,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     if isinstance(cls, str):
         cls = _util.get_class(cls)
 
-    if not issubclass(cls, _model.ContentModel):
+    if not issubclass(cls, _model.Content):
         raise TypeError('Subclass of ContentModel expected.')
 
     _odm.register_model(model, cls)
@@ -69,4 +69,4 @@ def get_publish_statuses() -> list:
 
 
 def get_section(alias: str) -> _model.Section:
-    return _taxonomy.manager.find('section').where('alias', '=', alias).first()
+    return _taxonomy.find('section').where('alias', '=', alias).first()

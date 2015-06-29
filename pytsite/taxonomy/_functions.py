@@ -1,9 +1,8 @@
-"""Taxonomy Manager.
+"""Taxonomy Functions.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
 
 import re
 from pytsite import admin as _admin
@@ -15,7 +14,6 @@ __models = []
 
 def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_icon: str='fa fa-tags'):
     """Register taxonomy model.
-
     :param cls: str|type
     """
     if is_model_registered(model):
@@ -32,7 +30,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
 
     menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
     _admin.sidebar.add_menu('taxonomy', model, menu_title, menu_url, menu_icon, weight=menu_weight,
-                     permissions=('pytsite.odm_ui.browse.' + model,))
+                            permissions=('pytsite.odm_ui.browse.' + model,))
 
 
 def is_model_registered(model: str) -> bool:

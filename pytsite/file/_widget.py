@@ -9,7 +9,7 @@ from pytsite.core import widget as _widget, assetman as _assetman, router as _ro
 from . import _manager
 
 
-class FilesUpload(_widget.base.Widget):
+class FilesUpload(_widget.Base):
     """Files Upload Widget.
     """
 

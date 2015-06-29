@@ -8,7 +8,7 @@ from pytsite.core import html as _html
 from . import _base
 
 
-class Html(_base.Widget):
+class Html(_base.Base):
     """HTML Widget.
     """
     def __init__(self, **kwargs: dict):
@@ -36,7 +36,7 @@ class Text(Html):
         return self._group_wrap(self._html_em(self._value, cls='form-control-static'))
 
 
-class Tabs(_base.Widget):
+class Tabs(_base.Base):
     """Tabs Widget.
     """
     def __init__(self, **kwargs: dict):
@@ -74,7 +74,7 @@ class Tabs(_base.Widget):
         return self._group_wrap(wrapper)
 
 
-class Wrapper(_base.Widget):
+class Wrapper(_base.Base):
     """Wrapper Widget.
 
     Can contain only child widgets.

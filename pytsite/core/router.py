@@ -49,7 +49,6 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: tuple=No
              filters: tuple=None):
     """Add a rule to the router.
     """
-
     if filters is None:
         filters = []
 

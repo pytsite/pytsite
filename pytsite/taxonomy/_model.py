@@ -29,14 +29,14 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         if field_name == 'alias':
-            from . import _manager
+            from . import _functions
             value = value.strip()
             if not self.is_new:
-                term = _manager.find(self.model).where('alias', '=', value).first()
+                term = _functions.find(self.model).where('alias', '=', value).first()
                 if not term or term.id != self.id:
-                    value = _manager.sanitize_alias_string(self.model, value)
+                    value = _functions.sanitize_alias_string(self.model, value)
             else:
-                value = _manager.sanitize_alias_string(self.model, value)
+                value = _functions.sanitize_alias_string(self.model, value)
 
         return super()._on_f_set(field_name, value, **kwargs)
 
@@ -48,9 +48,9 @@ class Term(_odm.Model, _odm_ui.UIMixin):
 
     def save(self):
         if self.is_new:
-            from . import _manager
+            from . import _functions
             title = self.f_get('title')
-            if _manager.find(self.model).where('title', 'regex_i', '^' + title + '$').count():
+            if _functions.find(self.model).where('title', 'regex_i', '^' + title + '$').count():
                 return
 
         return super().save()

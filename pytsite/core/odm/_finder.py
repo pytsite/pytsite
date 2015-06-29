@@ -71,6 +71,18 @@ class Query:
             if isinstance(field, _field.Ref) and isinstance(arg, _model.Model):
                 arg = arg.ref
 
+            # Convert list of instances to list of DBRefs
+            if isinstance(field, _field.RefsListField):
+                if not isinstance(arg, list):
+                    raise ValueError('List expected.')
+
+                clean_arg = []
+                for v in arg:
+                    if isinstance(v, _model.Model):
+                        v = v.ref
+                    clean_arg.append(v)
+                arg = clean_arg
+
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:
             self._criteria[logical_op] = []

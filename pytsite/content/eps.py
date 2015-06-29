@@ -4,15 +4,41 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import content as _content, disqus as _disqus
-from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman
+from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy
+from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
+    odm as _odm
 
+
+def index(args: dict, inp: dict):
+    """Content Index.
+    """
+    model = args.get('model')
+    if not model:
+        raise ValueError('Model is not specified.')
+
+    f = _content.find(model)
+
+    term_field = args.get('term_field', ('', ''))
+    field_name, term_model = term_field
+    if field_name and term_model:
+        term_alias = args.get('term_alias')
+        if term_alias:
+            term = _taxonomy.find(term_model).where('alias', '=', term_alias).first()
+            args['term'] = term
+            if isinstance(f.mock.fields[field_name], _odm.field.Ref):
+                f.where(field_name, '=', term)
+            elif isinstance(f.mock.fields[field_name], _odm.field.RefsListField):
+                f.where(field_name, 'in', [term])
+
+    args['entities'] = f.get()
+    endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_index')
+    return _router.call_endpoint(endpoint, args)
 
 def view(args: dict, inp: dict):
     """View Content Entity.
     """
     model = args.get('model')
-    entity = _content.manager.find(model).where('_id', '=', args.get('id')).first()
+    entity = _content.find(model).where('_id', '=', args.get('id')).first()
     if not entity:
         raise _http.error.NotFoundError()
 
@@ -35,7 +61,7 @@ def view_count(args: dict, inp: dict) -> int:
     eid = inp.get('id')
 
     if model and eid:
-        entity = _content.manager.find(model).where('_id', '=', eid).first()
+        entity = _content.find(model).where('_id', '=', eid).first()
         if entity:
             entity.f_inc('views_count').save()
             return entity.f_get('views_count')

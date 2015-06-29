@@ -18,7 +18,7 @@ class Section(_taxonomy.model.Term):
     pass
 
 
-class ContentModel(_odm.Model, _odm_ui.UIMixin):
+class Content(_odm.Model, _odm_ui.UIMixin):
     """Content Model.
     """
     def _setup(self):
@@ -182,7 +182,7 @@ class ContentModel(_odm.Model, _odm_ui.UIMixin):
             value=self.f_get('description'),
         ))
 
-        form.add_widget(_taxonomy.widget.TermTokens(
+        form.add_widget(_taxonomy.widget.TokensInput(
             weight=40,
             uid='tags',
             model='tag',
@@ -199,7 +199,7 @@ class ContentModel(_odm.Model, _odm_ui.UIMixin):
         ))
 
         if self.has_field('body'):
-            form.add_widget(_widget.wysiwyg.CKEditor(
+            form.add_widget(_widget.input.CKEditor(
                 weight=60,
                 uid='body',
                 label=self.t('body'),

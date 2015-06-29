@@ -1,4 +1,4 @@
-"""Input Widgets
+"""Input Widgets.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -9,7 +9,7 @@ from pytsite.core import assetman as _assetman, client as _client, html as _html
 from . import _base
 
 
-class Input(_base.Widget):
+class Input(_base.Base):
     """Input Widget.
     """
     @_abstractmethod
@@ -26,7 +26,7 @@ class Hidden(Input):
         return _html.Input(type='hidden', uid=self._uid, name=self.name, value=self.get_value()).render()
 
 
-class TextArea(_base.Widget):
+class TextArea(_base.Base):
     """Text Area Input Widget.
     """
     def __init__(self, **kwargs):
@@ -124,6 +124,7 @@ class Integer(Text):
         _assetman.add('pytsite.core.widget@js/integer.js')
         return super().render()
 
+
 class Float(Text):
     """Float Input Widget
     """
@@ -147,3 +148,22 @@ class Float(Text):
         _client.include('inputmask')
         _assetman.add('pytsite.core.widget@js/float.js')
         return super().render()
+
+
+class CKEditor(_base.Base):
+    """CKEditor Widget.
+    """
+    def __init__(self, **kwargs: dict):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._group_cls = ' '.join((self._group_cls, 'widget-ckeditor'))
+        _assetman.add('pytsite.core.widget@ckeditor/skins/moono/editor.css')
+        _assetman.add('pytsite.core.widget@ckeditor/ckeditor.js')
+        _assetman.add('pytsite.core.widget@ckeditor/adapters/jquery.js')
+        _assetman.add('pytsite.core.widget@js/ckeditor.js')
+
+    def render(self) -> str:
+        """Render the widget.
+        """
+        return self._group_wrap(_html.TextArea(name=self._uid))
