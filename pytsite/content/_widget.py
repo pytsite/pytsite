@@ -25,7 +25,7 @@ class EntityTags(_widget.Base):
         self._group_cls += ' widget-content-tags'
 
     def render(self) -> _html.Element:
-        root = _html.Div(child_separator='&nbsp;')
+        root = _html.Div(child_separator=' ')
         for tag in self._entity.f_get('tags'):
             title = self._title_pattern % tag.f_get('title')
             a_cls = 'tag {}'.format(self._term_css)

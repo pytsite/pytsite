@@ -84,7 +84,7 @@ class Cloud(_widget.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        root = _html.Div(child_separator='&nbsp;')
+        root = _html.Div(child_separator=' ')
         weight = 10
         for term in _functions.find(self._model).get(self._num):
             title = self._title_pattern % term.f_get('title')
