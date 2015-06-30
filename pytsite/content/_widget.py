@@ -9,13 +9,21 @@ from pytsite.core import widget as _widget, html as _html
 from . import _model
 
 class TagCloud(_tag.widget.Cloud):
+    """Tags Clod Widget.
+    """
     def __init__(self, content_model: str, **kwargs):
+        """Init.
+        """
         super().__init__(**kwargs)
         self._link_pattern = '/content/tag/{}/%s'.format(content_model)
 
 
 class EntityTags(_widget.Base):
+    """Tag of the Entity Widget.
+    """
     def __init__(self, entity: _model.Content, **kwargs):
+        """Init.
+        """
         super().__init__(**kwargs)
         self._entity = entity
         self._link_pattern = '/content/tag/{}/%s'.format(entity.model)
@@ -25,6 +33,8 @@ class EntityTags(_widget.Base):
         self._group_cls += ' widget-content-tags'
 
     def render(self) -> _html.Element:
+        """Render the widget.
+        """
         root = _html.Div(child_separator=' ')
         for tag in self._entity.f_get('tags'):
             title = self._title_pattern % tag.f_get('title')
