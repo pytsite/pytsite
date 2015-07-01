@@ -12,7 +12,7 @@ def dd(var):
     exit(-1)
 
 
-def dict_merge(a: dict, b: dict)->dict:
+def dict_merge(a: dict, b: dict) -> dict:
     """Recursively merges dict's.
 
     Not just simple a['key'] = b['key'], if both a and bhave a key who's
@@ -20,8 +20,8 @@ def dict_merge(a: dict, b: dict)->dict:
     on both values and the result stored in the returned dictionary.
     https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
 
-    if not isinstance(b, dict):
-        return b
+    if not isinstance(a, dict) or not isinstance(b, dict):
+        raise ValueError('Expected dictionaries as arguments.')
 
     from copy import deepcopy
 

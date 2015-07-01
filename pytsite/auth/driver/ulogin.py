@@ -10,7 +10,7 @@ from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
 from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, \
-    widget as _widget, http as _http
+    widget as _widget, http as _http, client as _client
 from pytsite import image as _image
 from .. import _functions, _error
 from .abstract import AbstractDriver

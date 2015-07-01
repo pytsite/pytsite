@@ -304,7 +304,7 @@ def current_path(strip_query_string: bool=False, resolve_alias: bool=True) -> st
 def current_url(strip_query_string: bool=False, resolve_alias: bool=True) -> str:
     """Get current URL.
     """
-    return 'http://' + _reg.get('server_name') + current_path(strip_query_string)
+    return 'http://' + server_name() + current_path(strip_query_string)
 
 def endpoint_url(endpoint: str, args: dict=None, relative: bool=False) -> str:
     """Get URL for endpoint.

@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import json
-from os import path
+from os import path as _path, makedirs as _makedirs
 from pytsite.core import reg as _reg, console as _console
 from . import _functions
 
@@ -32,7 +32,10 @@ class CompileTranslations(_console.command.Abstract):
         str_output = 'pytsite.lang.langs={};'.format(json.dumps(_functions.get_langs()))
         str_output += 'pytsite.lang.current_lang="{}";'.format(_functions.get_current_lang())
         str_output += 'pytsite.lang.translations={};'.format(json.dumps(translations))
-        output_file = path.join(_reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
+        output_file = _path.join(_reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
+        output_dir = _path.dirname(output_file)
+        if not _path.exists(output_dir):
+            _makedirs(output_dir, 0o755, True)
         with open(output_file, 'wt') as f:
             _console.print_info("Writing translations into '{}'".format(output_file))
             f.write(str_output)

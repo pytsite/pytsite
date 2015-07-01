@@ -96,9 +96,11 @@ class FileDriver(MemoryDriver):
         for name in ('default.yml', env_name + '.yml'):
             file_path = root_dir + path.sep + name
             if path.isfile(file_path):
-                file = open(file_path, 'r')
-                self.merge(_yaml.load(file))
-                file.close()
+                with open(file_path, 'r') as f:
+                    f_data = _yaml.load(f)
+                    if isinstance(f_data, dict):
+                        self.merge(f_data)
+                    f.close()
 
     def get_val(self, key: str, default=None):
         """Get value from the registry.
