@@ -205,7 +205,7 @@ class Base:
 
         return self._render_open_tag() + body + self._render_close_tag()
 
-    def add_widget(self, w: _widget.Base, area: str='body'):
+    def add_widget(self, w: _widget.base.Base, area: str='body'):
         """Add a _widget.
         """
         if area not in self._areas:
@@ -224,7 +224,7 @@ class Base:
         """
         return uid in self._widgets
 
-    def get_widget(self, uid: str) -> _widget.Base:
+    def get_widget(self, uid: str) -> _widget.base.Base:
         """Get a widget.
         """
         if not self.has_widget(uid):

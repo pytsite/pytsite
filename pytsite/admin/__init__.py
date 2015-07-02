@@ -10,6 +10,7 @@ def __init():
     """
     from pytsite.core import router, tpl, assetman, lang, client
     from pytsite import auth
+    from . import _sidebar
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -27,6 +28,8 @@ def __init():
 
     client.include('bootstrap', '/admin*')
     client.include('font-awesome', '/admin*')
+
+    _sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500, ('*',))
 
 # Initialization
 __init()

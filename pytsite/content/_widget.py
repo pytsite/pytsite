@@ -18,7 +18,7 @@ class TagCloud(_tag.widget.Cloud):
         self._link_pattern = '/content/tag/{}/%s'.format(content_model)
 
 
-class EntityTags(_widget.Base):
+class EntityTags(_widget.base.Base):
     """Tag of the Entity Widget.
     """
     def __init__(self, entity: _model.Content, **kwargs):

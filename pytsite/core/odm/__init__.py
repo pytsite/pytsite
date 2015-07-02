@@ -8,6 +8,7 @@ import pymongo as _pymongo
 from . import _model, _field, _manager, _finder, _validation, _error
 
 
+
 def _app_update_event():
     from pytsite.core import console
     console.run_command('odm:reindex')
@@ -26,10 +27,10 @@ def __init():
 __init()
 
 # Public API
+from ._model import Model
 I_ASC = _pymongo.ASCENDING
 I_DESC = _pymongo.DESCENDING
 I_GEO2D = _pymongo.GEO2D
-Model = _model.Model
 Finder = _finder.Finder
 field = _field
 validation = _validation

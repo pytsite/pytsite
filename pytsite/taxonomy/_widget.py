@@ -62,7 +62,7 @@ class TokensInput(_widget.select.Tokens):
 
         return self._group_wrap(html_input)
 
-class Cloud(_widget.Base):
+class Cloud(_widget.base.Base):
     """Tags Cloud Widget.
     """
     def __init__(self, model: str, **kwargs):

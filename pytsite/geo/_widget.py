@@ -9,7 +9,7 @@ from pytsite.core import assetman as _assetman, lang as _lang, widget as _widget
 from . import _functions
 
 
-class SearchAddress(_widget.Base):
+class SearchAddress(_widget.base.Base):
     """Geo Address Input Widget.
     """
     def __init__(self, **kwargs: dict):
@@ -66,7 +66,7 @@ class SearchAddress(_widget.Base):
         return self._group_wrap(inputs)
 
 
-class StaticMap(_widget.Base):
+class StaticMap(_widget.base.Base):
     def __init__(self, **kwargs: dict):
         """Init.
         """

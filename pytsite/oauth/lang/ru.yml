@@ -1,0 +1,7 @@
+oauth: 'oAuth'
+sign_in: 'Войти'
+odm_ui_oauth_account_browser_title: 'Аккаунты oAuth'
+odm_ui_oauth_account_create_form_legend: 'Новый аккаунт oAuth'
+provider: 'Провайдер'
+screen_name: 'Логин'
+owner: 'Владелец'

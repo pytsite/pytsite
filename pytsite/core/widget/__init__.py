@@ -11,6 +11,6 @@ def __init():
 
 __init()
 
+
 # Public API
-from . import _base, _button as button, _input as input, _select as select, _static as static
-Base = _base.Base
+from . import _base as base, _button as button, _input as input, _select as select, _static as static

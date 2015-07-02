@@ -8,7 +8,7 @@ from pytsite import auth as _auth
 from pytsite.core import widget as _widget, html as _html, tpl as _tpl, odm as _odm, assetman as _assetman
 
 
-class Flag(_widget.Base):
+class Flag(_widget.base.Base):
     """Flag Widget.
     """
     def __init__(self, uid: str, **kwargs: dict):

@@ -48,6 +48,6 @@ __init()
 
 
 # Public API
-from . import _functions, _model, _widget as widget
-UIMixin = _model.UIMixin
+from . import _functions, _widget as widget
+from ._model import UIMixin
 get_m_form = _functions.get_m_form

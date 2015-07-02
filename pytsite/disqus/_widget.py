@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from pytsite.core import widget as _widget, html as _html, tpl as _tpl, reg as _reg
 
 
-class Disqus(_widget.Base):
+class Disqus(_widget.base.Base):
     """Disqus Widget.
     """
     def __init__(self, **kwargs):

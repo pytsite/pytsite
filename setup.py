@@ -25,6 +25,8 @@ setup(
         'htmlmin',
         'rjsmin',
         'cssutils',
+        'requests',
+        'requests_oauthlib',
     ],
     classifiers= [
         'Development Status :: 2 - Pre-Alpha',
