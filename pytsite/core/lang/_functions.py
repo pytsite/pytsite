@@ -82,7 +82,7 @@ def get_packages() -> dict:
     return __packages
 
 
-def t(msg_id: str, data: dict=None, language: str=None)->str:
+def t(msg_id: str, args: dict=None, language: str=None) -> str:
     """Translate a string.
     """
     if not language:
@@ -107,14 +107,14 @@ def t(msg_id: str, data: dict=None, language: str=None)->str:
     msg = content[msg_id]
     """:type : str"""
 
-    if data:
-        for k, v in data.items():
+    if args:
+        for k, v in args.items():
             msg = msg.replace(':' + str(k), str(v))
 
     return msg
 
 
-def t_plural(msg_id: str, num: int=2, language: str=None)->str:
+def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
     """Translate a string in plural form.
     """
     if not language:

@@ -373,10 +373,10 @@ class Model(_ABC):
         """
         return '.'.join(self.__class__.__module__.split('.')[:-1])
 
-    def t(self, msg_id: str) -> str:
+    def t(self, msg_id: str, args: dict=None) -> str:
         """Translate a string in model context.
         """
-        return lang.t(self.package() + '@' + msg_id)
+        return lang.t(self.package() + '@' + msg_id, args)
 
     def t_plural(self, msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.

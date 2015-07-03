@@ -4,7 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import tpl as _tpl, lang as _lang, http as _http, router as _router, odm as _odm
+from pytsite.core import tpl as _tpl, lang as _lang, http as _http, router as _router, odm as _odm, \
+    logger as _logger
 from . import _functions, _browser
 
 
@@ -43,7 +44,13 @@ def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
     global_messages = []
-    form = _functions.get_m_form(inp.get('__model'), inp.get('__entity_id'))
+
+    model = inp.get('__model')
+    entity_id = inp.get('__entity_id')
+    if not model or not entity_id:
+        return {'status': True}
+
+    form = _functions.get_m_form(model, entity_id, 'validate')
     v_status = form.fill(inp, validation_mode=True).validate()
     widget_messages = form.messages
 
@@ -53,24 +60,29 @@ def validate_m_form(args: dict, inp: dict) -> dict:
 def post_m_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Process submit of modify form.
     """
-
     model = args.get('model')
     entity_id = args.get('id')
 
-    form = _functions.get_m_form(model, entity_id)
+    # Create form
+    form = _functions.get_m_form(model, entity_id, 'submit')
 
+    # Fill and validate form
     if not form.fill(inp).validate():
         _router.session.add_error(str(form.messages))
         raise _http.error.InternalServerError()
 
+    # Dispense entity and populate its fields with form's values
     entity = _functions.dispense_entity(model, entity_id)
     for f_name, f_value in form.values.items():
         if entity.has_field(f_name):
             entity.f_set(f_name, f_value)
 
-    entity.save()
-
-    entity.submit_m_form(form)
+    try:
+        entity.submit_m_form(form)  # Entity hook
+        entity.save()
+    except Exception as e:
+        _router.session.add_error(str(e))
+        _logger.error(str(e))
 
     return _http.response.RedirectResponse(form.redirect)
 
@@ -93,7 +105,6 @@ def get_d_form(args: dict, inp: dict) -> str:
 def post_d_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Submit delete form.
     """
-
     model = args.get('model')
     ids = inp.get('ids', [])
     if isinstance(ids, str):

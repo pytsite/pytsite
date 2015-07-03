@@ -87,7 +87,7 @@ class Base(_ABC):
     def get_child(self, uid: str):
         """Get child widget by uid.
 
-        :rtype: pytsite.core.widget.abstract.Widget
+        :rtype: pytsite.core.widget._base.Base
         """
         for w in self._children:
             if w.uid == uid:

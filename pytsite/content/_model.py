@@ -147,7 +147,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         finder.or_where('title', 'regex_i', query)
 
-    def setup_m_form(self, form):
+    def setup_m_form(self, form, stage: str):
         """Hook.
         :type form: pytsite.core.form.Base
         """
@@ -253,7 +253,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         return self.f_get('title')
 
-    def t(self, msg_id: str) -> str:
+    def t(self, msg_id: str, args: dict=None) -> str:
         """Translate a string.
         """
         try:

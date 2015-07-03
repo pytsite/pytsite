@@ -34,16 +34,14 @@ class UIMixin(_ABC):
                 finder.or_where(k, 'regex_i', query)
 
     @_abstractmethod
-    def setup_m_form(self, form):
+    def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
-
         :type form: pytsite.core.form.Base
         """
         pass
 
     def submit_m_form(self, form):
         """Modify form submit hook.
-
         :type form: pytsite.core.form.Base
         """
         pass

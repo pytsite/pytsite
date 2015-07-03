@@ -209,5 +209,7 @@ class Browser:
             elif self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '_own.' + self._model):
                 if entity and entity.has_field('author') and entity.f_get('author').id == self._current_user.id:
                     return True
+                if entity and entity.has_field('owner') and entity.f_get('owner').id == self._current_user.id:
+                    return True
 
         return False

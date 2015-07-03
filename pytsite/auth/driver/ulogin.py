@@ -16,7 +16,7 @@ from .. import _functions, _error
 from .abstract import AbstractDriver
 
 
-class Login(_widget.base.Base):
+class Login(_widget.Base):
     """ULogin Widget.
     """
     def __init__(self, **kwargs: dict):

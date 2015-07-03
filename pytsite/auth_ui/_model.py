@@ -38,9 +38,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('last_login', fmt='%x %X')
         )
 
-    def setup_m_form(self, form):
+    def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
-
         :type form: pytsite.core.form.Base
         """
         form.add_widget(_widget.select.Checkbox(
@@ -153,9 +152,8 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
             ' '.join(perms)
         )
 
-    def setup_m_form(self, form):
+    def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
-
         :type form: pytsite.core.form.Base
         """
         if self.f_get('name') == 'admin':

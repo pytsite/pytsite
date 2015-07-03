@@ -6,9 +6,10 @@ __license__ = 'MIT'
 
 def __init():
     import sys
-    from pytsite import admin, odm_ui
+    from pytsite import admin
     from pytsite.core import odm, tpl, lang, router
     from ._model import Account
+    from . import _driver, _functions
 
     lang.register_package(__name__)
     tpl.register_global('oauth', sys.modules[__name__])
@@ -26,3 +27,5 @@ __init()
 
 # Public API
 from . import _widget as widget
+from ._functions import register_driver, load_driver
+from ._driver import Abstract as AbstractDriver

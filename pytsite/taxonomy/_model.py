@@ -74,11 +74,9 @@ class Term(_odm.Model, _odm_ui.UIMixin):
             _lang.get_lang_title(self.f_get('language')),
         )
 
-    def setup_m_form(self, form):
+    def setup_m_form(self, form, stage: str):
         """Hook.
-
         :type form: pytsite.core.form.Base
-        :return: None
         """
         form.add_widget(_widget.input.Text(
             weight=10,
@@ -126,7 +124,7 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         """
         return self.f_get('title')
 
-    def t(self, msg_id: str) -> str:
+    def t(self, msg_id: str, args: dict=None) -> str:
         """Translate a string.
         """
         try:

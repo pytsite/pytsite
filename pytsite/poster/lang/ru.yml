@@ -1,0 +1,9 @@
+poster: 'Постер'
+driver: 'Драйвер'
+source: 'Источник'
+owner: 'Владелец'
+
+odm_ui_poster_browser_title: 'Постеры'
+odm_ui_poster_create_form_legend: 'Новый постер'
+odm_ui_poster_modify_form_legend: 'Изменение постера'
+odm_ui_poster_delete_form_legend: 'Удаление постеров'

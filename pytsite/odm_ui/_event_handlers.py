@@ -36,7 +36,7 @@ def odm_register_model(model: str, cls: type):
 
     # Registering permissions
     for perm_name in 'create', 'browse', 'browse_own', 'modify', 'modify_own', 'delete', 'delete_own':
-        if perm_name.endswith('_own') and not mock.has_field('author'):
+        if perm_name.endswith('_own') and not mock.has_field('author') and not mock.has_field('owner'):
             continue
         perm_description = pkg_name + '@odm_ui_permission_' + perm_name + '_' + model
         perm_full_name = 'pytsite.odm_ui.' + perm_name + '.' + model

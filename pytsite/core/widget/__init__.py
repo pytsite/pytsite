@@ -13,4 +13,5 @@ __init()
 
 
 # Public API
-from . import _base as base, _button as button, _input as input, _select as select, _static as static
+from . import _button as button, _input as input, _select as select, _static as static
+from ._base import Base

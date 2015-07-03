@@ -11,7 +11,7 @@ from pytsite.core import router as _router, metatag as _metatag, odm as _odm, la
 from . import _model
 
 
-def get_m_form(model: str, eid: str=None) -> _form.Base:
+def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     """Get entity modification _form.
     """
     eid = eid if eid != '0' else None
@@ -41,12 +41,12 @@ def get_m_form(model: str, eid: str=None) -> _form.Base:
     frm.add_widget(actions_wrapper, area='footer')
 
     # Metadata
-    frm.add_widget(_widget.input.Hidden(name='__model', value=model), area='form')
-    frm.add_widget(_widget.input.Hidden(name='__entity_id', value=eid), area='form')
+    frm.add_widget(_widget.input.Hidden(uid='__model', value=model), area='form')
+    frm.add_widget(_widget.input.Hidden(uid='__entity_id', value=eid), area='form')
 
     # Setting up the form with entity hook
     entity = dispense_entity(model, eid)
-    entity.setup_m_form(frm)
+    entity.setup_m_form(frm, stage)
 
     if entity.is_new:
         legend = entity.t('odm_ui_' + model + '_create_form_legend')
@@ -120,6 +120,8 @@ def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
                 if not entity:
                     return False
                 if entity.has_field('author') and not entity.f_get('author').id == user.id:
+                    return False
+                if entity.has_field('owner') and not entity.f_get('owner').id == user.id:
                     return False
             return True
 

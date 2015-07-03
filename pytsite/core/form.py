@@ -62,6 +62,10 @@ class Base:
         """
         return self._method
 
+    @method.setter
+    def method(self, value):
+        self._method = value
+
     @property
     def action(self) -> str:
         """Get form action URL.
@@ -69,10 +73,10 @@ class Base:
         return self._action
 
     @action.setter
-    def action(self, val):
+    def action(self, value):
         """Set form action URL.
         """
-        self._action = val
+        self._action = value
 
     @property
     def legend(self) -> str:
@@ -205,7 +209,7 @@ class Base:
 
         return self._render_open_tag() + body + self._render_close_tag()
 
-    def add_widget(self, w: _widget.base.Base, area: str='body'):
+    def add_widget(self, w: _widget.Base, area: str='body'):
         """Add a _widget.
         """
         if area not in self._areas:
@@ -224,7 +228,7 @@ class Base:
         """
         return uid in self._widgets
 
-    def get_widget(self, uid: str) -> _widget.base.Base:
+    def get_widget(self, uid: str) -> _widget.Base:
         """Get a widget.
         """
         if not self.has_widget(uid):
