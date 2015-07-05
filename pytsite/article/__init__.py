@@ -9,7 +9,7 @@ def __init():
     from pytsite import content
     from pytsite.core import reg
     from ._model import Article
-    content.register_model('article', reg.get('article.model', Article), __name__ + '@products')
+    content.register_model('article', reg.get('article.model', Article), __name__ + '@articles')
 
 __init()
 

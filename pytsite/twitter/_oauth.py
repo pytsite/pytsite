@@ -29,6 +29,7 @@ class Widget(_widget.Base):
                                     oauth_token_secret=self._oauth_token_secret)
         """:type: pytsite.twitter._oauth.Driver"""
 
+        # If 'verifier' is here, we need to exchange it to an access token
         inp_oauth_verifier = _router.request.values_dict.get('oauth_verifier')
         if inp_oauth_verifier:
             token = driver.get_access_token(inp_oauth_verifier)
@@ -38,7 +39,6 @@ class Widget(_widget.Base):
             self._screen_name = token['screen_name']
 
         wrapper = _html.Div()
-
         wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'oauth_token'),
                                    value=self._oauth_token))
         wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'oauth_token_secret'),
@@ -55,9 +55,7 @@ class Widget(_widget.Base):
             title = _lang.t('pytsite.twitter@authorization')
             href = driver.get_authorization_url()
 
-        a = _html.A(title, href=href)
-        a.append(_html.I(cls='fa fa-twitter'))
-
+        a = _html.A(title, href=href).append(_html.I(cls='fa fa-twitter'))
         wrapper.append(a)
 
         return self._group_wrap(wrapper)
@@ -143,8 +141,9 @@ class Driver(_oauth.AbstractDriver):
             raise Exception('Session expired')
         self._clear_state()
 
-        session = OAuth1Session(self._client_key, self._client_secret, state['oauth_token'],
-                                state['oauth_token_secret'], verifier=verifier)
+        session = OAuth1Session(self._client_key, self._client_secret,
+                                state['oauth_token'], state['oauth_token_secret'],
+                                verifier=verifier)
 
         return session.fetch_access_token('https://api.twitter.com/oauth/access_token')
 

@@ -47,7 +47,7 @@ def validate_m_form(args: dict, inp: dict) -> dict:
 
     model = inp.get('__model')
     entity_id = inp.get('__entity_id')
-    if not model or not entity_id:
+    if not model:
         return {'status': True}
 
     form = _functions.get_m_form(model, entity_id, 'validate')

@@ -16,10 +16,12 @@ class ODMSelect(_widget.select.Select):
         """
         super().__init__(**kwargs)
 
-        self.set_value(kwargs.get('value'))
-        self._model = kwargs.get('model')
-        self._caption_field = kwargs.get('caption_field')
-        self._sort_field = kwargs.get('sort_field', self._caption_field)
+        if not self._model:
+            self._model = kwargs.get('model')
+        if not self._caption_field:
+            self._caption_field = kwargs.get('caption_field')
+        if not self._sort_field:
+            self._sort_field = kwargs.get('sort_field', self._caption_field)
 
         if not self._model:
             raise ValueError('Model is not specified.')
@@ -40,9 +42,10 @@ class ODMSelect(_widget.select.Select):
         if isinstance(value, _odm.Model):
             self._selected_item = value.model + ':' + str(value.id)
         elif isinstance(value, str):
-            self._selected_item = value
-            model, eid = value.split(':')
-            value = _odm.find(model).where('_id', '=', eid).first()
+            if value.find(':') > 0:
+                self._selected_item = value
+                model, eid = value.split(':')
+                value = _odm.find(model).where('_id', '=', eid).first()
         elif isinstance(value, _DBRef):
             value = _odm.get_by_ref(value)
             self._selected_item = value.model + ':' + str(value.id)
@@ -54,7 +57,7 @@ class ODMSelect(_widget.select.Select):
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
-            self._items.append((k, str(entity.get_field(self._caption_field))))
+            self._items.append((k, str(entity.f_get(self._caption_field))))
 
         return super().render()
 

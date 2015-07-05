@@ -151,7 +151,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         :type form: pytsite.core.form.Base
         """
-        from . import _manager
+        from . import _functions
         _assetman.add('pytsite.content@js/content.js')
 
         if self.has_field('section'):
@@ -215,7 +215,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         ))
 
         if _auth.get_current_user().is_admin():
-            form.add_widget(_widget.select.DateTimeSelect(
+            form.add_widget(_widget.select.DateTime(
                 weight=80,
                 uid='publish_time',
                 label=self.t('publish_time'),
@@ -230,7 +230,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 label=self.t('status'),
                 value=self.f_get('status'),
                 h_size='col-sm-4 col-md-3 col-md-2',
-                items=_manager.get_publish_statuses(),
+                items=_functions.get_publish_statuses(),
             ))
 
             form.add_widget(_widget.select.Language(

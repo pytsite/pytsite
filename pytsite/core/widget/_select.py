@@ -59,6 +59,7 @@ class Select(_input.Input):
         """Render the widget.
         """
         select = _html.Select(name=self.uid, cls='form-control')
+        select.append(_html.Option('--- ' + _lang.t('pytsite.core@select_none_item') + ' ---', value=''))
         for item in self._items:
             option = _html.Option(item[1], value=item[0])
             if item[0] == self._selected_item:
@@ -71,7 +72,6 @@ class Select(_input.Input):
 class Checkboxes(Select):
     """Group of Checkboxes Widget.
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -115,7 +115,6 @@ class Checkboxes(Select):
 class Language(Select):
     """Select Language Widget
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -157,7 +156,7 @@ class Tokens(_input.Input):
         return self._group_wrap(html_input)
 
 
-class DateTimeSelect(_input.Text):
+class DateTime(_input.Text):
     def __init__(self, **kwargs):
         """Init.
         """

@@ -17,10 +17,20 @@ class Account(_odm.Model, _odm_ui.UIMixin):
         """
         self._define_field(_odm.field.String('driver', not_empty=True))
         self._define_field(_odm.field.String('screen_name', not_empty=True))
+        self._define_field(_odm.field.Virtual('fqsn'))
         self._define_field(_odm.field.Dict('data', not_empty=True))
         self._define_field(_odm.field.Ref('owner', model='user', not_empty=True))
 
         self._define_index([('driver', _odm.I_ASC), ('screen_name', _odm.I_ASC)], True)
+
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        """Hook.
+        """
+        if field_name == 'fqsn':  # Fully Qualified Screen Name
+            driver_name = _functions.get_driver(self.f_get('driver'))[0]
+            value = '{}@{}'.format(driver_name, self.f_get('screen_name'))
+
+        return super()._on_f_get(field_name, value, **kwargs)
 
     def _pre_save(self):
         """Hook.

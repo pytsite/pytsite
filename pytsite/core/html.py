@@ -78,7 +78,7 @@ class Element(_ABC):
                 and not attr.startswith('aria_') \
                 and attr not in self._get_valid_attrs() \
                 and attr not in self._get_required_attrs():
-            raise AttributeError("Element '{0}' cannot have attribute: '{1}'".format(self._tag_name, attr))
+            raise AttributeError("Element '{}' cannot have attribute: '{}'".format(self._tag_name, attr))
 
         if attr.startswith('data_'):
             attr = attr.replace('_', '-')

@@ -220,7 +220,8 @@ class Model(_ABC):
     def f_get(self, field_name: str, **kwargs):
         """Get field's value.
         """
-        return self._on_f_get(field_name, self.get_field(field_name).get_val(**kwargs), **kwargs)
+        field_val = self.get_field(field_name).get_val(**kwargs)
+        return self._on_f_get(field_name, field_val, **kwargs)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.

@@ -15,6 +15,7 @@
 - Check for app assets directory existence during `lang:build` console command.
 - Exceptions handling during `odm_ui`'s form submit.
 - Router's `current_url` incorrect behaviour in some situations.
+- Incorrect entity caption field get in `odm_ui.widget.ODMSelect`
 
 ## 0.1.0 (2015-07-01)
 First release.

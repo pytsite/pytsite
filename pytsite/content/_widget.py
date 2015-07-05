@@ -5,8 +5,19 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import tag as _tag
-from pytsite.core import widget as _widget, html as _html
-from . import _model
+from pytsite.core import widget as _widget, html as _html, lang as _lang
+from . import _model, _functions
+
+
+class ContentModelSelect(_widget.select.Select):
+    """Content Model Select Widget.
+    """
+    def __init__(self, **kwargs: dict):
+        super().__init__(**kwargs)
+        self._items = []
+        for k, v in _functions.get_models().items():
+            self._items.append((k, _lang.t(v[1])))
+
 
 class TagCloud(_tag.widget.Cloud):
     """Tags Clod Widget.
@@ -18,7 +29,7 @@ class TagCloud(_tag.widget.Cloud):
         self._link_pattern = '/content/tag/{}/%s'.format(content_model)
 
 
-class EntityTags(_widget.Base):
+class EntityTagCloud(_widget.Base):
     """Tag of the Entity Widget.
     """
     def __init__(self, entity: _model.Content, **kwargs):

@@ -4,24 +4,25 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+# Dependencies
+__import__('pytsite.auth')
+__import__('pytsite.auth_ui')
+__import__('pytsite.admin')
+__import__('pytsite.image')
+__import__('pytsite.route_alias')
+__import__('pytsite.tag')
+
+
 def __init():
     import sys
     from pytsite import admin, taxonomy
     from pytsite.core import router, assetman, events, lang, odm, tpl
     from ._model import Section
 
-    # Dependencies
-    __import__('pytsite.auth')
-    __import__('pytsite.auth_ui')
-    __import__('pytsite.admin')
-    __import__('pytsite.image')
-    __import__('pytsite.route_alias')
-    __import__('pytsite.tag')
-
     def _section_pre_delete_handler(entity: odm.Model):
-        from . import _manager
-        for m in _manager.get_registered_models():
-            r_entity = _manager.find(m, None, False).where('section', '=', entity).first()
+        from . import _functions
+        for m in _functions.get_models():
+            r_entity = _functions.find(m, None, False).where('section', '=', entity).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
                 raise odm.error.ForbidEntityDelete(lang.t('pytsite.content@referenced_entity_exists', error_args))
@@ -49,6 +50,5 @@ __init()
 
 
 # Public API
-from . import _manager, _model as model, _widget as widget
-register_model = _manager.register_model
-find = _manager.find
+from . import _model as model, _widget as widget
+from ._functions import register_model, find, get_model

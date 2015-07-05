@@ -4,6 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+# Dependencies
+__import__('pytsite.admin')
+
+
 def __init():
     import sys
     from pytsite import admin
