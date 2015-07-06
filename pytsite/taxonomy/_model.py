@@ -25,6 +25,26 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         self._define_index([('weight', _odm.I_ASC)])
         self._define_index([('order', _odm.I_ASC)])
 
+    @property
+    def title(self) -> str:
+        return self.f_get('title')
+
+    @property
+    def alias(self) -> str:
+        return self.f_get('alias')
+
+    @property
+    def language(self) -> str:
+        return self.f_get('language')
+
+    @property
+    def weight(self) -> int:
+        return self.f_get('weight')
+
+    @property
+    def order(self) -> int:
+        return self.f_get('order')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """

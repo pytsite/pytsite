@@ -12,7 +12,7 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db as _db, events, lang
+from pytsite.core import db as _db, events as _events, lang as _lang
 from . import _error, _field
 
 
@@ -300,11 +300,17 @@ class Model(_ABC):
         if self._is_new:
             del data['_id']
 
+        _events.fire('odm.entity.pre_save', entity=self)
+        _events.fire('odm.entity.pre_save.' + self.model, entity=self)
+
         # Saving data into collection
         if self._is_new:
             self._collection.insert_one(data)
         else:
             self._collection.replace_one({'_id': data['_id']}, data)
+
+        _events.fire('odm.entity.save', entity=self)
+        _events.fire('odm.entity.save.' + self.model, entity=self)
 
         # Getting assigned ID from MongoDB
         if self._is_new:
@@ -336,10 +342,9 @@ class Model(_ABC):
     def delete(self):
         """Delete the entity.
         """
-
         # Pre delete hook
-        events.fire('odm.pre_delete', entity=self)
-        events.fire('odm.pre_delete.' + self.model, entity=self)
+        _events.fire('odm.entity.pre_delete', entity=self)
+        _events.fire('odm.entity.pre_delete.' + self.model, entity=self)
         self._pre_delete()
 
         # Notify fields about entity deletion
@@ -349,7 +354,7 @@ class Model(_ABC):
         # Actual deletion from storage
         if not self._is_new:
             self.collection.delete_one({'_id': self.id})
-            from ._manager import cache_delete
+            from ._functions import cache_delete
             cache_delete(self)
 
         self._is_deleted = True
@@ -377,9 +382,9 @@ class Model(_ABC):
     def t(self, msg_id: str, args: dict=None) -> str:
         """Translate a string in model context.
         """
-        return lang.t(self.package() + '@' + msg_id, args)
+        return _lang.t(self.package() + '@' + msg_id, args)
 
     def t_plural(self, msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.
         """
-        return lang.t_plural(self.package() + '@' + msg_id, num)
+        return _lang.t_plural(self.package() + '@' + msg_id, num)

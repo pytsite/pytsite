@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import odm_ui as _odm_ui, auth as _auth
-from pytsite.core import odm as _odm, router as _router, widget as _widget
+from pytsite.core import odm as _odm, router as _router, widget as _widget, util as _util
 from . import _widget as _oauth_widget, _functions
 
 
@@ -105,3 +105,9 @@ class Account(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         return self.f_get('driver') + '@' + self.f_get('screen_name')
+
+    def status_update(self, **kwargs):
+        """Update account status.
+        """
+        driver = _functions.load_driver(self.f_get('driver'), **self.f_get('data'))
+        driver.status_update(**kwargs)

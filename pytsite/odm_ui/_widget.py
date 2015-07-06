@@ -16,11 +16,11 @@ class ODMSelect(_widget.select.Select):
         """
         super().__init__(**kwargs)
 
-        if not self._model:
+        if not hasattr(self, '_model') or not self._model:
             self._model = kwargs.get('model')
-        if not self._caption_field:
+        if not hasattr(self, '_caption_field') or not self._caption_field:
             self._caption_field = kwargs.get('caption_field')
-        if not self._sort_field:
+        if not hasattr(self, '_sort_field') or not self._sort_field:
             self._sort_field = kwargs.get('sort_field', self._caption_field)
 
         if not self._model:
@@ -85,10 +85,14 @@ class ODMCheckboxes(_widget.select.Checkboxes):
 
     @property
     def sort_field(self) -> str:
+        """Get sort field.
+        """
         return self._sort_field
 
     @sort_field.setter
     def sort_field(self, value: str):
+        """Set sort field.
+        """
         self._sort_field = value
 
     def set_value(self, value, **kwargs):

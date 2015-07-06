@@ -14,3 +14,7 @@ class Abstract(_ABC):
     @_abstractmethod
     def get_widget(self, uid: str, **kwargs) -> _widget.Base:
         pass
+
+    @_abstractmethod
+    def status_update(self, **kwargs):
+        pass

@@ -109,7 +109,7 @@ class Result:
 
     def __next__(self):
 
-        from ._manager import dispense
+        from ._functions import dispense
         doc = next(self._cursor)
 
         return dispense(self._model_name, doc['_id'])
@@ -119,7 +119,7 @@ class Finder:
     def __init__(self, model_name: str):
         """Init.
         """
-        from ._manager import dispense
+        from ._functions import dispense
 
         self._model = model_name
         self._mock = dispense(model_name)
@@ -201,7 +201,7 @@ class Finder:
         return result[0]
 
     def distinct(self, field_name: str) -> list:
-        from ._manager import get_by_ref
+        from ._functions import get_by_ref
         values = self._mock.collection.distinct(field_name, self._query.compile())
         r = []
         for v in values:

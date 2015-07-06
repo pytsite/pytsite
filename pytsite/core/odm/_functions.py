@@ -2,7 +2,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import db, events, util
+from pytsite.core import db as _db, events as _events, util as _util
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from . import _error, _model
@@ -17,7 +17,7 @@ def register_model(model: str, cls, replace: bool=False):
     :param cls: str|type
     """
     if isinstance(cls, str):
-        cls = util.get_class(cls)
+        cls = _util.get_class(cls)
 
     if not issubclass(cls, _model.Model):
         raise Exception("Subclass of Model is expected.")
@@ -27,7 +27,7 @@ def register_model(model: str, cls, replace: bool=False):
 
     __registered_models[model] = cls
 
-    events.fire('pytsite.core.odm@register_model', model=model, cls=cls)
+    _events.fire('pytsite.core.odm@register_model', model=model, cls=cls)
 
 
 def get_model_class(model: str) -> type:
@@ -108,7 +108,7 @@ def dispense(model: str, entity_id=None) -> _model.Model:
 def get_by_ref(ref: _DBRef):
     """Dispense entity by DBRef.
     """
-    doc = db.get_database().dereference(resolve_ref(ref))
+    doc = _db.get_database().dereference(resolve_ref(ref))
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 

@@ -11,11 +11,15 @@ __import__('pytsite.content')
 
 def __init():
     from pytsite import admin
-    from pytsite.core import router, odm, lang
+    from pytsite.core import router, odm, lang, events
     from ._model import Poster
+    from ._functions import content_save_event_handler, oauth_pre_delete_account_event_handler
 
     lang.register_package(__name__)
     odm.register_model('poster', Poster)
+
+    events.listen('content.entity.save', content_save_event_handler)
+    events.listen('odm.entity.pre_delete.oauth_account', oauth_pre_delete_account_event_handler)
 
     admin.sidebar.add_menu('misc', 'posters', 'pytsite.poster@posters',
                            href=router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'poster'}),

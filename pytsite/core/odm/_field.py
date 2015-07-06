@@ -237,7 +237,7 @@ class Ref(Abstract):
         """Get value of the field.
         """
         if isinstance(self._value, _bson_DBRef):
-            from ._manager import get_by_ref
+            from ._functions import get_by_ref
             referenced_entity = get_by_ref(self._value)
             if not referenced_entity:
                 self.set_val(None)  # Updating field's value about missing entity
@@ -279,7 +279,7 @@ class RefsListField(List):
         """
         r = []
         for ref in self._value:
-            from ._manager import get_by_ref
+            from ._functions import get_by_ref
             entity = get_by_ref(ref)
             if entity:
                 r.append(entity)

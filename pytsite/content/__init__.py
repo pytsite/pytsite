@@ -42,7 +42,7 @@ def __init():
     router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.eps.view_count')
 
     taxonomy.register_model('section', Section, __name__ + '@sections')
-    events.listen('odm.pre_delete.section', _section_pre_delete_handler)
+    events.listen('odm.entity.pre_delete.section', _section_pre_delete_handler)
 
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))
 
