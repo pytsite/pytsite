@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 
 from pytsite.core import console as _console, lang as _lang
-from . import _manager
+from . import _functions
 
 
 class RebuildIndices(_console.command.Abstract):
@@ -25,7 +25,7 @@ class RebuildIndices(_console.command.Abstract):
     def execute(self, **kwargs: dict):
         """Execute the command.
         """
-        for model in _manager.get_registered_models():
-            mock = _manager.dispense(model)
+        for model in _functions.get_registered_models():
+            mock = _functions.dispense(model)
             mock.reindex()
             _console.print_success(_lang.t('pytsite.core.odm@reindex_model', {'model': model}))

@@ -4,6 +4,7 @@ source: 'Источник'
 owner: 'Владелец'
 content_model: 'Модель контента'
 oauth_account: 'Аккаунт oAuth'
+cannot_delete_oauth_account_because_poster_exists: 'существует связанный постер'
 
 odm_ui_poster_browser_title: 'Постеры'
 odm_ui_poster_create_form_legend: 'Новый постер'

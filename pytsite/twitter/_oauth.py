@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from requests_oauthlib import OAuth1Session
+from twython import Twython as _Twython
 from datetime import datetime as _dt
 from pytsite.core import reg as _reg, router as _router, widget as _widget, html as _html, lang as _lang
 from pytsite import oauth as _oauth
@@ -151,3 +152,8 @@ class Driver(_oauth.AbstractDriver):
         """Get widget.
         """
         return Widget(uid=uid, **kwargs)
+
+    def status_update(self, **kwargs):
+        tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
+        tw.update_status(status='test')
+        print(kwargs)

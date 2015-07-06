@@ -4,10 +4,15 @@
 ### Added
 - New plugins: `oauth`, `twitter`, `poster`.
 - Some english translations.
+- New `stage` argument in `odm_ui.UIMixin.setup_m_form()` hook.
+- New `args` argument in `core.odm.Model.t()`
+- New events in ODM model: `odm.entity.pre_save`, `odm.entity.save` 
+- New events in Content ODM model: `content.entity.pre_save`, `content.entity.save`
+- New properties in Content ODM model: `title`, `description`, `body`, `url`, `tags` 
+- New properties in Taxonomy ODM model: `title`, `alias`, `language`, `weight`, `order` 
 - New `stage` argument in `pytsite.odm_ui.UIMixin.setup_m_form()` hook.
 - New `args` argument in `pytsite.core.odm.Model.t()`.
 - Now possible to specify package name without 'pytsite.' prefix in `core.lang.t()` and `core.router.endpoint_url`.
-
 
 ### Changed
 - Config parameter changed `auth.auto_signup` -> `auth.allow_signup`

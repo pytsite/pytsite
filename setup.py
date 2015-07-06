@@ -27,6 +27,7 @@ setup(
         'cssutils',
         'requests',
         'requests_oauthlib',
+        'twython',
     ],
     classifiers= [
         'Development Status :: 2 - Pre-Alpha',

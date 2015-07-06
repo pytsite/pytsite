@@ -30,6 +30,6 @@ __init()
 
 
 # Public API
-from . import _widget as widget
+from . import _widget as widget, _model as model
 from ._functions import register_driver, load_driver
 from ._driver import Abstract as AbstractDriver

@@ -9,7 +9,7 @@ from datetime import datetime as _datetime
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, geo as _geo
 from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
-    lang as _lang, assetman as _assetman
+    lang as _lang, assetman as _assetman, events as _events
 
 
 class Section(_taxonomy.model.Term):
@@ -45,6 +45,28 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.Virtual('url'))
 
         self._define_index([('location.lng_lat', _odm.I_GEO2D)])
+
+    @property
+    def title(self) -> str:
+        return self.f_get('title')
+
+    @property
+    def description(self) -> str:
+        return self.f_get('description')
+
+    @property
+    def body(self) -> str:
+        return self.f_get('body')
+
+    @property
+    def tags(self):
+        """:rtype: list[pytsite.tag._model.Tag]
+        """
+        return self.f_get('tags')
+
+    @property
+    def url(self) -> str:
+        return self.f_get('url')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -96,6 +118,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             route_alias = _route_alias.manager.create(new_route_alias_str).save()
             self.f_set('route_alias', route_alias)
 
+        _events.fire('content.entity.pre_save', entity=self)
+        _events.fire('content.entity.pre_save.' + self.model, entity=self)
+
     def _after_save(self):
         """Hook.
         """
@@ -104,6 +129,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 'model': self.model,
                 'id': self.id,
             }, True)).save()
+
+        _events.fire('content.entity.save', entity=self)
+        _events.fire('content.entity.save.' + self.model, entity=self)
 
     def _after_delete(self):
         """Hook.
@@ -171,7 +199,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 weight=20,
                 uid='title',
                 label=self.t('title'),
-                value=self.f_get('title'),
+                value=self.title,
             ))
             form.add_rule('title', _validation.rule.NotEmpty())
 
@@ -179,7 +207,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             weight=30,
             uid='description',
             label=self.t('description'),
-            value=self.f_get('description'),
+            value=self.description,
         ))
 
         form.add_widget(_taxonomy.widget.TokensInput(
@@ -187,7 +215,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             uid='tags',
             model='tag',
             label=self.t('tags'),
-            value=self.f_get('tags'),
+            value=self.tags,
         ))
 
         form.add_widget(_image.widget.ImagesUploadWidget(
@@ -203,7 +231,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 weight=60,
                 uid='body',
                 label=self.t('body'),
-                value=self.f_get('body'),
+                value=self.body,
             ))
 
         # Location

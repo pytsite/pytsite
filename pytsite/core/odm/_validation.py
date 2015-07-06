@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from bson.objectid import ObjectId as _ObjectId
 from pytsite.core import validation as _core_validation
-from . import _manager, _model
+from . import _functions, _model
 
 
 class ODMEntitiesList(_core_validation.rule.Base):
@@ -50,7 +50,7 @@ class ODMFieldUnique(_core_validation.rule.Base):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-        f = _manager.find(self._model).where(self._field, '=', self._value)
+        f = _functions.find(self._model).where(self._field, '=', self._value)
 
         for oid in self._exclude_ids:
             if not isinstance(oid, _ObjectId):
