@@ -301,12 +301,16 @@ def current_path(strip_query_string: bool=False, resolve_alias: bool=True) -> st
 
     return r
 
+
 def current_url(strip_query_string: bool=False, resolve_alias: bool=True) -> str:
     """Get current URL.
     """
     return 'http://' + server_name() + current_path(strip_query_string)
 
+
 def endpoint_url(endpoint: str, args: dict=None, relative: bool=False) -> str:
     """Get URL for endpoint.
     """
+    if not endpoint.startswith('app.') and not endpoint.startswith('pytsite.'):
+        endpoint = 'pytsite.' + endpoint
     return url(__url_adapter.build(endpoint, args), relative=relative)

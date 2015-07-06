@@ -31,7 +31,7 @@ class FilesUpload(_widget.Base):
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
-        self._slot_cls = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3 text-xs-B-center'
+        self._slot_cls = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3'
 
         if self._max_files:
             self._group_data['max_files'] = self._max_files

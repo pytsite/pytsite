@@ -1,7 +1,7 @@
 {% set user = auth.get_current_user() %}
 {% set user_full_name = user.f_get('full_name') %}
 {% set user_pic = user.f_get('picture') %}
-{% set user_created = user.f_get('_created', fmt='%d.%m.%Y') %}
+{% set user_created = user.created.strftime('%d.%m.%Y') %}
 
 {% if user_pic %}
     {% set user_pic_url = user_pic.f_get('thumb_url') %}
@@ -144,36 +144,37 @@
 
                             <p>
                                 {{ auth.get_current_user().f_get('full_name') }}
-                                <small>Member since {{ user_created }}</small>
+                                <small>{{ t('pytsite.admin@member_since') }} {{ user_created }}</small>
                             </p>
                         </li>
                         <!-- Menu Body -->
                         <li class="user-body">
-                            <div class="col-xs-4 text-center">
-                                <a href="#">Followers</a>
-                            </div>
-                            <div class="col-xs-4 text-center">
-                                <a href="#">Sales</a>
-                            </div>
-                            <div class="col-xs-4 text-center">
-                                <a href="#">Friends</a>
-                            </div>
+{#                            <div class="col-xs-4 text-center">#}
+{#                                <a href="#">Followers</a>#}
+{#                            </div>#}
+{#                            <div class="col-xs-4 text-center">#}
+{#                                <a href="#">Sales</a>#}
+{#                            </div>#}
+{#                            <div class="col-xs-4 text-center">#}
+{#                                <a href="#">Friends</a>#}
+{#                            </div>#}
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a class="btn btn-default btn-flat" href="#">Profile</a>
+                                <a class="btn btn-default btn-flat" href="#">{{ t('admin@profile') }}</a>
                             </div>
                             <div class="pull-right">
-                                <a class="btn btn-default btn-flat" href="#">Sign out</a>
+                                {% set sign_out_url = router.endpoint_url('auth.eps.logout') %}
+                                <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('admin@sign_out') }}</a>
                             </div>
                         </li>
                     </ul>
                 </li>
                 <!-- Control Sidebar Toggle Button -->
-                <li>
-                    <a data-toggle="control-sidebar" href="#"><i class="fa fa-gears"></i></a>
-                </li>
+{#                <li>#}
+{#                    <a data-toggle="control-sidebar" href="#"><i class="fa fa-gears"></i></a>#}
+{#                </li>#}
             </ul>
         </div>
     </nav>

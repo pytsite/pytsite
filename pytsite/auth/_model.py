@@ -5,7 +5,7 @@ from pytsite.core import odm as _odm, util as _util, router as _router
 
 
 class User(_odm.Model):
-    """User Model.
+    """User ODM Model.
     """
     def _setup(self):
         """_setup() hook.

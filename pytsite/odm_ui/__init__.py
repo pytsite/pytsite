@@ -4,12 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+# Dependencies
+__import__('pytsite.auth')
+__import__('pytsite.admin')
+
 
 def __init():
-    # Dependencies
-    __import__('pytsite.auth')
-    __import__('pytsite.admin')
-
     from pytsite.core import router, tpl, assetman, lang, events
     from . import _event_handlers
     from ._model import UIMixin
@@ -35,7 +35,7 @@ def __init():
                     'pytsite.odm_ui.eps.get_d_form',
                     filters=('pytsite.auth.eps.filter_authorize',))
     router.add_rule('/admin/odm/<string:model>/delete/submit',
-                    'pytsite.odm_ui.eps.post_d_form',methods=('POST',),
+                    'pytsite.odm_ui.eps.post_d_form', methods=('POST',),
                     filters=('pytsite.auth.eps.filter_authorize',))
 
     lang.register_package(__name__)

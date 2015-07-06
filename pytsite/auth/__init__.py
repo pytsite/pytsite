@@ -2,6 +2,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 def __init():
     """Init wrapper.
     """
@@ -23,7 +24,7 @@ def __init():
     # Routes
     router.add_rule('/auth/login', __name__ + '.eps.get_login', {})
     router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ('POST',))
-    router.add_rule('/auth/logout', __name__ + '.eps.get_logout', {})
+    router.add_rule('/auth/logout', __name__ + '.eps.logout', {})
 
     # Default auth driver
     from . import _functions

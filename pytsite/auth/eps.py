@@ -28,7 +28,7 @@ def post_login(args: dict, inp: dict) -> _http.response.RedirectResponse:
     return _functions.post_login_form(args, inp)
 
 
-def get_logout(args: dict, inp: dict) -> _http.response.RedirectResponse:
+def logout(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Logout endpoint.
     """
     _functions.logout_current_user()
