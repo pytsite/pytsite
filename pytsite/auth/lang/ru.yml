@@ -6,7 +6,6 @@ user_has_been_created: 'Создан новый пользователь: :login
 administrator: 'Администратор'
 admin_role_description: 'Администратор'
 user_role_description: 'Обычный пользователь'
-setup_already_completed: 'Настройка приложения уже завершена'
 status_active: 'Активен'
 status_disabled: 'Отключён'
 status_waiting: 'Ожидает подтверждения'

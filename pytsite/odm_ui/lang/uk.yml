@@ -1,0 +1,7 @@
+id: 'ID'
+actions: 'Дії'
+save: 'Зберегти'
+cancel: 'Скасувати'
+delete: 'Видалити'
+operation_successful: 'Операцію успішно виконано'
+entity_deletion_forbidden: 'Видалити неможливо'

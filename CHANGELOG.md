@@ -3,7 +3,7 @@
 ## Unreleased (2015-07-15)
 ### Added
 - New plugins: `oauth`, `twitter`, `poster`.
-- Some english translations.
+- Some english and ukrainian translations.
 - New `stage` argument in `odm_ui.UIMixin.setup_m_form()` hook.
 - New `args` argument in `core.odm.Model.t()`
 - New events in ODM model: `odm.entity.pre_save`, `odm.entity.save` 

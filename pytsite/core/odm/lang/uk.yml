@@ -1,0 +1,2 @@
+reindex_console_command_description: 'Перепобудова індексів'
+reindex_model: 'Переіндексація :model'
