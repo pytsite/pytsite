@@ -13,7 +13,7 @@ def __init():
     lang.register_package(__name__)
 
     assetman.register_package(__name__)
-    assetman.add('pytsite.taxonomy@css/common.css', '*')
+    assetman.add('taxonomy@css/common.css', '*')
 
     tpl.register_global('taxonomy', sys.modules[__package__])
     router.add_rule('/pytsite/taxonomy/search/<string:model>/<string:query>', 'pytsite.taxonomy.eps.search_terms')

@@ -37,10 +37,10 @@ class FilesUpload(_widget.Base):
             self._group_data['max_files'] = self._max_files
 
         _client.include('imagesloaded')
-        _assetman.add('pytsite.file@css/upload-widget.css')
-        _assetman.add('pytsite.file@js/load-image.all.min.js')
-        _assetman.add('pytsite.file@js/canvas-to-blob.min.js')
-        _assetman.add('pytsite.file@js/upload-widget.js')
+        _assetman.add('file@css/upload-widget.css')
+        _assetman.add('file@js/load-image.all.min.js')
+        _assetman.add('file@js/canvas-to-blob.min.js')
+        _assetman.add('file@js/upload-widget.js')
 
     @property
     def accept_files(self) -> str:
@@ -105,7 +105,7 @@ class FilesUpload(_widget.Base):
             'image_max_height': self._image_max_height,
             'slot_cls': self._slot_cls
         }
-        widget_content = _html.Div(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
+        widget_content = _html.Div(_tpl.render('file@file_upload_widget', {'widget': self}))
         return self._group_wrap(widget_content)
 
     def set_value(self, value: list, **kwargs):

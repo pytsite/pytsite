@@ -67,4 +67,4 @@ def oauth_pre_delete_account_event_handler(entity: _oauth.model.Account):
     """
     if _odm.find('poster').where('oauth_account', '=', entity).first():
         raise _odm.error.ForbidEntityDelete(
-            _lang.t('pytsite.poster@cannot_delete_oauth_account_because_poster_exists'))
+            _lang.t('poster@cannot_delete_oauth_account_because_poster_exists'))

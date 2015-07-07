@@ -29,5 +29,5 @@ class Disqus(_widget.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        return _html.Div(_tpl.render('pytsite.disqus@widget', {'widget': self}),
+        return _html.Div(_tpl.render('disqus@widget', {'widget': self}),
                          uid=self._uid, cls='widget widget-disqus')

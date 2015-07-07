@@ -17,7 +17,7 @@ class CompileTranslations(_console.command.Abstract):
         return 'lang:build'
 
     def get_description(self) -> str:
-        return _functions.t('pytsite.core@lang_console_command_description')
+        return _functions.t('core@lang_console_command_description')
 
     def execute(self, **kwargs: dict):
         """Compile language translations.

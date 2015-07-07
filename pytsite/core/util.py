@@ -2,7 +2,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from datetime import datetime as _datetime
 
 def dd(var):
     """Debug dump.
@@ -155,7 +154,10 @@ def transform_str_1(string: str) -> str:
     return string
 
 def get_class(cls: str) -> type:
+    """Get class by its fully qualified name.
+    """
     class_fqn = cls.split('.')
     class_name = class_fqn[-1:][0]
-    module = __import__('.'.join(class_fqn[:-1]), fromlist=[class_name])
+    module_name = '.'.join(class_fqn[:-1])
+    module = __import__(module_name, fromlist=[class_name])
     return getattr(module, class_name)

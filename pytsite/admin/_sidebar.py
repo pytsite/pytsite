@@ -47,7 +47,6 @@ def get_menu(sid: str, mid: str) -> dict:
     """Get a menu of a section.
     """
     section = get_section(sid)
-
     if not section:
         raise KeyError("Section '{}' is not exists.".format(sid))
 
@@ -57,13 +56,18 @@ def get_menu(sid: str, mid: str) -> dict:
 
 
 def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
-             label: str=None, label_class: str='primary', weight: int=0, permissions: tuple=()):
+             label: str=None, label_class: str='primary', weight: int=0, permissions: tuple=(), replace=False):
     """Add a menu to a section.
     """
     section = get_section(sid)
+    if not section:
+        raise KeyError("Section '{}' is not exists.".format(sid))
 
     if get_menu(sid, mid):
-        raise KeyError("Menu '{}' already defined in section '{}'.".format(mid, sid))
+        if replace:
+            del_menu(sid, mid)
+        else:
+            raise KeyError("Menu '{}' already defined in section '{}'.".format(mid, sid))
 
     section['children'].append({
         'sid': sid,
@@ -79,6 +83,21 @@ def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
     })
 
     section['children'] = _util.weight_sort(section['children'])
+
+
+def del_menu(sid: str, mid: str):
+    """delete menu from section.
+    """
+    section = get_section(sid)
+    if not section:
+        raise KeyError("Section '{}' is not exists.".format(sid))
+
+    replace = []
+    for m in section['children']:
+        if m['mid'] != mid:
+            replace.append(m)
+
+    section['children'] = replace
 
 
 def add_menu_child(sid: str, mid: str, title: str, href: str, weight: 0, permissions: tuple=()):

@@ -180,12 +180,12 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except _HTTPException as e:
-        metatag.t_set('title', lang.t('pytsite.core@error', {'code': e.code}))
+        metatag.t_set('title', lang.t('core@error', {'code': e.code}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
         return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
-        metatag.t_set('title', lang.t('pytsite.core@error', {'code': 500}))
+        metatag.t_set('title', lang.t('core@error', {'code': 500}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
         _logger.error(str(e))
         return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)

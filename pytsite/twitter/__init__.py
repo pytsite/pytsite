@@ -14,6 +14,6 @@ def __init():
     from ._oauth import Driver as OAuthDriver
 
     lang.register_package(__name__)
-    oauth.register_driver('twitter', lang.t('pytsite.twitter@twitter'), OAuthDriver)
+    oauth.register_driver('twitter', lang.t('twitter@twitter'), OAuthDriver)
 
 __init()

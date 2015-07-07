@@ -187,7 +187,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         :type form: pytsite.core.form.Base
         """
         from . import _functions
-        _assetman.add('pytsite.content@js/content.js')
+        _assetman.add('content@js/content.js')
 
         if self.has_field('section'):
             form.add_widget(_odm_ui.widget.ODMSelect(
@@ -294,7 +294,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         try:
             return _lang.t(self.package() + '@' + msg_id)
         except _lang.error.TranslationError:
-            return _lang.t('pytsite.content@' + msg_id)
+            return _lang.t('content@' + msg_id)
 
     def t_plural(self, msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.

@@ -6,5 +6,7 @@ from pytsite.core import metatag as _metatag, lang as _lang, tpl as _tpl
 
 
 def dashboard(args: dict, inp: dict):
-    _metatag.t_set('title', _lang.t('pytsite.admin@dashboard'))
-    return _tpl.render('pytsite.admin@html')
+    """Dashboard endpoint.
+    """
+    _metatag.t_set('title', _lang.t('admin@dashboard'))
+    return _tpl.render('admin@html')

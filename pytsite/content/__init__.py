@@ -25,7 +25,7 @@ def __init():
             r_entity = _functions.find(m, None, False).where('section', '=', entity).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
-                raise odm.error.ForbidEntityDelete(lang.t('pytsite.content@referenced_entity_exists', error_args))
+                raise odm.error.ForbidEntityDelete(lang.t('content@referenced_entity_exists', error_args))
 
     lang.register_package(__name__)
     tpl.register_global('content', sys.modules[__name__])

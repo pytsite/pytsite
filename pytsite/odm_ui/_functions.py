@@ -30,10 +30,10 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     frm.redirect = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
 
     # Action buttons
-    submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('pytsite.odm_ui@save'),
+    submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('odm_ui@save'),
                                           color='primary', icon='fa fa-save')
     cancel_button_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('pytsite.odm_ui@cancel'),
+    cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('odm_ui@cancel'),
                                         href=cancel_button_url, icon='fa fa-remove')
     actions_wrapper = _widget.static.Wrapper(uid='actions',
                                              cls='actions-wrapper text-xs-B-center text-sm-left')
@@ -79,9 +79,9 @@ def get_d_form(model: str, ids: list) -> _form.Base:
     frm.add_widget(_widget.static.Text(html_em=_html.Div, value=str(ol)))
 
     # Action buttons
-    submit_button = _widget.button.Submit(weight=10, value=_lang.t('pytsite.odm_ui@delete'), color='danger', icon='fa fa-save')
+    submit_button = _widget.button.Submit(weight=10, value=_lang.t('odm_ui@delete'), color='danger', icon='fa fa-save')
     cancel_button_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    cancel_button = _widget.button.Link(weight=20, value=_lang.t('pytsite.odm_ui@cancel'), href=cancel_button_url, icon='fa fa-ban')
+    cancel_button = _widget.button.Link(weight=20, value=_lang.t('odm_ui@cancel'), href=cancel_button_url, icon='fa fa-ban')
     actions_wrapper = _widget.static.Wrapper()
     actions_wrapper.add_child(submit_button).add_child(cancel_button)
     frm.add_widget(actions_wrapper, area='footer')

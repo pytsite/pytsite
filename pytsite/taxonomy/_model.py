@@ -150,7 +150,7 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         try:
             return _lang.t(self.package() + '@' + msg_id)
         except _lang.error.TranslationError:
-            return _lang.t('pytsite.taxonomy@' + msg_id)
+            return _lang.t('taxonomy@' + msg_id)
 
     def t_plural(self, msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.

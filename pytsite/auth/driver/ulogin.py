@@ -28,7 +28,7 @@ class Login(_widget.Base):
     def render(self) -> str:
         """Render the widget.
         """
-        return _tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
+        return _tpl.render('auth@drivers/ulogin/widget', {'widget': self})
 
 
 class LoginForm(_form.Base):
@@ -138,5 +138,5 @@ class ULoginDriver(AbstractDriver):
                 return _http.response.RedirectResponse(_router.base_url(query=inp))
 
         except _error.LoginIncorrect:
-            _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
+            _router.session.add_error(_lang.t('auth@authorization_error'))
             return _http.response.RedirectResponse(_router.endpoint_url('pytsite.auth.eps.get_login', args=inp))

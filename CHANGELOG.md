@@ -12,7 +12,9 @@
 - New properties in Taxonomy ODM model: `title`, `alias`, `language`, `weight`, `order` 
 - New `stage` argument in `pytsite.odm_ui.UIMixin.setup_m_form()` hook.
 - New `args` argument in `pytsite.core.odm.Model.t()`.
-- Now possible to specify package name without 'pytsite.' prefix in `core.lang.t()` and `core.router.endpoint_url`.
+- Now possible to specify package name without 'pytsite.' prefix in `core.lang.t()`, `core.router.endpoint_url`,
+  `core.tpl.render()` and `core.assetman.add()`
+- New widget: 'core.widget.input.StringList'
 
 ### Changed
 - Config parameter changed `auth.auto_signup` -> `auth.allow_signup`

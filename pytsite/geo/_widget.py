@@ -19,7 +19,7 @@ class SearchAddress(_widget.Base):
 
         lng = _lang.get_current_lang()
         _assetman.add_js('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng)
-        _assetman.add('pytsite.geo@js/address-input.js')
+        _assetman.add('geo@js/address-input.js')
 
         self._group_cls += ' widget-geo-address-input'
 
@@ -97,6 +97,6 @@ class StaticMap(_widget.Base):
 
         if self._link:
             link = _functions.get_map_link(self._address, self._lat, self._lng)
-            img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('pytsite.geo@show_on_map')))
+            img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('geo@show_on_map')))
 
         return self._group_wrap(img)

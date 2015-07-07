@@ -37,7 +37,7 @@ class Base:
         self._setup()
 
         # Initializing form JS API
-        _assetman.add('pytsite.core@js/form.js')
+        _assetman.add('core@js/form.js')
 
     def _setup(self):
         """_setup() hook.

@@ -34,7 +34,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('login'),
             self.f_get('email'),
             groups_cell,
-            _lang.t('pytsite.auth@status_'+self.f_get('status')),
+            _lang.t('auth@status_'+self.f_get('status')),
             self.f_get('last_login', fmt='%x %X')
         )
 

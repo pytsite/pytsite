@@ -42,7 +42,7 @@ def __init():
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
-    events.listen('pytsite.core.odm@register_model', _event_handlers.odm_register_model)
+    events.listen('core.odm@register_model', _event_handlers.odm_register_model)
 
 __init()
 

@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import abstractmethod as _abstractmethod
-from pytsite.core import assetman as _assetman, client as _client, html as _html
+from pytsite.core import assetman as _assetman, client as _client, html as _html, tpl as _tpl
 from . import _base
 
 
@@ -66,7 +66,7 @@ class Text(Input):
     def render(self) -> _html.Element:
         """Render the widget
         """
-        _assetman.add('pytsite.core.widget@js/text.js')
+        _assetman.add('core.widget@js/text.js')
 
         inp = _html.Input(
             type=self._type,
@@ -95,7 +95,7 @@ class TypeaheadText(Text):
         """
         super().__init__(**kwargs)
         _client.include('typeahead')
-        _assetman.add('pytsite.core.widget@js/typeahead.js')
+        _assetman.add('core.widget@js/typeahead.js')
         self._group_cls = ' '.join((self._group_cls, 'widget-typeahead-text-input'))
         self._group_data['source_url'] = source_url
 
@@ -121,7 +121,7 @@ class Integer(Text):
 
     def render(self):
         _client.include('inputmask')
-        _assetman.add('pytsite.core.widget@js/integer.js')
+        _assetman.add('core.widget@js/integer.js')
         return super().render()
 
 
@@ -146,7 +146,7 @@ class Float(Text):
 
     def render(self):
         _client.include('inputmask')
-        _assetman.add('pytsite.core.widget@js/float.js')
+        _assetman.add('core.widget@js/float.js')
         return super().render()
 
 
@@ -158,12 +158,30 @@ class CKEditor(_base.Base):
         """
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-ckeditor'))
-        _assetman.add('pytsite.core.widget@ckeditor/skins/moono/editor.css')
-        _assetman.add('pytsite.core.widget@ckeditor/ckeditor.js')
-        _assetman.add('pytsite.core.widget@ckeditor/adapters/jquery.js')
-        _assetman.add('pytsite.core.widget@js/ckeditor.js')
+        _assetman.add('core.widget@ckeditor/skins/moono/editor.css')
+        _assetman.add('core.widget@ckeditor/ckeditor.js')
+        _assetman.add('core.widget@ckeditor/adapters/jquery.js')
+        _assetman.add('core.widget@js/ckeditor.js')
 
     def render(self) -> str:
         """Render the widget.
         """
         return self._group_wrap(_html.TextArea(self.get_value(), name=self._uid))
+
+
+class StringList(_base.Base):
+    """List of strings widget.
+    """
+    def __init__(self, **kwargs: dict):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
+        self._add_btn_label = kwargs.get('add_btn_label', '')
+        self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
+
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        widget_content = _html.Div(_tpl.render('core.widget@string_list', {'widget': self}))
+        return self._group_wrap(widget_content)

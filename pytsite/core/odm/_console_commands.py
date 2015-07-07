@@ -20,7 +20,7 @@ class RebuildIndices(_console.command.Abstract):
     def get_description(self) -> str:
         """Get description of the command.
         """
-        return _lang.t('pytsite.core.odm@reindex_console_command_description')
+        return _lang.t('core.odm@reindex_console_command_description')
 
     def execute(self, **kwargs: dict):
         """Execute the command.
@@ -28,4 +28,4 @@ class RebuildIndices(_console.command.Abstract):
         for model in _functions.get_registered_models():
             mock = _functions.dispense(model)
             mock.reindex()
-            _console.print_success(_lang.t('pytsite.core.odm@reindex_model', {'model': model}))
+            _console.print_success(_lang.t('core.odm@reindex_model', {'model': model}))

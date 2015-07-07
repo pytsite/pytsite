@@ -9,7 +9,7 @@ from . import lang as _lang
 
 __tags = {
     'charset': 'UTF-8',
-    'title': _lang.t('pytsite.core@untitled_document'),
+    'title': _lang.t('core@untitled_document'),
     'viewport': 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
 }
 __allowed_tags = (

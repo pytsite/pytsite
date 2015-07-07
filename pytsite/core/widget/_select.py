@@ -59,7 +59,7 @@ class Select(_input.Input):
         """Render the widget.
         """
         select = _html.Select(name=self.uid, cls='form-control')
-        select.append(_html.Option('--- ' + _lang.t('pytsite.core@select_none_item') + ' ---', value=''))
+        select.append(_html.Option('--- ' + _lang.t('core@select_none_item') + ' ---', value=''))
         for item in self._items:
             option = _html.Option(item[1], value=item[0])
             if item[0] == self._selected_item:
@@ -132,8 +132,8 @@ class Tokens(_input.Input):
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
         _client.include('tokenfield')
-        _assetman.add('pytsite.core.widget@css/token.css')
-        _assetman.add('pytsite.core.widget@js/token.js')
+        _assetman.add('core.widget@css/token.css')
+        _assetman.add('core.widget@js/token.js')
 
         self._local_source = kwargs.get('local_source')
         self._remote_source = kwargs.get('remote_source')
@@ -162,7 +162,7 @@ class DateTime(_input.Text):
         """
         super().__init__(**kwargs)
         _client.include('datetimepicker')
-        _assetman.add('pytsite.core.widget@js/datetime.js')
+        _assetman.add('core.widget@js/datetime.js')
         self._group_cls = self._group_cls.replace('widget-text-input', 'widget-datetime-input')
 
     def set_value(self, value, **kwargs: dict):

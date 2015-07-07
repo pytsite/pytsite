@@ -44,7 +44,7 @@ class Browser:
 
         _client.include('bootstrap-table')
         _client.include('font-awesome')
-        _assetman.add('pytsite.odm_ui@js/browser.js')
+        _assetman.add('odm_ui@js/browser.js')
 
     @property
     def title(self) -> str:
@@ -130,7 +130,7 @@ class Browser:
             t_head_row.append(th)
 
         # Actions column
-        t_head_row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
+        t_head_row.append(_html.Th(_lang.t('odm_ui@actions'), data_field='__actions'))
 
         return toolbar.render() + table.render()
 

@@ -12,7 +12,8 @@ from . import _model
 __models = {}
 
 
-def register_model(model: str, cls, title: str, menu_weight: int=0, menu_icon: str='fa fa-file-text-o'):
+def register_model(model: str, cls, title: str, menu_weight: int=0, menu_icon: str='fa fa-file-text-o',
+                   replace=False):
     """Register content model.
     """
     if isinstance(cls, str):
@@ -21,17 +22,17 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, menu_icon: s
     if not issubclass(cls, _model.Content):
         raise TypeError('Subclass of content model expected.')
 
-    if is_model_registered(model):
+    if not replace and is_model_registered(model):
         raise KeyError("Model '{}' is already registered.".format(model))
 
-    _odm.register_model(model, cls)
+    _odm.register_model(model, cls, replace)
     __models[model] = (cls, title)
 
     menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
     _admin.sidebar.add_menu('content', model, title, menu_url, menu_icon, weight=menu_weight, permissions=(
         'pytsite.odm_ui.browse.' + model,
         'pytsite.odm_ui.browse_own.' + model,
-    ))
+    ), replace=replace)
 
 
 def is_model_registered(model: str) -> bool:
@@ -75,7 +76,7 @@ def get_publish_statuses() -> list:
     """
     r = []
     for s in ('published', 'waiting', 'unpublished'):
-        r.append((s, _lang.t('pytsite.content@status_' + s)))
+        r.append((s, _lang.t('content@status_' + s)))
 
     return r
 

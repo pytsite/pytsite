@@ -70,11 +70,15 @@ def register_package(package_name: str, templates_dir: str='tpl'):
     _packages[package_name] = {'templates_dir': templates_dir}
 
 
-def render(template: str, data: dict=None)->str:
+def render(template: str, data: dict=None) -> str:
     """Render a template.
     """
+    if not template.startswith('app') and not template.startswith('pytsite.'):
+        template = 'pytsite.' + template
+
     if not data:
-        data = dict()
+        data = {}
+
     return __env.get_template(template).render(data)
 
 

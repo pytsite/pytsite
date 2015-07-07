@@ -22,7 +22,7 @@ def form(args: dict, inp: dict) -> str:
         if frm.has_widget(field_name):
             frm.get_widget(field_name).set_value(v)
 
-    return _tpl.render('pytsite.settings@form', {'form': frm})
+    return _tpl.render('settings@form', {'form': frm})
 
 
 def form_validate(args: dict, inp: dict) -> dict:
@@ -49,6 +49,6 @@ def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
             value[k] = v
 
     _functions.set_setting(uid, value)
-    _router.session.add_success(_lang.t('pytsite.settings@settings_has_been_saved'))
+    _router.session.add_success(_lang.t('settings@settings_has_been_saved'))
 
     return _http.response.RedirectResponse(frm.values['__form_location'])
