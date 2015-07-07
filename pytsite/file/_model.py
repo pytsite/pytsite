@@ -11,7 +11,6 @@ from pytsite.core import odm as _odm, router as _router, reg as _reg
 class File(_odm.Model):
     """File Model.
     """
-
     def _setup(self):
 
         """_setup() hook.
@@ -25,6 +24,10 @@ class File(_odm.Model):
         self._define_field(_odm.field.Virtual('abs_path'))
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('thumb_url'))
+
+    @property
+    def abs_path(self) -> str:
+        return self.f_get('abs_path')
 
     def _after_delete(self):
         """_after_delete() hook.

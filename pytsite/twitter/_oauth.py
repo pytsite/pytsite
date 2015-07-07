@@ -5,10 +5,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from requests_oauthlib import OAuth1Session
-from twython import Twython as _Twython
+from twython import Twython as _Twython, TwythonError
 from datetime import datetime as _dt
 from pytsite.core import reg as _reg, router as _router, widget as _widget, html as _html, lang as _lang
-from pytsite import oauth as _oauth
+from pytsite import oauth as _oauth, file as _file, taxonomy as _taxonomy
 
 
 class Widget(_widget.Base):
@@ -154,6 +154,36 @@ class Driver(_oauth.AbstractDriver):
         return Widget(uid=uid, **kwargs)
 
     def status_update(self, **kwargs):
+        """Update account's status.
+        """
         tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
-        tw.update_status(status='test')
-        print(kwargs)
+
+        media_ids = []
+        if 'media' in kwargs and isinstance(kwargs['media'], list):
+            for m in kwargs['media'][:4]:
+                if isinstance(m, _file.model.File):
+                    m = m.abs_path
+                with open(m, 'rb') as f:
+                    r = tw.upload_media(media=f)
+                    media_ids.append(r['media_id'])
+
+        tags = []
+        if 'tags' in kwargs and isinstance(kwargs['tags'], list):
+            for tag in kwargs['tags']:
+                if isinstance(tag, _taxonomy.model.Term):
+                    tag = tag.title
+                if not tag.startswith('#'):
+                    tag = '#' + tag
+                tags.append(tag)
+
+        tries = 10
+        status = '{} {} {}'.format(kwargs.get('title', ''), kwargs.get('url', ''), ' '.join(tags))
+        while tries:
+            try:
+                tw.update_status(status=status, media_ids=media_ids)
+                break
+            except TwythonError as e:
+                status = ' '.join(status.split(' ')[:-1])  # Cut one word from the right
+                tries -= 1
+                if not tries:
+                    raise e

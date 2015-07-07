@@ -65,8 +65,14 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('tags')
 
     @property
+    def images(self):
+        """:rtype: list[pytsite.image._model.Image]
+        """
+        return self.f_get('images')
+
+    @property
     def url(self) -> str:
-        return self.f_get('url')
+        return self.f_get('url', relative=False)
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -92,8 +98,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         if field_name == 'url':
             if not self.is_new:
-                target = _router.endpoint_url('pytsite.content.eps.view', {'model': self.model, 'id': str(self.id)},
-                                              relative=True)
+                target = _router.endpoint_url('pytsite.content.eps.view',
+                                              {'model': self.model, 'id': str(self.id)},
+                                              relative=kwargs.get('relative', True))
                 r_alias = _route_alias.manager.find_by_target(target)
                 value = r_alias.f_get('alias') if r_alias else target
 

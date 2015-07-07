@@ -58,6 +58,8 @@ def content_save_event_handler(entity: _content.model.Content):
             description=entity.description,
             body=entity.body,
             tags=tags,
+            media=entity.images,
+            url=entity.url
         )
 
 def oauth_pre_delete_account_event_handler(entity: _oauth.model.Account):
