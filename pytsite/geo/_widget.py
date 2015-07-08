@@ -29,26 +29,24 @@ class SearchAddress(_widget.Base):
         if not isinstance(val, dict):
             raise ValueError('Dict expected.')
 
-        if not val:
-            return self
+        if val:
+            for k in ['address', 'lng_lat', 'components']:
+                if k not in val:
+                    raise ValueError("Value does not contain '{}'.".format(k))
 
-        for k in ['address', 'lng_lat', 'components']:
-            if k not in val:
-                raise ValueError("Value does not contain '{}'.".format(k))
+            if not val['address'] or not val['lng_lat'] or not val['components']:
+                return self
 
-        if not val['address'] or not val['lng_lat'] or not val['components']:
-            return self
+            lng_lat = _json_loads(val['lng_lat']) if isinstance(val['lng_lat'], str) else val['lng_lat']
+            components = _json_loads(val['components']) if isinstance(val['components'], str) else val['components']
 
-        lng_lat = _json_loads(val['lng_lat']) if isinstance(val['lng_lat'], str) else val['lng_lat']
-        components = _json_loads(val['components']) if isinstance(val['components'], str) else val['components']
+            val = {
+                'address': val['address'],
+                'lng_lat': lng_lat,
+                'components': components
+            }
 
-        value = {
-            'address': val['address'],
-            'lng_lat': lng_lat,
-            'components': components
-        }
-
-        return super().set_value(value, **kwargs)
+        return super().set_value(val, **kwargs)
 
     def render(self) -> str:
         """Render the widget.

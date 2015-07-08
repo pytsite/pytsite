@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import abstractmethod as _abstractmethod
-from pytsite.core import assetman as _assetman, client as _client, html as _html, tpl as _tpl
+from pytsite.core import assetman as _assetman, client as _client, html as _html, tpl as _tpl, util as _util
 from . import _base
 
 
@@ -176,9 +176,31 @@ class StringList(_base.Base):
         """Init.
         """
         super().__init__(**kwargs)
-        self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
         self._add_btn_label = kwargs.get('add_btn_label', '')
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
+        self._max_values = kwargs.get('max_values', 3)
+
+        self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
+        self._group_data['max_values'] = self._max_values
+
+        _assetman.add('core.widget@js/string-list.js')
+        _assetman.add('core.widget@css/string-list.css')
+
+    @property
+    def add_btn_label(self) -> str:
+        return self._add_btn_label
+
+    @property
+    def add_btn_icon(self) -> str:
+        return self._add_btn_icon
+
+    def set_value(self, value, **kwargs: dict):
+        """Set value of the widget.
+        """
+        if not isinstance(value, list):
+            raise ValueError('List expected.')
+
+        return super().set_value(_util.list_cleanup(value), **kwargs)
 
     def render(self) -> _html.Element:
         """Render the widget.

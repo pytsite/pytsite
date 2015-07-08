@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 import re as _re
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite.core import lang as _lang
+from pytsite.core import lang as _lang, util as _util
 from . import _error
 
 class Base(_ABC):
@@ -79,15 +79,12 @@ class NotEmpty(Base):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-        if isinstance(self.value, dict):
-            empty = True
-            for v in self.value.values():
-                if v:
-                    empty = False
-                    break
-            if empty:
-                raise _error.ValidationError()
-        elif not self._value:
+        if isinstance(self.value, list):
+            self.value = _util.list_cleanup(self.value)
+        elif isinstance(self.value, dict):
+            self.value = _util.dict_cleanup(self.value)
+
+        if not self._value:
             raise _error.ValidationError()
 
 

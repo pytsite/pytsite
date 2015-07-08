@@ -3,14 +3,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def dd(var):
-    """Debug dump.
-    """
-    from sys import exit
-    print(var)
-    exit(-1)
-
-
 def dict_merge(a: dict, b: dict) -> dict:
     """Recursively merges dict's.
 
@@ -153,6 +145,7 @@ def transform_str_1(string: str) -> str:
 
     return string
 
+
 def get_class(cls: str) -> type:
     """Get class by its fully qualified name.
     """
@@ -161,3 +154,29 @@ def get_class(cls: str) -> type:
     module_name = '.'.join(class_fqn[:-1])
     module = __import__(module_name, fromlist=[class_name])
     return getattr(module, class_name)
+
+
+def list_cleanup(inp: list) -> list:
+    """Remove empty values from list.
+    """
+    r = []
+    for v in inp:
+        if isinstance(v, str):
+            v = v.strip()
+        if v:
+            r.append(v)
+
+    return r
+
+
+def dict_cleanup(inp: dict) -> dict:
+    """Remove empty values from dict.
+    """
+    r = {}
+    for k, v in inp.items():
+        if isinstance(v, str):
+            v = v.strip()
+        if v:
+            r[k] = v
+
+    return r

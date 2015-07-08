@@ -391,7 +391,8 @@ class Model(_ABC):
                 except _lang.error.TranslationError:
                     pass
 
-        raise _lang.error.TranslationError()
+        raise _lang.error.TranslationError("Translation is not found for '{}'".format(
+            cls.package_name() + '@' + msg_id))
 
     @classmethod
     def t_plural(cls, msg_id: str, num: int=2) -> str:
@@ -404,4 +405,5 @@ class Model(_ABC):
                 except _lang.error.TranslationError:
                     pass
 
-        raise _lang.error.TranslationError()
+        raise _lang.error.TranslationError("Translation is not found for '{}'".format(
+            cls.package_name() + '@' + msg_id))

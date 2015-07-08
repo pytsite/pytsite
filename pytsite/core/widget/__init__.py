@@ -6,9 +6,10 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite.core import assetman, tpl
+    from pytsite.core import assetman, tpl, lang
     assetman.register_package(__name__)
     tpl.register_package(__name__)
+    lang.register_package(__name__)
 
 __init()
 

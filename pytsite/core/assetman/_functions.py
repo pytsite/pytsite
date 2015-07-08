@@ -34,8 +34,9 @@ def get_packages() -> dict:
 def add_location(location: str, collection: str, route_path: str=None):
     """Add an asset location to the collection.
     """
-    if not location.startswith('app') and not location.startswith('pytsite.'):
-        location = 'pytsite.' + location
+    if not location.startswith('http'):
+        if not location.startswith('app') and not location.startswith('pytsite.'):
+            location = 'pytsite.' + location
 
     if not route_path:
         route_path = router.current_path(True)

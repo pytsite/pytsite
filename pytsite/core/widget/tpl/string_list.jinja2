@@ -1,0 +1,21 @@
+{% macro slot(order=1, value='') %}
+    <div class="slot">
+        <span class="order"></span>
+        <span class="input"><input name="{{ widget.uid }}[]" type="text" class="form-control" value="{{ value }}"/></span>
+        <span class="delete-btn"><a href="#" class="btn btn-danger" title="{{ t('core.widget@delete') }}"><i class="fa fa-remove"></i></a></span>
+    </div>
+{% endmacro %}
+
+<div class="slots">
+    {% if widget.get_value() %}
+        {% for v in widget.get_value() %}
+            {{ slot(loop.index, v) }}
+        {% endfor %}
+    {% else %}
+        {{ slot() }}
+    {% endif %}
+</div>
+
+<div class="add-btn">
+    <a href="#" class="btn btn-default"><i class="{{ widget.add_btn_icon }}"></i> {{ widget.add_btn_label }}</a>
+</div>

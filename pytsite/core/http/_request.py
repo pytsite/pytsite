@@ -9,7 +9,6 @@ from werkzeug.wrappers import Request as Base
 class Request(Base):
     """HTTP request.
     """
-
     @property
     def values_dict(self) -> dict:
         r = {}
@@ -21,15 +20,13 @@ class Request(Base):
             v = part[1]
             """:type: list"""
 
-            arr_key = re.match('(\w+)\[\]', k)
-            dict_key = re.match('(\w+)\[(\w+)\]', k)
+            list_key = re.match('([^\[]+)\[\]', k)
+            dict_key = re.match('([^\[]+)\[(\w+)\]', k)
 
-            if arr_key:
-                k = arr_key.group(1)
-                if k not in r:
-                    r[k] = []
-                r[k] = v if len(v) > 1 else v[0]
-            if dict_key:
+            if list_key:
+                k = list_key.group(1)
+                r[k] = v
+            elif dict_key:
                 k = dict_key.group(1)
                 sub_k = dict_key.group(2)
                 if k not in r:
