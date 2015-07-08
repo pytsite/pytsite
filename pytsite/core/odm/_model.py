@@ -374,17 +374,34 @@ class Model(_ABC):
         """
         pass
 
-    def package(self) -> str:
+    @classmethod
+    def package_name(cls) -> str:
         """Get instance's package name.
         """
-        return '.'.join(self.__class__.__module__.split('.')[:-1])
+        return '.'.join(cls.__module__.split('.')[:-1])
 
-    def t(self, msg_id: str, args: dict=None) -> str:
+    @classmethod
+    def t(cls, msg_id: str, args: dict=None) -> str:
         """Translate a string in model context.
         """
-        return _lang.t(self.package() + '@' + msg_id, args)
+        for super_cls in cls.__mro__:
+            if issubclass(super_cls, Model):
+                try:
+                    return _lang.t(super_cls.package_name() + '@' + msg_id, args)
+                except _lang.error.TranslationError:
+                    pass
 
-    def t_plural(self, msg_id: str, num: int=2) -> str:
+        raise _lang.error.TranslationError()
+
+    @classmethod
+    def t_plural(cls, msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.
         """
-        return _lang.t_plural(self.package() + '@' + msg_id, num)
+        for super_cls in cls.__mro__:
+            if issubclass(super_cls, Model):
+                try:
+                    return _lang.t_plural(super_cls.package_name() + '@' + msg_id, num)
+                except _lang.error.TranslationError:
+                    pass
+
+        raise _lang.error.TranslationError()

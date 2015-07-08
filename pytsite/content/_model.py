@@ -287,19 +287,3 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Get delete form description.
         """
         return self.f_get('title')
-
-    def t(self, msg_id: str, args: dict=None) -> str:
-        """Translate a string.
-        """
-        try:
-            return _lang.t(self.package() + '@' + msg_id)
-        except _lang.error.TranslationError:
-            return _lang.t('content@' + msg_id)
-
-    def t_plural(self, msg_id: str, num: int=2) -> str:
-        """Translate a string into plural form.
-        """
-        try:
-            return _lang.t_plural(self.package() + '@' + msg_id, num)
-        except _lang.error.TranslationError:
-            return _lang.t_plural('pytsite.content@' + msg_id, num)
