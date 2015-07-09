@@ -163,7 +163,8 @@ class DateTime(_input.Text):
         super().__init__(**kwargs)
         _client.include('datetimepicker')
         _assetman.add('core.widget@js/datetime.js')
-        self._group_cls = self._group_cls.replace('widget-text-input', 'widget-datetime-input')
+
+        self._group_cls = self._group_cls.replace('widget-input-text', 'widget-select-datetime')
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.

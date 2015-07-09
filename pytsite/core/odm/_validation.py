@@ -21,18 +21,20 @@ class ODMEntitiesList(_core_validation.rule.Base):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-
         if self._value is None:
             return
 
         if not isinstance(self._value, list):
-            raise _core_validation.error.ValidationError('List expected.')
+            raise ValueError('List expected.')
 
         for v in self._value:
             if not isinstance(v, _model.Model):
-                raise _core_validation.error.ValidationError('Instance of ODMModel expected.')
+                raise _core_validation.error.ValidationError({
+                    'detail': 'Instance of ODMModel expected.'})
             if self._model and v.model != self._model:
-                raise _core_validation.error.ValidationError("Instance of '{}' model expected, but '{}' given.".format(self._model, v.model))
+                raise _core_validation.error.ValidationError({
+                    'detail': "Instance of '{}' model expected, but '{}' given.".\
+                    format(self._model, v.model)})
 
 
 class ODMFieldUnique(_core_validation.rule.Base):

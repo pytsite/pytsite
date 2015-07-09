@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite.core import validation as _validation
 
-class AddressNotEmpty(_validation.rule.DictValueNotEmpty):
+class AddressNotEmpty(_validation.rule.DictPartsNotEmpty):
     """Check if an address structure is empty.
     """
     def __init__(self, msg_id: str=None, value=None):

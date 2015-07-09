@@ -178,13 +178,13 @@ class StringList(_base.Base):
         super().__init__(**kwargs)
         self._add_btn_label = kwargs.get('add_btn_label', '')
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
-        self._max_values = kwargs.get('max_values', 3)
+        self._max_values = kwargs.get('max_values', 10)
 
         self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
         self._group_data['max_values'] = self._max_values
 
-        _assetman.add('core.widget@js/string-list.js')
-        _assetman.add('core.widget@css/string-list.css')
+        _assetman.add('core.widget@js/list.js')
+        _assetman.add('core.widget@css/list.css')
 
     @property
     def add_btn_label(self) -> str:
@@ -197,6 +197,9 @@ class StringList(_base.Base):
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
+        if value is None:
+            value = []
+
         if not isinstance(value, list):
             raise ValueError('List expected.')
 
@@ -206,4 +209,71 @@ class StringList(_base.Base):
         """Render the widget.
         """
         widget_content = _html.Div(_tpl.render('core.widget@string_list', {'widget': self}))
+        return self._group_wrap(widget_content)
+
+
+class ListList(StringList):
+    """List of lists widget.
+    """
+    def __init__(self, col_titles: tuple, col_format: tuple, **kwargs):
+        super().__init__(**kwargs)
+
+        self._col_titles = col_titles
+        self._col_format = col_format
+
+        if not col_titles or not col_format:
+            raise ValueError("'col_titles' and 'col_format' cannot be empty.")
+        if len(col_titles) != len(col_format):
+            raise ValueError("'col_titles' and 'col_format' must have same length.")
+
+        self._group_cls = ' '.join((self._group_cls, 'widget-list-list'))
+
+    @property
+    def col_titles(self) -> list:
+        return self._col_titles
+
+    @property
+    def col_format(self) -> list:
+        return self._col_format
+
+    def set_value(self, value, **kwargs: dict):
+        """Set value of the widget.
+        """
+        if value is None:
+            value = []
+
+        if value:
+            if isinstance(value[0], list):
+                return self._set_value_from_list_list(value, **kwargs)
+            elif isinstance(value[0], str):
+                return self._set_value_from_string_list(value, **kwargs)
+            else:
+                raise ValueError('List of strings ot list of lists of strings expected')
+
+        return self
+
+    def _set_value_from_list_list(self, value: list, **kwargs):
+        for sub in value:
+            if not isinstance(sub, list):
+                raise ValueError('List expected.')
+            for item in sub:
+                if not isinstance(item, str):
+                    raise ValueError('str expected.')
+
+        return super().set_value(value, **kwargs)
+
+    def _set_value_from_string_list(self, value: list, **kwargs):
+        new_value = []
+        step = len(self.col_format)
+        for i in range(0, len(value), step):
+            value_to_append = value[i:i+step]
+            if _util.list_cleanup(value_to_append):
+                new_value.append(value_to_append)
+
+        return super().set_value(new_value, **kwargs)
+
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        widget_content = _html.Div(_tpl.render('core.widget@list_list', {'widget': self}))
         return self._group_wrap(widget_content)

@@ -32,8 +32,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.Integer('views_count'))
         self._define_field(_odm.field.Integer('comments_count'))
         self._define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self._define_field(_odm.field.StringsListField('video'))
-        self._define_field(_odm.field.StringsListField('links'))
+        self._define_field(_odm.field.StringList('ext_links'))
+        self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.String('status', default='published', not_empty=True))
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', not_empty=True))
@@ -73,6 +73,14 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     @property
     def url(self) -> str:
         return self.f_get('url', relative=False)
+
+    @property
+    def ext_links(self) -> list:
+        return self.f_get('ext_links')
+
+    @property
+    def video_links(self) -> list:
+        return self.f_get('video_links')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -189,27 +197,28 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         from . import _functions
         _assetman.add('content@js/content.js')
 
-        if self.has_field('section'):
-            form.add_widget(_odm_ui.widget.ODMSelect(
-                weight=10,
-                uid='section',
-                model='section',
-                caption_field='title',
-                label=self.t('section'),
-                value=self.f_get('section'),
-                h_size='col-sm-6',
-            ))
-            form.add_rule('section', _validation.rule.NotEmpty())
+        # Section
+        form.add_widget(_odm_ui.widget.ODMSelect(
+            weight=10,
+            uid='section',
+            model='section',
+            caption_field='title',
+            label=self.t('section'),
+            value=self.f_get('section'),
+            h_size='col-sm-6',
+        ))
+        form.add_rule('section', _validation.rule.NotEmpty())
 
-        if self.has_field('title'):
-            form.add_widget(_widget.input.Text(
-                weight=20,
-                uid='title',
-                label=self.t('title'),
-                value=self.title,
-            ))
-            form.add_rule('title', _validation.rule.NotEmpty())
+        # Title
+        form.add_widget(_widget.input.Text(
+            weight=20,
+            uid='title',
+            label=self.t('title'),
+            value=self.title,
+        ))
+        form.add_rule('title', _validation.rule.NotEmpty())
 
+        # Description
         form.add_widget(_widget.input.Text(
             weight=30,
             uid='description',
@@ -217,6 +226,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             value=self.description,
         ))
 
+        # Tags
         form.add_widget(_taxonomy.widget.TokensInput(
             weight=40,
             uid='tags',
@@ -225,33 +235,59 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             value=self.tags,
         ))
 
-        form.add_widget(_image.widget.ImagesUploadWidget(
-            weight=50,
-            uid='images',
-            label=self.t('images'),
-            value=self.f_get('images'),
-            max_files=10
+        # Images
+        if self.has_field('images'):
+            form.add_widget(_image.widget.ImagesUploadWidget(
+                weight=50,
+                uid='images',
+                label=self.t('images'),
+                value=self.f_get('images'),
+                max_files=10
+            ))
+
+        # Body
+        form.add_widget(_widget.input.CKEditor(
+            weight=60,
+            uid='body',
+            label=self.t('body'),
+            value=self.body,
         ))
 
-        if self.has_field('body'):
-            form.add_widget(_widget.input.CKEditor(
-                weight=60,
-                uid='body',
-                label=self.t('body'),
-                value=self.body,
+        # Links
+        if self.has_field('ext_links'):
+            form.add_widget(_widget.input.StringList(
+                weight=70,
+                uid='ext_links',
+                label=self.t('external_links'),
+                add_btn_label=self.t('add_link'),
+                value=self.ext_links
             ))
+            form.add_rule('ext_links', _validation.rule.Url())
+
+        # Links
+        if self.has_field('video_links'):
+            form.add_widget(_widget.input.StringList(
+                weight=80,
+                uid='video_links',
+                label=self.t('video'),
+                add_btn_label=self.t('add_link'),
+                value=self.video_links
+            ))
+            form.add_rule('video_links', _validation.rule.VideoHostingUrl())
 
         # Location
         form.add_widget(_geo.widget.SearchAddress(
-            weight=70,
+            weight=90,
             uid='location',
             label=self.t('location'),
             value=self.f_get('location'),
         ))
 
+        # Visible only for admins
         if _auth.get_current_user().is_admin():
+            # Publish time
             form.add_widget(_widget.select.DateTime(
-                weight=80,
+                weight=100,
                 uid='publish_time',
                 label=self.t('publish_time'),
                 value=_datetime.now() if self.is_new else self.f_get('publish_time'),
@@ -259,8 +295,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             ))
             form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
 
+            # Status
             form.add_widget(_widget.select.Select(
-                weight=90,
+                weight=110,
                 uid='status',
                 label=self.t('status'),
                 value=self.f_get('status'),
@@ -268,16 +305,18 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 items=_functions.get_publish_statuses(),
             ))
 
+            # Language
             form.add_widget(_widget.select.Language(
-                weight=100,
+                weight=120,
                 uid='language',
                 label=self.t('language'),
                 value=self.f_get('language'),
                 h_size='col-sm-4 col-md-3 col-md-2',
             ))
 
+            # Route alias
             form.add_widget(_widget.input.Text(
-                weight=110,
+                weight=130,
                 uid='route_alias',
                 label=self.t('path'),
                 value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',

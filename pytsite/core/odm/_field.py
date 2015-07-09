@@ -442,7 +442,13 @@ class Bool(Abstract):
         return super().set_val(bool(value), change_modified, **kwargs)
 
 
-class StringsListField(List):
+class StringList(List):
+    # TODO
+    pass
+
+
+class ListList(List):
+    # TODO
     pass
 
 

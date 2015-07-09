@@ -15,8 +15,9 @@ class Base(_ABC):
     def __init__(self, msg_id: str=None, value=None):
         """Init.
         """
+        cls_name = self.__class__.__name__
         self._value = value
-        self._msg_id = msg_id
+        self._msg_id = msg_id if msg_id else 'pytsite.core.validation@validation_' + cls_name.lower()
         self._msg_trans_args = {}
         self._message = None
         self._validation_state = None
@@ -51,17 +52,16 @@ class Base(_ABC):
         return self
 
     def validate(self, validator=None, field_name: str=None) -> bool:
-        """Validate the rule.
+        """Public method to validate the rule.
         """
         try:
             self._do_validate(validator, field_name)
             self._validation_state = True
         except _error.ValidationError as e:
-            if not self._msg_id:
-                self._msg_id = 'pytsite.core.validation@validation_' + self.__class__.__name__.lower()
-            self._msg_trans_args['field_name'] = field_name
-            self._msg_trans_args['error_detail'] = str(e)
-            self._message = _lang.t(self._msg_id, self._msg_trans_args)
+            msg_args = e.msg_args
+            msg_args['field_name'] = field_name
+
+            self._message = _lang.t(self._msg_id, msg_args)
             self._validation_state = False
 
         return self._validation_state
@@ -88,8 +88,8 @@ class NotEmpty(Base):
             raise _error.ValidationError()
 
 
-class DictValueNotEmpty(Base):
-    """Check if a dict value is empty.
+class DictPartsNotEmpty(Base):
+    """Check if a dict particular key values is not empty.
     """
     def __init__(self, msg_id: str=None, value=None, keys: tuple=()):
         """Init.
@@ -101,8 +101,9 @@ class DictValueNotEmpty(Base):
         """Do actual validation of the rule.
         """
         if not isinstance(self._value, dict):
-            raise _error.ValidationError('Value is not a dict.')
+            raise ValueError('Dict expected.')
 
+        # Nothing to validate
         if not self._keys:
             return
 
@@ -137,8 +138,66 @@ class Url(Base):
             r'(?::\d+)?'  # optional port
             r'(?:/?|[/?]\S+)$', _re.IGNORECASE)
 
-        if not regex.match(str(self._value)):
-            raise _error.ValidationError()
+        if isinstance(self.value, list):
+            self._msg_id += '_row'
+            self.value = _util.list_cleanup(self.value)
+            for k, v in enumerate(self.value):
+                if not regex.match(v):
+                    raise _error.ValidationError({'row': k + 1})
+        elif isinstance(self.value, dict):
+            self._msg_id += '_row'
+            self.value = _util.dict_cleanup(self.value)
+            for k, v in self.value.items():
+                if not regex.match(v):
+                    raise _error.ValidationError({'row': k + 1})
+        elif isinstance(self.value, str):
+            if not regex.match(self.value):
+                raise _error.ValidationError()
+        else:
+            raise ValueError('List, dict or str expected.')
+
+
+class VideoHostingUrl(Url):
+    """Video hosting URL rule.
+    """
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        super()._do_validate(validator, field_name)
+
+        if isinstance(self.value, list):
+            for k, v in enumerate(self.value):
+                if not self._validate_str(v):
+                    raise _error.ValidationError({'row': k + 1})
+        elif isinstance(self.value, dict):
+            for k, v in self.value.items():
+                if not self._validate_str(v):
+                    raise _error.ValidationError({'row': k + 1})
+        elif isinstance(self.value, str):
+            if not self._validate_str(self.value):
+                raise _error.ValidationError()
+        else:
+            raise ValueError('List, dict or str expected.')
+
+    def _validate_str(self, inp: str):
+        for re in self._get_re():
+            if re.search(inp):
+                return True
+
+        return False
+
+    @staticmethod
+    def _get_re() -> list:
+        patterns = (
+            '(youtu\.be|youtube\.com)/(watch\?v=)?\w{11}',
+            'vimeo.com/\d+',
+            'rutube.ru/video/\w{32}'
+        )
+        r = []
+        for p in patterns:
+            r.append(_re.compile(p, _re.IGNORECASE))
+
+        return r
 
 
 class Email(Base):
@@ -181,3 +240,45 @@ class GreaterThan(Base):
                 raise _error.ValidationError()
         except ValueError:
             raise _error.ValidationError()
+
+
+class ListListItemNotEmpty(Base):
+    def __init__(self, sub_list_item_index: int, msg_id: str=None, value: list=None):
+        """Init.
+        """
+        super().__init__(msg_id, value)
+        self._index = sub_list_item_index
+
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        if not isinstance(self.value, list):
+            raise ValueError('List expected.')
+
+        for row, sub_list in enumerate(self.value):
+            if not isinstance(sub_list, list):
+                raise ValueError('List expected.')
+
+            if self._index + 1 > len(sub_list):
+                raise _error.ValidationError({'row': row + 1, 'col': self._index + 1})
+
+            if not sub_list[self._index]:
+                raise _error.ValidationError({'row': row + 1, 'col': self._index + 1})
+
+class ListListItemUrl(ListListItemNotEmpty):
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        if not isinstance(self.value, list):
+            raise ValueError('List expected.')
+
+        for row, sub_list in enumerate(self.value):
+            if not isinstance(sub_list, list):
+                raise ValueError('List expected.')
+
+            if self._index + 1 > len(sub_list):
+                raise _error.ValidationError({'row': row + 1, 'col': self._index + 1})
+
+            url_rule = Url(value=sub_list[self._index])
+            if not url_rule.validate():
+                raise _error.ValidationError({'row': row + 1, 'col': self._index + 1})
