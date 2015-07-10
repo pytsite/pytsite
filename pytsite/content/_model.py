@@ -7,7 +7,7 @@ __license__ = 'MIT'
 import re as _re
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
-    image as _image, geo as _geo
+    geo as _geo
 from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
     lang as _lang, assetman as _assetman, events as _events
 
@@ -81,6 +81,25 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     @property
     def video_links(self) -> list:
         return self.f_get('video_links')
+
+    @property
+    def author(self) -> _auth.model.User:
+        return self.f_get('author')
+
+    @property
+    def section(self) -> Section:
+        return self.f_get('section')
+
+    @property
+    def publish_time_pretty(self) -> str:
+        return self.f_get('publish_time', fmt='pretty_date')
+
+    @property
+    def edit_url(self) ->str:
+        return _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {
+            'model': self.model,
+            'id': self.id
+        })
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -237,7 +256,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Images
         if self.has_field('images'):
-            form.add_widget(_image.widget.ImagesUploadWidget(
+            from pytsite import image
+            form.add_widget(image.widget.ImagesUploadWidget(
                 weight=50,
                 uid='images',
                 label=self.t('images'),
@@ -284,7 +304,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         ))
 
         # Visible only for admins
-        if _auth.get_current_user().is_admin():
+        if _auth.get_current_user().is_admin:
             # Publish time
             form.add_widget(_widget.select.DateTime(
                 weight=100,

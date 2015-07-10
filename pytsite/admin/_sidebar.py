@@ -186,7 +186,7 @@ def _filter_permissions(container: list) -> list:
 
 def _check_permissions(container: dict) -> bool:
     user = _auth.get_current_user()
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
 
     for p in container['permissions']:

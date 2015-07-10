@@ -29,6 +29,10 @@ class File(_odm.Model):
     def abs_path(self) -> str:
         return self.f_get('abs_path')
 
+    @property
+    def url(self) -> str:
+        return self.f_get('url')
+
     def _after_delete(self):
         """_after_delete() hook.
         """

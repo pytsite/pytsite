@@ -106,7 +106,7 @@ def dispense_entity(model: str, entity_id: str=None):
 def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
     user = _auth.get_current_user()
 
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
 
     if perm_type == 'create' and user.has_permission('pytsite.odm_ui.create.' + model):

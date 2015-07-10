@@ -12,7 +12,7 @@ def toggle(args: dict, inp: dict) -> dict:
     current_user = _auth.get_current_user()
     uid = inp.get('uid')
 
-    if current_user.is_anonymous() or not uid:
+    if current_user.is_anonymous or not uid:
         return
 
     e = _odm.find('flag').where('uid', '=', uid).where('author', '=', current_user).first()

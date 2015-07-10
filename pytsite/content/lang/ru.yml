@@ -19,6 +19,7 @@ video: 'Видео'
 location: 'Местоположение'
 external_links: 'Ссылки'
 add_link: 'Добавить ссылку'
+search: 'Поиск'
 
 odm_ui_section_browser_title: 'Обзор разделов'
 odm_ui_section_create_form_legend: 'Создание раздела'

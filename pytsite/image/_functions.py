@@ -17,7 +17,7 @@ def create(source_path: str, name: str=None, description: str=None) -> _model.Im
     mime = str(img_entity.f_get('mime'))
     if not mime.endswith(('png', 'jpeg', 'gif')):
         img_entity.delete()
-        raise ValueError("'{0}' is not a acceptable type for image.".format(mime))
+        raise ValueError("'{}' is not a acceptable type for image.".format(mime))
 
     img_obj = Image.open(img_entity.f_get('abs_path'))
     size = img_obj.size

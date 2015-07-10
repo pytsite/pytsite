@@ -21,7 +21,5 @@ __init()
 
 
 # Public API
-from . import _manager, _model, _widget
-manager = _manager
-model = _model
-widget = _widget
+from . import _model as model, _widget as widget
+from ._functions import create

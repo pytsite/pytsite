@@ -42,7 +42,7 @@ class Flag(_widget.Base):
         current_user = _auth.get_current_user()
 
         cls = 'widget widget-flag'
-        if not current_user.is_anonymous() and self.flagged:
+        if not current_user.is_anonymous and self.flagged:
             cls += ' flagged'
 
         return _html.Span(_tpl.render('flag@widget', {

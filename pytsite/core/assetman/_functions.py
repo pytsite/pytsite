@@ -35,10 +35,6 @@ def get_packages() -> dict:
 def add_location(location: str, collection: str, route_path: str=None):
     """Add an asset location.
     """
-    if not location.startswith('http'):
-        if not location.startswith('app') and not location.startswith('pytsite.'):
-            location = 'pytsite.' + location
-
     if not route_path:
         route_path = _router.current_path(True)
 
@@ -175,6 +171,9 @@ def __split_asset_location_info(location: str) -> dict:
     if len(path_parts) == 2:
         package_name = path_parts[0]
         asset_path = path_parts[1]
+
+    if package_name != 'app' and not package_name.startswith('pytsite.'):
+        package_name = 'pytsite.' + package_name
 
     if package_name not in __packages:
         raise Exception("Package '{}' is not registered.".format(package_name))

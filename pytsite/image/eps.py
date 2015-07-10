@@ -9,7 +9,7 @@ from os import path as _path, makedirs as _makedirs
 from math import floor as _floor
 from PIL import Image as _Image
 from pytsite.core import reg as _reg, http as _http
-from . import _manager
+from . import _functions
 
 
 def get_resize(args: dict, inp: dict) -> _http.response.RedirectResponse:
@@ -17,7 +17,7 @@ def get_resize(args: dict, inp: dict) -> _http.response.RedirectResponse:
     requested_height = args['height']
     file_path = _path.join('image', args['p1'], args['p2'], args['filename'])
 
-    image_entity = _manager.get(rel_path=file_path)
+    image_entity = _functions.get(rel_path=file_path)
     if not image_entity:
         raise _http.error.NotFoundError()
 

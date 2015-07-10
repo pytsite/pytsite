@@ -6,7 +6,6 @@ __license__ = 'MIT'
 
 
 def __init():
-    __import__('pytsite.auth')
     from pytsite.core import assetman, router, tpl, lang, odm
     from ._model import File
 

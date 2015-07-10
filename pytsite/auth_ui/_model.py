@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth as _auth, odm_ui as _odm_ui, image as _image
+from pytsite import auth as _auth, odm_ui as _odm_ui
 from pytsite.core import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
     http as _http
 
@@ -85,7 +85,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             h_size='col-sm-5 col-md-4 col-lg-3',
         ))
 
-        form.add_widget(_image.widget.ImagesUploadWidget(
+        from pytsite import image
+        form.add_widget(image.widget.ImagesUploadWidget(
             weight=60,
             uid='picture',
             label=self.t('picture'),

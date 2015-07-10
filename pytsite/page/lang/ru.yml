@@ -1,0 +1,15 @@
+pages: 'Страницы'
+
+odm_ui_page_browser_title: 'Обзор страниц'
+odm_ui_page_create_form_legend: 'Создание страницы'
+odm_ui_page_modify_form_legend: 'Изменение страницы'
+odm_ui_page_delete_form_legend: 'Удаление страницы'
+
+odm_ui_permission_group_description: 'Страницы'
+odm_ui_permission_create_page: 'Создание страниц'
+odm_ui_permission_browse_own_page: 'Обзор страниц'
+odm_ui_permission_browse_page: 'Обзор ВСЕХ страниц'
+odm_ui_permission_modify_own_page: 'Изменение страниц'
+odm_ui_permission_modify_page: 'Изменение ЛЮБЫХ страниц'
+odm_ui_permission_delete_own_page: 'Удаление страниц'
+odm_ui_permission_delete_page: 'Удаление ЛЮБЫХ страниц'

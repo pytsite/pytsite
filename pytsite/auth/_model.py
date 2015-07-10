@@ -34,6 +34,10 @@ class User(_odm.Model):
         self._define_index([('login', _odm.I_ASC)], unique=True)
         self._define_index([('token', _odm.I_ASC)], unique=True)
 
+    @property
+    def full_name(self) -> str:
+        return self.f_get('full_name')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
         """
@@ -70,7 +74,7 @@ class User(_odm.Model):
             raise KeyError("Permission '{}' is not defined.".format(name))
 
         # Admin 'has' any role
-        if self.is_admin():
+        if self.is_admin:
             return True
 
         for role in self.f_get('roles'):
@@ -79,11 +83,13 @@ class User(_odm.Model):
 
         return False
 
+    @property
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
         return self.f_get('login') == '__anonymous'
 
+    @property
     def is_admin(self) -> bool:
         """Check if the user has the 'admin' role.
         """

@@ -67,3 +67,11 @@ def view_count(args: dict, inp: dict) -> int:
             return entity.f_get('views_count')
 
     return 0
+
+
+def propose(args: dict, inp: dict) -> str:
+    return 'TODO'
+
+
+def search(args: dict, inp: dict) -> str:
+    return 'TODO'

@@ -87,7 +87,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 
     from pytsite import auth
     user = auth.get_current_user()
-    if not user.is_anonymous():
+    if not user.is_anonymous:
         file_entity.f_set('author', user)
 
     return file_entity.save()

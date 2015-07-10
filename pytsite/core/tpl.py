@@ -23,6 +23,9 @@ class TemplateLoader(BaseLoader):
             package_name = template_split[0]
             template = template_split[1]
 
+        if package_name != 'app' and not package_name.startswith('pytsite.'):
+            package_name = 'pytsite.' + package_name
+
         if package_name not in _packages:
             raise TemplateNotFound("Package {0} is not registered.".format(package_name))
 
@@ -49,8 +52,15 @@ __env = Environment(loader=TemplateLoader(), extensions=['jinja2.ext.do'])
 __env.globals['import'] = import_module
 __env.globals['lang'] = lang
 __env.globals['t'] = lang.t
+__env.globals['t_plural'] = lang.t_plural
 __env.globals['reg'] = reg
 __env.globals['router'] = router
+__env.globals['url'] = router.url
+__env.globals['endpoint_url'] = router.endpoint_url
+__env.globals['current_url'] = router.current_url
+__env.globals['base_url'] = router.base_url
+__env.globals['is_base_url'] = router.is_base_url
+__env.globals['asset_url'] = assetman.get_url
 __env.globals['metatag'] = metatag
 __env.globals['assetman'] = assetman
 __env.globals['client'] = client
@@ -60,12 +70,12 @@ def register_package(package_name: str, templates_dir: str='tpl'):
     """Register templates container.
     """
     if package_name in _packages:
-        raise Exception("Package '{0}' already registered.".format(package_name))
+        raise Exception("Package '{}' already registered.".format(package_name))
 
     package = import_module(package_name)
     templates_dir = path.join(path.abspath(path.dirname(package.__file__)), templates_dir)
     if not path.isdir(templates_dir):
-        raise FileNotFoundError("Directory '{0}' is not found.".format(templates_dir))
+        raise FileNotFoundError("Directory '{}' is not found.".format(templates_dir))
 
     _packages[package_name] = {'templates_dir': templates_dir}
 
@@ -73,9 +83,6 @@ def register_package(package_name: str, templates_dir: str='tpl'):
 def render(template: str, data: dict=None) -> str:
     """Render a template.
     """
-    if not template.startswith('app') and not template.startswith('pytsite.'):
-        template = 'pytsite.' + template
-
     if not data:
         data = {}
 

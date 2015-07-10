@@ -1,4 +1,4 @@
-"""Pytsite Disqus Widgets.
+"""Disqus Widgets.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

@@ -10,8 +10,7 @@ from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
 from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, \
-    widget as _widget, http as _http, client as _client
-from pytsite import image as _image
+    widget as _widget, http as _http
 from .. import _functions, _error
 from .abstract import AbstractDriver
 
@@ -86,7 +85,8 @@ class ULoginDriver(AbstractDriver):
                 if not picture_url:
                     picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
                 if picture_url:
-                    user.f_set('picture', _image.manager.create(picture_url))
+                    from pytsite import image
+                    user.f_set('picture', image.create(picture_url))
 
             # Name
             full_name = ''

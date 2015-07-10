@@ -37,9 +37,10 @@ def __init():
     router.add_rule('/content/tag/<string:model>/<string:term_alias>', 'pytsite.content.eps.index', {
         'term_field': ('tags', 'tag')
     })
-
     router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.eps.view')
     router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.eps.view_count')
+    router.add_rule('/content/propose/<string:model>', 'pytsite.content.eps.propose')
+    router.add_rule('/content/ыуфкср/<string:model>', 'pytsite.content.eps.search')
 
     taxonomy.register_model('section', Section, __name__ + '@sections')
     events.listen('odm.entity.pre_delete.section', _section_pre_delete_handler)

@@ -12,7 +12,7 @@ from . import _functions
 def get_login(args: dict, inp: dict) -> str:
     """Get login form.
     """
-    if not _functions.get_current_user().is_anonymous():
+    if not _functions.get_current_user().is_anonymous:
         redirect_url = _router.base_url()
         if 'redirect' in inp:
             redirect_url = _router.url(inp['redirect'])
@@ -42,7 +42,7 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.RedirectResponse:
     """Authorization filter.
     """
     user = _functions.get_current_user()
-    if not user.is_anonymous():
+    if not user.is_anonymous:
         # Checking requested permissions
         req_perms_str = args.get('permissions', '')
         if req_perms_str:

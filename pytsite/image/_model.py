@@ -4,28 +4,27 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import file
-from pytsite.core import odm, router
+import exifread as _exifread
+from pytsite import file as _file
+from pytsite.core import odm as _odm, router as _router
 
 
-class Image(file.model.File):
+class Image(_file.model.File):
     """Image Model.
     """
-
     def _setup(self):
         """Hook.
         """
         super()._setup()
-        self._define_field(odm.field.Integer('width'))
-        self._define_field(odm.field.Integer('height'))
-        self._define_field(odm.field.Dict('exif'))
+        self._define_field(_odm.field.Integer('width'))
+        self._define_field(_odm.field.Integer('height'))
+        self._define_field(_odm.field.Dict('exif'))
 
     def _pre_save(self):
         """Hook.
         """
-        import exifread
         with open(self.f_get('abs_path'), 'rb') as f:
-            exif = exifread.process_file(f, details=False)
+            exif = _exifread.process_file(f, details=False)
             entity_exif = {}
             for k, v in exif.items():
                 if not k.startswith('Thumbnail'):
@@ -64,7 +63,7 @@ class Image(file.model.File):
             from os import path
             p = str(self.f_get('path')).split(path.sep)
 
-            return router.endpoint_url('pytsite.image.eps.get_resize', {
+            return _router.endpoint_url('pytsite.image.eps.get_resize', {
                 'width': int(kwargs.get('width', 0)),
                 'height': int(kwargs.get('height', 0)),
                 'p1': p[1],
