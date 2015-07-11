@@ -56,6 +56,15 @@ def get_model(model: str) -> tuple:
     return __models[model]
 
 
+def create(model: str) -> _model.Content:
+    """Create content entity.
+    """
+    if not is_model_registered(model):
+        raise KeyError("Model '{}' is not registered as content model.".format(model))
+
+    return _odm.dispense(model)
+
+
 def find(model: str, status='published', check_publish_time=True):
     """Get content entities finder.
     """

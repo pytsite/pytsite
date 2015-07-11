@@ -43,6 +43,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_geo.field.Location('location'))
         self._define_field(_odm.field.Bool('starred'))
         self._define_field(_odm.field.Virtual('url'))
+        self._define_field(_odm.field.Virtual('edit_url'))
 
         self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 
@@ -56,7 +57,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
     @property
     def body(self) -> str:
-        return self.f_get('body')
+        return self.f_get('body', process_tags=True)
 
     @property
     def tags(self):
@@ -73,6 +74,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     @property
     def url(self) -> str:
         return self.f_get('url', relative=False)
+
+    @property
+    def edit_url(self) -> str:
+        return self.f_get('edit_url')
 
     @property
     def ext_links(self) -> list:
@@ -95,11 +100,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('publish_time', fmt='pretty_date')
 
     @property
-    def edit_url(self) ->str:
-        return _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {
-            'model': self.model,
-            'id': self.id
-        })
+    def route_alias(self) -> _route_alias.model.RouteAlias:
+        return self.f_get('route_alias')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -111,45 +113,54 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                     return
 
                 if self.is_new:
-                    value = _route_alias.manager.create(value).save()
+                    value = _route_alias.create(value).save()
                 else:
                     orig_value = self.f_get('route_alias')
                     if orig_value.f_get('alias') != value:
                         orig_value.f_set('alias', value).save()
                     value = orig_value
 
+        if field_name == 'status':
+            from ._functions import get_publish_statuses
+            if value not in [v[0] for v in get_publish_statuses()]:
+                raise Exception("Invalid publish status: '{}'.".format(value))
+
         return super()._on_f_set(field_name, value, **kwargs)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
-        if field_name == 'url':
-            if not self.is_new:
-                target = _router.endpoint_url('pytsite.content.eps.view',
-                                              {'model': self.model, 'id': str(self.id)},
-                                              relative=kwargs.get('relative', True))
-                r_alias = _route_alias.manager.find_by_target(target)
-                value = r_alias.f_get('alias') if r_alias else target
+        if field_name == 'url' and not self.is_new:
+            target = _router.endpoint_url('pytsite.content.eps.view',
+                                          {'model': self.model, 'id': str(self.id)},
+                                          relative=kwargs.get('relative', True))
+            r_alias = _route_alias.find_by_target(target)
+            value = r_alias.f_get('alias') if r_alias else target
+
+        if field_name == 'edit_url' and not self.is_new:
+            value = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {
+                'model': self.model,
+                'id': self.id
+            })
+
+        if field_name == 'body' and kwargs.get('process_tags'):
+            value = self._process_tags(value)
 
         return value
 
     def _pre_save(self):
         """Hook.
         """
-        if not self.f_get('author'):
+        super()._pre_save()
+
+        if not self.author:
             self.f_set('author', _auth.get_current_user())
 
-        section_alias = self.f_get('section').f_get('alias')
-        route_alias = self.f_get('route_alias')
-        if route_alias:
-            # If section has been changed, route alias part also needs to be changed
-            route_alias_str = route_alias.f_get('alias')
-            new_route_alias_str = _re.sub('^/\w+/', '/' + section_alias + '/', route_alias_str)
-            if new_route_alias_str != route_alias_str:
-                route_alias.f_set('alias', new_route_alias_str).save()
-        else:
-            new_route_alias_str = section_alias + '/' + self.f_get('title')
-            route_alias = _route_alias.manager.create(new_route_alias_str).save()
+        if not self.route_alias:  # Create new route alias
+            route_alias_str = self.title
+            if self.section:
+                route_alias_str = self.section.alias + '/' + route_alias_str
+            route_alias = _route_alias.create(route_alias_str).save()
             self.f_set('route_alias', route_alias)
 
         _events.fire('content.entity.pre_save', entity=self)
@@ -163,6 +174,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 'model': self.model,
                 'id': self.id,
             }, True)).save()
+
+        if self.is_new:
+            for img in self.images:
+                img.f_set('attached_to', self).f_set('owner', self.author).save()
 
         _events.fire('content.entity.save', entity=self)
         _events.fire('content.entity.save.' + self.model, entity=self)
@@ -217,7 +232,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         _assetman.add('content@js/content.js')
 
         # Section
-        form.add_widget(_odm_ui.widget.ODMSelect(
+        form.add_widget(_odm_ui.widget.EntitySelect(
             weight=10,
             uid='section',
             model='section',
@@ -270,7 +285,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             weight=60,
             uid='body',
             label=self.t('body'),
-            value=self.body,
+            value=self.f_get('body', process_tags=False),
         ))
 
         # Links
@@ -346,3 +361,18 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Get delete form description.
         """
         return self.f_get('title')
+
+    def _process_tags(self, inp: str) -> str:
+        def process_img_tag(match):
+            img_index = int(match.group(1))
+            if len(self.images) < img_index:
+                return ''
+            return '<img class="img-responsive" src="{}">'.format(self.images[img_index - 1].url)
+
+        def process_vid_tag(match):
+            return '[vid:TODO]'
+
+        inp = _re.sub('\[img:(\d+)\]', process_img_tag, inp)
+        inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
+
+        return inp

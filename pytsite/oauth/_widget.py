@@ -20,11 +20,8 @@ class ProviderSelect(_widget.select.Select):
             self._items.append((k, v[0]))
 
 
-class AccountSelect(odm_ui.widget.ODMSelect):
+class AccountSelect(odm_ui.widget.EntitySelect):
     """oAuth Account Select Widget.
     """
     def __init__(self, **kwargs: dict):
-        self._model = 'oauth_account'
-        self._caption_field = 'fqsn'
-        self._sort_field = 'screen_name'
-        super().__init__(**kwargs)
+        super().__init__('oauth_account', 'fqsn', 'screen_name', **kwargs)

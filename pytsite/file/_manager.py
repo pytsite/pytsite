@@ -38,7 +38,6 @@ def _build_store_path(mime: str, model: str='file') -> str:
 def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False) -> _model.File:
     """Create a file from path or URL.
     """
-
     # Store remote file to the local if URL was specified
     url_validator = _validation.Validator()
     url_validator.add_rule('url', _validation.rule.Url(value=source_path))
@@ -87,8 +86,8 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 
     from pytsite import auth
     user = auth.get_current_user()
-    if not user.is_anonymous:
-        file_entity.f_set('author', user)
+    if user and not user.is_anonymous:
+        file_entity.f_set('owner', user)
 
     return file_entity.save()
 

@@ -42,6 +42,9 @@ def is_model_registered(model: str) -> bool:
 def dispense(model: str, title: str):
     """Create new term or dispense existing.
     """
+    if not is_model_registered(model):
+        raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
+
     title = title.strip()
     term = find(model).where('title', 'regex_i', '^' + title + '$').first()
     if not term:

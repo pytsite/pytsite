@@ -154,8 +154,6 @@ class Model(_ABC):
     @property
     def fields(self):
         """Get all field objects.
-
-        ":rtype: int
         """
         return self._fields
 
@@ -169,7 +167,7 @@ class Model(_ABC):
     def ref(self) -> _DBRef:
         """Get entity's DBRef.
         """
-        if self._is_new:
+        if not self.id:
             raise Exception("Entity must be stored first.")
 
         return _DBRef(self.collection.name, self.id)

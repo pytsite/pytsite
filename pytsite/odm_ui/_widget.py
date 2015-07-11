@@ -8,25 +8,17 @@ from bson.dbref import DBRef as _DBRef
 from pytsite.core import widget as _widget, odm as _odm, lang as _lang
 
 
-class ODMSelect(_widget.select.Select):
+class EntitySelect(_widget.select.Select):
     """Select Entity with Select Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, model: str, caption_field: str, sort_field: str=None, **kwargs: dict):
         """Init.
         """
         super().__init__(**kwargs)
 
-        if not hasattr(self, '_model') or not self._model:
-            self._model = kwargs.get('model')
-        if not hasattr(self, '_caption_field') or not self._caption_field:
-            self._caption_field = kwargs.get('caption_field')
-        if not hasattr(self, '_sort_field') or not self._sort_field:
-            self._sort_field = kwargs.get('sort_field', self._caption_field)
-
-        if not self._model:
-            raise ValueError('Model is not specified.')
-        if not self._caption_field:
-            raise ValueError('Caption field is not specified.')
+        self._model = model
+        self._caption_field = caption_field
+        self._sort_field = sort_field if sort_field else caption_field
 
     @property
     def sort_field(self) -> str:
@@ -62,7 +54,7 @@ class ODMSelect(_widget.select.Select):
         return super().render()
 
 
-class ODMCheckboxes(_widget.select.Checkboxes):
+class EntityCheckboxes(_widget.select.Checkboxes):
     """Select Entities with Checkboxes Widget.
     """
     def __init__(self, **kwargs: dict):

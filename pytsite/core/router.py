@@ -65,6 +65,8 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: tuple=No
 
 
 def add_path_alias(alias: str, target: str):
+    print(alias)
+    print(target)
     __path_aliases[alias] = target
 
 

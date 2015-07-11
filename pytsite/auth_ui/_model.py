@@ -97,7 +97,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             image_max_height=256,
         ))
 
-        form.add_widget(_odm_ui.widget.ODMCheckboxes(
+        form.add_widget(_odm_ui.widget.EntityCheckboxes(
             weight=70,
             uid='roles',
             label=self.t('roles'),

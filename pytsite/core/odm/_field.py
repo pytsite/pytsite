@@ -225,7 +225,7 @@ class Ref(Abstract):
         if isinstance(value, _bson_DBRef) or value is None:
             pass
         elif isinstance(value, Model):
-            if value.model != self._model:
+            if self._model != '*' and value.model != self._model:
                 raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
         else:
@@ -264,7 +264,7 @@ class RefsListField(List):
         from ._model import Model
         for item in value:
             if isinstance(item, Model):
-                if item.model != self._model:
+                if self._model != '*' and item.model != self._model:
                     raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
                 clean_value.append(item.ref)
             elif isinstance(item, _bson_DBRef):

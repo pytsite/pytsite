@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from pytsite.core import odm as _odm
 
 
-class RouteAliasModel(_odm.Model):
+class RouteAlias(_odm.Model):
     """Taxonomy Term Model.
     """
     def _setup(self):
@@ -18,6 +18,18 @@ class RouteAliasModel(_odm.Model):
         self._define_field(_odm.field.String('language', not_empty=True))
 
         self._define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
+
+    @property
+    def alias(self) -> str:
+        return self.f_get('alias')
+
+    @property
+    def target(self) -> str:
+        return self.f_get('target')
+
+    @property
+    def language(self) -> str:
+        return self.f_get('language')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.

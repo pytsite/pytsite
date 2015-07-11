@@ -46,6 +46,11 @@ class User(_odm.Model):
             value = password_hash(value)
             self.f_set('token', _hashlib.md5(_util.random_password().encode()).hexdigest())
 
+        if field_name == 'status':
+            from ._functions import get_user_statuses
+            if value not in [v[0] for v in get_user_statuses()]:
+                raise Exception("Invalid user status: '{}'.".format(value))
+
         return value
 
     def _pre_save(self):

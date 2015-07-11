@@ -152,9 +152,8 @@ def create_user(email: str, login: str=None, password: str=None) -> _model.User:
 
 
 def get_user(login: str=None, uid: str=None) -> _model.User:
-    """Get user by login.
+    """Get user by login or by uid.
     """
-
     if login:
         return _odm.find('user').where('login', '=', login).first()
     if uid:
@@ -207,6 +206,9 @@ def get_anonymous_user() -> _model.User:
 def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
+    # Console mode
+    if not _router.session:
+        return
 
     login = _router.session.get('pytsite.auth.login')
     if not login:
@@ -230,15 +232,14 @@ def logout_current_user():
         del _router.session['pytsite.auth.login']
 
 
-def get_user_statuses() -> list:
+def get_user_statuses() -> tuple:
     """Get available user statuses.
     """
-
-    return [
+    return (
         ('active', _lang.t('auth@status_active')),
         ('waiting', _lang.t('auth@status_waiting')),
         ('disabled', _lang.t('auth@status_disabled')),
-    ]
+    )
 
 
 def get_logout_url() -> str:

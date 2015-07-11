@@ -2,7 +2,7 @@
 
 ## Unreleased (2015-07-15)
 ### Added
-- Plugins: `oauth`, `twitter`, `poster`.
+- Plugins: `oauth`, `twitter`, `poster`, `page`.
 - Some english and ukrainian translations.
 - `stage` argument in `odm_ui.UIMixin.setup_m_form()` hook.
 - `args` argument in `core.odm.Model.t()`
@@ -13,6 +13,7 @@
 - Properties in `taxonomy.model.Term`: `title`, `alias`, `language`, `weight`, `order`.
 - Properties in `auth.model.User`: `full_name`.
 - Properties in `file.model.File`: `url`.
+- Properties in `route_alias.model.RouteAlias`: `alias`, `target`, `language`.
 - `stage` argument in `pytsite.odm_ui.UIMixin.setup_m_form()` hook.
 - `args` argument in `pytsite.core.odm.Model.t()`.
 - Now possible to specify package name without 'pytsite.' prefix in `core.lang.t()`, `core.router.endpoint_url`,
@@ -23,6 +24,8 @@
 - `core.validation.rule.ListListItemNotEmpty()`, `core.validation.rule.ListListItemUrl()`,
   `core.validation.rule.VideoHostingUrl()`.
 - Template engine globals: `url`, `current_url`, `base_url` , `endpoint_url`.
+- `content.create()` method.
+- Field `attached_to` in `file.model.File`.
   
 
 ### Changed

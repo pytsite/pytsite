@@ -24,6 +24,4 @@ __init()
 
 # Public API
 from . import _functions, _model as model, _widget as widget
-register_model = _functions.register_model
-is_model_registered = _functions.is_model_registered
-find = _functions.find
+from ._functions import register_model, is_model_registered, find, dispense
