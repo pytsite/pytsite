@@ -6,7 +6,7 @@ import jinja2 as _jinja
 from importlib import import_module as _import_module
 from os import path as _path
 from . import router as _router, metatag as _metatag, reg as _reg, assetman as _assetman, lang as _lang, \
-    client as _client
+    client as _client, util as _util
 
 
 _packages = {}
@@ -58,6 +58,7 @@ _env.globals['endpoint_url'] = _router.endpoint_url
 _env.globals['current_url'] = _router.current_url
 _env.globals['base_url'] = _router.base_url
 _env.globals['is_base_url'] = _router.is_base_url
+_env.globals['nav_link'] = _util.nav_link
 _env.globals['asset_url'] = _assetman.get_url
 _env.globals['metatag'] = _metatag
 _env.globals['assetman'] = _assetman

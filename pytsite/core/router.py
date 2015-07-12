@@ -247,7 +247,8 @@ def is_base_url(compare: str=None) -> bool:
     return base_url() == compare
 
 
-def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False) -> str:
+def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False,
+        strip_query=False) -> str:
     """Generate an URL.
     """
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
@@ -276,10 +277,13 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     if relative:
         r = _re.sub(r'^https?://[\w\.\-]+/', '/', r)
 
+    if strip_query:
+        r = _re.sub(r'\?.+', '', r)
+
     return r
 
 
-def current_path(strip_query_string: bool=False, resolve_alias: bool=True) -> str:
+def current_path(strip_query: bool=False, resolve_alias: bool=True) -> str:
     """Get current path.
     """
     if not request:
@@ -296,16 +300,16 @@ def current_path(strip_query_string: bool=False, resolve_alias: bool=True) -> st
                 break
 
     r = str(path)
-    if not strip_query_string:
+    if not strip_query:
         r += str(query)
 
     return r
 
 
-def current_url(strip_query_string: bool=False, resolve_alias: bool=True) -> str:
+def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
     """Get current URL.
     """
-    return 'http://' + server_name() + current_path(strip_query_string)
+    return 'http://' + server_name() + current_path(strip_query, resolve_alias)
 
 
 def endpoint_url(endpoint: str, args: dict=None, relative: bool=False) -> str:

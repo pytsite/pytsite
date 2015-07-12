@@ -18,8 +18,9 @@
         - `core.widget.static.VideoPlayer`.
     - New functions:
         - `pytsite.core.util.list_cleanup()`;
-        - `pytsite.core.util.dict_cleanup()`.
-    - New `pytsite.core.tpl` globals: `url`, `current_url`, `base_url` , `endpoint_url`.
+        - `pytsite.core.util.dict_cleanup()`;
+        - `pytsite.core.util.nav_link()`.
+    - New `pytsite.core.tpl` globals: `url()`, `current_url()`, `base_url()` , `endpoint_url()`, `nav_link()`.
 - `pytsite.auth`:
     - New ODM `pytsite.auth.model.User` properties: `full_name`.
 - `pytsite.content`:
