@@ -62,7 +62,7 @@ def add_location(location: str, collection: str, route_path: str=None):
 def remove_location(location: str, collection: str, route_path: str=None):
     """Remove an asset location.
     """
-    if not location.startswith('http'):
+    if not location.startswith('http') and not location.startswith('//'):
         if not location.startswith('app') and not location.startswith('pytsite.'):
             location = 'pytsite.' + location
 
@@ -156,7 +156,7 @@ def dump_css() -> str:
 def get_url(location: str) -> str:
     """Get URL of an asset.
     """
-    if location.startswith('http'):
+    if location.startswith('http') or location.startswith('//'):
         return location
     package_name, asset_path = __split_asset_location_info(location)
     return _router.url('/assets/{}/{}'.format(package_name, asset_path), strip_lang=True)

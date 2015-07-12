@@ -381,7 +381,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             img_index = int(match.group(1))
             if len(self.images) < img_index:
                 return ''
-            return '<img class="img-responsive" src="{}">'.format(self.images[img_index - 1].url)
+            img = self.images[img_index - 1]
+            return '<img class="img-responsive" src="{}" data-path="{}">'.format(img.url, img.path)
 
         def process_vid_tag(match):
             vid_index = int(match.group(1))

@@ -2,39 +2,44 @@
 
 ## Unreleased (2015-07-15)
 ### Added
-- New plugins: `pytsite.oauth`, `pytsite.twitter`, `pytsite.poster`, `pytsite.page`.
+- New plugins: `pytsite.oauth`, `pytsite.twitter`, `pytsite.poster`, `pytsite.page`, `pytsite.add_this`.
 - Some english and ukrainian translations.
-- New `pytsite.odm.Model` events:
-    - `odm.entity.pre_save`;
-    - `odm.entity.save`. 
-- New ODM models properties:
-    - `pytsite.taxonomy.model.Term`: `title`, `alias`, `language`, `weight`, `order`;
-    - `pytsite.auth.model.User`: `full_name`;
-    - `pytsite.file.model.File`: `url`, `path`, `abs_path`.
-    - `pytsite.route_alias.model.RouteAlias`: `alias`, `target`, `language`.
-- New widgets: 
-    - `core.widget.input.StringList`;
-    - `core.widget.static.VideoPlayer`.
-- New `pytsite.core.util` functions:
-    - `list_cleanup()`;
-    - `dict_cleanup()`.
-- Validation rules:
-    - `pytsite.core.validation.rule.ListListItemNotEmpty`;
-    - `pytsite.core.validation.rule.ListListItemUrl`;
-    - `pytsite.core.validation.rule.VideoHostingUrl`.
-- New `pytsite.core.tpl` globals: `url`, `current_url`, `base_url` , `endpoint_url`.
-- Images upload via CKEditor.
-- `stage` argument in `pytsite.odm_ui.UIMixin.setup_m_form()` hook.
-- `args` argument in `pytsite.core.odm.Model.t()`.
-- `pytsite.content` plugin:
+- `pytsite.core`:
+    - New events:
+        - `odm.entity.pre_save`;
+        - `odm.entity.save`.
+    - New validation rules:
+        - `pytsite.core.validation.rule.ListListItemNotEmpty`;
+        - `pytsite.core.validation.rule.ListListItemUrl`;
+        - `pytsite.core.validation.rule.VideoHostingUrl`.
+    - New `args` argument in `pytsite.core.odm.Model.t()`.
+    - New widgets: 
+        - `core.widget.input.StringList`;
+        - `core.widget.static.VideoPlayer`.
+    - New functions:
+        - `pytsite.core.util.list_cleanup()`;
+        - `pytsite.core.util.dict_cleanup()`.
+    - New `pytsite.core.tpl` globals: `url`, `current_url`, `base_url` , `endpoint_url`.
+- `pytsite.auth`:
+    - New ODM `pytsite.auth.model.User` properties: `full_name`.
+- `pytsite.content`:
     - New public package method: `pytsite.content.create()`
     - `pytsite. content.model.Content` model:
         - Processing `[img]` and `[vid]` body tags.
         - New properties: `title`, `description`, `body`, `url`, `tags`, `images`, `links`, `author`, `section`.
         - New events `content.entity.pre_save`, `content.entity.save`.
-- `pytsite.file` plugin:
-    - `file.model.File` model:
-        - New field `attached_to`. 
+- `pytsite.ckeditor`:
+    - Images upload.
+- `pytsite.file`:
+    - New ODM `pytsite.file.model.File` properties: `url`, `path`, `abs_path`.
+    - New field: `attached_to`.
+- `pytsite.odm_ui`:
+    - New `stage` argument in `pytsite.odm_ui.UIMixin.setup_m_form()` hook.
+- `pytsite.route_alias`:
+    - New `pytsite.route_alias.model.RouteAlias` properties: `alias`, `target`, `language`.
+- `pytsite.taxonomy`:
+    - New ODM `pytsite.taxonomy.model.Term` properties: `title`, `alias`, `language`, `weight`, `order`.
+    
 
 ### Changed
 - `pytsite.core.widget` plugin:

@@ -1,0 +1,6 @@
+{% set url = widget.url %}
+{% set title = widget.title %}
+{% set type = widget.type %}
+<div class="widget addThis {{ type }}">
+    <div class="addthis_{{ type }}"{% if url %} data-url="{{ url }}"{% endif %}{% if title %} data-title="{{ title|escape }}"{% endif %}></div>
+</div>
