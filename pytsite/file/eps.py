@@ -1,21 +1,22 @@
-"""File Endpoints.
+"""File Plugin Endpoints.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from os import path, unlink
-from pytsite.core import router, reg, util
-from pytsite.core.http._response import JSONResponse, RedirectResponse
+from pytsite.core import router as _router, reg as _reg, util as _util, http as _http
 from . import _manager
 
 
-def post_upload(args: dict, inp: dict) -> JSONResponse:
+def upload(args: dict, inp: dict) -> _http.response.JSONResponse:
+    """Upload file endpoint.
+    """
     r = []
     model = args.get('model')
-    files = router.request.files
+    files = _router.request.files
     for field_name, f in files.items():
-        tmp_path = path.join(reg.get('paths.tmp'), util.random_str())
+        tmp_path = path.join(_reg.get('paths.tmp'), _util.random_str())
         f.save(tmp_path)
         f.close()
         file_entity = _manager.create(tmp_path, f.filename, 'Uploaded via {}.'.format(__name__), model)
@@ -27,8 +28,17 @@ def post_upload(args: dict, inp: dict) -> JSONResponse:
         })
         unlink(tmp_path)
 
-    return JSONResponse(r)
+    # Request was from CKEditor
+    if inp.get('CKEditor') and inp.get('CKEditorFuncNum'):
+        r = r[0]  # From CKEditor only one file can be
+        script = 'window.parent.CKEDITOR.tools.callFunction("{}", "{}", "");'\
+            .format(inp.get('CKEditorFuncNum'), r['url'])
+        return '<script type="text/javascript">{}</script>'.format(script)  # CKEditor requires such answer format
+
+    return _http.response.JSONResponse(r)
 
 
-def get_download(args: dict, inp: dict) -> JSONResponse:
-    return JSONResponse('Not implemented yet', 500)
+def download(args: dict, inp: dict) -> _http.response.JSONResponse:
+    """Download file endpoint.
+    """
+    return _http.response.JSONResponse('Not implemented yet', 500)

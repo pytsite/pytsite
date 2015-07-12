@@ -44,7 +44,7 @@ class Browser:
 
         _client.include('bootstrap-table')
         _client.include('font-awesome')
-        _assetman.add('odm_ui@js/browser.js')
+        _assetman.add('pytsite.odm_ui@js/browser.js')
 
     @property
     def title(self) -> str:

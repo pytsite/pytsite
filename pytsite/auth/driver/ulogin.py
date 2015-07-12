@@ -27,7 +27,7 @@ class Login(_widget.Base):
     def render(self) -> str:
         """Render the widget.
         """
-        return _tpl.render('auth@drivers/ulogin/widget', {'widget': self})
+        return _tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
 
 
 class LoginForm(_form.Base):

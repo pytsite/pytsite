@@ -172,9 +172,6 @@ def __split_asset_location_info(location: str) -> dict:
         package_name = path_parts[0]
         asset_path = path_parts[1]
 
-    if package_name != 'app' and not package_name.startswith('pytsite.'):
-        package_name = 'pytsite.' + package_name
-
     if package_name not in __packages:
         raise Exception("Package '{}' is not registered.".format(package_name))
 

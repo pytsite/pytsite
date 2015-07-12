@@ -132,8 +132,8 @@ class Tokens(_input.Input):
         super().__init__(**kwargs)
         self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
         _client.include('tokenfield')
-        _assetman.add('core.widget@css/token.css')
-        _assetman.add('core.widget@js/token.js')
+        _assetman.add('pytsite.core.widget@css/token.css')
+        _assetman.add('pytsite.core.widget@js/token.js')
 
         self._local_source = kwargs.get('local_source')
         self._remote_source = kwargs.get('remote_source')
@@ -162,7 +162,7 @@ class DateTime(_input.Text):
         """
         super().__init__(**kwargs)
         _client.include('datetimepicker')
-        _assetman.add('core.widget@js/datetime.js')
+        _assetman.add('pytsite.core.widget@js/datetime.js')
 
         self._group_cls = self._group_cls.replace('widget-input-text', 'widget-select-datetime')
 

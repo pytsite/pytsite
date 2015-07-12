@@ -51,7 +51,7 @@ def view(args: dict, inp: dict):
 
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 
-    _assetman.add('content@js/content.js')
+    _assetman.add('pytsite.content@js/content.js')
 
     return _router.call_endpoint(endpoint, {'entity': entity})
 

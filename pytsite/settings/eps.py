@@ -22,7 +22,7 @@ def form(args: dict, inp: dict) -> str:
         if frm.has_widget(field_name):
             frm.get_widget(field_name).set_value(v)
 
-    return _tpl.render('settings@form', {'form': frm})
+    return _tpl.render('pytsite.settings@form', {'form': frm})
 
 
 def form_validate(args: dict, inp: dict) -> dict:

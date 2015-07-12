@@ -19,7 +19,7 @@ def get_login(args: dict, inp: dict) -> str:
         return _http.response.RedirectResponse(redirect_url)
 
     _metatag.t_set('title', _lang.t('auth@authorization'))
-    return _tpl.render('auth@views/login', {'form': _functions.get_login_form()})
+    return _tpl.render('pytsite.auth@views/login', {'form': _functions.get_login_form()})
 
 
 def post_login(args: dict, inp: dict) -> _http.response.RedirectResponse:

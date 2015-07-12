@@ -66,7 +66,7 @@ class Text(Input):
     def render(self) -> _html.Element:
         """Render the widget
         """
-        _assetman.add('core.widget@js/text.js')
+        _assetman.add('pytsite.core.widget@js/text.js')
 
         inp = _html.Input(
             type=self._type,
@@ -95,7 +95,7 @@ class TypeaheadText(Text):
         """
         super().__init__(**kwargs)
         _client.include('typeahead')
-        _assetman.add('core.widget@js/typeahead.js')
+        _assetman.add('pytsite.core.widget@js/typeahead.js')
         self._group_cls = ' '.join((self._group_cls, 'widget-typeahead-text-input'))
         self._group_data['source_url'] = source_url
 
@@ -121,7 +121,7 @@ class Integer(Text):
 
     def render(self):
         _client.include('inputmask')
-        _assetman.add('core.widget@js/integer.js')
+        _assetman.add('pytsite.core.widget@js/integer.js')
         return super().render()
 
 
@@ -146,27 +146,8 @@ class Float(Text):
 
     def render(self):
         _client.include('inputmask')
-        _assetman.add('core.widget@js/float.js')
+        _assetman.add('pytsite.core.widget@js/float.js')
         return super().render()
-
-
-class CKEditor(_base.Base):
-    """CKEditor Widget.
-    """
-    def __init__(self, **kwargs: dict):
-        """Init.
-        """
-        super().__init__(**kwargs)
-        self._group_cls = ' '.join((self._group_cls, 'widget-ckeditor'))
-        _assetman.add('core.widget@ckeditor/skins/moono/editor.css')
-        _assetman.add('core.widget@ckeditor/ckeditor.js')
-        _assetman.add('core.widget@ckeditor/adapters/jquery.js')
-        _assetman.add('core.widget@js/ckeditor.js')
-
-    def render(self) -> str:
-        """Render the widget.
-        """
-        return self._group_wrap(_html.TextArea(self.get_value(), name=self._uid))
 
 
 class StringList(_base.Base):
@@ -183,8 +164,8 @@ class StringList(_base.Base):
         self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
         self._group_data['max_values'] = self._max_values
 
-        _assetman.add('core.widget@js/list.js')
-        _assetman.add('core.widget@css/list.css')
+        _assetman.add('pytsite.core.widget@js/list.js')
+        _assetman.add('pytsite.core.widget@css/list.css')
 
     @property
     def add_btn_label(self) -> str:
@@ -208,7 +189,7 @@ class StringList(_base.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        widget_content = _html.Div(_tpl.render('core.widget@string_list', {'widget': self}))
+        widget_content = _html.Div(_tpl.render('pytsite.core.widget@string_list', {'widget': self}))
         return self._group_wrap(widget_content)
 
 
@@ -275,5 +256,5 @@ class ListList(StringList):
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        widget_content = _html.Div(_tpl.render('core.widget@list_list', {'widget': self}))
+        widget_content = _html.Div(_tpl.render('pytsite.core.widget@list_list', {'widget': self}))
         return self._group_wrap(widget_content)

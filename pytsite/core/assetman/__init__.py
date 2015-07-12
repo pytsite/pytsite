@@ -24,5 +24,4 @@ __init()
 
 
 # Public API
-from ._functions import register_package, add, add_location, remove, remove_location, dump_js, dump_css,\
-    get_url
+from ._functions import register_package, add, add_location, remove, remove_location, dump_js, dump_css, get_url

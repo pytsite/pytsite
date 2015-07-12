@@ -14,7 +14,7 @@ def browse(args: dict, inp: dict) -> str:
     """
     browser = _browser.Browser(args.get('model'))
     table = browser.get_table_skeleton()
-    return _tpl.render('odm_ui@admin_browser', {'table': table})
+    return _tpl.render('pytsite.odm_ui@admin_browser', {'table': table})
 
 
 def get_browser_rows(args: dict, inp: dict) -> _http.response.JSONResponse:
@@ -37,7 +37,7 @@ def get_m_form(args: dict, inp: dict) -> str:
     eid = args.get('id') if args.get('id') != '0' else None
     form = _functions.get_m_form(args.get('model'), eid)
 
-    return _tpl.render('odm_ui@admin_modify_form', {'form': form})
+    return _tpl.render('pytsite.odm_ui@admin_modify_form', {'form': form})
 
 
 def validate_m_form(args: dict, inp: dict) -> dict:
@@ -99,7 +99,7 @@ def get_d_form(args: dict, inp: dict) -> str:
 
     form = _functions.get_d_form(model, ids)
 
-    return _tpl.render('odm_ui@admin_delete_form', {'form': form})
+    return _tpl.render('pytsite.odm_ui@admin_delete_form', {'form': form})
 
 
 def post_d_form(args: dict, inp: dict) -> _http.response.RedirectResponse:

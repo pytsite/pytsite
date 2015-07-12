@@ -17,6 +17,7 @@ def __router_pre_dispatch_handler(path_info: str):
     if p:
         router.add_path_alias(p.f_get('alias'), p.f_get('target'))
 
+
 def __init():
     from pytsite.core import events, odm
     from ._model import RouteAlias

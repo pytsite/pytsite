@@ -7,7 +7,7 @@ __license__ = 'MIT'
 import re as _re
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
-    geo as _geo
+    geo as _geo, image as _image, ckeditor as _ckeditor
 from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
     lang as _lang, assetman as _assetman, events as _events
 
@@ -156,12 +156,16 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if not self.author:
             self.f_set('author', _auth.get_current_user())
 
-        if not self.route_alias:  # Create new route alias
+        # Create route alias
+        if not self.route_alias:
             route_alias_str = self.title
             if self.section:
                 route_alias_str = self.section.alias + '/' + route_alias_str
             route_alias = _route_alias.create(route_alias_str).save()
             self.f_set('route_alias', route_alias)
+
+        body, images = self._extract_body_images()
+        self.f_set('body', body).f_set('images', images)
 
         _events.fire('content.entity.pre_save', entity=self)
         _events.fire('content.entity.pre_save.' + self.model, entity=self)
@@ -229,7 +233,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         :type form: pytsite.core.form.Base
         """
         from . import _functions
-        _assetman.add('content@js/content.js')
+        _assetman.add('pytsite.content@js/content.js')
 
         # Section
         form.add_widget(_odm_ui.widget.EntitySelect(
@@ -281,7 +285,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             ))
 
         # Body
-        form.add_widget(_widget.input.CKEditor(
+        form.add_widget(_ckeditor.widget.CKEditor(
             weight=60,
             uid='body',
             label=self.t('body'),
@@ -376,3 +380,19 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
 
         return inp
+
+    def _extract_body_images(self) -> tuple:
+        """Transforms inline <img> tags into [img] tags
+        """
+        images = self.images
+        img_index = len(images)
+
+        def replace_func(match):
+            nonlocal img_index, images
+            img_index += 1
+            images.append(_image.create(match.group(1)))
+            return '[img:{}]'.format(img_index)
+
+        body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, self.f_get('body'))
+
+        return body, images

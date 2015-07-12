@@ -7,9 +7,6 @@
 - `stage` argument in `odm_ui.UIMixin.setup_m_form()` hook.
 - `args` argument in `core.odm.Model.t()`
 - Events in ODM model: `odm.entity.pre_save`, `odm.entity.save` 
-- Events in Content ODM model: `content.entity.pre_save`, `content.entity.save`
-- Properties in `content.model.Content`: `title`, `description`, `body`, `url`, `tags`, `images`, `links`,
-  `author`, `section`.
 - Properties in `taxonomy.model.Term`: `title`, `alias`, `language`, `weight`, `order`.
 - Properties in `auth.model.User`: `full_name`.
 - Properties in `file.model.File`: `url`.
@@ -24,14 +21,20 @@
 - `core.validation.rule.ListListItemNotEmpty()`, `core.validation.rule.ListListItemUrl()`,
   `core.validation.rule.VideoHostingUrl()`.
 - Template engine globals: `url`, `current_url`, `base_url` , `endpoint_url`.
-- `content.create()` method.
 - Field `attached_to` in `file.model.File`.
-  
+- Images upload via CKEditor.
+- Content plugin:
+    - Automatically transform inline images into `[img]` tags while save `pytsite.content.model.Content`.
+    - New properties in `pytsite. content.model.Content`: `title`, `description`, `body`, `url`, `tags`, `images`, 
+      `links`, `author`, `section`.
+    - New events in `pytsite.content.model.Content`: `content.entity.pre_save`, `content.entity.save`
+    - New public package method: `pytsite.content.create()`  
 
 ### Changed
 - Config parameter changed `auth.auto_signup` -> `auth.allow_signup`
 - `admin` templates improvements.
 - `core.validation.rule.Url()` now can work with lists and dicts.
+- `core.widget.input.CKEditor()` moved to `ckeditor.widget.CKEditor()`.
 
 ### Fixed
 - Empty configuration files read error.

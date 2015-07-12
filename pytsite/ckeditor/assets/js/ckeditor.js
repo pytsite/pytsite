@@ -4,7 +4,7 @@ $(function() {
         widget.find('textarea').ckeditor({
             extraPlugins: 'youtube',
             language: pytsite.lang.current_lang,
-            filebrowserUploadUrl: '/not/implemented',
+            filebrowserUploadUrl: '/file/upload/image',
             height: 500,
             toolbar: [
                 ['Bold','Italic','-','Underline','Strike','-','Subscript','Superscript','-','Format','RemoveFormat'],

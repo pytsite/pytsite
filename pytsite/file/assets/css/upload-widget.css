@@ -44,11 +44,6 @@
     background: #fff;
     padding: 5px 8px;
     left: 0;
-    visibility: hidden;
-}
-
-.widget-files-upload .slot:hover .number {
-    visibility: visible;
 }
 
 .widget-files-upload .processing {
