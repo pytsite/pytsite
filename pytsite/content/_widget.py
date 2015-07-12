@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import tag as _tag
+from pytsite import taxonomy as _taxonomy
 from pytsite.core import widget as _widget, html as _html, lang as _lang
 from . import _model, _functions
 
@@ -19,7 +19,7 @@ class ContentModelSelect(_widget.select.Select):
             self._items.append((k, _lang.t(v[1])))
 
 
-class TagCloud(_tag.widget.Cloud):
+class TagCloud(_taxonomy.widget.Cloud):
     """Tags Clod Widget.
     """
     def __init__(self, content_model: str, **kwargs):

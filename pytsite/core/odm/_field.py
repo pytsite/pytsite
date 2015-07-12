@@ -307,8 +307,9 @@ class RefsListField(List):
 class RefsUniqueList(RefsListField):
     """Unique list of DBRefs field.
     """
-
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
+        """Set value of the field.
+        """
         super().set_val(value, change_modified, **kwargs)
         clean_val = []
         ids = []
@@ -319,8 +320,15 @@ class RefsUniqueList(RefsListField):
         return super().set_val(clean_val, change_modified, **kwargs)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
+        """Add value to the field.
+        """
+        # Simply adding value
         super().add_val(value, change_modified, **kwargs)
-        return self.set_val(self.get_val(**kwargs), change_modified, **kwargs)
+
+        # Then filtering out duplicates
+        self.set_val(self.get_val(**kwargs), change_modified, **kwargs)
+
+        return self
 
 
 class DateTime(Abstract):

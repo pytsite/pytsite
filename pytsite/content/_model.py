@@ -18,6 +18,16 @@ class Section(_taxonomy.model.Term):
     pass
 
 
+class Tag(_taxonomy.model.Term):
+    """Tag Model.
+    """
+    def _setup(self):
+        """Hook.
+        """
+        super()._setup()
+        self._define_field(_odm.field.RefsUniqueList('sections', model='section'))
+
+
 class Content(_odm.Model, _odm_ui.UIMixin):
     """Content Model.
     """
@@ -61,7 +71,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
     @property
     def tags(self):
-        """:rtype: list[pytsite.tag._model.Tag]
+        """:rtype: list[pytsite.content._model.Tag]
         """
         return self.f_get('tags')
 

@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import re as _re
 import magic as _magic
 import os as _os
 from mimetypes import guess_extension as _guess_extension
@@ -15,7 +16,7 @@ from pytsite.core import reg as _reg, util as _util, validation as _validation, 
 from . import _model
 
 
-def _build_store_path(mime: str, model: str='file') -> str:
+def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
     """Build unique path to store file on the filesystem.
     """
     storage_dir = _os.path.join(_reg.get('paths.storage'), model)
@@ -26,16 +27,25 @@ def _build_store_path(mime: str, model: str='file') -> str:
     if extension == '.jpe':
         extension = '.jpg'
 
+    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str(16)) + extension
+    if propose:
+        m = _re.match('(\w{2})/(\w{2})/(\w{16})(\.\w+)$', propose)
+        if m:
+            extension = m.group(4)
+            possible_target_path = _os.path.join(storage_dir, m.group(1), m.group(2), m.group(3)) + extension
+
     while True:
-        possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
         if not _os.path.exists(possible_target_path):
             store_path = possible_target_path
             break
+        else:
+            possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str(16)) + extension
 
     return store_path
 
 
-def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False) -> _model.File:
+def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False,
+           propose_store_path: str=None) -> _model.File:
     """Create a file from path or URL.
     """
     # Store remote file to the local if URL was specified
@@ -58,7 +68,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
         source_path = tmp_file[1]
 
     mime = _magic.from_file(source_path, True).decode()
-    abs_target_path = _build_store_path(mime, model)
+    abs_target_path = _build_store_path(mime, model, propose_store_path)
 
     target_dir = _os.path.dirname(abs_target_path)
     if not _os.path.exists(target_dir):

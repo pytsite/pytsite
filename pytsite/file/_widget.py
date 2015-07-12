@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite.core import widget as _widget, assetman as _assetman, router as _router, tpl as _tpl, client as _client, \
     html as _html
-from . import _manager
+from . import _functions
 
 
 class FilesUpload(_widget.Base):
@@ -122,7 +122,7 @@ class FilesUpload(_widget.Base):
         for val in value:
             if not val:
                 continue
-            entity = _manager.get_by_ref(val)
+            entity = _functions.get_by_ref(val)
             if entity:
                 clean_val.append(entity)
 
@@ -132,7 +132,7 @@ class FilesUpload(_widget.Base):
             if isinstance(to_delete, str):
                 to_delete = [to_delete]
             for ref in to_delete:
-                file = _manager.get_by_ref(ref)
+                file = _functions.get_by_ref(ref)
                 if file:
                     file.delete()
 

@@ -12,7 +12,6 @@ class File(_odm.Model):
     """File Model.
     """
     def _setup(self):
-
         """_setup() hook.
         """
         self._define_field(_odm.field.String('path', not_empty=True))
@@ -25,6 +24,10 @@ class File(_odm.Model):
         self._define_field(_odm.field.Virtual('abs_path'))
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('thumb_url'))
+
+    @property
+    def path(self) -> str:
+        return self.f_get('path')
 
     @property
     def abs_path(self) -> str:

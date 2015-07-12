@@ -10,7 +10,7 @@ __import__('pytsite.auth_ui')
 __import__('pytsite.admin')
 __import__('pytsite.image')
 __import__('pytsite.route_alias')
-__import__('pytsite.tag')
+__import__('pytsite.taxonomy')
 
 
 def __init():
@@ -19,13 +19,18 @@ def __init():
     from pytsite.core import router, assetman, events, lang, odm, tpl
     from ._model import Section
 
-    def _section_pre_delete_handler(entity: odm.Model):
+    def _section_pre_delete_handler(section: Section):
         from . import _functions
         for m in _functions.get_models():
-            r_entity = _functions.find(m, None, False).where('section', '=', entity).first()
+            r_entity = _functions.find(m, None, False).where('section', '=', section).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
                 raise odm.error.ForbidEntityDelete(lang.t('content@referenced_entity_exists', error_args))
+
+        tag = taxonomy.find('tag').where('section', '=', section).first()
+        if tag:
+            error_args = {'model': tag.model, 'title': tag.f_get('title')}
+            raise odm.error.ForbidEntityDelete(lang.t('content@referenced_entity_exists', error_args))
 
     lang.register_package(__name__)
     tpl.register_global('content', sys.modules[__name__])
@@ -43,6 +48,8 @@ def __init():
     router.add_rule('/content/ыуфкср/<string:model>', 'pytsite.content.eps.search')
 
     taxonomy.register_model('section', Section, __name__ + '@sections')
+    taxonomy.register_model('tag', _model.Tag, __name__ + '@tags')
+
     events.listen('odm.entity.pre_delete.section', _section_pre_delete_handler)
 
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))

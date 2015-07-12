@@ -1,4 +1,4 @@
-"""File Package Init
+"""File Plugin Init
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -32,7 +32,4 @@ __init()
 
 
 # Public API
-from . import _manager, _model, _widget
-manager = _manager
-model = _model
-widget = _widget
+from . import _functions as functions, _model as model, _widget as widget

@@ -10,7 +10,7 @@
 - New ODM models properties:
     - `pytsite.taxonomy.model.Term`: `title`, `alias`, `language`, `weight`, `order`;
     - `pytsite.auth.model.User`: `full_name`;
-    - `pytsite.file.model.File`: `url`.
+    - `pytsite.file.model.File`: `url`, `path`, `abs_path`.
     - `pytsite.route_alias.model.RouteAlias`: `alias`, `target`, `language`.
 - New widgets: 
     - `core.widget.input.StringList`;
@@ -44,8 +44,9 @@
 - `pytsite.auth`
     - Config parameter changed `auth.auto_signup` -> `auth.allow_signup`.
 - `pytsite.admin` plugin templates improvements.
-- `core.validation.rule.Url` now can work with lists and dicts.
-- `core.widget.input.CKEditor` moved to `ckeditor.widget.CKEditor`.
+- `pytsite.core.validation.rule.Url` now can work with lists and dicts.
+- `pytsite.core.widget.input.CKEditor` moved to `ckeditor.widget.CKEditor`.
+- `pytsite.tag` joined with `pytsite.content`.
 
 ### Fixed
 - Empty configuration files read error.

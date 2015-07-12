@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from os import path, unlink
 from pytsite.core import router as _router, reg as _reg, util as _util, http as _http
-from . import _manager
+from . import _functions
 
 
 def upload(args: dict, inp: dict) -> _http.response.JSONResponse:
@@ -19,7 +19,7 @@ def upload(args: dict, inp: dict) -> _http.response.JSONResponse:
         tmp_path = path.join(_reg.get('paths.tmp'), _util.random_str())
         f.save(tmp_path)
         f.close()
-        file_entity = _manager.create(tmp_path, f.filename, 'Uploaded via {}.'.format(__name__), model)
+        file_entity = _functions.create(tmp_path, f.filename, 'Uploaded via {}.'.format(__name__), model)
 
         r.append({
             'fid': file_entity.model + ':' + str(file_entity.id),
