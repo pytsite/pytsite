@@ -9,10 +9,6 @@ def __init():
     """Init wrapper.
     """
     from pytsite.core import assetman
-
-    # Dependencies
-    __import__('pytsite.image')
-
     assetman.register_package(__name__)
 
 

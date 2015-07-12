@@ -8,12 +8,14 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
+    import sys
     from pytsite.core import router, tpl, assetman, lang, client
     from pytsite import auth
     from . import _sidebar
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
+    tpl.register_global('admin', sys.modules[__name__])
     assetman.register_package(__name__)
 
     # Permissions

@@ -43,7 +43,7 @@ class Element(_ABC):
 
         for attr in self._get_required_attrs():
             if attr not in self._attrs:
-                raise AttributeError("Required attribute '{}' is not specified for element '{}'.".
+                raise Exception("Required attribute '{}' is not specified for element '{}'.".
                                      format(attr, self.tag_name))
 
     @property
@@ -78,7 +78,7 @@ class Element(_ABC):
                 and not attr.startswith('aria_') \
                 and attr not in self._get_valid_attrs() \
                 and attr not in self._get_required_attrs():
-            raise AttributeError("Element '{}' cannot have attribute: '{}'".format(self._tag_name, attr))
+            raise Exception("Element '{}' cannot have attribute: '{}'".format(self._tag_name, attr))
 
         if attr.startswith('data_'):
             attr = attr.replace('_', '-')
@@ -150,7 +150,6 @@ class Element(_ABC):
     def render(self) -> str:
         """Render the element.
         """
-
         # Open tag
         r = "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {
             'uid': 'id',
@@ -206,7 +205,6 @@ class InlineElement(Element):
 class BlockElement(Element):
     """Block element.
     """
-
     def _get_valid_children(self):
         return 'any'
 
@@ -252,6 +250,14 @@ class Div(BlockElement):
     pass
 
 
+class Iframe(BlockElement):
+    def _get_valid_attrs(self) -> tuple:
+        return 'width', 'height', 'allowfullscreen', 'frameborder'
+
+    def _get_required_attrs(self) -> tuple:
+        return 'src',
+
+
 class Section(Div):
     pass
 
@@ -266,7 +272,6 @@ class Footer(Section):
 
 class Aside(Section):
     pass
-
 
 class H1(BlockElement):
     pass

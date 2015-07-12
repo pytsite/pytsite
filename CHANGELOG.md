@@ -2,39 +2,50 @@
 
 ## Unreleased (2015-07-15)
 ### Added
-- Plugins: `oauth`, `twitter`, `poster`, `page`.
+- New plugins: `pytsite.oauth`, `pytsite.twitter`, `pytsite.poster`, `pytsite.page`.
 - Some english and ukrainian translations.
-- `stage` argument in `odm_ui.UIMixin.setup_m_form()` hook.
-- `args` argument in `core.odm.Model.t()`
-- Events in ODM model: `odm.entity.pre_save`, `odm.entity.save` 
-- Properties in `taxonomy.model.Term`: `title`, `alias`, `language`, `weight`, `order`.
-- Properties in `auth.model.User`: `full_name`.
-- Properties in `file.model.File`: `url`.
-- Properties in `route_alias.model.RouteAlias`: `alias`, `target`, `language`.
+- New `pytsite.odm.Model` events:
+    - `odm.entity.pre_save`;
+    - `odm.entity.save`. 
+- New ODM models properties:
+    - `pytsite.taxonomy.model.Term`: `title`, `alias`, `language`, `weight`, `order`;
+    - `pytsite.auth.model.User`: `full_name`;
+    - `pytsite.file.model.File`: `url`.
+    - `pytsite.route_alias.model.RouteAlias`: `alias`, `target`, `language`.
+- New widgets: 
+    - `core.widget.input.StringList`;
+    - `core.widget.static.VideoPlayer`.
+- New `pytsite.core.util` functions:
+    - `list_cleanup()`;
+    - `dict_cleanup()`.
+- Validation rules:
+    - `pytsite.core.validation.rule.ListListItemNotEmpty`;
+    - `pytsite.core.validation.rule.ListListItemUrl`;
+    - `pytsite.core.validation.rule.VideoHostingUrl`.
+- New `pytsite.core.tpl` globals: `url`, `current_url`, `base_url` , `endpoint_url`.
+- Images upload via CKEditor.
 - `stage` argument in `pytsite.odm_ui.UIMixin.setup_m_form()` hook.
 - `args` argument in `pytsite.core.odm.Model.t()`.
-- Now possible to specify package name without 'pytsite.' prefix in `core.lang.t()`, `core.router.endpoint_url`,
-  `core.tpl.render()` and `core.assetman.add()`
-- Widget: 'core.widget.input.StringList'
-- Functions `core.util.list_cleanup()`, `core.util.dict_cleanup()`.
-- `autodetect` argument in `geo.widget.SearchAddress()`.
-- `core.validation.rule.ListListItemNotEmpty()`, `core.validation.rule.ListListItemUrl()`,
-  `core.validation.rule.VideoHostingUrl()`.
-- Template engine globals: `url`, `current_url`, `base_url` , `endpoint_url`.
-- Field `attached_to` in `file.model.File`.
-- Images upload via CKEditor.
-- Content plugin:
-    - Automatically transform inline images into `[img]` tags while save `pytsite.content.model.Content`.
-    - New properties in `pytsite. content.model.Content`: `title`, `description`, `body`, `url`, `tags`, `images`, 
-      `links`, `author`, `section`.
-    - New events in `pytsite.content.model.Content`: `content.entity.pre_save`, `content.entity.save`
-    - New public package method: `pytsite.content.create()`  
+- `pytsite.content` plugin:
+    - New public package method: `pytsite.content.create()`
+    - `pytsite. content.model.Content` model:
+        - Processing `[img]` and `[vid]` body tags.
+        - New properties: `title`, `description`, `body`, `url`, `tags`, `images`, `links`, `author`, `section`.
+        - New events `content.entity.pre_save`, `content.entity.save`.
+- `pytsite.file` plugin:
+    - `file.model.File` model:
+        - New field `attached_to`. 
 
 ### Changed
-- Config parameter changed `auth.auto_signup` -> `auth.allow_signup`
-- `admin` templates improvements.
-- `core.validation.rule.Url()` now can work with lists and dicts.
-- `core.widget.input.CKEditor()` moved to `ckeditor.widget.CKEditor()`.
+- `pytsite.core.widget` plugin:
+    - New argument in `geo.widget.SearchAddress`: `autodetect`. 
+- `pytsite.geo` plugin:
+    - New `autodetect` argument in `geo.widget.SearchAddress`.
+- `pytsite.auth`
+    - Config parameter changed `auth.auto_signup` -> `auth.allow_signup`.
+- `pytsite.admin` plugin templates improvements.
+- `core.validation.rule.Url` now can work with lists and dicts.
+- `core.widget.input.CKEditor` moved to `ckeditor.widget.CKEditor`.
 
 ### Fixed
 - Empty configuration files read error.

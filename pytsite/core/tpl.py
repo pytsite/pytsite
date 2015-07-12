@@ -2,15 +2,17 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from importlib import import_module
-from os import path
-from jinja2 import Environment, BaseLoader, TemplateNotFound
-from . import router, metatag, reg, assetman, lang, client
+import jinja2 as _jinja
+from importlib import import_module as _import_module
+from os import path as _path
+from . import router as _router, metatag as _metatag, reg as _reg, assetman as _assetman, lang as _lang, \
+    client as _client
+
 
 _packages = {}
 
 
-class TemplateLoader(BaseLoader):
+class _TemplateLoader(_jinja.BaseLoader):
     """Template loader.
     """
     def get_source(self, environment, template: str)->tuple:
@@ -23,47 +25,43 @@ class TemplateLoader(BaseLoader):
             package_name = template_split[0]
             template = template_split[1]
 
-        if package_name != 'app' and not package_name.startswith('pytsite.'):
-            package_name = 'pytsite.' + package_name
-
         if package_name not in _packages:
-            raise TemplateNotFound("Package {0} is not registered.".format(package_name))
+            raise _jinja.TemplateNotFound("Package {} is not registered.".format(package_name))
 
         if not template.endswith('.jinja2'):
             template += '.jinja2'
 
-        template_abs_path = path.join(_packages[package_name]['templates_dir'], template)
-        if not path.exists(template_abs_path):
-            raise TemplateNotFound("Template is not found at '{0}'.".format(template_abs_path))
+        template_abs_path = _path.join(_packages[package_name]['templates_dir'], template)
+        if not _path.exists(template_abs_path):
+            raise _jinja.TemplateNotFound("Template is not found at '{}'.".format(template_abs_path))
 
         file = open(template_abs_path)
         source = file.read()
         file.close()
 
-        mtime = path.getmtime(template_abs_path)
+        mtime = _path.getmtime(template_abs_path)
 
-        return source, template_abs_path, lambda: mtime == path.getmtime(template_abs_path)
+        return source, template_abs_path, lambda: mtime == _path.getmtime(template_abs_path)
 
 
-__env = Environment(loader=TemplateLoader(), extensions=['jinja2.ext.do'])
+_env = _jinja.Environment(loader=_TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
 # Additional functions
-__env.globals['import'] = import_module
-__env.globals['lang'] = lang
-__env.globals['t'] = lang.t
-__env.globals['t_plural'] = lang.t_plural
-__env.globals['reg'] = reg
-__env.globals['router'] = router
-__env.globals['url'] = router.url
-__env.globals['endpoint_url'] = router.endpoint_url
-__env.globals['current_url'] = router.current_url
-__env.globals['base_url'] = router.base_url
-__env.globals['is_base_url'] = router.is_base_url
-__env.globals['asset_url'] = assetman.get_url
-__env.globals['metatag'] = metatag
-__env.globals['assetman'] = assetman
-__env.globals['client'] = client
+_env.globals['lang'] = _lang
+_env.globals['t'] = _lang.t
+_env.globals['t_plural'] = _lang.t_plural
+_env.globals['reg'] = _reg
+_env.globals['router'] = _router
+_env.globals['url'] = _router.url
+_env.globals['endpoint_url'] = _router.endpoint_url
+_env.globals['current_url'] = _router.current_url
+_env.globals['base_url'] = _router.base_url
+_env.globals['is_base_url'] = _router.is_base_url
+_env.globals['asset_url'] = _assetman.get_url
+_env.globals['metatag'] = _metatag
+_env.globals['assetman'] = _assetman
+_env.globals['client'] = _client
 
 
 def register_package(package_name: str, templates_dir: str='tpl'):
@@ -72,9 +70,9 @@ def register_package(package_name: str, templates_dir: str='tpl'):
     if package_name in _packages:
         raise Exception("Package '{}' already registered.".format(package_name))
 
-    package = import_module(package_name)
-    templates_dir = path.join(path.abspath(path.dirname(package.__file__)), templates_dir)
-    if not path.isdir(templates_dir):
+    package = _import_module(package_name)
+    templates_dir = _path.join(_path.abspath(_path.dirname(package.__file__)), templates_dir)
+    if not _path.isdir(templates_dir):
         raise FileNotFoundError("Directory '{}' is not found.".format(templates_dir))
 
     _packages[package_name] = {'templates_dir': templates_dir}
@@ -86,10 +84,10 @@ def render(template: str, data: dict=None) -> str:
     if not data:
         data = {}
 
-    return __env.get_template(template).render(data)
+    return _env.get_template(template).render(data)
 
 
 def register_global(name: str, obj):
     """Register global.
     """
-    __env.globals[name] = obj
+    _env.globals[name] = obj

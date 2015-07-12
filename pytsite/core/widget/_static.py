@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import re as _re
 from pytsite.core import html as _html
 from . import _base
 
@@ -87,3 +88,60 @@ class Wrapper(_base.Base):
             r.append(child.render())
 
         return _html.Div(self._children_sep.join(r), cls=self.cls).render()
+
+
+class VideoPlayer(_base.Base):
+    """Video player widget.
+    """
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        return self._get_embed(self.get_value())
+
+    def _get_embed(self, url: str) -> _html.Element:
+        """Get player embed code.
+        """
+        if url.find('youtube.com') > 0 or url.find('youtu.be') > 0:
+            return self._get_embed_youtube(url)
+        elif url.find('vimeo.com') > 0:
+            return self._get_embed_vimeo(url)
+        elif url.find('rutube.ru') > 0:
+            return self._get_embed_rutube(url)
+        else:
+            return _html.Div('Not implemented.')
+
+    @staticmethod
+    def _get_embed_youtube(url, width: int=640, height: int=480) -> _html.Element:
+        """Get YouTube player embed code.
+        """
+        match = _re.search('(youtube\.com/watch\?v=|youtu.be/)(\w{11})', url)
+        if match:
+            src = '//www.youtube.com/embed/{}?html5=1'.format(match.group(2))
+            return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
+                                cls='iframe-responsive')
+
+        raise ValueError(_html.Div('Invalid video link: ' + url))
+
+    @staticmethod
+    def _get_embed_vimeo(url, width: int=640, height: int=480) -> _html.Element:
+        """Get Vimeo player embed code.
+        """
+        match = _re.search('vimeo\.com/(\d+)', url)
+        if match:
+            src = '//player.vimeo.com/video/{}'.format(match.group(1))
+            return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
+                                cls='iframe-responsive')
+
+        raise ValueError(_html.Div('Invalid video link: ' + url))
+
+    @staticmethod
+    def _get_embed_rutube(url, width: int=640, height: int=480) -> _html.Element:
+        """Get RuTube player embed code.
+        """
+        match = _re.search('rutube\.ru/video/(\w{32})', url)
+        if match:
+            src = '//rutube.ru/video/embed/{}'.format(match.group(1))
+            return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
+                                cls='iframe-responsive')
+
+        raise ValueError(_html.Div('Invalid video link: ' + url))

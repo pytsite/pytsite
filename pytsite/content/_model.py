@@ -374,7 +374,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             return '<img class="img-responsive" src="{}">'.format(self.images[img_index - 1].url)
 
         def process_vid_tag(match):
-            return '[vid:TODO]'
+            vid_index = int(match.group(1))
+            if len(self.video_links) < vid_index:
+                return ''
+            return str(_widget.static.VideoPlayer(value=self.video_links[vid_index - 1]))
 
         inp = _re.sub('\[img:(\d+)\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
