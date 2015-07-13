@@ -41,6 +41,7 @@ def sanitize_alias_string(string: str) -> str:
         else:
             string = re.sub(r'-\d+$', '-' + str(itr), string)
 
+
 def find_by_target(target: str) -> _model.RouteAlias:
     """Find route alias by target.
     """

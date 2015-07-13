@@ -21,6 +21,7 @@
         - `pytsite.core.util.dict_cleanup()`;
         - `pytsite.core.util.nav_link()`.
     - New `pytsite.core.tpl` globals: `url()`, `current_url()`, `base_url()` , `endpoint_url()`, `nav_link()`.
+    - Sorting ability in `pytsite.odm.field.RefList.get_val()`. 
 - `pytsite.auth`:
     - New ODM `pytsite.auth.model.User` properties: `full_name`.
 - `pytsite.content`:

@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from pytsite.core import html as _html
+from math import ceil as _ceil
+from pytsite.core import html as _html, router as _router
 from . import _base
 
 
@@ -145,3 +146,62 @@ class VideoPlayer(_base.Base):
                                 cls='iframe-responsive')
 
         raise ValueError(_html.Div('Invalid video link: ' + url))
+
+
+class Pager(_base.Base):
+    """Pager Widget.
+    """
+    def __init__(self, total_items: int, per_page: int=100, visible_numbers: int=10, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+
+        self._total_items = int(total_items)
+        self._items_per_page = int(per_page)
+        self._total_pages = _ceil(total_items / per_page)
+        self._visible_numbers = int(visible_numbers)
+        self._current_page = int(_router.request.values_dict.get('page', 1))
+
+        if self._current_page < 1:
+            self._current_page = 1
+        if self._current_page > self._total_pages:
+            self._current_page = self._total_pages
+
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        start_visible_num = self._current_page - self._visible_numbers
+        if start_visible_num < 1:
+            start_visible_num = 1
+        end_visible_num = start_visible_num + self._visible_numbers
+
+        if end_visible_num > self._total_pages:
+            end_visible_num = self._total_pages
+
+        ul = _html.Ul(cls='pagination')
+        for num in range(start_visible_num, end_visible_num):
+            li = _html.Li()
+            if self._current_page == num:
+                li.set_attr('cls', 'active')
+            a = _html.A(str(num), href=_router.url(_router.current_url(), query={'page': num}))
+            ul.append(li.append(a))
+
+        return ul
+
+    @property
+    def skip(self):
+        if self._current_page == 1:
+            return 0
+        return self._current_page * self._items_per_page
+
+    @property
+    def limit(self):
+        return self._items_per_page
+
+    @property
+    def total_items(self):
+        return self._total_items
+
+    @property
+    def total_pages(self):
+        return self._total_pages

@@ -22,10 +22,10 @@ class ContentModelSelect(_widget.select.Select):
 class TagCloud(_taxonomy.widget.Cloud):
     """Tags Clod Widget.
     """
-    def __init__(self, content_model: str, **kwargs):
+    def __init__(self, content_model: str, limit=10, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__('tag', limit, **kwargs)
         self._link_pattern = '/content/tag/{}/%s'.format(content_model)
 
 

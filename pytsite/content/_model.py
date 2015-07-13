@@ -73,7 +73,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def tags(self):
         """:rtype: list[pytsite.content._model.Tag]
         """
-        return self.f_get('tags')
+        return self.f_get('tags', sort_by='weight', sort_reverse=True)
 
     @property
     def images(self):
@@ -113,6 +113,14 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def route_alias(self) -> _route_alias.model.RouteAlias:
         return self.f_get('route_alias')
 
+    @property
+    def views_count(self) -> int:
+        return self.f_get('views_count')
+
+    @property
+    def comments_count(self) -> int:
+        return self.f_get('comments_count')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
@@ -141,11 +149,14 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         if field_name == 'url' and not self.is_new:
-            target = _router.endpoint_url('pytsite.content.eps.view',
-                                          {'model': self.model, 'id': str(self.id)},
-                                          relative=kwargs.get('relative', True))
-            r_alias = _route_alias.find_by_target(target)
-            value = r_alias.f_get('alias') if r_alias else target
+            target_path = _router.endpoint_url('pytsite.content.eps.view',
+                                               {'model': self.model, 'id': str(self.id)}, relative=True)
+            r_alias = _route_alias.find_by_target(target_path)
+            value = r_alias.f_get('alias') if r_alias else target_path
+
+            # Transform path to absolute URL
+            if not kwargs.get('relative', False):
+                value = _router.url(value)
 
         if field_name == 'edit_url' and not self.is_new:
             value = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {

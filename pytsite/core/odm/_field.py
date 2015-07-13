@@ -163,7 +163,6 @@ class List(Abstract):
 class UniqueListField(List):
     """Unique List field.
     """
-
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
@@ -207,12 +206,15 @@ class Dict(Abstract):
 class Ref(Abstract):
     """DBRef Field.
     """
-
     def __init__(self, name: str, model: str, default=None, not_empty: bool=False):
         """Init.
         """
         super().__init__(name, default=default, not_empty=not_empty)
         self._model = model
+
+    @property
+    def model(self) -> str:
+        return self._model
 
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
@@ -247,12 +249,15 @@ class Ref(Abstract):
 class RefsListField(List):
     """List of DBRefs field.
     """
-
     def __init__(self, name: str, model: str, default=None, not_empty: bool=False):
         """Init.
         """
         super().__init__(name, default=default, not_empty=not_empty)
         self._model = model
+
+    @property
+    def model(self) -> str:
+        return self._model
 
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
@@ -260,6 +265,7 @@ class RefsListField(List):
         if not isinstance(value, list):
             value = [list]
 
+        # Cleaning up value
         clean_value = []
         from ._model import Model
         for item in value:
@@ -283,6 +289,10 @@ class RefsListField(List):
             entity = get_by_ref(ref)
             if entity:
                 r.append(entity)
+
+        sort_by = kwargs.get('sort_by')
+        if sort_by:
+            r = sorted(r, key=lambda item: item.f_get(sort_by), reverse=kwargs.get('sort_reverse', False))
 
         return r
 
@@ -317,6 +327,7 @@ class RefsUniqueList(RefsListField):
             if v.id not in ids:
                 clean_val.append(v)
                 ids.append(v.id)
+
         return super().set_val(clean_val, change_modified, **kwargs)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):

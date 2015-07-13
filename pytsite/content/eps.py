@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy
 from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
-    odm as _odm
+    odm as _odm, widget as _widget
 
 
 def index(args: dict, inp: dict):
@@ -18,21 +18,27 @@ def index(args: dict, inp: dict):
 
     f = _content.find(model)
 
-    term_field = args.get('term_field', ('', ''))
-    field_name, term_model = term_field
-    if field_name and term_model:
+    term_field = args.get('term_field')
+    if term_field:
+        term_model = f.mock.get_field(term_field).model
         term_alias = args.get('term_alias')
         if term_alias:
             term = _taxonomy.find(term_model).where('alias', '=', term_alias).first()
             args['term'] = term
-            if isinstance(f.mock.fields[field_name], _odm.field.Ref):
-                f.where(field_name, '=', term)
-            elif isinstance(f.mock.fields[field_name], _odm.field.RefsListField):
-                f.where(field_name, 'in', [term])
+            if isinstance(f.mock.fields[term_field], _odm.field.Ref):
+                f.where(term_field, '=', term)
+            elif isinstance(f.mock.fields[term_field], _odm.field.RefsListField):
+                f.where(term_field, 'in', [term])
+            _metatag.t_set('title', term.title)
 
-    args['entities'] = f.get()
+    pager = _widget.static.Pager(f.count(), 10)
+
+    args['entities'] = f.skip(pager.skip).get(pager.limit)
+    args['pager'] = pager
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_index')
+
     return _router.call_endpoint(endpoint, args)
+
 
 def view(args: dict, inp: dict):
     """View Content Entity.

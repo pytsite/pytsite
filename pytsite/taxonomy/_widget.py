@@ -62,10 +62,11 @@ class TokensInput(_widget.select.Tokens):
 
         return self._group_wrap(html_input)
 
+
 class Cloud(_widget.Base):
     """Tags Cloud Widget.
     """
-    def __init__(self, model: str, **kwargs):
+    def __init__(self, model: str, num: int=10, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
@@ -74,7 +75,7 @@ class Cloud(_widget.Base):
         if not _functions.is_model_registered(model):
             raise ValueError("'{}' is not a registered taxonomy model.".format(model))
 
-        self._num = kwargs.get('num', 10)
+        self._num = num
         self._link_pattern = kwargs.get('link_pattern', '/{}/%s'.format(model))
         self._title_pattern = kwargs.get('title_pattern', '#%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
@@ -87,13 +88,13 @@ class Cloud(_widget.Base):
         root = _html.Div(child_separator='  ')
         weight = 10
         for term in self._get_finder().get(self._num):
-            title = self._title_pattern % term.f_get('title')
+            title = self._title_pattern % term.title
             a_cls = 'term {} weight-{} {}'.format(self._model, weight, self._term_css)
-            a = _html.A(title, href=self._link_pattern % term.f_get('alias'), cls=a_cls)
+            a = _html.A(title, href=self._link_pattern % term.alias, cls=a_cls, data_weight=term.weight)
             root.append(a)
             weight -= 1
 
         return self._group_wrap(root)
 
     def _get_finder(self):
-        _functions.find(self._model)
+        return _functions.find(self._model)
