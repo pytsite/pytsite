@@ -4,9 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy
+from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui
 from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
-    odm as _odm, widget as _widget
+    odm as _odm, widget as _widget, lang as _lang
 
 
 def index(args: dict, inp: dict):
@@ -76,7 +76,19 @@ def view_count(args: dict, inp: dict) -> int:
 
 
 def propose(args: dict, inp: dict) -> str:
-    return 'TODO'
+    """'Propose article' endpoint.
+    """
+    model = args.get('model')
+    endpoint = _reg.get('content.endpoints.propose.' + model, 'app.eps.' + model + '_propose')
+
+    form = _odm_ui.get_m_form(model)
+    form.get_widget('actions').get_child('action_cancel').href = _router.base_url()
+
+    _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
+
+    return _router.call_endpoint(endpoint, {
+        'form': form
+    })
 
 
 def search(args: dict, inp: dict) -> str:

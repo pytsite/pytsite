@@ -6,15 +6,14 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    # Requirements
-    __import__('pytsite.image')
-
-    # Other imports
-    from pytsite.core import router, tpl, events, lang, odm
+    import sys
+    from pytsite.core import router, tpl, events, lang, odm, assetman
 
     # Resources
     tpl.register_package(__name__)
+    tpl.register_global('auth', sys.modules[__name__])
     lang.register_package(__name__)
+    assetman.register_package(__name__)
 
     # ODM models
     from . import _model
@@ -49,4 +48,5 @@ __init()
 # Public API
 from . import _error as error, _functions, _model as model
 from ._functions import define_permission_group,  define_permission, get_current_user, get_permission, \
-    get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role
+    get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role, \
+    get_login_form

@@ -46,8 +46,8 @@ class Select(_input.Input):
         self._selected_item = None
 
         super().__init__(**kwargs)
-        if not isinstance(self._items, list):
-            raise TypeError('List expected.')
+        if not isinstance(self._items, list) and not isinstance(self._items, tuple) :
+            raise TypeError('List or tuple expected.')
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -126,6 +126,8 @@ class Language(Select):
 
 
 class Tokens(_input.Input):
+    """Tokens Text Input Widget.
+    """
     def __init__(self, **kwargs):
         """Init.
         """

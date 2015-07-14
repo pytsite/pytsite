@@ -11,16 +11,12 @@ from . import _functions
 class TokensInput(_widget.select.Tokens):
     """Term Tokens Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, model: str, **kwargs):
         """Init.
         """
-        self._model = kwargs.get('model')
-
         super().__init__(**kwargs)
 
-        if not self._model:
-            raise Exception('Model is required.')
-
+        self._model = model
         self._remote_source = _router.endpoint_url('pytsite.taxonomy.eps.search_terms', {
             'model': self._model,
             'query': '__QUERY'
@@ -77,7 +73,7 @@ class Cloud(_widget.Base):
 
         self._num = num
         self._link_pattern = kwargs.get('link_pattern', '/{}/%s'.format(model))
-        self._title_pattern = kwargs.get('title_pattern', '#%s')
+        self._title_pattern = kwargs.get('title_pattern', '%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
 
         self._group_cls += ' widget-taxonomy-cloud'

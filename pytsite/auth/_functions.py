@@ -108,13 +108,10 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(uid: str=None, cls: str=None) -> _form.Base:
+def get_login_form(uid: str=None, cls: str=None, legend: str=None) -> _form.Base:
     """Get a login form.
     """
-    if not uid:
-        uid = 'auth-form'
-
-    form = get_driver().get_login_form(uid, cls)
+    form = get_driver().get_login_form(uid, cls, legend)
     form.action = _router.endpoint_url('pytsite.auth.eps.post_login')
 
     return form
@@ -195,9 +192,8 @@ def authorize(user: _model.User) -> _model.User:
 def get_anonymous_user() -> _model.User:
     """Get anonymous user.
     """
-
-    global __anonymous_user
     if not __anonymous_user:
+        global __anonymous_user
         __anonymous_user = create_user('__anonymous@nowhere.com', '__anonymous')
 
     return __anonymous_user

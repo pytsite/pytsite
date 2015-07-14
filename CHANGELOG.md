@@ -14,6 +14,7 @@
         - `pytsite.core.validation.rule.VideoHostingUrl`.
     - New `args` argument in `pytsite.core.odm.Model.t()`.
     - New widgets: 
+        - `core.widget.static.Pager`;
         - `core.widget.input.StringList`;
         - `core.widget.static.VideoPlayer`.
     - New functions:
@@ -28,7 +29,8 @@
     - New public package method: `pytsite.content.create()`
     - `pytsite. content.model.Content` model:
         - Processing `[img]` and `[vid]` body tags.
-        - New properties: `title`, `description`, `body`, `url`, `tags`, `images`, `links`, `author`, `section`.
+        - New properties: `title`, `description`, `body`, `url`, `tags`, `images`, `links`, `author`, `section`, 
+          `starred`.
         - New events `content.entity.pre_save`, `content.entity.save`.
 - `pytsite.ckeditor`:
     - Images upload.

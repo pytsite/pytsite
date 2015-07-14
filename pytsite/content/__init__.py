@@ -41,8 +41,10 @@ def __init():
     router.add_rule('/content/index/<string:model>', 'pytsite.content.eps.index')
     router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.eps.view')
     router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.eps.view_count')
-    router.add_rule('/content/propose/<string:model>', 'pytsite.content.eps.propose')
     router.add_rule('/content/search/<string:model>', 'pytsite.content.eps.search')
+
+    router.add_rule('/content/propose/<string:model>', 'pytsite.content.eps.propose',
+                    filters='pytsite.auth.eps.filter_authorize')
 
     taxonomy.register_model('section', Section, __name__ + '@sections')
     taxonomy.register_model('tag', _model.Tag, __name__ + '@tags')

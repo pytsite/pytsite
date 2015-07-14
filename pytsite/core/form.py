@@ -209,6 +209,11 @@ class Base:
 
         return self._render_open_tag() + body + self._render_close_tag()
 
+    def __str__(self) -> str:
+        """Render the form.
+        """
+        return self.render()
+
     def add_widget(self, w: _widget.Base, area: str='body'):
         """Add a _widget.
         """

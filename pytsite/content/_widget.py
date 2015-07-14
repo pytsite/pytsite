@@ -22,11 +22,10 @@ class ContentModelSelect(_widget.select.Select):
 class TagCloud(_taxonomy.widget.Cloud):
     """Tags Clod Widget.
     """
-    def __init__(self, content_model: str, limit=10, **kwargs):
+    def __init__(self, limit=10, **kwargs):
         """Init.
         """
         super().__init__('tag', limit, **kwargs)
-        self._link_pattern = '/content/tag/{}/%s'.format(content_model)
 
 
 class EntityTagCloud(_widget.Base):
@@ -37,8 +36,8 @@ class EntityTagCloud(_widget.Base):
         """
         super().__init__(**kwargs)
         self._entity = entity
-        self._link_pattern = '/content/tag/{}/%s'.format(entity.model)
-        self._title_pattern = kwargs.get('title_pattern', '#%s')
+        self._link_pattern = '/tag/%s'
+        self._title_pattern = kwargs.get('title_pattern', '%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
 
         self._group_cls += ' widget-content-tags'

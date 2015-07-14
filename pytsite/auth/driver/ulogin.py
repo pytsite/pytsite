@@ -48,10 +48,13 @@ class LoginForm(_form.Base):
 class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
-    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> _form.Base:
+    def get_login_form(self, uid: str=None, cls: str=None, legend: str=None) -> _form.Base:
         """Get the login form.
         """
-        return LoginForm(uid=uid, cls=cls)
+        if not uid:
+            uid='pytsite-auth-login'
+
+        return LoginForm(uid=uid, cls=cls, legend=legend)
 
     def post_login_form(self, args: dict, inp: dict) -> _http.response.RedirectResponse:
         """Process submit of the login form.

@@ -10,7 +10,7 @@ from pytsite.core import http as _http, form as _form
 
 class AbstractDriver(_ABC):
     @_abstractmethod
-    def get_login_form(self, uid: str='pytsite-auth-login', cls: str=None) -> _form.Base:
+    def get_login_form(self, uid: str=None, cls: str=None, legend: str=None) -> _form.Base:
         """Login form get handler.
         """
         raise NotImplementedError()

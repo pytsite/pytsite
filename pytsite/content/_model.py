@@ -121,6 +121,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def comments_count(self) -> int:
         return self.f_get('comments_count')
 
+    @property
+    def starred(self) -> bool:
+        return self.f_get('starred')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
@@ -256,21 +260,30 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         from . import _functions
         _assetman.add('pytsite.content@js/content.js')
 
+        # Starred
+        if _auth.get_current_user().is_admin:
+            form.add_widget(_widget.select.Checkbox(
+                weight=10,
+                uid='starred',
+                label=self.t('starred'),
+                value=self.starred,
+            ))
+
         # Section
         form.add_widget(_odm_ui.widget.EntitySelect(
-            weight=10,
+            weight=20,
             uid='section',
             model='section',
             caption_field='title',
             label=self.t('section'),
-            value=self.f_get('section'),
+            value=self.section,
             h_size='col-sm-6',
         ))
         form.add_rule('section', _validation.rule.NotEmpty())
 
         # Title
         form.add_widget(_widget.input.Text(
-            weight=20,
+            weight=30,
             uid='title',
             label=self.t('title'),
             value=self.title,
@@ -279,7 +292,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Description
         form.add_widget(_widget.input.Text(
-            weight=30,
+            weight=40,
             uid='description',
             label=self.t('description'),
             value=self.description,
@@ -287,7 +300,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Tags
         form.add_widget(_taxonomy.widget.TokensInput(
-            weight=40,
+            weight=50,
             uid='tags',
             model='tag',
             label=self.t('tags'),
@@ -298,7 +311,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if self.has_field('images'):
             from pytsite import image
             form.add_widget(image.widget.ImagesUploadWidget(
-                weight=50,
+                weight=60,
                 uid='images',
                 label=self.t('images'),
                 value=self.f_get('images'),
@@ -307,7 +320,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Body
         form.add_widget(_ckeditor.widget.CKEditor(
-            weight=60,
+            weight=70,
             uid='body',
             label=self.t('body'),
             value=self.f_get('body', process_tags=False),
@@ -316,7 +329,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         # Links
         if self.has_field('ext_links'):
             form.add_widget(_widget.input.StringList(
-                weight=70,
+                weight=80,
                 uid='ext_links',
                 label=self.t('external_links'),
                 add_btn_label=self.t('add_link'),
@@ -327,7 +340,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         # Links
         if self.has_field('video_links'):
             form.add_widget(_widget.input.StringList(
-                weight=80,
+                weight=90,
                 uid='video_links',
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
@@ -337,7 +350,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Location
         form.add_widget(_geo.widget.SearchAddress(
-            weight=90,
+            weight=100,
             uid='location',
             label=self.t('location'),
             value=self.f_get('location'),
@@ -347,36 +360,36 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if _auth.get_current_user().is_admin:
             # Publish time
             form.add_widget(_widget.select.DateTime(
-                weight=100,
+                weight=110,
                 uid='publish_time',
                 label=self.t('publish_time'),
                 value=_datetime.now() if self.is_new else self.f_get('publish_time'),
-                h_size='col-sm-4 col-md-3 col-md-2',
+                h_size='col-sm-4 col-md-3 col-lg-2',
             ))
             form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
 
             # Status
             form.add_widget(_widget.select.Select(
-                weight=110,
+                weight=120,
                 uid='status',
                 label=self.t('status'),
                 value=self.f_get('status'),
-                h_size='col-sm-4 col-md-3 col-md-2',
+                h_size='col-sm-4 col-md-3 col-lg-2',
                 items=_functions.get_publish_statuses(),
             ))
 
             # Language
             form.add_widget(_widget.select.Language(
-                weight=120,
+                weight=130,
                 uid='language',
                 label=self.t('language'),
                 value=self.f_get('language'),
-                h_size='col-sm-4 col-md-3 col-md-2',
+                h_size='col-sm-4 col-md-3 col-lg-2',
             ))
 
             # Route alias
             form.add_widget(_widget.input.Text(
-                weight=130,
+                weight=140,
                 uid='route_alias',
                 label=self.t('path'),
                 value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',

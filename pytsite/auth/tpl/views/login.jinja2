@@ -1,7 +1,9 @@
 {% extends reg.get('output.base_tpl') %}
 
 {% block content %}
-    <div class="auth-login-form">
-    {{ form.render() }}
+    <div class="auth form-login wrapper">
+        <div class="inner">
+            {{ form.render() }}
+        </div>
     </div>
 {% endblock %}

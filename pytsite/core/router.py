@@ -46,11 +46,17 @@ class Rule(_Rule):
 
 
 def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: tuple=None, redirect_to: str=None,
-             filters: tuple=None):
+             filters=None):
     """Add a rule to the router.
     """
     if filters is None:
         filters = []
+
+    if isinstance(filters, str):
+        filters = [filters]
+
+    if not isinstance(filters, list) and not isinstance(filters, tuple):
+        raise Exception('Filters must be a string, list or tuple. {} given.'.format(repr(filters)))
 
     rule = Rule(
         string=pattern,
