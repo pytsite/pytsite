@@ -1,1 +1,6 @@
 delete: 'Удалить'
+first_page: 'Первая страница'
+last_page: 'Последняя страница'
+previous_page: 'Предыдущая страница'
+next_page: 'Следующая страница'
+page_num: 'Страница :num'
