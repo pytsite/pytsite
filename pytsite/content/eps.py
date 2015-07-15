@@ -76,19 +76,26 @@ def view_count(args: dict, inp: dict) -> int:
 
 
 def propose(args: dict, inp: dict) -> str:
-    """'Propose article' endpoint.
+    """Propose content endpoint.
     """
     model = args.get('model')
     endpoint = _reg.get('content.endpoints.propose.' + model, 'app.eps.' + model + '_propose')
 
     form = _odm_ui.get_m_form(model)
     form.get_widget('actions').get_child('action_cancel').href = _router.base_url()
+    form.redirect = _router.base_url()
+    form.action = _router.endpoint_url('pytsite.content.eps.propose_submit', {'model': model})
 
     _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
 
     return _router.call_endpoint(endpoint, {
         'form': form
     })
+
+def propose_submit(args: dict, inp: dict) -> str:
+    """Propose content submit endpoint.
+    """
+    model = args.get('model')
 
 
 def search(args: dict, inp: dict) -> str:

@@ -140,7 +140,7 @@ class Base:
 
     @redirect.setter
     def redirect(self, value):
-        """Set after form submit redirect URL.
+        """Redirect URL after sucessfull form submit.
         """
         self.get_widget('__form_redirect').set_value(value)
 

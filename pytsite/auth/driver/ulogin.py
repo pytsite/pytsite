@@ -59,7 +59,6 @@ class ULoginDriver(AbstractDriver):
     def post_login_form(self, args: dict, inp: dict) -> _http.response.RedirectResponse:
         """Process submit of the login form.
         """
-
         # Reading response from uLogin
         response = _urlopen('http://ulogin.ru/token.php?{0}'.format(_urlencode(inp)))
         if response.status != 200:
@@ -80,7 +79,7 @@ class ULoginDriver(AbstractDriver):
 
             # Create new user
             if not user:
-                user = _functions.create_user(login=email, email=email)
+                user = _functions.create_user(email)
 
             # Picture
             if not user.f_get('picture'):
@@ -118,11 +117,7 @@ class ULoginDriver(AbstractDriver):
                 del inp['token']
 
             # Authorize
-            user.save()
-            _functions.authorize(user)
-
-            # Saving statistical information
-            user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
+            _functions.authorize(user.save())
 
             if '__form_redirect' in inp:
                 del inp['__form_redirect']

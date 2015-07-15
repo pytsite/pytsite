@@ -45,6 +45,8 @@ def __init():
 
     router.add_rule('/content/propose/<string:model>', 'pytsite.content.eps.propose',
                     filters='pytsite.auth.eps.filter_authorize')
+    router.add_rule('/content/propose/<string:model>/submit', 'pytsite.content.eps.propose_submit',
+                    filters='pytsite.auth.eps.filter_authorize')
 
     taxonomy.register_model('section', Section, __name__ + '@sections')
     taxonomy.register_model('tag', _model.Tag, __name__ + '@tags')

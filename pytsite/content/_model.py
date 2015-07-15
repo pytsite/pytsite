@@ -317,6 +317,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 value=self.f_get('images'),
                 max_files=10
             ))
+            form.add_rule('images', _validation.rule.NotEmpty(msg_id='pytsite.content@at_least_one_image_expected'))
 
         # Body
         form.add_widget(_ckeditor.widget.CKEditor(

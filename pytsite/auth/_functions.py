@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from datetime import datetime as _datetime
 from pytsite.core import reg as _reg, http as _http, router as _router, odm as _odm, form as _form, lang as _lang
 from .driver.abstract import AbstractDriver as _AbstractDriver
 from . import _error, _model
@@ -183,6 +184,9 @@ def authorize(user: _model.User) -> _model.User:
     if user.f_get('status') != 'active':
         logout_current_user()
         raise _error.LoginIncorrect('pytsite.auth@authorization_error')
+
+    # Saving statistical information
+    user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
 
     _router.session['pytsite.auth.login'] = user.f_get('login')
 
