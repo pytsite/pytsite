@@ -192,8 +192,8 @@ def authorize(user: _model.User) -> _model.User:
 def get_anonymous_user() -> _model.User:
     """Get anonymous user.
     """
+    global __anonymous_user
     if not __anonymous_user:
-        global __anonymous_user
         __anonymous_user = create_user('__anonymous@nowhere.com', '__anonymous')
 
     return __anonymous_user
