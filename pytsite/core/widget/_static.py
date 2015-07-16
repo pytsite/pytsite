@@ -172,6 +172,9 @@ class Pager(_base.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
+        if self._total_pages == 1:
+            return _html.Empty()
+
         start_visible_num = self._current_page - _ceil(self._visible_numbers / 2)
         if start_visible_num < 1:
             start_visible_num = 1

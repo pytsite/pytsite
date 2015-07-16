@@ -59,7 +59,7 @@ class Model(_ABC):
                 obj_id = _ObjectId(obj_id)
             data = self._collection.find_one({'_id': obj_id})
             if not data:
-                raise _error.EntityNotFound("Entity '{0}' is not found in storage.".format(model + ':' + obj_id))
+                raise _error.EntityNotFound("Entity '{}:{}' is not found in storage.".format(model, str(obj_id)))
             for field_name, value in data.items():
                 if self.has_field(field_name):
                     self.get_field(field_name).set_val(value, False)

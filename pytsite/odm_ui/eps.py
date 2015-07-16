@@ -35,9 +35,11 @@ def get_m_form(args: dict, inp: dict) -> str:
     """Get entity create/modify form.
     """
     eid = args.get('id') if args.get('id') != '0' else None
-    form = _functions.get_m_form(args.get('model'), eid)
-
-    return _tpl.render('pytsite.odm_ui@admin_modify_form', {'form': form})
+    try:
+        form = _functions.get_m_form(args.get('model'), eid)
+        return _tpl.render('pytsite.odm_ui@admin_modify_form', {'form': form})
+    except _odm.error.EntityNotFound:
+        raise _http.error.NotFound()
 
 
 def validate_m_form(args: dict, inp: dict) -> dict:

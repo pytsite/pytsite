@@ -14,7 +14,6 @@ from . import _functions
 class Browser:
     """ODM Entities Browser.
     """
-
     def __init__(self, model: str):
         """Init.
         """
@@ -22,20 +21,27 @@ class Browser:
         self._model = model
         self._current_user = auth.get_current_user()
         self._head_columns = ()
+        self._default_sort_field = '_modified'
+        self._default_sort_order = _odm.I_DESC
 
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
                 and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
             raise _http.error.ForbiddenError()
 
+        # Mock entity
         self._entity_mock = _odm.dispense(self._model)
-        """:type : _odm.models.ODMModel|ODMUIMixin"""
+        """:type : _odm.models.ODMModel|UIMixin"""
+
+        # Check if the mock implements UI interface
         if not isinstance(self._entity_mock, UIMixin):
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
 
+        # Browser title
         self._title = self._entity_mock.t('odm_ui_browser_title_' + model)
         _metatag.t_set('title', self._title)
 
+        # Call mock's hook to perform setup tasks
         self._entity_mock.setup_browser(self)
 
         # Head columns
@@ -72,10 +78,25 @@ class Browser:
             raise TypeError('Tuple expected.')
         self._head_columns = value
 
+    @property
+    def default_sort_field(self) -> str:
+        return self._default_sort_field
+
+    @default_sort_field.setter
+    def default_sort_field(self, value):
+        self._default_sort_field = value
+
+    @property
+    def default_sort_order(self) -> int:
+        return self._default_sort_order
+
+    @default_sort_order.setter
+    def default_sort_order(self, value):
+        self._default_sort_order = value
+
     def get_table_skeleton(self) -> str:
         """Get browser table skeleton.
         """
-
         data_url = _router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
 
         # Toolbar
@@ -109,9 +130,11 @@ class Browser:
             data_search='true',
             data_pagination='true',
             data_side_pagination='server',
-            data_page_size='25',
+            data_page_size='15',
             data_click_to_select='false',
             data_striped='true',
+            data_sort_name=self.default_sort_field,
+            data_sort_order='asc' if self.default_sort_order == _odm.I_ASC else 'desc',
         )
         t_head = _html.THead()
         t_body = _html.TBody()
@@ -147,6 +170,8 @@ class Browser:
         if sort_field:
             sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC
             finder.sort([(sort_field, sort_order)])
+        else:
+            finder.sort([(self.default_sort_field, self.default_sort_order)])
 
         # Search
         if search:
@@ -154,7 +179,7 @@ class Browser:
             mock.browser_search(finder, search)
 
         cursor = finder.skip(offset).get(limit)
-        """:type : list[ODMUIMixin|ODMModel]"""
+
         for entity in cursor:
             # Getting contend for TDs
             cells = entity.get_browser_data_row()

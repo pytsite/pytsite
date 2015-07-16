@@ -5,7 +5,7 @@ __license__ = 'MIT'
 from werkzeug import exceptions as _e
 
 
-class NotFoundError(_e.NotFound):
+class NotFound(_e.NotFound):
     pass
 
 

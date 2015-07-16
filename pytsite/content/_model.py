@@ -99,6 +99,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('author')
 
     @property
+    def publish_time(self) -> _datetime:
+        return self.f_get('publish_time')
+
+    @property
     def publish_time_pretty(self) -> str:
         return self.f_get('publish_time', fmt='pretty_date')
 
@@ -159,7 +163,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             if not kwargs.get('relative', False):
                 value = _router.url(value)
 
-        if field_name == 'edit_url' and not self.id:
+        if field_name == 'edit_url' and self.id:
             value = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {
                 'model': self.model,
                 'id': self.id
@@ -190,7 +194,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self.f_set('body', body).f_set('images', images)
 
         # Changing status if necessary
-        if self.is_new:
+        if not self.status:
             if current_user and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
                 self.f_set('status', 'published')
             else:
@@ -241,6 +245,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         :return: None
         """
         browser.data_fields = 'title', 'status', 'publish_time', 'author'
+        browser.default_sort_field = 'publish_time'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.

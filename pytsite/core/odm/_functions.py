@@ -85,7 +85,6 @@ def cache_delete(entity: _model.Model):
 def dispense(model: str, entity_id=None) -> _model.Model:
     """Dispense an entity.
     """
-
     if not is_model_registered(model):
         raise Exception("ODM model '{}' is not registered".format(model))
 
@@ -95,11 +94,7 @@ def dispense(model: str, entity_id=None) -> _model.Model:
         return entity
 
     # Dispense entity
-    try:
-        cls = get_model_class(model)
-        entity = cls(model, entity_id)
-    except _error.EntityNotFound:
-        return None
+    entity = get_model_class(model)(model, entity_id)
 
     # Cache entity if it has ID
     return _cache_put(entity)

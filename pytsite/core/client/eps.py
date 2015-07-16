@@ -11,7 +11,7 @@ def request(args: dict, inp: dict) -> http.response.JSONResponse:
 
     try:
         return http.response.JSONResponse(router.call_endpoint(ep, args, inp))
-    except http.error.NotFoundError:
+    except http.error.NotFound:
         return http.response.JSONResponse({'error': "Endpoint '{}' is not found.".format(ep)}, status=404)
     except Exception as e:
         logger.error(str(e))

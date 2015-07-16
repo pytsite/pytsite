@@ -19,7 +19,7 @@ def get_resize(args: dict, inp: dict) -> _http.response.RedirectResponse:
 
     image_entity = _functions.get(rel_path=file_path)
     if not image_entity:
-        raise _http.error.NotFoundError()
+        raise _http.error.NotFound()
 
     # Sizes cannot be negative
     requested_width = requested_width if requested_width >= 0 else 0

@@ -181,10 +181,13 @@ class Element(_ABC):
         return self.render()
 
 
+class Empty(Element):
+    def render(self):
+        return ''
+
 class SingleTagElement(Element):
     """Element without closing tag.
     """
-
     def _validate_child(self, child):
         raise ValueError("'{}' element cannot contain children.".format(self._tag_name))
 
