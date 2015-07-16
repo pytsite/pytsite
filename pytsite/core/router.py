@@ -22,7 +22,7 @@ if not _path.exists(session_storage_path):
 
 __session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
 __routes = _Map()
-__url_adapter = __routes.bind(_reg.get('server_name', 'localhost'))
+__url_adapter = __routes.bind(_reg.get('server.name', 'localhost'))
 __path_aliases = {}
 
 
@@ -219,7 +219,7 @@ def base_path(language: str=None) -> str:
 
 def server_name():
     from . import reg
-    name = reg.get('server_name', 'localhost')
+    name = reg.get('server.name', 'localhost')
     if __url_adapter:
         name = __url_adapter.server_name
 
@@ -318,7 +318,11 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
     return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias)
 
 
-def endpoint_url(endpoint: str, args: dict=None, relative: bool=False) -> str:
+def endpoint_path(endpoint: str, args: dict=None) -> str:
+    return url(__url_adapter.build(endpoint, args), relative=True)
+
+
+def endpoint_url(endpoint: str, args: dict=None) -> str:
     """Get URL for endpoint.
     """
-    return url(__url_adapter.build(endpoint, args), relative=relative)
+    return url(__url_adapter.build(endpoint, args), relative=False)

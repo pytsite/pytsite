@@ -14,7 +14,7 @@ class RouteAlias(_odm.Model):
         """Hook.
         """
         self._define_field(_odm.field.String('alias', not_empty=True))
-        self._define_field(_odm.field.String('target'))
+        self._define_field(_odm.field.String('target', not_empty=True))
         self._define_field(_odm.field.String('language', not_empty=True))
 
         self._define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)

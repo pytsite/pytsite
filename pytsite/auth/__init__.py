@@ -49,4 +49,4 @@ __init()
 from . import _error as error, _functions, _model as model
 from ._functions import define_permission_group,  define_permission, get_current_user, get_permission, \
     get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role, \
-    get_login_form
+    get_login_form, find_users

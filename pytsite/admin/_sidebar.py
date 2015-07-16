@@ -165,7 +165,8 @@ def render() -> str:
 
                 # 'active' CSS class
                 current_url = _router.current_url()
-                if not current_url.endswith('/admin') and current_url.find(href) >= 0:
+                if not current_url.endswith('/admin') and \
+                        (current_url.endswith(href) or current_url.find(href + '/') >= 0):
                     li.set_attr('cls', 'active')
 
                 root_menu_ul.append(li.append(a))

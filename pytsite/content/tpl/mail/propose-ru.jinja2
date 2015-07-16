@@ -1,0 +1,10 @@
+<h1>Здравствуйте, {{ user.full_name }}!</h1>
+<p>
+    Только что на сайте <a href="{{ base_url() }}">{{ t('app_name') }}</a> был предложен новый материал
+    &laquo;{{ entity.title }}&raquo; пользователем {{ entity.author.full_name }}.
+    Пожалуйста, <a href="{{ entity.edit_url }}">решите дальнейшую судьбу материала</a>.
+</p>
+<p>
+    --<br/>
+    Искренне ваш, робот {{ t('app_name') }}.
+</p>

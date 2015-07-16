@@ -30,4 +30,4 @@ __init()
 
 # Public API
 from . import _model as model
-from ._manager import find_by_target, create
+from ._manager import find, find_one_by_target, create

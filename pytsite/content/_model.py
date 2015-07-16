@@ -5,11 +5,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from datetime import datetime as _datetime
+from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor
 from pytsite.core import odm as _odm, widget as _widget, validation as _validation, html as _html, router as _router, \
-    lang as _lang, assetman as _assetman, events as _events
+    lang as _lang, assetman as _assetman, events as _events, mail as _mail, tpl as _tpl
 
 
 class Section(_taxonomy.model.Term):
@@ -53,7 +53,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.Integer('views_count'))
         self._define_field(_odm.field.Integer('comments_count'))
         self._define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self._define_field(_odm.field.String('status', default='published', not_empty=True))
+        self._define_field(_odm.field.String('status', not_empty=True))
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', not_empty=True))
         self._define_field(_odm.field.String('language', not_empty=True, default=_lang.get_current_lang()))
@@ -118,6 +118,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def video_links(self) -> list:
         return self.f_get('video_links')
 
+    @property
+    def status(self) -> str:
+        return self.f_get('status')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
@@ -125,10 +129,11 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             if isinstance(value, str):
                 value = value.strip()
                 if not value:
-                    return
+                    value = self.title
 
                 if self.is_new:
-                    value = _route_alias.create(value).save()
+                    # Create new route alias
+                    value = _route_alias.create(value, 'NONE').save()
                 else:
                     orig_value = self.f_get('route_alias')
                     if orig_value.f_get('alias') != value:
@@ -146,16 +151,15 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         if field_name == 'url' and not self.is_new:
-            target_path = _router.endpoint_url('pytsite.content.eps.view',
-                                               {'model': self.model, 'id': str(self.id)}, relative=True)
-            r_alias = _route_alias.find_by_target(target_path)
+            target_path = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': str(self.id)})
+            r_alias = _route_alias.find_one_by_target(target_path)
             value = r_alias.f_get('alias') if r_alias else target_path
 
             # Transform path to absolute URL
             if not kwargs.get('relative', False):
                 value = _router.url(value)
 
-        if field_name == 'edit_url' and not self.is_new:
+        if field_name == 'edit_url' and not self.id:
             value = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {
                 'model': self.model,
                 'id': self.id
@@ -171,15 +175,26 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         super()._pre_save()
 
-        if not self.author:
-            self.f_set('author', _auth.get_current_user())
+        current_user = _auth.get_current_user()
 
-        # Create route alias
+        # Author is required
+        if not self.author and current_user:
+            self.f_set('author', current_user)
+
+        # Route alias is required
         if not self.route_alias:
-            self.f_set('route_alias', _route_alias.create(self.title).save())
+            self.f_set('route_alias', self.title)
 
+        # Extract inline images from the body
         body, images = self._extract_body_images()
         self.f_set('body', body).f_set('images', images)
+
+        # Changing status if necessary
+        if self.is_new:
+            if current_user and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+                self.f_set('status', 'published')
+            else:
+                self.f_set('status', 'waiting')
 
         _events.fire('content.entity.pre_save', entity=self)
         _events.fire('content.entity.pre_save.' + self.model, entity=self)
@@ -187,14 +202,25 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def _after_save(self):
         """Hook.
         """
-        if not self.f_get('route_alias').f_get('target'):
-            self.f_get('route_alias').f_set('target', _router.endpoint_url('pytsite.content.eps.view', {
-                'model': self.model,
-                'id': self.id,
-            }, True)).save()
-
         if self.is_new:
-            for img in self.images:
+            # Updating route alias target
+            if self.f_get('route_alias').f_get('target') == 'NONE':
+                target = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': self.id})
+                self.f_get('route_alias').f_set('target', target).save()
+
+            # Clean up not fully filled route aliases
+            f = _route_alias.find()
+            f.where('target', '=', 'NONE').where('_created', '<', _datetime.now() - _timedelta(1))
+            for ra in f.get():
+                ra.delete()
+
+            if self.is_new and self.status == 'waiting':
+                self._send_waiting_status_notification()
+                if _router.session:
+                    _router.session.add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
+
+        for img in self.images:
+            if not img.f_get('attached_to'):
                 img.f_set('attached_to', self).f_set('owner', self.author).save()
 
         _events.fire('content.entity.save', entity=self)
@@ -214,7 +240,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = 'title', 'section', 'status', 'publish_time', 'author'
+        browser.data_fields = 'title', 'status', 'publish_time', 'author'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -231,7 +257,6 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         return (
             title,
-            self.f_get('section').f_get('title'),
             str(_html.Span(status_str, cls='label label-' + status_cls)),
             self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
             self.f_get('author').f_get('full_name')
@@ -285,7 +310,6 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 value=self.f_get('images'),
                 max_files=10
             ))
-            form.add_rule('images', _validation.rule.NotEmpty(msg_id='pytsite.content@at_least_one_image_expected'))
 
         # Video links
         if self.has_field('video_links'):
@@ -305,28 +329,32 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             label=self.t('body'),
             value=self.f_get('body', process_tags=False),
         ))
+        form.add_rule('body', _validation.rule.NotEmpty())
+
+        # Status
+        current_user = _auth.get_current_user()
+        if current_user and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+            form.add_widget(_widget.select.Select(
+                weight=700,
+                uid='status',
+                label=self.t('status'),
+                value=self.status if self.status else 'published',
+                h_size='col-sm-4 col-md-3 col-lg-2',
+                items=_functions.get_publish_statuses(),
+            ))
+            form.add_rule('status', _validation.rule.NotEmpty())
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             # Publish time
             form.add_widget(_widget.select.DateTime(
-                weight=700,
+                weight=800,
                 uid='publish_time',
                 label=self.t('publish_time'),
                 value=_datetime.now() if self.is_new else self.f_get('publish_time'),
                 h_size='col-sm-4 col-md-3 col-lg-2',
             ))
             form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
-
-            # Status
-            form.add_widget(_widget.select.Select(
-                weight=800,
-                uid='status',
-                label=self.t('status'),
-                value=self.f_get('status'),
-                h_size='col-sm-4 col-md-3 col-lg-2',
-                items=_functions.get_publish_statuses(),
-            ))
 
             # Language
             form.add_widget(_widget.select.Language(
@@ -364,7 +392,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 return ''
             return str(_widget.static.VideoPlayer(value=self.video_links[vid_index - 1]))
 
-        inp =  _re.sub('\[img:(\d+)\]', process_img_tag, inp)
+        inp = _re.sub('\[img:(\d+)\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
 
         return inp
@@ -384,6 +412,17 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, self.f_get('body'))
 
         return body, images
+
+    def _send_waiting_status_notification(self):
+        for u in _auth.find_users().get():
+            if u.has_permission('pytsite.odm_ui.modify.' + self.model):
+                m_to = '{} <{}>'.format(u.f_get('full_name'), u.f_get('email'))
+                m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
+                m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current_lang(), {
+                    'user': u,
+                    'entity': self,
+                })
+                _mail.Message(m_to, m_subject, m_body).send()
 
 
 class Page(Content):
@@ -469,7 +508,7 @@ class Article(Content):
             route_alias_str = self.title
             if self.section:
                 route_alias_str = self.section.alias + '/' + route_alias_str
-            route_alias = _route_alias.create(route_alias_str).save()
+            route_alias = _route_alias.create(route_alias_str, 'NONE').save()
             self.f_set('route_alias', route_alias)
 
         super()._pre_save()

@@ -9,7 +9,7 @@ from pytsite.core import util as _util, lang as _lang, odm as _odm
 from . import _model
 
 
-def create(alias: str, target: str=None) -> _model.RouteAlias:
+def create(alias: str, target: str) -> _model.RouteAlias:
     """Create a route alias instance.
     """
     entity = _odm.dispense('route_alias')
@@ -39,10 +39,16 @@ def sanitize_alias_string(string: str) -> str:
         if itr == 1:
             string += '-1'
         else:
-            string = re.sub(r'-\d+$', '-' + str(itr), string)
+            string = re.sub('-\d+$', '-' + str(itr), string)
 
 
-def find_by_target(target: str) -> _model.RouteAlias:
+def find() -> _odm.Finder:
+    """Get route alias finder.
+    """
+    return _odm.find('route_alias').where('language', '=', _lang.get_current_lang())
+
+
+def find_one_by_target(target: str) -> _model.RouteAlias:
     """Find route alias by target.
     """
     lng = _lang.get_current_lang()

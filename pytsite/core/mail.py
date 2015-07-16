@@ -10,22 +10,20 @@ from smtplib import SMTP as _SMTP
 from email.mime.multipart import MIMEMultipart as _MIMEMultipart
 from email.mime.image import MIMEImage as _MIMEImage
 from email.mime.text import MIMEText as _MIMEText
+from pytsite.core import reg as _reg, router as _router
 
 
 class Message(_MIMEMultipart):
     """Mail Message.
     """
-    def __init__(self, from_addr: str, to_addrs, subject: str, body: str=''):
+    def __init__(self, to_addrs, subject: str, body: str='', from_addr: str=None):
         """Init.
         """
         super().__init__()
 
-        self._from_addr = None
-        self._to_addrs = None
-        self._subject = None
-        self._body = None
+        self._from_addr = self._to_addrs = self._subject = self._body = None
 
-        self.from_addr = from_addr
+        self.from_addr = from_addr if from_addr else _reg.get('mail.from', 'info@' + _router.server_name())
         self.to_addrs = to_addrs
         self.subject = subject
         self.body = body

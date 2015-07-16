@@ -12,6 +12,7 @@ def __init():
     from ._model import Tag, Section
 
     lang.register_package(__name__)
+    tpl.register_package(__name__)
     tpl.register_global('content', sys.modules[__name__])
 
     assetman.register_package(__name__)

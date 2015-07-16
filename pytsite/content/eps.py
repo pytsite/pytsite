@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui
 from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
-    odm as _odm, widget as _widget, lang as _lang
+    odm as _odm, widget as _widget, lang as _lang, form as _form
 
 
 def index(args: dict, inp: dict):
@@ -84,19 +84,12 @@ def propose(args: dict, inp: dict) -> str:
     form = _odm_ui.get_m_form(model)
     form.get_widget('actions').get_child('action_cancel').href = _router.base_url()
     form.redirect = _router.base_url()
-    form.action = _router.endpoint_url('pytsite.content.eps.propose_submit', {'model': model})
 
     _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
 
     return _router.call_endpoint(endpoint, {
         'form': form
     })
-
-
-def propose_submit(args: dict, inp: dict) -> str:
-    """Propose content submit endpoint.
-    """
-    model = args.get('model')
 
 
 def search(args: dict, inp: dict) -> str:

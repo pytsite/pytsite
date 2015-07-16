@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime as _datetime
-from pytsite import admin as _admin, taxonomy as _taxonomy
+from pytsite import admin as _admin, taxonomy as _taxonomy, auth as _auth
 from pytsite.core import odm as _odm, util as _util, router as _router, lang as _lang
 from . import _model
 
@@ -26,6 +26,11 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
 
     _odm.register_model(model, cls, replace)
     __models[model] = (cls, title)
+
+    mock = _odm.dispense(model)
+    perm_name = 'pytsite.content.bypass_moderation.' + model
+    perm_description = mock.package_name() + '@content_permission_bypass_moderation_' + model
+    _auth.define_permission(perm_name, perm_description, mock.package_name())
 
     menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
     _admin.sidebar.add_menu('content', model, title, menu_url, icon, weight=menu_weight, permissions=(
