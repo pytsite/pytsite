@@ -45,15 +45,18 @@ class Rule(_Rule):
         super().__init__(string, **kwargs)
 
 
-def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods: tuple=None, redirect_to: str=None,
-             filters=None):
+def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, redirect_to: str=None, filters=None):
     """Add a rule to the router.
+    :param methods: str|tuple|list
     """
     if filters is None:
         filters = []
 
     if isinstance(filters, str):
         filters = [filters]
+
+    if isinstance(methods, str):
+        methods = (methods, )
 
     if not isinstance(filters, list) and not isinstance(filters, tuple):
         raise Exception('Filters must be a string, list or tuple. {} given.'.format(repr(filters)))

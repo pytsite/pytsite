@@ -115,22 +115,23 @@ class Cron(Abstract):
         now = _datetime.now()
         for evt in 'hourly', 'daily', 'weekly', 'monthly':
             delta = now - d[evt]
-            if evt == 'hourly' and delta.total_seconds() >= 3600\
-                    or evt == 'daily' and delta.total_seconds() >= 86400\
-                    or evt == 'weekly' and delta.total_seconds() >= 604800\
+            if evt == 'hourly' and delta.total_seconds() >= 3600 \
+                    or evt == 'daily' and delta.total_seconds() >= 86400 \
+                    or evt == 'weekly' and delta.total_seconds() >= 604800 \
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
-                _events.fire(__name__ + '@' + evt)
+                _events.fire('pytsite.core.cron.' + evt)
                 self._update_descriptor(evt)
 
         self._lock_file_op(False)
 
-    def _get_descriptor_file_path(self):
+    @staticmethod
+    def _get_descriptor_file_path():
         """Get descriptor file path.
         """
-
         return _path.join(_reg.get('paths.storage'), 'cron.data')
 
-    def _get_lock_file_path(self) -> str:
+    @staticmethod
+    def _get_lock_file_path() -> str:
         """Get lock file path.
         """
         return _path.join(_reg.get('paths.storage'), 'cron.lock')

@@ -29,9 +29,10 @@
     - New public package method: `pytsite.content.create()`
     - `pytsite. content.model.Content` model:
         - Processing `[img]` and `[vid]` body tags.
-        - New properties: `title`, `description`, `body`, `url`, `tags`, `images`, `links`, `author`, `section`, 
-          `starred`.
+        - New field properties.
         - New events `content.entity.pre_save`, `content.entity.save`.
+    - "Propose content" form.
+    - Weekly email digest subscription.
 - `pytsite.ckeditor`:
     - Images upload.
 - `pytsite.file`:

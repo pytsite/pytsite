@@ -31,6 +31,8 @@ pages: 'Страницы'
 bypass_moderation: 'Публиковать материалы без модерации'
 content_waiting_mail_subject: 'Новый материал на сайте :app_name'
 content_will_be_published_after_moderation: 'Спасибо. Ваш материал будет опубликован после проверки модератором.'
+weekly_digest_mail_subject: 'Лучшие публикации за неделю'
+digest_subscription_success: 'Благодарим вас за оформление подписки на нашу рассылку!'
 
 odm_ui_permission_group_description: 'Содержимое'
 

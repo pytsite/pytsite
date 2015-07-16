@@ -8,8 +8,9 @@ __license__ = 'MIT'
 def __init():
     import sys
     from pytsite import admin, taxonomy
-    from pytsite.core import router, assetman, lang, tpl
-    from ._model import Tag, Section
+    from pytsite.core import router, assetman, lang, tpl, events, odm
+    from ._model import Tag, Section, ContentSubscriber
+    from ._event_handlers import cron_weekly
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -30,12 +31,22 @@ def __init():
     router.add_rule('/content/propose/<string:model>/submit', 'pytsite.content.eps.propose_submit',
                     filters='pytsite.auth.eps.filter_authorize')
 
+    # Content subscription routes
+    router.add_rule('/content/subscribe', 'pytsite.content.eps.subscribe', methods='POST')
+    router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.eps.unsubscribe')
+
     # Taxonomy models
     taxonomy.register_model('section', Section, __name__ + '@sections')
     taxonomy.register_model('tag', _model.Tag, __name__ + '@tags')
 
+    # ODM models
+    odm.register_model('content_subscriber', ContentSubscriber)
+
     # Admin elements
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))
+
+    # Event handlers
+    events.listen('pytsite.core.cron.weekly', cron_weekly)
 
 __init()
 

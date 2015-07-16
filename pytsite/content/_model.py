@@ -517,3 +517,8 @@ class Article(Content):
             self.f_set('route_alias', route_alias)
 
         super()._pre_save()
+
+
+class ContentSubscriber(_odm.Model):
+    def _setup(self):
+        self._define_field(_odm.field.String('email', not_empty=True))

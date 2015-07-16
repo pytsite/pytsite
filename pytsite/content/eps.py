@@ -100,3 +100,7 @@ def propose(args: dict, inp: dict) -> str:
 
 def search(args: dict, inp: dict) -> str:
     return 'TODO'
+
+
+def subscribe(args: dict, inp: dict) -> _http.response.JSONResponse:
+    return _lang.t('pytsite.content@digest_subscription_success')
