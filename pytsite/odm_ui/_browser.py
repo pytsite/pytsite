@@ -33,7 +33,7 @@ class Browser:
         if not isinstance(self._entity_mock, UIMixin):
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
 
-        self._title = self._entity_mock.t('odm_ui_' + model + '_browser_title')
+        self._title = self._entity_mock.t('odm_ui_browser_title_' + model)
         _metatag.t_set('title', self._title)
 
         self._entity_mock.setup_browser(self)

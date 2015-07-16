@@ -24,6 +24,14 @@ class Abstract(_ABC):
         self._modified = False
         self._value = default
 
+    @property
+    def not_empty(self) -> bool:
+        return self._not_empty
+
+    @not_empty.setter
+    def not_empty(self, value: bool):
+        self._not_empty = value
+
     def get_name(self):
         """Get name of the field.
         """

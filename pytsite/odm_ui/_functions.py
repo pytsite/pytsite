@@ -16,11 +16,13 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     """
     eid = eid if eid != '0' else None
 
+    # Checking permissions
     if not eid and not _check_permissions('create', model):
         raise _http.error.ForbiddenError()
     elif eid and not _check_permissions('modify', model, [eid]):
         raise _http.error.ForbiddenError()
 
+    # Creating form
     frm = _form.Base('odm-ui-form')
     frm.cls += ' odm-ui-form odm-ui-form-' + model
 
@@ -48,10 +50,11 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     entity = dispense_entity(model, eid)
     entity.setup_m_form(frm, stage)
 
+    # Legend
     if entity.is_new:
-        legend = entity.t('odm_ui_' + model + '_create_form_legend')
+        legend = entity.t('odm_ui_form_legend_create_' + model)
     else:
-        legend = entity.t('odm_ui_' + model + '_modify_form_legend')
+        legend = entity.t('odm_ui_form_legend_modify_' + model)
 
     _metatag.t_set('title', legend)
 
@@ -69,7 +72,7 @@ def get_d_form(model: str, ids: list) -> _form.Base:
     ol = _html.Ol()
 
     mock = dispense_entity(model)
-    _metatag.t_set('title', mock.t('odm_ui_' + model + '_delete_form_legend'))
+    _metatag.t_set('title', mock.t('odm_ui_form_legend_delete_' + model))
 
     for eid in ids:
         entity = dispense_entity(model, eid)

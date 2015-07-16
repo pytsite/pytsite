@@ -92,6 +92,7 @@ def propose(args: dict, inp: dict) -> str:
         'form': form
     })
 
+
 def propose_submit(args: dict, inp: dict) -> str:
     """Propose content submit endpoint.
     """

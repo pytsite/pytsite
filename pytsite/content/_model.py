@@ -15,7 +15,18 @@ from pytsite.core import odm as _odm, widget as _widget, validation as _validati
 class Section(_taxonomy.model.Term):
     """Section Model.
     """
-    pass
+    def _pre_delete(self):
+        from . import _functions
+        for m in _functions.get_models():
+            r_entity = _functions.find(m, None, False).where('section', '=', self).first()
+            if r_entity:
+                error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
+                raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
+
+        tag = _taxonomy.find('tag').where('section', '=', self).first()
+        if tag:
+            error_args = {'model': tag.model, 'title': tag.f_get('title')}
+            raise _odm.error.ForbidEntityDelete(_lang.t('pytsite,content@referenced_entity_exists', error_args))
 
 
 class Tag(_taxonomy.model.Term):
@@ -35,27 +46,21 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         self._define_field(_odm.field.String('title', not_empty=True))
-        self._define_field(_odm.field.String('body'))
         self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.String('body'))
         self._define_field(_odm.field.Ref('route_alias', model='route_alias', not_empty=True))
         self._define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), not_empty=True))
         self._define_field(_odm.field.Integer('views_count'))
         self._define_field(_odm.field.Integer('comments_count'))
         self._define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self._define_field(_odm.field.StringList('ext_links'))
-        self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.String('status', default='published', not_empty=True))
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', not_empty=True))
         self._define_field(_odm.field.String('language', not_empty=True, default=_lang.get_current_lang()))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
-        self._define_field(_odm.field.Ref('section', model='section', not_empty=True))
-        self._define_field(_geo.field.Location('location'))
-        self._define_field(_odm.field.Bool('starred'))
+        self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('edit_url'))
-
-        self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     @property
     def title(self) -> str:
@@ -90,20 +95,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('edit_url')
 
     @property
-    def ext_links(self) -> list:
-        return self.f_get('ext_links')
-
-    @property
-    def video_links(self) -> list:
-        return self.f_get('video_links')
-
-    @property
     def author(self) -> _auth.model.User:
         return self.f_get('author')
-
-    @property
-    def section(self) -> Section:
-        return self.f_get('section')
 
     @property
     def publish_time_pretty(self) -> str:
@@ -122,8 +115,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('comments_count')
 
     @property
-    def starred(self) -> bool:
-        return self.f_get('starred')
+    def video_links(self) -> list:
+        return self.f_get('video_links')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -169,7 +162,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             })
 
         if field_name == 'body' and kwargs.get('process_tags'):
-            value = self._process_tags(value)
+            value = self._process_body_tags(value)
 
         return value
 
@@ -183,11 +176,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Create route alias
         if not self.route_alias:
-            route_alias_str = self.title
-            if self.section:
-                route_alias_str = self.section.alias + '/' + route_alias_str
-            route_alias = _route_alias.create(route_alias_str).save()
-            self.f_set('route_alias', route_alias)
+            self.f_set('route_alias', _route_alias.create(self.title).save())
 
         body, images = self._extract_body_images()
         self.f_set('body', body).f_set('images', images)
@@ -260,30 +249,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         from . import _functions
         _assetman.add('pytsite.content@js/content.js')
 
-        # Starred
-        if _auth.get_current_user().is_admin:
-            form.add_widget(_widget.select.Checkbox(
-                weight=10,
-                uid='starred',
-                label=self.t('starred'),
-                value=self.starred,
-            ))
-
-        # Section
-        form.add_widget(_odm_ui.widget.EntitySelect(
-            weight=20,
-            uid='section',
-            model='section',
-            caption_field='title',
-            label=self.t('section'),
-            value=self.section,
-            h_size='col-sm-6',
-        ))
-        form.add_rule('section', _validation.rule.NotEmpty())
-
         # Title
         form.add_widget(_widget.input.Text(
-            weight=30,
+            weight=100,
             uid='title',
             label=self.t('title'),
             value=self.title,
@@ -292,7 +260,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Description
         form.add_widget(_widget.input.Text(
-            weight=40,
+            weight=200,
             uid='description',
             label=self.t('description'),
             value=self.description,
@@ -300,7 +268,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Tags
         form.add_widget(_taxonomy.widget.TokensInput(
-            weight=50,
+            weight=300,
             uid='tags',
             model='tag',
             label=self.t('tags'),
@@ -311,7 +279,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if self.has_field('images'):
             from pytsite import image
             form.add_widget(image.widget.ImagesUploadWidget(
-                weight=60,
+                weight=400,
                 uid='images',
                 label=self.t('images'),
                 value=self.f_get('images'),
@@ -319,29 +287,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             ))
             form.add_rule('images', _validation.rule.NotEmpty(msg_id='pytsite.content@at_least_one_image_expected'))
 
-        # Body
-        form.add_widget(_ckeditor.widget.CKEditor(
-            weight=70,
-            uid='body',
-            label=self.t('body'),
-            value=self.f_get('body', process_tags=False),
-        ))
-
-        # Links
-        if self.has_field('ext_links'):
-            form.add_widget(_widget.input.StringList(
-                weight=80,
-                uid='ext_links',
-                label=self.t('external_links'),
-                add_btn_label=self.t('add_link'),
-                value=self.ext_links
-            ))
-            form.add_rule('ext_links', _validation.rule.Url())
-
-        # Links
+        # Video links
         if self.has_field('video_links'):
             form.add_widget(_widget.input.StringList(
-                weight=90,
+                weight=500,
                 uid='video_links',
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
@@ -349,19 +298,19 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             ))
             form.add_rule('video_links', _validation.rule.VideoHostingUrl())
 
-        # Location
-        form.add_widget(_geo.widget.SearchAddress(
-            weight=100,
-            uid='location',
-            label=self.t('location'),
-            value=self.f_get('location'),
+        # Body
+        form.add_widget(_ckeditor.widget.CKEditor(
+            weight=600,
+            uid='body',
+            label=self.t('body'),
+            value=self.f_get('body', process_tags=False),
         ))
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             # Publish time
             form.add_widget(_widget.select.DateTime(
-                weight=110,
+                weight=700,
                 uid='publish_time',
                 label=self.t('publish_time'),
                 value=_datetime.now() if self.is_new else self.f_get('publish_time'),
@@ -371,7 +320,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
             # Status
             form.add_widget(_widget.select.Select(
-                weight=120,
+                weight=800,
                 uid='status',
                 label=self.t('status'),
                 value=self.f_get('status'),
@@ -381,7 +330,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
             # Language
             form.add_widget(_widget.select.Language(
-                weight=130,
+                weight=900,
                 uid='language',
                 label=self.t('language'),
                 value=self.f_get('language'),
@@ -390,7 +339,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
             # Route alias
             form.add_widget(_widget.input.Text(
-                weight=140,
+                weight=1000,
                 uid='route_alias',
                 label=self.t('path'),
                 value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',
@@ -401,7 +350,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         return self.f_get('title')
 
-    def _process_tags(self, inp: str) -> str:
+    def _process_body_tags(self, inp: str) -> str:
         def process_img_tag(match):
             img_index = int(match.group(1))
             if len(self.images) < img_index:
@@ -415,7 +364,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 return ''
             return str(_widget.static.VideoPlayer(value=self.video_links[vid_index - 1]))
 
-        inp = _re.sub('\[img:(\d+)\]', process_img_tag, inp)
+        inp =  _re.sub('\[img:(\d+)\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
 
         return inp
@@ -435,3 +384,92 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, self.f_get('body'))
 
         return body, images
+
+
+class Page(Content):
+    """Page Model.
+    """
+    pass
+
+
+class Article(Content):
+    """Article Model.
+    """
+    @property
+    def section(self) -> Section:
+        return self.f_get('section')
+
+    @property
+    def ext_links(self) -> list:
+        return self.f_get('ext_links')
+
+    @property
+    def starred(self) -> bool:
+        return self.f_get('starred')
+
+    @property
+    def location(self) -> list:
+        return self.f_get('location')
+
+    def _setup(self):
+        super()._setup()
+        self._define_field(_odm.field.Ref('section', model='section', not_empty=True))
+        self._define_field(_odm.field.StringList('ext_links'))
+        self._define_field(_odm.field.Bool('starred'))
+        self._define_field(_geo.field.Location('location'))
+
+        self._define_index([('location.lng_lat', _odm.I_GEO2D)])
+
+    def setup_m_form(self, form, stage: str):
+        super().setup_m_form(form, stage)
+
+        # Starred
+        if _auth.get_current_user().is_admin:
+            form.add_widget(_widget.select.Checkbox(
+                weight=30,
+                uid='starred',
+                label=self.t('starred'),
+                value=self.starred,
+            ))
+
+        # Section
+        form.add_widget(_odm_ui.widget.EntitySelect(
+            weight=60,
+            uid='section',
+            model='section',
+            caption_field='title',
+            label=self.t('section'),
+            value=self.section,
+            h_size='col-sm-6',
+        ))
+        form.add_rule('section', _validation.rule.NotEmpty())
+
+        # External links
+        if self.has_field('ext_links'):
+            form.add_widget(_widget.input.StringList(
+                weight=630,
+                uid='ext_links',
+                label=self.t('external_links'),
+                add_btn_label=self.t('add_link'),
+                value=self.ext_links
+            ))
+            form.add_rule('ext_links', _validation.rule.Url())
+
+        # Location
+        form.add_widget(_geo.widget.SearchAddress(
+            weight=660,
+            uid='location',
+            label=self.t('location'),
+            value=self.location,
+        ))
+
+    def _pre_save(self):
+        # Create route alias
+        if not self.route_alias:
+            route_alias_str = self.title
+            if self.section:
+                route_alias_str = self.section.alias + '/' + route_alias_str
+            route_alias = _route_alias.create(route_alias_str).save()
+            self.f_set('route_alias', route_alias)
+
+        super()._pre_save()
