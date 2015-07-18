@@ -16,7 +16,7 @@ class AbstractDriver(_ABC):
         raise NotImplementedError()
 
     @_abstractmethod
-    def post_login_form(self, args: dict, inp: dict) -> _http.response.RedirectResponse:
+    def post_login_form(self, args: dict, inp: dict) -> _http.response.Redirect:
         """Login form post handler.
         """
         raise NotImplementedError()

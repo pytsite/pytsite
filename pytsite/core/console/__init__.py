@@ -14,6 +14,7 @@ def __init():
     _functions.register_command(_command.Setup())
     _functions.register_command(_command.Update())
     _functions.register_command(_command.Cron())
+    _functions.register_command(_command.DbDump())
 
 __init()
 

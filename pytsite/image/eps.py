@@ -12,7 +12,7 @@ from pytsite.core import reg as _reg, http as _http
 from . import _functions
 
 
-def get_resize(args: dict, inp: dict) -> _http.response.RedirectResponse:
+def get_resize(args: dict, inp: dict) -> _http.response.Redirect:
     requested_width = args['width']
     requested_height = args['height']
     file_path = _path.join('image', args['p1'], args['p2'], args['filename'])
@@ -57,7 +57,7 @@ def get_resize(args: dict, inp: dict) -> _http.response.RedirectResponse:
     source_path = image_entity.f_get('path')
     source_abs_path = image_entity.f_get('abs_path')
     if not _path.exists(source_abs_path):
-        return _http.response.RedirectResponse('http://placehold.it/{}x{}'.format(requested_width, requested_height))
+        return _http.response.Redirect('http://placehold.it/{}x{}'.format(requested_width, requested_height))
 
     # Calculating target file location
     target_abs_path = _path.join(_reg.get('paths.static'), 'image', 'resize', str(requested_width),
@@ -97,4 +97,4 @@ def get_resize(args: dict, inp: dict) -> _http.response.RedirectResponse:
         image.save(target_abs_path)
         image.close()
 
-    return _http.response.RedirectResponse(image_entity.f_get('url', width=requested_width, height=requested_height))
+    return _http.response.Redirect(image_entity.f_get('url', width=requested_width, height=requested_height))

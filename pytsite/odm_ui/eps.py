@@ -59,7 +59,7 @@ def validate_m_form(args: dict, inp: dict) -> dict:
     return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
 
 
-def post_m_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
+def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     """Process submit of modify form.
     """
     model = args.get('model')
@@ -86,7 +86,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
         _router.session.add_error(str(e))
         _logger.error(str(e))
 
-    return _http.response.RedirectResponse(form.redirect)
+    return _http.response.Redirect(form.redirect)
 
 
 def get_d_form(args: dict, inp: dict) -> str:
@@ -97,14 +97,14 @@ def get_d_form(args: dict, inp: dict) -> str:
         ids = [ids]
 
     if not ids:
-        return _http.response.RedirectResponse(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+        return _http.response.Redirect(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
 
     form = _functions.get_d_form(model, ids)
 
     return _tpl.render('pytsite.odm_ui@admin_delete_form', {'form': form})
 
 
-def post_d_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
+def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
     """Submit delete form.
     """
     model = args.get('model')
@@ -119,4 +119,4 @@ def post_d_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
     except _odm.error.ForbidEntityDelete as e:
         _router.session.add_error(_lang.t('odm_ui@entity_deletion_forbidden') + ': ' + str(e))
 
-    return _http.response.RedirectResponse(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+    return _http.response.Redirect(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))

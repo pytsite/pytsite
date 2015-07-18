@@ -33,6 +33,8 @@ content_waiting_mail_subject: 'Новый материал на сайте :app_
 content_will_be_published_after_moderation: 'Спасибо. Ваш материал будет опубликован после проверки модератором.'
 weekly_digest_mail_subject: 'Лучшие публикации за неделю'
 digest_subscription_success: 'Благодарим вас за оформление подписки на нашу рассылку!'
+invalid_email: 'Неверный email'
+unsubscription_successful: 'Вы были успешно отписаны от рассылки.'
 
 odm_ui_permission_group_description: 'Содержимое'
 

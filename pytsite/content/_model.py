@@ -522,3 +522,5 @@ class Article(Content):
 class ContentSubscriber(_odm.Model):
     def _setup(self):
         self._define_field(_odm.field.String('email', not_empty=True))
+        self._define_field(_odm.field.Bool('enabled', default=True))
+        self._define_index([('email', _odm.I_ASC)])

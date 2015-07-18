@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from datetime import datetime as _datetime
 from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth
 from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
-    odm as _odm, widget as _widget, lang as _lang
+    odm as _odm, widget as _widget, lang as _lang, validation as _validation
 
 
 def index(args: dict, inp: dict):
@@ -102,5 +102,30 @@ def search(args: dict, inp: dict) -> str:
     return 'TODO'
 
 
-def subscribe(args: dict, inp: dict) -> _http.response.JSONResponse:
+def subscribe(args: dict, inp: dict) -> str:
+    """Subscribe to digest endpoint.
+    """
+    email = inp.get('email')
+    if not _validation.rule.Email(value=email).validate():
+        raise Exception(_lang.t('pytsite.content@invalid_email'))
+
+    s = _odm.find('content_subscriber').where('email', '=', email).first()
+    if s:
+        if not s.f_get('enabled'):
+            s.f_set('enabled', True).save()
+    else:
+        _odm.dispense('content_subscriber').f_set('email', email).save()
+
     return _lang.t('pytsite.content@digest_subscription_success')
+
+
+def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
+    """Unsubscribe from digest endpoint.
+    """
+    sid = args.get('id')
+    s = _odm.dispense('content_subscriber', sid)
+    if s:
+        s.f_set('enabled', False).save()
+        _router.session.add_success(_lang.t('pytsite.content@unsubscription_successful'))
+
+    return _http.response.Redirect(_router.base_url())

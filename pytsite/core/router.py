@@ -117,7 +117,7 @@ def dispatch(env: dict, start_response: callable):
             lang.set_current_lang(lang_code)
             env['PATH_INFO'] = env['PATH_INFO'][4:]
             if lang_code == languages[0]:
-                return _http.response.RedirectResponse(env['PATH_INFO'], 301)(env, start_response)
+                return _http.response.Redirect(env['PATH_INFO'], 301)(env, start_response)
         else:
             lang.set_current_lang(languages[0])
 
@@ -139,7 +139,7 @@ def dispatch(env: dict, start_response: callable):
         redirect_url = _re.sub(r'/$', '', path_info)
         if __url_adapter.query_args:
             redirect_url += '?' + __url_adapter.query_args
-        return _http.response.RedirectResponse(redirect_url, 301)(env, start_response)
+        return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # Session setup
     sid = request.cookies.get('PYTSITE_SESSION')
@@ -166,7 +166,7 @@ def dispatch(env: dict, start_response: callable):
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
             flt_response = call_endpoint(flt_endpoint, flt_args, request.values_dict)
-            if isinstance(flt_response, _http.response.RedirectResponse):
+            if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
         # Processing response from handler

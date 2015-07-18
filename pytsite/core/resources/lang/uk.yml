@@ -15,3 +15,5 @@ maintenance_console_command_description: 'Режим обслуговуванн�
 maintenance_mode_enabled: 'Режим обслуговування ВКЛЮЧЕНО'
 maintenance_mode_disabled: 'Режим обслуговування ВИМКНЕНО'
 select_none_item: 'Не обрано'
+db_dump_console_command_description: 'Дамп БД'
+db_restore_console_command_description: 'Відновлення БД'

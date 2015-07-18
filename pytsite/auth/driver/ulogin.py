@@ -56,7 +56,7 @@ class ULoginDriver(AbstractDriver):
 
         return LoginForm(uid=uid, cls=cls, legend=legend)
 
-    def post_login_form(self, args: dict, inp: dict) -> _http.response.RedirectResponse:
+    def post_login_form(self, args: dict, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.
         """
         # Reading response from uLogin
@@ -127,14 +127,14 @@ class ULoginDriver(AbstractDriver):
                 redirect = inp['redirect']
                 del inp['redirect']
                 del inp['__form_location']
-                return _http.response.RedirectResponse(_router.url(redirect, query=inp))
+                return _http.response.Redirect(_router.url(redirect, query=inp))
             elif '__form_location' in inp:
                 redirect = inp['__form_location']
                 del inp['__form_location']
-                return _http.response.RedirectResponse(_router.url(redirect, query=inp))
+                return _http.response.Redirect(_router.url(redirect, query=inp))
             else:
-                return _http.response.RedirectResponse(_router.base_url(query=inp))
+                return _http.response.Redirect(_router.base_url(query=inp))
 
         except _error.LoginIncorrect:
             _router.session.add_error(_lang.t('auth@authorization_error'))
-            return _http.response.RedirectResponse(_router.endpoint_url('pytsite.auth.eps.get_login', args=inp))
+            return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.get_login', args=inp))

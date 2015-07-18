@@ -36,7 +36,7 @@ def form_validate(args: dict, inp: dict) -> dict:
 
     return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
 
-def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
+def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     """Process settings form submit.
     """
     uid = args.get('uid')
@@ -51,4 +51,4 @@ def form_submit(args: dict, inp: dict) -> _http.response.RedirectResponse:
     _functions.set_setting(uid, value)
     _router.session.add_success(_lang.t('settings@settings_has_been_saved'))
 
-    return _http.response.RedirectResponse(frm.values['__form_location'])
+    return _http.response.Redirect(frm.values['__form_location'])

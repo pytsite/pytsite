@@ -118,7 +118,7 @@ def get_login_form(uid: str=None, cls: str=None, legend: str=None) -> _form.Base
     return form
 
 
-def post_login_form(args: dict, inp: dict) -> _http.response.RedirectResponse:
+def post_login_form(args: dict, inp: dict) -> _http.response.Redirect:
     """Post a login form.
     """
     return get_driver().post_login_form(args, inp)

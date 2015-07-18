@@ -4,12 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import pickle
+import pickle as _pickle, subprocess as _subprocess, shutil as _shutil, time as _time
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from datetime import datetime as _datetime
 from os import listdir as _listdir, path as _path, unlink as _unlink, makedirs as _makedirs
 from time import time as _time
-from pytsite.core import reg as _reg, events as _events
+from pytsite.core import reg as _reg, events as _events, logger as _logger
 from . import _error
 
 
@@ -105,6 +105,8 @@ class Cron(Abstract):
     def execute(self, **kwargs: dict):
         """Execute the command.
         """
+        _logger.info(__name__ + '. Cron start.')
+
         lock_path = self._get_lock_file_path()
         if _path.exists(lock_path):
             raise Exception('Lock file exists.')
@@ -119,10 +121,13 @@ class Cron(Abstract):
                     or evt == 'daily' and delta.total_seconds() >= 86400 \
                     or evt == 'weekly' and delta.total_seconds() >= 604800 \
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
-                _events.fire('pytsite.core.cron.' + evt)
+                evt = 'pytsite.core.cron.' + evt
+                _events.fire(evt)
+                _logger.info(__name__ + '. Issued cron event: ' + evt + '.')
                 self._update_descriptor(evt)
 
         self._lock_file_op(False)
+        _logger.info(__name__ + '. Cron stop.')
 
     @staticmethod
     def _get_descriptor_file_path():
@@ -159,11 +164,11 @@ class Cron(Abstract):
                 'monthly': _datetime.fromtimestamp(0),
             }
             with open(file_path, 'wb') as f:
-                pickle.dump(data, f)
+                _pickle.dump(data, f)
             return data
         else:
             with open(file_path, 'rb') as f:
-                data = pickle.load(f)
+                data = _pickle.load(f)
 
         return data
 
@@ -173,7 +178,7 @@ class Cron(Abstract):
         data = self._get_descriptor()
         data[part] = _datetime.now()
         with open(self._get_descriptor_file_path(), 'wb') as f:
-            pickle.dump(data, f)
+            _pickle.dump(data, f)
 
         return data
 
@@ -244,6 +249,7 @@ class Setup(Abstract):
         from ._functions import print_info
         print_info(t('pytsite.core@setup_has_been_completed'))
 
+
 class Update(Abstract):
     """Setup Command.
     """
@@ -266,3 +272,36 @@ class Update(Abstract):
         _functions.run_command('app:maintenance', enable=True)
         _events.fire('app.update')
         _functions.run_command('app:maintenance', disable=True)
+
+
+class DbDump(Abstract):
+    """Database Dump Command.
+    """
+    def get_name(self) -> str:
+        """Get name of the command.
+        """
+        return 'db:dump'
+
+    def get_description(self) -> str:
+        """Get description of the command.
+        """
+        from pytsite.core.lang import t
+        return t('pytsite.core@db_dump_console_command_description')
+
+    def execute(self, **kwargs: dict):
+        """Execute the command.
+        """
+        if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
+            raise Exception('Cannot find mongodump executable.')
+
+        db_name = _reg.get('db.database')
+        target_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump')
+        target_subdir = _path.join(target_dir, db_name)
+
+        if _path.exists(target_subdir):
+            ctime = _path.getctime(target_subdir)
+            target_subdir_move = '{}-{}'.format(target_dir, _time .strftime(''))
+
+        command = 'mongodump --gzip -o {} -d {}'.format(target_dir, db_name)
+
+        r = _subprocess.call(command, shell=True)

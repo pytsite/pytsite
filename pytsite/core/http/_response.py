@@ -12,7 +12,7 @@ class Response(_R):
     pass
 
 
-class RedirectResponse(Response):
+class Redirect(Response):
     """Redirect HTTP response.
     """
     def __init__(self, location: str, status: int=302):
