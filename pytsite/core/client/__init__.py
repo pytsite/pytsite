@@ -8,7 +8,7 @@ from pytsite.core import router as _router, assetman as _assetman, lang as _lang
 
 
 def include(lib: str, route_path: str=None):
-    if lib == 'jquery_ui':
+    if lib == 'jquery-ui':
         _assetman.add(__name__ + '@jquery-ui/jquery-ui.min.css', route_path)
         _assetman.add(__name__ + '@jquery-ui/jquery-ui.min.js', route_path)
         _assetman.add(__name__ + '@jquery-ui/i18n/datepicker-{}.js'.format(_lang.get_current_lang()), route_path)
@@ -32,9 +32,10 @@ def include(lib: str, route_path: str=None):
     elif lib == 'inputmask':
         _assetman.add(__name__ + '@js/jquery.inputmask.bundle.min.js', route_path)
     elif lib == 'typeahead':
+        include('jquery-ui')
         _assetman.add(__name__ + '@js/typeahead.bundle.min.js', route_path)
     elif lib == 'tokenfield':
-        _assetman.add(__name__ + '@js/typeahead.bundle.min.js', route_path)
+        include('typeahead')
         _assetman.add(__name__ + '@tokenfield/css/tokenfield-typeahead.min.css', route_path)
         _assetman.add(__name__ + '@tokenfield/bootstrap-tokenfield.min.js', route_path)
         _assetman.add(__name__ + '@tokenfield/css/bootstrap-tokenfield.min.css', route_path)

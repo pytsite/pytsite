@@ -233,7 +233,8 @@ class ListList(StringList):
 
         return self
 
-    def _set_value_from_list_list(self, value: list, **kwargs):
+    @staticmethod
+    def _set_value_from_list_list(value: list, **kwargs):
         for sub in value:
             if not isinstance(sub, list):
                 raise ValueError('List expected.')
@@ -258,3 +259,36 @@ class ListList(StringList):
         """
         widget_content = _html.Div(_tpl.render('pytsite.core.widget@list_list', {'widget': self}))
         return self._group_wrap(widget_content)
+
+
+class Tokens(Input):
+    """Tokens Text Input Widget.
+    """
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
+        _client.include('tokenfield')
+        _assetman.add('pytsite.core.widget@css/tokens.css')
+        _assetman.add('pytsite.core.widget@js/tokens.js')
+
+        self._local_source = kwargs.get('local_source')
+        self._remote_source = kwargs.get('remote_source')
+        self._group_data = {
+            'local_source': self._local_source,
+            'remote_source': self._remote_source,
+        }
+
+    def render(self) -> str:
+        """Render the widget.
+        """
+        html_input = _html.Input(
+            type='text',
+            uid=self._uid,
+            name=self._name,
+            value=','.join(self.get_value()),
+            cls=' '.join(('form-control', self._cls)),
+        )
+
+        return self._group_wrap(html_input)

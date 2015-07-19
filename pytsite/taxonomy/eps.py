@@ -19,8 +19,12 @@ def search_terms(args: dict, inp: dict) -> _http.response.JSONResponse:
         exclude = [exclude]
 
     r = []
-    finder = _functions.find(model).where('title', 'regex_i', query).where('title', 'nin', exclude)
-    for e in finder.get(5):
+    finder = _functions.find(model).where('title', 'nin', exclude)
+
+    for word in query.split(' '):
+        finder.where('title', 'regex_i', word.strip())
+
+    for e in finder.get(10):
         r.append(e.f_get('title'))
 
     return _http.response.JSONResponse(r)

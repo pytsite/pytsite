@@ -1,5 +1,7 @@
 """Tag Widgets.
 """
+import pytsite.core.widget._input
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -8,7 +10,7 @@ from pytsite.core import router as _router, widget as _widget, html as _html, od
 from . import _functions
 
 
-class TokensInput(_widget.select.Tokens):
+class TokensInput(_widget.input.Tokens):
     """Term Tokens Input Widget.
     """
     def __init__(self, model: str, **kwargs):
