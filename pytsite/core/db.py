@@ -14,6 +14,19 @@ __client = None
 __database = None
 
 
+def _get_config() -> dict:
+    default = {
+        'host': 'localhost',
+        'port': 27017,
+        'database': 'test',
+        'user': None,
+        'password': None,
+        'ssl': False,
+    }
+
+    return _util.dict_merge(default, _reg.get('db', {}))
+
+
 def get_client() -> _MongoClient:
     """Get client.
     """
@@ -21,13 +34,7 @@ def get_client() -> _MongoClient:
     if __client:
         return __client
 
-    default = {
-        'host': 'localhost',
-        'port': 27017,
-    }
-
-    config = _util.dict_merge(default, _reg.get('db', {}))
-
+    config = _get_config()
     __client = _MongoClient(config['host'], config['port'])
 
     return __client
@@ -40,7 +47,11 @@ def get_database() -> _Database:
     if __database:
         return __database
 
-    __database = get_client().get_database(_reg.get('db.database', 'test'))
+    config = _get_config()
+    __database = get_client().get_database(config['database'])
+
+    if config['user']:
+        __database.authenticate(config['user'], config['password'])
 
     return __database
 

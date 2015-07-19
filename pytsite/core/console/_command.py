@@ -4,11 +4,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import pickle as _pickle, subprocess as _subprocess, shutil as _shutil, time as _time
+import pickle as _pickle
+import subprocess as _subprocess
+import shutil as _shutil
+import time as _time
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from datetime import datetime as _datetime
 from os import listdir as _listdir, path as _path, unlink as _unlink, makedirs as _makedirs
-from time import time as _time
 from pytsite.core import reg as _reg, events as _events, logger as _logger
 from . import _error
 
@@ -84,7 +86,7 @@ class CleanupOldSessions(Abstract):
         ttl = int(_reg.get('session.ttl', 21600))  # 6 hours
         for file_name in _listdir(session_dir):
             file_path = _path.join(session_dir, file_name)
-            if _path.isfile(file_path) and (_time() - _path.getmtime(file_path)) >= ttl:
+            if _path.isfile(file_path) and (_time.time() - _path.getmtime(file_path)) >= ttl:
                 _unlink(file_path)
 
 
@@ -154,7 +156,6 @@ class Cron(Abstract):
     def _get_descriptor(self) -> dict:
         """Get descriptor info.
         """
-        data = None
         file_path = self._get_descriptor_file_path()
         if not _path.exists(file_path):
             data = {
@@ -299,9 +300,12 @@ class DbDump(Abstract):
         target_subdir = _path.join(target_dir, db_name)
 
         if _path.exists(target_subdir):
-            ctime = _path.getctime(target_subdir)
-            target_subdir_move = '{}-{}'.format(target_dir, _time .strftime(''))
+            ctime = _datetime.fromtimestamp(_path.getctime(target_subdir))
+            target_subdir_move = '{}-{}'.format(target_subdir, ctime.strftime('%Y%m%d-%H%M%S'))
+            _shutil.move(target_subdir, target_subdir_move)
 
-        command = 'mongodump --gzip -o {} -d {}'.format(target_dir, db_name)
+        command = 'mongodump --dumpDbUsersAndRoles --gzip -o {} -d {}'.format(target_dir, db_name)
 
         r = _subprocess.call(command, shell=True)
+
+        print(r)
