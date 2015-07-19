@@ -56,7 +56,7 @@ def get_menu(sid: str, mid: str) -> dict:
 
 
 def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
-             label: str=None, label_class: str='primary', weight: int=0, permissions: tuple=(), replace=False):
+             label: str=None, label_class: str='primary', weight: int=0, permissions=(), replace=False):
     """Add a menu to a section.
     """
     section = get_section(sid)
@@ -68,6 +68,9 @@ def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
             del_menu(sid, mid)
         else:
             raise KeyError("Menu '{}' already defined in section '{}'.".format(mid, sid))
+
+    if isinstance(permissions, str):
+        permissions = (permissions,)
 
     section['children'].append({
         'sid': sid,

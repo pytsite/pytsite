@@ -5,7 +5,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite.core import reg as _reg, logger as _logger, tpl as _tpl, mail as _mail, odm as _odm, lang as _lang
+from pytsite import settings as _settings
+from pytsite.core import reg as _reg, logger as _logger, tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, \
+    router as _router, metatag as _metatag
 from . import _functions
 
 
@@ -35,3 +37,23 @@ def _mail_digest():
         _logger.info(__name__ + '. Digest has been sent to ' + subscriber.f_get('email'))
 
     _logger.info(__name__ + '. Weekly mail digest stop.')
+
+
+def router_dispatch():
+    if not _router.is_base_url():
+        return
+
+    lng = _lang.get_current_lang()
+    settings = _settings.get_setting('content')
+
+    for s_key in ['title', 'description', 'keywords']:
+        s_full_key = 'home_{}_{}'.format(s_key, lng)
+        if s_full_key in settings:
+            s_val = settings[s_full_key]
+            if isinstance(s_val, list):
+                s_val = ','.join(s_val)
+            _metatag.t_set(s_key, s_val)
+
+        if s_key in ['title', 'description']:
+            _metatag.t_set('og:' + s_key, s_val)
+            _metatag.t_set('twitter:' + s_key, s_val)

@@ -35,6 +35,9 @@ weekly_digest_mail_subject: 'Лучшие публикации за неделю
 digest_subscription_success: 'Благодарим вас за оформление подписки на нашу рассылку!'
 invalid_email: 'Неверный email'
 unsubscription_successful: 'Вы были успешно отписаны от рассылки.'
+home_page_title: 'Title главной страницы (RU)'
+home_page_description: 'Description главной страницы (RU)'
+home_page_keywords: 'Keywords главной страницы (RU)'
 
 odm_ui_permission_group_description: 'Содержимое'
 

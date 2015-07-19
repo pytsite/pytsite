@@ -12,6 +12,12 @@ from . import _base
 class Input(_base.Base):
     """Input Widget.
     """
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._required = kwargs.get('required', False)
+
     @_abstractmethod
     def render(self) -> _html.Element:
         pass
@@ -23,7 +29,15 @@ class Hidden(Input):
     def render(self) -> str:
         """Render the widget.
         """
-        return _html.Input(type='hidden', uid=self._uid, name=self.name, value=self.get_value()).render()
+        html_input = _html.Input(
+            type='hidden',
+            uid=self._uid,
+            name=self.name,
+            value=self.get_value(),
+            required=self._required
+        )
+
+        return html_input
 
 
 class TextArea(_base.Base):
@@ -34,6 +48,7 @@ class TextArea(_base.Base):
         """
         super().__init__(**kwargs)
         self._rows = kwargs.get('rows', 5)
+        self._required = kwargs.get('required', False)
         self._group_cls = ' '.join((self._group_cls, 'widget-textarea-input'))
 
     def render(self) -> str:
@@ -45,7 +60,8 @@ class TextArea(_base.Base):
             name=self._name,
             cls=' '.join(('form-control', self._cls)),
             placeholder=self.placeholder,
-            rows=self._rows
+            rows=self._rows,
+            required=self._required
         )
 
         return self._group_wrap(html_input)
@@ -74,7 +90,8 @@ class Text(Input):
             name=self._name,
             value=self.get_value(),
             cls=' '.join(('form-control', self._cls)),
-            placeholder=self.placeholder
+            placeholder=self.placeholder,
+            required=self._required
         )
 
         if self._prepend or self._append:
@@ -280,6 +297,14 @@ class Tokens(Input):
             'remote_source': self._remote_source,
         }
 
+    def set_value(self, value, **kwargs: dict):
+        """Set value of the widget.
+        """
+        if isinstance(value, str):
+            value = value.split(',')
+
+        return super().set_value(value)
+
     def render(self) -> str:
         """Render the widget.
         """
@@ -287,7 +312,7 @@ class Tokens(Input):
             type='text',
             uid=self._uid,
             name=self._name,
-            value=','.join(self.get_value()),
+            value=','.join(self.get_value()) if self.get_value() else '',
             cls=' '.join(('form-control', self._cls)),
         )
 

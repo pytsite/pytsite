@@ -46,20 +46,49 @@ def view(args: dict, inp: dict):
     """
     model = args.get('model')
     entity = _content.find(model, None, False).where('_id', '=', args.get('id')).first()
+    """:type: pytsite.content._model.Content"""
+
     if not entity:
         raise _http.error.NotFound()
 
+    # Checking publish time
     if entity.publish_time > _datetime.now():
         if not _auth.get_current_user().has_permission('pytsite.odm_ui.modify.' + entity.model):
             raise _http.error.ForbiddenError()
 
-
+    # Recalculate comments count
     current_cc = entity.f_get('comments_count')
     actual_cc = _disqus.functions.get_comments_count(_router.current_url(True))
     if actual_cc != current_cc:
         entity.f_set('comments_count', actual_cc).save()
 
-    _metatag.t_set('title', entity.f_get('title'))
+    # Meta title
+    title = entity.title
+    _metatag.t_set('title', title)
+    _metatag.t_set('og:title', title)
+    _metatag.t_set('twitter:title', title)
+
+    # Meta description
+    description = entity.description
+    _metatag.t_set('description', description)
+    _metatag.t_set('og:description', description)
+    _metatag.t_set('twitter:description', description)
+
+    # Meta keywords
+    _metatag.t_set('keywords', entity.f_get('tags', as_string=True))
+
+    # Meta image
+    if entity.images:
+        _metatag.t_set('twitter:card', 'summary_large_image')
+        image_w = 900
+        image_h = 470
+        image_url = entity.images[0].f_get('url', width=image_w, height=image_h)
+        _metatag.t_set('og:image', image_url)
+        _metatag.t_set('og:image:width', str(image_w))
+        _metatag.t_set('og:image:height', str(image_h))
+        _metatag.t_set('twitter:image', image_url)
+    else:
+        _metatag.t_set('twitter:card', 'summary')
 
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 

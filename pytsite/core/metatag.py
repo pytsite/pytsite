@@ -18,6 +18,17 @@ __allowed_tags = (
     'description',
     'charset',
     'viewport',
+    'keywords',
+    'og:title',
+    'og:description',
+    'og:locale',
+    'og:image',
+    'og:image:width',
+    'og:image:height',
+    'twitter:card',
+    'twitter:title',
+    'twitter:description',
+    'twitter:image',
 )
 
 
@@ -58,6 +69,8 @@ def dump(tag: str) -> str:
         r = '<meta charset="{}">\n'.format(__tags[tag])
     elif tag == 'title':
         r = '<title>{} | {}</title>\n'.format(__tags[tag], _lang.t('app_name'))
+    elif tag.startswith('og:'):
+        r = '<meta property="{}" content="{}">'.format(tag, __tags[tag])
     else:
         r = '<meta name="{}" content="{}">'.format(tag, __tags[tag])
 
@@ -69,6 +82,6 @@ def dump_all() -> str:
     """
     r = str()
     for tag in __tags:
-        r += dump(tag)
+        r += dump(tag) + '\n'
 
     return r

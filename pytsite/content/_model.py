@@ -38,6 +38,11 @@ class Tag(_taxonomy.model.Term):
         super()._setup()
         self._define_field(_odm.field.RefsUniqueList('sections', model='section'))
 
+    def setup_browser(self, browser):
+        super().setup_browser(browser)
+        browser.default_sort_field = 'weight'
+        browser.default_sort_order = _odm.I_DESC
+
 
 class Content(_odm.Model, _odm_ui.UIMixin):
     """Content Model.
@@ -171,6 +176,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         if field_name == 'body' and kwargs.get('process_tags'):
             value = self._process_body_tags(value)
+
+        if field_name == 'tags':
+            if kwargs.get('as_string'):
+                value = ','.join([tag.title for tag in self.f_get('tags')])
 
         return value
 

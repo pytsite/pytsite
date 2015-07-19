@@ -44,7 +44,7 @@ class Element(_ABC):
         for attr in self._get_required_attrs():
             if attr not in self._attrs:
                 raise Exception("Required attribute '{}' is not specified for element '{}'.".
-                                     format(attr, self.tag_name))
+                                format(attr, self.tag_name))
 
     @property
     def tag_name(self):
@@ -360,7 +360,7 @@ class Form(BlockElement):
 
 class Input(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'value', 'placeholder', 'checked'
+        return 'value', 'placeholder', 'checked', 'required'
 
     def _get_required_attrs(self) -> tuple:
         return 'type', 'name'

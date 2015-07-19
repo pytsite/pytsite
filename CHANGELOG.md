@@ -27,6 +27,7 @@
     - New console commands:
         - `db:dump`
         - `db:restore`
+    - Support for some OpenGraph and Twitter properties in `pytsite.core.metatag`.
 - `pytsite.auth`:
     - New ODM `pytsite.auth.model.User` properties: `full_name`.
 - `pytsite.content`:
@@ -37,6 +38,8 @@
         - New events `content.entity.pre_save`, `content.entity.save`.
     - "Propose content" form.
     - Weekly email digest subscription.
+    - SEO settings form for home page.
+    - Support for OpenGraph and Twitter meta tags.
 - `pytsite.ckeditor`:
     - Images upload.
 - `pytsite.file`:

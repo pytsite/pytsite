@@ -82,6 +82,8 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         :return: None
         """
         browser.data_fields = ('title', 'alias', 'weight', 'order', 'language')
+        browser.default_sort_field = 'order'
+        browser.default_sort_order = _odm.I_ASC
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.

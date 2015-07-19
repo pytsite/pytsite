@@ -8,6 +8,7 @@ import re as _re
 from pytsite.core import tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http
 from . import _functions
 
+
 def form(args: dict, inp: dict) -> str:
     """Render settings form.
     """
@@ -35,6 +36,7 @@ def form_validate(args: dict, inp: dict) -> dict:
     widget_messages = frm.messages
 
     return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
+
 
 def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     """Process settings form submit.
