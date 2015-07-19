@@ -66,21 +66,18 @@ def __init():
     from . import router
 
     # Loading routes from the registry
-    for pattern, opts in reg.get('routes', {}).items():
-        if '_endpoint' not in opts and '_redirect' not in opts:
-            raise Exception("'_endpoint' or '_redirect' is not defined for route '{0}'".format(pattern))
+    for url_path, opts in reg.get('routes', {}).items():
+        name = opts.get('_name')
+        call = opts.get('_call')
+        methods = opts.get('_methods', 'GET')
+        filters = opts.get('_filters', ())
 
-        endpoint = opts.get('_endpoint')
-        redirect = opts.get('_redirect')
-        methods = opts.get('_methods', ['GET'])
-        filters = opts.get('_filters', [])
-
-        defaults = {}
+        args = {}
         for k, v in opts.items():
             if not k.startswith('_'):
-                defaults[k] = v
+                args[k] = v
 
-        router.add_rule(pattern, endpoint, defaults, methods, redirect, filters)
+        router.add_rule(url_path, name=name, call=call, args=args, methods=methods, filters=filters)
 
     # Initializing asset manager
     from pytsite.core import assetman

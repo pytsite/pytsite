@@ -13,7 +13,7 @@ from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from importlib import import_module as _import_module
 from htmlmin import minify as _minify
-from . import reg as _reg, logger as _logger, http as _http
+from . import reg as _reg, logger as _logger, http as _http, util as _util
 
 
 session_storage_path = _reg.get('paths.session')
@@ -21,8 +21,8 @@ if not _path.exists(session_storage_path):
     _makedirs(session_storage_path, 0o755, True)
 
 __session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
-__routes = _Map()
-__url_adapter = __routes.bind(_reg.get('server.name', 'localhost'))
+_routes = _Map()
+__url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 __path_aliases = {}
 
 
@@ -36,19 +36,27 @@ session = None
 class Rule(_Rule):
     """Routing rule.
     """
-    def __init__(self, string: str, **kwargs):
-        self.filters = ()
-        if 'filters' in kwargs:
-            self.filters = kwargs.get('filters', ())
+    def __init__(self, url_path: str, **kwargs):
+        self.call = kwargs.get('call')
+        self.filters = kwargs.get('filters', ())
+
+        endpoint = kwargs.get('endpoint')
+        try:
+            _routes.iter_rules(endpoint)
+            raise Exception("Endpoint name '{}' already used.".format(endpoint))
+        except KeyError:
+            del kwargs['call']
             del kwargs['filters']
+            super().__init__(url_path, **kwargs)
 
-        super().__init__(string, **kwargs)
 
-
-def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, redirect_to: str=None, filters=None):
+def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, methods=None, filters=None):
     """Add a rule to the router.
     :param methods: str|tuple|list
     """
+    if not name and not call:
+        raise Exception("Either 'name' or 'call' must be specified.")
+
     if filters is None:
         filters = []
 
@@ -61,16 +69,22 @@ def add_rule(pattern: str, endpoint: str, defaults: dict=None, methods=None, red
     if not isinstance(filters, list) and not isinstance(filters, tuple):
         raise Exception('Filters must be a string, list or tuple. {} given.'.format(repr(filters)))
 
+    if not name:
+        name = _util.random_str(32)
+
+    if not call:
+        call = name
+
     rule = Rule(
-        string=pattern,
-        endpoint=endpoint,
-        defaults=defaults,
+        url_path=pattern,
+        endpoint=name,
+        call=call,
+        defaults=args,
         methods=methods,
-        redirect_to=redirect_to,
         filters=filters
     )
 
-    __routes.add(rule)
+    _routes.add(rule)
 
 
 def add_path_alias(alias: str, target: str):
@@ -128,7 +142,7 @@ def dispatch(env: dict, start_response: callable):
     env['PATH_INFO'] = __path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
 
     # Replace url adapter with environment-based
-    __url_adapter = __routes.bind_to_environ(env)
+    __url_adapter = _routes.bind_to_environ(env)
 
     # Creating request
     request = _http.request.Request(env)
@@ -171,7 +185,7 @@ def dispatch(env: dict, start_response: callable):
 
         # Processing response from handler
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html')
-        response_from_callable = call_endpoint(rule.endpoint, rule_args, request.values_dict)
+        response_from_callable = call_endpoint(rule.call, rule_args, request.values_dict)
         if isinstance(response_from_callable, str):
             if _reg.get('output.minify'):
                 response_from_callable = _minify(response_from_callable, True, True)
@@ -194,9 +208,9 @@ def dispatch(env: dict, start_response: callable):
         return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
+        _logger.error(str(e))
         metatag.t_set('title', lang.t('core@error', {'code': 500}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
-        _logger.error(str(e))
         return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 
@@ -325,7 +339,7 @@ def endpoint_path(endpoint: str, args: dict=None) -> str:
     return url(__url_adapter.build(endpoint, args), relative=True)
 
 
-def endpoint_url(endpoint: str, args: dict=None) -> str:
+def endpoint_url(ep_name: str, args: dict=None) -> str:
     """Get URL for endpoint.
     """
-    return url(__url_adapter.build(endpoint, args), relative=False)
+    return url(__url_adapter.build(ep_name, args), relative=False)

@@ -18,7 +18,8 @@ class Query:
         self._model = model
         self._criteria = {}
 
-    def _resolve_logical_op(self, op: str) -> str:
+    @staticmethod
+    def _resolve_logical_op(op: str) -> str:
         """Resolve logical operator.
         """
         if op not in ('and', 'or', '$and', '$or'):
@@ -28,7 +29,8 @@ class Query:
 
         return op
 
-    def _resolve_comparison_op(self, op: str) -> str:
+    @staticmethod
+    def _resolve_comparison_op(op: str) -> str:
         """Resolve comparison operator.
         """
         if op in ('=', 'eq', '$eq'):
@@ -108,7 +110,6 @@ class Result:
         return self
 
     def __next__(self):
-
         from ._functions import dispense
         doc = next(self._cursor)
 

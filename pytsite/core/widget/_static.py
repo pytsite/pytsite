@@ -156,8 +156,6 @@ class Pager(_base.Base):
         """
         super().__init__(**kwargs)
 
-        print('Total:' + str(total_items))
-
         self._total_items = int(total_items)
         self._items_per_page = int(per_page)
         self._total_pages = _ceil(total_items / per_page)
@@ -217,7 +215,8 @@ class Pager(_base.Base):
 
     @property
     def skip(self):
-        return (self._current_page - 1) * self._items_per_page
+        skip = (self._current_page - 1) * self._items_per_page
+        return skip if skip >= 0 else 0
 
     @property
     def limit(self):

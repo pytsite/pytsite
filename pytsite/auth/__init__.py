@@ -21,9 +21,9 @@ def __init():
     odm.register_model('role', _model.Role)
 
     # Routes
-    router.add_rule('/auth/login', __name__ + '.eps.get_login', {})
-    router.add_rule('/auth/login/post', __name__ + '.eps.post_login', {}, ('POST',))
-    router.add_rule('/auth/logout', __name__ + '.eps.logout', {})
+    router.add_rule('/auth/login', __name__ + '.eps.get_login')
+    router.add_rule('/auth/login/post', __name__ + '.eps.post_login', methods='POST')
+    router.add_rule('/auth/logout', __name__ + '.eps.logout')
 
     # Default auth driver
     from . import _functions

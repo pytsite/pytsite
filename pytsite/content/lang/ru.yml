@@ -38,6 +38,7 @@ unsubscription_successful: 'Вы были успешно отписаны от �
 home_page_title: 'Title главной страницы (RU)'
 home_page_description: 'Description главной страницы (RU)'
 home_page_keywords: 'Keywords главной страницы (RU)'
+search: 'Поиск &laquo;:query&raquo;'
 
 odm_ui_permission_group_description: 'Содержимое'
 

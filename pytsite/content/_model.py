@@ -131,6 +131,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def status(self) -> str:
         return self.f_get('status')
 
+    @property
+    def searchable_fields(self) -> tuple:
+        return 'title',
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """

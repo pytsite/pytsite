@@ -40,6 +40,7 @@
     - Weekly email digest subscription.
     - SEO settings form for home page.
     - Support for OpenGraph and Twitter meta tags.
+    - Simple content search.
 - `pytsite.ckeditor`:
     - Images upload.
 - `pytsite.file`:

@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime as _datetime
-from pytsite import content as _content, disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth
+from pytsite import disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth
 from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
     odm as _odm, widget as _widget, lang as _lang, validation as _validation
 
@@ -13,12 +13,18 @@ from pytsite.core import reg as _reg, http as _http, router as _router, metatag 
 def index(args: dict, inp: dict):
     """Content Index.
     """
+    from . import _functions
+
     model = args.get('model')
-    if not model:
-        raise ValueError('Model is not specified.')
+    if not model or not _functions.is_model_registered(model):
+        return _http.response.Redirect(_router.base_url())
 
-    f = _content.find(model)
+    f = _functions.find(model)
 
+    mock = f.mock
+    """:type: pytsite.content._model.Content"""
+
+    # Filter by term
     term_field = args.get('term_field')
     if term_field:
         term_model = f.mock.get_field(term_field).model
@@ -32,6 +38,18 @@ def index(args: dict, inp: dict):
                 f.where(term_field, 'in', [term])
             _metatag.t_set('title', term.title)
 
+    if inp.get('search'):
+        query = inp.get('search')
+        if query:
+            _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
+            for word in query.strip().split(' '):
+                if word:
+                    print(word)
+                    for search_field_name in mock.searchable_fields:
+                        search_field = mock.get_field(search_field_name)
+                        if isinstance(search_field, _odm.field.String):
+                            f.where(search_field_name, 'regex_i', word)
+
     pager = _widget.static.Pager(f.count(), 10)
 
     args['entities'] = f.skip(pager.skip).get(pager.limit)
@@ -44,8 +62,10 @@ def index(args: dict, inp: dict):
 def view(args: dict, inp: dict):
     """View Content Entity.
     """
+    from . import _functions
+
     model = args.get('model')
-    entity = _content.find(model, None, False).where('_id', '=', args.get('id')).first()
+    entity = _functions.find(model, None, False).where('_id', '=', args.get('id')).first()
     """:type: pytsite.content._model.Content"""
 
     if not entity:
@@ -102,7 +122,8 @@ def view_count(args: dict, inp: dict) -> int:
     eid = inp.get('id')
 
     if model and eid:
-        entity = _content.find(model).where('_id', '=', eid).first()
+        from . import _functions
+        entity = _functions.find(model).where('_id', '=', eid).first()
         if entity:
             entity.f_inc('views_count').save()
             return entity.f_get('views_count')
@@ -125,10 +146,6 @@ def propose(args: dict, inp: dict) -> str:
     return _router.call_endpoint(endpoint, {
         'form': form
     })
-
-
-def search(args: dict, inp: dict) -> str:
-    return 'TODO'
 
 
 def subscribe(args: dict, inp: dict) -> str:
