@@ -40,6 +40,7 @@ class Browser:
         # Browser title
         self._title = self._entity_mock.t('odm_ui_browser_title_' + model)
         _metatag.t_set('title', self._title)
+        _metatag.t_set('description', '')
 
         # Call mock's hook to perform setup tasks
         self._entity_mock.setup_browser(self)

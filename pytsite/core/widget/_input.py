@@ -250,8 +250,7 @@ class ListList(StringList):
 
         return self
 
-    @staticmethod
-    def _set_value_from_list_list(value: list, **kwargs):
+    def _set_value_from_list_list(self, value: list, **kwargs):
         for sub in value:
             if not isinstance(sub, list):
                 raise ValueError('List expected.')

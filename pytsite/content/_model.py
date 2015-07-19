@@ -216,7 +216,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         if self.is_new:
-            # Updating route alias target
+            # Update route alias target which has been created in self._pre_save()
             if self.f_get('route_alias').f_get('target') == 'NONE':
                 target = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': self.id})
                 self.f_get('route_alias').f_set('target', target).save()
@@ -227,11 +227,21 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             for ra in f.get():
                 ra.delete()
 
+            # Notify content moderators about waiting content
             if self.is_new and self.status == 'waiting':
                 self._send_waiting_status_notification()
                 if _router.session:
                     _router.session.add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
 
+            # Recalculate tags weights
+            from . import _functions
+            for tag in self.tags:
+                weight = 0
+                for model in _functions.get_models().keys():
+                    weight += _functions.find(model).where('tags', 'in', [tag]).count()
+                tag.f_set('weight', weight).save()
+
+        # Creating back links in images
         for img in self.images:
             if not img.f_get('attached_to'):
                 img.f_set('attached_to', self).f_set('owner', self.author).save()
