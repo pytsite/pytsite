@@ -11,7 +11,7 @@ import time as _time
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from datetime import datetime as _datetime
 from os import listdir as _listdir, path as _path, unlink as _unlink, makedirs as _makedirs
-from pytsite.core import reg as _reg, events as _events, logger as _logger
+from pytsite.core import reg as _reg, events as _events, logger as _logger, db as _db
 from . import _error
 
 
@@ -209,10 +209,13 @@ class Maintenance(Abstract):
             with open(lock_path, 'wt') as f:
                 f.write(str(_datetime.now()))
             _functions.print_success(t('pytsite.core@maintenance_mode_enabled'))
-
-        if 'disable' in kwargs:
+        elif 'disable' in kwargs:
             _unlink(lock_path)
             _functions.print_success(t('pytsite.core@maintenance_mode_disabled'))
+        else:
+            _functions.print_info('Usage: app:maintenance --enable | --disable')
+
+
 
 
 class Setup(Abstract):
@@ -295,6 +298,10 @@ class DbDump(Abstract):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
             raise Exception('Cannot find mongodump executable.')
 
+        from ._functions import run_command
+
+        run_command('app:maintenance', enable=True)
+
         db_name = _reg.get('db.database')
         target_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump')
         target_subdir = _path.join(target_dir, db_name)
@@ -304,8 +311,58 @@ class DbDump(Abstract):
             target_subdir_move = '{}-{}'.format(target_subdir, ctime.strftime('%Y%m%d-%H%M%S'))
             _shutil.move(target_subdir, target_subdir_move)
 
-        command = 'mongodump --dumpDbUsersAndRoles --gzip -o {} -d {}'.format(target_dir, db_name)
+        command = 'mongodump --gzip -o {} -d {}'.format(target_dir, db_name)
+
+        config = _db.get_config()
+        if config['user']:
+            command += ' -u {} -p {}'.format(config['user'], config['password'])
+        if config['ssl']:
+            command += ' --ssl --sslAllowInvalidCertificates'
 
         r = _subprocess.call(command, shell=True)
 
-        print(r)
+        run_command('app:maintenance', disable=True)
+
+        return r
+
+
+class DbRestore(Abstract):
+    """Database Dump Command.
+    """
+    def get_name(self) -> str:
+        """Get name of the command.
+        """
+        return 'db:restore'
+
+    def get_description(self) -> str:
+        """Get description of the command.
+        """
+        from pytsite.core.lang import t
+        return t('pytsite.core@db_restore_console_command_description')
+
+    def execute(self, **kwargs: dict):
+        """Execute the command.
+        """
+        if _subprocess.call('which mongorestore', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
+            raise Exception('Cannot find mongorestore executable.')
+
+        from ._functions import run_command
+
+        run_command('app:maintenance', enable=True)
+
+        db_name = _reg.get('db.database')
+        source_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump', db_name)
+
+        command = 'mongorestore --drop --gzip --stopOnError --dir {} -d {}'.format(source_dir, db_name)
+
+        config = _db.get_config()
+        if config['user']:
+            command += ' -u {} -p {}'.format(config['user'], config['password'])
+        if config['ssl']:
+            command += ' --ssl --sslAllowInvalidCertificates'
+
+        r = _subprocess.call(command, shell=True)
+
+        run_command('app:maintenance', disable=True)
+
+        return r

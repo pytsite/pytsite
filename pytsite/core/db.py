@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import ssl
 from pymongo import MongoClient as _MongoClient
 from pymongo.database import Database as _Database
 from pymongo.collection import Collection as _Collection
@@ -14,7 +15,7 @@ __client = None
 __database = None
 
 
-def _get_config() -> dict:
+def get_config() -> dict:
     default = {
         'host': 'localhost',
         'port': 27017,
@@ -34,8 +35,8 @@ def get_client() -> _MongoClient:
     if __client:
         return __client
 
-    config = _get_config()
-    __client = _MongoClient(config['host'], config['port'])
+    config = get_config()
+    __client = _MongoClient(config['host'], config['port'], ssl=config['ssl'], ssl_cert_reqs=ssl.CERT_NONE)
 
     return __client
 
@@ -47,7 +48,7 @@ def get_database() -> _Database:
     if __database:
         return __database
 
-    config = _get_config()
+    config = get_config()
     __database = get_client().get_database(config['database'])
 
     if config['user']:
