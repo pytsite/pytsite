@@ -17,6 +17,8 @@ setup(
         'PyYAML',
         'Werkzeug',
         'Jinja2',
+        'pylibmc',
+        'beaker',
         'pymongo',
         'webassets',
         'Pillow',

@@ -34,8 +34,9 @@ def __init():
     tpl.register_global('auth', _functions)
 
     # Event handlers
-    from ._event_handlers import app_setup
+    from ._event_handlers import app_setup, router_dispatch
     events.listen('app.setup', app_setup)
+    events.listen('pytsite.core.router.dispatch', router_dispatch)
 
     # Permissions
     _functions.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')

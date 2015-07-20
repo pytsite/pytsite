@@ -36,7 +36,7 @@ def __init():
 
     # Output parameters
     reg.set_val('output', {
-        'minify': False,
+        'minify': True,
         'theme': 'default',
         'base_tpl': 'app@html',
     })

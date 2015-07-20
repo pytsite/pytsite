@@ -67,6 +67,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('edit_url'))
 
+        self._define_index([('publish_time', _odm.I_DESC)])
+
     @property
     def title(self) -> str:
         return self.f_get('title')

@@ -3,10 +3,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import json
-from werkzeug.wrappers import Response as _R
+from werkzeug.wrappers import Response as _BaseResponse
 
 
-class Response(_R):
+class Response(_BaseResponse):
     """Basic HTTP response.
     """
     pass

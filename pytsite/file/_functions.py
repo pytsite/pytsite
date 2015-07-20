@@ -7,8 +7,8 @@ __license__ = 'MIT'
 import re as _re
 import magic as _magic
 import os as _os
+import shutil as _shutil
 from mimetypes import guess_extension as _guess_extension
-from shutil import copyfile as _copyfile
 from urllib.request import urlopen as _urlopen
 from urllib.parse import urlparse as _urlparse
 from bson.dbref import DBRef as _DBRef
@@ -56,8 +56,9 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
         with _urlopen(source_path) as src:
             data = src.read()
 
-        tmp_file = _util.mk_tmp_file()
-        _os.write(int(tmp_file[0]), data)
+        tmp_file_fd, tmp_file_path = _util.mk_tmp_file()
+        _os.write(tmp_file_fd, data)
+        _os.close(tmp_file_fd)
 
         if not name:
             name = _urlparse(source_path).path.split('/')[-1]
@@ -65,7 +66,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
             description = 'Downloaded from ' + source_path
 
         remove_source = True
-        source_path = tmp_file[1]
+        source_path = tmp_file_path
 
     mime = _magic.from_file(source_path, True).decode()
     abs_target_path = _build_store_path(mime, model, propose_store_path)
@@ -74,12 +75,15 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     if not _os.path.exists(target_dir):
         _os.makedirs(target_dir, 0o755, True)
 
-    # Copying file to the storage
-    _copyfile(source_path, abs_target_path)
+    # Copy file to the storage
+    _shutil.copy(source_path, abs_target_path)
+
     if not name:
         name = _os.path.basename(source_path)
+
     if not description:
         description = 'Created from local file ' + source_path
+
     if remove_source:
         _os.unlink(source_path)
 

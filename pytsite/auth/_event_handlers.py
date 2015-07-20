@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import lang as _lang, console as _console, validation as _validation
+from pytsite.core import lang as _lang, console as _console, validation as _validation, router as _router
 from . import _functions
 
 
@@ -27,11 +27,11 @@ def app_setup():
     try:
         email = input(_lang.t('auth@enter_admin_email') + ': ')
         v = _validation.Validator()
-        v\
-            .add_rule('email', _validation.rule.NotEmpty())\
-            .add_rule('email', _validation.rule.Email()).set_value('email', email)
+        v.add_rule('email', _validation.rule.NotEmpty())
+        v.add_rule('email', _validation.rule.Email()).set_value('email', email)
         if not v.validate():
             raise Exception(v.messages)
+
         admin_user = _functions.create_user(email)
         admin_user.f_set('full_name', _lang.t('auth@administrator'))
         admin_user.f_add('roles', _functions.get_role('admin'))
@@ -40,3 +40,7 @@ def app_setup():
                                                  {'login': admin_user.f_get('login')}))
     except Exception as e:
         raise _console.error.ConsoleRuntimeError(e)
+
+def router_dispatch():
+    if not _functions.get_current_user().is_anonymous:
+        _router.no_cache = True

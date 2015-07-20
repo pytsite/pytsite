@@ -207,7 +207,7 @@ def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
     # Console mode
-    if not _router.session:
+    if _router.session is None:
         return
 
     login = _router.session.get('pytsite.auth.login')

@@ -27,7 +27,7 @@ def dict_merge(a: dict, b: dict) -> dict:
     return result
 
 
-def mk_tmp_file()->str:
+def mk_tmp_file() -> tuple:
     """Creates temporary file.
     """
     from os import path, mkdir

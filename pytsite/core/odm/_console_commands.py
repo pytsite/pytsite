@@ -26,6 +26,5 @@ class RebuildIndices(_console.command.Abstract):
         """Execute the command.
         """
         for model in _functions.get_registered_models():
-            mock = _functions.dispense(model)
-            mock.reindex()
+            _functions.dispense(model).reindex()
             _console.print_success(_lang.t('core.odm@reindex_model', {'model': model}))

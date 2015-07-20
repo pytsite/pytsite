@@ -76,7 +76,8 @@
 - Incorrect method call in `pytsite.admin@tpl/header.jinja2`.
 - Issue with `core.odm.Model.t()` in inheritance cases.
 - Incorrect return value of `core.http.request.values_dict` in case of list input.
-- Non-working JS for `core.widget.select.DateTime()`
+- Non-working JS for `core.widget.select.DateTime()`.
+- Open files leak in `pytsite.file.create()`.
 
 ## 0.1.0 (2015-07-01)
 First release.

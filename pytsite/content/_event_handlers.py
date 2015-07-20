@@ -54,6 +54,6 @@ def router_dispatch():
                 s_val = ','.join(s_val)
             _metatag.t_set(s_key, s_val)
 
-        if s_key in ['title', 'description']:
-            _metatag.t_set('og:' + s_key, s_val)
-            _metatag.t_set('twitter:' + s_key, s_val)
+            if s_key in ['title', 'description']:
+                _metatag.t_set('og:' + s_key, s_val)
+                _metatag.t_set('twitter:' + s_key, s_val)

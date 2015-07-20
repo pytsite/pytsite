@@ -123,8 +123,7 @@ class Cron(Abstract):
                     or evt == 'daily' and delta.total_seconds() >= 86400 \
                     or evt == 'weekly' and delta.total_seconds() >= 604800 \
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
-                evt = 'pytsite.core.cron.' + evt
-                _events.fire(evt)
+                _events.fire('pytsite.core.cron.' + evt)
                 _logger.info(__name__ + '. Issued cron event: ' + evt + '.')
                 self._update_descriptor(evt)
 
@@ -166,7 +165,6 @@ class Cron(Abstract):
             }
             with open(file_path, 'wb') as f:
                 _pickle.dump(data, f)
-            return data
         else:
             with open(file_path, 'rb') as f:
                 data = _pickle.load(f)
@@ -214,8 +212,6 @@ class Maintenance(Abstract):
             _functions.print_success(t('pytsite.core@maintenance_mode_disabled'))
         else:
             _functions.print_info('Usage: app:maintenance --enable | --disable')
-
-
 
 
 class Setup(Abstract):

@@ -12,7 +12,7 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db as _db, events as _events, lang as _lang
+from pytsite.core import db as _db, events as _events, lang as _lang, cache as _cache
 from . import _error, _field
 
 
@@ -46,6 +46,9 @@ class Model(_ABC):
         self._define_field(_field.DateTime('_created'))
         self._define_field(_field.DateTime('_modified'))
 
+        # Store model into separate field
+        self.get_field('_model').set_val(model)
+
         # setup() hook
         self._setup()
 
@@ -57,16 +60,24 @@ class Model(_ABC):
         if obj_id:
             if isinstance(obj_id, str):
                 obj_id = _ObjectId(obj_id)
+
+            # Load data from from DB
             data = self._collection.find_one({'_id': obj_id})
+
+            # No data has been found
             if not data:
                 raise _error.EntityNotFound("Entity '{}:{}' is not found in storage.".format(model, str(obj_id)))
+
+            # Filling fields with retrieved data
             for field_name, value in data.items():
                 if self.has_field(field_name):
                     self.get_field(field_name).set_val(value, False)
+
+            # Of course, loaded entity cannot be 'new'
             self._is_new = False
+
         else:
-            # Filling some fields with initial values
-            self.get_field('_model').set_val(model)
+            # Filling fields with initial values
             self.get_field('_created').set_val(_datetime.now())
             self.get_field('_modified').set_val(_datetime.now())
 
@@ -119,10 +130,10 @@ class Model(_ABC):
             for i_name, i_val in indices.items():
                 if i_name != '_id_':
                     self._collection.drop_index(i_name)
-
-            self._create_indices()
         except _OperationFailure:  # Collection does not exist
-            self._create_indices()
+            pass
+
+        self._create_indices()
 
     @_abstractmethod
     def _setup(self):
@@ -294,7 +305,7 @@ class Model(_ABC):
                 continue
             data[f_name] = field.get_storable_val()
 
-        # Let MongoDB to calculate object's ID
+        # Let DB to calculate object's ID
         if self._is_new:
             del data['_id']
 

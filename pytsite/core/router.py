@@ -20,11 +20,12 @@ session_storage_path = _reg.get('paths.session')
 if not _path.exists(session_storage_path):
     _makedirs(session_storage_path, 0o755, True)
 
-__session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
+_session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
 _routes = _Map()
-__url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
-__path_aliases = {}
+_url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
+_path_aliases = {}
 
+no_cache = False
 
 request = None
 """:type : pytsite.core.http._request.Request"""
@@ -88,7 +89,7 @@ def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, meth
 
 
 def add_path_alias(alias: str, target: str):
-    __path_aliases[alias] = target
+    _path_aliases[alias] = target
 
 
 def call_endpoint(name: str, args: dict=None, inp: dict=None):
@@ -116,12 +117,15 @@ def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
     from pytsite.core import tpl, metatag, events, lang
-    global __url_adapter, request, session
+    global _url_adapter, request, session, no_cache
 
     if _path.exists(_reg.get('paths.maintenance.lock')):
         wsgi_response = _http.response.Response(response='We are in maintenance mode now. Please try again later.',
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
+
+    # All requests are cached by default
+    no_cache = False
 
     # Detect language from path
     languages = lang.get_langs()
@@ -139,31 +143,31 @@ def dispatch(env: dict, start_response: callable):
     events.fire('pytsite.core.router.pre_dispatch', path_info=env['PATH_INFO'])
 
     # Loading path alias
-    env['PATH_INFO'] = __path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
+    env['PATH_INFO'] = _path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
 
     # Replace url adapter with environment-based
-    __url_adapter = _routes.bind_to_environ(env)
+    _url_adapter = _routes.bind_to_environ(env)
 
     # Creating request
     request = _http.request.Request(env)
 
     # Remove trailing slash
-    path_info = __url_adapter.path_info
+    path_info = _url_adapter.path_info
     if len(path_info) > 1 and path_info.endswith('/'):
         redirect_url = _re.sub(r'/$', '', path_info)
-        if __url_adapter.query_args:
-            redirect_url += '?' + __url_adapter.query_args
+        if _url_adapter.query_args:
+            redirect_url += '?' + _url_adapter.query_args
         return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # Session setup
     sid = request.cookies.get('PYTSITE_SESSION')
     if sid:
-        session = __session_store.get(sid)
+        session = _session_store.get(sid)
     else:
-        session = __session_store.new()
+        session = _session_store.new()
 
     try:
-        rule, rule_args = __url_adapter.match(return_rule=True)
+        rule, rule_args = _url_adapter.match(return_rule=True)
 
         # Notify listeners
         events.fire('pytsite.core.router.dispatch')
@@ -183,8 +187,9 @@ def dispatch(env: dict, start_response: callable):
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
+        wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
+
         # Processing response from handler
-        wsgi_response = _http.response.Response(response='', status=200, content_type='text/html')
         response_from_callable = call_endpoint(rule.call, rule_args, request.values_dict)
         if isinstance(response_from_callable, str):
             if _reg.get('output.minify'):
@@ -195,9 +200,16 @@ def dispatch(env: dict, start_response: callable):
         else:
             wsgi_response.data = ''
 
+        # Cache control
+        if no_cache or request.method != 'GET':
+            wsgi_response.headers.set('Cache-Control', 'private, max-age=0, no-cache, no-store')
+            wsgi_response.headers.set('Pragma', 'no-cache')
+        else:
+            wsgi_response.headers.set('Cache-Control', 'public')
+
         # Updating session data
         if session.should_save:
-            __session_store.save(session)
+            _session_store.save(session)
             wsgi_response.set_cookie('PYTSITE_SESSION', session.sid)
 
         return wsgi_response(env, start_response)
@@ -237,16 +249,16 @@ def base_path(language: str=None) -> str:
 def server_name():
     from . import reg
     name = reg.get('server.name', 'localhost')
-    if __url_adapter:
-        name = __url_adapter.server_name
+    if _url_adapter:
+        name = _url_adapter.server_name
 
     return name
 
 
 def scheme():
     r = 'http'
-    if __url_adapter:
-        r = __url_adapter.url_scheme
+    if _url_adapter:
+        r = _url_adapter.url_scheme
 
     return r
 
@@ -317,7 +329,7 @@ def current_path(strip_query: bool=False, resolve_alias: bool=True) -> str:
     query = _urlparse.urlunparse(('', '', '', '', r[4], r[5]))
 
     if resolve_alias:
-        for k, v in __path_aliases.items():
+        for k, v in _path_aliases.items():
             if path == v:
                 path = k
                 break
@@ -336,10 +348,10 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
 
 
 def endpoint_path(endpoint: str, args: dict=None) -> str:
-    return url(__url_adapter.build(endpoint, args), relative=True)
+    return url(_url_adapter.build(endpoint, args), relative=True)
 
 
 def endpoint_url(ep_name: str, args: dict=None) -> str:
     """Get URL for endpoint.
     """
-    return url(__url_adapter.build(ep_name, args), relative=False)
+    return url(_url_adapter.build(ep_name, args), relative=False)

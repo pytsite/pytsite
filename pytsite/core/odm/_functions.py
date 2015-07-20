@@ -54,7 +54,6 @@ def get_registered_models() -> list:
 def _cache_get(model_name: str, entity_id):
     """Get entity from the cache.
     """
-
     cache_key = model_name + ':' + str(entity_id)
     if cache_key in __dispensed_entities:
         cache_key = model_name + ':' + str(entity_id)
@@ -64,7 +63,6 @@ def _cache_get(model_name: str, entity_id):
 def _cache_put(entity: _model.Model) -> _model.Model:
     """Put entity to the cache.
     """
-
     if not entity.is_new:
         cache_key = entity.model + ':' + str(entity.id)
         __dispensed_entities[cache_key] = entity
@@ -75,7 +73,6 @@ def _cache_put(entity: _model.Model) -> _model.Model:
 def cache_delete(entity: _model.Model):
     """Delete entity from the cache.
     """
-
     if not entity.is_new:
         cache_key = entity.model + ':' + str(entity.id)
         if cache_key in __dispensed_entities:
