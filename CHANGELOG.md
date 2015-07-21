@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.3 (2015-07-21)
+### Added
+  - Support for 'author' and 'og:url' in `metatag`.
+
 ## 0.2.2 (2015-07-21)
 ### Added
 - `pytsite.core`:
