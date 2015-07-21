@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-__version = '0.2.0'
+__version = '0.2.1'
 
 setup(
     name='PytSite',
@@ -8,7 +8,6 @@ setup(
     description='The Simple Web Framework',
     url='https://github.com/ashep/pytsite',
     download_url='https://github.com/ashep/pytsite/archive/{}.tar.gz'.format(__version),
-    bugtrack_url='https://github.com/ashep/pytsite/issues',
     author='Alexander Shepetko',
     author_email='a@shepetko.com',
     packages=find_packages(),

@@ -1,0 +1,3 @@
+recursive-include pytsite *
+global-exclude *.pyc
+global-exclude *.pyo

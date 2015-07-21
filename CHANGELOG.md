@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.1 (2015-07-21)
+### Fixed
+- setup.py
+
 ## 0.2.0 (2015-07-21)
 ### Added
 - New plugins: `pytsite.oauth`, `pytsite.twitter`, `pytsite.poster`, `pytsite.page`, `pytsite.add_this`.
