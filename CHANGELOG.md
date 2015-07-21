@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.4 (2015-07-21)
+### Fixed
+  - Incorrect value of 'og:url' in `pytsite.content.eps.view`. 
+
 ## 0.2.3 (2015-07-21)
 ### Added
   - Support for 'author' and 'og:url' in `metatag`.
