@@ -61,7 +61,7 @@ def is_package_registered(pkg_name):
     return pkg_name in __packages
 
 
-def register_package(pkg_name: str, languages_dir: str='lang') -> str:
+def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
     """Register language container.
     """
     if is_package_registered(pkg_name):

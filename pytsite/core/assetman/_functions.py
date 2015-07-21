@@ -14,7 +14,7 @@ __pattern_links = {}
 __exact_links = {}
 
 
-def register_package(package_name: str, assets_dir: str='assets'):
+def register_package(package_name: str, assets_dir: str='res/assets'):
     """Register assets container.
     """
     spec = _find_spec(package_name)

@@ -307,11 +307,12 @@ class DbDump(Abstract):
             target_subdir_move = '{}-{}'.format(target_subdir, ctime.strftime('%Y%m%d-%H%M%S'))
             _shutil.move(target_subdir, target_subdir_move)
 
-        command = 'mongodump --gzip -o {} -d {}'.format(target_dir, db_name)
-
         config = _db.get_config()
+
+        command = 'mongodump -h {}:{} --gzip -o {} -d {}'.format(config['host'], config['port'], target_dir, db_name)
+
         if config['user']:
-            command += ' -u {} -p {}'.format(config['user'], config['password'])
+            command += '-u {} -p {}'.format(config['user'], config['password'])
         if config['ssl']:
             command += ' --ssl --sslAllowInvalidCertificates'
 
@@ -349,9 +350,11 @@ class DbRestore(Abstract):
         db_name = _reg.get('db.database')
         source_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump', db_name)
 
-        command = 'mongorestore --drop --gzip --stopOnError --dir {} -d {}'.format(source_dir, db_name)
-
         config = _db.get_config()
+
+        command = 'mongorestore -h {}:{} --drop --gzip --stopOnError --dir {} -d {}'.\
+            format(config['host'], config['port'], source_dir, db_name)
+
         if config['user']:
             command += ' -u {} -p {}'.format(config['user'], config['password'])
         if config['ssl']:

@@ -113,8 +113,7 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
         ids = [ids]
 
     try:
-        for eid in ids:
-            _functions.dispense_entity(model, eid).delete()
+        _functions.post_d_form(model, ids)
         _router.session.add_info(_lang.t('odm_ui@operation_successful'))
     except _odm.error.ForbidEntityDelete as e:
         _router.session.add_error(_lang.t('odm_ui@entity_deletion_forbidden') + ': ' + str(e))

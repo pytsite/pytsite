@@ -1,6 +1,22 @@
+import sys, re
+from os import walk, path
 from setuptools import setup, find_packages
 
 __version = '0.2.1'
+
+
+def find_package_data():
+    r = {}
+    for pkg in find_packages():
+        r[pkg] = []
+        pkg_dir = path.sep.join(pkg.split('.'))
+        for root, dir_name, files in walk(pkg_dir):
+            for file_name in files:
+                sub_path = re.sub('^{}{}'.format(pkg_dir, path.sep), '', path.join(root, file_name))
+                if re.match('res\/', sub_path):
+                    r[pkg].append(sub_path)
+    return r
+
 
 setup(
     name='PytSite',
@@ -10,7 +26,6 @@ setup(
     download_url='https://github.com/ashep/pytsite/archive/{}.tar.gz'.format(__version),
     author='Alexander Shepetko',
     author_email='a@shepetko.com',
-    packages=find_packages(),
     license='MIT',
     install_requires=[
         'PyYAML',
@@ -43,5 +58,7 @@ setup(
         'Programming Language :: JavaScript',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
-    ]
+    ],
+    packages=find_packages(),
+    package_data=find_package_data(),
 )

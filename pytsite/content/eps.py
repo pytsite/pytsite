@@ -110,6 +110,10 @@ def view(args: dict, inp: dict):
     else:
         _metatag.t_set('twitter:card', 'summary')
 
+    # Meta author
+    _metatag.t_set('article:author', entity.author.full_name)
+    _metatag.t_set('article:publisher', entity.url)
+
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 
     _assetman.add('pytsite.content@js/content.js')

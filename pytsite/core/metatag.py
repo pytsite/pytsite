@@ -7,11 +7,7 @@ __license__ = 'MIT'
 from . import lang as _lang
 
 
-__tags = {
-    'charset': 'UTF-8',
-    'title': _lang.t('core@untitled_document'),
-    'viewport': 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
-}
+__tags = {}
 __allowed_tags = (
     'title',
     'author',
@@ -25,11 +21,24 @@ __allowed_tags = (
     'og:image',
     'og:image:width',
     'og:image:height',
+    'article:author',
+    'article:publisher',
     'twitter:card',
     'twitter:title',
     'twitter:description',
     'twitter:image',
 )
+
+
+def reset():
+    """Reset tags.
+    """
+    global __tags
+    __tags = {
+        'charset': 'UTF-8',
+        'title': _lang.t('core@untitled_document'),
+        'viewport': 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
+    }
 
 
 def t_set(tag: str, value: str):
@@ -69,7 +78,7 @@ def dump(tag: str) -> str:
         r = '<meta charset="{}">\n'.format(__tags[tag])
     elif tag == 'title':
         r = '<title>{} | {}</title>\n'.format(__tags[tag], _lang.t('app_name'))
-    elif tag.startswith('og:'):
+    elif tag.startswith('og:') or tag.startswith('author:'):
         r = '<meta property="{}" content="{}">'.format(tag, __tags[tag])
     else:
         r = '<meta name="{}" content="{}">'.format(tag, __tags[tag])

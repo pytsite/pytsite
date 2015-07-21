@@ -8,14 +8,20 @@ from pytsite import auth as _auth
 from pytsite.core import util as _util, html as _html, lang as _lang, router as _router
 
 
-__sections = []
-__last_section_weight = 0
+_sections = []
+_menus = {}
+_last_section_weight = 0
 
 
 def get_section(sid: str) -> dict:
     """Get section.
     """
-    for s in __sections:
+    global _menus
+
+    if sid not in _menus:
+        return
+
+    for s in _sections:
         if s['sid'] == sid:
             return s
 
@@ -23,24 +29,24 @@ def get_section(sid: str) -> dict:
 def add_section(sid: str, title: str, weight: int=0, permissions: tuple=()):
     """Add a section.
     """
-    global __last_section_weight, __sections
+    global _last_section_weight, _sections, _menus
 
     if get_section(sid):
-        raise KeyError("Section '{}' already exists.".format(sid))
+        raise KeyError("Section '{}' is already defined.".format(sid))
 
     if not weight:
-        weight = __last_section_weight + 100
+        weight = _last_section_weight + 100
 
-    __last_section_weight = weight
-    __sections.append({
+    _last_section_weight = weight
+    _sections.append({
         'sid': sid,
         'title': title,
         'weight': weight,
-        'children': [],
         'permissions': permissions
     })
 
-    __sections = _util.weight_sort(__sections)
+    _menus[sid] = []
+    _sections = _util.weight_sort(_sections)
 
 
 def get_menu(sid: str, mid: str) -> dict:
@@ -48,9 +54,9 @@ def get_menu(sid: str, mid: str) -> dict:
     """
     section = get_section(sid)
     if not section:
-        raise KeyError("Section '{}' is not exists.".format(sid))
+        raise KeyError("Section '{}' is not defined.".format(sid))
 
-    for m in section['children']:
+    for m in _menus[sid]:
         if m['mid'] == mid:
             return m
 
@@ -58,10 +64,13 @@ def get_menu(sid: str, mid: str) -> dict:
 def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
              label: str=None, label_class: str='primary', weight: int=0, permissions=(), replace=False):
     """Add a menu to a section.
+    :type permissions: str|tuple
     """
+    global _menus
+
     section = get_section(sid)
     if not section:
-        raise KeyError("Section '{}' is not exists.".format(sid))
+        raise KeyError("Section '{}' is not defined.".format(sid))
 
     if get_menu(sid, mid):
         if replace:
@@ -72,7 +81,7 @@ def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
     if isinstance(permissions, str):
         permissions = (permissions,)
 
-    section['children'].append({
+    _menus[sid].append({
         'sid': sid,
         'mid': mid,
         'title': title,
@@ -85,7 +94,7 @@ def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
         'permissions': permissions
     })
 
-    section['children'] = _util.weight_sort(section['children'])
+    _menus[sid] = _util.weight_sort(_menus[sid])
 
 
 def del_menu(sid: str, mid: str):
@@ -93,37 +102,17 @@ def del_menu(sid: str, mid: str):
     """
     section = get_section(sid)
     if not section:
-        raise KeyError("Section '{}' is not exists.".format(sid))
+        raise KeyError("Section '{}' is not defined.".format(sid))
 
     replace = []
-    for m in section['children']:
+    for m in _menus[sid]:
         if m['mid'] != mid:
             replace.append(m)
 
-    section['children'] = replace
+    _menus[sid] = replace
 
 
-def add_menu_child(sid: str, mid: str, title: str, href: str, weight: 0, permissions: tuple=()):
-    """Add a child to the menu.
-    """
-    menu = get_menu(sid, mid)
-
-    if not menu:
-        raise KeyError("Menu '{}' is not defined in section '{}'.".format(mid, sid))
-
-    menu['children'].append({
-        'sid': sid,
-        'mid': mid,
-        'title': title,
-        'href': href,
-        'weight': weight,
-        'permissions': permissions,
-    })
-
-    menu['children'] = _util.weight_sort(menu['children'])
-
-
-def render() -> str:
+def render() -> _html.Aside:
     """Render the admin sidebar.
     """
     aside_em = _html.Aside(cls='main-sidebar')
@@ -133,67 +122,64 @@ def render() -> str:
     root_menu_ul = _html.Ul(cls='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
-    from copy import deepcopy
-    for section in _filter_permissions(deepcopy(__sections)):
-        if not len(section['children']):
+    # Filtering permissions
+    render_sections = []
+    render_menus = {}
+    for section in _sections:
+        if not _check_permissions(section):
             continue
+        render_sections.append(section)
+        render_menus[section['sid']] = []
+        for menu in _menus[section['sid']]:
+            if _check_permissions(menu):
+                render_menus[section['sid']].append(menu)
 
+    # Remove empty sections from rendering
+    render_sections = [s for s in render_sections if len(render_menus[s['sid']])]
+
+    # Do actual rendering
+    for section in render_sections:
         root_menu_ul.append(
             _html.Li(_lang.t(section['title']), cls='header', data_section_weight=section['weight']))
 
         # Building top level menu item
-        for menu in section['children']:
-            if menu['children']:
-                # TODO
-                pass
-            else:
-                # Link
-                href = menu['href']
-                a = _html.A(href=href)
+        for menu in render_menus[section['sid']]:
+            # Link
+            href = menu['href']
+            a = _html.A(href=href)
 
-                # Icon
-                if menu['icon']:
-                    a.append(_html.I(cls=menu['icon']))
+            # Icon
+            if menu['icon']:
+                a.append(_html.I(cls=menu['icon']))
 
-                # Title
-                a.append(_html.Span(_lang.t(menu['title'])))
+            # Title
+            a.append(_html.Span(_lang.t(menu['title'])))
 
-                # Label
-                if menu['label']:
-                    label_class = 'label pull-right label-' + menu['label_class']
-                    a.append(_html.Span(_lang.t(menu['label']), cls=label_class))
+            # Label
+            if menu['label']:
+                label_class = 'label pull-right label-' + menu['label_class']
+                a.append(_html.Span(_lang.t(menu['label']), cls=label_class))
 
-                # List element
-                li = _html.Li(data_menu_weight=menu['weight'])
+            # List element
+            li = _html.Li(data_menu_weight=menu['weight'])
 
-                # 'active' CSS class
-                current_url = _router.current_url()
-                if not current_url.endswith('/admin') and \
-                        (current_url.endswith(href) or current_url.find(href + '/') >= 0):
-                    li.set_attr('cls', 'active')
+            # 'active' CSS class
+            current_url = _router.current_url()
+            if not current_url.endswith('/admin') and \
+                    (current_url.endswith(href) or current_url.find(href + '/') >= 0):
+                li.set_attr('cls', 'active')
 
-                root_menu_ul.append(li.append(a))
+            root_menu_ul.append(li.append(a))
 
-    return aside_em.render()
+    return aside_em
 
 
-def _filter_permissions(container: list) -> list:
-    for k, item in enumerate(container):
-        if isinstance(item, dict):
-            if not _check_permissions(item):
-                del container[k]
-            elif 'children' in item:
-                _filter_permissions(item['children'])
-
-    return container
-
-
-def _check_permissions(container: dict) -> bool:
+def _check_permissions(item: dict) -> bool:
     user = _auth.get_current_user()
     if user.is_anonymous:
         return False
 
-    for p in container['permissions']:
+    for p in item['permissions']:
         if p == '*':
             return True
         elif user.has_permission(p):

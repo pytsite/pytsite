@@ -7,7 +7,7 @@ __license__ = 'MIT'
 def __init():
     from pytsite.core import console
     from . import _commands, _functions
-    _functions.register_package(__name__, 'translations')
+    _functions.register_package(__name__,)
     console.register_command(_commands.CompileTranslations())
 
 __init()

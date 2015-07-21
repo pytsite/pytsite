@@ -92,6 +92,16 @@ def get_d_form(model: str, ids: list) -> _form.Base:
     return frm
 
 
+def post_d_form(model: str, ids: list):
+    """Process delete form submit.
+    """
+    if not _check_permissions('delete', model, ids):
+        raise _http.error.ForbiddenError()
+
+    for eid in ids:
+        dispense_entity(model, eid).delete()
+
+
 def dispense_entity(model: str, entity_id: str=None):
     """Dispense entity.
 
@@ -107,6 +117,8 @@ def dispense_entity(model: str, entity_id: str=None):
 
 
 def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
+    """Check current user's permissions to operate with entity(es).
+    """
     user = _auth.get_current_user()
 
     if user.is_anonymous:

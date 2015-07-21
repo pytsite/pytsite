@@ -167,6 +167,13 @@ class Browser:
         finder = _odm.find(self._model)
         r['total'] = finder.count()
 
+        # Permissions
+        if not self._current_user.has_permission('pytsite.odm_ui.browse.' + self._model):
+            if finder.mock.has_field('author'):
+                finder.where('author', '=', self._current_user)
+            if finder.mock.has_field('owner'):
+                finder.where('owner', '=', self._current_user)
+
         # Sort
         if sort_field:
             sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC

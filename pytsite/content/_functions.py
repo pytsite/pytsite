@@ -33,10 +33,19 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     _auth.define_permission(perm_name, perm_description, mock.package_name())
 
     menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
-    _admin.sidebar.add_menu('content', model, title, menu_url, icon, weight=menu_weight, permissions=(
-        'pytsite.odm_ui.browse.' + model,
-        'pytsite.odm_ui.browse_own.' + model,
-    ), replace=replace)
+    _admin.sidebar.add_menu(
+        sid='content',
+        mid=model,
+        title=title,
+        href=menu_url,
+        icon=icon,
+        weight=menu_weight,
+        permissions=(
+            'pytsite.odm_ui.browse.' + model,
+            'pytsite.odm_ui.browse_own.' + model,
+        ),
+        replace=replace
+    )
 
 
 def is_model_registered(model: str) -> bool:

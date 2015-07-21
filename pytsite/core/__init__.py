@@ -51,7 +51,7 @@ def __init():
     # Initializing language subsystem
     from . import lang
     lang.define_languages(reg.get('lang.languages', ['en']))
-    lang.register_package('pytsite.core', 'resources/lang')
+    lang.register_package('pytsite.core')
 
     # Initializing template subsystem
     from . import tpl
@@ -64,6 +64,10 @@ def __init():
 
     # Initializing router
     from . import router
+
+    # Initializing metatag
+    from . import metatag
+    events.listen('pytsite.core.router.dispatch', metatag.reset)
 
     # Loading routes from the registry
     for url_path, opts in reg.get('routes', {}).items():
@@ -81,16 +85,16 @@ def __init():
 
     # Initializing asset manager
     from pytsite.core import assetman
-    assetman.register_package('pytsite.core', 'resources/assets')
+    assetman.register_package('pytsite.core')
 
     # Initializing client components
     __import__('pytsite.core.client')
 
     # Initializing 'app' package
-    __import__('app')
-    lang.register_package('app')
+    lang.register_package('app', 'lang')
     theme = reg.get('output.theme')
     tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
+    __import__('app')
 
 __init()

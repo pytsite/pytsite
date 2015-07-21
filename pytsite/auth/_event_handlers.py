@@ -41,6 +41,9 @@ def app_setup():
     except Exception as e:
         raise _console.error.ConsoleRuntimeError(e)
 
+
 def router_dispatch():
+    """pytsite.core.router.dispatch Event Handler.
+    """
     if not _functions.get_current_user().is_anonymous:
         _router.no_cache = True

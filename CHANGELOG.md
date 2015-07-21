@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.2.2 (2015-07-21)
+### Added
+- `pytsite.core`:
+  - Support for 'article:author' and 'article:publisher' in `metatag`.
+
+### Fixed
+- setup.py
+- Host and port usage in `db:*` console commands.
+- Permissions check in `pytsite.admin.sidebar`.
+- Permissions check in `pytsite.odm_ui`.
+
 ## 0.2.1 (2015-07-21)
 ### Fixed
 - setup.py

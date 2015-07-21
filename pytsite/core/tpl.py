@@ -65,7 +65,7 @@ _env.globals['assetman'] = _assetman
 _env.globals['client'] = _client
 
 
-def register_package(package_name: str, templates_dir: str='tpl'):
+def register_package(package_name: str, templates_dir: str='res/tpl'):
     """Register templates container.
     """
     if package_name in _packages:
