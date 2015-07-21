@@ -7,7 +7,6 @@ __license__ = 'MIT'
 from pytsite import auth as _auth
 from pytsite.core import util as _util, html as _html, lang as _lang, router as _router
 
-
 _sections = []
 _menus = {}
 _last_section_weight = 0
@@ -26,8 +25,9 @@ def get_section(sid: str) -> dict:
             return s
 
 
-def add_section(sid: str, title: str, weight: int=0, permissions: tuple=()):
+def add_section(sid: str, title: str, weight: int=0, permissions='*'):
     """Add a section.
+    :param permissions: str|tuple
     """
     global _last_section_weight, _sections, _menus
 

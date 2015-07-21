@@ -1,12 +1,17 @@
 # PytSite Changelog
 
+## 0.x.x (Unreleased)
+### Added
+- `pytsite.settings`:
+  - Permissions support.
+
 ## 0.2.4 (2015-07-21)
 ### Fixed
-  - Incorrect value of 'og:url' in `pytsite.content.eps.view`. 
+- Incorrect value of 'og:url' in `pytsite.content.eps.view`. 
 
 ## 0.2.3 (2015-07-21)
 ### Added
-  - Support for 'author' and 'og:url' in `metatag`.
+- Support for 'author' and 'og:url' in `metatag`.
 
 ## 0.2.2 (2015-07-21)
 ### Added

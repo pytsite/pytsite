@@ -8,7 +8,7 @@ __license__ = 'MIT'
 # Init wrapper
 def __init():
     from pytsite.core import router, lang, odm, tpl
-    from pytsite import admin
+    from pytsite import admin, auth
     from ._model import Setting
 
     # Language package
@@ -26,6 +26,9 @@ def __init():
 
     # Sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',))
+
+    # Auth permission group
+    auth.define_permission_group('settings', 'pytsite.settings@settings')
 
 # Package initialization
 __init()

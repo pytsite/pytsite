@@ -4,13 +4,14 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from pytsite import admin as _admin, auth as _auth
 from pytsite.core import router as _router, form as _form, odm as _odm, widget as _widget, lang as _lang
-from pytsite import admin
 
 __settings = {}
 
 
-def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weight: int=0):
+def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weight: int=0,
+           perm_name: str='*', perm_description: str=None):
     """Define setting.
     """
     if uid in __settings:
@@ -19,10 +20,19 @@ def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weigh
     if not isinstance(form_cls, type) or not issubclass(form_cls, _form.Base):
         raise TypeError("Subclass of base form expected.")
 
-    __settings[uid] = {'title': menu_title, 'form_cls': form_cls, 'weight': menu_weight}
+    __settings[uid] = {
+        'title': menu_title,
+        'form_cls': form_cls,
+        'weight': menu_weight,
+        'perm_name': perm_name,
+        'perm_description': perm_description,
+    }
+
+    if perm_name != '*' and perm_description:
+        _auth.define_permission(perm_name, perm_description, 'settings')
 
     url = _router.endpoint_url('pytsite.settings.eps.form', {'uid': uid})
-    admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, permissions='*')
+    _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, permissions=perm_name)
 
 
 def get_definition(uid: str) -> dict:

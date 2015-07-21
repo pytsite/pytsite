@@ -39,6 +39,7 @@ home_page_title: 'Title главной страницы (RU)'
 home_page_description: 'Description главной страницы (RU)'
 home_page_keywords: 'Keywords главной страницы (RU)'
 search: 'Поиск &laquo;:query&raquo;'
+manage_content_settings_permission: 'Управлять настройками содержимого'
 
 odm_ui_permission_group_description: 'Содержимое'
 
