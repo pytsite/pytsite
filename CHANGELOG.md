@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## Unreleased (2015-07-15)
+## 0.2.0 (2015-07-21)
 ### Added
 - New plugins: `pytsite.oauth`, `pytsite.twitter`, `pytsite.poster`, `pytsite.page`, `pytsite.add_this`.
 - Some english and ukrainian translations.
@@ -52,7 +52,6 @@
     - New `pytsite.route_alias.model.RouteAlias` properties: `alias`, `target`, `language`.
 - `pytsite.taxonomy`:
     - New ODM `pytsite.taxonomy.model.Term` properties: `title`, `alias`, `language`, `weight`, `order`.
-    
 
 ### Changed
 - `pytsite.core.widget` plugin:
