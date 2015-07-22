@@ -189,7 +189,7 @@ class VideoHostingUrl(Url):
     @staticmethod
     def _get_re() -> list:
         patterns = (
-            '(youtu\.be|youtube\.com)/(watch\?v=)?\w{11}',
+            '(youtu\.be|youtube\.com)/(watch\?v=)?.{11}',
             'vimeo.com/\d+',
             'rutube.ru/video/\w{32}'
         )

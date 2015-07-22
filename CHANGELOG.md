@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.8 (2015-07-22)
+### Fixed
+- YouTube links validation in `pytsite.core.validation.rule.VideoHostingUrl` 
+
 ## 0.2.7 (2015-07-22)
 ### Fixed
 - Catch exceptions in `pytsite.core.mail.Message.send()`.
