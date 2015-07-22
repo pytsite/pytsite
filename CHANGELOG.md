@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.2.7 (2015-07-22)
+### Fixed
+- Catch exceptions in `pytsite.core.mail.Message.send()`.
+- YouTube links detection in `pytsite.core.widget.static.VideoPlayer()`.
+
 ## 0.2.6 (2015-07-22)
 ### Added
 - `pytsite.settings`:

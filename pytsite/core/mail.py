@@ -91,10 +91,13 @@ class Message(_MIMEMultipart):
         """Send message.
         """
         def do_send(msg: Message):
-            engine = _SMTP('localhost')
-            engine.sendmail(msg._from_addr, msg._to_addrs, str(msg))
-            log_msg = "{}. Message '{}' has been sent to {}.".format(__name__, msg.subject, msg.to_addrs)
-            _logger.info(log_msg)
+            try:
+                engine = _SMTP('localhost')
+                engine.sendmail(msg._from_addr, msg._to_addrs, str(msg))
+                log_msg = "{}. Message '{}' has been sent to {}.".format(__name__, msg.subject, msg.to_addrs)
+                _logger.info(log_msg)
+            except Exception as e:
+                _logger.error('{}. Unable to send message to {}. {}.'.format(__name__, msg.to_addrs, e))
 
         super().attach(_MIMEText(self.body, 'html', 'utf-8'))
         for attachment in self._attachments:
@@ -102,4 +105,3 @@ class Message(_MIMEMultipart):
 
         threading.Thread(target=do_send, kwargs={'msg': self}).start()
         _logger.info(__name__ + '. Started new message send thread to {}.'.format(self.to_addrs))
-

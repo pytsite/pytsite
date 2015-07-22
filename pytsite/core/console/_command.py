@@ -107,12 +107,11 @@ class Cron(Abstract):
     def execute(self, **kwargs: dict):
         """Execute the command.
         """
-        _logger.info(__name__ + '. Cron start.')
-
         if _path.exists(self._get_lock_file_path()):
             raise Exception(__name__ + '. Lock file exists.')
 
         self._lock_file_op(True)
+        _logger.info(__name__ + '. Cron start.')
 
         d = self._get_descriptor()
         now = _datetime.now()
