@@ -374,18 +374,18 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             ))
             form.add_rule('status', _validation.rule.NotEmpty())
 
+        # Publish time
+        form.add_widget(_widget.select.DateTime(
+            weight=800,
+            uid='publish_time',
+            label=self.t('publish_time'),
+            value=_datetime.now() if self.is_new else self.f_get('publish_time'),
+            h_size='col-sm-4 col-md-3 col-lg-2',
+        ))
+        form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
+
         # Visible only for admins
         if _auth.get_current_user().is_admin:
-            # Publish time
-            form.add_widget(_widget.select.DateTime(
-                weight=800,
-                uid='publish_time',
-                label=self.t('publish_time'),
-                value=_datetime.now() if self.is_new else self.f_get('publish_time'),
-                h_size='col-sm-4 col-md-3 col-lg-2',
-            ))
-            form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
-
             # Language
             form.add_widget(_widget.select.Language(
                 weight=900,

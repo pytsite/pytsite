@@ -9,7 +9,7 @@ class NotFound(_e.NotFound):
     pass
 
 
-class ForbiddenError(_e.Forbidden):
+class Forbidden(_e.Forbidden):
     pass
 
 

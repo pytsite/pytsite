@@ -109,9 +109,8 @@ class Cron(Abstract):
         """
         _logger.info(__name__ + '. Cron start.')
 
-        lock_path = self._get_lock_file_path()
-        if _path.exists(lock_path):
-            raise Exception('Lock file exists.')
+        if _path.exists(self._get_lock_file_path()):
+            raise Exception(__name__ + '. Lock file exists.')
 
         self._lock_file_op(True)
 

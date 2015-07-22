@@ -1,4 +1,4 @@
-"""Assetman Console Commands
+"""Assetman Console Commands.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,15 +14,21 @@ from . import _functions
 
 
 class BuildAssets(_console.command.Abstract):
+    """assetman:build Console Command.
+    """
     def get_name(self) -> str:
+        """Get name of the command.
+        """
         return 'assetman:build'
 
     def get_description(self) -> str:
+        """Get description of the command.
+        """
         from pytsite.core.lang import t
         return t('pytsite.core@assetman_console_command_description')
 
     def execute(self, **kwargs: dict):
-        """Compile assets.
+        """Execute The Command.
         """
         static_dir = _reg.get('paths.static')
         debug = _reg.get('debug.enabled')

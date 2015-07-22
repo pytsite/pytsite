@@ -18,9 +18,9 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
 
     # Checking permissions
     if not eid and not _check_permissions('create', model):
-        raise _http.error.ForbiddenError()
+        raise _http.error.Forbidden()
     elif eid and not _check_permissions('modify', model, [eid]):
-        raise _http.error.ForbiddenError()
+        raise _http.error.Forbidden()
 
     # Creating form
     frm = _form.Base('odm-ui-form')
@@ -65,7 +65,7 @@ def get_d_form(model: str, ids: list) -> _form.Base:
     """Get entities delete _form.
     """
     if not _check_permissions('delete', model, ids):
-        raise _http.error.ForbiddenError()
+        raise _http.error.Forbidden()
 
     frm = _form.Base('odm-ui-delete-form')
     frm.action = _router.endpoint_url('pytsite.odm_ui.eps.post_d_form', {'model': model})
@@ -96,7 +96,7 @@ def post_d_form(model: str, ids: list):
     """Process delete form submit.
     """
     if not _check_permissions('delete', model, ids):
-        raise _http.error.ForbiddenError()
+        raise _http.error.Forbidden()
 
     for eid in ids:
         dispense_entity(model, eid).delete()

@@ -6,6 +6,7 @@ __license__ = 'MIT'
 
 from pytsite.core import router, logger, http
 
+
 def request(args: dict, inp: dict) -> http.response.JSONResponse:
     ep = args.get('ep')
 

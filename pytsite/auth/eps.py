@@ -53,7 +53,7 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
         if req_perms_str:
             for perm in req_perms_str.split(','):
                 if not user.has_permission(perm.strip()):
-                    raise _http.error.ForbiddenError()
+                    raise _http.error.Forbidden()
         return  # All permissions has been checked successfully
 
     # Redirecting to the authorization endpoint

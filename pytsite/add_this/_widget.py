@@ -27,7 +27,7 @@ class AddThis(_widget.Base):
 
         self._url = kwargs.get('url')
 
-        _assetman.add_location('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id, 'js')
+        _assetman.add('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id, 'js')
 
     def render(self) -> _html.Element:
         """Render the widget.

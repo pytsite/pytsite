@@ -1,9 +1,15 @@
 # PytSite Changelog
 
-## 0.x.x (Unreleased)
+## 0.2.6 (2015-07-22)
 ### Added
 - `pytsite.settings`:
-  - Permissions support.
+    - Permissions support.
+
+### Changed
+- `pytsite.core.assetman` refactored.
+- `pytsite.core.client` improved and renamed to `pytsite.core.browser`.
+- `pytsite.content.model.Content` publish time widget is now visible for non admins.
+- `pytsite.core.mail`: asynchronous messages delivery. 
 
 ## 0.2.4 (2015-07-21)
 ### Fixed
@@ -11,12 +17,12 @@
 
 ## 0.2.3 (2015-07-21)
 ### Added
-- Support for 'author' and 'og:url' in `metatag`.
+- Support for 'author' and 'og:url' in `pytsite.core.metatag`.
 
 ## 0.2.2 (2015-07-21)
 ### Added
 - `pytsite.core`:
-  - Support for 'article:author' and 'article:publisher' in `metatag`.
+    - Support for 'article:author' and 'article:publisher' in `metatag`.
 
 ### Fixed
 - setup.py

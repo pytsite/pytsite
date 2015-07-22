@@ -8,10 +8,8 @@ from os import path as _path
 from importlib.util import find_spec as _find_spec
 from pytsite.core import router as _router
 
-__packages = {}
-__global_links = {'css': [], 'js': []}
-__pattern_links = {}
-__exact_links = {}
+_packages = {}
+_links = {'css': [], 'js': []}
 
 
 def register_package(package_name: str, assets_dir: str='res/assets'):
@@ -25,112 +23,53 @@ def register_package(package_name: str, assets_dir: str='res/assets'):
     if not _path.isdir(dir_path):
         FileNotFoundError("Directory '{}' is not found.".format(dir_path))
 
-    __packages[package_name] = dir_path
+    _packages[package_name] = dir_path
 
 
 def get_packages() -> dict:
-    return __packages
-
-
-def add_location(location: str, collection: str, route_path: str=None):
-    """Add an asset location.
+    """Get registered packages.
     """
-    if not route_path:
-        route_path = _router.current_path(True)
-
-    # Any path
-    if route_path == '*':
-        __global_links[collection].append(location)
-
-    # Prefixed paths group
-    elif route_path.endswith('*'):
-        if route_path.endswith('/*'):
-            route_path = route_path.replace('/*', '*')
-        if route_path not in __pattern_links:
-            __pattern_links[route_path] = {'css': [], 'js': []}
-        if location not in __pattern_links[route_path][collection]:
-            __pattern_links[route_path][collection].append(location)
-
-    # Exact path
-    else:
-        if route_path not in __exact_links:
-            __exact_links[route_path] = {'css': [], 'js': []}
-        if location not in __exact_links[route_path][collection]:
-            __exact_links[route_path][collection].append(location)
+    return _packages
 
 
-def remove_location(location: str, collection: str, route_path: str=None):
-    """Remove an asset location.
-    """
-    if not location.startswith('http') and not location.startswith('//'):
-        if not location.startswith('app') and not location.startswith('pytsite.'):
-            location = 'pytsite.' + location
-
-    if not route_path:
-        route_path = _router.current_path(True)
-
-    # Any path
-    if route_path == '*':
-        __global_links[collection] = [em for em in __global_links[collection] if em != location]
-
-    # Prefixed paths group
-    elif route_path.endswith('*'):
-        if route_path.endswith('/*'):
-            route_path = route_path.replace('/*', '*')
-        if route_path not in __pattern_links:
-            return
-        __pattern_links[route_path][collection] = [em for em in __pattern_links[route_path][collection]
-                                                   if em != location]
-
-    # Exact path
-    else:
-        if route_path not in __exact_links:
-            return
-        __exact_links[route_path][collection] = [em for em in __exact_links[route_path][collection] if em != location]
-
-
-def add(location: str, route_path: str=None):
+def add(location: str, collection:str=None):
     """Shortcut.
     """
-    if location.endswith('.js'):
-        add_location(location, 'js', route_path)
-    elif location.endswith('.css'):
-        add_location(location, 'css', route_path)
-    else:
-        raise ValueError("Cannot detect collection to add for '{}'.".format(location))
+    if not collection:
+        if location.endswith('.js'):
+            collection = 'js'
+        elif location.endswith('.css'):
+            collection = 'css'
+        else:
+            raise ValueError("Cannot detect collection of '{}'.".format(location))
+
+    if location not in _links[collection]:
+        _links[collection].append(location)
 
 
-def remove(location: str, route_path: str=None):
-    if location.endswith('.js'):
-        remove_location(location, 'js', route_path)
-    elif location.endswith('.css'):
-        remove_location(location, 'css', route_path)
-    else:
-        raise ValueError("Cannot detect collection to add for '{}'.".format(location))
+def remove(location: str, collection: str=None):
+    """Remove an asset location.
+    """
+    if not collection:
+        if location.endswith('.js'):
+            collection = 'js'
+        elif location.endswith('.css'):
+            collection = 'css'
+        else:
+            raise ValueError("Cannot detect collection of '{}'.".format(location))
+
+    _links[collection] = [em for em in _links[collection] if em != location]
+
+
+def reset():
+    """Remove all previously added locations.
+    """
+    global _links
+    _links = {'css': [], 'js': []}
 
 
 def get_locations(collection: str) -> list:
-    r = []
-    current_path = _router.current_path(True)
-
-    # Links for every path
-    for location in __global_links[collection]:
-        r.append(location)
-
-    # Links for pattern paths
-    for glob_key in __pattern_links:
-        if current_path.startswith(glob_key.rstrip('*')):
-            for location in __pattern_links[glob_key][collection]:
-                if location not in r:
-                    r.append(location)
-
-    # Links for exact paths
-    if current_path in __exact_links:
-        for location in __exact_links[current_path][collection]:
-            if location not in r:
-                r.append(location)
-
-    return r
+    return [l for l in _links[collection]]
 
 
 def dump_js() -> str:
@@ -158,11 +97,12 @@ def get_url(location: str) -> str:
     """
     if location.startswith('http') or location.startswith('//'):
         return location
-    package_name, asset_path = __split_asset_location_info(location)
+    package_name, asset_path = _split_asset_location_info(location)
+
     return _router.url('/assets/{}/{}'.format(package_name, asset_path), strip_lang=True)
 
 
-def __split_asset_location_info(location: str) -> dict:
+def _split_asset_location_info(location: str) -> dict:
     """Split asset path into package name and asset path.
     """
     package_name = 'app'
@@ -172,7 +112,7 @@ def __split_asset_location_info(location: str) -> dict:
         package_name = path_parts[0]
         asset_path = path_parts[1]
 
-    if package_name not in __packages:
+    if package_name not in _packages:
         raise Exception("Package '{}' is not registered.".format(package_name))
 
     return package_name, asset_path

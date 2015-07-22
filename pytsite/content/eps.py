@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from datetime import datetime as _datetime
 from pytsite import disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth
 from pytsite.core import reg as _reg, http as _http, router as _router, metatag as _metatag, assetman as _assetman, \
-    odm as _odm, widget as _widget, lang as _lang, validation as _validation
+    odm as _odm, widget as _widget, lang as _lang, validation as _validation, browser as _browser
 
 
 def index(args: dict, inp: dict):
@@ -74,7 +74,7 @@ def view(args: dict, inp: dict):
     # Checking publish time
     if entity.publish_time > _datetime.now():
         if not _auth.get_current_user().has_permission('pytsite.odm_ui.modify.' + entity.model):
-            raise _http.error.ForbiddenError()
+            raise _http.error.Forbidden()
 
     # Recalculate comments count
     current_cc = entity.f_get('comments_count')
@@ -118,6 +118,7 @@ def view(args: dict, inp: dict):
 
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 
+    _browser.include('jquery')
     _assetman.add('pytsite.content@js/content.js')
 
     return _router.call_endpoint(endpoint, {'entity': entity})

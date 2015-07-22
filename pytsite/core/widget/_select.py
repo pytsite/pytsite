@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from datetime import datetime as _datetime
 
-from pytsite.core import assetman as _assetman, client as _client, lang as _lang, html as _html
+from pytsite.core import assetman as _assetman, browser as _client, lang as _lang, html as _html
 from . import _input
 
 

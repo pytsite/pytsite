@@ -158,7 +158,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
         :type form: pytsite.core.form.Base
         """
         if self.f_get('name') == 'admin':
-            raise _http.error.ForbiddenError()
+            raise _http.error.Forbidden()
 
         form.add_widget(_widget.input.Text(
             weight=10,
@@ -202,6 +202,6 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
         """Get delete form description.
         """
         if self.f_get('name') == 'admin':
-            raise _http.error.ForbiddenError()
+            raise _http.error.Forbidden()
 
         return _lang.t(self.f_get('description'))

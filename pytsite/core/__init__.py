@@ -87,8 +87,8 @@ def __init():
     from pytsite.core import assetman
     assetman.register_package('pytsite.core')
 
-    # Initializing client components
-    __import__('pytsite.core.client')
+    # Initializing browser components
+    __import__('pytsite.core.browser')
 
     # Initializing 'app' package
     lang.register_package('app', 'lang')

@@ -4,13 +4,14 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import threading
 from os import path as _path
 from mimetypes import guess_type as _guess_mime_type
 from smtplib import SMTP as _SMTP
 from email.mime.multipart import MIMEMultipart as _MIMEMultipart
 from email.mime.image import MIMEImage as _MIMEImage
 from email.mime.text import MIMEText as _MIMEText
-from pytsite.core import reg as _reg, router as _router
+from pytsite.core import reg as _reg, router as _router, logger as _logger
 
 
 class Message(_MIMEMultipart):
@@ -89,9 +90,16 @@ class Message(_MIMEMultipart):
     def send(self):
         """Send message.
         """
+        def do_send(msg: Message):
+            engine = _SMTP('localhost')
+            engine.sendmail(msg._from_addr, msg._to_addrs, str(msg))
+            log_msg = "{}. Message '{}' has been sent to {}.".format(__name__, msg.subject, msg.to_addrs)
+            _logger.info(log_msg)
+
         super().attach(_MIMEText(self.body, 'html', 'utf-8'))
         for attachment in self._attachments:
             super().attach(attachment)
 
-        engine = _SMTP('localhost')
-        engine.sendmail(self._from_addr, self._to_addrs, str(self))
+        threading.Thread(target=do_send, kwargs={'msg': self}).start()
+        _logger.info(__name__ + '. Started new message send thread to {}.'.format(self.to_addrs))
+

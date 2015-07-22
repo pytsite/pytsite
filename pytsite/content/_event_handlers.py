@@ -34,7 +34,6 @@ def _mail_digest():
             'subscriber': subscriber
         })
         _mail.Message(subscriber.f_get('email'), _lang.t('pytsite.content@weekly_digest_mail_subject'), m_body).send()
-        _logger.info(__name__ + '. Digest has been sent to ' + subscriber.f_get('email'))
 
     _logger.info(__name__ + '. Weekly mail digest stop.')
 

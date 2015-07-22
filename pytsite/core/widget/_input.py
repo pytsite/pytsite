@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import abstractmethod as _abstractmethod
-from pytsite.core import assetman as _assetman, client as _client, html as _html, tpl as _tpl, util as _util
+from pytsite.core import assetman as _assetman, browser as _client, html as _html, tpl as _tpl, util as _util
 from . import _base
 
 

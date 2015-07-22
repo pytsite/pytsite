@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import auth
-from pytsite.core import router as _router, assetman as _assetman, metatag as _metatag, client as _client, odm as _odm,\
+from pytsite.core import router as _router, assetman as _assetman, metatag as _metatag, browser as _client, odm as _odm,\
     lang as _lang, http as _http, html as _html
 from ._model import UIMixin
 from . import _functions
@@ -27,7 +27,7 @@ class Browser:
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
                 and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
-            raise _http.error.ForbiddenError()
+            raise _http.error.Forbidden()
 
         # Mock entity
         self._entity_mock = _odm.dispense(self._model)

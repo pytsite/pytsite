@@ -18,7 +18,7 @@ def __init():
     tpl.register_global('content', sys.modules[__name__])
 
     assetman.register_package(__name__)
-    assetman.add(__name__ + '@css/common.css', '*')
+    assetman.add(__name__ + '@css/common.css')
 
     # Common routes
     router.add_rule('/content/index/<string:model>', 'pytsite.content.eps.index')
@@ -51,7 +51,9 @@ def __init():
     events.listen('pytsite.core.cron.weekly', cron_weekly)
 
     # Settings
-    settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o')
+    settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',
+                    perm_name='pytsite.content.settings',
+                    perm_description='content@manage_content_settings_permission')
 
 __init()
 
