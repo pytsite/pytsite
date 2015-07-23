@@ -12,7 +12,7 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db as _db, events as _events, lang as _lang, cache as _cache
+from pytsite.core import db as _db, events as _events, lang as _lang
 from . import _error, _field
 
 
@@ -31,7 +31,6 @@ class Model(_ABC):
             else:
                 self._collection_name = model + 's'
 
-        self._collection = _db.get_collection(self._collection_name)
         self._is_new = True
         self._is_deleted = False
         self._defined_indices = []
@@ -62,7 +61,7 @@ class Model(_ABC):
                 obj_id = _ObjectId(obj_id)
 
             # Load data from from DB
-            data = self._collection.find_one({'_id': obj_id})
+            data = self.collection.find_one({'_id': obj_id})
 
             # No data has been found
             if not data:
@@ -119,17 +118,17 @@ class Model(_ABC):
         """Create indices.
         """
         for index_data in self._defined_indices:
-            self._collection.create_index(index_data[0], **index_data[1])
+            self.collection.create_index(index_data[0], **index_data[1])
 
     def reindex(self):
         """Rebuild indices.
         """
         try:
             # Drop existing indices
-            indices = self._collection.index_information()
+            indices = self.collection.index_information()
             for i_name, i_val in indices.items():
                 if i_name != '_id_':
-                    self._collection.drop_index(i_name)
+                    self.collection.drop_index(i_name)
         except _OperationFailure:  # Collection does not exist
             pass
 
@@ -160,7 +159,7 @@ class Model(_ABC):
     def collection(self) -> _Collection:
         """Get entity's collection.
         """
-        return self._collection
+        return _db.get_collection(self._collection_name)
 
     @property
     def fields(self):
@@ -314,9 +313,9 @@ class Model(_ABC):
 
         # Saving data into collection
         if self._is_new:
-            self._collection.insert_one(data)
+            self.collection.insert_one(data)
         else:
-            self._collection.replace_one({'_id': data['_id']}, data)
+            self.collection.replace_one({'_id': data['_id']}, data)
 
         _events.fire('odm.entity.save', entity=self)
         _events.fire('odm.entity.save.' + self.model, entity=self)

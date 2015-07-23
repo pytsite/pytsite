@@ -60,4 +60,4 @@ __init()
 
 # Public API
 from . import _model as model, _widget as widget
-from ._functions import register_model, get_models, find, get_model, create
+from ._functions import register_model, get_models, find, get_model, get_model_title, create

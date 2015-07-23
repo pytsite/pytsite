@@ -8,7 +8,8 @@ import ssl
 from pymongo import MongoClient as _MongoClient
 from pymongo.database import Database as _Database
 from pymongo.collection import Collection as _Collection
-from pytsite.core import util as _util, reg as _reg
+from pymongo.errors import ServerSelectionTimeoutError
+from pytsite.core import util as _util, reg as _reg, logger as _logger
 
 
 __client = None
@@ -60,10 +61,24 @@ def get_database() -> _Database:
 def get_collection(name: str) -> _Collection:
     """Get collection.
     """
-    return get_database().get_collection(name)
+    try:
+        return get_database().get_collection(name)
+    except ServerSelectionTimeoutError:
+        global __client, __database
+        __client = None
+        __database = None
+        _logger.error('{}. Connection lost.'.format(__name__))
+        return get_collection(name)
 
 
 def get_collection_names(include_system: bool=False) -> list:
     """Get existing collection names.
     """
-    return get_database().collection_names(include_system)
+    try:
+        return get_database().collection_names(include_system)
+    except ServerSelectionTimeoutError:
+        global __client, __database
+        __client = None
+        __database = None
+        _logger.error('{}. Connection lost.'.format(__name__))
+        return get_collection_names(include_system)

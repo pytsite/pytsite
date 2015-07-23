@@ -29,7 +29,7 @@ def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weigh
     }
 
     if perm_name != '*' and perm_description:
-        _auth.define_permission(perm_name, perm_description, 'settings')
+        _auth.define_permission(perm_name, perm_description, 'admin')
 
     url = _router.endpoint_url('pytsite.settings.eps.form', {'uid': uid})
     _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, permissions=perm_name)

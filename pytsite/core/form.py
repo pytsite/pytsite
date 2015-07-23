@@ -286,7 +286,8 @@ class Base:
 
         return self._render_area(area, '\n'.join(rendered_widgets))
 
-    def _render_area(self, area: str, content: str):
+    @staticmethod
+    def _render_area(area: str, content: str):
         """Render area.
         """
         if area == 'form':
@@ -297,7 +298,8 @@ class Base:
                 cls += ' with-border'
             return _html.Div(content + '\n', cls=cls).render()
 
-    def _render_close_tag(self) -> str:
+    @staticmethod
+    def _render_close_tag() -> str:
         """Render form's close tag.
         """
         return '</form>\n'

@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import taxonomy as _taxonomy
+from pytsite import taxonomy as _taxonomy, auth as _auth
 from pytsite.core import widget as _widget, html as _html, lang as _lang
 from . import _model, _functions
 
@@ -15,8 +15,10 @@ class ContentModelSelect(_widget.select.Select):
     def __init__(self, **kwargs: dict):
         super().__init__(**kwargs)
         self._items = []
+        u = _auth.get_current_user()
         for k, v in _functions.get_models().items():
-            self._items.append((k, _lang.t(v[1])))
+            if u.has_permission('pytsite.odm_ui.browse.' + k) or u.has_permission('pytsite.odm_ui.browse_own.' + k):
+                self._items.append((k, _lang.t(v[1])))
 
 
 class TagCloud(_taxonomy.widget.Cloud):

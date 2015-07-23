@@ -1,19 +1,20 @@
-"""Twitter Plugin Init.
+"""PytSite Twitter Plugin.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-# Dependencies
-__import__('pytsite.oauth')
-
 
 def __init():
-    from pytsite import oauth
-    from pytsite.core import lang
-    from ._oauth import Driver as OAuthDriver
+    from pytsite import content_export
+    from pytsite.core import lang, assetman
+    from ._content_export import Driver as ContentExportDriver
 
+    # Register resources
     lang.register_package(__name__)
-    oauth.register_driver('twitter', lang.t('twitter@twitter'), OAuthDriver)
+    assetman.register_package(__name__)
+
+    # Register Content Export driver
+    content_export.register_driver('twitter', __name__ + '@twitter', ContentExportDriver)
 
 __init()

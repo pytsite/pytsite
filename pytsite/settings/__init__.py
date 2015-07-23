@@ -27,8 +27,6 @@ def __init():
     # Sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',))
 
-    # Auth permission group
-    auth.define_permission_group('settings', 'pytsite.settings@settings')
 
 # Package initialization
 __init()

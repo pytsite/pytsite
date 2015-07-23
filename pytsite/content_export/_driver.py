@@ -1,4 +1,4 @@
-"""oAuth Abstract Driver.
+"""Poster Abstract Driver.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -9,12 +9,10 @@ from pytsite.core import widget as _widget
 
 
 class Abstract(_ABC):
-    """Abstract oAuth session.
-    """
     @_abstractmethod
-    def get_widget(self, uid: str, **kwargs) -> _widget.Base:
+    def get_widget(self, uid: str, **kwargs: dict) -> _widget.Base:
         pass
 
     @_abstractmethod
-    def status_update(self, **kwargs):
+    def export(self, **kwargs: dict):
         pass

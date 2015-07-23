@@ -44,7 +44,6 @@ def index(args: dict, inp: dict):
             _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
             for word in query.strip().split(' '):
                 if word:
-                    print(word)
                     for search_field_name in mock.searchable_fields:
                         search_field = mock.get_field(search_field_name)
                         if isinstance(search_field, _odm.field.String):

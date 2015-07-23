@@ -1,5 +1,17 @@
 # PytSite Changelog
 
+## 0.2.9 (2015-07-23)
+### Added
+- Twitter content cross posting. 
+
+### Changed
+- `pytsite.poster` moved to `pytsite.export` and refactored.
+- `pytsite.oauth` removed.
+
+### Fixed
+- Handling lost connections in `pytsite.core.db`.
+- Route alias generation in `pytsite.content.model.Article`.
+
 ## 0.2.8 (2015-07-22)
 ### Fixed
 - YouTube links validation in `pytsite.core.validation.rule.VideoHostingUrl` 

@@ -69,6 +69,12 @@ def get_model(model: str) -> tuple:
     return __models[model]
 
 
+def get_model_title(model: str) -> str:
+    """Get human readable model title.
+    """
+    return _lang.t(get_model(model)[1])
+
+
 def create(model: str) -> _model.Content:
     """Create content entity.
     """

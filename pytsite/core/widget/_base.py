@@ -86,12 +86,18 @@ class Base(_ABC):
 
     def get_child(self, uid: str):
         """Get child widget by uid.
-
         :rtype: pytsite.core.widget._base.Base
         """
         for w in self._children:
             if w.uid == uid:
                 return w
+
+    def remove_child(self, uid: str):
+        """Remove child widget.
+        :rtype: pytsite.core.widget._base.Base
+        """
+        self._children = [w for w in self._children if w.uid != uid]
+        return self
 
     @property
     def uid(self) -> str:

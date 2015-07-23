@@ -66,6 +66,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('edit_url'))
+        self._define_field(_odm.field.Dict('options'))
 
         self._define_index([('publish_time', _odm.I_DESC)])
 
@@ -137,6 +138,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def searchable_fields(self) -> tuple:
         return 'title',
 
+    @property
+    def options(self) -> dict:
+        return self.f_get('options')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
@@ -147,9 +152,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                     value = self.title
 
                 if self.is_new:
-                    # Create new route alias
+                    # Create new route alias object
                     value = _route_alias.create(value, 'NONE').save()
                 else:
+                    # Modify existing route alias object
                     orig_value = self.f_get('route_alias')
                     if orig_value.f_get('alias') != value:
                         orig_value.f_set('alias', value).save()
@@ -275,7 +281,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        title = str(_html.A(self.f_get('title'), href=self.f_get('route_alias').f_get('alias')))
+        title = str(_html.A(self.f_get('title'), href=self.route_alias.f_get('alias')))
 
         status = self.f_get('status')
         status_str = self.t('status_' + status)
