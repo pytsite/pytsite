@@ -51,7 +51,7 @@ def get_driver_title(name) -> str:
 def content_save_event_handler(entity: _content.model.Content):
     """'odm.save' event handler.
     """
-    if entity.status != 'published' or entity.publish_time > datetime.now():
+    if not entity.is_new or entity.status != 'published' or entity.publish_time > datetime.now():
         return
 
     f = _odm.find('content_export').where('content_model', '=', entity.model).where('owner', '=', entity.author)

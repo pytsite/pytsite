@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.2.9 (2015-07-23)
+## 0.2.9 (2015-07-24)
 ### Added
 - Twitter content cross posting. 
 
