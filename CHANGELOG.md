@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.11 (2015-07-24)
+### Changed
+- Program logic in `pytsite.content_export`.
+
 ## 0.2.10 (2015-07-24)
 ### Added
 - `[img:N:link_orig]` tag support in `pytsite.content.model.Content` models.

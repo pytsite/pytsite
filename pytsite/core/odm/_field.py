@@ -449,7 +449,6 @@ class Float(Abstract):
         return self.set_val(self.get_val(**kwargs) + value, change_modified, **kwargs)
 
 
-
 class Bool(Abstract):
     """Integer field.
     """

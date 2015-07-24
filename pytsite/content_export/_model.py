@@ -18,6 +18,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.String('driver', not_empty=True))
         self._define_field(_odm.field.Dict('driver_opts'))
         self._define_field(_odm.field.String('content_model', not_empty=True))
+        self._define_field(_odm.field.Bool('process_all_authors'))
         self._define_field(_odm.field.Ref('owner', model='user', not_empty=True))
 
     @property
@@ -36,6 +37,10 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
     def owner(self) -> _auth.model.User:
         return self.f_get('owner')
 
+    @property
+    def process_all_authors(self) -> bool:
+        return self.f_get('process_all_authors')
+
     def _pre_save(self):
         """Hook.
         """
@@ -46,14 +51,15 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = ('content_model', 'driver', 'driver_opts', 'owner')
+        browser.data_fields = ('content_model', 'driver', 'driver_opts', 'process_all_authors', 'owner')
 
     def get_browser_data_row(self) -> tuple:
         """Hook.
         """
         content_model = _content.get_model_title(self.content_model)
         driver = _functions.get_driver_title(self.driver)
-        return content_model, driver, self.driver_opts.get('title', ''), self.owner.full_name
+        all_authors = self.t('word_yes') if self.process_all_authors else ''
+        return content_model, driver, self.driver_opts.get('title', ''), all_authors, self.owner.full_name
 
     def setup_m_form(self, form, stage: str):
         """Hook.
@@ -61,8 +67,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         """
         req_val = _router.request.values_dict
 
-        if (not req_val.get('content_model') or not req_val.get('driver')) and \
-                (not self.content_model or not self.driver):
+        if not req_val.get('step'):
             form.add_widget(_content.widget.ContentModelSelect(
                 weight=10,
                 uid='content_model',
@@ -79,6 +84,18 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 h_size='col-sm-6'
             ))
 
+            form.add_widget(_widget.select.Checkbox(
+                weight=30,
+                uid='process_all_authors',
+                label=self.t('process_all_authors'),
+                value=self.process_all_authors,
+            ))
+
+            form.add_widget(_widget.input.Hidden(
+                uid='step',
+                value='2',
+            ))
+
             form.method = 'GET'
             form.action = _router.current_url()
             form.remove_widget('__form_location')
@@ -89,12 +106,16 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             submit_btn.set_value(self.t('next'))
             submit_btn.icon = 'fa fa-angle-double-right'
         else:
-            content_model = req_val.get('content_model') or self.content_model
-            driver = req_val.get('driver') or self.driver
+            driver = req_val.get('driver')
+
+            form.add_widget(_widget.input.Hidden(
+                uid='step',
+                value='3'
+            ))
 
             form.add_widget(_widget.input.Hidden(
                 uid='content_model',
-                value=content_model
+                value=req_val.get('content_model')
             ))
 
             form.add_widget(_widget.input.Hidden(
@@ -102,7 +123,13 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=driver
             ))
 
-            form.add_widget(_functions.load_driver(driver).get_widget('driver_opts', **self.driver_opts))
+            form.add_widget(_widget.input.Hidden(
+                uid='process_all_authors',
+                value=req_val.get('process_all_authors')
+            ))
+
+            if driver:
+                form.add_widget(_functions.load_driver(driver).get_widget('driver_opts', **self.driver_opts))
 
         form.add_rule('content_model', _validation.rule.NotEmpty())
         form.add_rule('driver', _validation.rule.NotEmpty())

@@ -147,10 +147,9 @@ def get_lang_title(code: str) -> str:
 def load_lang_file(package_name: str, language: str=None):
     """Load package's language file.
     """
-
     # Is the package registered?
     if package_name not in __packages:
-        raise Exception("Package '{0}' is not registered.".format(package_name))
+        raise Exception("Package '{}' is not registered.".format(package_name))
 
     if not language:
         language = get_current_lang()
@@ -177,6 +176,7 @@ def load_lang_file(package_name: str, language: str=None):
 
     return content
 
+
 def time_ago(time: _datetime) -> str:
     diff = _datetime.now() - time
     """:type: datetime.timedelta"""
@@ -202,6 +202,7 @@ def time_ago(time: _datetime) -> str:
             return '{} {}'.format(minutes, t_plural('pytsite.core.lang@minute', minutes))
         else:
             return '{} {}'.format(diff.seconds, t_plural('pytsite.core.lang@second', diff.seconds))
+
 
 def pretty_date(time: _datetime) -> str:
     r = '{} {}'.format(time.day, t_plural('pytsite.core.lang@month_' + str(time.month)))

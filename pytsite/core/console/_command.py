@@ -115,9 +115,10 @@ class Cron(Abstract):
 
         d = self._get_descriptor()
         now = _datetime.now()
-        for evt in 'hourly', 'daily', 'weekly', 'monthly':
+        for evt in '15min', 'hourly', 'daily', 'weekly', 'monthly':
             delta = now - d[evt]
-            if evt == 'hourly' and delta.total_seconds() >= 3600 \
+            if evt == '15min' and delta.total_seconds() >= 900 \
+                    or evt == 'hourly' and delta.total_seconds() >= 3600 \
                     or evt == 'daily' and delta.total_seconds() >= 86400 \
                     or evt == 'weekly' and delta.total_seconds() >= 604800 \
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
@@ -156,6 +157,7 @@ class Cron(Abstract):
         file_path = self._get_descriptor_file_path()
         if not _path.exists(file_path):
             data = {
+                '15min': _datetime.fromtimestamp(0),
                 'hourly': _datetime.fromtimestamp(0),
                 'daily': _datetime.fromtimestamp(0),
                 'weekly': _datetime.fromtimestamp(0),

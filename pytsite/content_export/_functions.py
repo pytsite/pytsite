@@ -5,9 +5,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytsite import content as _content
-from pytsite.core import odm as _odm, lang as _lang
+from pytsite.core import odm as _odm, lang as _lang, logger as _logger
 from . import _driver
 
 __drivers = {}
@@ -48,13 +48,20 @@ def get_driver_title(name) -> str:
     return _lang.t(get_driver_info(name)[0])
 
 
-def content_save_event_handler(entity: _content.model.Content):
+def cron_15m_event_handler():
     """'odm.save' event handler.
     """
-    if not entity.is_new or entity.status != 'published' or entity.publish_time > datetime.now():
-        return
+    for exporter in _odm.find('content_export').get():
+        content_f = _content.find(exporter.content_model)
+        content_f.where('publish_time', '>=', datetime.now() - timedelta(1))
+        content_f.where('options.content_export', 'nin', [str(exporter.id)])
+        content_f.sort([('publish_time', _odm.I_ASC)])
 
-    f = _odm.find('content_export').where('content_model', '=', entity.model).where('owner', '=', entity.author)
-    for exporter in f.get():
-        driver = load_driver(exporter.driver, **exporter.driver_opts)
-        threading.Thread(target=driver.export, kwargs={'entity': entity, 'exporter': exporter}).start()
+        # Filter by content owner
+        if not exporter.process_all_authors:
+            content_f.where('author', '=', exporter.owner)
+
+        for entity in content_f.get():
+            _logger.info("{}. Submit for export. Entity '{}', title='{}'".format(__name__, entity.model, entity.title))
+            driver = load_driver(exporter.driver, **exporter.driver_opts)
+            threading.Thread(target=driver.export, kwargs={'entity': entity, 'exporter': exporter}).start()

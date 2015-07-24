@@ -5,6 +5,8 @@ source: 'Источник'
 owner: 'Владелец'
 content_model: 'Тип содержимого'
 next: 'Далее'
+word_yes: 'Да'
+process_all_authors: 'Все материалы'
 
 odm_ui_browser_title_content_export: 'Экспорт контента'
 odm_ui_form_legend_create_content_export: 'Новый экспорт контента'

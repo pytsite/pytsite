@@ -32,10 +32,6 @@ class Driver(content_export.AbstractDriver):
     def export(self, entity: _content.model.Content, exporter=content_export.model.ContentExport):
         """Export data.
         """
-        if 'content_export_twitter_' + str(exporter.id) in entity.options:
-            _logger.info("{}. '{}' is already exported for this account.".format(__name__, entity.title))
-            return
-
         _logger.info("{}. Export started. '{}'.".format(__name__, entity.title))
 
         tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
@@ -61,7 +57,9 @@ class Driver(content_export.AbstractDriver):
             try:
                 tw.update_status(status=status, media_ids=media_ids)
                 entity_opts = entity.options
-                entity_opts['content_export_twitter_' + str(exporter.id)] = True
+                if 'content_export' not in entity_opts:
+                    entity_opts['content_export'] = []
+                entity_opts['content_export'].append(str(exporter.id))
                 entity.f_set('options', entity_opts).save()
                 break
             except _TwithonError as e:
