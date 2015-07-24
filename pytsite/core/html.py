@@ -2,6 +2,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import html as _html
 from abc import ABC as _ABC
 from pytsite.core import util as _util
 
@@ -23,6 +24,10 @@ _common_tag_attrs = (
     'translate',
     'role',
 )
+
+
+def escape(s: str, quote=True) -> str:
+    return _html.escape(s, quote)
 
 
 class Element(_ABC):

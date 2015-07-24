@@ -420,7 +420,11 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             if len(self.images) < img_index:
                 return ''
             img = self.images[img_index - 1]
-            return '<img class="img-responsive" src="{}" data-path="{}">'.format(img.url, img.path)
+            title = _html.escape(self.title)
+            r = '<img class="img-responsive" src="{}" data-path="{}" alt="{}">'.format(img.url, img.path, title)
+            if match.group(2):
+                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, title, r)
+            return r
 
         def process_vid_tag(match):
             vid_index = int(match.group(1))
@@ -428,7 +432,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 return ''
             return str(_widget.static.VideoPlayer(value=self.video_links[vid_index - 1]))
 
-        inp = _re.sub('\[img:(\d+)\]', process_img_tag, inp)
+        inp = _re.sub('\[img:(\d+)(:link_orig)?\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
 
         return inp

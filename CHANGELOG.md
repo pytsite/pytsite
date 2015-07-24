@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.10 (2015-07-24)
+### Added
+- `[img:N:link_orig]` tag support in `pytsite.content.model.Content` models.
+
 ## 0.2.9 (2015-07-24)
 ### Added
 - Twitter content cross posting. 
