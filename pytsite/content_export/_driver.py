@@ -14,5 +14,10 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def export(self, **kwargs: dict):
+    def export(self, entity, exporter):
+        """
+        :param entity: pytsite.content._model.Content
+        :param exporter: pytsite.content_export._model.ContentExport
+        :return:
+        """
         pass

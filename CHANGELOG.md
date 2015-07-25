@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.2.12 (2015-07-25)
+### Changed
+- Multithreading removed in `pytsite.content_export`.
+
 ## 0.2.11 (2015-07-24)
 ### Changed
 - Program logic in `pytsite.content_export`.

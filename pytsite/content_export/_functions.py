@@ -64,4 +64,4 @@ def cron_15m_event_handler():
         for entity in content_f.get():
             _logger.info("{}. Submit for export. Entity '{}', title='{}'".format(__name__, entity.model, entity.title))
             driver = load_driver(exporter.driver, **exporter.driver_opts)
-            threading.Thread(target=driver.export, kwargs={'entity': entity, 'exporter': exporter}).start()
+            driver.export(entity=entity, exporter=exporter)
