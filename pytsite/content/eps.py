@@ -31,12 +31,13 @@ def index(args: dict, inp: dict):
         term_alias = args.get('term_alias')
         if term_alias:
             term = _taxonomy.find(term_model).where('alias', '=', term_alias).first()
-            args['term'] = term
-            if isinstance(f.mock.fields[term_field], _odm.field.Ref):
-                f.where(term_field, '=', term)
-            elif isinstance(f.mock.fields[term_field], _odm.field.RefsListField):
-                f.where(term_field, 'in', [term])
-            _metatag.t_set('title', term.title)
+            if term:
+                args['term'] = term
+                if isinstance(f.mock.fields[term_field], _odm.field.Ref):
+                    f.where(term_field, '=', term)
+                elif isinstance(f.mock.fields[term_field], _odm.field.RefsListField):
+                    f.where(term_field, 'in', [term])
+                _metatag.t_set('title', term.title)
 
     if inp.get('search'):
         query = inp.get('search')

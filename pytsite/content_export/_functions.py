@@ -62,6 +62,7 @@ def cron_15m_event_handler():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            _logger.info("{}. Submit for export. Entity '{}', title='{}'".format(__name__, entity.model, entity.title))
+            _logger.info("{}. Entity '{}', title='{}'. Exporter '{}', title='{}'" \
+                         .format(__name__, entity.model, entity.title, exporter.driver, exporter.driver_opts['title']))
             driver = load_driver(exporter.driver, **exporter.driver_opts)
             driver.export(entity=entity, exporter=exporter)

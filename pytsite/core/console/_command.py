@@ -122,8 +122,14 @@ class Cron(Abstract):
                     or evt == 'daily' and delta.total_seconds() >= 86400 \
                     or evt == 'weekly' and delta.total_seconds() >= 604800 \
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
-                _events.fire('pytsite.core.cron.' + evt)
-                _logger.info(__name__ + '. Issued cron event: ' + evt + '.')
+
+                _logger.info(__name__ + '. Cron event: ' + evt + '.')
+
+                try:
+                    _events.fire('pytsite.core.cron.' + evt)
+                except Exception as e:
+                    _logger.error(str(e))
+
                 self._update_descriptor(evt)
 
         self._lock_file_op(False)
