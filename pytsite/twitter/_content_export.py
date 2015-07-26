@@ -51,23 +51,18 @@ class Driver(_content_export.AbstractDriver):
                     tag = '#' + tag
                     tags.append(tag)
 
-        tries = 20
+        attempts = 20
         status = '{} {} {}'.format(entity.title, entity.url, ' '.join(tags))
-        while tries:
+        while attempts:
             try:
                 tw.update_status(status=status, media_ids=media_ids)
-                entity_opts = entity.options
-                if 'content_export' not in entity_opts:
-                    entity_opts['content_export'] = []
-                entity_opts['content_export'].append(str(exporter.id))
-                entity.f_set('options', entity_opts).save()
                 break
             except _TwithonError as e:
                 # Cut one word from the right
                 status = ' '.join(status.split(' ')[:-1])
 
-                tries -= 1
-                if not tries:
+                attempts -= 1
+                if not attempts:
                     raise e
 
         _logger.info("{}. Export finished. '{}'".format(__name__, entity.title))

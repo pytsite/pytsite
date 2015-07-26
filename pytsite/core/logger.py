@@ -20,11 +20,21 @@ if not _path.exists(_log_dir):
 _format = '%(asctime)s %(name)s %(levelname)-8s "%(message)s"'
 _logging.basicConfig(filename=_log_path, datefmt='%Y-%m-%d %H:%M:%S', format=_format)
 _logger = _logging.getLogger(_reg.get('env.name', 'default'))
-_logger.setLevel(_logging.INFO)
+_level = _logging.DEBUG if _reg.get('logger.level') == 'debug' else _logging.INFO
+_logger.setLevel(_level)
+
+
+def debug(msg: str, *args, **kwargs):
+    """Log an DEBUG message.
+    """
+    if 'extra' not in kwargs:
+        kwargs['extra'] = {}
+
+    _logger.debug(msg, *args, **kwargs)
 
 
 def info(msg: str, *args, **kwargs):
-    """Log an info message.
+    """Log an INFO message.
     """
     if 'extra' not in kwargs:
         kwargs['extra'] = {}
@@ -33,7 +43,7 @@ def info(msg: str, *args, **kwargs):
 
 
 def error(msg: str, *args, **kwargs):
-    """Log an error message.
+    """Log an ERROR message.
     """
     if 'extra' not in kwargs:
         kwargs['extra'] = {}

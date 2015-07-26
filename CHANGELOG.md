@@ -1,12 +1,18 @@
 # PytSite Changelog
 
 ## 0.2.13 (2015-07-xx)
-## Fixed
+### Added
+- Thread safety in `pytsite.core.odm`.
+- Thread safety in `pytsite.content_export`.
+- Own Cron. No more OS's cron!
+
+### Fixed
 - Exception handling in `cron:start` console command.
+- Unnecessary user login count in `pytsite.auth._functions.get_current_user()`. 
 
 ## 0.2.12 (2015-07-25)
 ### Changed
-- Multithreading removed in `pytsite.content_export`.
+- Threading removed from `pytsite.content_export`.
 
 ## 0.2.11 (2015-07-24)
 ### Changed

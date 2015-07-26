@@ -97,4 +97,8 @@ def __init():
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
     __import__('app')
 
+    # Start cron
+    from . import cron
+
+
 __init()

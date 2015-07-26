@@ -175,7 +175,7 @@ def get_role(name: str=None, uid=None) -> _model.Role:
         return _odm.find('role').where('_id', '=', uid).first()
 
 
-def authorize(user: _model.User) -> _model.User:
+def authorize(user: _model.User, count_login: bool=True) -> _model.User:
     """Authorize user.
     """
     if not user:
@@ -186,7 +186,8 @@ def authorize(user: _model.User) -> _model.User:
         raise _error.LoginIncorrect('pytsite.auth@authorization_error')
 
     # Saving statistical information
-    user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
+    if count_login:
+        user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
 
     _router.session['pytsite.auth.login'] = user.f_get('login')
 
@@ -219,7 +220,7 @@ def get_current_user() -> _model.User:
         if not user:
             return get_anonymous_user()
 
-        return authorize(user)
+        return authorize(user, False)
 
     except _error.LoginIncorrect:
         return get_anonymous_user()

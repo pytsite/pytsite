@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import threading as _threading
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
@@ -12,7 +13,7 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db as _db, events as _events, lang as _lang
+from pytsite.core import db as _db, events as _events, lang as _lang, logger as _logger
 from . import _error, _field
 
 
@@ -22,6 +23,10 @@ class Model(_ABC):
     def __init__(self, model: str, obj_id=None):
         """Init.
         """
+        _logger.debug("{}. {} -> __init__() start.".format(__name__, self.__class__.__name__))
+
+        self._lock_obj = _threading.RLock()
+
         if not hasattr(self, 'collection_name'):
             self._collection_name = None
 
@@ -46,7 +51,7 @@ class Model(_ABC):
         self._define_field(_field.DateTime('_modified'))
 
         # Store model into separate field
-        self.get_field('_model').set_val(model)
+        self.f_set('_model', model)
 
         # setup() hook
         self._setup()
@@ -74,11 +79,28 @@ class Model(_ABC):
 
             # Of course, loaded entity cannot be 'new'
             self._is_new = False
-
         else:
             # Filling fields with initial values
-            self.get_field('_created').set_val(_datetime.now())
-            self.get_field('_modified').set_val(_datetime.now())
+            self.f_set('_created', _datetime.now())
+            self.f_set('_modified', _datetime.now())
+
+        _logger.debug("{}. {} -> __init__() end.".format(__name__, self.__class__.__name__))
+
+    def _lock(self, debug_msg: str=None):
+        """Acquire threading lock.
+        """
+        self._lock_obj.acquire()
+        if debug_msg:
+            _logger.debug('{}.{}. {}'.format(__name__, self.__class__.__name__, debug_msg))
+        _logger.debug("{}.{}. Locked.".format(__name__, self.__class__.__name__))
+
+    def _unlock(self, debug_msg: str=None):
+        """Release threading lock.
+        """
+        self._lock_obj.release()
+        if debug_msg:
+            _logger.debug('{}.{}. {}'.format(__name__, self.__class__.__name__, debug_msg))
+        _logger.debug("{}.{}. Unlocked.".format(__name__, self.__class__.__name__))
 
     def _define_index(self, fields: list, unique=False):
         """Define an index.
@@ -109,21 +131,32 @@ class Model(_ABC):
     def _remove_field(self, field_name: str):
         """Remove field definition.
         """
-        if not self.has_field(field_name):
-            raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
-        del self._fields[field_name]
-        return self
+        try:
+            self._lock('_remove_field()')
+            if not self.has_field(field_name):
+                raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
+            del self._fields[field_name]
+            return self
+        finally:
+            self._unlock('_remove_field()')
 
     def _create_indices(self):
         """Create indices.
         """
-        for index_data in self._defined_indices:
-            self.collection.create_index(index_data[0], **index_data[1])
+        try:
+            self._lock('_create_indices()')
+
+            for index_data in self._defined_indices:
+                self.collection.create_index(index_data[0], **index_data[1])
+        finally:
+            self._unlock('_create_indices()')
 
     def reindex(self):
         """Rebuild indices.
         """
         try:
+            self._lock('reindex()')
+
             # Drop existing indices
             indices = self.collection.index_information()
             for i_name, i_val in indices.items():
@@ -131,6 +164,8 @@ class Model(_ABC):
                     self.collection.drop_index(i_name)
         except _OperationFailure:  # Collection does not exist
             pass
+        finally:
+            self._unlock('reindex()')
 
         self._create_indices()
 
@@ -140,20 +175,25 @@ class Model(_ABC):
         """
         pass
 
-    def has_field(self, name: str) -> bool:
+    def has_field(self, field_name: str) -> bool:
         """Check if the entity has field.
         """
-        if name not in self._fields:
-            return False
-
-        return True
+        try:
+            self._lock("get_field('{}')".format(field_name))
+            return False if field_name not in self._fields else True
+        finally:
+            self._unlock("get_field('{}')".format(field_name))
 
     def get_field(self, field_name) -> _field.Abstract:
         """Get field's object.
         """
-        if not self.has_field(field_name):
-            raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
-        return self._fields[field_name]
+        try:
+            self._lock("get_field('{}')".format(field_name))
+            if not self.has_field(field_name):
+                raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
+            return self._fields[field_name]
+        finally:
+            self._unlock("get_field('{}')".format(field_name))
 
     @property
     def collection(self) -> _Collection:
@@ -165,7 +205,11 @@ class Model(_ABC):
     def fields(self):
         """Get all field objects.
         """
-        return self._fields
+        try:
+            self._lock('fields()')
+            return self._fields
+        finally:
+            self._unlock('fields()')
 
     @property
     def id(self) -> _ObjectId:
@@ -177,10 +221,13 @@ class Model(_ABC):
     def ref(self) -> _DBRef:
         """Get entity's DBRef.
         """
-        if not self.id:
-            raise Exception("Entity must be stored first.")
-
-        return _DBRef(self.collection.name, self.id)
+        try:
+            self._lock('ref()')
+            if not self.id:
+                raise Exception("Entity must be stored first.")
+            return _DBRef(self.collection.name, self.id)
+        finally:
+            self._unlock('ref()')
 
     @property
     def model(self) -> str:
@@ -215,8 +262,12 @@ class Model(_ABC):
     def f_set(self, field_name: str, value, **kwargs):
         """Set field's value.
         """
-        value = self._on_f_set(field_name, value, **kwargs)
-        self.get_field(field_name).set_val(value)
+        try:
+            self._lock("field_name('{}')".format(field_name))
+            value = self._on_f_set(field_name, value, **kwargs)
+            self.get_field(field_name).set_val(value)
+        finally:
+            self._unlock("field_name('{}')".format(field_name))
 
         return self
 
@@ -228,8 +279,12 @@ class Model(_ABC):
     def f_get(self, field_name: str, **kwargs):
         """Get field's value.
         """
-        field_val = self.get_field(field_name).get_val(**kwargs)
-        return self._on_f_get(field_name, field_val, **kwargs)
+        try:
+            self._lock("f_get('{}')".format(field_name))
+            field_val = self.get_field(field_name).get_val(**kwargs)
+            return self._on_f_get(field_name, field_val, **kwargs)
+        finally:
+            self._unlock("f_get('{}')".format(field_name))
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.
@@ -239,8 +294,12 @@ class Model(_ABC):
     def f_add(self, field_name: str, value):
         """Add a value to the field.
         """
-        self.get_field(field_name).add_val(self._on_f_add(field_name, value))
-        return self
+        try:
+            self._lock("f_add('{}')".format(field_name))
+            self.get_field(field_name).add_val(self._on_f_add(field_name, value))
+            return self
+        finally:
+            self._unlock("f_add('{}')".format(field_name))
 
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """On field's add value hook.
@@ -250,92 +309,116 @@ class Model(_ABC):
     def f_inc(self, field_name: str):
         """Increment value of the field.
         """
-        self.get_field(field_name).inc_val()
-        return self
+        try:
+            self._lock("f_inc('{}')".format(field_name))
+            self.get_field(field_name).inc_val()
+            return self
+        finally:
+            self._unlock("f_inc('{}')".format(field_name))
 
     def f_dec(self, field_name: str):
         """Decrement value of the field
         """
-        self.get_field(field_name).dec_val()
-        return self
+        try:
+            self._lock("f_dec('{}')".format(field_name))
+            self.get_field(field_name).dec_val()
+            return self
+        finally:
+            self._unlock("f_dec('{}')".format(field_name))
 
     @property
     def is_new(self) -> bool:
         """Is the entity new or already stored in a database?
         """
-        return self._is_new
+        try:
+            self._lock('is_new()')
+            return self._is_new
+        finally:
+            self._unlock('is_new()')
 
     @property
     def is_modified(self) -> bool:
         """Is the entity has been modified?
         """
-
-        for field_name, field in self._fields.items():
-            if field.is_modified():
-                return True
-        return False
+        try:
+            self._lock('is_modified()')
+            for field_name, field in self._fields.items():
+                if field.is_modified():
+                    return True
+            return False
+        finally:
+            self._unlock('is_modified()')
 
     @property
     def is_deleted(self) -> bool:
         """Is the entity has been deleted?
         """
-        return self._is_deleted
+        try:
+            self._lock('is_deleted()')
+            return self._is_deleted
+        finally:
+            self._unlock('is_deleted()')
 
     def save(self):
         """Save the entity.
         """
-        if self.is_deleted:
-            raise Exception("Entity has been deleted from the storage.")
+        try:
+            self._lock('save()')
 
-        # Don't save entity if it wasn't changed
-        if not self.is_modified:
+            if self.is_deleted:
+                raise Exception("Entity has been deleted from the storage.")
+
+            # Don't save entity if it wasn't changed
+            if not self.is_modified:
+                return self
+
+            # Pre-save hook
+            self._pre_save()
+
+            # Updating change timestamp
+            self.f_set('_modified', _datetime.now())
+
+            # Getting storable data from each field
+            data = {}
+            for f_name, field in self._fields.items():
+                if isinstance(field, _field.Virtual):
+                    continue
+                data[f_name] = field.get_storable_val()
+
+            # Let DB to calculate object's ID
+            if self._is_new:
+                del data['_id']
+
+            _events.fire('odm.entity.pre_save', entity=self)
+            _events.fire('odm.entity.pre_save.' + self.model, entity=self)
+
+            # Saving data into collection
+            if self._is_new:
+                self.collection.insert_one(data)
+            else:
+                self.collection.replace_one({'_id': data['_id']}, data)
+
+            _events.fire('odm.entity.save', entity=self)
+            _events.fire('odm.entity.save.' + self.model, entity=self)
+
+            # Getting assigned ID from MongoDB
+            if self._is_new:
+                self.f_set('_id', data['_id'])
+
+            # After save hook
+            self._after_save()
+
+            # Notifying fields about entity saving
+            for f_name, field in self._fields.items():
+                field.reset_modified()
+
+            # Entity is not new anymore
+            if self._is_new:
+                self._is_new = False
+
             return self
-
-        # Pre-save hook
-        self._pre_save()
-
-        # Updating change timestamp
-        self.f_set('_modified', _datetime.now())
-
-        # Getting storable data from each field
-        data = {}
-        for f_name, field in self._fields.items():
-            if isinstance(field, _field.Virtual):
-                continue
-            data[f_name] = field.get_storable_val()
-
-        # Let DB to calculate object's ID
-        if self._is_new:
-            del data['_id']
-
-        _events.fire('odm.entity.pre_save', entity=self)
-        _events.fire('odm.entity.pre_save.' + self.model, entity=self)
-
-        # Saving data into collection
-        if self._is_new:
-            self.collection.insert_one(data)
-        else:
-            self.collection.replace_one({'_id': data['_id']}, data)
-
-        _events.fire('odm.entity.save', entity=self)
-        _events.fire('odm.entity.save.' + self.model, entity=self)
-
-        # Getting assigned ID from MongoDB
-        if self._is_new:
-            self.f_set('_id', data['_id'])
-
-        # After save hook
-        self._after_save()
-
-        # Notifying fields about entity saving
-        for f_name, field in self._fields.items():
-            field.reset_modified()
-
-        # Entity is not new anymore
-        if self._is_new:
-            self._is_new = False
-
-        return self
+        finally:
+            self._unlock('save()')
 
     def _pre_save(self):
         """Pre save hook.
@@ -350,27 +433,32 @@ class Model(_ABC):
     def delete(self):
         """Delete the entity.
         """
-        # Pre delete hook
-        _events.fire('odm.entity.pre_delete', entity=self)
-        _events.fire('odm.entity.pre_delete.' + self.model, entity=self)
-        self._pre_delete()
+        try:
+            self._lock('delete()')
 
-        # Notify fields about entity deletion
-        for f_name, field in self._fields.items():
-            field.delete()
+            # Pre delete hook
+            _events.fire('odm.entity.pre_delete', entity=self)
+            _events.fire('odm.entity.pre_delete.' + self.model, entity=self)
+            self._pre_delete()
 
-        # Actual deletion from storage
-        if not self._is_new:
-            self.collection.delete_one({'_id': self.id})
-            from ._functions import cache_delete
-            cache_delete(self)
+            # Notify fields about entity deletion
+            for f_name, field in self._fields.items():
+                field.delete()
 
-        self._is_deleted = True
+            # Actual deletion from storage
+            if not self._is_new:
+                self.collection.delete_one({'_id': self.id})
+                from ._functions import cache_delete
+                cache_delete(self)
 
-        # After delete hook
-        self._after_delete()
+            self._is_deleted = True
 
-        return self
+            # After delete hook
+            self._after_delete()
+
+            return self
+        finally:
+            self._unlock('delete()')
 
     def _pre_delete(self):
         """Pre delete hook.

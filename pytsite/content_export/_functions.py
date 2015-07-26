@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import threading
+import threading as _threading
 from datetime import datetime, timedelta
 from pytsite import content as _content
 from pytsite.core import odm as _odm, lang as _lang, logger as _logger
@@ -51,6 +51,7 @@ def get_driver_title(name) -> str:
 def cron_15m_event_handler():
     """'odm.save' event handler.
     """
+    lock = _threading.RLock()
     for exporter in _odm.find('content_export').get():
         content_f = _content.find(exporter.content_model)
         content_f.where('publish_time', '>=', datetime.now() - timedelta(1))
@@ -62,7 +63,19 @@ def cron_15m_event_handler():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            _logger.info("{}. Entity '{}', title='{}'. Exporter '{}', title='{}'" \
-                         .format(__name__, entity.model, entity.title, exporter.driver, exporter.driver_opts['title']))
-            driver = load_driver(exporter.driver, **exporter.driver_opts)
-            driver.export(entity=entity, exporter=exporter)
+            try:
+                lock.acquire()
+                msg = "{}. Entity '{}', title='{}'. Exporter '{}', title='{}'" \
+                    .format(__name__, entity.model, entity.title, exporter.driver, exporter.driver_opts['title'])
+                _logger.info(msg)
+
+                driver = load_driver(exporter.driver, **exporter.driver_opts)
+                driver.export(entity=entity, exporter=exporter)
+
+                entity_opts = entity.options
+                if 'content_export' not in entity_opts:
+                    entity_opts['content_export'] = []
+                entity_opts['content_export'].append(str(exporter.id))
+                entity.f_set('options', entity_opts).save()
+            finally:
+                lock.release()

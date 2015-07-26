@@ -54,6 +54,9 @@ def get_registered_models() -> list:
 def _cache_get(model_name: str, entity_id):
     """Get entity from the cache.
     """
+    if not entity_id:
+        return
+
     cache_key = model_name + ':' + str(entity_id)
     if cache_key in __dispensed_entities:
         cache_key = model_name + ':' + str(entity_id)
@@ -86,9 +89,10 @@ def dispense(model: str, entity_id=None) -> _model.Model:
         raise Exception("ODM model '{}' is not registered".format(model))
 
     # Try to get entity from cache
-    entity = _cache_get(model, entity_id)
-    if entity:
-        return entity
+    if entity_id:
+        entity = _cache_get(model, entity_id)
+        if entity:
+            return entity
 
     # Dispense entity
     entity = get_model_class(model)(model, entity_id)
