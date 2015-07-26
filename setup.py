@@ -2,7 +2,7 @@ import re
 from os import walk, path
 from setuptools import setup, find_packages
 
-__version = '0.2.11'
+__version = '0.2.12'
 
 
 def find_package_data():

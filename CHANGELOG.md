@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.2.13 (2015-07-xx)
+## Fixed
+- Exception handling in `cron:start` console command.
+
+## 0.2.12 (2015-07-25)
+### Changed
+- Multithreading removed in `pytsite.content_export`.
+
 ## 0.2.11 (2015-07-24)
 ### Changed
 - Program logic in `pytsite.content_export`.

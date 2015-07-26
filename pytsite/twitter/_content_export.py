@@ -5,12 +5,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from twython import Twython as _Twython, TwythonError as _TwithonError
-from pytsite import content as _content, content_export
+from pytsite import content as _content, content_export as _content_export
 from pytsite.core import widget as _widget, logger as _logger, reg as _reg
 from ._widget import Auth as TwitterAuthWidget
 
 
-class Driver(content_export.AbstractDriver):
+class Driver(_content_export.AbstractDriver):
     """Content Export Driver.
     """
     def __init__(self, **kwargs):
@@ -29,10 +29,10 @@ class Driver(content_export.AbstractDriver):
         """
         return TwitterAuthWidget(uid=uid, **kwargs)
 
-    def export(self, entity: _content.model.Content, exporter=content_export.model.ContentExport):
+    def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
         """
-        _logger.info("{}. Export started. '{}'.".format(__name__, entity.title))
+        _logger.info("{}. Export started. '{}'".format(__name__, entity.title))
 
         tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
 
@@ -70,4 +70,4 @@ class Driver(content_export.AbstractDriver):
                 if not tries:
                     raise e
 
-        _logger.info("{}. Export finished. '{}'.".format(__name__, entity.title))
+        _logger.info("{}. Export finished. '{}'".format(__name__, entity.title))

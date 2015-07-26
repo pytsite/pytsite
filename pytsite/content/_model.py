@@ -151,12 +151,12 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 if not value:
                     value = self.title
 
-                if self.is_new:
+                if not self.route_alias:
                     # Create new route alias object
                     value = _route_alias.create(value, 'NONE').save()
                 else:
                     # Modify existing route alias object
-                    orig_value = self.f_get('route_alias')
+                    orig_value = self.route_alias
                     if orig_value.f_get('alias') != value:
                         orig_value.f_set('alias', value).save()
                     value = orig_value
