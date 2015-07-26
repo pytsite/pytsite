@@ -60,7 +60,6 @@ class Driver(_content_export.AbstractDriver):
             except _TwithonError as e:
                 # Cut one word from the right
                 status = ' '.join(status.split(' ')[:-1])
-
                 attempts -= 1
                 if not attempts:
                     raise e

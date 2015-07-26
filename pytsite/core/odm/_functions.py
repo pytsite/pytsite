@@ -63,7 +63,7 @@ def _cache_get(model_name: str, entity_id):
         return __dispensed_entities[cache_key]
 
 
-def _cache_put(entity: _model.Model) -> _model.Model:
+def cache_put(entity: _model.Model) -> _model.Model:
     """Put entity to the cache.
     """
     if not entity.is_new:
@@ -98,7 +98,7 @@ def dispense(model: str, entity_id=None) -> _model.Model:
     entity = get_model_class(model)(model, entity_id)
 
     # Cache entity if it has ID
-    return _cache_put(entity)
+    return cache_put(entity)
 
 
 def get_by_ref(ref: _DBRef):

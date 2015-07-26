@@ -416,6 +416,9 @@ class Model(_ABC):
             if self._is_new:
                 self._is_new = False
 
+            from ._functions import cache_put
+            cache_put(self)
+
             return self
         finally:
             self._unlock('save()')
