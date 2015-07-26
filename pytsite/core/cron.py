@@ -82,4 +82,5 @@ def _update_descriptor(part: str) -> dict:
     return data
 
 # Start
-_start()
+if _reg.get('cron.enabled'):
+    _start()
