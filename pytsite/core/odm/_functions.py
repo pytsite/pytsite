@@ -2,9 +2,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import db as _db, events as _events, util as _util
+import threading as _threading
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
+from pytsite.core import db as _db, events as _events, util as _util
 from . import _error, _model
 
 __registered_models = {}
@@ -85,20 +86,22 @@ def cache_delete(entity: _model.Model):
 def dispense(model: str, entity_id=None) -> _model.Model:
     """Dispense an entity.
     """
-    if not is_model_registered(model):
-        raise Exception("ODM model '{}' is not registered".format(model))
+    lock = _threading.RLock()
+    with lock:
+        if not is_model_registered(model):
+            raise Exception("ODM model '{}' is not registered".format(model))
 
-    # Try to get entity from cache
-    if entity_id:
-        entity = _cache_get(model, entity_id)
-        if entity:
-            return entity
+        # Try to get entity from cache
+        if entity_id:
+            entity = _cache_get(model, entity_id)
+            if entity:
+                return entity
 
-    # Dispense entity
-    entity = get_model_class(model)(model, entity_id)
+        # Dispense entity
+        entity = get_model_class(model)(model, entity_id)
 
-    # Cache entity if it has ID
-    return cache_put(entity)
+        # Cache entity if it has ID
+        return cache_put(entity)
 
 
 def get_by_ref(ref: _DBRef):

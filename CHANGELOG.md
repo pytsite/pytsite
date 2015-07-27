@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.2.13 (2015-07-xx)
+## 0.2.13 (2015-07-27)
 ### Added
 - Thread safety in `pytsite.core.odm`.
 - Thread safety in `pytsite.content_export`.
@@ -8,7 +8,8 @@
 
 ### Fixed
 - Exception handling in `cron:start` console command.
-- Unnecessary user login count in `pytsite.auth._functions.get_current_user()`. 
+- Unnecessary user login count in `pytsite.auth._functions.get_current_user()`.
+- YouTube links detection in `pytsite.core.widget.static.VideoPlayer()`. 
 
 ## 0.2.12 (2015-07-25)
 ### Changed
