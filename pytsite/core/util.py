@@ -191,4 +191,4 @@ def nav_link(href: str, anchor: str, **kwargs: dict) -> str:
     if href != '#' and router.url(href, strip_query=True) == router.current_url(strip_query=True):
         li.set_attr('cls', 'active')
 
-    return str(li.append(html.A(anchor, href=href, **kwargs)))
+    return str(li.append(html.A(anchor, href=router.url(href, strip_query=True), **kwargs)))

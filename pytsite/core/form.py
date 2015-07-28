@@ -37,7 +37,6 @@ class Base:
         self._setup()
 
         # Initializing form JS API
-        _client.include('jquery')
         _assetman.add('pytsite.core@js/form.js')
 
     def _setup(self):

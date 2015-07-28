@@ -3,6 +3,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import jinja2 as _jinja
+from datetime import datetime as _datetime
 from importlib import import_module as _import_module
 from os import path as _path
 from . import router as _router, metatag as _metatag, reg as _reg, assetman as _assetman, lang as _lang, \
@@ -47,7 +48,17 @@ class _TemplateLoader(_jinja.BaseLoader):
 _env = _jinja.Environment(loader=_TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
-# Additional functions
+def _date_filter(value: _datetime, fmt: str='pretty') -> str:
+    if not value:
+        value = _datetime.now()
+
+    if fmt == 'pretty':
+        return _lang.pretty_date(value)
+    else:
+        return value.strftime(fmt)
+
+
+# Additional functions and filters
 _env.globals['lang'] = _lang
 _env.globals['t'] = _lang.t
 _env.globals['t_plural'] = _lang.t_plural
@@ -63,6 +74,7 @@ _env.globals['asset_url'] = _assetman.get_url
 _env.globals['metatag'] = _metatag
 _env.globals['assetman'] = _assetman
 _env.globals['browser'] = _browser
+_env.filters['date'] = _date_filter
 
 
 def register_package(package_name: str, templates_dir: str='res/tpl'):

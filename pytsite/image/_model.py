@@ -75,3 +75,8 @@ class Image(_file.model.File):
             return self.f_get('url', width=int(kwargs.get('width', 422)), height=int(kwargs.get('height', 422)))
 
         return super()._on_f_get(field_name, value, **kwargs)
+
+    def get_url(self, width: int=None, height: int=None) -> str:
+        """Shortcut to use in Jinja templates.
+        """
+        return self.f_get('url', width=width or 0, height=height or 0)

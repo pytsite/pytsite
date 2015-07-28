@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 def _app_update_event():
     """'app.update' event handler.
     """
@@ -26,5 +27,5 @@ __init()
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D
 from . import _field as field, _validation as validation, _error as error
 from ._model import Model
-from ._finder import Finder
+from ._finder import Finder, Result as FinderResult
 from ._functions import register_model, find, dispense, get_by_ref, resolve_ref

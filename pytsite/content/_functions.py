@@ -108,5 +108,10 @@ def get_publish_statuses() -> list:
 
     return r
 
+
+def get_sections() -> _odm.FinderResult:
+    return list(_taxonomy.find('section').sort([('order', _odm.I_ASC)]).get())
+
+
 def get_section(alias: str) -> _model.Section:
     return _taxonomy.find('section').where('alias', '=', alias).first()

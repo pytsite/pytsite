@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.2.14 (2015-xx-xx)
+### Added
+- `date` filter in `pytsite.core.tpl`.
+
+
 ## 0.2.13 (2015-07-27)
 ### Added
 - Thread safety in `pytsite.core.odm`.

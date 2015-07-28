@@ -543,15 +543,11 @@ class Article(Content):
         ))
 
     def _pre_save(self):
-        # Create route alias
-        if not self.route_alias:
-            route_alias_str = self.title
-            if self.section:
-                route_alias_str = self.section.alias + '/' + route_alias_str
-            route_alias = _route_alias.create(route_alias_str, 'NONE').save()
-            self.f_set('route_alias', route_alias)
-
         super()._pre_save()
+
+        route_alias = self.route_alias
+        if self.is_new and not _re.match('/[^/]+/[^/]+', route_alias.alias) and self.section:
+            route_alias.f_set('alias', '/{}/{}'.format(self.section.alias, self.title)).save()
 
 
 class ContentSubscriber(_odm.Model):
