@@ -1,6 +1,7 @@
 """Auth Models
 """
 import hashlib as _hashlib
+from datetime import datetime as _datetime
 from pytsite.core import odm as _odm, util as _util, router as _router
 
 
@@ -29,14 +30,47 @@ class User(_odm.Model):
         self._define_field(_odm.field.Dict('options'))
         self._define_field(_odm.field.Ref('picture', model='image'))
         self._define_field(_odm.field.Virtual('picture_url'))
+        self._define_field(_odm.field.Virtual('profile_view_url'))
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)
         self._define_index([('token', _odm.I_ASC)], unique=True)
 
     @property
+    def is_anonymous(self) -> bool:
+        """Check if the user is anonymous.
+        """
+        return self.f_get('login') == '__anonymous'
+
+    @property
+    def is_admin(self) -> bool:
+        """Check if the user has the 'admin' role.
+        """
+        return self.has_role('admin')
+
+    @property
     def full_name(self) -> str:
         return self.f_get('full_name')
+
+    @property
+    def profile_is_public(self) -> bool:
+        return self.f_get('profile_is_public')
+
+    @property
+    def profile_view_url(self) -> str:
+        return self.f_get('profile_view_url')
+
+    @property
+    def picture_url(self) -> str:
+        return self.f_get('picture_url')
+
+    @property
+    def login_count(self) -> int:
+        return self.f_get('login_count')
+
+    @property
+    def last_login(self) -> _datetime:
+        return self.f_get('last_login')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
@@ -88,28 +122,19 @@ class User(_odm.Model):
 
         return False
 
-    @property
-    def is_anonymous(self) -> bool:
-        """Check if the user is anonymous.
-        """
-        return self.f_get('login') == '__anonymous'
-
-    @property
-    def is_admin(self) -> bool:
-        """Check if the user has the 'admin' role.
-        """
-        return self.has_role('admin')
-
     def _on_f_get(self, field_name: str, value, **kwargs):
         if field_name == 'picture_url':
             pic = self.f_get('picture')
-            size = kwargs.get('size', 128)
+            size = kwargs.get('size', 256)
             """:type: pytsite.image._model.Image"""
             if pic:
                 value = pic.f_get('url', width=size, height=size)
             else:
                 email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
+
+        if field_name == 'profile_view_url':
+            value = _router.endpoint_url('pytsite.auth.eps.profile_view', {'uid': self.id})
 
         return value
 

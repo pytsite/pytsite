@@ -32,3 +32,10 @@ class Settings(_form.Base):
             ))
 
             i += 1
+
+        self.add_widget(_widget.input.TextArea(
+            uid='setting_add_js',
+            label=_lang.t('pytsite.content@additional_js_code'),
+            rows=10,
+            weight=100,
+        ))

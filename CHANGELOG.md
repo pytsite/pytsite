@@ -2,8 +2,20 @@
 
 ## 0.2.14 (2015-xx-xx)
 ### Added
-- `date` filter in `pytsite.core.tpl`.
+`pytsite.core`:
+    - `date` filter in `tpl`. 
+- `pytsite.auth`
+    - New field: `pytsite.auth.model.user.profile_view_url`.
+    - Profile view endpoint: `pytsite.auth.eps.profile_view`.
+    - Base profile view template.
+- `pytsite.content`:
+    - 'Additional JS code' field on the settings form.
+    - New widget `SearchInput`.
+- `pytsite.settings`:
+    - `settings` global in `pytsite.core.tpl`.
 
+### Changed
+- Template in `pytsite.admin`.
 
 ## 0.2.13 (2015-07-27)
 ### Added

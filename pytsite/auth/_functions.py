@@ -113,7 +113,7 @@ def get_login_form(uid: str=None, cls: str=None, legend: str=None) -> _form.Base
     """Get a login form.
     """
     form = get_driver().get_login_form(uid, cls, legend)
-    form.action = _router.endpoint_url('pytsite.auth.eps.post_login')
+    form.action = _router.endpoint_url('pytsite.auth.eps.login_submit')
 
     return form
 

@@ -1,11 +1,4 @@
 {% set user = auth.get_current_user() %}
-{% set user_full_name = user.f_get('full_name') %}
-{% set user_pic = user.f_get('picture') %}
-{% set user_created = user.created.strftime('%d.%m.%Y') %}
-
-{% if user_pic %}
-    {% set user_pic_url = user_pic.f_get('thumb_url') %}
-{% endif %}
 <header class="main-header">
 
     <!-- Logo -->
@@ -129,22 +122,18 @@
                     <!-- Menu Toggle Button -->
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <!-- The user image in the navbar-->
-                        {% if user_pic_url %}
-                            <img alt="User Image" class="user-image" src="{{ user_pic_url }}">
-                        {% endif %}
+                        <img alt="{{ user.full_name }}" class="user-image" src="{{ user.picture_url }}">
                         <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                        <span class="hidden-xs">{{ user_full_name }}</span>
+                        <span class="hidden-xs">{{ user.full_name }}</span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- The user image in the menu -->
                         <li class="user-header">
-                            {% if user_pic_url %}
-                                <img alt="User Image" class="img-circle" src="{{ user_pic_url }}">
-                            {% endif %}
+                            <img alt="{{ user.full_name }}" class="img-circle" src="{{ user.picture_url }}">
 
                             <p>
-                                {{ auth.get_current_user().f_get('full_name') }}
-                                <small>{{ t('pytsite.admin@member_since') }} {{ user_created }}</small>
+                                {{ user.full_name }}
+                                <small>{{ t('pytsite.admin@member_since') }} {{ user.created | date('pretty')}}</small>
                             </p>
                         </li>
                         <!-- Menu Body -->
@@ -161,9 +150,11 @@
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
-                            <div class="pull-left">
-                                <a class="btn btn-default btn-flat" href="#">{{ t('admin@profile') }}</a>
-                            </div>
+                            {% if user.profile_is_public %}
+                                <div class="pull-left">
+                                    <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('admin@profile') }}</a>
+                                </div>
+                            {% endif %}
                             <div class="pull-right">
                                 {% set sign_out_url = router.endpoint_url('pytsite.auth.eps.logout') %}
                                 <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('admin@sign_out') }}</a>

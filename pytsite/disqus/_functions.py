@@ -11,6 +11,7 @@ import json as _json
 from datetime import datetime as _datetime
 from pytsite.core import odm as _odm, reg as _reg, logger as _logger
 
+
 def get_comments_count(thread_url: str) -> int:
     """Get comments count.
     """

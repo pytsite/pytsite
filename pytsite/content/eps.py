@@ -39,6 +39,13 @@ def index(args: dict, inp: dict):
                     f.where(term_field, 'in', [term])
                 _metatag.t_set('title', term.title)
 
+    # Filter by author
+    author_id = args.get('author')
+    if author_id:
+        user = _auth.get_user(uid=author_id)
+        if user:
+            f.where('author', '=', user)
+
     if inp.get('search'):
         query = inp.get('search')
         if query:
@@ -77,10 +84,13 @@ def view(args: dict, inp: dict):
             raise _http.error.Forbidden()
 
     # Recalculate comments count
-    current_cc = entity.f_get('comments_count')
-    actual_cc = _disqus.functions.get_comments_count(_router.current_url(True))
-    if actual_cc != current_cc:
-        entity.f_set('comments_count', actual_cc).save()
+    try:
+        current_cc = entity.f_get('comments_count')
+        actual_cc = _disqus.functions.get_comments_count(_router.current_url(True))
+        if actual_cc != current_cc:
+            entity.f_set('comments_count', actual_cc).save()
+    except ValueError:
+        pass
 
     # Meta title
     title = entity.title
@@ -118,7 +128,6 @@ def view(args: dict, inp: dict):
 
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
 
-    _browser.include('jquery')
     _assetman.add('pytsite.content@js/content.js')
 
     return _router.call_endpoint(endpoint, {'entity': entity})

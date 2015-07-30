@@ -190,6 +190,7 @@ class Empty(Element):
     def render(self):
         return ''
 
+
 class SingleTagElement(Element):
     """Element without closing tag.
     """
@@ -281,6 +282,7 @@ class Footer(Section):
 class Aside(Section):
     pass
 
+
 class H1(BlockElement):
     pass
 
@@ -360,7 +362,8 @@ class Th(Td):
 
 
 class Form(BlockElement):
-    pass
+    def _get_valid_attrs(self) -> tuple:
+        return 'method', 'action'
 
 
 class Input(InlineElement, SingleTagElement):
@@ -373,7 +376,7 @@ class Input(InlineElement, SingleTagElement):
 
 class TextArea(BlockElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'name', 'placeholder', 'rows'
+        return 'name', 'placeholder', 'rows', 'required'
 
 
 class Label(InlineElement):

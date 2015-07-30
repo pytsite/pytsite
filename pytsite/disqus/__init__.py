@@ -4,7 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 def __init():
+    """Init wrapper.
+    """
     import sys
     from pytsite.core import tpl, odm
 

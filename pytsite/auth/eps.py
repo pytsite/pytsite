@@ -6,11 +6,11 @@ __license__ = 'MIT'
 
 from werkzeug.utils import escape as _escape
 from pytsite.core import router as _router, lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, \
-    assetman as _assetman
+    assetman as _assetman, reg as _reg
 from . import _functions
 
 
-def get_login(args: dict, inp: dict) -> str:
+def login(args: dict, inp: dict) -> str:
     """Get login form.
     """
     if not _functions.get_current_user().is_anonymous:
@@ -27,7 +27,7 @@ def get_login(args: dict, inp: dict) -> str:
     })
 
 
-def post_login(args: dict, inp: dict) -> _http.response.Redirect:
+def login_submit(args: dict, inp: dict) -> _http.response.Redirect:
     """Process login form submit.
     """
     return _functions.post_login_form(args, inp)
@@ -64,4 +64,18 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
     if '__form_redirect' in inp:
         del inp['__form_redirect']
 
-    return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.get_login', inp))
+    return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.login', inp))
+
+
+def profile_view(args: dict, inp: dict) -> str:
+    """Profile View Endpoint.
+    """
+    tpl_name = _reg.get('auth.tpl.profile_view', 'pytsite.auth@views/profile_view')
+    user = _functions.get_user(uid=args.get('uid'))
+
+    if not user or not user.profile_is_public:
+        raise _http.error.NotFound()
+
+    _metatag.t_set('title', user.full_name)
+
+    return _tpl.render(tpl_name, {'user': user})

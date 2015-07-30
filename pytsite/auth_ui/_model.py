@@ -8,6 +8,7 @@ from pytsite import auth as _auth, odm_ui as _odm_ui
 from pytsite.core import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
     http as _http
 
+
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """User UI.
     """
@@ -186,7 +187,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
                     _html.Div(cls='checkbox').append(
                         _html.Label(_lang.t(perm[1]), label_for='permissions-checkbox-' + p_name).append(
                             _html.Input(type='checkbox', uid='permissions-checkbox-' + p_name,
-                                  name='permissions', value=p_name, checked=p_name in self.f_get('permissions'))
+                                        name='permissions', value=p_name, checked=p_name in self.f_get('permissions'))
                         )
                     )
                 )

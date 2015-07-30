@@ -22,8 +22,7 @@ class AddThis(_widget.Base):
         self._valid_types = ('sharing_toolbox', 'recommended_horizontal')
         self._type = box_type
         if self._type not in self._valid_types:
-            raise Exception("Invalid type: '{}'. Valid types are: {}.".\
-                            format(self._type, str(self._valid_types)))
+            raise Exception("Invalid type: '{}'. Valid types are: {}.".format(self._type, str(self._valid_types)))
 
         self._url = kwargs.get('url')
 

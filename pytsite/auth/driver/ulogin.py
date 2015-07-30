@@ -52,7 +52,7 @@ class ULoginDriver(AbstractDriver):
         """Get the login form.
         """
         if not uid:
-            uid='pytsite-auth-login'
+            uid = 'pytsite-auth-login'
 
         return LoginForm(uid=uid, cls=cls, legend=legend)
 
@@ -137,4 +137,4 @@ class ULoginDriver(AbstractDriver):
 
         except _error.LoginIncorrect:
             _router.session.add_error(_lang.t('auth@authorization_error'))
-            return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.get_login', args=inp))
+            return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.login', args=inp))

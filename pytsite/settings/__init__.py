@@ -7,22 +7,24 @@ __license__ = 'MIT'
 
 # Init wrapper
 def __init():
+    import sys
     from pytsite.core import router, lang, odm, tpl
-    from pytsite import admin, auth
+    from pytsite import admin
     from ._model import Setting
 
     # Language package
     lang.register_package(__name__)
 
-    # Template package
+    # Template package and globals
     tpl.register_package(__name__)
+    tpl.register_global('settings', sys.modules[__name__])
 
     # ODM model
     odm.register_model('setting', Setting)
 
     # Routing
     router.add_rule('/admin/settings/<string:uid>', 'pytsite.settings.eps.form')
-    router.add_rule('/admin/settings/<string:uid>/submit', 'pytsite.settings.eps.form_submit', methods=('POST',))
+    router.add_rule('/admin/settings/<string:uid>/submit', 'pytsite.settings.eps.form_submit', methods='POST')
 
     # Sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',))
