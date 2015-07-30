@@ -40,10 +40,11 @@ def index(args: dict, inp: dict):
                 _metatag.t_set('title', term.title)
 
     # Filter by author
-    author_id = args.get('author')
+    author_id = inp.get('author')
     if author_id:
         user = _auth.get_user(uid=author_id)
         if user:
+            _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': user.full_name}))
             f.where('author', '=', user)
 
     if inp.get('search'):
@@ -59,7 +60,7 @@ def index(args: dict, inp: dict):
 
     pager = _widget.static.Pager(f.count(), 10)
 
-    args['entities'] = f.skip(pager.skip).get(pager.limit)
+    args['entities'] = list(f.skip(pager.skip).get(pager.limit))
     args['pager'] = pager
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_index')
 

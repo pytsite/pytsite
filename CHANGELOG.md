@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.2.14 (2015-xx-xx)
+## 0.3 (2015-07-30)
 ### Added
 `pytsite.core`:
     - `date` filter in `tpl`. 
@@ -11,6 +11,7 @@
 - `pytsite.content`:
     - 'Additional JS code' field on the settings form.
     - New widget `SearchInput`.
+    - Content index view by author.
 - `pytsite.settings`:
     - `settings` global in `pytsite.core.tpl`.
 

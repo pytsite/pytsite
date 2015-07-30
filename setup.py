@@ -2,7 +2,7 @@ import re
 from os import walk, path
 from setuptools import setup, find_packages
 
-__version = '0.2.13'
+__version = '0.3'
 
 
 def find_package_data():
@@ -46,7 +46,7 @@ setup(
         'twython',
         # 'lxml',
     ],
-    classifiers= [
+    classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
         'Environment :: Web Environment',
