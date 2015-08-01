@@ -82,6 +82,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     try:
         entity.submit_m_form(form)  # Entity hook
         entity.save()
+        _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except Exception as e:
         _router.session.add_error(str(e))
         _logger.error(str(e))

@@ -1,13 +1,12 @@
 """PytSite Console.
 """
-from . import _command
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite.core import reg
-from . import _error
+from . import _error, _command
 
 
 __commands = {}
@@ -32,10 +31,9 @@ def register_command(obj: _command.Abstract):
 def get_command(name: str) -> _command.Abstract:
     """Get a console command.
     """
-
     global __commands
     if name not in __commands:
-        raise Exception("Command '{0}' is not registered.".format(name))
+        raise Exception("Command '{}' is not registered.".format(name))
 
     return __commands[name]
 
@@ -49,7 +47,6 @@ def run_command(name: str, **kwargs: dict):
 def usage():
     """Print the usage message.
     """
-
     global __commands
     r = ''
     for name, cmd in sorted(__commands.items()):

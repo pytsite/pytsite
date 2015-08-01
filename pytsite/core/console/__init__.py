@@ -23,3 +23,4 @@ from ._functions import register_command, run, run_command, print_info, print_su
     print_warning
 from . import _command as command
 from . import _error as error
+from ._command import Abstract as AbstractCommand

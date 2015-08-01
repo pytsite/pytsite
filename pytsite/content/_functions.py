@@ -115,3 +115,11 @@ def get_sections() -> _odm.FinderResult:
 
 def get_section(alias: str) -> _model.Section:
     return _taxonomy.find('section').where('alias', '=', alias).first()
+
+
+def create_section(title: str, alias: str=None) -> _model.Section:
+    return _taxonomy.dispense('section', title, alias).save()
+
+
+def create_tag(title: str, alias: str=None) -> _model.Tag:
+    return _taxonomy.dispense('tag', title, alias).save()

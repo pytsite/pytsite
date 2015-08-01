@@ -39,6 +39,8 @@ def _mail_digest():
 
 
 def router_dispatch():
+    """'pytsite.core.router.dispatch' Event Handler.
+    """
     if not _router.is_base_url():
         return
 

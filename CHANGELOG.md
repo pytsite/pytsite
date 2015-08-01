@@ -1,9 +1,10 @@
 # PytSite Changelog
 
-## 0.3 (2015-07-30)
+## 0.3 (2015-08-xx)
 ### Added
-`pytsite.core`:
-    - `date` filter in `tpl`. 
+- `pytsite.core`:
+    - `date` filter in `tpl`.
+    - New arguments in `odm.Model.save()`: `skip_hooks` and `update_timestamp`.
 - `pytsite.auth`
     - New field: `pytsite.auth.model.user.profile_view_url`.
     - Profile view endpoint: `pytsite.auth.eps.profile_view`.
@@ -12,11 +13,18 @@
     - 'Additional JS code' field on the settings form.
     - New widget `SearchInput`.
     - Content index view by author.
+    - `content:generate` console command.
 - `pytsite.settings`:
     - `settings` global in `pytsite.core.tpl`.
 
 ### Changed
 - Template in `pytsite.admin`.
+- Code cleanup in `pytsite.core.odm.Model`.
+
+### Fixed
+- Large amounts deletion error in `pytsite.odm_ui._browser`.
+- Removed unnecessary thread locks in `pytsite.core.odm.Model`.
+- Incorrect behaviour of `pytsite.content.eps.index` in case of `term_field` argument usage.
 
 ## 0.2.13 (2015-07-27)
 ### Added

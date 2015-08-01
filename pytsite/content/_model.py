@@ -18,15 +18,20 @@ class Section(_taxonomy.model.Term):
     def _pre_delete(self):
         from . import _functions
         for m in _functions.get_models():
-            r_entity = _functions.find(m, None, False).where('section', '=', self).first()
+            f = _functions.find(m, status=None, check_publish_time=False)
+            if not f.mock.has_field('section'):
+                continue
+            r_entity = f.where('section', '=', self).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
                 raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
 
-        tag = _taxonomy.find('tag').where('section', '=', self).first()
-        if tag:
-            error_args = {'model': tag.model, 'title': tag.f_get('title')}
-            raise _odm.error.ForbidEntityDelete(_lang.t('pytsite,content@referenced_entity_exists', error_args))
+        f = _taxonomy.find('tag')
+        if f.mock.has_field('section'):
+            tag = f.where('section', '=', self).first()
+            if tag:
+                error_args = {'model': tag.model, 'title': tag.f_get('title')}
+                raise _odm.error.ForbidEntityDelete(_lang.t('pytsite,content@referenced_entity_exists', error_args))
 
 
 class Tag(_taxonomy.model.Term):
@@ -39,6 +44,8 @@ class Tag(_taxonomy.model.Term):
         self._define_field(_odm.field.RefsUniqueList('sections', model='section'))
 
     def setup_browser(self, browser):
+        """Hook.
+        """
         super().setup_browser(browser)
         browser.default_sort_field = 'weight'
         browser.default_sort_order = _odm.I_DESC
@@ -245,13 +252,13 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 if _router.session:
                     _router.session.add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
 
-            # Recalculate tags weights
-            from . import _functions
-            for tag in self.tags:
-                weight = 0
-                for model in _functions.get_models().keys():
-                    weight += _functions.find(model).where('tags', 'in', [tag]).count()
-                tag.f_set('weight', weight).save()
+        # Recalculate tags weights
+        from . import _functions
+        for tag in self.tags:
+            weight = 0
+            for model in _functions.get_models().keys():
+                weight += _functions.find(model).where('tags', 'in', [tag]).count()
+            tag.f_set('weight', weight).save()
 
         # Creating back links in images
         for img in self.images:
@@ -543,11 +550,17 @@ class Article(Content):
         ))
 
     def _pre_save(self):
+        """Hook.
+        """
         super()._pre_save()
 
         route_alias = self.route_alias
-        if self.is_new and not _re.match('/[^/]+/[^/]+', route_alias.alias) and self.section:
-            route_alias.f_set('alias', '/{}/{}'.format(self.section.alias, self.title)).save()
+        if self.is_new:
+            if not _re.match('/[^/]+/[^/]+', route_alias.alias) and self.section:
+                route_alias.f_set('alias', '/{}/{}'.format(self.section.alias, self.title)).save()
+
+            for tag in self.tags:
+                tag.f_add('sections', self.section).save()
 
 
 class ContentSubscriber(_odm.Model):

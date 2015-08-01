@@ -4,7 +4,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import pickle as _pickle
 import subprocess as _subprocess
 import shutil as _shutil
 import time as _time
@@ -88,23 +87,6 @@ class CleanupOldSessions(Abstract):
             file_path = _path.join(session_dir, file_name)
             if _path.isfile(file_path) and (_time.time() - _path.getmtime(file_path)) >= ttl:
                 _unlink(file_path)
-
-
-class Cron(Abstract):
-    """Cron command.
-    """
-    def get_name(self):
-        """Get command name.
-        """
-        return 'cron:start'
-
-    def get_description(self):
-        """Get command description.
-        """
-        from pytsite.core.lang import t
-        return t('pytsite.core@cron_console_command_description')
-
-
 
 
 class Maintenance(Abstract):

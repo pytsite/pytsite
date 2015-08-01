@@ -29,7 +29,8 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     # Action, redirect and validation endpoints
     frm.validation_ep = 'pytsite.odm_ui.eps.validate_m_form'
     frm.action = _router.endpoint_url('pytsite.odm_ui.eps.post_m_form', {'model': model, 'id': eid if eid else '0'})
-    frm.redirect = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
+    if not _router.request.values_dict.get('__form_redirect'):
+        frm.redirect = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
 
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('odm_ui@save'),

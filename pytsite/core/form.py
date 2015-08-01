@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from . import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
     validation as _validation, browser as _client
@@ -27,8 +28,14 @@ class Base:
         self._cls = kwargs.get('cls', 'pytsite-form')
         self._validation_ep = kwargs.get('validation_ep')
 
+        redirect_url = _router.request.values_dict.get('__form_redirect')
+        if not redirect_url:
+            redirect_url = _router.current_url()
+        elif isinstance(redirect_url, list):
+            redirect_url = redirect_url[0]
+
         self.add_widget(_widget.input.Hidden(uid='__form_location', value=_router.current_url()), area='form')
-        self.add_widget(_widget.input.Hidden(uid='__form_redirect', value=_router.current_url()), area='form')
+        self.add_widget(_widget.input.Hidden(uid='__form_redirect', value=_url_unquote(redirect_url)), area='form')
         self.add_widget(_widget.static.Wrapper(cls='form-messages'))
 
         if not self._name:
@@ -142,7 +149,7 @@ class Base:
     def redirect(self, value):
         """Redirect URL after sucessfull form submit.
         """
-        self.get_widget('__form_redirect').set_value(value)
+        self.get_widget('__form_redirect').set_value(_url_unquote(value))
 
     def fill(self, values: dict, **kwargs: dict):
         """Fill form's widgets with values.

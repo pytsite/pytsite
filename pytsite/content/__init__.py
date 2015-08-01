@@ -8,10 +8,11 @@ __license__ = 'MIT'
 def __init():
     import sys
     from pytsite import admin, taxonomy, settings
-    from pytsite.core import router, assetman, lang, tpl, events, odm
+    from pytsite.core import router, assetman, lang, tpl, events, odm, console
     from ._model import Tag, Section, ContentSubscriber
     from ._event_handlers import cron_weekly, router_dispatch
     from ._forms import Settings
+    from ._console import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -54,6 +55,10 @@ def __init():
     settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',
                     perm_name='pytsite.content.settings',
                     perm_description='content@manage_content_settings_permission')
+
+    # Console commands
+    console.register_command(GenerateConsoleCommand())
+
 
 __init()
 

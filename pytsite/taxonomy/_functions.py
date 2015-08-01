@@ -39,7 +39,7 @@ def is_model_registered(model: str) -> bool:
     return model in __models
 
 
-def dispense(model: str, title: str):
+def dispense(model: str, title: str, alias: str=None):
     """Create new term or dispense existing.
     """
     if not is_model_registered(model):
@@ -47,8 +47,13 @@ def dispense(model: str, title: str):
 
     title = title.strip()
     term = find(model).where('title', 'regex_i', '^' + title + '$').first()
+    if not term and alias:
+        term = find(model).where('alias', '=', alias).first()
+
     if not term:
         term = _odm.dispense(model).f_set('title', title)
+        if alias:
+            term.f_set('alias', alias)
 
     return term
 

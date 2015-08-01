@@ -38,6 +38,10 @@ def index(args: dict, inp: dict):
                 elif isinstance(f.mock.fields[term_field], _odm.field.RefsListField):
                     f.where(term_field, 'in', [term])
                 _metatag.t_set('title', term.title)
+            else:
+                raise _http.error.NotFound()
+        else:
+            raise _http.error.NotFound()
 
     # Filter by author
     author_id = inp.get('author')
@@ -142,7 +146,7 @@ def view_count(args: dict, inp: dict) -> int:
         from . import _functions
         entity = _functions.find(model).where('_id', '=', eid).first()
         if entity:
-            entity.f_inc('views_count').save()
+            entity.f_inc('views_count').save(skip_hooks=True, update_timestamp=False)
             return entity.f_get('views_count')
 
     return 0
