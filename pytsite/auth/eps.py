@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from werkzeug.utils import escape as _escape
 from pytsite.core import router as _router, lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, \
-    assetman as _assetman, reg as _reg
+    assetman as _assetman
 from . import _functions
 
 
@@ -65,17 +65,3 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
         del inp['__form_redirect']
 
     return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.login', inp))
-
-
-def profile_view(args: dict, inp: dict) -> str:
-    """Profile View Endpoint.
-    """
-    tpl_name = _reg.get('auth.tpl.profile_view', 'pytsite.auth@views/profile_view')
-    user = _functions.get_user(uid=args.get('uid'))
-
-    if not user or not user.profile_is_public:
-        raise _http.error.NotFound()
-
-    _metatag.t_set('title', user.full_name)
-
-    return _tpl.render(tpl_name, {'user': user})

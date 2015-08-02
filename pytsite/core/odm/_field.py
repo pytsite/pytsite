@@ -373,6 +373,8 @@ class DateTime(Abstract):
                 value = _lang.time_ago(value)
             elif fmt == 'pretty_date':
                 value = _lang.pretty_date(value)
+            elif fmt == 'pretty_date_time':
+                value = _lang.pretty_date_time(value)
             else:
                 value = value.strftime(fmt)
 

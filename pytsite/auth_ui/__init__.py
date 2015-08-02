@@ -11,10 +11,16 @@ __import__('pytsite.image')
 
 def __init():
     from pytsite import admin
-    from pytsite.core import lang, odm, router
+    from pytsite.core import lang, odm, router, tpl
     from . import _model
 
     lang.register_package(__name__)
+    tpl.register_package(__name__)
+
+    # Routes
+    router.add_rule('/auth/profile/<string:uid>', __name__ + '.eps.profile_view')
+    router.add_rule('/auth/profile/<string:uid>/edit', __name__ + '.eps.profile_edit')
+    router.add_rule('/auth/profile/<string:uid>/edit/submit', __name__ + '.eps.profile_edit_submit', methods='POST')
 
     # Replace 'user' model with UI-compatible
     odm.register_model('user', _model.UserUI, True)

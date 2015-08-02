@@ -159,8 +159,10 @@ def get_user(login: str=None, uid: str=None) -> _model.User:
 
 
 def create_role(name: str, description: str=''):
+    """Create new role.
+    """
     if get_role(name=name):
-        raise Exception("Role with name '{0}' already exists.".format(name))
+        raise Exception("Role with name '{}' already exists.".format(name))
 
     role = _odm.dispense('role')
     return role.f_set('name', name).f_set('description', description)
@@ -189,7 +191,7 @@ def authorize(user: _model.User, count_login: bool=True) -> _model.User:
     if count_login:
         user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
 
-    _router.session['pytsite.auth.login'] = user.f_get('login')
+    _router.session['pytsite.auth.login'] = user.login
 
     return user
 

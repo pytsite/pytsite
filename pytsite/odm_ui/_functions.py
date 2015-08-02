@@ -35,11 +35,9 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('odm_ui@save'),
                                           color='primary', icon='fa fa-save')
-    cancel_button_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
     cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('odm_ui@cancel'),
-                                        href=cancel_button_url, icon='fa fa-remove')
-    actions_wrapper = _widget.static.Wrapper(uid='actions',
-                                             cls='actions-wrapper text-xs-B-center text-sm-left')
+                                        href=frm.redirect, icon='fa fa-remove')
+    actions_wrapper = _widget.static.Wrapper(uid='actions', cls='actions-wrapper text-xs-B-center text-sm-left')
     actions_wrapper.add_child(submit_button).add_child(cancel_button)
     frm.add_widget(actions_wrapper, area='footer')
 
@@ -120,25 +118,33 @@ def dispense_entity(model: str, entity_id: str=None):
 def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
-    user = _auth.get_current_user()
+    current_user = _auth.get_current_user()
 
-    if user.is_anonymous:
+    if current_user.is_anonymous:
         return False
 
-    if perm_type == 'create' and user.has_permission('pytsite.odm_ui.create.' + model):
+    # Ability for users to modify themselves
+    if perm_type == 'modify' and model == 'user' and len(ids) == 1:
+        user = _auth.get_user(uid=ids[0])
+        if user and user.id == current_user.id:
+            return True
+
+    if perm_type == 'create' and current_user.has_permission('pytsite.odm_ui.create.' + model):
         return True
     elif perm_type == 'modify' or perm_type == 'delete':
-        if user.has_permission('pytsite.odm_ui.' + perm_type + '.' + model):
+        if current_user.has_permission('pytsite.odm_ui.' + perm_type + '.' + model):
             return True
-        elif user.has_permission('pytsite.odm_ui.' + perm_type + '_own.' + model):
-            for eid in ids:
-                entity = dispense_entity(model, eid)
-                if not entity:
-                    return False
-                if entity.has_field('author') and not entity.f_get('author').id == user.id:
-                    return False
-                if entity.has_field('owner') and not entity.f_get('owner').id == user.id:
-                    return False
-            return True
+        else:
+            own_perm = 'pytsite.odm_ui.' + perm_type + '_own.' + model
+            if _auth.get_permission(own_perm) and current_user.has_permission(own_perm):
+                for eid in ids:
+                    entity = dispense_entity(model, eid)
+                    if not entity:
+                        return False
+                    if entity.has_field('author') and not entity.f_get('author').id == current_user.id:
+                        return False
+                    if entity.has_field('owner') and not entity.f_get('owner').id == current_user.id:
+                        return False
+                return True
 
     return False

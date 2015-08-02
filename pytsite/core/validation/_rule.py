@@ -83,6 +83,8 @@ class NotEmpty(Base):
             self.value = _util.list_cleanup(self.value)
         elif isinstance(self.value, dict):
             self.value = _util.dict_cleanup(self.value)
+        elif isinstance(self.value, str):
+            self.value = self.value.strip()
 
         if not self._value:
             raise _error.ValidationError()
@@ -206,8 +208,8 @@ class Email(Base):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-        regex = _re.compile('[^@]+@[^@]+\.[^@]+')
-        if not regex.match(str(self._value)):
+        regex = _re.compile('^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-]+\.[a-z0-9]+$')
+        if not regex.search(str(self._value)):
             raise _error.ValidationError()
 
 
@@ -223,6 +225,7 @@ class DateTime(Base):
                 raise _error.ValidationError()
         elif not isinstance(self._value, datetime):
             raise _error.ValidationError()
+
 
 class GreaterThan(Base):
     def __init__(self, msg_id: str=None, value=None, than: float=0.0):

@@ -24,17 +24,19 @@ class User(_odm.Model):
         self._define_field(_odm.field.Integer('login_count'))
         self._define_field(_odm.field.String('status', default='active'))
         self._define_field(_odm.field.RefsListField('roles', model='role'))
-        self._define_field(_odm.field.Bool('profile_is_public'))
         self._define_field(_odm.field.Integer('gender'))
         self._define_field(_odm.field.String('phone'))
         self._define_field(_odm.field.Dict('options'))
         self._define_field(_odm.field.Ref('picture', model='image'))
         self._define_field(_odm.field.Virtual('picture_url'))
-        self._define_field(_odm.field.Virtual('profile_view_url'))
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)
         self._define_index([('token', _odm.I_ASC)], unique=True)
+
+    @property
+    def login(self) -> str:
+        return self.f_get('login')
 
     @property
     def is_anonymous(self) -> bool:
@@ -49,16 +51,16 @@ class User(_odm.Model):
         return self.has_role('admin')
 
     @property
+    def first_name(self) -> str:
+        return self.f_get('first_name')
+
+    @property
+    def last_name(self) -> str:
+        return self.f_get('last_name')
+
+    @property
     def full_name(self) -> str:
         return self.f_get('full_name')
-
-    @property
-    def profile_is_public(self) -> bool:
-        return self.f_get('profile_is_public')
-
-    @property
-    def profile_view_url(self) -> str:
-        return self.f_get('profile_view_url')
 
     @property
     def picture_url(self) -> str:
@@ -71,6 +73,10 @@ class User(_odm.Model):
     @property
     def last_login(self) -> _datetime:
         return self.f_get('last_login')
+
+    @property
+    def gender(self) -> int:
+        return self.f_get('gender')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
@@ -88,13 +94,15 @@ class User(_odm.Model):
         return value
 
     def _pre_save(self):
-        """_pre_save() hook.
+        """Hook.
         """
         if self.f_get('login') == '__anonymous':
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.f_get('password'):
             self.f_set('password', _util.random_password())
+
+        self.f_set('full_name', '{} {}'.format(self.first_name, self.last_name))
 
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.
@@ -123,6 +131,8 @@ class User(_odm.Model):
         return False
 
     def _on_f_get(self, field_name: str, value, **kwargs):
+        """Hook.
+        """
         if field_name == 'picture_url':
             pic = self.f_get('picture')
             size = kwargs.get('size', 256)
@@ -132,9 +142,6 @@ class User(_odm.Model):
             else:
                 email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
-
-        if field_name == 'profile_view_url':
-            value = _router.endpoint_url('pytsite.auth.eps.profile_view', {'uid': self.id})
 
         return value
 

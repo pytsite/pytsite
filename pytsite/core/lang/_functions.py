@@ -212,3 +212,6 @@ def pretty_date(time: _datetime) -> str:
         r += ' ' + str(time.year)
 
     return r
+
+def pretty_date_time(time: _datetime) -> str:
+    return '{}, {}'.format(pretty_date(time), time.strftime('%H:%M'))

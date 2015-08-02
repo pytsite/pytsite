@@ -133,7 +133,7 @@
 
                             <p>
                                 {{ user.full_name }}
-                                <small>{{ t('pytsite.admin@member_since') }} {{ user.created | date('pretty')}}</small>
+                                <small>{{ t('pytsite.admin@member_since') }} {{ user.created | date('pretty_date')}}</small>
                             </p>
                         </li>
                         <!-- Menu Body -->
@@ -150,11 +150,9 @@
                         </li>
                         <!-- Menu Footer-->
                         <li class="user-footer">
-                            {% if user.profile_is_public %}
-                                <div class="pull-left">
-                                    <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('admin@profile') }}</a>
-                                </div>
-                            {% endif %}
+                            <div class="pull-left">
+                                <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('admin@profile') }}</a>
+                            </div>
                             <div class="pull-right">
                                 {% set sign_out_url = router.endpoint_url('pytsite.auth.eps.logout') %}
                                 <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('admin@sign_out') }}</a>

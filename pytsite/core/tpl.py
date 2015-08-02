@@ -48,12 +48,14 @@ class _TemplateLoader(_jinja.BaseLoader):
 _env = _jinja.Environment(loader=_TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
-def _date_filter(value: _datetime, fmt: str='pretty') -> str:
+def _date_filter(value: _datetime, fmt: str='pretty_date') -> str:
     if not value:
         value = _datetime.now()
 
-    if fmt == 'pretty':
+    if fmt == 'pretty_date':
         return _lang.pretty_date(value)
+    elif fmt == 'pretty_date_time':
+        return _lang.pretty_date_time(value)
     else:
         return value.strftime(fmt)
 

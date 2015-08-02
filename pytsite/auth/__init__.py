@@ -24,8 +24,6 @@ def __init():
     router.add_rule('/auth/login', __name__ + '.eps.login')
     router.add_rule('/auth/login/post', __name__ + '.eps.login_submit', methods='POST')
     router.add_rule('/auth/logout', __name__ + '.eps.logout')
-    router.add_rule('/auth/profile/<string:uid>', __name__ + '.eps.profile_view')
-    router.add_rule('/auth/profile/<string:uid>/post', __name__ + '.eps.profile_view_submit')
 
     # Default auth driver
     from . import _functions
