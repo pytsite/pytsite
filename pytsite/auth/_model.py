@@ -2,6 +2,7 @@
 """
 import hashlib as _hashlib
 from datetime import datetime as _datetime
+from pytsite import image as _image
 from pytsite.core import odm as _odm, util as _util, router as _router
 
 
@@ -29,6 +30,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.Dict('options'))
         self._define_field(_odm.field.Ref('picture', model='image'))
         self._define_field(_odm.field.Virtual('picture_url'))
+        self._define_field(_odm.field.StringList('urls'))
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)
@@ -77,6 +79,14 @@ class User(_odm.Model):
     @property
     def gender(self) -> int:
         return self.f_get('gender')
+
+    @property
+    def picture(self) -> _image.model.Image:
+        return self.f_get('picture')
+
+    @property
+    def urls(self) -> list:
+        return self.f_get('urls')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
@@ -134,11 +144,10 @@ class User(_odm.Model):
         """Hook.
         """
         if field_name == 'picture_url':
-            pic = self.f_get('picture')
             size = kwargs.get('size', 256)
             """:type: pytsite.image._model.Image"""
-            if pic:
-                value = pic.f_get('url', width=size, height=size)
+            if self.picture:
+                value = self.picture.f_get('url', width=size, height=size)
             else:
                 email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})

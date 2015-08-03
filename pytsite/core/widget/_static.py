@@ -171,7 +171,7 @@ class Pager(_base.Base):
         """Render the widget.
         """
         if self._total_pages == 1:
-            return _html.Empty()
+            return _html.TagLessElement()
 
         start_visible_num = self._current_page - _ceil(self._visible_numbers / 2)
         if start_visible_num < 1:

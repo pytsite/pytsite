@@ -286,6 +286,9 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
         strip_query=False) -> str:
     """Generate an URL.
     """
+    if not url_str:
+        raise ValueError('url_str cannot be empty.')
+
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(url_str)
     r = [

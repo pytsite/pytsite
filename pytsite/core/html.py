@@ -152,22 +152,29 @@ class Element(_ABC):
     def _get_valid_children(self) -> tuple:
         return ()
 
-    def render(self) -> str:
-        """Render the element.
-        """
-        # Open tag
-        r = "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {
+    def _render_open_tag(self) -> str:
+        return "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {
             'uid': 'id',
             'cls': 'class',
             'label_for': 'for',
         }))
 
+    def _render_close_tag(self) -> str:
+        return "</{}>".format(self._tag_name)
+
+    def _render_children(self) -> str:
         # Render children
         children = []
         if self._children:
             for child in self._children:
                 children.append(str(child))
-        r += self._child_separator.join(children)
+        return self._child_separator.join(children)
+
+    def render(self) -> str:
+        """Render the element.
+        """
+        r = self._render_open_tag()
+        r += self._render_children()
 
         # Element's content
         if self._content:
@@ -175,8 +182,7 @@ class Element(_ABC):
                 r += '&nbsp;'
             r += self._content
 
-        # Close tag
-        r += "</{}>".format(self._tag_name)
+        r += self._render_close_tag()
 
         return r
 
@@ -184,11 +190,6 @@ class Element(_ABC):
         """Render the element.
         """
         return self.render()
-
-
-class Empty(Element):
-    def render(self):
-        return ''
 
 
 class SingleTagElement(Element):
@@ -200,7 +201,15 @@ class SingleTagElement(Element):
     def render(self) -> str:
         """Render the element.
         """
-        return "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {'uid': 'id', 'cls': 'class'}))
+        return self._render_open_tag()
+
+
+class TagLessElement(Element):
+    def _render_open_tag(self) -> str:
+        return ''
+
+    def _render_close_tag(self) -> str:
+        return ''
 
 
 class InlineElement(Element):

@@ -6,6 +6,7 @@ __license__ = 'MIT'
 
 from pytsite import auth as _auth, odm_ui as _odm_ui
 from pytsite.core import reg as _reg, http as _http, metatag as _metatag, tpl as _tpl
+from ._widget import Profile as ProfileWidget
 
 
 def profile_view(args: dict, inp: dict) -> str:
@@ -22,16 +23,12 @@ def profile_view(args: dict, inp: dict) -> str:
     if current_user.is_anonymous and not profile_owner.profile_is_public:
         raise _http.error.NotFound()
 
-    if current_user.id != profile_owner.id and profile_owner.profile_is_public:
+    if current_user.id != profile_owner.id and not profile_owner.profile_is_public:
         raise _http.error.NotFound()
-
-    modify_button = False
-    if current_user.id == profile_owner.id or current_user.has_permission('pytsite.odm_ui.modify.user'):
-        modify_button = True
 
     _metatag.t_set('title', profile_owner.full_name)
 
-    return _tpl.render(tpl_name, {'user': profile_owner, 'modify_button': modify_button})
+    return _tpl.render(tpl_name, {'widget': ProfileWidget(profile_owner)})
 
 
 def profile_edit(args: dict, inp: dict) -> str:

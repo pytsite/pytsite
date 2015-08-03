@@ -45,9 +45,7 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     frm.add_widget(_widget.input.Hidden(uid='__model', value=model), area='form')
     frm.add_widget(_widget.input.Hidden(uid='__entity_id', value=eid), area='form')
 
-    # Setting up the form with entity hook
     entity = dispense_entity(model, eid)
-    entity.setup_m_form(frm, stage)
 
     # Legend
     if entity.is_new:
@@ -56,6 +54,9 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
         legend = entity.t('odm_ui_form_legend_modify_' + model)
 
     _metatag.t_set('title', legend)
+
+    # Setting up the form with entity hook
+    entity.setup_m_form(frm, stage)
 
     return frm
 

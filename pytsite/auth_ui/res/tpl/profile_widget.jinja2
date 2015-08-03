@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center col-image">
+        <a href="{{ user.profile_view_url }}">
+            <img class="img-responsive img-circle" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
+        </a>
+    </div>
+    <div class="col-xs-B-12 col-xs-8 col-sm-9 col-lg-10 col-content">
+        <h3 class="text-xs-B-center text-xs-left">{{ user.full_name }}</h3>
+
+        <ul>
+            <li>{{ t('auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>
+            <li>{{ t('auth_ui@activity') }}: {{ user.login_count }}</li>
+            <li>{{ t('auth_ui@last_login') }}: {{ user.last_login | date('pretty_date_time') }}</li>
+        </ul>
+
+        {% if user.urls %}
+            <div class="urls">
+                {% for link in user.urls %}
+                    <div class="item">
+                        {% set cls = 'fa-globe' %}
+                        {% if 'github.com' in link %}{% set cls = 'fa-github' %}{% endif %}
+                        {% if 'twitter.com' in link %}{% set cls = 'fa-twitter' %}{% endif %}
+                        {% if 'facebook.com' in link %}{% set cls = 'fa-facebook' %}{% endif %}
+                        {% if 'google.com' in link %}{% set cls = 'fa-google' %}{% endif %}
+                        {% if 'vk.com' in link %}{% set cls = 'fa-vk' %}{% endif %}
+                        <a href="{{ link }}" target="_blank"><i class="fa fa-fw {{ cls }}"></i></a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if modify_button %}
+            <div class="row actions">
+                <div class="col-xs-12">
+                    <a href="{{ user.profile_edit_url }}"
+                       class="btn btn-default">{{ t('pytsite.auth_ui@modify_profile') }}</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>

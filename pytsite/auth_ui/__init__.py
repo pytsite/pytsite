@@ -10,12 +10,14 @@ __import__('pytsite.image')
 
 
 def __init():
+    from sys import modules
     from pytsite import admin
     from pytsite.core import lang, odm, router, tpl
     from . import _model
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
+    tpl.register_global('auth_ui', modules[__name__])
 
     # Routes
     router.add_rule('/auth/profile/<string:uid>', __name__ + '.eps.profile_view')
@@ -41,3 +43,7 @@ def __init():
                            permissions=('pytsite.odm_ui.browse.role',))
 
 __init()
+
+
+# Public API
+from . import _widget as widget

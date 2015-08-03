@@ -1,13 +1,16 @@
 # PytSite Changelog
 
-## 0.3 (2015-08-xx)
+## 0.3 (2015-08-03)
 ### Added
 - `pytsite.core`:
     - `date` filter in `tpl`.
     - New arguments in `odm.Model.save()`: `skip_hooks` and `update_timestamp`.
+- `pytsite.auth`:
+    - New field `urls` in `model.User`.
 - `pytsite.auth_ui`
-    - New field: `pytsite.auth_ui.model.userUI.profile_view_url`.
-    - Profile view endpoint: `pytsite.auth.eps.profile_view`.
+    - New field `profile_view_url` in `pytsite.auth_ui.model.userUI`.
+    - Profile widget.
+    - Profile view endpoint: `pytsite.auth_ui.eps.profile_view`.
     - Base profile view template.
 - `pytsite.content`:
     - 'Additional JS code' field on the settings form.
@@ -28,6 +31,7 @@
 - Arguments cleanup while processing login form in `pytsite.auth`.
 - Strings strip in `pytsite.core.validation.rule.NotEmpty`.
 - Improved regexp in `pytsite.core.validation.rule.Email`.
+- Input arguments pass-through to called endpoint in `pytsite.core.eps.index`.  
 
 ## 0.2.13 (2015-07-27)
 ### Added

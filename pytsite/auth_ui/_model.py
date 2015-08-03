@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 from pytsite import auth as _auth, odm_ui as _odm_ui
 from pytsite.core import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
-    http as _http, router as _router
+    http as _http, router as _router, metatag as _metatag
 
 
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
@@ -16,6 +16,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         super()._setup()
         self._define_field(_odm.field.Bool('profile_is_public'))
         self._define_field(_odm.field.Virtual('profile_view_url'))
+        self._define_field(_odm.field.Virtual('profile_edit_url'))
 
     @property
     def profile_is_public(self) -> bool:
@@ -25,11 +26,21 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     def profile_view_url(self) -> str:
         return self.f_get('profile_view_url')
 
+    @property
+    def profile_edit_url(self) -> str:
+        return self.f_get('profile_edit_url')
+
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
         if field_name == 'profile_view_url':
             value = _router.endpoint_url('pytsite.auth_ui.eps.profile_view', {'uid': self.id})
+
+        if field_name == 'profile_edit_url':
+            value = _router.endpoint_url('pytsite.auth_ui.eps.profile_edit', {
+                'uid': self.id,
+                '__form_redirect': _router.current_url(),
+            })
 
         return super()._on_f_get(field_name, value, **kwargs)
 
@@ -65,6 +76,9 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """
         current_user = _auth.get_current_user()
 
+        _metatag.t_set('title', self.t('profile_edit'))
+
+        # Profile is public
         form.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='profile_is_public',
@@ -72,6 +86,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             label=self.t('profile_is_public'),
         ))
 
+        # Login
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.input.Text(
                 weight=20,
@@ -85,6 +100,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 _odm.validation.ODMFieldUnique('user', 'login', (self.id,))
             ))
 
+        # First name
         form.add_widget(_widget.input.Text(
             weight=30,
             uid='first_name',
@@ -93,6 +109,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
         form.add_rule('first_name', _validation.rule.NotEmpty())
 
+        # Last name
         form.add_widget(_widget.input.Text(
             weight=40,
             uid='last_name',
@@ -100,6 +117,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             label=self.t('last_name'),
         ))
 
+        # Email
         form.add_widget(_widget.input.Text(
             weight=50,
             uid='email',
@@ -108,6 +126,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
         form.add_rules('email', (_validation.rule.NotEmpty(), _validation.rule.Email()))
 
+        # Status
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.select.Select(
                 weight=60,
@@ -118,16 +137,28 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 h_size='col-sm-5 col-md-4 col-lg-3',
             ))
 
+        # Image
         from pytsite import image
         form.add_widget(image.widget.ImagesUploadWidget(
             weight=70,
             uid='picture',
             label=self.t('picture'),
-            value=self.f_get('picture'),
-            max_files=1,
+            value=self.picture,
             max_file_size=1,
         ))
 
+        # URLs
+        form.add_widget(_widget.input.StringList(
+            weight=80,
+            uid='urls',
+            label=self.t('social_links'),
+            value=self.urls,
+            max_values=5,
+            add_btn_label=self.t('add_link'),
+        ))
+        form.add_rule('urls', _validation.rule.Url())
+
+        # Roles
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_odm_ui.widget.EntityCheckboxes(
                 weight=80,
@@ -139,6 +170,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             ))
             form.add_rule('roles', _odm.validation.ODMEntitiesList(model='role'))
 
+        # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.input.Text(
                 weight=90,

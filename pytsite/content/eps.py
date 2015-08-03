@@ -46,10 +46,11 @@ def index(args: dict, inp: dict):
     # Filter by author
     author_id = inp.get('author')
     if author_id:
-        user = _auth.get_user(uid=author_id)
-        if user:
-            _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': user.full_name}))
-            f.where('author', '=', user)
+        author = _auth.get_user(uid=author_id)
+        if author:
+            _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': author.full_name}))
+            f.where('author', '=', author)
+            args['author'] = author
 
     if inp.get('search'):
         query = inp.get('search')
@@ -68,7 +69,7 @@ def index(args: dict, inp: dict):
     args['pager'] = pager
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_index')
 
-    return _router.call_endpoint(endpoint, args)
+    return _router.call_endpoint(endpoint, args, inp)
 
 
 def view(args: dict, inp: dict):
