@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from datetime import datetime as _datetime
 from pytsite.core import lang as _lang, console as _console, validation as _validation, router as _router
 from . import _functions
 
@@ -45,5 +46,7 @@ def app_setup():
 def router_dispatch():
     """pytsite.core.router.dispatch Event Handler.
     """
-    if not _functions.get_current_user().is_anonymous:
+    user = _functions.get_current_user()
+    if not user.is_anonymous:
         _router.no_cache = True
+        user.f_set('last_activity', _datetime.now()).save(True, False)

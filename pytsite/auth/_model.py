@@ -22,6 +22,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.String('full_name'))
         self._define_field(_odm.field.DateTime('birth_date'))
         self._define_field(_odm.field.DateTime('last_login'))
+        self._define_field(_odm.field.DateTime('last_activity'))
         self._define_field(_odm.field.Integer('login_count'))
         self._define_field(_odm.field.String('status', default='active'))
         self._define_field(_odm.field.RefsListField('roles', model='role'))
@@ -31,6 +32,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.Ref('picture', model='image'))
         self._define_field(_odm.field.Virtual('picture_url'))
         self._define_field(_odm.field.StringList('urls'))
+        self._define_field(_odm.field.Virtual('is_online'))
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)
@@ -77,6 +79,10 @@ class User(_odm.Model):
         return self.f_get('last_login')
 
     @property
+    def last_activity(self) -> _datetime:
+        return self.f_get('last_activity')
+
+    @property
     def gender(self) -> int:
         return self.f_get('gender')
 
@@ -87,6 +93,10 @@ class User(_odm.Model):
     @property
     def urls(self) -> list:
         return self.f_get('urls')
+
+    @property
+    def is_online(self) -> bool:
+        return self.f_get('is_online')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
@@ -151,6 +161,9 @@ class User(_odm.Model):
             else:
                 email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
+
+        if field_name == 'is_online':
+            value = (_datetime.now() - self.last_activity).seconds < 180
 
         return value
 

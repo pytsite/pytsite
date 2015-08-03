@@ -50,7 +50,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = 'login', 'email', 'roles', 'status', 'last_login'
+        browser.data_fields = 'login', 'email', 'roles', 'status', 'is_online', 'last_activity'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -66,8 +66,9 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('login'),
             self.f_get('email'),
             groups_cell,
-            _lang.t('auth@status_'+self.f_get('status')),
-            self.f_get('last_login', fmt='%x %X')
+            _lang.t('auth@status_' + self.f_get('status')),
+            '<span class="label label-success">{}</span>'.format(self.t('word_yes')) if self.is_online else '',
+            self.f_get('last_activity', fmt='pretty_date_time')
         )
 
     def setup_m_form(self, form, stage: str):

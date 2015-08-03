@@ -7,7 +7,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import router, tpl, events, lang, odm, assetman
+    from pytsite.core import router, tpl, events, lang, odm, assetman, reg
 
     # Resources
     tpl.register_package(__name__)
@@ -21,9 +21,10 @@ def __init():
     odm.register_model('role', _model.Role)
 
     # Routes
-    router.add_rule('/auth/login', __name__ + '.eps.login')
-    router.add_rule('/auth/login/post', __name__ + '.eps.login_submit', methods='POST')
-    router.add_rule('/auth/logout', __name__ + '.eps.logout')
+    base_path = reg.get('auth.base_path', '/auth')
+    router.add_rule(base_path + '/login', __name__ + '.eps.login')
+    router.add_rule(base_path + '/login/post', __name__ + '.eps.login_submit', methods='POST')
+    router.add_rule(base_path + '/logout', __name__ + '.eps.logout')
 
     # Default auth driver
     from . import _functions

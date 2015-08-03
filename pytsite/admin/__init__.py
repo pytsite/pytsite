@@ -9,7 +9,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import router, tpl, assetman, lang, browser
+    from pytsite.core import router, tpl, assetman, lang, reg
     from pytsite import auth
     from . import _sidebar
 
@@ -23,12 +23,10 @@ def __init():
     auth.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
 
     # Routes
-    admin_route_filters = (
-        'pytsite.auth.eps.filter_authorize:permissions=admin.use',
-    )
-    router.add_rule('/admin', __name__ + '.eps.dashboard', filters=admin_route_filters)
+    admin_route_filters = ('pytsite.auth.eps.filter_authorize:permissions=admin.use',)
+    router.add_rule(reg.get('admin.base_path', '/admin'), __name__ + '.eps.dashboard', filters=admin_route_filters)
 
-    _sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500, ('*',))
+    _sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500, '*')
 
 # Initialization
 __init()

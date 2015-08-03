@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.3.1 (2015-08-xx)
+### Added
+- `pytsite.auth`:
+    - New fields in `model.User`:  `last_activity` and `is_online`. 
+
 ## 0.3 (2015-08-03)
 ### Added
 - `pytsite.core`:

@@ -10,7 +10,7 @@
         <ul>
             <li>{{ t('auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>
             <li>{{ t('auth_ui@activity') }}: {{ user.login_count }}</li>
-            <li>{{ t('auth_ui@last_login') }}: {{ user.last_login | date('pretty_date_time') }}</li>
+            <li>{{ t('auth_ui@last_activity') }}: {{ user.last_activity | date('pretty_date_time') }}</li>
         </ul>
 
         {% if user.urls %}
