@@ -1,0 +1,13 @@
+validation_notempty: "Обов'язкове поле"
+validation_integer: 'Повинно бути цілим числом'
+validation_email: 'Некоректний email'
+validation_datetime: 'Некоректна дата'
+validation_odmentitieslist: ':detail'
+validation_odmfieldunique: 'Повинно бути унікальним'
+validation_url: 'Некоректний URL'
+validation_url_row: 'Некоректний URL (рядок :row)'
+validation_greaterthan: 'Повинно бути більше :than'
+validation_listlistitemnotempty: "Обов'язково для заповнення (рядок :row, колонка :col)"
+validation_listlistitemurl: 'Некоректний URL (рядок :row, колонка :col)'
+validation_videohostingurl: 'Некоректний URL відеохостингу'
+validation_videohostingurl_row: 'Некоректний URL відеохостингу (рядок :row)'

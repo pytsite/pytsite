@@ -1,0 +1,6 @@
+drop_files_here_to_upload: 'Перетягніть файли в цю область'
+file_too_big: 'Розмір файлу :file_name перевищує :max_size МБ'
+remove_file: 'Видалити'
+file_has_invalid_type: 'Невірний тип файлу'
+max_files_exceeded: 'Досягнуто максимальну кількість файлів'
+really_delete: 'Підтвердіть видалення файлу'

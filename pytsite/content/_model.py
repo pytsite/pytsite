@@ -149,6 +149,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def options(self) -> dict:
         return self.f_get('options')
 
+    @property
+    def language(self) -> str:
+        return self.f_get('language')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
@@ -208,6 +212,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         super()._pre_save()
 
         current_user = _auth.get_current_user()
+
+        # Language is required
+        if not self.language:
+            self.f_set('language', _lang.get_current_lang())
 
         # Author is required
         if not self.author and current_user:
@@ -397,17 +405,26 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         ))
         form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
 
-        # Visible only for admins
-        if _auth.get_current_user().is_admin:
-            # Language
-            form.add_widget(_widget.select.Language(
+        # Language
+        if self.is_new:
+            if len(_lang.get_langs()) > 1:
+                form.add_widget(_widget.select.Language(
+                    weight=900,
+                    uid='language',
+                    label=self.t('language'),
+                    value=_lang.get_current_lang(),
+                    h_size='col-sm-4 col-md-3 col-lg-2',
+                ))
+        elif len(_lang.get_langs()) > 1:
+            form.add_widget((_widget.static.Text(
                 weight=900,
                 uid='language',
                 label=self.t('language'),
-                value=self.f_get('language'),
-                h_size='col-sm-4 col-md-3 col-lg-2',
-            ))
+                value=_lang.t('lang_title_' + _lang.get_current_lang()),
+            )))
 
+        # Visible only for admins
+        if _auth.get_current_user().is_admin:
             # Route alias
             form.add_widget(_widget.input.Text(
                 weight=1000,

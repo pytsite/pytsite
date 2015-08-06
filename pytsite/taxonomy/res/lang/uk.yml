@@ -1,0 +1,6 @@
+taxonomy: 'Таксономія'
+title: 'Назва'
+alias: 'Псевдонім'
+weight: 'Вага'
+order: 'Порядок'
+language: 'Мова'

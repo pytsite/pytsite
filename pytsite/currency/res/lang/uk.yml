@@ -1,0 +1,3 @@
+currency: 'Валюта'
+main_currency: 'Основна валюта'
+exchange_rate: 'Курс :code'
