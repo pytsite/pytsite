@@ -416,7 +416,6 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             lang_title = _lang.t('lang_title_' + self.language)
         form.add_widget((_widget.static.Text(
             weight=900,
-            uid='language',
             label=self.t('language'),
             value=lang_title,
         )))

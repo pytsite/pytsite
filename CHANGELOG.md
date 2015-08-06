@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.3.3 (2015-08-07)
+### Fixed
+- Localization related content and taxonomy ODM UI form's widgets options.
+
 ## 0.3.2 (2015-08-06)
 ### Added
 - Ukrainian translations.
