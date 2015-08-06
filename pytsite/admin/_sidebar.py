@@ -145,7 +145,7 @@ def render() -> _html.Aside:
         # Building top level menu item
         for menu in render_menus[section['sid']]:
             # Link
-            href = menu['href']
+            href = _router.url(menu['href'], relative=True)
             a = _html.A(href=href)
 
             # Icon
@@ -164,9 +164,10 @@ def render() -> _html.Aside:
             li = _html.Li(data_menu_weight=menu['weight'])
 
             # 'active' CSS class
-            current_url = _router.current_url()
-            if not current_url.endswith('/admin') and \
-                    (current_url.endswith(href) or current_url.find(href + '/') >= 0):
+            current_path = _router.current_path(strip_lang=False)
+            print(current_path)
+            if not current_path.endswith('/admin') and \
+                    (current_path.endswith(href) or current_path.find(href + '/') >= 0):
                 li.set_attr('cls', 'active')
 
             root_menu_ul.append(li.append(a))

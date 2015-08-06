@@ -58,13 +58,16 @@ def dispense(model: str, title: str, alias: str=None):
     return term
 
 
-def find(model: str):
+def find(model: str, language: str=None):
     """Get finder for the taxonomy model.
     """
     if not is_model_registered(model):
         raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
 
-    return _odm.find(model).where('language', '=', _lang.get_current_lang()).sort([('weight', _odm.I_DESC)])
+    if not language:
+        language = _lang.get_current_lang()
+
+    return _odm.find(model).where('language', '=', language).sort([('weight', _odm.I_DESC)])
 
 
 def sanitize_alias_string(model: str, string: str) -> str:

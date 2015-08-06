@@ -50,7 +50,7 @@ def __init():
 
     # Initializing language subsystem
     from . import lang
-    lang.define_languages(reg.get('lang.languages', ['en']))
+    lang.define_languages(reg.get('lang.languages', ['ru']))
     lang.register_package('pytsite.core')
 
     # Initializing template subsystem

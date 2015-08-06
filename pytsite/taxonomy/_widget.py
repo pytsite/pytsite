@@ -85,14 +85,12 @@ class Cloud(_widget.Base):
         """
         root = _html.Div(child_separator='  ')
         weight = 10
-        for term in self._get_finder().get(self._num):
+        for term in _functions.find(self._model).get(self._num):
             title = self._title_pattern % term.title
             a_cls = 'term {} weight-{} {}'.format(self._model, weight, self._term_css)
-            a = _html.A(title, href=self._link_pattern % term.alias, cls=a_cls, data_weight=term.weight)
+            href = _router.url(self._link_pattern % term.alias)
+            a = _html.A(title, href=href, cls=a_cls, data_weight=term.weight)
             root.append(a)
             weight -= 1
 
         return self._group_wrap(root)
-
-    def _get_finder(self):
-        return _functions.find(self._model)

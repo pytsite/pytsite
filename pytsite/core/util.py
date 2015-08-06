@@ -187,6 +187,9 @@ def nav_link(href: str, anchor: str, **kwargs: dict) -> str:
     """
     from . import html, router
 
+    if not href:
+        raise ValueError('href cannot be empty.')
+
     li = html.Li()
     if href != '#' and router.url(href, strip_query=True) == router.current_url(strip_query=True):
         li.set_attr('cls', 'active')

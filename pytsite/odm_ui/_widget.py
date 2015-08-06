@@ -19,6 +19,7 @@ class EntitySelect(_widget.select.Select):
         self._model = model
         self._caption_field = caption_field
         self._sort_field = sort_field if sort_field else caption_field
+        self._finder_adjust = kwargs.get('finder_adjust')
 
     @property
     def sort_field(self) -> str:
@@ -47,6 +48,10 @@ class EntitySelect(_widget.select.Select):
 
     def render(self):
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
+
+        if self._finder_adjust:
+            self._finder_adjust(finder)
+
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
             self._items.append((k, str(entity.f_get(self._caption_field))))

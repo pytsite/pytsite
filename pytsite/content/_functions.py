@@ -84,13 +84,18 @@ def create(model: str) -> _model.Content:
     return _odm.dispense(model)
 
 
-def find(model: str, status='published', check_publish_time=True):
+def find(model: str, status='published', check_publish_time=True, language: str=None):
     """Get content entities finder.
     """
     if not is_model_registered(model):
         raise KeyError("Model '{}' is not registered as content model.".format(model))
 
     f = _odm.find(model).sort([('publish_time', _odm.I_DESC)])
+
+    if not language:
+        language = _lang.get_current_lang()
+    f.where('language', '=', language)
+
     if status:
         f.where('status', '=', status)
     if check_publish_time:
@@ -109,12 +114,12 @@ def get_publish_statuses() -> list:
     return r
 
 
-def get_sections() -> _odm.FinderResult:
-    return list(_taxonomy.find('section').sort([('order', _odm.I_ASC)]).get())
+def get_sections(language: str=None) -> _odm.FinderResult:
+    return list(_taxonomy.find('section', language).sort([('order', _odm.I_ASC)]).get())
 
 
-def get_section(alias: str) -> _model.Section:
-    return _taxonomy.find('section').where('alias', '=', alias).first()
+def get_section(alias: str, language: str=None) -> _model.Section:
+    return _taxonomy.find('section', language).where('alias', '=', alias).first()
 
 
 def create_section(title: str, alias: str=None) -> _model.Section:

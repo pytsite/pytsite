@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.3.2 (2015-08-06)
+### Added
+- Ukrainian translations.
+
+### Fixed
+- Localized routes processing errors and other localization issues.
+
 ## 0.3.1 (2015-08-04)
 ### Added
 - `pytsite.auth`:

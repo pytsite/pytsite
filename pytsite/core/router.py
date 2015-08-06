@@ -97,7 +97,7 @@ def call_endpoint(name: str, args: dict=None, inp: dict=None):
     """
     endpoint = name.split('.')
     if not len(endpoint):
-        raise TypeError("Invalid format of endpoint specification: '{0}'".format(name))
+        raise TypeError("Invalid format of endpoint specification: '{}'".format(name))
 
     module_name = '.'.join(endpoint[0:len(endpoint)-1])
     callable_name = endpoint[-1]
@@ -124,19 +124,31 @@ def dispatch(env: dict, start_response: callable):
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
 
+    # Remove trailing slash
+    _url_adapter = _routes.bind_to_environ(env)
+    path_info = _url_adapter.path_info
+    if len(path_info) > 1 and path_info.endswith('/'):
+        redirect_url = _re.sub('/$', '', path_info)
+        if _url_adapter.query_args:
+            redirect_url += '?' + _url_adapter.query_args
+        return _http.response.Redirect(redirect_url, 301)(env, start_response)
+
     # All requests are cached by default
     no_cache = False
 
     # Detect language from path
     languages = lang.get_langs()
     if len(languages) > 1:
-        if _re.match(r'/[a-z]{2}(/|$)', env['PATH_INFO']):
+        if _re.search('^/[a-z]{2}(/|$)', env['PATH_INFO']):
             lang_code = env['PATH_INFO'][1:3]
             lang.set_current_lang(lang_code)
-            env['PATH_INFO'] = env['PATH_INFO'][4:]
+            env['PATH_INFO'] = env['PATH_INFO'][3:]
+            if not env['PATH_INFO']:
+                env['PATH_INFO'] = '/'
             if lang_code == languages[0]:
                 return _http.response.Redirect(env['PATH_INFO'], 301)(env, start_response)
         else:
+            # Set first defined language as default
             lang.set_current_lang(languages[0])
 
     # Notify listeners
@@ -145,19 +157,11 @@ def dispatch(env: dict, start_response: callable):
     # Loading path alias
     env['PATH_INFO'] = _path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
 
-    # Replace url adapter with environment-based
+    # Replace url adapter with modified environment
     _url_adapter = _routes.bind_to_environ(env)
 
     # Creating request
     request = _http.request.Request(env)
-
-    # Remove trailing slash
-    path_info = _url_adapter.path_info
-    if len(path_info) > 1 and path_info.endswith('/'):
-        redirect_url = _re.sub(r'/$', '', path_info)
-        if _url_adapter.query_args:
-            redirect_url += '?' + _url_adapter.query_args
-        return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # Session setup
     sid = request.cookies.get('PYTSITE_SESSION')
@@ -230,17 +234,18 @@ def base_path(language: str=None) -> str:
     """Get base path of application.
     """
     from .lang import get_current_lang, get_langs
-    current_lang = get_current_lang()
     available_langs = get_langs()
+
+    if len(available_langs) == 1:
+        return '/'
 
     if not language:
         language = get_current_lang()
-
     if language not in available_langs:
-        raise Exception("Language '{0}' is not supported.".format(language))
+        raise Exception("Language '{}' is not supported.".format(language))
 
     r = '/'
-    if len(available_langs) > 1 and language != current_lang:
+    if language != available_langs[0]:
         r += language + '/'
 
     return r
@@ -307,7 +312,7 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
         r[4] = _urlparse.urlencode(parsed_qs, doseq=True)
 
     # Adding language suffix
-    if not strip_lang:
+    if not strip_lang and not _re.search('^/[a-z]{2}/', parsed_url[2]):
         r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
 
     r = _urlparse.urlunparse(r)
@@ -316,12 +321,12 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
         r = _re.sub(r'^https?://[\w\.\-]+/', '/', r)
 
     if strip_query:
-        r = _re.sub(r'\?.+', '', r)
+        r = _re.sub('\?.+', '', r)
 
     return r
 
 
-def current_path(strip_query: bool=False, resolve_alias: bool=True) -> str:
+def current_path(strip_query=False, resolve_alias=True, strip_lang=True) -> str:
     """Get current path.
     """
     if not request:
@@ -336,6 +341,9 @@ def current_path(strip_query: bool=False, resolve_alias: bool=True) -> str:
             if path == v:
                 path = k
                 break
+
+    if not strip_lang:
+        path = str(base_path() + path).replace('//', '/')
 
     r = str(path)
     if not strip_query:
@@ -354,7 +362,8 @@ def endpoint_path(endpoint: str, args: dict=None) -> str:
     return url(_url_adapter.build(endpoint, args), relative=True)
 
 
-def endpoint_url(ep_name: str, args: dict=None) -> str:
+def endpoint_url(ep_name: str, args: dict=None, strip_lang=False) -> str:
     """Get URL for endpoint.
     """
-    return url(_url_adapter.build(ep_name, args), relative=False)
+    r = _url_adapter.build(ep_name, args)
+    return url(r, strip_lang=strip_lang, relative=False)

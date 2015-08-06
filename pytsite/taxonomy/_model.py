@@ -66,14 +66,14 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         if not self.f_get('alias'):
             self.f_set('alias', self.f_get('title'))
 
-    def save(self):
+    def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
         if self.is_new:
             from . import _functions
             title = self.f_get('title')
             if _functions.find(self.model).where('title', 'regex_i', '^' + title + '$').count():
                 return
 
-        return super().save()
+        return super().save(skip_hooks, update_timestamp)
 
     def setup_browser(self, browser):
         """Hook.
@@ -81,9 +81,13 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = ('title', 'alias', 'weight', 'order', 'language')
+        browser.data_fields = ('title', 'alias', 'weight', 'order')
         browser.default_sort_field = 'order'
         browser.default_sort_order = _odm.I_ASC
+
+        def finder_adjust(finder: _odm.Finder):
+            finder.where('language', '=', _lang.get_current_lang())
+        browser.finder_adjust = finder_adjust
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -93,7 +97,6 @@ class Term(_odm.Model, _odm_ui.UIMixin):
             self.f_get('alias'),
             self.f_get('weight'),
             self.f_get('order'),
-            _lang.get_lang_title(self.f_get('language')),
         )
 
     def setup_m_form(self, form, stage: str):
@@ -131,13 +134,17 @@ class Term(_odm.Model, _odm_ui.UIMixin):
             allow_minus=True
         ))
 
-        form.add_widget(_widget.select.Language(
-            weight=50,
+        # Language
+        if self.is_new:
+            lang_title = _lang.t('lang_title_' + _lang.get_current_lang())
+        else:
+            lang_title = _lang.t('lang_title_' + self.language)
+        form.add_widget((_widget.static.Text(
+            weight=900,
             uid='language',
             label=self.t('language'),
-            value=self.f_get('language'),
-            h_size='col-sm-4 col-md-3 col-lg-2',
-        ))
+            value=lang_title,
+        )))
 
         form.add_rule('title', _validation.rule.NotEmpty())
 

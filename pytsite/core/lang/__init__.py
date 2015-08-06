@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 def __init():
     from pytsite.core import console
     from . import _commands, _functions

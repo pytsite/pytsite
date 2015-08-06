@@ -23,6 +23,7 @@ class Browser:
         self._head_columns = ()
         self._default_sort_field = '_modified'
         self._default_sort_order = _odm.I_DESC
+        self._finder_adjust = None
 
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
@@ -95,6 +96,14 @@ class Browser:
     def default_sort_order(self, value):
         self._default_sort_order = value
 
+    @property
+    def finder_adjust(self):
+        return self._finder_adjust
+
+    @finder_adjust.setter
+    def finder_adjust(self, func):
+        self._finder_adjust = func
+
     def get_table_skeleton(self) -> str:
         """Get browser table skeleton.
         """
@@ -165,6 +174,8 @@ class Browser:
         r = {'total': 0, 'rows': []}
 
         finder = _odm.find(self._model)
+        if self.finder_adjust and callable(self.finder_adjust):
+            self.finder_adjust(finder)
         r['total'] = finder.count()
 
         # Permissions
@@ -219,13 +230,13 @@ class Browser:
 
         if self._check_entity_permission('modify', entity):
             href = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form',
-                                       {'model': entity.model, 'id': entity.id})
+                                        {'model': entity.model, 'id': entity.id})
             group.append(_html.A(cls='btn btn-xs btn-default', href=href).append(_html.I(cls='fa fa-edit')))
 
         if self._check_entity_permission('delete', entity):
             group.append(_html.Span('&nbsp;'))
             href = _router.endpoint_url('pytsite.odm_ui.eps.get_d_form',
-                                       {'model': entity.model, 'ids': entity.id})
+                                        {'model': entity.model, 'ids': entity.id})
             group.append(_html.A(cls='btn btn-xs btn-danger', href=href).append(_html.I(cls='fa fa-remove')))
 
         return group

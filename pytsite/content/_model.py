@@ -293,6 +293,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         browser.data_fields = 'title', 'status', 'publish_time', 'author'
         browser.default_sort_field = 'publish_time'
 
+        def finder_adjust(finder: _odm.Finder):
+            finder.where('language', '=', _lang.get_current_lang())
+        browser.finder_adjust = finder_adjust
+
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
@@ -407,21 +411,15 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
         # Language
         if self.is_new:
-            if len(_lang.get_langs()) > 1:
-                form.add_widget(_widget.select.Language(
-                    weight=900,
-                    uid='language',
-                    label=self.t('language'),
-                    value=_lang.get_current_lang(),
-                    h_size='col-sm-4 col-md-3 col-lg-2',
-                ))
-        elif len(_lang.get_langs()) > 1:
-            form.add_widget((_widget.static.Text(
-                weight=900,
-                uid='language',
-                label=self.t('language'),
-                value=_lang.t('lang_title_' + _lang.get_current_lang()),
-            )))
+            lang_title = _lang.t('lang_title_' + _lang.get_current_lang())
+        else:
+            lang_title = _lang.t('lang_title_' + self.language)
+        form.add_widget((_widget.static.Text(
+            weight=900,
+            uid='language',
+            label=self.t('language'),
+            value=lang_title,
+        )))
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
@@ -536,6 +534,8 @@ class Article(Content):
             ))
 
         # Section
+        def section_finder_adj(finder: _odm.Finder):
+            finder.where('language', '=', _lang.get_current_lang())
         form.add_widget(_odm_ui.widget.EntitySelect(
             weight=60,
             uid='section',
@@ -544,6 +544,7 @@ class Article(Content):
             label=self.t('section'),
             value=self.section,
             h_size='col-sm-6',
+            finder_adjust=section_finder_adj
         ))
         form.add_rule('section', _validation.rule.NotEmpty())
 

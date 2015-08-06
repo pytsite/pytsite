@@ -69,7 +69,7 @@ class Image(_file.model.File):
                 'p1': p[1],
                 'p2': p[2],
                 'filename': p[3]
-            })
+            }, strip_lang=True)
 
         if field_name == 'thumb_url':
             return self.f_get('url', width=int(kwargs.get('width', 422)), height=int(kwargs.get('height', 422)))
