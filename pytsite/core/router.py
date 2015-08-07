@@ -355,7 +355,7 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True) -> str:
 def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
     """Get current URL.
     """
-    return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias)
+    return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False)
 
 
 def endpoint_path(endpoint: str, args: dict=None) -> str:

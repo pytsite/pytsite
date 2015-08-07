@@ -165,7 +165,6 @@ def render() -> _html.Aside:
 
             # 'active' CSS class
             current_path = _router.current_path(strip_lang=False)
-            print(current_path)
             if not current_path.endswith('/admin') and \
                     (current_path.endswith(href) or current_path.find(href + '/') >= 0):
                 li.set_attr('cls', 'active')

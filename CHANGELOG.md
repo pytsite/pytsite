@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.3.4 (2015-08-08)
+### Fixed
+- Localized URLs error in `pytsite.core.router.current_url()`.
+
 ## 0.3.3 (2015-08-07)
 ### Fixed
 - Localization related content and taxonomy ODM UI form's widgets options.
