@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.4 (2015-08-10)
+### Added
+- Plugin `pytsite.sitemap`.
+- Cron sitemap generation in `pytsite.content`.
+
 ## 0.3.5 (2015-08-10)
 ### Changed
 - Template of `pytsite.auth_ui.widget.profile`.

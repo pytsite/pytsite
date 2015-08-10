@@ -33,8 +33,9 @@ class BuildAssets(_console.command.Abstract):
         static_dir = _reg.get('paths.static')
         debug = _reg.get('debug.enabled')
 
-        if _path.exists(static_dir):
-            rmtree(static_dir)
+        assets_dir = _path.join(static_dir, 'assets')
+        if _path.exists(assets_dir):
+            rmtree(assets_dir)
 
         for pkg_name, package_assets_dir in _functions.get_packages().items():
             # Building package's assets absolute paths list
@@ -48,7 +49,7 @@ class BuildAssets(_console.command.Abstract):
                     continue
 
                 dst = src.replace(package_assets_dir + _path.sep, '')
-                dst = _path.join(static_dir, 'assets', pkg_name, dst)
+                dst = _path.join(assets_dir, pkg_name, dst)
 
                 ext = _path.splitext(src)[1]
                 if ext in ['.js', '.css', '.less']:

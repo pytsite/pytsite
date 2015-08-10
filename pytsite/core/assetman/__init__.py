@@ -5,9 +5,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-
-
-
 def __init():
     from pytsite.core import console, events
     from . import _commands, _functions

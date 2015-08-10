@@ -2,7 +2,7 @@ import re
 from os import walk, path
 from setuptools import setup, find_packages
 
-__version = '0.3.5'
+__version = '0.4'
 
 
 def find_package_data():
@@ -44,7 +44,7 @@ setup(
         'requests',
         'requests_oauthlib',
         'twython',
-        # 'lxml',
+        'lxml',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
