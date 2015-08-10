@@ -1,37 +1,38 @@
 <div class="row">
     <div class="col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center col-image">
-        <a href="{{ user.profile_view_url }}">
+        {% if user.profile_is_public %}<a href="{{ user.profile_view_url }}">{% endif %}
             <img class="img-responsive img-circle" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
-        </a>
+        {% if user.profile_is_public %}</a>{% endif %}
     </div>
     <div class="col-xs-B-12 col-xs-8 col-sm-9 col-lg-10 col-content">
         <h3 class="text-xs-B-center text-xs-left">{{ user.full_name }}</h3>
 
-        <ul>
+        <ul class="info text-xs-B-center text-xs-left">
             <li>{{ t('auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>
-            <li>{{ t('auth_ui@activity') }}: {{ user.login_count }}</li>
             <li>{{ t('auth_ui@last_activity') }}: {{ user.last_activity | date('pretty_date_time') }}</li>
         </ul>
 
         {% if user.urls %}
-            <div class="urls">
+            <ul class="urls text-xs-B-center text-xs-left">
                 {% for link in user.urls %}
-                    <div class="item">
+                    <li class="item">
                         {% set cls = 'fa-globe' %}
                         {% if 'github.com' in link %}{% set cls = 'fa-github' %}{% endif %}
                         {% if 'twitter.com' in link %}{% set cls = 'fa-twitter' %}{% endif %}
                         {% if 'facebook.com' in link %}{% set cls = 'fa-facebook' %}{% endif %}
                         {% if 'google.com' in link %}{% set cls = 'fa-google' %}{% endif %}
+                        {% if 'linkedin.com' in link %}{% set cls = 'fa-linkedin' %}{% endif %}
+                        {% if 'tumblr.com' in link %}{% set cls = 'fa-tumblr' %}{% endif %}
                         {% if 'vk.com' in link %}{% set cls = 'fa-vk' %}{% endif %}
                         <a href="{{ link }}" target="_blank"><i class="fa fa-fw {{ cls }}"></i></a>
-                    </div>
+                    </li>
                 {% endfor %}
-            </div>
+            </ul>
         {% endif %}
 
         {% if modify_button %}
             <div class="row actions">
-                <div class="col-xs-12">
+                <div class="col-xs-12 text-xs-B-center text-xs-left">
                     <a href="{{ user.profile_edit_url }}"
                        class="btn btn-default">{{ t('pytsite.auth_ui@modify_profile') }}</a>
                 </div>

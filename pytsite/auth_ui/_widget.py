@@ -11,8 +11,10 @@ from pytsite.core import widget as _widget, html as _html, tpl as _tpl, reg as _
 class Profile(_widget.Base):
     """User Profile Widget.
     """
-    def __init__(self, profile_owner: _auth.model.User, **kwargs):
+    def __init__(self, profile_owner, **kwargs):
         """Init.
+
+        :type profile_owner: pytsite.auth._model.User|pytsite.auth_ui._model.UserUI
         """
         super().__init__(**kwargs)
         self._profile_owner = profile_owner
@@ -21,6 +23,9 @@ class Profile(_widget.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
+        if not self._profile_owner.profile_is_public:
+            return ''
+
         modify_button = False
         current_user = _auth.get_current_user()
         if not current_user.is_anonymous:

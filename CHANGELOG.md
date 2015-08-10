@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.3.5 (2015-08-10)
+### Changed
+- Template of `pytsite.auth_ui.widget.profile`.
+
 ## 0.3.4 (2015-08-08)
 ### Fixed
 - Localized URLs error in `pytsite.core.router.current_url()`.
