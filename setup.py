@@ -45,6 +45,7 @@ setup(
         'requests_oauthlib',
         'twython',
         'lxml',
+        'feedgen',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
