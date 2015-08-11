@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.5.1 (2015-08-11)
+### Fixed
+- TZ-aware dates manipulation errors in `pytsite.content` and `pytsite.disqus`.
+
 ## 0.5 (2015-08-11)
 ### Added
 - `pytsite.feed` plugin.
