@@ -1,8 +1,17 @@
 # PytSite Changelog
 
+## 0.5 (2015-08-11)
+### Added
+- `pytsite.feed` plugin.
+- RSS and Atom feeds generation in `pytsite.content`. 
+
+### Changed
+- More informative users browser layout in `pytsite.auth_ui`.
+- `pytsite.odm.field.DateTime` is TZ aware now.
+
 ## 0.4 (2015-08-10)
 ### Added
-- Plugin `pytsite.sitemap`.
+- `pytsite.sitemap` plugin.
 - Cron sitemap generation in `pytsite.content`.
 
 ## 0.3.5 (2015-08-10)

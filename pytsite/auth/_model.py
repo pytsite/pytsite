@@ -1,9 +1,10 @@
 """Auth Models
 """
 import hashlib as _hashlib
+import pytz as _pytz
 from datetime import datetime as _datetime
 from pytsite import image as _image
-from pytsite.core import odm as _odm, util as _util, router as _router
+from pytsite.core import odm as _odm, util as _util, router as _router, reg as _reg
 
 
 class User(_odm.Model):
@@ -41,6 +42,10 @@ class User(_odm.Model):
     @property
     def login(self) -> str:
         return self.f_get('login')
+
+    @property
+    def email(self) -> str:
+        return self.f_get('email')
 
     @property
     def is_anonymous(self) -> bool:
@@ -97,6 +102,10 @@ class User(_odm.Model):
     @property
     def is_online(self) -> bool:
         return self.f_get('is_online')
+
+    @property
+    def status(self) -> bool:
+        return self.f_get('status')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
@@ -163,7 +172,8 @@ class User(_odm.Model):
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
 
         if field_name == 'is_online':
-            value = (_datetime.now() - self.last_activity).seconds < 180
+            tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
+            value = (tz.localize(_datetime.now()) - self.last_activity).seconds < 180
 
         return value
 

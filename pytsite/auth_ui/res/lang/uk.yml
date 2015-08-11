@@ -8,6 +8,7 @@ last_activity: 'Остання активність'
 picture: 'Аватар'
 name: "Ім'я"
 first_name: "Ім'я"
+full_name: "Ім'я"
 last_name: 'Прізвище'
 status: 'Статус'
 profile_is_public: 'Профіль доступний всім'

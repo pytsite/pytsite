@@ -50,7 +50,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = 'login', 'email', 'roles', 'status', 'is_online', 'last_activity'
+        browser.data_fields = 'login', 'full_name', 'roles', 'status', 'profile_is_public', 'is_online', 'last_activity'
+        browser.default_sort_field = 'last_activity'
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -62,11 +63,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 cls += ' label-danger'
             groups_cell += str(_html.Span(_lang.t(g.f_get('description')), cls=cls)) + ' '
 
+        status_cls = 'info' if self.status == 'active' else 'default'
+
         return (
             self.f_get('login'),
-            self.f_get('email'),
+            self.f_get('full_name'),
             groups_cell,
-            _lang.t('auth@status_' + self.f_get('status')),
+            '<span class="label label-{}">{}</span>'.format(status_cls, _lang.t('auth@status_' + self.f_get('status'))),
+            '<span class="label label-info">{}</span>'.format(self.t('word_yes')) if self.profile_is_public else '',
             '<span class="label label-success">{}</span>'.format(self.t('word_yes')) if self.is_online else '',
             self.f_get('last_activity', fmt='pretty_date_time')
         )

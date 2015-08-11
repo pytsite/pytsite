@@ -4,10 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import yaml
-from importlib.util import find_spec
+import yaml as _yaml
+import pytz as _pytz
+from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
-from os import path
+from os import path as _path
+from pytsite.core import reg as _reg
 from ._error import TranslationError
 
 
@@ -19,7 +21,6 @@ __packages = {}
 def define_languages(languages: list):
     """Define available languages.
     """
-
     global __languages
     __languages = languages
     set_current_lang(languages[0])
@@ -67,12 +68,12 @@ def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
     if is_package_registered(pkg_name):
         return
 
-    spec = find_spec(pkg_name)
+    spec = _find_spec(pkg_name)
     if not spec:
         raise Exception("Package '{}' is not found.".format(pkg_name))
 
-    lng_dir = path.join(path.dirname(spec.origin), languages_dir)
-    if not path.isdir(lng_dir):
+    lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)
+    if not _path.isdir(lng_dir):
         raise Exception("Directory '{}' is not exists.".format(lng_dir))
 
     __packages[pkg_name] = {'__path': lng_dir}
@@ -161,12 +162,12 @@ def load_lang_file(package_name: str, language: str=None):
     content = {}
 
     # Actual data loading
-    file_path = path.join(__packages[package_name]['__path'], language + '.yml')
-    if not path.exists(file_path):
+    file_path = _path.join(__packages[package_name]['__path'], language + '.yml')
+    if not _path.exists(file_path):
         return content
 
     with open(file_path) as f:
-        content = yaml.load(f)
+        content = _yaml.load(f)
 
     if content is None:
         content = {}
@@ -207,11 +208,13 @@ def time_ago(time: _datetime) -> str:
 def pretty_date(time: _datetime) -> str:
     r = '{} {}'.format(time.day, t_plural('pytsite.core.lang@month_' + str(time.month)))
 
-    diff = _datetime.now() - time
+    tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
+    diff = tz.localize(_datetime.now()) - time
     if diff.days > 365:
         r += ' ' + str(time.year)
 
     return r
+
 
 def pretty_date_time(time: _datetime) -> str:
     return '{}, {}'.format(pretty_date(time), time.strftime('%H:%M'))

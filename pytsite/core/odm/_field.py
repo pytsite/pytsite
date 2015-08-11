@@ -4,11 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import pytz as _pytz
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
-from pytsite.core import lang as _lang
+from pytsite.core import lang as _lang, reg as _reg
 
 
 class Abstract(_ABC):
@@ -349,9 +350,13 @@ class RefsUniqueList(RefsListField):
 class DateTime(Abstract):
     """Datetime field.
     """
-    def __init__(self, name: str, default=_datetime(1970, 1, 1), not_empty: bool=False):
+    def __init__(self, name: str, default=None, not_empty: bool=False):
         """Init.
         """
+        if default is None:
+            tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
+            default = tz.localize(_datetime(1970, 1, 1))
+
         super().__init__(name, default=default, not_empty=not_empty)
 
     def set_val(self, value: _datetime, change_modified: bool=True, **kwargs):
@@ -360,7 +365,8 @@ class DateTime(Abstract):
         if not isinstance(value, _datetime):
             raise TypeError("DateTime expected")
 
-        return super().set_val(value, change_modified, **kwargs)
+        tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
+        return super().set_val(tz.localize(value), change_modified, **kwargs)
 
     def get_val(self, fmt: str=None, **kwargs):
         """Get field's value.

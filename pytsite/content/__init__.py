@@ -10,7 +10,7 @@ def __init():
     from pytsite import admin, taxonomy, settings
     from pytsite.core import router, assetman, lang, tpl, events, odm, console
     from ._model import Tag, Section, ContentSubscriber
-    from ._ehs import cron_daily, cron_weekly, router_dispatch
+    from ._ehs import cron_hourly, cron_daily, cron_weekly, router_dispatch
     from ._forms import Settings
     from ._console import Generate as GenerateConsoleCommand
 
@@ -49,6 +49,7 @@ def __init():
 
     # Event handlers
     events.listen('pytsite.core.router.dispatch', router_dispatch)
+    events.listen('pytsite.core.cron.hourly', cron_hourly)
     events.listen('pytsite.core.cron.daily', cron_daily)
     events.listen('pytsite.core.cron.weekly', cron_weekly)
 

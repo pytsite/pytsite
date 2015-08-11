@@ -4,13 +4,20 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import hashlib as _hashlib
 from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import settings as _settings, sitemap as _sitemap
+from pytsite import settings as _settings, sitemap as _sitemap, feed as _feed
 from pytsite.core import reg as _reg, logger as _logger, tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, \
     router as _router, metatag as _metatag
 from . import _functions
+
+
+def cron_hourly():
+    """'pytsite.core.cron.hourly' event handler.
+    """
+    _generate_feeds()
 
 
 def cron_daily():
@@ -109,3 +116,61 @@ def _generate_sitemap():
         _logger.info(__name__ + ". '{}' successfully written.".format(sitemap_index_path))
 
     _logger.info(__name__ + '. Sitemap generation stop.')
+
+
+def _generate_feeds():
+    output_dir = _path.join(_reg.get('paths.static'), 'rss')
+    if _path.exists(output_dir):
+        _rmtree(output_dir)
+    _makedirs(output_dir, 0o755, True)
+
+    md5 = _hashlib.md5()
+    feed_length = _reg.get('content.feed.length', 20)
+    content_settings = _settings.get_setting('content')
+    for lang in _lang.get_langs():
+        feed_title = content_settings.get('home_title_' + lang)
+        feed_description = content_settings.get('home_description_' + lang)
+        for model in _reg.get('content.feed.models', []):
+            _logger.info(__name__ + ". Feeds generation started for model '{}', language '{}'.".format(model, lang))
+            feed_writer = _feed.Writer(feed_title, _router.base_url(), feed_description)
+            for entity in _functions.find(model).get(feed_length):
+                entry = feed_writer.add_entry()
+
+                md5.update(entity.title.encode())
+                entry.id(md5.hexdigest())
+                entry.title(entity.title)
+                entry.content(entity.description, type='text/plain')
+                entry.link({'href': entity.url})
+                entry.pubdate(entity.publish_time)
+
+                author_info = {
+                    'name': entity.author.full_name,
+                    'email': entity.author.email,
+                }
+                if entity.author.profile_is_public:
+                    author_info['uri'] = _router.endpoint_url('pytsite.auth_ui.eps.profile_view', {
+                        'uid': str(entity.author.id),
+                    })
+                entry.author(author_info)
+
+                if entity.has_field('section'):
+                    entry.category({
+                        'term': entity.section.alias,
+                        'label': entity.section.title,
+                    })
+
+                if entity.has_field('tags'):
+                    for tag in entity.tags:
+                        entry.category({
+                            'term': tag.alias,
+                            'label': tag.title,
+                        })
+
+            for out_type in 'rss', 'atom':
+                out_path = _path.join(output_dir, '{}-{}-{}.xml'.format(out_type, model, lang))
+                if out_type == 'rss':
+                    feed_writer.rss_file(out_path, True)
+                    _logger.info(__name__ + ". RSS feed successfully written to '{}'.".format(out_path))
+                if out_type == 'atom':
+                    feed_writer.atom_file(out_path, True)
+                    _logger.info(__name__ + ". Atom feed successfully written to '{}'.".format(out_path))
