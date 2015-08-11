@@ -119,7 +119,7 @@ def _generate_sitemap():
 
 
 def _generate_feeds():
-    output_dir = _path.join(_reg.get('paths.static'), 'rss')
+    output_dir = _path.join(_reg.get('paths.static'), 'feed')
     if _path.exists(output_dir):
         _rmtree(output_dir)
     _makedirs(output_dir, 0o755, True)
