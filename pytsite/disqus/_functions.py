@@ -8,7 +8,6 @@ __license__ = 'MIT'
 import urllib.request as _urllib_request
 import urllib.parse as _urllib_parse
 import json as _json
-import pytz as _pytz
 from datetime import datetime as _datetime
 from pytsite.core import odm as _odm, reg as _reg, logger as _logger
 
@@ -28,8 +27,7 @@ def get_comments_count(thread_url: str) -> int:
 
     entity = _odm.find('disqus_comment_count').where('thread', '=', thread_url).first()
     if entity:
-        tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-        time_diff = tz.localize(_datetime.now()) - entity.modified
+        time_diff = _datetime.now() - entity.modified
         if time_diff.seconds <= 1800:  # 30 min
             return entity.f_get('count')
     else:

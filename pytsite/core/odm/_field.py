@@ -4,12 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import pytz as _pytz
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
-from pytsite.core import lang as _lang, reg as _reg
+from pytsite.core import lang as _lang
 
 
 class Abstract(_ABC):
@@ -354,8 +353,7 @@ class DateTime(Abstract):
         """Init.
         """
         if default is None:
-            tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-            default = tz.localize(_datetime(1970, 1, 1))
+            default = _datetime(1970, 1, 1)
 
         super().__init__(name, default=default, not_empty=not_empty)
 
@@ -365,8 +363,7 @@ class DateTime(Abstract):
         if not isinstance(value, _datetime):
             raise TypeError("DateTime expected")
 
-        tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-        return super().set_val(tz.localize(value), change_modified, **kwargs)
+        return super().set_val(value, change_modified, **kwargs)
 
     def get_val(self, fmt: str=None, **kwargs):
         """Get field's value.

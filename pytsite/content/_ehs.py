@@ -5,6 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import hashlib as _hashlib
+import pytz as _pytz
 from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
@@ -141,7 +142,9 @@ def _generate_feeds():
                 entry.title(entity.title)
                 entry.content(entity.description, type='text/plain')
                 entry.link({'href': entity.url})
-                entry.pubdate(entity.publish_time)
+
+                tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
+                entry.pubdate(tz.localize(entity.publish_time))
 
                 author_info = {
                     'name': entity.author.full_name,

@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.5.3 (2015-08-11)
+### Fixed
+- TZ-aware dates manipulation.
+
 ## 0.5.2 (2015-08-11)
 ### Changed
 - RSS and Atom feeds store path in `pytsite.content`. 

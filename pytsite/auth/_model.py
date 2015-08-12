@@ -1,10 +1,9 @@
 """Auth Models
 """
 import hashlib as _hashlib
-import pytz as _pytz
 from datetime import datetime as _datetime
 from pytsite import image as _image
-from pytsite.core import odm as _odm, util as _util, router as _router, reg as _reg
+from pytsite.core import odm as _odm, util as _util, router as _router
 
 
 class User(_odm.Model):
@@ -172,8 +171,7 @@ class User(_odm.Model):
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
 
         if field_name == 'is_online':
-            tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-            value = (tz.localize(_datetime.now()) - self.last_activity).seconds < 180
+            value = (_datetime.now() - self.last_activity).seconds < 180
 
         return value
 

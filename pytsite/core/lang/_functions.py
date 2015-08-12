@@ -5,7 +5,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import yaml as _yaml
-import pytz as _pytz
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path
@@ -208,8 +207,7 @@ def time_ago(time: _datetime) -> str:
 def pretty_date(time: _datetime) -> str:
     r = '{} {}'.format(time.day, t_plural('pytsite.core.lang@month_' + str(time.month)))
 
-    tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-    diff = tz.localize(_datetime.now()) - time
+    diff = _datetime.now() - time
     if diff.days > 365:
         r += ' ' + str(time.year)
 

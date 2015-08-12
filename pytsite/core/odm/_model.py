@@ -12,7 +12,7 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db as _db, events as _events, lang as _lang, logger as _logger
+from pytsite.core import db as _db, events as _events, lang as _lang
 from . import _error, _field
 
 
