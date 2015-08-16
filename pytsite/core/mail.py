@@ -17,17 +17,20 @@ from pytsite.core import reg as _reg, router as _router, logger as _logger
 class Message(_MIMEMultipart):
     """Mail Message.
     """
-    def __init__(self, to_addrs, subject: str, body: str='', from_addr: str=None):
+    def __init__(self, to_addrs, subject: str, body: str='', from_addr: str=None, reply_to: str=None):
         """Init.
         """
         super().__init__()
 
-        self._from_addr = self._to_addrs = self._subject = self._body = None
+        self._from_addr = self._to_addrs = self._subject = self._body = self._reply_to = None
 
         self.from_addr = from_addr if from_addr else _reg.get('mail.from', 'info@' + _router.server_name())
         self.to_addrs = to_addrs
         self.subject = subject
         self.body = body
+
+        if reply_to:
+            self.reply_to = reply_to
 
         self._attachments = []
 
@@ -69,6 +72,14 @@ class Message(_MIMEMultipart):
     @body.setter
     def body(self, value: str):
         self._body = value
+
+    @property
+    def reply_to(self) -> str:
+        return self._reply_to
+
+    @reply_to.setter
+    def reply_to(self, value):
+        self['Reply-To'] = self._reply_to = value
 
     def attach(self, file_path: str):
         if not _path.isfile(file_path):

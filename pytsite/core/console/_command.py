@@ -219,7 +219,7 @@ class DbDump(Abstract):
         command = 'mongodump -h {}:{} --gzip -o {} -d {}'.format(config['host'], config['port'], target_dir, db_name)
 
         if config['user']:
-            command += '-u {} -p {}'.format(config['user'], config['password'])
+            command += ' -u {} -p {}'.format(config['user'], config['password'])
         if config['ssl']:
             command += ' --ssl --sslAllowInvalidCertificates'
 

@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.5.4 (2015-08-16)
+### Added
+- `reply_to` argument in `pytsite.core.mail.Message`.
+
+### Fixed
+- Incorrect argument passing to `mongodump` executable in `pytsite.core.console.command.DbDump`.
+
 ## 0.5.3 (2015-08-11)
 ### Fixed
 - TZ-aware dates manipulation.
