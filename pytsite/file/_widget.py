@@ -34,7 +34,7 @@ class FilesUpload(_widget.Base):
         self._slot_cls = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3'
 
         if self._max_files:
-            self._group_data['max_files'] = self._max_files
+            self._data['max_files'] = self._max_files
 
         _client.include('imagesloaded')
         _assetman.add('pytsite.file@css/upload-widget.css')
@@ -95,7 +95,7 @@ class FilesUpload(_widget.Base):
         self._slot_cls = value
 
     def render(self) -> str:
-        self._group_data = {
+        self._data = {
             'url': _router.endpoint_url('pytsite.file.eps.upload', {'model': self._model}),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,

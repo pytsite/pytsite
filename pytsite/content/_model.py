@@ -508,7 +508,7 @@ class Article(Content):
         return self.f_get('starred')
 
     @property
-    def location(self) -> list:
+    def location(self) -> dict:
         return self.f_get('location')
 
     def _setup(self):
@@ -524,7 +524,7 @@ class Article(Content):
         super().setup_m_form(form, stage)
 
         # Starred
-        if _auth.get_current_user().is_admin:
+        if self.has_field('starred') and _auth.get_current_user().is_admin:
             form.add_widget(_widget.select.Checkbox(
                 weight=30,
                 uid='starred',
@@ -533,19 +533,20 @@ class Article(Content):
             ))
 
         # Section
-        def section_finder_adj(finder: _odm.Finder):
-            finder.where('language', '=', _lang.get_current_lang())
-        form.add_widget(_odm_ui.widget.EntitySelect(
-            weight=60,
-            uid='section',
-            model='section',
-            caption_field='title',
-            label=self.t('section'),
-            value=self.section,
-            h_size='col-sm-6',
-            finder_adjust=section_finder_adj
-        ))
-        form.add_rule('section', _validation.rule.NotEmpty())
+        if self.has_field('section'):
+            def section_finder_adj(finder: _odm.Finder):
+                finder.where('language', '=', _lang.get_current_lang())
+            form.add_widget(_odm_ui.widget.EntitySelect(
+                weight=60,
+                uid='section',
+                model='section',
+                caption_field='title',
+                label=self.t('section'),
+                value=self.section,
+                h_size='col-sm-6',
+                finder_adjust=section_finder_adj
+            ))
+            form.add_rule('section', _validation.rule.NotEmpty())
 
         # External links
         if self.has_field('ext_links'):

@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from . import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation, browser as _client
+    validation as _validation
 
 
 class Base:
@@ -178,6 +178,13 @@ class Base:
 
         return self
 
+    def remove_rules(self, widget_uid: str):
+        """Remove validation's rules.
+        """
+        if widget_uid not in self._widgets:
+            raise KeyError("Widget '{}' is not exists.".format(widget_uid))
+        self._validator.remove_rules(widget_uid)
+
     def validate(self) -> bool:
         """Validate the form.
         """
@@ -187,18 +194,6 @@ class Base:
                 self._validator.set_value(uid, self.get_widget(uid).get_value(validation_mode=True))
 
         return self._validator.validate()
-
-    def store_state(self, except_fields: tuple=None):
-        """Store state of the form into the session.
-        """
-        # TODO
-        pass
-
-    def restore_state(self, except_fields: tuple=None):
-        """Store state of the form from the session.
-        """
-        # TODO
-        pass
 
     def render(self) -> str:
         """Render the form.

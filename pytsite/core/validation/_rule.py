@@ -9,18 +9,18 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite.core import lang as _lang, util as _util
 from . import _error
 
+
 class Base(_ABC):
     """Base Rule.
     """
-    def __init__(self, msg_id: str=None, value=None):
+    def __init__(self, msg_id: str=None, value=None, **kwargs):
         """Init.
         """
         cls_name = self.__class__.__name__
         self._value = value
         self._msg_id = msg_id if msg_id else 'pytsite.core.validation@validation_' + cls_name.lower()
-        self._msg_trans_args = {}
         self._message = None
-        self._validation_state = None
+        self._state = None
 
     @property
     def value(self):
@@ -37,7 +37,7 @@ class Base(_ABC):
     def message(self) -> str:
         """Get validation message.
         """
-        if self._validation_state is None:
+        if self._state is None:
             raise Exception("Rule is not validated yet.")
 
         return self._message
@@ -47,7 +47,7 @@ class Base(_ABC):
         """
         self._value = None
         self._message = None
-        self._validation_state = None
+        self._state = None
 
         return self
 
@@ -56,15 +56,14 @@ class Base(_ABC):
         """
         try:
             self._do_validate(validator, field_name)
-            self._validation_state = True
+            self._state = True
         except _error.ValidationError as e:
             msg_args = e.msg_args
             msg_args['field_name'] = field_name
-
             self._message = _lang.t(self._msg_id, msg_args)
-            self._validation_state = False
+            self._state = False
 
-        return self._validation_state
+        return self._state
 
     @_abstractmethod
     def _do_validate(self, validator=None, field_name: str=None) -> bool:
@@ -91,13 +90,13 @@ class NotEmpty(Base):
 
 
 class DictPartsNotEmpty(Base):
-    """Check if a dict particular key values is not empty.
+    """Check if a dict particular key values are not empty.
     """
-    def __init__(self, msg_id: str=None, value=None, keys: tuple=()):
+    def __init__(self, msg_id: str=None, value=None, **kwargs):
         """Init.
         """
-        super().__init__(msg_id, value)
-        self._keys = keys
+        super().__init__(msg_id, value, **kwargs)
+        self._keys = kwargs.get('keys', ())
 
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
@@ -110,18 +109,30 @@ class DictPartsNotEmpty(Base):
             return
 
         for k in self._keys:
-            if k in self._value and not self._value[k]:
+            if k not in self._value or not self._value[k]:
                 raise _error.ValidationError()
 
 
 class Integer(Base):
-    """Integer rule.
+    """Integer Validation Rule.
     """
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
         try:
             int(self._value)
+        except ValueError:
+            raise _error.ValidationError()
+
+
+class Float(Base):
+    """Float Validation Rule.
+    """
+    def _do_validate(self, validator=None, field_name: str=None):
+        """Do actual validation of the rule.
+        """
+        try:
+            float(self._value)
         except ValueError:
             raise _error.ValidationError()
 
@@ -227,30 +238,27 @@ class DateTime(Base):
             raise _error.ValidationError()
 
 
-class GreaterThan(Base):
-    def __init__(self, msg_id: str=None, value=None, than: float=0.0):
+class FloatGreaterThan(Float):
+    def __init__(self, msg_id: str=None, value=None, **kwargs):
         """Init.
         """
-        super().__init__(msg_id, value)
-        self._than = self._msg_trans_args['than'] = than
+        super().__init__(msg_id, value, **kwargs)
+        self._than = kwargs.get('than', 0.0)
 
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-        try:
-            value = float(self._value)
-            if value <= self._than:
-                raise _error.ValidationError()
-        except ValueError:
-            raise _error.ValidationError()
+        super()._do_validate(validator, field_name)
+        if self.value <= self._than:
+            raise _error.ValidationError({'than': str(self._than)})
 
 
 class ListListItemNotEmpty(Base):
-    def __init__(self, sub_list_item_index: int, msg_id: str=None, value: list=None):
+    def __init__(self, msg_id: str=None, value: list=None, **kwargs):
         """Init.
         """
-        super().__init__(msg_id, value)
-        self._index = sub_list_item_index
+        super().__init__(msg_id, value, **kwargs)
+        self._index = kwargs.get('sub_list_item_index', 0)
 
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
@@ -267,6 +275,7 @@ class ListListItemNotEmpty(Base):
 
             if not sub_list[self._index]:
                 raise _error.ValidationError({'row': row + 1, 'col': self._index + 1})
+
 
 class ListListItemUrl(ListListItemNotEmpty):
     def _do_validate(self, validator=None, field_name: str=None):

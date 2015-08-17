@@ -114,7 +114,7 @@ class TypeaheadText(Text):
         _client.include('typeahead')
         _assetman.add('pytsite.core.widget@js/typeahead.js')
         self._group_cls = ' '.join((self._group_cls, 'widget-typeahead-text-input'))
-        self._group_data['source_url'] = source_url
+        self._data['source_url'] = source_url
 
 
 class Integer(Text):
@@ -127,7 +127,7 @@ class Integer(Text):
         self._type = 'tel'
         self._allow_minus = kwargs.get('allow_minus', False)
         self._group_cls = ' '.join((self._group_cls, 'widget-input-integer'))
-        self._group_data['allow_minus'] = self._allow_minus
+        self._data['allow_minus'] = self._allow_minus
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -152,7 +152,7 @@ class Float(Text):
         self._type = 'tel'
         self._allow_minus = kwargs.get('allow_minus', False)
         self._group_cls = ' '.join((self._group_cls, 'widget-input-float'))
-        self._group_data['allow_minus'] = self._allow_minus
+        self._data['allow_minus'] = self._allow_minus
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -179,7 +179,7 @@ class StringList(_base.Base):
         self._max_values = kwargs.get('max_values', 10)
 
         self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
-        self._group_data['max_values'] = self._max_values
+        self._data['max_values'] = self._max_values
 
         _assetman.add('pytsite.core.widget@js/list.js')
         _assetman.add('pytsite.core.widget@css/list.css')
@@ -291,7 +291,7 @@ class Tokens(Input):
 
         self._local_source = kwargs.get('local_source')
         self._remote_source = kwargs.get('remote_source')
-        self._group_data = {
+        self._data = {
             'local_source': self._local_source,
             'remote_source': self._remote_source,
         }

@@ -9,10 +9,27 @@ from pytsite.core import assetman as _assetman, lang as _lang, widget as _widget
 from . import _functions
 
 
-class SearchAddress(_widget.Base):
+class Location(_widget.Base):
     """Geo Address Input Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+
+        _assetman.add('pytsite.geo@js/widget/location.js')
+        self._group_cls += ' widget geo location'
+
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        return self._group_wrap(_html.TagLessElement())
+
+
+class SearchAddress(Location):
+    """Geo Address Input Widget.
+    """
+    def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
@@ -21,10 +38,17 @@ class SearchAddress(_widget.Base):
 
         lng = _lang.get_current_lang()
         _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng, 'js')
-        _assetman.add('pytsite.geo@js/address-input.js')
+        _assetman.add('pytsite.geo@js/widget/address-input.js')
 
-        self._group_cls += ' widget-geo-address-input'
-        self._group_data['autodetect'] = int(self._autodetect)
+        self._group_cls = self._group_cls.replace('location', 'search-address')
+
+    @property
+    def autodetect(self) -> bool:
+        return self._autodetect
+
+    @autodetect.setter
+    def autodetect(self, value: bool):
+        self._autodetect = value
 
     def set_value(self, val: dict, **kwargs: dict):
         """Set value of the widget.
@@ -58,11 +82,13 @@ class SearchAddress(_widget.Base):
         lng_lat_value = _json_dumps(self._value['lng_lat']) if self._value else ''
         components_value = _json_dumps(self._value['components']) if self._value else ''
 
-        inputs = _html.Div()
+        inputs = _html.TagLessElement()
         inputs.append(_html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value))
         inputs.append(_html.Input(type='hidden', name=self._uid + '[address]', value=address_value))
         inputs.append(_html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value))
         inputs.append(_html.Input(type='hidden', name=self._uid + '[components]', value=components_value))
+
+        self._data['autodetect'] = int(self._autodetect)
 
         return self._group_wrap(inputs)
 
@@ -73,9 +99,9 @@ class StaticMap(_widget.Base):
         """
         super().__init__(**kwargs)
 
-        self._language = _lang.get_current_lang()
+        self._language = kwargs.get('language', _lang.get_current_lang())
         self._zoom = kwargs.get('zoom', 13)
-        self._lat = kwargs.get('lat', 51.4800)
+        self._lat = kwargs.get('lat', 51.48)
         self._lng = kwargs.get('lng', 0.0)
         self._center = '%f,%f' % (self._lat, self._lng)
         self._width = kwargs.get('width', 320)

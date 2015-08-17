@@ -211,6 +211,9 @@ class TagLessElement(Element):
     def _render_close_tag(self) -> str:
         return ''
 
+    def _get_valid_children(self) -> tuple:
+        return 'any'
+
 
 class InlineElement(Element):
     """Inline element.

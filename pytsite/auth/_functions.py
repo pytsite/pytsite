@@ -245,10 +245,10 @@ def get_user_statuses() -> tuple:
     )
 
 
-def get_logout_url() -> str:
+def logout_url() -> str:
     """Get logout URL.
     """
-    return _router.endpoint_url('pytsite.auth.eps.get_logout', {'redirect': _router.current_url()})
+    return _router.endpoint_url('pytsite.auth.eps.logout', {'redirect': _router.current_url()})
 
 
 def find_users(active_only: bool=True) -> _odm.Finder:

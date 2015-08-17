@@ -20,6 +20,6 @@ class Settings(_form.Base):
                 value={'amount': 1.0, 'currency': main_cur},
                 currency=main_cur
             ))
-            self.add_rule('setting_exchange_rate_' + cur, _validation.rule.GreaterThan())
+            self.add_rule('setting_exchange_rate_' + cur, _validation.rule.FloatGreaterThan())
 
             weight += 10

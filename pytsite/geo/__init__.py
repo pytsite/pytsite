@@ -1,10 +1,13 @@
-"""Geo Package Init
+"""Geo Plugin.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 def __init():
+    """Init wrapper.
+    """
     import sys
     from pytsite.core import assetman, lang, tpl
     lang.register_package(__name__)
@@ -13,9 +16,7 @@ def __init():
 
 __init()
 
+
 # Public API
-from . import _widget, _field, _rule, _functions
-widget = _widget
-field = _field
-rule = _rule
-functions = _functions
+from . import _widget as widget, _field as field, _rule as rule
+from ._functions import get_map_link

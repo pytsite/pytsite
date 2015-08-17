@@ -6,7 +6,7 @@ validation_odmentitieslist: ':detail'
 validation_odmfieldunique: 'Повинно бути унікальним'
 validation_url: 'Некоректний URL'
 validation_url_row: 'Некоректний URL (рядок :row)'
-validation_greaterthan: 'Повинно бути більше :than'
+validation_floatgreaterthan: 'Повинно бути більш ніж :than'
 validation_listlistitemnotempty: "Обов'язково для заповнення (рядок :row, колонка :col)"
 validation_listlistitemurl: 'Некоректний URL (рядок :row, колонка :col)'
 validation_videohostingurl: 'Некоректний URL відеохостингу'

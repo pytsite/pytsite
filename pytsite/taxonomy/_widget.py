@@ -24,7 +24,7 @@ class TokensInput(_widget.input.Tokens):
             'query': '__QUERY'
         })
 
-        self._group_data = {
+        self._data = {
             'local_source': self._local_source,
             'remote_source': self._remote_source,
         }

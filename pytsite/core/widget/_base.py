@@ -31,7 +31,7 @@ class Base(_ABC):
         self._placeholder = kwargs.get('placeholder')
         self._cls = kwargs.get('cls', '')
         self._group_cls = kwargs.get('group_cls', '')
-        self._group_data = kwargs.get('group_data', {})
+        self._data = kwargs.get('group_data', {})
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
         self._children = []
@@ -172,8 +172,8 @@ class Base(_ABC):
         cls = ' '.join((cls, self._group_cls))
         group_wrapper = _html.Div(cls=cls, data_widget_uid=self.uid, data_widget_weight=self.weight)
 
-        if isinstance(self._group_data, dict):
-            for k, v in self._group_data.items():
+        if isinstance(self._data, dict):
+            for k, v in self._data.items():
                 group_wrapper.set_attr('data_' + k, v)
 
         if render_label and self.label:
