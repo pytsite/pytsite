@@ -2,6 +2,7 @@
 
 ## 0.6 (2015-08-xx)
 ### Added
+- `geo.widget.Location` widget.
 - `autodetect` property in `geo.widget.SearchAddress`.
 - `core.validation.rule.Float` rule.
 - Support for children in `core.html.TagLessElement`.
@@ -16,6 +17,7 @@
 - Error in template `flag@widget`.
 - Incorrect behaviour in `core.validation.rule.DictPartsNotEmpty`.
 - Error in `geo.rule.AddressNotEmpty`.
+- Incorrect russian plurals for numbers between 11 and 19.
 
 ## 0.5.4 (2015-08-16)
 ### Added

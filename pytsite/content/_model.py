@@ -27,8 +27,8 @@ class Section(_taxonomy.model.Term):
                 raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
 
         f = _taxonomy.find('tag')
-        if f.mock.has_field('section'):
-            tag = f.where('section', '=', self).first()
+        if f.mock.has_field('sections'):
+            tag = f.where('sections', 'in', [self]).first()
             if tag:
                 error_args = {'model': tag.model, 'title': tag.f_get('title')}
                 raise _odm.error.ForbidEntityDelete(_lang.t('pytsite,content@referenced_entity_exists', error_args))
@@ -57,18 +57,18 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('title', not_empty=True))
+        self._define_field(_odm.field.String('title', nonempty=True))
         self._define_field(_odm.field.String('description'))
         self._define_field(_odm.field.String('body'))
-        self._define_field(_odm.field.Ref('route_alias', model='route_alias', not_empty=True))
-        self._define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), not_empty=True))
+        self._define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
+        self._define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), nonempty=True))
         self._define_field(_odm.field.Integer('views_count'))
         self._define_field(_odm.field.Integer('comments_count'))
         self._define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self._define_field(_odm.field.String('status', not_empty=True))
+        self._define_field(_odm.field.String('status', nonempty=True))
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
-        self._define_field(_odm.field.Ref('author', model='user', not_empty=True))
-        self._define_field(_odm.field.String('language', not_empty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
+        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current_lang()))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
         self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.Virtual('url'))
@@ -159,10 +159,8 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if field_name == 'route_alias':
             if isinstance(value, str):
                 value = value.strip()
-                if not value and not self.title:
-                    raise ValueError('Entity title is empty, cannot generate route alias.')
-
-                value = self.title
+                if not value:
+                    raise ValueError('Route alias cannot be empty.')
 
                 if not self.route_alias:
                     # Create new route alias object with no target at this point
@@ -246,9 +244,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         if self.is_new:
             # Update route alias target which has been created in self._pre_save()
-            if self.f_get('route_alias').f_get('target') == 'NONE':
+            if self.route_alias.target == 'NONE':
                 target = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': self.id})
-                self.f_get('route_alias').f_set('target', target).save()
+                self.route_alias.f_set('target', target).save()
 
             # Clean up not fully filled route aliases
             f = _route_alias.find()
@@ -425,12 +423,13 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             # Route alias
-            form.add_widget(_widget.input.Text(
-                weight=1000,
-                uid='route_alias',
-                label=self.t('path'),
-                value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',
-            ))
+            if not self.is_new:
+                form.add_widget(_widget.input.Text(
+                    weight=1000,
+                    uid='route_alias',
+                    label=self.t('path'),
+                    value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',
+                ))
 
     def get_d_form_description(self) -> str:
         """Get delete form description.
@@ -515,7 +514,7 @@ class Article(Content):
 
     def _setup(self):
         super()._setup()
-        self._define_field(_odm.field.Ref('section', model='section', not_empty=True))
+        self._define_field(_odm.field.Ref('section', model='section'))
         self._define_field(_odm.field.StringList('ext_links'))
         self._define_field(_odm.field.Bool('starred'))
         self._define_field(_geo.field.Location('location'))
@@ -566,7 +565,7 @@ class Article(Content):
             weight=660,
             uid='location',
             label=self.t('location'),
-            value=self.location,
+            value=self.location
         ))
 
     def _pre_save(self):
@@ -584,7 +583,11 @@ class Article(Content):
 
 
 class ContentSubscriber(_odm.Model):
+    """content_subscriber ODM Model.
+    """
     def _setup(self):
-        self._define_field(_odm.field.String('email', not_empty=True))
+        """Hook.
+        """
+        self._define_field(_odm.field.String('email', nonempty=True))
         self._define_field(_odm.field.Bool('enabled', default=True))
         self._define_index([('email', _odm.I_ASC)])

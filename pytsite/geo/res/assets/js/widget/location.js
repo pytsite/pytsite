@@ -22,7 +22,7 @@ $(function () {
                                     input_selector = '.accuracy';
                                     break;
                                 case 'altitudeAccuracy':
-                                    input_selector = '.alt-accuracy';
+                                    input_selector = '.alt_accuracy';
                                     break;
                                 case 'heading':
                                     input_selector = '.heading';

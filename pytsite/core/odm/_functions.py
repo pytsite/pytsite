@@ -117,7 +117,6 @@ def resolve_ref(something) -> _DBRef:
     :type something: str | ODMModel | DBRef
     :rtype: DBRef
     """
-
     if isinstance(something, _DBRef):
         return something
 

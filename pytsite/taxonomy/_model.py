@@ -14,9 +14,9 @@ class Term(_odm.Model, _odm_ui.UIMixin):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('title', not_empty=True))
-        self._define_field(_odm.field.String('alias', not_empty=True))
-        self._define_field(_odm.field.String('language', not_empty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.String('title', nonempty=True))
+        self._define_field(_odm.field.String('alias', nonempty=True))
+        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current_lang()))
         self._define_field(_odm.field.Integer('weight'))
         self._define_field(_odm.field.Integer('order'))
 

@@ -34,7 +34,7 @@ class Location(_widget.Base):
         """Render the widget.
         """
         inputs = _html.TagLessElement()
-        for k in ('lat', 'lng', 'accuracy', 'alt', 'alt-accuracy', 'heading', 'speed'):
+        for k in ('lng', 'lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
             inp_val = self._value[k] if k in self._value else ''
             inputs.append(_html.Input(type='hidden', cls=k, name=self._uid + '[' + k + ']', value=inp_val))
 
@@ -72,36 +72,53 @@ class SearchAddress(Location):
             raise ValueError('Dict expected.')
 
         if val:
-            for k in ['address', 'lng_lat', 'components']:
+            for k in ['lng', 'lat', 'address', 'address_components']:
                 if k not in val:
-                    raise ValueError("Value does not contain '{}'.".format(k))
+                    raise ValueError("Value does not contain '{}' key.".format(k))
 
-            if not val['address'] or not val['lng_lat'] or not val['components']:
+            if not val['lat'] or not val['lng'] or not val['address'] or not val['address_components']:
                 return self
 
-            lng_lat = _json_loads(val['lng_lat']) if isinstance(val['lng_lat'], str) else val['lng_lat']
-            components = _json_loads(val['components']) if isinstance(val['components'], str) else val['components']
+            components = _json_loads(val['address_components']) if isinstance(val['address_components'], str) \
+                else val['address_components']
 
             val = {
                 'address': val['address'],
-                'lng_lat': lng_lat,
-                'components': components
+                'lat': float(val['lat']),
+                'lng': float(val['lng']),
+                'address_components': components
             }
 
         return super().set_value(val, **kwargs)
 
+    def get_value(self, **kwargs: dict):
+        """Set value of the widget.
+        """
+        val = super().get_value(**kwargs)
+        if not val:
+            val = {
+                'address': '',
+                'lat': 0.0,
+                'lng': 0.0,
+                'address_components': []
+            }
+
+        return val
+
     def render(self) -> str:
         """Render the widget.
         """
-        address_value = self._value['address'] if self._value else ''
-        lng_lat_value = _json_dumps(self._value['lng_lat']) if self._value else ''
-        components_value = _json_dumps(self._value['components']) if self._value else ''
+        lng = self.value['lng']
+        lat = self.value['lat']
+        address = self.value['address']
+        address_components = _json_dumps(self.value['address_components'])
 
         inputs = _html.TagLessElement()
-        inputs.append(_html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address_value))
-        inputs.append(_html.Input(type='hidden', name=self._uid + '[address]', value=address_value))
-        inputs.append(_html.Input(type='hidden', name=self._uid + '[lng_lat]', value=lng_lat_value))
-        inputs.append(_html.Input(type='hidden', name=self._uid + '[components]', value=components_value))
+        inputs.append(_html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[lng]', value=lng))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[lat]', value=lat))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[address]', value=address))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[address_components]', value=address_components))
 
         self._data['autodetect'] = int(self._autodetect)
 
@@ -109,6 +126,8 @@ class SearchAddress(Location):
 
 
 class StaticMap(_widget.Base):
+    """Static Map Widget.
+    """
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -124,7 +143,7 @@ class StaticMap(_widget.Base):
         self._address = kwargs.get('address', '')
         self._link = kwargs.get('link', True)
 
-        self._group_cls += 'widget-geo-static-map'
+        self._group_cls += 'widget geo static-map'
 
     @property
     def language(self) -> str:

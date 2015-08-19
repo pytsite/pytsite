@@ -210,7 +210,7 @@ class Model(_ABC):
         """Set field's value.
         """
         value = self._on_f_set(field_name, value, **kwargs)
-        self.get_field(field_name).set_val(value)
+        self.get_field(field_name).set_val(value, **kwargs)
 
         return self
 

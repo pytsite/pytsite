@@ -129,13 +129,16 @@ def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
         else:
             return t(msg_id + '_plural_two')
 
-    last_digit = int(str(num)[-1])
-    if last_digit in [0, 5, 6, 7, 8, 9]:
+    if 11 <= num <= 19:
         return t(msg_id + '_plural_zero')
-    elif last_digit in [2, 3, 4]:
-        return t(msg_id + '_plural_two')
     else:
-        return t(msg_id + '_plural_one')
+        last_digit = int(str(num)[-1])
+        if last_digit in [0, 5, 6, 7, 8, 9]:
+            return t(msg_id + '_plural_zero')
+        elif last_digit in [2, 3, 4]:
+            return t(msg_id + '_plural_two')
+        else:
+            return t(msg_id + '_plural_one')
 
 
 def get_lang_title(code: str) -> str:

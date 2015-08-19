@@ -15,8 +15,9 @@ $(function () {
         var uid = widget.data('widget-uid');
         var searchInput = widget.find('input[name="' + uid + '[search]"]');
         var addressInput = widget.find('input[name="' + uid + '[address]"]');
-        var lngLatInput = widget.find('input[name="' + uid + '[lng_lat]"]');
-        var componentsInput = widget.find('input[name="' + uid + '[components]"]');
+        var latInput = widget.find('input[name="' + uid + '[lat]"]');
+        var lngInput = widget.find('input[name="' + uid + '[lng]"]');
+        var componentsInput = widget.find('input[name="' + uid + '[address_components]"]');
         var autocomplete = new google.maps.places.Autocomplete(searchInput[0], {
             types: ['geocode']
         });
@@ -35,8 +36,9 @@ $(function () {
         searchInput.blur(function () {
             if (!$(this).val().length) {
                 addressInput.val('');
-                lngLatInput.val('').trigger('change');
-                componentsInput.val('');
+                latInput.val('0.0');
+                lngInput.val('0.0');
+                componentsInput.val('[]');
             }
 
             setTimeout(function () {
@@ -52,7 +54,8 @@ $(function () {
             if (place.hasOwnProperty('geometry')) {
                 var loc = place.geometry.location;
                 addressInput.val(searchInput.val());
-                lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()])).trigger('change');
+                latInput.val(loc.lat());
+                lngInput.val(loc.lng());
                 componentsInput.val(JSON.stringify(place.address_components));
             }
         });
@@ -72,7 +75,8 @@ $(function () {
                             var loc = place.geometry.location;
                             searchInput.val(place.formatted_address);
                             addressInput.val(place.formatted_address);
-                            lngLatInput.val(JSON.stringify([loc.lng(), loc.lat()])).trigger('change');
+                            latInput.val(loc.lat());
+                            lngInput.val(loc.lng());
                             componentsInput.val(JSON.stringify(place.address_components));
                         }
                     });

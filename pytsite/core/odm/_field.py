@@ -14,19 +14,20 @@ from pytsite.core import lang as _lang
 class Abstract(_ABC):
     """Base field.
     """
-    def __init__(self, name: str, default=None, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
-        :param not_empty:
+        :param default:
+        :param nonempty: bool
         """
         self._name = name
-        self._default = default
-        self._not_empty = not_empty
+        self._default = kwargs.get('default')
+        self._nonempty = kwargs.get('nonempty', False)
         self._modified = False
-        self._value = default
+        self._value = self._default
 
     @property
-    def not_empty(self) -> bool:
-        return self._not_empty
+    def nonempty(self) -> bool:
+        return self._nonempty
 
     def get_name(self):
         """Get name of the field.
@@ -50,6 +51,7 @@ class Abstract(_ABC):
         self._value = value
         if change_modified and not self._modified:
             self._modified = True
+
         return self
 
     def get_val(self, **kwargs):
@@ -60,7 +62,7 @@ class Abstract(_ABC):
     def get_storable_val(self):
         """Get value suitable to store in a database.
         """
-        if self._not_empty:
+        if self._nonempty:
             if hasattr(self, '__len__') and not len(self._value):
                 raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
             elif not self._value:
@@ -119,10 +121,10 @@ class ObjectId(Abstract):
 class List(Abstract):
     """List field.
     """
-    def __init__(self, name: str, default=None, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        super().__init__(name, **kwargs)
         if self._value is None:
             self._value = []
 
@@ -190,30 +192,46 @@ class UniqueListField(List):
 class Dict(Abstract):
     """Dictionary field.
     """
-
-    def __init__(self, name: str, default=None, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
+        :param default: dict
+        :param keys: tuple
+        :param nonempty_keys: tuple
         """
-        super().__init__(name, default=default, not_empty=not_empty)
-        if self._value is None:
-            self._value = {}
+        self._keys = kwargs.get('keys', ())
+        self._nonempty_keys = kwargs.get('nonempty_keys', ())
+        if kwargs.get('default') is None:
+            kwargs['default'] = {}
+
+        super().__init__(name, **kwargs)
 
     def set_val(self, value: dict, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, dict):
-            raise TypeError("Field '{}': dictionary expected".format(self._name))
+            raise TypeError("Value of the field '{}' must be a dictionary.".format(self._name))
+
+        if self._keys:
+            for k in self._keys:
+                if k not in value:
+                    print(value)
+                    raise ValueError("Value of the field '{}' must contain key '{}'.".format(self._name, k))
+
+        if self._nonempty_keys:
+            for k in self._nonempty_keys :
+                if k not in value or value[k] is None:
+                    raise ValueError("Value of the field '{}' must contain nonempty key '{}'.".format(self._name, k))
 
         return super().set_val(value, change_modified, **kwargs)
 
 
 class Ref(Abstract):
-    """DBRef Field.
+    """Ref Field.
     """
-    def __init__(self, name: str, model: str, default=None, not_empty: bool=False):
+    def __init__(self, name: str, model: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        super().__init__(name, **kwargs)
         self._model = model
 
     @property
@@ -235,7 +253,7 @@ class Ref(Abstract):
                 raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
         else:
-            raise TypeError("Field '{}': entity or DBRef expected, but '{}' given.".format(self._name, str(value)))
+            raise TypeError("Field '{}': entity or DBRef expected, but '{}' given.".format(self._name, repr(value)))
 
         return super().set_val(value, change_modified, **kwargs)
 
@@ -253,10 +271,10 @@ class Ref(Abstract):
 class RefsListField(List):
     """List of DBRefs field.
     """
-    def __init__(self, name: str, model: str, default=None, not_empty: bool=False):
+    def __init__(self, name: str, model: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        super().__init__(name, **kwargs)
         self._model = model
 
     @property
@@ -349,13 +367,14 @@ class RefsUniqueList(RefsListField):
 class DateTime(Abstract):
     """Datetime field.
     """
-    def __init__(self, name: str, default=None, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
+        :param default: _datetime
         """
-        if default is None:
-            default = _datetime(1970, 1, 1)
+        if kwargs.get('default') is None:
+            kwargs['default'] = _datetime(1970, 1, 1)
 
-        super().__init__(name, default=default, not_empty=not_empty)
+        super().__init__(name, **kwargs)
 
     def set_val(self, value: _datetime, change_modified: bool=True, **kwargs):
         """Set field's value.
@@ -387,10 +406,13 @@ class DateTime(Abstract):
 class String(Abstract):
     """String field.
     """
-    def __init__(self, name: str, default='', not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        if kwargs.get('default') is None:
+            kwargs['default'] = ''
+
+        super().__init__(name, **kwargs)
 
     def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
@@ -402,10 +424,13 @@ class String(Abstract):
 class Integer(Abstract):
     """Integer field.
     """
-    def __init__(self, name: str, default=0, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        if kwargs.get('default') is None:
+            kwargs['default'] = 0
+
+        super().__init__(name, **kwargs)
 
     def set_val(self, value: int, change_modified: bool=True, **kwargs):
         """Set value of the field.
@@ -431,13 +456,17 @@ class Integer(Abstract):
         """
         return self.set_val(self.get_val(**kwargs) - 1, change_modified, **kwargs)
 
+
 class Float(Abstract):
     """Float field.
     """
-    def __init__(self, name: str, default=0.0, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        if kwargs.get('default') is None:
+            kwargs['default'] = 0.0
+
+        super().__init__(name, **kwargs)
 
     def set_val(self, value: float, change_modified: bool=True, **kwargs):
         """Set value of the field.
@@ -458,10 +487,13 @@ class Bool(Abstract):
     """Integer field.
     """
 
-    def __init__(self, name: str, default=False, not_empty: bool=False):
+    def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=default, not_empty=not_empty)
+        if kwargs.get('default') is None:
+            kwargs['default'] = False
+
+        super().__init__(name, **kwargs)
 
     def set_val(self, value: bool, change_modified: bool=True, **kwargs):
         """Set value of the field.

@@ -11,7 +11,7 @@ from pytsite.core import widget as _widget, odm as _odm, lang as _lang
 class EntitySelect(_widget.select.Select):
     """Select Entity with Select Widget.
     """
-    def __init__(self, model: str, caption_field: str, sort_field: str=None, **kwargs: dict):
+    def __init__(self, model: str, caption_field: str, sort_field: str=None, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
@@ -39,6 +39,8 @@ class EntitySelect(_widget.select.Select):
                 self._selected_item = value
                 model, eid = value.split(':')
                 value = _odm.find(model).where('_id', '=', eid).first()
+            else:
+                value = None
         elif isinstance(value, _DBRef):
             value = _odm.get_by_ref(value)
             self._selected_item = value.model + ':' + str(value.id)
@@ -47,6 +49,8 @@ class EntitySelect(_widget.select.Select):
         return self
 
     def render(self):
+        """Render the widget.
+        """
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
 
         if self._finder_adjust:

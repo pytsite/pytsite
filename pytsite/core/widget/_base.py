@@ -57,12 +57,22 @@ class Base(_ABC):
         """
         return self._value
 
+    @property
+    def value(self):
+        """Shortcut for get_value().
+        """
+        return self.get_value()
+
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
         self._value = value
 
         return self
+
+    @value.setter
+    def value(self, val):
+        self.set_value(val)
 
     def hide(self):
         """Hides the widget.

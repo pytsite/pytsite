@@ -14,11 +14,11 @@ class File(_odm.Model):
     def _setup(self):
         """_setup() hook.
         """
-        self._define_field(_odm.field.String('path', not_empty=True))
-        self._define_field(_odm.field.String('name', not_empty=True))
+        self._define_field(_odm.field.String('path', nonempty=True))
+        self._define_field(_odm.field.String('name', nonempty=True))
         self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.String('mime', not_empty=True))
-        self._define_field(_odm.field.Integer('length', not_empty=True))
+        self._define_field(_odm.field.String('mime', nonempty=True))
+        self._define_field(_odm.field.Integer('length', nonempty=True))
         self._define_field(_odm.field.Ref('owner', model='user'))
         self._define_field(_odm.field.Ref('attached_to', '*'))
         self._define_field(_odm.field.Virtual('abs_path'))

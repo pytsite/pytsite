@@ -15,11 +15,11 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('driver', not_empty=True))
+        self._define_field(_odm.field.String('driver', nonempty=True))
         self._define_field(_odm.field.Dict('driver_opts'))
-        self._define_field(_odm.field.String('content_model', not_empty=True))
+        self._define_field(_odm.field.String('content_model', nonempty=True))
         self._define_field(_odm.field.Bool('process_all_authors'))
-        self._define_field(_odm.field.Ref('owner', model='user', not_empty=True))
+        self._define_field(_odm.field.Ref('owner', model='user', nonempty=True))
 
     @property
     def driver(self) -> str:
