@@ -20,10 +20,25 @@ class Location(_widget.Base):
         _assetman.add('pytsite.geo@js/widget/location.js')
         self._group_cls += ' widget geo location'
 
+    def set_value(self, val: dict, **kwargs: dict):
+        """Set value of the widget.
+        """
+        if val is None:
+            val = {}
+        elif not isinstance(val, dict):
+            raise ValueError('Dict expected.')
+
+        return super().set_value(val, **kwargs)
+
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        return self._group_wrap(_html.TagLessElement())
+        inputs = _html.TagLessElement()
+        for k in ('lat', 'lng', 'accuracy', 'alt', 'alt-accuracy', 'heading', 'speed'):
+            inp_val = self._value[k] if k in self._value else ''
+            inputs.append(_html.Input(type='hidden', cls=k, name=self._uid + '[' + k + ']', value=inp_val))
+
+        return self._group_wrap(inputs)
 
 
 class SearchAddress(Location):

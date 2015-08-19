@@ -159,11 +159,13 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if field_name == 'route_alias':
             if isinstance(value, str):
                 value = value.strip()
-                if not value:
-                    value = self.title
+                if not value and not self.title:
+                    raise ValueError('Entity title is empty, cannot generate route alias.')
+
+                value = self.title
 
                 if not self.route_alias:
-                    # Create new route alias object
+                    # Create new route alias object with no target at this point
                     value = _route_alias.create(value, 'NONE').save()
                 else:
                     # Modify existing route alias object
@@ -573,7 +575,7 @@ class Article(Content):
         super()._pre_save()
 
         route_alias = self.route_alias
-        if self.is_new:
+        if self.is_new and self.section:
             if not _re.match('/[^/]+/[^/]+', route_alias.alias) and self.section:
                 route_alias.f_set('alias', '/{}/{}'.format(self.section.alias, self.title)).save()
 
