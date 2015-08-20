@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.6.1 (2015-08-20)
+### Fixed
+- Incorrect CSS class name in `geo.widget.SearchAddress`.
+
 ## 0.6 (2015-08-20)
 ### Added
 - `geo.widget.Location` widget.

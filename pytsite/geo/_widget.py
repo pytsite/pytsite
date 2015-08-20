@@ -55,7 +55,7 @@ class SearchAddress(Location):
         _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng, 'js')
         _assetman.add('pytsite.geo@js/widget/address-input.js')
 
-        self._group_cls = self._group_cls.replace('widget-geo-location', 'widget-search-address')
+        self._group_cls = self._group_cls.replace('widget-geo-location', 'widget-geo-search-address')
 
     @property
     def autodetect(self) -> bool:
