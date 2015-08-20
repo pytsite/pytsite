@@ -1,10 +1,11 @@
 $(function () {
-    $('.widget.geo.location').each(function () {
+    $('.widget-geo-location').each(function () {
             var widget = $(this);
 
             if ('geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     var coords = position.coords;
+
                     for (k in coords) {
                         var input_selector = null;
                         if (!isNaN(coords[k])) {
@@ -33,7 +34,7 @@ $(function () {
                             }
 
                             var input = widget.find(input_selector);
-                            if (input.length && !input.val())
+                            if (input.length && input.val() == '0.0')
                                 input.val(coords[k]);
                         }
                     }

@@ -36,12 +36,9 @@ class Flag(_widget.Base):
         return bool(f.count())
 
     def render(self) -> _html.Element:
-        _assetman.add('pytsite.flag@css/common.css')
-        _assetman.add('pytsite.flag@js/common.js')
-
         current_user = _auth.get_current_user()
 
-        cls = 'widget widget-flag'
+        cls = 'widget flag'
         if not current_user.is_anonymous and self.flagged:
             cls += ' flagged'
 

@@ -13,7 +13,18 @@ class Location(_odm.field.Dict):
     def __init__(self, name, **kwargs):
         """Init.
         """
-        super().__init__(name, keys=('accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'),
+        default = {
+            'lng': 0.0,
+            'lat': 0.0,
+            'accuracy': 0.0,
+            'alt': 0.0,
+            'alt_accuracy': 0.0,
+            'heading': 0.0,
+            'speed': 0.0,
+            'address': '',
+            'address_components': [],
+        }
+        super().__init__(name, default=default, keys=('accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'),
                          nonempty_keys=('lat', 'lng'), **kwargs)
 
     def set_val(self, value: dict, change_modified: bool=True, **kwargs):

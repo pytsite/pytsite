@@ -1,15 +1,20 @@
 # PytSite Changelog
 
-## 0.6 (2015-08-xx)
+## 0.6 (2015-08-20)
 ### Added
 - `geo.widget.Location` widget.
 - `autodetect` property in `geo.widget.SearchAddress`.
 - `core.validation.rule.Float` rule.
 - Support for children in `core.html.TagLessElement`.
+- `<script>` is now allowed in `ckeditor.widget.CKEditor`.
+- `hide()` method in `core.widget.Base`.
+- Support for `hidden` attribute in `core.html` elements.
+- Field `publish_date_pretty` in `content.model.Content`.
 
 ### Changed
 - `auth.get_logout_url()` renamed to `auth.logout_url()`.
 - `core.validation.rule.GreaterThan` renamed to `core.validation.rule.FloatGreaterThan`.
+- `core.widget.static.Text` now separates value and title.
 
 ### Fixed
 - Error in `auth.logout_url`.
@@ -18,6 +23,8 @@
 - Incorrect behaviour in `core.validation.rule.DictPartsNotEmpty`.
 - Error in `geo.rule.AddressNotEmpty`.
 - Incorrect russian plurals for numbers between 11 and 19.
+- CSS asset appending in `flag.widget.Flag`.
+
 
 ## 0.5.4 (2015-08-16)
 ### Added

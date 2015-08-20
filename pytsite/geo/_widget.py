@@ -18,7 +18,7 @@ class Location(_widget.Base):
         super().__init__(**kwargs)
 
         _assetman.add('pytsite.geo@js/widget/location.js')
-        self._group_cls += ' widget geo location'
+        self._group_cls += ' widget-geo-location'
 
     def set_value(self, val: dict, **kwargs: dict):
         """Set value of the widget.
@@ -55,7 +55,7 @@ class SearchAddress(Location):
         _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng, 'js')
         _assetman.add('pytsite.geo@js/widget/address-input.js')
 
-        self._group_cls = self._group_cls.replace('location', 'search-address')
+        self._group_cls = self._group_cls.replace('widget-geo-location', 'widget-search-address')
 
     @property
     def autodetect(self) -> bool:
@@ -143,13 +143,20 @@ class StaticMap(_widget.Base):
         self._address = kwargs.get('address', '')
         self._link = kwargs.get('link', True)
 
-        self._group_cls += 'widget geo static-map'
+        self._group_cls += ' widget-geo-static-map'
 
     @property
     def language(self) -> str:
+        """Get language.
+        """
         return self._language
 
     def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        if not self._lat and not self._lng:
+            return _html.TagLessElement()
+
         size = '{}x{}'.format(str(self._width), str(self._height))
         url = 'https://maps.googleapis.com/maps/api/staticmap?'
         url += 'center={}&zoom={}&size={}'.format(self._center, self._zoom, size)
@@ -157,7 +164,7 @@ class StaticMap(_widget.Base):
         img = _html.Img(src=url, cls='img-responsive')
 
         if self._link:
-            link = _functions.get_map_link(self._address, self._lat, self._lng)
+            link = _functions.get_map_link(self._lat, self._lng)
             img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('geo@show_on_map')))
 
         return self._group_wrap(img)

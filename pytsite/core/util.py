@@ -69,7 +69,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
     """
     from werkzeug.utils import escape
 
-    single_attrs = 'checked', 'selected', 'required', 'allowfullscreen'
+    single_attrs = 'checked', 'selected', 'required', 'allowfullscreen', 'hidden'
 
     r = ''
     for k, v in attrs.items():

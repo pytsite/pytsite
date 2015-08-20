@@ -13,9 +13,15 @@ Stores geo location information.
 #### Format of the value
 Dictionary with keys: `address`, `lng_lat`, `components`. All keys are required.
 
-- `address: str` -- address string, e. g. `'Kiev City, Ukraine'`.
-- `lng_lat: list` -- latitude and longitude (2 float values), e. g. `[30.5234,50.4501]`.
-- `components: list` -- [address components](https://developers.google.com/maps/documentation/geocoding/intro#Types).
+- `lng: float` -- longitude.
+- `lat: float` -- latitude.
+- `alt: float` -- altitude.
+- `accuracy: float` -- position accuracy.
+- `alt_accuracy: float` -- altitude accuracy.
+- `heading: float` -- heading.
+- `speed: float` -- speed.
+- `address: str` -- address string.
+- `address_components: list` -- [address components](https://developers.google.com/maps/documentation/geocoding/intro#Types).
 
 
 ## Widgets

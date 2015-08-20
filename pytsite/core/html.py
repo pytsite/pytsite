@@ -23,6 +23,7 @@ _common_tag_attrs = (
     'title',
     'translate',
     'role',
+    'hidden',
 )
 
 

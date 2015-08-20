@@ -1,5 +1,5 @@
 $(function() {
-    $('.widget-flag').each(function() {
+    $('.widget.flag').each(function() {
         var widget = $(this);
         var uid = widget.data('uid');
 

@@ -17,7 +17,7 @@ $(function() {
             coreStyles_italic: {
                 element : 'i'
             },
-            extraAllowedContent: 'div p span(*);a[data-*](*);i(*);'
+            extraAllowedContent: 'div p blockquote img ul ol li a i span[data-*,hidden,lang](*);script[*]'
         });
     });
 });

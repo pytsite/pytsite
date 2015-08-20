@@ -119,6 +119,10 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
     @property
     def publish_time_pretty(self) -> str:
+        return self.f_get('publish_time', fmt='pretty_date_time')
+
+    @property
+    def publish_date_pretty(self) -> str:
         return self.f_get('publish_time', fmt='pretty_date')
 
     @property
@@ -414,11 +418,14 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             lang_title = _lang.t('lang_title_' + _lang.get_current_lang())
         else:
             lang_title = _lang.t('lang_title_' + self.language)
-        form.add_widget((_widget.static.Text(
+        form.add_widget(_widget.static.Text(
             weight=900,
+            uid='language',
             label=self.t('language'),
-            value=lang_title,
-        )))
+            title=lang_title,
+            value=_lang.get_current_lang() if self.is_new else self.language,
+            hidden=False if len(_lang.get_langs()) > 1 else True,
+        ))
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
@@ -428,13 +435,13 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                     weight=1000,
                     uid='route_alias',
                     label=self.t('path'),
-                    value=self.f_get('route_alias').f_get('alias') if self.f_get('route_alias') else '',
+                    value=self.route_alias.alias if self.route_alias else '',
                 ))
 
     def get_d_form_description(self) -> str:
         """Get delete form description.
         """
-        return self.f_get('title')
+        return self.title
 
     def _process_body_tags(self, inp: str) -> str:
         def process_img_tag(match):

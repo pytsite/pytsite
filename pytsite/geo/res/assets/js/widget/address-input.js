@@ -10,7 +10,7 @@ $(function () {
         }
     }
 
-    $('.widget.geo.search-address').each(function () {
+    $('.widget-geo-search-address').each(function () {
         var widget = $(this);
         var uid = widget.data('widget-uid');
         var searchInput = widget.find('input[name="' + uid + '[search]"]');

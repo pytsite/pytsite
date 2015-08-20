@@ -59,6 +59,12 @@ class Abstract(_ABC):
         """
         return self._value
 
+    @property
+    def value(self):
+        """Shortcut for self.get_val().
+        """
+        return self.get_val()
+
     def get_storable_val(self):
         """Get value suitable to store in a database.
         """

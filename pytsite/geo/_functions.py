@@ -8,15 +8,7 @@ __license__ = 'MIT'
 from urllib.parse import quote_plus as _urlquote
 
 
-def get_map_link(query: str='', lng: float=None, lat: float=None) -> str:
+def get_map_link(lng: float, lat: float) -> str:
     """Get link to map.
     """
-    url = 'https://www.google.com/maps/place'
-
-    if query:
-        url += '/' + _urlquote(query)
-
-    if lat and lng:
-        url += '/@' + '%f,%f' % (lat, lng)
-
-    return url
+    return 'https://www.google.com/maps?q={},{}'.format(lng, lat)

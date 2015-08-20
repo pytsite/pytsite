@@ -36,6 +36,7 @@ class Base(_ABC):
         self._children_sep = '&nbsp;'
         self._children = []
         self._h_size = kwargs.get('h_size')
+        self._hidden = kwargs.get('hidden', False)
 
         # It is important to filter value through the setter-method
         self.set_value(kwargs.get('value'))
@@ -77,7 +78,13 @@ class Base(_ABC):
     def hide(self):
         """Hides the widget.
         """
-        self._group_cls += ' hidden'
+        self._hidden = True
+        return self
+
+    def show(self):
+        """Shows the widget.
+        """
+        self._hidden = True
         return self
 
     @property
@@ -178,9 +185,16 @@ class Base(_ABC):
             content = content.wrap(_html.Div(cls=self._h_size))
             content = content.wrap(_html.Div(cls='row'))
 
-        cls = 'form-group widget-wrapper widget-uid-{}'.format(self.uid)
+        cls = 'form-group widget widget-uid-{}'.format(self.uid)
         cls = ' '.join((cls, self._group_cls))
+
+        if self._hidden:
+            cls += ' hidden'
+
         group_wrapper = _html.Div(cls=cls, data_widget_uid=self.uid, data_widget_weight=self.weight)
+
+        if self._hidden:
+            group_wrapper.set_attr('hidden', True)
 
         if isinstance(self._data, dict):
             for k, v in self._data.items():

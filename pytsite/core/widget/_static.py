@@ -11,7 +11,7 @@ from . import _base
 
 
 class Html(_base.Base):
-    """HTML Widget.
+    """Static HTML Widget.
     """
     def __init__(self, **kwargs: dict):
         """Init.
@@ -35,7 +35,11 @@ class Text(Html):
     def render(self) -> str:
         """Render the widget.
         """
-        return self._group_wrap(self._html_em(self._value, cls='form-control-static'))
+        container = _html.TagLessElement()
+        container.append(_html.Input(type='hidden', uid=self.uid, name=self.uid, value=self.value))
+        container.append(self._html_em(self.title, cls='form-control-static'))
+
+        return self._group_wrap(container)
 
 
 class Tabs(_base.Base):

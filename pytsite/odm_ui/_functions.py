@@ -79,7 +79,7 @@ def get_d_form(model: str, ids: list) -> _form.Base:
         frm.add_widget(_widget.input.Hidden(name='ids', value=str(entity.id)))
         ol.append(_html.Li(entity.get_d_form_description()))
 
-    frm.add_widget(_widget.static.Text(html_em=_html.Div, value=str(ol)))
+    frm.add_widget(_widget.static.Text(html_em=_html.Div, title=str(ol)))
 
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, value=_lang.t('odm_ui@delete'), color='danger', icon='fa fa-save')
