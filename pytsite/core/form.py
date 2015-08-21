@@ -217,7 +217,7 @@ class Base:
         return self.render()
 
     def add_widget(self, w: _widget.Base, area: str='body'):
-        """Add a _widget.
+        """Add a widget.
         """
         if area not in self._areas:
             raise ValueError("Invalid form area: '{}'".format(area))
@@ -227,6 +227,19 @@ class Base:
             raise KeyError("Widget '{}' already exists.".format(uid))
 
         self._widgets[uid] = {'_widget': w, 'area': area}
+
+        return self
+
+    def replace_widget(self, uid: str, replacement: _widget.Base):
+        """Replace a widget with another one.
+        """
+        current = self.get_widget(uid)
+        if not replacement.weight and current.weight:
+            replacement.weight = current.weight
+
+        replacement.uid = uid
+
+        self.remove_widget(uid).add_widget(replacement)
 
         return self
 

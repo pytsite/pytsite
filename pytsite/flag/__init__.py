@@ -11,7 +11,6 @@ def __init():
     from . import _model
 
     def router_dispatch_eh():
-        print('disp')
         assetman.add('pytsite.flag@css/common.css')
         assetman.add('pytsite.flag@js/common.js')
 

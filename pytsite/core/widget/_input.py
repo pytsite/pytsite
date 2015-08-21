@@ -18,6 +18,14 @@ class Input(_base.Base):
         super().__init__(**kwargs)
         self._required = kwargs.get('required', False)
 
+    @property
+    def required(self) -> bool:
+        return self._required
+
+    @required.setter
+    def required(self, value: bool):
+        self._required = value
+
     @_abstractmethod
     def render(self) -> _html.Element:
         pass
@@ -31,10 +39,10 @@ class Hidden(Input):
         """
         html_input = _html.Input(
             type='hidden',
-            uid=self._uid,
+            uid=self.uid,
             name=self.name,
-            value=self.get_value(),
-            required=self._required
+            value=self.value,
+            required=self.required
         )
 
         return html_input

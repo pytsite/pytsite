@@ -122,11 +122,23 @@ class Base(_ABC):
         """
         return self._uid
 
+    @uid.setter
+    def uid(self, value):
+        """Set UID of the widget.
+        """
+        if self.uid == self.name:
+            self.name = value
+        self._uid = value
+
     @property
     def name(self) -> str:
         """Get name of the widget.
         """
         return self._name
+
+    @name.setter
+    def name(self, value: str):
+        self._name = value
 
     @property
     def weight(self) -> int:

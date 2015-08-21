@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.7 (2015-08-xx)
+### Added
+- Text fields indexes and search in `core.odm`.
+- `replace_widget()` method in `core.form.Base`.
+
 ## 0.6.1 (2015-08-20)
 ### Fixed
 - Incorrect CSS class name in `geo.widget.SearchAddress`.

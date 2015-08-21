@@ -128,19 +128,19 @@ class SearchAddress(Location):
 class StaticMap(_widget.Base):
     """Static Map Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, lng: float=51.48, lat: float=0.0, query: str=None, **kwargs: dict):
         """Init.
         """
         super().__init__(**kwargs)
 
         self._language = kwargs.get('language', _lang.get_current_lang())
+        self._lng = lng
+        self._lat = lat
+        self._query = query
         self._zoom = kwargs.get('zoom', 13)
-        self._lat = kwargs.get('lat', 51.48)
-        self._lng = kwargs.get('lng', 0.0)
         self._center = '%f,%f' % (self._lat, self._lng)
         self._width = kwargs.get('width', 320)
         self._height = kwargs.get('height', 240)
-        self._address = kwargs.get('address', '')
         self._link = kwargs.get('link', True)
 
         self._group_cls += ' widget-geo-static-map'
@@ -164,7 +164,7 @@ class StaticMap(_widget.Base):
         img = _html.Img(src=url, cls='img-responsive')
 
         if self._link:
-            link = _functions.get_map_link(self._lat, self._lng)
+            link = _functions.get_map_link(self._lng, self._lat, self._query)
             img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('geo@show_on_map')))
 
         return self._group_wrap(img)

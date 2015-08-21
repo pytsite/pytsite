@@ -95,6 +95,13 @@ class Query:
         else:
             self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 
+    def add_text_search(self, logical_op: str, search: str):
+        logical_op = self._resolve_logical_op(logical_op)
+        if logical_op not in self._criteria:
+            self._criteria[logical_op] = []
+
+        self._criteria[logical_op].append({'$text': {'$search': search}})
+
     def compile(self) -> list:
         """Get criteria.
         """
@@ -146,6 +153,20 @@ class Finder:
         """Add '$or' criteria.
         """
         self._query.add_criteria('$or', field_name, comparison_op, arg)
+
+        return self
+
+    def where_text(self, search: str):
+        """Add '$text' criteria.
+        """
+        self._query.add_text_search('$and', search)
+
+        return self
+
+    def or_where_text(self, search: str):
+        """Add '$or $text' criteria.
+        """
+        self._query.add_text_search('$or', search)
 
         return self
 

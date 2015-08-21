@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
-from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D
+from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
@@ -91,10 +91,17 @@ class Model(_ABC):
             field_name, index_type = item
             if not self.has_field(field_name.split('.')[0]):
                 raise Exception("Entity {} doesn't have field {}.".format(self.model, field_name))
-            if index_type not in [I_ASC, I_DESC, I_GEO2D]:
+            if index_type not in [I_ASC, I_DESC, I_GEO2D, I_TEXT]:
                 raise ValueError("Invalid index type.")
 
-            self._defined_indices.append((fields, {'unique': unique}))
+            opts = {
+                'unique': unique
+            }
+
+            if index_type == I_TEXT:
+                opts['language_override'] = 'language_db'
+
+            self._defined_indices.append((fields, opts))
 
     def _define_field(self, field_obj: _field.Abstract):
         """Define a field.

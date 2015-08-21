@@ -69,6 +69,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
         self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.String('language_db', nonempty=True, default=_lang.get_current_lang()))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
         self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.Virtual('url'))
@@ -76,6 +77,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.Dict('options'))
 
         self._define_index([('publish_time', _odm.I_DESC)])
+        self._define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
 
     @property
     def title(self) -> str:
@@ -181,6 +183,14 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             if value not in [v[0] for v in get_publish_statuses()]:
                 raise Exception("Invalid publish status: '{}'.".format(value))
 
+        if field_name == 'language':
+            if value == 'en':
+                self.f_set('language_db', 'english')
+            elif value == 'ru':
+                self.f_set('language_db', 'russian')
+            else:
+                self.f_set('language_db', 'none')
+
         return super()._on_f_set(field_name, value, **kwargs)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
@@ -218,7 +228,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         current_user = _auth.get_current_user()
 
         # Language is required
-        if not self.language:
+        if not self.language or not self.f_get('language_db'):
             self.f_set('language', _lang.get_current_lang())
 
         # Author is required
@@ -581,7 +591,7 @@ class Article(Content):
         super()._pre_save()
 
         route_alias = self.route_alias
-        if self.is_new and self.section:
+        if self.is_new and self.has_field('section') and self.section:
             if not _re.match('/[^/]+/[^/]+', route_alias.alias) and self.section:
                 route_alias.f_set('alias', '/{}/{}'.format(self.section.alias, self.title)).save()
 

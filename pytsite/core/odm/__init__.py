@@ -24,7 +24,7 @@ __init()
 
 
 # Public API
-from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D
+from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT
 from . import _field as field, _validation as validation, _error as error
 from ._model import Model
 from ._finder import Finder, Result as FinderResult

@@ -59,6 +59,8 @@ def _date_filter(value: _datetime, fmt: str='pretty_date') -> str:
     else:
         return value.strftime(fmt)
 
+def _nl2br_filter(value: str) -> str:
+    return value.replace('\n', _jinja.Markup('<br>'))
 
 # Additional functions and filters
 _env.globals['lang'] = _lang
@@ -77,6 +79,7 @@ _env.globals['metatag'] = _metatag
 _env.globals['assetman'] = _assetman
 _env.globals['browser'] = _browser
 _env.filters['date'] = _date_filter
+_env.filters['nl2br'] = _nl2br_filter
 
 
 def register_package(package_name: str, templates_dir: str='res/tpl'):
