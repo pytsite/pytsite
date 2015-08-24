@@ -23,7 +23,7 @@ class Browser:
         self._head_columns = ()
         self._default_sort_field = '_modified'
         self._default_sort_order = _odm.I_DESC
-        self._finder_adjust = None
+        self._finder_adjust = self._default_finder_adjust
 
         # Checking permissions
         if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
@@ -104,6 +104,9 @@ class Browser:
     def finder_adjust(self, func):
         self._finder_adjust = func
 
+    def _default_finder_adjust(self, finder: _odm.Finder):
+        pass
+
     def get_table_skeleton(self) -> str:
         """Get browser table skeleton.
         """
@@ -174,8 +177,7 @@ class Browser:
         r = {'total': 0, 'rows': []}
 
         finder = _odm.find(self._model)
-        if self.finder_adjust and callable(self.finder_adjust):
-            self.finder_adjust(finder)
+        self.finder_adjust(finder)
         r['total'] = finder.count()
 
         # Permissions

@@ -52,16 +52,11 @@ def index(args: dict, inp: dict):
             f.where('author', '=', author)
             args['author'] = author
 
+    # Search
     if inp.get('search'):
         query = inp.get('search')
-        if query:
-            _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
-            for word in query.strip().split(' '):
-                if word:
-                    for search_field_name in mock.searchable_fields:
-                        search_field = mock.get_field(search_field_name)
-                        if isinstance(search_field, _odm.field.String):
-                            f.where(search_field_name, 'regex_i', word)
+        f.where_text(query)
+        _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
 
     pager = _widget.static.Pager(f.count(), 10)
 

@@ -6,6 +6,7 @@ __license__ = 'MIT'
 
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
+from pytsite.core import lang as _lang
 from . import _model, _field
 
 
@@ -56,6 +57,18 @@ class Query:
         else:
             raise TypeError("Invalid comparison operator: '{0}'.".format(op))
 
+    @staticmethod
+    def _resolve_language(code: str=None):
+        if not code:
+            code = _lang.get_current_lang()
+
+        if code == 'en':
+            return 'english'
+        elif code == 'ru':
+            return 'russian'
+        else:
+            return 'none'
+
     def add_criteria(self, logical_op: str, field_name: str, comparison_op: str, arg):
         """Add find criteria.
         """
@@ -95,12 +108,15 @@ class Query:
         else:
             self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 
-    def add_text_search(self, logical_op: str, search: str):
+    def add_text_search(self, logical_op: str, search: str, language: str=None):
         logical_op = self._resolve_logical_op(logical_op)
         if logical_op not in self._criteria:
             self._criteria[logical_op] = []
 
-        self._criteria[logical_op].append({'$text': {'$search': search}})
+        self._criteria[logical_op].append({'$text': {
+            '$search': search,
+            '$language': self._resolve_language(language)}}
+        )
 
     def compile(self) -> list:
         """Get criteria.

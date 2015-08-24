@@ -148,10 +148,6 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('status')
 
     @property
-    def searchable_fields(self) -> tuple:
-        return 'title',
-
-    @property
     def options(self) -> dict:
         return self.f_get('options')
 
@@ -330,11 +326,6 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
             self.f_get('author').f_get('full_name')
         )
-
-    def browser_search(self, finder: _odm.Finder, query: str):
-        """Hook.
-        """
-        finder.or_where('title', 'regex_i', query)
 
     def setup_m_form(self, form, stage: str):
         """Hook.
