@@ -48,10 +48,11 @@ def get_driver_title(name) -> str:
     return _lang.t(get_driver_info(name)[0])
 
 
-def cron_15m_event_handler():
+def cron_15m_eh():
     """'odm.save' event handler.
     """
     lock = _threading.RLock()
+    cnt = 0
     for exporter in _odm.find('content_export').get():
         content_f = _content.find(exporter.content_model)
         content_f.where('publish_time', '>=', datetime.now() - timedelta(1))
@@ -63,6 +64,10 @@ def cron_15m_event_handler():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
+            if cnt == 10:
+                _logger.info('{}. Export counter exceeds maximum value. Stop.', __name__)
+                return
+
             try:
                 lock.acquire()
                 msg = "{}. Entity '{}', title='{}'. Exporter '{}', title='{}'" \
@@ -77,5 +82,6 @@ def cron_15m_event_handler():
                     entity_opts['content_export'] = []
                 entity_opts['content_export'].append(str(exporter.id))
                 entity.f_set('options', entity_opts).save()
+                cnt += 1
             finally:
                 lock.release()

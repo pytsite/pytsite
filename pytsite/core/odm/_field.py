@@ -23,7 +23,7 @@ class Abstract(_ABC):
         self._default = kwargs.get('default')
         self._nonempty = kwargs.get('nonempty', False)
         self._modified = False
-        self._value = self._default
+        self.set_val(self._default)
 
     @property
     def nonempty(self) -> bool:
@@ -118,7 +118,7 @@ class ObjectId(Abstract):
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        if not isinstance(value, _bson_ObjectID):
+        if value is not None and not isinstance(value, _bson_ObjectID):
             raise TypeError("ObjectId expected")
 
         return super().set_val(value, change_modified, **kwargs)
@@ -130,16 +130,13 @@ class List(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
+        if not kwargs.get('default'):
+            kwargs['default'] = []
         super().__init__(name, **kwargs)
-        if self._value is None:
-            self._value = []
 
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        if not isinstance(value, list):
-            value = [value]
-
         if not isinstance(value, list):
             raise TypeError("List expected")
 
@@ -290,8 +287,8 @@ class RefsListField(List):
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        if not isinstance(value, list):
-            value = [list]
+        if not isinstance(value, list) and not isinstance(value, tuple):
+            raise ValueError('List expected.')
 
         # Cleaning up value
         clean_value = []

@@ -1,9 +1,12 @@
 # PytSite Changelog
 
-## 0.7 (2015-08-xx)
+## 0.7 (2015-08-24)
 ### Added
-- Text fields indexes and search in `core.odm`.
+- Text indexes and search in `core.odm`.
 - `replace_widget()` method in `core.form.Base`.
+
+### Changed
+- 10 exports in 15 minutes limit in `content_export`.
 
 ## 0.6.1 (2015-08-20)
 ### Fixed

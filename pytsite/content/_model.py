@@ -69,7 +69,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
         self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current_lang()))
-        self._define_field(_odm.field.String('language_db', nonempty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.String('language_db', nonempty=True))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
         self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.Virtual('url'))
