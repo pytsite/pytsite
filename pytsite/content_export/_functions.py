@@ -63,8 +63,8 @@ def cron_15min_eh():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            # if cnt == 20:
-            #     return
+            if cnt == 10:
+                return
 
             try:
                 msg = "{}. Entity '{}', title='{}'. Exporter '{}', title='{}'" \

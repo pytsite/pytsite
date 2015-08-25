@@ -1,5 +1,8 @@
 # PytSite Changelog
 
+## 0.7.2 (2015-08-25)
+- 10 exports in 15 minutes limit in `content_export`.
+
 ## 0.7.1 (2015-08-25)
 ### Added
 - `pytsite.core.cron.(1,5,15)min` events.
@@ -8,6 +11,8 @@
 ### Fixed
 - Thread safety in `content_export`.
 
+### Changed
+- No limit in `content_export`.
 
 ## 0.7 (2015-08-24)
 ### Added
