@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.7.1 (2015-08-25)
+### Added
+- `pytsite.core.cron.(1,5,15)min` events.
+- `core.threading` module.
+
+### Fixed
+- Thread safety in `content_export`.
+
+
 ## 0.7 (2015-08-24)
 ### Added
 - Text indexes and search in `core.odm`.
@@ -8,9 +17,11 @@
 ### Changed
 - 10 exports in 15 minutes limit in `content_export`.
 
+
 ## 0.6.1 (2015-08-20)
 ### Fixed
 - Incorrect CSS class name in `geo.widget.SearchAddress`.
+
 
 ## 0.6 (2015-08-20)
 ### Added
@@ -45,17 +56,21 @@
 ### Fixed
 - Incorrect argument passing to `mongodump` executable in `core.console.command.DbDump`.
 
+
 ## 0.5.3 (2015-08-11)
 ### Fixed
 - TZ-aware dates manipulation.
+
 
 ## 0.5.2 (2015-08-11)
 ### Changed
 - RSS and Atom feeds store path in `content`. 
 
+
 ## 0.5.1 (2015-08-11)
 ### Fixed
 - TZ-aware dates manipulation errors in `content` and `disqus`.
+
 
 ## 0.5 (2015-08-11)
 ### Added
@@ -66,22 +81,27 @@
 - More informative users browser layout in `auth_ui`.
 - `core.odm.field.DateTime` is TZ aware now.
 
+
 ## 0.4 (2015-08-10)
 ### Added
 - `sitemap` plugin.
 - Cron sitemap generation in `content`.
 
+
 ## 0.3.5 (2015-08-10)
 ### Changed
 - Template of `auth_ui.widget.profile`.
+
 
 ## 0.3.4 (2015-08-08)
 ### Fixed
 - Localized URLs error in `core.router.current_url()`.
 
+
 ## 0.3.3 (2015-08-07)
 ### Fixed
 - Localization related content and taxonomy ODM UI form's widgets options.
+
 
 ## 0.3.2 (2015-08-06)
 ### Added
@@ -90,10 +110,12 @@
 ### Fixed
 - Localized routes processing errors and other localization issues.
 
+
 ## 0.3.1 (2015-08-04)
 ### Added
 - `auth`:
     - New fields in `model.User`:  `last_activity` and `is_online`. 
+
 
 ## 0.3 (2015-08-03)
 ### Added
@@ -128,6 +150,7 @@
 - Improved regexp in `core.validation.rule.Email`.
 - Input arguments pass-through to called endpoint in `core.eps.index()`.  
 
+
 ## 0.2.13 (2015-07-27)
 ### Added
 - Thread safety in `core.odm`.
@@ -139,17 +162,21 @@
 - Unnecessary user login count in `auth.get_current_user()`.
 - YouTube links detection in `core.widget.static.VideoPlayer`. 
 
+
 ## 0.2.12 (2015-07-25)
 ### Changed
 - Threading removed from `content_export`.
+
 
 ## 0.2.11 (2015-07-24)
 ### Changed
 - Program logic in `content_export`.
 
+
 ## 0.2.10 (2015-07-24)
 ### Added
 - `[img:N:link_orig]` tag support in `content.model.Content` models.
+
 
 ## 0.2.9 (2015-07-24)
 ### Added
@@ -163,19 +190,21 @@
 - Handling lost connections in `core.db`.
 - Route alias generation in `content.model.Article`.
 
+
 ## 0.2.8 (2015-07-22)
 ### Fixed
 - YouTube links validation in `core.validation.rule.VideoHostingUrl` 
+
 
 ## 0.2.7 (2015-07-22)
 ### Fixed
 - Catch exceptions in `core.mail.Message.send()`.
 - YouTube links detection in `core.widget.static.VideoPlayer`.
 
+
 ## 0.2.6 (2015-07-22)
 ### Added
 - Permissions support in `settings`.
-    
 
 ### Changed
 - `core.assetman` refactored.
@@ -183,13 +212,16 @@
 - `content.model.Content` publish time widget is now visible for non admins.
 - `core.mail`: asynchronous messages delivery. 
 
+
 ## 0.2.4 (2015-07-21)
 ### Fixed
 - Incorrect value of `og:url` in `content.eps.view`. 
 
+
 ## 0.2.3 (2015-07-21)
 ### Added
 - Support for 'author' and 'og:url' in `core.metatag`.
+
 
 ## 0.2.2 (2015-07-21)
 ### Added
@@ -202,11 +234,13 @@
 - Permissions check in `admin.sidebar`.
 - Permissions check in `odm_ui`.
 
+
 ## 0.2.1 (2015-07-21)
 ### Fixed
 - setup.py
 
-## 0.2.0 (2015-07-21)
+
+## 0.2 (2015-07-21)
 ### Added
 - New plugins: `oauth`, `twitter`, `poster`, `page`, `add_this`.
 - Some english and ukrainian translations.
@@ -284,5 +318,6 @@
 - Non-working JS for `core.widget.select.DateTime()`.
 - Open files leak in `file.create()`.
 
-## 0.1.0 (2015-07-01)
+
+## 0.1 (2015-07-01)
 First release.

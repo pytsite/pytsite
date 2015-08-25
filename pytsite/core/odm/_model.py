@@ -12,7 +12,7 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite.core import db as _db, events as _events, lang as _lang
+from pytsite.core import db as _db, events as _events, lang as _lang, threading as _threading
 from . import _error, _field
 
 
@@ -216,10 +216,10 @@ class Model(_ABC):
     def f_set(self, field_name: str, value, **kwargs):
         """Set field's value.
         """
-        value = self._on_f_set(field_name, value, **kwargs)
-        self.get_field(field_name).set_val(value, **kwargs)
-
-        return self
+        with _threading.get_r_lock():
+            value = self._on_f_set(field_name, value, **kwargs)
+            self.get_field(field_name).set_val(value, **kwargs)
+            return self
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """On set field's value hook.
@@ -229,8 +229,9 @@ class Model(_ABC):
     def f_get(self, field_name: str, **kwargs):
         """Get field's value.
         """
-        field_val = self.get_field(field_name).get_val(**kwargs)
-        return self._on_f_get(field_name, field_val, **kwargs)
+        with _threading.get_r_lock():
+            field_val = self.get_field(field_name).get_val(**kwargs)
+            return self._on_f_get(field_name, field_val, **kwargs)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.
@@ -240,8 +241,9 @@ class Model(_ABC):
     def f_add(self, field_name: str, value):
         """Add a value to the field.
         """
-        self.get_field(field_name).add_val(self._on_f_add(field_name, value))
-        return self
+        with _threading.get_r_lock():
+            self.get_field(field_name).add_val(self._on_f_add(field_name, value))
+            return self
 
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
         """On field's add value hook.
@@ -251,35 +253,40 @@ class Model(_ABC):
     def f_inc(self, field_name: str):
         """Increment value of the field.
         """
-        self.get_field(field_name).inc_val()
-        return self
+        with _threading.get_r_lock():
+            self.get_field(field_name).inc_val()
+            return self
 
     def f_dec(self, field_name: str):
         """Decrement value of the field
         """
-        self.get_field(field_name).dec_val()
-        return self
+        with _threading.get_r_lock():
+            self.get_field(field_name).dec_val()
+            return self
 
     @property
     def is_new(self) -> bool:
         """Is the entity new or already stored in a database?
         """
-        return self._is_new
+        with _threading.get_r_lock():
+            return self._is_new
 
     @property
     def is_modified(self) -> bool:
         """Is the entity has been modified?
         """
-        for field_name, field in self._fields.items():
-            if field.is_modified():
-                return True
-        return False
+        with _threading.get_r_lock():
+            for field_name, field in self._fields.items():
+                if field.is_modified():
+                    return True
+            return False
 
     @property
     def is_deleted(self) -> bool:
         """Is the entity has been deleted?
         """
-        return self._is_deleted
+        with _threading.get_r_lock():
+            return self._is_deleted
 
     def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
         """Save the entity.
@@ -291,54 +298,55 @@ class Model(_ABC):
         if not self.is_modified:
             return self
 
-        # Pre-save hook
-        if not skip_hooks:
-            self._pre_save()
+        with _threading.get_r_lock():
+            # Pre-save hook
+            if not skip_hooks:
+                self._pre_save()
 
-        # Updating change timestamp
-        if update_timestamp:
-            self.f_set('_modified', _datetime.now())
+            # Updating change timestamp
+            if update_timestamp:
+                self.f_set('_modified', _datetime.now())
 
-        # Getting storable data from each field
-        data = {}
-        for f_name, field in self._fields.items():
-            if isinstance(field, _field.Virtual):
-                continue
-            data[f_name] = field.get_storable_val()
+            # Getting storable data from each field
+            data = {}
+            for f_name, field in self._fields.items():
+                if isinstance(field, _field.Virtual):
+                    continue
+                data[f_name] = field.get_storable_val()
 
-        # Let DB to calculate object's ID
-        if self._is_new:
-            del data['_id']
+            # Let DB to calculate object's ID
+            if self._is_new:
+                del data['_id']
 
-        if not skip_hooks:
-            _events.fire('odm.entity.pre_save', entity=self)
-            _events.fire('odm.entity.pre_save.' + self.model, entity=self)
+            if not skip_hooks:
+                _events.fire('odm.entity.pre_save', entity=self)
+                _events.fire('odm.entity.pre_save.' + self.model, entity=self)
 
-        # Saving data into collection
-        if self._is_new:
-            self.collection.insert_one(data)
-        else:
-            self.collection.replace_one({'_id': data['_id']}, data)
+            # Saving data into collection
+            if self._is_new:
+                self.collection.insert_one(data)
+            else:
+                self.collection.replace_one({'_id': data['_id']}, data)
 
-        if not skip_hooks:
-            _events.fire('odm.entity.save', entity=self)
-            _events.fire('odm.entity.save.' + self.model, entity=self)
+            if not skip_hooks:
+                _events.fire('odm.entity.save', entity=self)
+                _events.fire('odm.entity.save.' + self.model, entity=self)
 
-        # Getting assigned ID from MongoDB
-        if self._is_new:
-            self.f_set('_id', data['_id'])
+            # Getting assigned ID from MongoDB
+            if self._is_new:
+                self.f_set('_id', data['_id'])
 
-        # After save hook
-        if not skip_hooks:
-            self._after_save()
+            # After save hook
+            if not skip_hooks:
+                self._after_save()
 
-        # Notifying fields about entity saving
-        for f_name, field in self._fields.items():
-            field.reset_modified()
+            # Notifying fields about entity saving
+            for f_name, field in self._fields.items():
+                field.reset_modified()
 
-        # Entity is not new anymore
-        if self._is_new:
-            self._is_new = False
+            # Entity is not new anymore
+            if self._is_new:
+                self._is_new = False
 
         return self
 
@@ -355,25 +363,26 @@ class Model(_ABC):
     def delete(self):
         """Delete the entity.
         """
-        # Pre delete hook
-        _events.fire('odm.entity.pre_delete', entity=self)
-        _events.fire('odm.entity.pre_delete.' + self.model, entity=self)
-        self._pre_delete()
+        with _threading.get_r_lock():
+            # Pre delete hook
+            _events.fire('odm.entity.pre_delete', entity=self)
+            _events.fire('odm.entity.pre_delete.' + self.model, entity=self)
+            self._pre_delete()
 
-        # Notify fields about entity deletion
-        for f_name, field in self._fields.items():
-            field.delete()
+            # Notify fields about entity deletion
+            for f_name, field in self._fields.items():
+                field.delete()
 
-        # Actual deletion from storage
-        if not self._is_new:
-            self.collection.delete_one({'_id': self.id})
-            from ._functions import cache_delete
-            cache_delete(self)
+            # Actual deletion from storage
+            if not self._is_new:
+                self.collection.delete_one({'_id': self.id})
+                from ._functions import cache_delete
+                cache_delete(self)
 
-        self._is_deleted = True
+            self._is_deleted = True
 
-        # After delete hook
-        self._after_delete()
+            # After delete hook
+            self._after_delete()
 
         return self
 

@@ -1,10 +1,10 @@
-"""Content Export Drivers.
+"""Content Export Twitter Driver.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from twython import Twython as _Twython, TwythonError as _TwithonError
+from twython import Twython as _Twython, TwythonError as _TwythonError
 from pytsite import content as _content, content_export as _content_export
 from pytsite.core import widget as _widget, logger as _logger, reg as _reg
 from ._widget import Auth as TwitterAuthWidget
@@ -57,7 +57,7 @@ class Driver(_content_export.AbstractDriver):
             try:
                 tw.update_status(status=status, media_ids=media_ids)
                 break
-            except _TwithonError as e:
+            except _TwythonError as e:
                 # Cut one word from the right
                 status = ' '.join(status.split(' ')[:-1])
                 attempts -= 1
