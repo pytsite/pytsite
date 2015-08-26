@@ -4,17 +4,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import requests as _requests
 from random import shuffle as _shuffle, random as _random
-from pytsite import image as _image, auth as _auth
-from pytsite.core import console as _console, lang as _lang
+import requests as _requests
+from pytsite import image as _image, auth as _auth, console as _console, lang as _lang
 from . import _functions
 
 
-class Generate(_console.AbstractCommand):
+class Generate(_console._command.Abstract):
     """Abstract command.
     """
-
     li_url = 'http://loripsum.net/api/prude/'
     lp_url = 'http://lorempixel.com/1024/768/'
 
@@ -47,11 +45,11 @@ class Generate(_console.AbstractCommand):
             return -1
 
         if not _functions.is_model_registered(model):
-            raise _console.error.ConsoleRuntimeError("'{}' is not a registered content model.".format(model))
+            raise _console.Error("'{}' is not a registered content model.".format(model))
 
         author = _auth.get_user(author_login)
         if not author:
-            raise _console.error.ConsoleRuntimeError("'{}' is not a registered user.".format(author_login))
+            raise _console.Error("'{}' is not a registered user.".format(author_login))
 
         # Generate sections
         sections = list(_functions.get_sections())

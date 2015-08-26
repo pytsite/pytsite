@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from bson.dbref import DBRef as _DBRef
-from pytsite.core import widget as _widget, odm as _odm, lang as _lang
+from pytsite import widget as _widget, odm as _odm, lang as _lang
 
 
 class EntitySelect(_widget.select.Select):
@@ -99,7 +99,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
     def set_value(self, value, **kwargs):
         """Set value of the widget.
 
-        :param value: list[pytsite.core.odm.models.ODMModel] | list[DBRef] | list[str]
+        :param value: list[pytsite.odm.models.ODMModel] | list[DBRef] | list[str]
         """
 
         # Single string can be passed from HTML form

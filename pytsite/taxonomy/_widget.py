@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import router as _router, widget as _widget, html as _html, odm as _odm
+from pytsite import widget as _widget, html as _html, odm as _odm, router as _router
 from . import _functions
 
 

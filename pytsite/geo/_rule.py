@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import validation as _validation
+from pytsite import validation as _validation
 
 
 class AddressNotEmpty(_validation.rule.DictPartsNotEmpty):

@@ -4,12 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 import urllib.request as _urllib_request
 import urllib.parse as _urllib_parse
 import json as _json
 from datetime import datetime as _datetime
-from pytsite.core import odm as _odm, reg as _reg, logger as _logger
+from pytsite import odm as _odm, reg as _reg, logger as _logger
 
 
 def get_comments_count(thread_url: str) -> int:

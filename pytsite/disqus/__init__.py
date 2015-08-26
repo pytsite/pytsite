@@ -9,7 +9,8 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import tpl, odm
+    from pytsite import odm
+    from pytsite import tpl
 
     odm.register_model('disqus_comment_count', 'pytsite.disqus._model.CommentCount')
     tpl.register_package(__name__)

@@ -4,8 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content
-from pytsite.core import odm as _odm, validation as _validation, router as _router, widget as _widget
+from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, validation as _validation, \
+    router as _router, widget as _widget
 from . import _widget as _content_export_widget, _functions
 
 
@@ -63,7 +63,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
 
     def setup_m_form(self, form, stage: str):
         """Hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         req_val = _router.request.values_dict
 
@@ -102,7 +102,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             form.remove_widget('__form_redirect')
             form.remove_widget('__entity_id')
             submit_btn = form.get_widget('actions').get_child('action_submit')
-            """:type: pytsite.core.widget._button.Submit"""
+            """:type: pytsite.widget._button.Submit"""
             submit_btn.set_value(self.t('next'))
             submit_btn.icon = 'fa fa-angle-double-right'
         else:
@@ -136,7 +136,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
 
     def submit_m_form(self, form):
         """Hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         pass
 

@@ -5,8 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import exifread as _exifread
-from pytsite import file as _file
-from pytsite.core import odm as _odm, router as _router
+
+from pytsite import file as _file, odm as _odm, router as _router
 
 
 class Image(_file.model.File):

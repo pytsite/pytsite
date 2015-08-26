@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-from pytsite.core import router as _router, widget as _widget, html as _html, lang as _lang, assetman as _assetman
+from pytsite import widget as _widget, html as _html, lang as _lang, assetman as _assetman, router as _router
 from ._session import Session as TwitterSession
 
 

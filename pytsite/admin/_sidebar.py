@@ -4,8 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth as _auth
-from pytsite.core import util as _util, html as _html, lang as _lang, router as _router
+from pytsite import auth as _auth, util as _util, html as _html, lang as _lang, router as _router
 
 _sections = []
 _menus = {}

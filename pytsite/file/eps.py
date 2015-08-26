@@ -5,11 +5,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from os import path, unlink
-from pytsite.core import router as _router, reg as _reg, util as _util, http as _http
+from pytsite import reg as _reg, util as _util, http as _http, router as _router
 from . import _functions
 
 
-def upload(args: dict, inp: dict) -> _http.response.JSONResponse:
+def upload(args: dict, inp: dict) -> _http.response.JSON:
     """Upload file endpoint.
     """
     r = []
@@ -35,10 +35,10 @@ def upload(args: dict, inp: dict) -> _http.response.JSONResponse:
             .format(inp.get('CKEditorFuncNum'), r['url'])
         return '<script type="text/javascript">{}</script>'.format(script)  # CKEditor requires such answer format
 
-    return _http.response.JSONResponse(r)
+    return _http.response.JSON(r)
 
 
-def download(args: dict, inp: dict) -> _http.response.JSONResponse:
+def download(args: dict, inp: dict) -> _http.response.JSON:
     """Download file endpoint.
     """
-    return _http.response.JSONResponse('Not implemented yet', 500)
+    return _http.response.JSON('Not implemented yet', 500)

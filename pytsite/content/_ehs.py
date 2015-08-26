@@ -9,32 +9,31 @@ import pytz as _pytz
 from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import settings as _settings, sitemap as _sitemap, feed as _feed
-from pytsite.core import reg as _reg, logger as _logger, tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, \
-    router as _router, metatag as _metatag
+from pytsite import settings as _settings, sitemap as _sitemap, feed as _feed, reg as _reg, logger as _logger, \
+    tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag
 from . import _functions
 
 
 def cron_hourly():
-    """'pytsite.core.cron.hourly' event handler.
+    """'pytsite.cron.hourly' event handler.
     """
     _generate_feeds()
 
 
 def cron_daily():
-    """'pytsite.core.cron.daily' event handler.
+    """'pytsite.cron.daily' event handler.
     """
     _generate_sitemap()
 
 
 def cron_weekly():
-    """'pytsite.core.cron.weekly' event handler.
+    """'pytsite.cron.weekly' event handler.
     """
     _mail_digest()
 
 
 def router_dispatch():
-    """'pytsite.core.router.dispatch' Event Handler.
+    """'pytsite.router.dispatch' Event Handler.
     """
     if not _router.is_base_url():
         return

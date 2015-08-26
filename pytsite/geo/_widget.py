@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from json import dumps as _json_dumps, loads as _json_loads
-from pytsite.core import assetman as _assetman, lang as _lang, widget as _widget, html as _html
+from pytsite import assetman as _assetman, widget as _widget, html as _html, lang as _lang
 from . import _functions
 
 

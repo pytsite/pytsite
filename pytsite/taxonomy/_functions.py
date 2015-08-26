@@ -5,8 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re
-from pytsite import admin as _admin
-from pytsite.core import router as _router, lang as _lang, util as _util, odm as _odm
+from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm
 from ._model import Term
 
 __models = []

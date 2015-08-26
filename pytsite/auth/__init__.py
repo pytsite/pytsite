@@ -7,7 +7,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import router, tpl, events, lang, odm, assetman, reg
+    from pytsite import reg, assetman, odm, events, tpl, lang, router
 
     # Resources
     tpl.register_package(__name__)
@@ -35,9 +35,9 @@ def __init():
     tpl.register_global('auth', _functions)
 
     # Event handlers
-    from ._event_handlers import app_setup, router_dispatch
+    from ._ehs import app_setup, router_dispatch
     events.listen('app.setup', app_setup)
-    events.listen('pytsite.core.router.dispatch', router_dispatch)
+    events.listen('pytsite.router.dispatch', router_dispatch)
 
     # Permissions
     _functions.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')

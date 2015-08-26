@@ -1,0 +1,3 @@
+cleanup_all_console_command_description: 'Очищення всіх застарілих файлів'
+cleanup_session_console_command_description: 'Очищення застарілих файлів сесій'
+cleanup_tmp_console_command_description: 'Очищення застарілих тимчасових файлів'

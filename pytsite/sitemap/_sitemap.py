@@ -5,9 +5,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import gzip as _gzip
-from lxml import etree as _etree
 from datetime import datetime as _datetime
-from pytsite.core import validation as _validation
+
+from lxml import etree as _etree
+
+from pytsite import validation as _validation
 
 
 class _FileWriterMixin:

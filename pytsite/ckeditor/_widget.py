@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import widget as _widget, assetman as _assetman, html as _html
+from pytsite import assetman as _assetman, html as _html, widget as _widget
 
 
 class CKEditor(_widget.Base):

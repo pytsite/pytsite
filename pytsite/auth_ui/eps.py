@@ -4,8 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth as _auth, odm_ui as _odm_ui
-from pytsite.core import reg as _reg, http as _http, metatag as _metatag, tpl as _tpl
+from pytsite import auth as _auth, odm_ui as _odm_ui, reg as _reg, http as _http, metatag as _metatag, tpl as _tpl
 from ._widget import Profile as ProfileWidget
 
 

@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.8 (2015-08-xx)
+
+### Changed
+- `core`'s content refactored into separate modules. 
+- Events `pytsite.core.*` renamed to `pytsite.*`. 
+
+### Fixed
+- Value set error in `currency.odm.CurrencyField`.
+
+
 ## 0.7.2 (2015-08-25)
 - 10 exports in 15 minutes limit in `content_export`.
 

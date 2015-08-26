@@ -6,7 +6,11 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite.core import assetman, router, tpl, lang, odm
+    from pytsite import assetman
+    from pytsite import odm
+    from pytsite import tpl
+    from pytsite import lang
+    from pytsite import router
     from ._model import File
 
     odm.register_model('file', File)

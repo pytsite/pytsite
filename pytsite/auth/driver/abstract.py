@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite.core import http as _http, form as _form
+
+from pytsite import form as _form, http as _http
 
 
 class AbstractDriver(_ABC):

@@ -12,7 +12,10 @@ __import__('pytsite.image')
 def __init():
     from sys import modules
     from pytsite import admin
-    from pytsite.core import lang, odm, router, tpl
+    from pytsite import odm
+    from pytsite import tpl
+    from pytsite import lang
+    from pytsite import router
     from . import _model
 
     lang.register_package(__name__)

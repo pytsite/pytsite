@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import widget as _widget, lang as _lang
+from pytsite import widget as _widget, lang as _lang
 from ._functions import get_drivers as _get_drivers
 
 

@@ -9,8 +9,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import router, tpl, assetman, lang, reg
-    from pytsite import auth
+    from pytsite import reg, assetman, tpl, lang, router, auth
     from . import _sidebar
 
     lang.register_package(__name__)

@@ -8,7 +8,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite.core import assetman
+    from pytsite import assetman
     assetman.register_package(__name__)
 
 

@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from os import path as _path, unlink as _unlink
-from pytsite.core import odm as _odm, router as _router, reg as _reg
+from pytsite import odm as _odm, reg as _reg, router as _router
 
 
 class File(_odm.Model):

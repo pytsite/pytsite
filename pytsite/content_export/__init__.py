@@ -12,7 +12,10 @@ def __init():
     """Init wrapper.
     """
     from pytsite import admin
-    from pytsite.core import router, odm, lang, events
+    from pytsite import odm
+    from pytsite import events
+    from pytsite import lang
+    from pytsite import router
     from ._model import ContentExport
     from ._functions import cron_15min_eh
 
@@ -23,13 +26,13 @@ def __init():
     odm.register_model('content_export', ContentExport)
 
     # Event handlers
-    events.listen('pytsite.core.cron.15min', cron_15min_eh)
+    events.listen('pytsite.cron.15min', cron_15min_eh)
 
     m = 'content_export'
     admin.sidebar.add_menu('misc', m, __name__ + '@export',
                            href=router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': m}),
                            icon='fa fa-bullhorn',
-                           permissions=('pytsite.odm_ui.browse.' + m,'pytsite.odm_ui.browse_own.' + m))
+                           permissions=('pytsite.odm_ui.browse.' + m, 'pytsite.odm_ui.browse_own.' + m))
 
 __init()
 

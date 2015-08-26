@@ -4,9 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth
-from pytsite.core import router as _router, assetman as _assetman, metatag as _metatag, browser as _client, odm as _odm,\
-    lang as _lang, http as _http, html as _html
+from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _client, \
+    odm as _odm, lang as _lang, http as _http, html as _html
 from ._model import UIMixin
 from . import _functions
 

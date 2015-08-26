@@ -1,0 +1,3 @@
+setup_console_command_description: 'Налаштування додатка'
+setup_is_not_completed: "Налаштування додатка не завершено. Запустіть додаток з аргументом 'app:setup'."
+setup_has_been_completed: 'Налаштування додатка успішно завершено.'

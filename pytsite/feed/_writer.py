@@ -6,8 +6,10 @@ __license__ = 'MIT'
 
 import hashlib as _hashlib
 from time import strftime as _strftime
+
 from feedgen.feed import FeedGenerator as _FeedGenerator, FeedEntry as _FeedEntry
-from pytsite.core import validation as _validation
+
+from pytsite import validation as _validation
 
 
 class Writer:

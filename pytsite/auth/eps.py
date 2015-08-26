@@ -5,8 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from werkzeug.utils import escape as _escape
-from pytsite.core import router as _router, lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, \
-    assetman as _assetman
+from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
+    router as _router
 from . import _functions
 
 

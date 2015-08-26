@@ -5,14 +5,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-import magic as _magic
 import os as _os
 import shutil as _shutil
+import magic as _magic
 from mimetypes import guess_extension as _guess_extension
 from urllib.request import urlopen as _urlopen
 from urllib.parse import urlparse as _urlparse
 from bson.dbref import DBRef as _DBRef
-from pytsite.core import reg as _reg, util as _util, validation as _validation, odm as _odm
+from pytsite import reg as _reg, util as _util, odm as _odm, validation as _validation
 from . import _model
 
 

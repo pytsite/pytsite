@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import widget as _widget, html as _html, tpl as _tpl, reg as _reg
+from pytsite import widget as _widget, html as _html, reg as _reg, tpl as _tpl
 
 
 class Disqus(_widget.Base):

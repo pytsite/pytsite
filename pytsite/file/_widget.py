@@ -4,8 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import widget as _widget, assetman as _assetman, router as _router, tpl as _tpl, browser as _client, \
-    html as _html
+from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _client, html as _html, \
+    router as _router
 from . import _functions
 
 

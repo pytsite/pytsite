@@ -4,8 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import odm_ui as _odm_ui
-from pytsite.core import lang as _lang, validation as _validation, odm as _odm, widget as _widget
+from pytsite import odm_ui as _odm_ui, lang as _lang, validation as _validation, odm as _odm, widget as _widget
 
 
 class Term(_odm.Model, _odm_ui.UIMixin):
@@ -101,7 +100,7 @@ class Term(_odm.Model, _odm_ui.UIMixin):
 
     def setup_m_form(self, form, stage: str):
         """Hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         form.add_widget(_widget.input.Text(
             weight=10,

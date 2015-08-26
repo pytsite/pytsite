@@ -4,9 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth as _auth, odm_ui as _odm_ui
-from pytsite.core import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
-    http as _http, router as _router, metatag as _metatag
+from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
+    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui
 
 
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
@@ -77,7 +76,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
     def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         current_user = _auth.get_current_user()
 
@@ -224,7 +223,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
     def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         if self.f_get('name') == 'admin':
             raise _http.error.Forbidden()

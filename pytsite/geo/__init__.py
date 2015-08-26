@@ -9,7 +9,9 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import assetman, lang, tpl
+    from pytsite import assetman
+    from pytsite import tpl
+    from pytsite import lang
     lang.register_package(__name__)
     assetman.register_package(__name__)
     tpl.register_global('geo', sys.modules[__package__])

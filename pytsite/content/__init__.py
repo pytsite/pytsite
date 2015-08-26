@@ -8,7 +8,13 @@ __license__ = 'MIT'
 def __init():
     import sys
     from pytsite import admin, taxonomy, settings
-    from pytsite.core import router, assetman, lang, tpl, events, odm, console
+    from pytsite import console
+    from pytsite import assetman
+    from pytsite import odm
+    from pytsite import events
+    from pytsite import tpl
+    from pytsite import lang
+    from pytsite import router
     from ._model import Tag, Section, ContentSubscriber
     from ._ehs import cron_hourly, cron_daily, cron_weekly, router_dispatch
     from ._forms import Settings
@@ -48,10 +54,10 @@ def __init():
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))
 
     # Event handlers
-    events.listen('pytsite.core.router.dispatch', router_dispatch)
-    events.listen('pytsite.core.cron.hourly', cron_hourly)
-    events.listen('pytsite.core.cron.daily', cron_daily)
-    events.listen('pytsite.core.cron.weekly', cron_weekly)
+    events.listen('pytsite.router.dispatch', router_dispatch)
+    events.listen('pytsite.cron.hourly', cron_hourly)
+    events.listen('pytsite.cron.daily', cron_daily)
+    events.listen('pytsite.cron.weekly', cron_weekly)
 
     # Settings
     settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',

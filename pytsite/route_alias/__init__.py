@@ -8,7 +8,9 @@ __license__ = 'MIT'
 def __router_pre_dispatch_handler(path_info: str):
     """Router pre-dispatch event handler.
     """
-    from pytsite.core import odm, lang, router
+    from pytsite import odm
+    from pytsite import lang
+    from pytsite import router
     p = odm.find('route_alias') \
         .where('alias', '=', path_info) \
         .where('language', '=', lang.get_current_lang()) \
@@ -19,9 +21,10 @@ def __router_pre_dispatch_handler(path_info: str):
 
 
 def __init():
-    from pytsite.core import events, odm
+    from pytsite import odm
+    from pytsite import events
     from ._model import RouteAlias
-    events.listen('pytsite.core.router.pre_dispatch', __router_pre_dispatch_handler)
+    events.listen('pytsite.router.pre_dispatch', __router_pre_dispatch_handler)
     odm.register_model('route_alias', RouteAlias)
 
 

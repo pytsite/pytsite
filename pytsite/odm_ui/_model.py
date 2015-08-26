@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite.core import odm as _odm
+
+from pytsite import odm as _odm
 
 
 class UIMixin(_ABC):
@@ -36,13 +37,13 @@ class UIMixin(_ABC):
     @_abstractmethod
     def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         pass
 
     def submit_m_form(self, form):
         """Modify form submit hook.
-        :type form: pytsite.core.form.Base
+        :type form: pytsite.form.Base
         """
         pass
 

@@ -6,7 +6,8 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite.core import odm, router
+    from pytsite import odm
+    from pytsite import router
     from ._model import Image
 
     odm.register_model('image', Image)

@@ -2,8 +2,7 @@
 """
 import hashlib as _hashlib
 from datetime import datetime as _datetime
-from pytsite import image as _image
-from pytsite.core import odm as _odm, util as _util, router as _router
+from pytsite import image as _image, odm as _odm, util as _util, router as _router
 
 
 class User(_odm.Model):

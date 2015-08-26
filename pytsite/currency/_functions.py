@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from pytsite.core import lang as _lang
+
+from pytsite import lang as _lang
 
 __currencies = []
 
@@ -30,6 +31,7 @@ def get_currencies(include_main: bool=True) -> list:
         r.append(c)
 
     return r
+
 
 def get_main_currency() -> str:
     """Get main currency code.
@@ -74,17 +76,20 @@ def fmt(value: dict, decimal_places: int=2, html=False):
 
     return r
 
+
 def get_title(code: str) -> str:
     try:
         return _lang.t('currency_' + get_currency(code) + '_title')
     except _lang.error.TranslationError:
         return ''
 
+
 def get_symbol_before(code: str) -> str:
     try:
         return _lang.t('currency_' + get_currency(code) + '_symbol_before')
     except _lang.error.TranslationError:
         return ''
+
 
 def get_symbol_after(code: str) -> str:
     try:

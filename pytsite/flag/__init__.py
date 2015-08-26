@@ -7,7 +7,11 @@ __license__ = 'MIT'
 
 def __init():
     import sys
-    from pytsite.core import odm, lang, tpl, assetman, events
+    from pytsite import assetman
+    from pytsite import odm
+    from pytsite import events
+    from pytsite import tpl
+    from pytsite import lang
     from . import _model
 
     def router_dispatch_eh():
@@ -20,7 +24,7 @@ def __init():
     tpl.register_global('flag', sys.modules[__package__])
     odm.register_model('flag', _model.Flag)
 
-    events.listen('pytsite.core.router.dispatch', router_dispatch_eh)
+    events.listen('pytsite.router.dispatch', router_dispatch_eh)
 
 __init()
 

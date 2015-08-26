@@ -4,10 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth as _auth
-from pytsite.core import router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
+from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
     form as _form, widget as _widget, html as _html
-
 from . import _model
 
 

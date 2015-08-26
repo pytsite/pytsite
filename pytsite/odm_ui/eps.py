@@ -4,8 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import tpl as _tpl, lang as _lang, http as _http, router as _router, odm as _odm, \
-    logger as _logger
+from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router
 from . import _functions, _browser
 
 
@@ -17,7 +16,7 @@ def browse(args: dict, inp: dict) -> str:
     return _tpl.render('pytsite.odm_ui@admin_browser', {'table': table})
 
 
-def get_browser_rows(args: dict, inp: dict) -> _http.response.JSONResponse:
+def get_browser_rows(args: dict, inp: dict) -> _http.response.JSON:
     """Get browser rows via AJAX request.
     """
     offset = int(inp.get('offset', 0))
@@ -28,7 +27,7 @@ def get_browser_rows(args: dict, inp: dict) -> _http.response.JSONResponse:
     browser = _browser.Browser(args.get('model'))
     rows = browser.get_rows(offset, limit, sort_field, sort_order, search)
 
-    return _http.response.JSONResponse(rows)
+    return _http.response.JSON(rows)
 
 
 def get_m_form(args: dict, inp: dict) -> str:

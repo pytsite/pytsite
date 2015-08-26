@@ -7,7 +7,10 @@ __license__ = 'MIT'
 
 def __init():
     import sys
-    from pytsite.core import router, lang, tpl, assetman
+    from pytsite import assetman
+    from pytsite import tpl
+    from pytsite import lang
+    from pytsite import router
     from pytsite import admin
 
     lang.register_package(__name__)

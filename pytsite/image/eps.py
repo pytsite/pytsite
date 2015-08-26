@@ -4,11 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 from os import path as _path, makedirs as _makedirs
 from math import floor as _floor
 from PIL import Image as _Image
-from pytsite.core import reg as _reg, http as _http
+from pytsite import reg as _reg, http as _http
 from . import _functions
 
 

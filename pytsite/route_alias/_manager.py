@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re
-from pytsite.core import util as _util, lang as _lang, odm as _odm
+from pytsite import util as _util, odm as _odm, lang as _lang
 from . import _model
 
 

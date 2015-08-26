@@ -5,8 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from twython import Twython as _Twython, TwythonError as _TwythonError
-from pytsite import content as _content, content_export as _content_export
-from pytsite.core import widget as _widget, logger as _logger, reg as _reg
+from pytsite import content as _content, content_export as _content_export, widget as _widget, logger as _logger, \
+    reg as _reg
 from ._widget import Auth as TwitterAuthWidget
 
 

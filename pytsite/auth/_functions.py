@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime as _datetime
-from pytsite.core import reg as _reg, http as _http, router as _router, odm as _odm, form as _form, lang as _lang
+from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router
 from .driver.abstract import AbstractDriver as _AbstractDriver
 from . import _error, _model
 
@@ -209,9 +209,8 @@ def get_anonymous_user() -> _model.User:
 def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
-    # Console mode
     if _router.session is None:
-        return
+        return get_anonymous_user()
 
     login = _router.session.get('pytsite.auth.login')
     if not login:

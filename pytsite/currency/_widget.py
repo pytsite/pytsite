@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import decimal as _decimal
-from pytsite.core import widget as _widget, html as _html
+from pytsite import html as _html, widget as _widget
 from . import _functions
 
 

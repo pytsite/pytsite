@@ -10,7 +10,7 @@ __import__('pytsite.admin')
 
 
 def __init():
-    from pytsite.core import router, tpl, assetman, lang, events, reg
+    from pytsite import reg, assetman, events, tpl, lang, router
     from . import _event_handlers
     from ._model import UIMixin
 

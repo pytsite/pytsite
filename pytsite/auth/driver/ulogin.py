@@ -9,8 +9,8 @@ from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
-from pytsite.core import tpl as _tpl, form as _form, router as _router, reg as _reg, lang as _lang, \
-    widget as _widget, http as _http, logger as _logger
+from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, http as _http, \
+    logger as _logger, router as _router
 from .. import _functions, _error
 from .abstract import AbstractDriver
 

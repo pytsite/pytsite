@@ -4,9 +4,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from requests_oauthlib import OAuth1Session
 from datetime import datetime as _dt
-from pytsite.core import reg as _reg, router as _router
+from requests_oauthlib import OAuth1Session
+from pytsite import reg as _reg, router as _router
+
 
 class Session:
     """Twitter oAuth Driver.

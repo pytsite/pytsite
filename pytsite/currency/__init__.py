@@ -8,8 +8,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite.core import lang, reg, tpl
-    from pytsite import settings
+    from pytsite import reg, tpl, lang, settings
     from . import _functions, _form
 
     # Language package
@@ -31,4 +30,4 @@ __init()
 
 # Public API
 from ._functions import get_currencies
-from . import _widget as widget, _odm_field as odm_field
+from . import _widget as widget, _odm as odm

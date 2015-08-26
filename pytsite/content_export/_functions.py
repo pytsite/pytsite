@@ -5,8 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from datetime import datetime, timedelta
-from pytsite import content as _content
-from pytsite.core import odm as _odm, lang as _lang, logger as _logger, threading as _threading
+from pytsite import content as _content, odm as _odm, lang as _lang, logger as _logger, threading as _threading
 from . import _driver
 
 __drivers = {}
@@ -48,7 +47,7 @@ def get_driver_title(name) -> str:
 
 
 def cron_15min_eh():
-    """'pytsite.core.cron.1m' event handler.
+    """'pytsite.cron.1m' event handler.
     """
     lock = _threading.get_r_lock()
     cnt = 0

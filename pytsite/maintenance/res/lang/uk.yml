@@ -1,0 +1,3 @@
+maintenance_console_command_description: 'Режим обслуговування'
+maintenance_mode_enabled: 'Режим обслуговування ВКЛЮЧЕНО'
+maintenance_mode_disabled: 'Режим обслуговування ВИМКНЕНО'

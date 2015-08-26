@@ -4,9 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import auth as _auth
-from pytsite.core import odm as _odm
+from pytsite import auth as _auth, odm as _odm
 from . import _functions
+
 
 def toggle(args: dict, inp: dict) -> dict:
     current_user = _auth.get_current_user()

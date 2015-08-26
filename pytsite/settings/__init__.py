@@ -8,7 +8,10 @@ __license__ = 'MIT'
 # Init wrapper
 def __init():
     import sys
-    from pytsite.core import router, lang, odm, tpl
+    from pytsite import odm
+    from pytsite import tpl
+    from pytsite import lang
+    from pytsite import router
     from pytsite import admin
     from ._model import Setting
 

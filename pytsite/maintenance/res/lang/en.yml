@@ -1,0 +1,3 @@
+maintenance_console_command_description: 'Maintenance mode'
+maintenance_mode_enabled: 'Maintenance mode has been ENABLED'
+maintenance_mode_disabled: 'Maintenance mode has been DISABLED'

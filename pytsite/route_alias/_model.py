@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import odm as _odm
+from pytsite import odm as _odm
 
 
 class RouteAlias(_odm.Model):

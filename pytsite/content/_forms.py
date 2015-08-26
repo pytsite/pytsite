@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import form as _form, widget as _widget, lang as _lang
+from pytsite import form as _form, widget as _widget, lang as _lang
 
 
 class Settings(_form.Base):

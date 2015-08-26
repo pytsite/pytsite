@@ -7,7 +7,8 @@ __license__ = 'MIT'
 
 def __init():
     from pytsite import content_export
-    from pytsite.core import lang, assetman
+    from pytsite import assetman
+    from pytsite import lang
     from ._content_export import Driver as ContentExportDriver
 
     # Register resources

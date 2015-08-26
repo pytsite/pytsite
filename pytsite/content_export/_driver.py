@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite.core import widget as _widget
+
+from pytsite import widget as _widget
 
 
 class Abstract(_ABC):

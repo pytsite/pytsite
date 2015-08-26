@@ -9,7 +9,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite.core import tpl
+    from pytsite import tpl
 
     tpl.register_package(__name__)
     tpl.register_global('add_this', sys.modules[__name__])

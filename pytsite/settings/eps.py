@@ -5,8 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from pytsite import auth as _auth
-from pytsite.core import tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http
+from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http
 from . import _functions
 
 

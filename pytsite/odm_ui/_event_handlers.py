@@ -4,8 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite.core import lang as _lang, odm as _odm
-from pytsite import auth as _auth
+from pytsite import lang as _lang, odm as _odm, auth as _auth
 from ._model import UIMixin
 
 __models = {}
