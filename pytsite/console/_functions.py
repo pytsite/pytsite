@@ -5,7 +5,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import reg
+from pytsite import reg as _reg
 from . import _error, _command
 
 
@@ -79,7 +79,7 @@ def run():
     try:
         # Check if the setup completed
         from os import path
-        if not path.exists(reg.get('paths.setup.lock')) and argv[1] != 'app:setup':
+        if not path.exists(_reg.get('paths.setup.lock')) and argv[1] != 'app:setup':
             from pytsite.lang import t
             raise _error.Error(t('pytsite.console@setup_is_not_completed'))
 

@@ -4,6 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+version = None
+""":type: str"""
 
 def __init():
     from os import path, environ
@@ -13,6 +15,11 @@ def __init():
 
     if 'PYTSITE_APP_ROOT' not in environ:
         raise Exception("The 'PYTSITE_APP_ROOT' environment variable is not defined.")
+
+    # Version
+    global version
+    with open(path.join(path.dirname(__file__), 'VERSION.txt'), 'r') as f:
+        version = f.readline().replace('\n', '')
 
     # Environment
     reg.set_val('env.name', getuser() + '@' + gethostname())

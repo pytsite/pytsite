@@ -2,8 +2,8 @@ import re
 from os import walk, path
 from setuptools import setup, find_packages
 
-__version = '0.7.2'
-
+with open(path.join(path.dirname(__file__), 'pytsite', 'VERSION.txt'), 'r') as f:
+    version = f.readline().replace('\n', '')
 
 def find_package_data():
     r = {}
@@ -20,10 +20,10 @@ def find_package_data():
 
 setup(
     name='PytSite',
-    version=__version,
+    version=version,
     description='The Simple Web Framework',
     url='https://github.com/pytsite/pytsite',
-    download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(__version),
+    download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(version),
     author='Alexander Shepetko',
     author_email='a@shepetko.com',
     license='MIT',
