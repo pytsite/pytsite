@@ -26,66 +26,42 @@ class Update(_console.command.Abstract):
     def execute(self, **kwargs: dict):
         """Execute the command.
         """
-        last_update = self._get_state()
-        current_ver_list = _pytsite_ver.split('.')
-        cur_ver = {'major': int(current_ver_list[0]), 'minor': int(current_ver_list[1])}
-        cur_ver['rev'] = int(current_ver_list[2]) if len(current_ver_list) == 3 else 0
-
-        last_major = last_update['major']
-        last_minor = last_update['minor']
-        last_rev = last_update['rev']
-
-        print(cur_ver)
-        print(last_update)
-
-        # return
-
-        if last_major == cur_ver['major'] and last_minor == cur_ver['minor'] and last_rev == cur_ver['rev']:
-            return
+        state = self._get_state()
+        cur_ver = _pytsite_ver()
+        cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
 
         _console.run_command('maintenance', enable=True)
 
         stop = False
-        for major in range(0, 100):
-            if major < last_major:
-                continue
+        for major in range(0, 1):
             if stop:
                 break
             for minor in range(0, 100):
-                if minor < last_minor:
-                    continue
                 if stop:
                     break
-                for rev in range(0, 100):
-                    if rev < last_rev:
-                        continue
+                for rev in range(0, 10):
                     if stop:
                         break
 
-                    if cur_ver['major'] <= major and cur_ver['minor'] <= minor and cur_ver['rev'] <= rev:
+                    major_minor_rev = '{}.{}.{}'.format(major, minor, rev)
+
+                    if major_minor_rev == cur_ver_str:
                         stop = True
 
+                    if major_minor_rev in state:
+                        continue
 
-                    if rev:
-                        ver_str = '{}.{}.{}'.format(major, minor, rev)
-                    else:
-                        ver_str = '{}.{}'.format(major, minor)
+                    state.add(major_minor_rev)
 
-                    print(ver_str)
+                    print(major_minor_rev)
 
-        self._save_state(cur_ver)
+        self._save_state(state)
         _console.run_command('maintenance', disable=True)
 
         # _events.fire('pytsite.update')
 
-
-
-
-    def _get_state(self, as_str: bool=False):
-        """
-        :return: dict|str
-        """
-        data = {'major': 0, 'minor': 0, 'rev': 0}
+    def _get_state(self) -> set:
+        data = set()
 
         data_path = self._get_data_path()
         if not _path.exists(data_path):
@@ -94,17 +70,12 @@ class Update(_console.command.Abstract):
             with open(data_path, 'rb') as f:
                 data = _pickle.load(f)
 
-        if as_str:
-            if data['rev']:
-                data = '{}.{}.{}'.format(data['major'], data['minor'], data['rev'])
-            else:
-                data = '{}.{}'.format(data['major'], data['minor'])
-
         return data
 
-    def _save_state(self, state: dict):
+    def _save_state(self, state: set):
         with open(self._get_data_path(), 'wb') as f:
             _pickle.dump(state, f)
 
-    def _get_data_path(self) -> str:
+    @staticmethod
+    def _get_data_path() -> str:
         return _path.join(_reg.get('paths.storage'), 'update.data')

@@ -4,10 +4,34 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-version = None
-""":type: str"""
+__version = None
+""":type: tuple"""
+
+
+def version():
+    from os import path
+
+    global __version
+    if not __version:
+        with open(path.join(path.dirname(__file__), 'VERSION.txt')) as f:
+            __version = f.readline().replace('\n', '').split('.')
+            if len(__version) == 2:
+                __version.append(0)
+            for k, v in enumerate(__version):
+                __version[k] = int(__version[k])
+            __version = tuple(__version)
+
+    if __version[1] > 99:
+        raise ValueError('Version minor cannot be greater 99.')
+    if __version[2] > 9:
+        raise ValueError('Version revision cannot be greater 9.')
+
+    return __version
+
 
 def __init():
+    """Init wrapper to hide imports.
+    """
     from os import path, environ
     from getpass import getuser
     from socket import gethostname
@@ -15,11 +39,6 @@ def __init():
 
     if 'PYTSITE_APP_ROOT' not in environ:
         raise Exception("The 'PYTSITE_APP_ROOT' environment variable is not defined.")
-
-    # Version
-    global version
-    with open(path.join(path.dirname(__file__), 'VERSION.txt'), 'r') as f:
-        version = f.readline().replace('\n', '')
 
     # Environment
     reg.set_val('env.name', getuser() + '@' + gethostname())
