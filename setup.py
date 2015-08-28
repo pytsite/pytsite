@@ -8,6 +8,7 @@ with open(path.join(path.dirname(__file__), 'pytsite', 'VERSION.txt')) as f:
 
 def find_package_data():
     r = {}
+
     for pkg in find_packages():
         r[pkg] = []
         pkg_dir = path.sep.join(pkg.split('.'))
@@ -16,8 +17,10 @@ def find_package_data():
                 sub_path = re.sub('^{}{}'.format(pkg_dir, path.sep), '', path.join(root, file_name))
                 if re.match('res\/', sub_path):
                     r[pkg].append(sub_path)
-    return r
 
+    r['pytsite'].append('VERSION.txt')
+
+    return r
 
 setup(
     name='PytSite',

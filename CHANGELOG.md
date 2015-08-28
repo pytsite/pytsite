@@ -1,7 +1,10 @@
 # PytSite Changelog
 
-## 0.8 (2015-08-28)
+## 0.8.1 (2015-08-28)
+### Fixed
+- `VERSION.txt` included into `setup.py`.
 
+## 0.8 (2015-08-28)
 ### Changed
 - `core` refactored into separate modules.
 - `update` module rewritten. 
@@ -12,6 +15,7 @@
 
 
 ## 0.7.2 (2015-08-25)
+### Changed
 - 10 exports in 15 minutes limit in `content_export`.
 
 ## 0.7.1 (2015-08-25)
