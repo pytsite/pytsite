@@ -1,0 +1,2 @@
+reindex_console_command_description: 'Rebuild indices'
+reindex_model: "Indexing model ':model'"

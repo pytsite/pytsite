@@ -20,7 +20,7 @@ def __init():
 
     # Events
     events.listen('pytsite.router.dispatch', _functions.reset)
-    events.listen('pytsite.update', app_update_event)
+    events.listen('pytsite.update.after', app_update_event)
 
 __init()
 

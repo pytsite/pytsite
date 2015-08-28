@@ -56,12 +56,10 @@ class Auth(_widget.Base):
             title = self._screen_name
             href = 'https://twitter.com/' + self._screen_name
         else:
-            title = _lang.t('twitter@authorization')
+            title = _lang.t('pytsite.twitter@authorization')
             href = session.get_authorization_url()
 
         a = _html.A(title, href=href).append(_html.I(cls='fa fa-twitter'))
         wrapper.append(a)
 
         return self._group_wrap(wrapper)
-
-

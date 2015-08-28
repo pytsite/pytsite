@@ -36,7 +36,7 @@ def __init():
 
     # Event handlers
     from ._ehs import app_setup, router_dispatch
-    events.listen('app.setup', app_setup)
+    events.listen('setup', app_setup)
     events.listen('pytsite.router.dispatch', router_dispatch)
 
     # Permissions

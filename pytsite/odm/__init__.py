@@ -20,7 +20,7 @@ def __init():
 
     lang.register_package(__name__)
     console.register_command(_command.RebuildIndices())
-    events.listen('app.update', _app_update_event)
+    events.listen('pytsite.update.after', _app_update_event)
 
 __init()
 

@@ -57,6 +57,10 @@ class Term(_odm.Model, _odm_ui.UIMixin):
             else:
                 value = _functions.sanitize_alias_string(self.model, value)
 
+        if field_name == 'language':
+            if value not in _lang.get_langs():
+                raise ValueError("Language '{}' is not supported.".format(value))
+
         return super()._on_f_set(field_name, value, **kwargs)
 
     def _pre_save(self):

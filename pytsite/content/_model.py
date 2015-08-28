@@ -32,7 +32,7 @@ class Section(_taxonomy.model.Term):
             tag = f.where('sections', 'in', [self]).first()
             if tag:
                 error_args = {'model': tag.model, 'title': tag.f_get('title')}
-                raise _odm.error.ForbidEntityDelete(_lang.t('pytsite,content@referenced_entity_exists', error_args))
+                raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
 
 
 class Tag(_taxonomy.model.Term):
@@ -167,7 +167,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
 
                 if not self.route_alias:
                     # Create new route alias object with no target at this point
-                    value = _route_alias.create(value, 'NONE').save()
+                    value = _route_alias.create(value, 'NONE', self.language).save()
                 else:
                     # Modify existing route alias object
                     orig_value = self.route_alias
@@ -181,6 +181,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 raise Exception("Invalid publish status: '{}'.".format(value))
 
         if field_name == 'language':
+            if value not in _lang.get_langs():
+                raise ValueError("Language '{}' is not supported.".format(value))
+
             if value == 'en':
                 self.f_set('language_db', 'english')
             elif value == 'ru':
@@ -195,7 +198,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """
         if field_name == 'url' and not self.is_new:
             target_path = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': str(self.id)})
-            r_alias = _route_alias.find_one_by_target(target_path)
+            r_alias = _route_alias.find_one_by_target(target_path, self.language)
             value = r_alias.f_get('alias') if r_alias else target_path
 
             # Transform path to absolute URL
@@ -276,8 +279,9 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         for tag in self.tags:
             weight = 0
             for model in _functions.get_models().keys():
-                weight += _functions.find(model).where('tags', 'in', [tag]).count()
+                weight += _functions.find(model, language=self.language).where('tags', 'in', [tag]).count()
             tag.f_set('weight', weight).save()
+            print(weight)
 
         # Creating back links in images
         for img in self.images:
@@ -311,7 +315,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        title = str(_html.A(self.f_get('title'), href=self.route_alias.f_get('alias')))
+        title = str(_html.A(self.f_get('title'), href=self.url))
 
         status = self.f_get('status')
         status_str = self.t('status_' + status)

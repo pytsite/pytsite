@@ -68,7 +68,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('login'),
             self.f_get('full_name'),
             groups_cell,
-            '<span class="label label-{}">{}</span>'.format(status_cls, _lang.t('auth@status_' + self.f_get('status'))),
+            '<span class="label label-{}">{}</span>'.format(status_cls, _lang.t('pytsite.auth@status_' + self.f_get('status'))),
             '<span class="label label-info">{}</span>'.format(self.t('word_yes')) if self.profile_is_public else '',
             '<span class="label label-success">{}</span>'.format(self.t('word_yes')) if self.is_online else '',
             self.f_get('last_activity', fmt='pretty_date_time')

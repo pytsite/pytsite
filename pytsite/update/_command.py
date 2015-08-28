@@ -6,8 +6,8 @@ __license__ = 'MIT'
 
 import pickle as _pickle
 from os import path as _path
-from pytsite import console as _console, events as _events, lang as _lang, version as _pytsite_ver, reg as _reg
-__import__('pytsite.maintenance')
+from pytsite import console as _console, events as _events, lang as _lang, version as _pytsite_ver, reg as _reg, \
+    logger as _logger, maintenance as _maintenance
 
 
 class Update(_console.command.Abstract):
@@ -30,7 +30,7 @@ class Update(_console.command.Abstract):
         cur_ver = _pytsite_ver()
         cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
 
-        _console.run_command('maintenance', enable=True)
+        _maintenance.enable()
 
         stop = False
         for major in range(0, 1):
@@ -45,18 +45,26 @@ class Update(_console.command.Abstract):
 
                     major_minor_rev = '{}.{}.{}'.format(major, minor, rev)
 
+                    # Current version reached
                     if major_minor_rev == cur_ver_str:
                         stop = True
 
+                    # Update is already applied
                     if major_minor_rev in state:
                         continue
 
+                    # Notify listeners
+                    _logger.info('pytsite.update event, version={}'.format(major_minor_rev), __name__)
+                    _events.fire('pytsite.update', version=major_minor_rev)
+
+                    # Saving number as applied update
                     state.add(major_minor_rev)
 
-                    print(major_minor_rev)
+        _logger.info('pytsite.update.after event', __name__)
+        _events.fire('pytsite.update.after')
 
         self._save_state(state)
-        _console.run_command('maintenance', disable=True)
+        _maintenance.disable()
 
         # _events.fire('pytsite.update')
 

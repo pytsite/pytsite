@@ -111,11 +111,14 @@ def __init():
     # Initializing asset manager
     from pytsite import assetman
 
-    # Initializing browser components
+    # Initializing Browser module
     __import__('pytsite.browser')
 
-    # Initializing Update module
-    __import__('pytsite.update')
+    # Initializing Form module
+    __import__('pytsite.form')
+
+    # Initializing Setup module
+    __import__('pytsite.setup')
 
     # Initializing 'app' package
     lang.register_package('app', 'lang')

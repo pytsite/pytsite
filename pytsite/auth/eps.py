@@ -20,10 +20,10 @@ def login(args: dict, inp: dict) -> str:
         return _http.response.Redirect(redirect_url)
 
     _assetman.add('pytsite.auth@css/common.css')
-    _metatag.t_set('title', _lang.t('auth@authorization'))
+    _metatag.t_set('title', _lang.t('pytsite.auth@authorization'))
 
     return _tpl.render('pytsite.auth@views/login', {
-        'form': _functions.get_login_form(legend=_lang.t('auth@authorization'))
+        'form': _functions.get_login_form(legend=_lang.t('pytsite.auth@authorization'))
     })
 
 

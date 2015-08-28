@@ -114,8 +114,8 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
 
     try:
         _functions.post_d_form(model, ids)
-        _router.session.add_info(_lang.t('odm_ui@operation_successful'))
+        _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except _odm.error.ForbidEntityDelete as e:
-        _router.session.add_error(_lang.t('odm_ui@entity_deletion_forbidden') + ': ' + str(e))
+        _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
 
     return _http.response.Redirect(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))

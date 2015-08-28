@@ -10,7 +10,7 @@ from pytsite import image as _image, auth as _auth, console as _console, lang as
 from . import _functions
 
 
-class Generate(_console._command.Abstract):
+class Generate(_console.command.Abstract):
     """Abstract command.
     """
     li_url = 'http://loripsum.net/api/prude/'
@@ -29,7 +29,8 @@ class Generate(_console._command.Abstract):
     def usage(self):
         """Print usage info.
         """
-        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] --model=MODEL --author=LOGIN')
+        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] '
+                            '--model=MODEL --author=LOGIN')
 
     def execute(self, **kwargs: dict):
         """Execute teh command.
@@ -51,12 +52,15 @@ class Generate(_console._command.Abstract):
         if not author:
             raise _console.Error("'{}' is not a registered user.".format(author_login))
 
+        language = kwargs.get('lang', _lang.get_current_lang())
+
         # Generate sections
-        sections = list(_functions.get_sections())
-        if len(sections) < 3:
+        sections = list(_functions.get_sections(language))
+        if not len(sections):
             for m in range(0, 3):
                 title = self._generate_title(1)
-                sections.append(_functions.create_section(title))
+                section = _functions.create_section(title, language=language)
+                sections.append(section)
                 _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
 
         num = int(kwargs.get('num', 10))
@@ -77,7 +81,7 @@ class Generate(_console._command.Abstract):
 
             tags = []
             for n in range(0, 5):
-                tag = _functions.create_tag(self._generate_title(1))
+                tag = _functions.create_tag(self._generate_title(1), language=language)
                 tags.append(tag)
 
             entity = _functions.create(model)
@@ -90,6 +94,7 @@ class Generate(_console._command.Abstract):
             entity.f_set('status', 'published')
             entity.f_set('views_count', int(_random() * 1000))
             entity.f_set('comments_count', int(_random() * 100))
+            entity.f_set('language', language)
 
             if entity.has_field('section'):
                 entity.f_set('section', sections[0])

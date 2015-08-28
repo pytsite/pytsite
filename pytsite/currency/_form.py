@@ -16,7 +16,7 @@ class Settings(_form.Base):
             self.add_widget(_widget.Currency(
                 uid='setting_exchange_rate_' + cur,
                 weight=weight,
-                label=_lang.t('currency@exchange_rate', {'code': cur}),
+                label=_lang.t('pytsite.currency@exchange_rate', {'code': cur}),
                 h_size='col-xs-12 col-sm-4 col-md-3 col-lg-2',
                 value={'amount': 1.0, 'currency': main_cur},
                 currency=main_cur

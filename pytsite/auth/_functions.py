@@ -238,9 +238,9 @@ def get_user_statuses() -> tuple:
     """Get available user statuses.
     """
     return (
-        ('active', _lang.t('auth@status_active')),
-        ('waiting', _lang.t('auth@status_waiting')),
-        ('disabled', _lang.t('auth@status_disabled')),
+        ('active', _lang.t('pytsite.auth@status_active')),
+        ('waiting', _lang.t('pytsite.auth@status_waiting')),
+        ('disabled', _lang.t('pytsite.auth@status_disabled')),
     )
 
 

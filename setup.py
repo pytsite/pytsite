@@ -2,8 +2,9 @@ import re
 from os import walk, path
 from setuptools import setup, find_packages
 
-with open(path.join(path.dirname(__file__), 'pytsite', 'VERSION.txt'), 'r') as f:
+with open(path.join(path.dirname(__file__), 'pytsite', 'VERSION.txt')) as f:
     version = f.readline().replace('\n', '')
+
 
 def find_package_data():
     r = {}

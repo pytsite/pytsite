@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import lang as _lang
+from pytsite import lang as _lang, util as _util
 
 __tags = {}
 __allowed_tags = (
@@ -46,16 +46,9 @@ def t_set(tag: str, value: str):
     """Set tag value.
     """
     if tag not in __allowed_tags:
-        raise Exception("Unknown tag '{0}'".format(tag))
+        raise Exception("Unknown tag '{}'".format(tag))
 
-    __tags[tag] = value
-
-
-def t_set_multiple(tags: dict):
-    """ Set multiple tags.
-    """
-    # TODO
-    pass
+    __tags[tag] = _util.escape_html(value)
 
 
 def get(tag: str) -> str:

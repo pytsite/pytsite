@@ -130,7 +130,7 @@ class ULoginDriver(AbstractDriver):
                 return _http.response.Redirect(_router.base_url(query=inp))
         except _error.LoginIncorrect as e:
             _logger.error('{}. Login incorrect. {}'.format(__name__, e))
-            _router.session.add_error(_lang.t('auth@authorization_error'))
+            _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
             if '__form_redirect' in inp:
                 del inp['__form_redirect']
             if '__form_location' in inp:

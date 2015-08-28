@@ -95,8 +95,6 @@ def t(msg_id: str, args: dict=None, language: str=None) -> str:
     msg_id = msg_id.split('@')
     if len(msg_id) == 2:
         package_name = msg_id[0]
-        if package_name != 'app' and not package_name.startswith('pytsite.'):
-            package_name = 'pytsite.' + package_name
         msg_id = msg_id[1]
     else:
         msg_id = msg_id[0]

@@ -8,8 +8,8 @@
         <h3 class="text-xs-B-center text-xs-left">{{ user.full_name }}</h3>
 
         <ul class="info text-xs-B-center text-xs-left">
-            <li>{{ t('auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>
-            <li>{{ t('auth_ui@last_activity') }}: {{ user.last_activity | date('pretty_date_time') }}</li>
+            <li>{{ t('pytsite.auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>
+            <li>{{ t('pytsite.auth_ui@last_activity') }}: {{ user.last_activity | date('pretty_date_time') }}</li>
         </ul>
 
         {% if user.urls %}

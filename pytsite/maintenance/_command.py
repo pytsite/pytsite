@@ -4,11 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import console as _console, lang as _lang
+from pytsite import console as _console
 from . import _function
 
+
 class Maintenance(_console.command.Abstract):
-    """Maintenance Command.
+    """'maintenance' Console Command.
     """
     def get_name(self) -> str:
         """Get name of the command.
@@ -26,9 +27,8 @@ class Maintenance(_console.command.Abstract):
         """
         if 'enable' in kwargs:
             _function.enable()
-            _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_enabled'))
+
         elif 'disable' in kwargs:
             _function.disable()
-            _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_disabled'))
         else:
             _console.print_info('Usage: app:maintenance --enable | --disable')

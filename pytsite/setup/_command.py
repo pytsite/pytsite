@@ -16,7 +16,7 @@ class Setup(_console.command.Abstract):
     def get_name(self) -> str:
         """Get name of the command.
         """
-        return 'app:setup'
+        return 'setup'
 
     def get_description(self) -> str:
         """Get description of the command.
@@ -29,9 +29,9 @@ class Setup(_console.command.Abstract):
         """
         lock_path = _reg.get('paths.setup.lock')
         if _path.exists(lock_path):
-            raise _console.Error(_lang.t('pytsite.setup@setup_already_completed'))
+            raise _console.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
-        _events.fire('app.setup')
+        _events.fire('setup')
 
         # Writing lock file
         lock_dir = _path.dirname(lock_path)
@@ -41,3 +41,5 @@ class Setup(_console.command.Abstract):
             f.write(_datetime.now().isoformat())
 
         _console.print_info(_lang.t('pytsite.setup@setup_has_been_completed'))
+
+        _console.run_command('update')

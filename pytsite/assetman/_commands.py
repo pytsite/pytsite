@@ -38,6 +38,7 @@ class CompileAssets(_console.command.Abstract):
         if _path.exists(assets_dir):
             _rmtree(assets_dir)
 
+        _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
         for pkg_name, package_assets_dir in _functions.get_packages().items():
             # Building package's assets absolute paths list
             files_list = []
@@ -72,7 +73,7 @@ class CompileAssets(_console.command.Abstract):
                                        manifest=False, cache=False)
                     env.register('bundle', bundle, output=dst)
 
-                    _console.print_info('Compiling {} -> {}'.format(src, dst))
+                    _logger.info('Compiling {} -> {}'.format(src, dst), __name__)
                     cmd = _CommandLineEnvironment(env, _logger)
                     cmd.invoke('build', {})
                 elif '.webassets-cache' not in src:
@@ -82,11 +83,12 @@ class CompileAssets(_console.command.Abstract):
                     _copy(src, dst)
 
         # Compile translations
+        _console.print_info(_lang.t('pytsite.assetman@compiling_translations'))
         translations = {}
         for lang_code in _lang.get_langs():
             translations[lang_code] = {}
             for pkg_name, info in _lang.get_packages().items():
-                _console.print_info("Compiling translations for {} ({})".format(pkg_name, lang_code))
+                _logger.info("Compiling translations for {} ({})".format(pkg_name, lang_code), __name__)
                 translations[lang_code][pkg_name] = _lang.load_lang_file(pkg_name, lang_code)
 
         str_output = 'pytsite.lang.langs={};'.format(_json.dumps(_lang.get_langs()))
@@ -97,5 +99,5 @@ class CompileAssets(_console.command.Abstract):
         if not _path.exists(output_dir):
             _makedirs(output_dir, 0o755, True)
         with open(output_file, 'wt') as f:
-            _console.print_info("Writing translations into '{}'".format(output_file))
+            _logger.info("Writing translations into '{}'".format(output_file), __name__)
             f.write(str_output)

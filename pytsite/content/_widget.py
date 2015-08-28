@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
-    router as _router
+    router as _router, util as _util
 from . import _model, _functions
 
 
@@ -63,10 +63,11 @@ class SearchInput(_widget.Base):
         self._model = model
 
     def render(self) -> _html.Element:
+        value = _router.request.values_dict.get('search', '')
         form = _html.Form(cls='wrapper form-inline', method='GET')
         form.append(_html.Input(type='text', cls='form-control', name='search',  required=True,
                                 placeholder=_lang.t('pytsite.content@search_input_placeholder'),
-                                value=_router.request.values_dict.get('search', '')))
+                                value=value))
         form.set_attr('action', _router.endpoint_url('pytsite.content.eps.index', {
             'model': self._model,
         }))

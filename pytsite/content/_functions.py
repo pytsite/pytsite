@@ -109,7 +109,7 @@ def get_publish_statuses() -> list:
     """
     r = []
     for s in ('published', 'waiting', 'unpublished'):
-        r.append((s, _lang.t('content@status_' + s)))
+        r.append((s, _lang.t('pytsite.content@status_' + s)))
 
     return r
 
@@ -122,9 +122,9 @@ def get_section(alias: str, language: str=None) -> _model.Section:
     return _taxonomy.find('section', language).where('alias', '=', alias).first()
 
 
-def create_section(title: str, alias: str=None) -> _model.Section:
-    return _taxonomy.dispense('section', title, alias).save()
+def create_section(title: str, alias: str=None, language: str=None) -> _model.Section:
+    return _taxonomy.dispense('section', title, alias, language).save()
 
 
-def create_tag(title: str, alias: str=None) -> _model.Tag:
-    return _taxonomy.dispense('tag', title, alias).save()
+def create_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
+    return _taxonomy.dispense('tag', title, alias, language).save()

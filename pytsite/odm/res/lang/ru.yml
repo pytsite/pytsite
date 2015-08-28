@@ -1,2 +1,2 @@
-reindex_console_command_description: 'Перепостроение индексов'
-reindex_model: 'Переиндексация :model'
+reindex_console_command_description: 'Построение индексов'
+reindex_model: "Индексирую модель ':model'"

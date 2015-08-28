@@ -38,19 +38,31 @@ def is_model_registered(model: str) -> bool:
     return model in __models
 
 
-def dispense(model: str, title: str, alias: str=None):
+def dispense(model: str, title: str, alias: str=None, language: str=None):
     """Create new term or dispense existing.
     """
     if not is_model_registered(model):
         raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
 
-    title = title.strip()
-    term = find(model).where('title', 'regex_i', '^' + title + '$').first()
-    if not term and alias:
-        term = find(model).where('alias', '=', alias).first()
+    if not language:
+        language = _lang.get_current_lang()
 
+    title = title.strip()
+
+    if not alias:
+        alias = _util.transform_str_1(title)
+
+    # Trying to find term by title
+    term = find(model, language).where('title', 'regex_i', '^' + title + '$').first()
+
+    # If term is not found, trying to find it by alias
     if not term:
-        term = _odm.dispense(model).f_set('title', title)
+        term = find(model, language).where('alias', '=', alias).first()
+
+    # If term is not found, create it
+    if not term:
+        term = _odm.dispense(model)
+        term.f_set('title', title).f_set('language', language)
         if alias:
             term.f_set('alias', alias)
 

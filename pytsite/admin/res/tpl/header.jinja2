@@ -151,11 +151,11 @@
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('admin@profile') }}</a>
+                                <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('pytsite.admin@profile') }}</a>
                             </div>
                             <div class="pull-right">
                                 {% set sign_out_url = router.endpoint_url('pytsite.auth.eps.logout') %}
-                                <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('admin@sign_out') }}</a>
+                                <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('pytsite.admin@sign_out') }}</a>
                             </div>
                         </li>
                     </ul>

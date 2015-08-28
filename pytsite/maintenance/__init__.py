@@ -9,3 +9,7 @@ from . import _command
 
 _lang.register_package(__name__)
 _console.register_command(_command.Maintenance())
+
+
+# Public API
+from ._function import enable, disable, is_enabled

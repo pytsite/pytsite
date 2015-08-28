@@ -1,2 +1,4 @@
 assetman_console_command_description: 'Компіляція ассетів'
 lang_console_command_description: 'Компіляція мовних перекладів'
+compiling_assets: 'Компілюю ассети'
+compiling_translations: 'Компілюю переклади'

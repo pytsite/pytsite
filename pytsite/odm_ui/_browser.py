@@ -165,7 +165,7 @@ class Browser:
             t_head_row.append(th)
 
         # Actions column
-        t_head_row.append(_html.Th(_lang.t('odm_ui@actions'), data_field='__actions'))
+        t_head_row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
         return toolbar.render() + table.render()
 

@@ -23,7 +23,7 @@ $(function () {
         form.submit(function (e) {
             var validation_ep = form.data('validationEp');
             if (typeof validation_ep == 'undefined' || form.hasClass('validated')) {
-                form.trigger('pytsite.core.form.submit');
+                form.trigger('pytsite.form.submit');
                 return true;
             }
 

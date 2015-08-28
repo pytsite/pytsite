@@ -6,9 +6,11 @@ __license__ = 'MIT'
 
 from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
-
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
     validation as _validation
+
+
+_assetman.register_package(__name__)
 
 
 class Base:

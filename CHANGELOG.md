@@ -1,13 +1,14 @@
 # PytSite Changelog
 
-## 0.8 (2015-08-xx)
+## 0.8 (2015-08-28)
 
 ### Changed
-- `core`'s content refactored into separate modules. 
-- Events `pytsite.core.*` renamed to `pytsite.*`. 
+- `core` refactored into separate modules.
+- `update` module rewritten. 
 
 ### Fixed
 - Value set error in `currency.odm.CurrencyField`.
+- Language issues while working with `content` and `taxonomy` models.
 
 
 ## 0.7.2 (2015-08-25)

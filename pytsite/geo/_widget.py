@@ -165,6 +165,6 @@ class StaticMap(_widget.Base):
 
         if self._link:
             link = _functions.get_map_link(self._lng, self._lat, self._query)
-            img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('geo@show_on_map')))
+            img = img.wrap(_html.A(href=link, target='_blank', title=_lang.t('pytsite.geo@show_on_map')))
 
         return self._group_wrap(img)

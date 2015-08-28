@@ -62,13 +62,13 @@ def get_form(uid) -> _form.Base:
     actions = _widget.static.Wrapper(uid='actions')
     actions.add_child(_widget.button.Submit(
         weight=10,
-        value=_lang.t('settings@save'),
+        value=_lang.t('pytsite.settings@save'),
         icon='fa fa-save',
         color='primary'
     ))
     actions.add_child(_widget.button.Link(
         weight=10,
-        value=_lang.t('settings@cancel'),
+        value=_lang.t('pytsite.settings@cancel'),
         icon='fa fa-ban',
         href=_router.endpoint_url('pytsite.admin.eps.dashboard')
     ))

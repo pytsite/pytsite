@@ -4,6 +4,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from werkzeug.utils import escape as escape_html
+
 
 def dict_merge(a: dict, b: dict) -> dict:
     """Recursively merges dict's.
@@ -69,8 +71,6 @@ def weight_sort(inp: list, key: str='weight') -> list:
 def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
     """Format dictionary as XML attributes string.
     """
-    from werkzeug.utils import escape
-
     single_attrs = 'checked', 'selected', 'required', 'allowfullscreen', 'hidden'
 
     r = ''
@@ -85,7 +85,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
                     r += ' {}'.format(k)
             else:
                 v = str(v).strip()
-                r += ' {}="{}"'.format(k, escape(v))
+                r += ' {}="{}"'.format(k, escape_html(v))
 
     return r
 
