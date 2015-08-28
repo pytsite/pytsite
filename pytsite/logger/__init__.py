@@ -17,7 +17,7 @@ _log_path = _path.join(_log_dir, _now.strftime('%Y%m%d.log'))
 if not _path.exists(_log_dir):
     _makedirs(_log_dir, 0o755, True)
 
-_format = '%(asctime)s %(levelname)s %(module_name)s %(message)s'
+_format = '%(asctime)s %(levelname)s %(message)s'
 _logging.basicConfig(filename=_log_path, datefmt='%Y-%m-%d %H:%M:%S', format=_format)
 _logger = _logging.getLogger(_reg.get('env.name', 'default'))
 _level = _logging.DEBUG if _reg.get('logger.level') == 'debug' else _logging.INFO

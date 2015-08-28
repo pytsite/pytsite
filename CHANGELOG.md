@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.8.2 (2015-08-28)
+### Fixed
+- Removed `module_name` extra argument from `logger`.
+
 ## 0.8.1 (2015-08-28)
 ### Fixed
 - `VERSION.txt` included into `setup.py`.
