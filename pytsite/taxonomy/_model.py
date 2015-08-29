@@ -69,15 +69,6 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         if not self.f_get('alias'):
             self.f_set('alias', self.f_get('title'))
 
-    def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
-        if self.is_new:
-            from . import _functions
-            title = self.f_get('title')
-            if _functions.find(self.model).where('title', 'regex_i', '^' + title + '$').count():
-                return
-
-        return super().save(skip_hooks, update_timestamp)
-
     def setup_browser(self, browser):
         """Hook.
 
@@ -145,7 +136,8 @@ class Term(_odm.Model, _odm_ui.UIMixin):
         form.add_widget((_widget.static.Text(
             weight=900,
             label=self.t('language'),
-            value=lang_title,
+            title=lang_title,
+            value=self.language if self.language else _lang.get_current_lang(),
         )))
 
         form.add_rule('title', _validation.rule.NotEmpty())

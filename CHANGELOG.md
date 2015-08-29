@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.8.3 (2015-08-29)
+### Fixed
+- Removed forgotten debug messages.
+- Incorrect language ODM UI form field setup in `taxonomy.model.Term`.  
+
 ## 0.8.2 (2015-08-28)
 ### Fixed
 - Removed `module_name` extra argument from `logger`.

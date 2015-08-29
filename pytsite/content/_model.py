@@ -281,7 +281,6 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             for model in _functions.get_models().keys():
                 weight += _functions.find(model, language=self.language).where('tags', 'in', [tag]).count()
             tag.f_set('weight', weight).save()
-            print(weight)
 
         # Creating back links in images
         for img in self.images:
