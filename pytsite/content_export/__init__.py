@@ -17,7 +17,7 @@ def __init():
     from pytsite import lang
     from pytsite import router
     from ._model import ContentExport
-    from ._functions import cron_15min_eh
+    from ._functions import cron_5min_eh
 
     # Resources
     lang.register_package(__name__)
@@ -26,7 +26,7 @@ def __init():
     odm.register_model('content_export', ContentExport)
 
     # Event handlers
-    events.listen('pytsite.cron.15min', cron_15min_eh)
+    events.listen('pytsite.cron.5min', cron_5min_eh)
 
     m = 'content_export'
     admin.sidebar.add_menu('misc', m, __name__ + '@export',

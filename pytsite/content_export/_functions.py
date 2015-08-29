@@ -46,7 +46,7 @@ def get_driver_title(name) -> str:
     return _lang.t(get_driver_info(name)[0])
 
 
-def cron_15min_eh():
+def cron_5min_eh():
     """'pytsite.cron.1m' event handler.
     """
     lock = _threading.get_r_lock()
@@ -62,7 +62,7 @@ def cron_15min_eh():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            if cnt == 10:
+            if cnt == 5:
                 return
 
             try:

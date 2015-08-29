@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.8.4 (2015-08-29)
+### Changed
+- 5 exports in 5 minutes limit in `content_export`.
+
 ## 0.8.3 (2015-08-29)
 ### Fixed
 - Removed forgotten debug messages.
