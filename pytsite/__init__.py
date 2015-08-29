@@ -127,4 +127,7 @@ def __init():
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
     __import__('app')
 
+    # Initializing cron
+    __import__('pytsite.cron')
+
 __init()

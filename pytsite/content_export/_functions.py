@@ -47,7 +47,7 @@ def get_driver_title(name) -> str:
 
 
 def cron_5min_eh():
-    """'pytsite.cron.1m' event handler.
+    """'pytsite.cron.5m' event handler.
     """
     lock = _threading.get_r_lock()
     cnt = 0

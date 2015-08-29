@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.8.5 (2015-08-29)
+### Fixed
+- Missed cron initialization.
+
 ## 0.8.4 (2015-08-29)
 ### Changed
 - 5 exports in 5 minutes limit in `content_export`.
