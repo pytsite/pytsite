@@ -1,25 +1,35 @@
 # PytSite Changelog
 
+## 0.8.6 (2015-08-31)
+### Changed
+- 1 export in 1 minute limit in `content_export`.
+
+
 ## 0.8.5 (2015-08-29)
 ### Fixed
 - Missed cron initialization.
 
+
 ## 0.8.4 (2015-08-29)
 ### Changed
 - 5 exports in 5 minutes limit in `content_export`.
+
 
 ## 0.8.3 (2015-08-29)
 ### Fixed
 - Removed forgotten debug messages.
 - Incorrect language ODM UI form field setup in `taxonomy.model.Term`.  
 
+
 ## 0.8.2 (2015-08-28)
 ### Fixed
 - Removed `module_name` extra argument from `logger`.
 
+
 ## 0.8.1 (2015-08-28)
 ### Fixed
 - `VERSION.txt` included into `setup.py`.
+
 
 ## 0.8 (2015-08-28)
 ### Changed
