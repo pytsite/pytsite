@@ -24,23 +24,37 @@ _level = _logging.DEBUG if _reg.get('logger.level') == 'debug' else _logging.INF
 _logger.setLevel(_level)
 
 
-def debug(msg: str, module: str='UNKNOWN'):
+def debug(msg: str, prefix: str=None):
     """Log an DEBUG message.
     """
-    _logger.debug(msg, extra={'module_name': module})
+    if prefix:
+        msg = '{} {}'.format(prefix, msg)
+
+    _logger.debug(msg)
 
 
-def info(msg: str, module: str='UNKNOWN'):
+def info(msg: str, prefix: str=None):
     """Log an INFO message.
     """
-    _logger.info(msg, extra={'module_name': module})
+    if prefix:
+        msg = '{} {}'.format(prefix, msg)
+
+    _logger.info(msg)
 
 
-def error(msg: str, *args, **kwargs):
+def warn(msg: str, prefix: str=None):
+    """Log an WARNING message.
+    """
+    if prefix:
+        msg = '{} {}'.format(prefix, msg)
+
+    _logger.warn(msg)
+
+
+def error(msg: str, prefix: str=None):
     """Log an ERROR message.
     """
-    if 'extra' not in kwargs:
-        kwargs['extra'] = {}
+    if prefix:
+        msg = '{} {}'.format(prefix, msg)
 
-    kwargs['exc_info'] = True
-    _logger.error(msg, *args, **kwargs)
+    _logger.error(msg, exc_info=True)

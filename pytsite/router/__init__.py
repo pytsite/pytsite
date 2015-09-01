@@ -225,7 +225,7 @@ def dispatch(env: dict, start_response: callable):
         return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
-        _logger.error(str(e))
+        _logger.error(str(e), __name__)
         metatag.t_set('title', _lang.t('pytsite.router@error', {'code': 500}))
         wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
         return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)

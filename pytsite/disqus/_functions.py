@@ -50,6 +50,6 @@ def get_comments_count(thread_url: str) -> int:
 
         entity.f_set('count', count).save()
     except Exception as e:
-        _logger.error(str(e))
+        _logger.error(str(e), __name__)
 
     return count

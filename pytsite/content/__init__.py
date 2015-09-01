@@ -1,4 +1,4 @@
-"""Content Plugin.
+"""Pytsite Content Module.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -6,15 +6,10 @@ __license__ = 'MIT'
 
 
 def __init():
+    """Module Init Wrapper.
+    """
     import sys
-    from pytsite import admin, taxonomy, settings
-    from pytsite import console
-    from pytsite import assetman
-    from pytsite import odm
-    from pytsite import events
-    from pytsite import tpl
-    from pytsite import lang
-    from pytsite import router
+    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router
     from . import _ehs
     from ._model import Tag, Section, ContentSubscriber
     from ._forms import Settings
@@ -74,4 +69,5 @@ __init()
 
 # Public API
 from . import _model as model, _widget as widget
-from ._functions import register_model, get_models, find, get_model, get_model_title, create, get_sections
+from ._functions import register_model, get_models, find, get_model, get_model_title, create, get_sections, \
+    create_section, create_tag, get_publish_statuses, get_section, is_model_registered

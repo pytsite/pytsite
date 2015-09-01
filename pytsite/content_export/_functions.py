@@ -66,9 +66,9 @@ def cron_1min_eh():
                 return
 
             try:
-                msg = "{}. Entity '{}', title='{}'. Exporter '{}', title='{}'" \
-                    .format(__name__, entity.model, entity.title, exporter.driver, exporter.driver_opts['title'])
-                _logger.info(msg)
+                msg = "Entity '{}', title='{}'. Exporter '{}', title='{}'" \
+                    .format(entity.model, entity.title, exporter.driver, exporter.driver_opts['title'])
+                _logger.info(msg, __name__)
 
                 # Ask driver to perform export
                 driver = load_driver(exporter.driver, **exporter.driver_opts)

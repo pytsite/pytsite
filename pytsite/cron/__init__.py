@@ -7,7 +7,6 @@ __license__ = 'MIT'
 import pickle as _pickle
 from os import path as _path
 from datetime import datetime as _datetime, timedelta as _timedelta
-
 from pytsite import events as _events, reg as _reg, threading as _threading, logger as _logger
 
 _period = _reg.get('cron.period', 60)
@@ -17,17 +16,15 @@ _working = False
 
 
 def _thread_start():
-    if _working:
-        _logger.error('{}. Cron is still working.'.format(__name__))
-        return
-
-    # Start new thread
     delta = _datetime.now() - _last_start
     if delta.seconds >= _period:
-        _threading.create_thread(_start).start()
+        if not _working:
+            _threading.create_thread(_thread_payload).start()
+        else:
+            _logger.warn('Cron is still working.', __name__)
 
 
-def _start():
+def _thread_payload():
     """Start the cron.
     """
     global _last_start, _working, _period
@@ -49,12 +46,12 @@ def _start():
                     or evt == 'weekly' and delta.total_seconds() >= 604800 \
                     or evt == 'monthly' and delta.total_seconds() >= 2592000:
 
-                _logger.info(__name__ + '. Event: pytsite.cron.' + evt)
+                _logger.info('Event: pytsite.cron.' + evt, __name__)
 
                 try:
                     _events.fire('pytsite.cron.' + evt)
                 except Exception as e:
-                    _logger.error('{}. {}'.format(__name__, str(e)))
+                    _logger.error('{}'.format(str(e)), __name__)
                 finally:
                     _update_stats(evt)
         else:

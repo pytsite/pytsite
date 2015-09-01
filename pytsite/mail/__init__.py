@@ -105,14 +105,14 @@ class Message(_MIMEMultipart):
             try:
                 engine = _SMTP('localhost')
                 engine.sendmail(msg._from_addr, msg._to_addrs, str(msg))
-                log_msg = "{}. Message '{}' has been sent to {}.".format(__name__, msg.subject, msg.to_addrs)
-                _logger.info(log_msg)
+                log_msg = "Message '{}' has been sent to {}.".format(msg.subject, msg.to_addrs)
+                _logger.info(log_msg, __name__)
             except Exception as e:
-                _logger.error('{}. Unable to send message to {}. {}.'.format(__name__, msg.to_addrs, e))
+                _logger.error('Unable to send message to {}. {}.'.format(msg.to_addrs, e), __name__)
 
         super().attach(_MIMEText(self.body, 'html', 'utf-8'))
         for attachment in self._attachments:
             super().attach(attachment)
 
         threading.Thread(target=do_send, kwargs={'msg': self}).start()
-        _logger.info(__name__ + '. Started new message send thread to {}.'.format(self.to_addrs))
+        _logger.info('Started new message send thread to {}.'.format(self.to_addrs), __name__)

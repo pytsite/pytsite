@@ -67,7 +67,7 @@ def _mail_digest():
     if not model:
         return
 
-    _logger.info(__name__ + '. Weekly mail digest start.')
+    _logger.info('Weekly mail digest start.', __name__)
 
     for subscriber in _odm.find('content_subscriber').where('enabled', '=', True).get():
         content_f = _functions.find(model).where('publish_time', '>', _datetime.now() - _timedelta(7))
@@ -78,13 +78,13 @@ def _mail_digest():
         })
         _mail.Message(subscriber.f_get('email'), _lang.t('pytsite.content@weekly_digest_mail_subject'), m_body).send()
 
-    _logger.info(__name__ + '. Weekly mail digest stop.')
+    _logger.info('Weekly mail digest stop.', __name__)
 
 
 def _generate_sitemap():
     """Generate content sitemap.
     """
-    _logger.info(__name__ + '. Sitemap generation start.')
+    _logger.info('Sitemap generation start.', __name__)
 
     output_dir = _path.join(_reg.get('paths.static'), 'sitemap')
     if _path.exists(output_dir):
@@ -98,7 +98,7 @@ def _generate_sitemap():
     sitemap = _sitemap.Sitemap()
     sitemap.add_url(_router.base_url(), _datetime.now(), 'always', 1)
     for model in _reg.get('content.sitemap.models', []):
-        _logger.info(__name__ + ". Sitemap generation started for model '{}'.".format(model))
+        _logger.info("Sitemap generation started for model '{}'.".format(model), __name__)
         for entity in _functions.find(model).get():
             sitemap.add_url(entity.url, entity.publish_time)
             loop_links += 1
@@ -106,22 +106,22 @@ def _generate_sitemap():
                 loop += 1
                 loop_links = 0
                 sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop), True)
-                _logger.info(__name__ + ". '{}' successfully written with {} links.".format(sitemap_path, loop_links))
+                _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
                 sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
                 del sitemap
                 sitemap = _sitemap.Sitemap()
 
         if len(sitemap):
             sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop), True)
-            _logger.info(__name__ + ". '{}' successfully written with {} links.".format(sitemap_path, loop_links))
+            _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
             sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
             del sitemap
 
     if len(sitemap_index):
         sitemap_index_path = sitemap_index.write(_path.join(output_dir, 'index.xml'))
-        _logger.info(__name__ + ". '{}' successfully written.".format(sitemap_index_path))
+        _logger.info("'{}' successfully written.".format(sitemap_index_path), __name__)
 
-    _logger.info(__name__ + '. Sitemap generation stop.')
+    _logger.info('Sitemap generation stop.', __name__)
 
 
 def _generate_feeds():
@@ -137,7 +137,7 @@ def _generate_feeds():
         feed_title = content_settings.get('home_title_' + lang)
         feed_description = content_settings.get('home_description_' + lang)
         for model in _reg.get('content.feed.models', []):
-            _logger.info(__name__ + ". Feeds generation started for model '{}', language '{}'.".format(model, lang))
+            _logger.info("Feeds generation started for model '{}', language '{}'.".format(model, lang), __name__)
             feed_writer = _feed.Writer(feed_title, _router.base_url(), feed_description)
             for entity in _functions.find(model).get(feed_length):
                 entry = feed_writer.add_entry()
@@ -178,10 +178,10 @@ def _generate_feeds():
                 out_path = _path.join(output_dir, '{}-{}-{}.xml'.format(out_type, model, lang))
                 if out_type == 'rss':
                     feed_writer.rss_file(out_path, True)
-                    _logger.info(__name__ + ". RSS feed successfully written to '{}'.".format(out_path))
+                    _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)
                 if out_type == 'atom':
                     feed_writer.atom_file(out_path, True)
-                    _logger.info(__name__ + ". Atom feed successfully written to '{}'.".format(out_path))
+                    _logger.info("Atom feed successfully written to '{}'.".format(out_path), __name__)
 
 
 def _update_0_7_0():

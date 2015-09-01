@@ -15,5 +15,5 @@ def request(args: dict, inp: dict) -> http.response.JSON:
     except http.error.NotFound:
         return http.response.JSON({'error': "Endpoint '{}' is not found.".format(ep)}, status=404)
     except Exception as e:
-        logger.error(str(e))
+        logger.error(str(e), __name__)
         return http.response.JSON({'error': str(e)}, status=500)

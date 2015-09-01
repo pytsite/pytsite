@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.8.7 (2015-09-01)
+### Added
+- Missed functions in public API of the `content`.
+- `warn` function in `logger`.
+
+### Changed
+- `logger` functions now accept message's prefix.
+- Logging level of `cron`'s message 'Cron is still working' lowered to 'warning'.
+
+
 ## 0.8.6 (2015-08-31)
 ### Changed
 - 1 export in 1 minute limit in `content_export`.
