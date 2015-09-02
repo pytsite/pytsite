@@ -1,3 +1,13 @@
+""" PytSite Auth Module Init.
+"""
+
+# Public API
+from . import _error as error, _functions, _model as model
+from ._functions import define_permission_group,  define_permission, get_current_user, get_permission, \
+    get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role, \
+    get_login_form, find_users
+
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -7,7 +17,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite import reg, assetman, odm, events, tpl, lang, router
+    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots
 
     # Resources
     tpl.register_package(__name__)
@@ -43,12 +53,8 @@ def __init():
     _functions.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
     _functions.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
 
+    # robots.txt rules
+    robots.disallow(base_path + '/')
+
 
 __init()
-
-
-# Public API
-from . import _error as error, _functions, _model as model
-from ._functions import define_permission_group,  define_permission, get_current_user, get_permission, \
-    get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role, \
-    get_login_form, find_users

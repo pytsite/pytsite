@@ -1,13 +1,14 @@
 """PytSite Cron.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import pickle as _pickle
 from os import path as _path
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import events as _events, reg as _reg, threading as _threading, logger as _logger
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 
 _period = _reg.get('cron.period', 60)
 _last_start = _datetime.now() - _timedelta(seconds=_period)
@@ -29,22 +30,24 @@ def _thread_payload():
     """
     global _last_start, _working, _period
 
+    _last_start = _datetime.now()
     _working = True
     _events.fire('pytsite.cron.tick')
 
     stats = _get_stats()
     now = _datetime.now()
-    for evt in '1min', '5min', '15min', '30min' 'hourly', 'daily', 'weekly', 'monthly':
+    for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
+        print(evt)
         if evt in stats:
             delta = now - stats[evt]
-            if evt == '1min' and delta.total_seconds() >= 60 \
-                    or evt == '5min' and delta.total_seconds() >= 300 \
-                    or evt == '15min' and delta.total_seconds() >= 900 \
-                    or evt == '30min' and delta.total_seconds() >= 1800 \
-                    or evt == 'hourly' and delta.total_seconds() >= 3600 \
-                    or evt == 'daily' and delta.total_seconds() >= 86400 \
-                    or evt == 'weekly' and delta.total_seconds() >= 604800 \
-                    or evt == 'monthly' and delta.total_seconds() >= 2592000:
+            if (evt == '1min' and delta.total_seconds() >= 60) \
+                    or (evt == '5min' and delta.total_seconds() >= 300) \
+                    or (evt == '15min' and delta.total_seconds() >= 900) \
+                    or (evt == '30min' and delta.total_seconds() >= 1800) \
+                    or (evt == 'hourly' and delta.total_seconds() >= 3600) \
+                    or (evt == 'daily' and delta.total_seconds() >= 86400) \
+                    or (evt == 'weekly' and delta.total_seconds() >= 604800) \
+                    or (evt == 'monthly' and delta.total_seconds() >= 2592000):
 
                 _logger.info('Event: pytsite.cron.' + evt, __name__)
 
@@ -57,7 +60,6 @@ def _thread_payload():
         else:
             _update_stats(evt)
 
-    _last_start = _datetime.now()
     _working = False
 
 

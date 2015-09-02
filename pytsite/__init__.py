@@ -120,6 +120,12 @@ def __init():
     # Initializing Setup module
     __import__('pytsite.setup')
 
+    # Initializing Cron
+    __import__('pytsite.cron')
+
+    # Initializing Cleanup package
+    __import__('pytsite.cleanup')
+
     # Initializing 'app' package
     lang.register_package('app', 'lang')
     theme = reg.get('output.theme')
@@ -127,7 +133,5 @@ def __init():
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
     __import__('app')
 
-    # Initializing cron
-    __import__('pytsite.cron')
 
 __init()

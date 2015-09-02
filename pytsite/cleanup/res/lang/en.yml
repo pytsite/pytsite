@@ -1,3 +1,0 @@
-cleanup_all_console_command_description: 'Remove all old data'
-cleanup_session_console_command_description: 'Remove old sessions'
-cleanup_tmp_console_command_description: 'Remove unused temporary files'

@@ -1,9 +1,5 @@
 """PytSite Router.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re as _re
 from os import path as _path, makedirs as _makedirs
 from traceback import format_exc as _format_exc
@@ -13,30 +9,42 @@ from werkzeug.routing import Map as _Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from htmlmin import minify as _minify
-from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang
+from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, events as _events
 
-_lang.register_package(__name__)
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
-session_storage_path = _reg.get('paths.session')
-if not _path.exists(session_storage_path):
-    _makedirs(session_storage_path, 0o755, True)
 
-_session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
 _routes = _Map()
 _url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 _path_aliases = {}
 
+# Registering module's language package
+_lang.register_package(__name__)
+
+# Create directory to store session data
+session_storage_path = _reg.get('paths.session')
+if not _path.exists(session_storage_path):
+    _makedirs(session_storage_path, 0o755, True)
+
+# Initializing session store
+_session_store = _FilesystemSessionStore(path=session_storage_path, session_class=_http.session.Session)
+
+# Enable or disable cache
 no_cache = False
 
+# Request object
 request = None
 """:type : pytsite.http._request.Request"""
 
+# Session object
 session = None
 """:type : pytsite.http._session.Session"""
 
 
 class Rule(_Rule):
-    """Routing rule.
+    """Routing Rule.
     """
     def __init__(self, url_path: str, **kwargs):
         self.call = kwargs.get('call')
@@ -50,6 +58,9 @@ class Rule(_Rule):
             del kwargs['call']
             del kwargs['filters']
             super().__init__(url_path, **kwargs)
+
+    def get_rules(self, rules_map):
+        return super().get_rules(rules_map)
 
 
 def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, methods=None, filters=None):

@@ -1,9 +1,5 @@
 """Event Handlers.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import hashlib as _hashlib
 import pytz as _pytz
 from os import path as _path, makedirs as _makedirs
@@ -13,6 +9,10 @@ from pytsite import settings as _settings, sitemap as _sitemap, feed as _feed, r
     tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, \
     console as _console
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def cron_hourly():

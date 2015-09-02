@@ -1,5 +1,10 @@
 """Pytsite Content Module.
 """
+# Public API
+from . import _model as model, _widget as widget
+from ._functions import register_model, get_models, find, get_model, get_model_title, create, get_sections, \
+    create_section, create_tag, get_publish_statuses, get_section, is_model_registered
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -9,7 +14,7 @@ def __init():
     """Module Init Wrapper.
     """
     import sys
-    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router
+    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots
     from . import _ehs
     from ._model import Tag, Section, ContentSubscriber
     from ._forms import Settings
@@ -63,11 +68,7 @@ def __init():
     # Console commands
     console.register_command(GenerateConsoleCommand())
 
+    # Sitemap location in robots.txt
+    robots.sitemap('/sitemap/index.xml')
 
 __init()
-
-
-# Public API
-from . import _model as model, _widget as widget
-from ._functions import register_model, get_models, find, get_model, get_model_title, create, get_sections, \
-    create_section, create_tag, get_publish_statuses, get_section, is_model_registered
