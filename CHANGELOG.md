@@ -1,8 +1,16 @@
 # PytSite Changelog
 
+## 0.10
+### Added
+- `geo_ip` package.
+- ODM field `Position` in `geo` package.
+
+### Changed
+- Automatic type conversion in setters of `odm.field.Integer` and `odm.field.Float`. 
+
 ## 0.9
 ### Added
-- New package: `sitemap`.
+- `sitemap` package.
 - Session and temporary data cleanup is now maintained by `cron` instead of console commands.
 
 ### Fixed

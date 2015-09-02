@@ -1,5 +1,9 @@
 """Geo Plugin.
 """
+# Public API
+from . import _widget as widget, _odm_field as odm_field, _rule as rule
+from ._functions import get_map_link
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -17,8 +21,3 @@ def __init():
     tpl.register_global('geo', sys.modules[__package__])
 
 __init()
-
-
-# Public API
-from . import _widget as widget, _field as field, _rule as rule
-from ._functions import get_map_link

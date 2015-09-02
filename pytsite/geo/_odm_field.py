@@ -1,10 +1,14 @@
 """Geo ODM Fields.
 """
+from pytsite import odm as _odm
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import odm as _odm
+
+class Position(_odm.field.List):
+    pass
 
 
 class Location(_odm.field.Dict):

@@ -37,7 +37,6 @@ def _thread_payload():
     stats = _get_stats()
     now = _datetime.now()
     for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
-        print(evt)
         if evt in stats:
             delta = now - stats[evt]
             if (evt == '1min' and delta.total_seconds() >= 60) \

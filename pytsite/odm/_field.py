@@ -1,16 +1,14 @@
 """ODM Fields.
 """
+from abc import ABC as _ABC
+from datetime import datetime as _datetime
+from bson.objectid import ObjectId as _bson_ObjectID
+from bson.dbref import DBRef as _bson_DBRef
+from pytsite import lang as _lang
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from abc import ABC as _ABC
-from datetime import datetime as _datetime
-
-from bson.objectid import ObjectId as _bson_ObjectID
-from bson.dbref import DBRef as _bson_DBRef
-
-from pytsite import lang as _lang
 
 
 class Abstract(_ABC):
@@ -385,7 +383,7 @@ class DateTime(Abstract):
         """Set field's value.
         """
         if not isinstance(value, _datetime):
-            raise TypeError("DateTime expected")
+            raise TypeError("DateTime expected, while '{}' got".format(value))
 
         return super().set_val(value, change_modified, **kwargs)
 
@@ -441,7 +439,8 @@ class Integer(Abstract):
         """Set value of the field.
         """
         if not isinstance(value, int):
-            raise ValueError('Integer expected.')
+            value = int(value)
+
         return super().set_val(int(value), change_modified, **kwargs)
 
     def add_val(self, value: int, change_modified: bool=True, **kwargs):
@@ -477,7 +476,8 @@ class Float(Abstract):
         """Set value of the field.
         """
         if not isinstance(value, float):
-            raise ValueError('Float expected.')
+            value = float(value)
+
         return super().set_val(value, change_modified, **kwargs)
 
     def add_val(self, value: float, change_modified: bool=True, **kwargs):

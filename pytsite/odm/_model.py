@@ -1,13 +1,8 @@
 """ODM models.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
-
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
@@ -15,6 +10,10 @@ from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, threading as _threading, lang as _lang
 from . import _error, _field
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Model(_ABC):
@@ -80,9 +79,13 @@ class Model(_ABC):
             self.f_set('_created', _datetime.now())
             self.f_set('_modified', _datetime.now())
 
-    def _define_index(self, fields: list, unique=False):
+    def _define_index(self, fields, unique=False):
         """Define an index.
+        :param fields: list|tuple
         """
+        if isinstance(fields, tuple):
+            fields = [fields]
+
         for item in fields:
             if not isinstance(item, tuple):
                 raise TypeError("'fields' argument must be a list of tuples.")
