@@ -1,13 +1,14 @@
 """Auth Manager.
 """
+from datetime import datetime as _datetime
+from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router, \
+    events as _events
+from .driver.abstract import AbstractDriver as _AbstractDriver
+from . import _error, _model
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from datetime import datetime as _datetime
-from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router
-from .driver.abstract import AbstractDriver as _AbstractDriver
-from . import _error, _model
 
 __driver = None
 __permission_groups = []
@@ -177,12 +178,13 @@ def get_role(name: str=None, uid=None) -> _model.Role:
         return _odm.find('role').where('_id', '=', uid).first()
 
 
-def authorize(user: _model.User, count_login: bool=True) -> _model.User:
+def authorize(user: _model.User, count_login=True, issue_event=True) -> _model.User:
     """Authorize user.
     """
     if not user:
         raise _error.LoginIncorrect('pytsite.auth@authorization_error')
 
+    # Checking user status
     if user.f_get('status') != 'active':
         logout_current_user()
         raise _error.LoginIncorrect('pytsite.auth@authorization_error')
@@ -190,6 +192,9 @@ def authorize(user: _model.User, count_login: bool=True) -> _model.User:
     # Saving statistical information
     if count_login:
         user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
+
+    if issue_event:
+        _events.fire('pytsite.auth.login', user=user)
 
     _router.session['pytsite.auth.login'] = user.login
 
@@ -221,7 +226,7 @@ def get_current_user() -> _model.User:
         if not user:
             return get_anonymous_user()
 
-        return authorize(user, False)
+        return authorize(user, False, False)
 
     except _error.LoginIncorrect:
         return get_anonymous_user()
@@ -230,7 +235,9 @@ def get_current_user() -> _model.User:
 def logout_current_user():
     """Log out current user.
     """
-    if 'pytsite.auth.login' in _router.session:
+    user = get_current_user()
+    if not user.is_anonymous:
+        _events.fire('pytsite.auth.logout', user=user)
         del _router.session['pytsite.auth.login']
 
 

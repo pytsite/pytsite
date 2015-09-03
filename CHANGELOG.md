@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.11
+### Added
+- `auth_log` package.
+- New events: `pytsite.auth.login` and `pytsite.auth.logout`.
+
+### Changed
+- Frequency of `cleanup` decreased to 1 hour.
+
+
 ## 0.10.1
 ### Changed
 - `auth.find_users()` now sorts by `login_count`, descending.

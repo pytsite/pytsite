@@ -1,9 +1,5 @@
 """uLogin Auth Driver.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import json as _json
 from time import strptime as _strptime
 from datetime import datetime as _datetime
@@ -13,6 +9,10 @@ from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widg
     logger as _logger, router as _router
 from .. import _functions, _error
 from .abstract import AbstractDriver
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Login(_widget.Base):

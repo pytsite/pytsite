@@ -1,12 +1,12 @@
 """Geo Widgets.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from json import dumps as _json_dumps, loads as _json_loads
 from pytsite import assetman as _assetman, widget as _widget, html as _html, lang as _lang
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Location(_widget.Base):
@@ -34,7 +34,7 @@ class Location(_widget.Base):
         """Render the widget.
         """
         inputs = _html.TagLessElement()
-        for k in ('lng', 'lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
+        for k in ('lng', 'lat', 'lng_lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
             inp_val = self._value[k] if k in self._value else ''
             inputs.append(_html.Input(type='hidden', cls=k, name=self._uid + '[' + k + ']', value=inp_val))
 

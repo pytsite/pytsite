@@ -21,10 +21,18 @@ $(function () {
         var form = $(this);
 
         form.submit(function (e) {
+            // Detect validation endpoint and check if the form is already validated
             var validation_ep = form.data('validationEp');
             if (typeof validation_ep == 'undefined' || form.hasClass('validated')) {
-                form.trigger('pytsite.form.submit');
-                return true;
+                // If form doesn't define validation endpoint it considered as validated
+                if (typeof validation_ep == 'undefined')
+                    form.addClass('validated');
+
+                // Notify others
+                form.trigger('pytsite_form_submit', form);
+
+                // Submit form only if it STILL has class 'validated'
+                return form.hasClass('validated');
             }
 
             // Cleaning up error messages
@@ -34,7 +42,8 @@ $(function () {
                 $(this).find('.help-block.error').remove();
             });
 
-            form.trigger('pytsite:core:form:validation');
+            // Validation form through AJAX call
+            form.trigger('pytsite_form_validation');
             pytsite.js.post(validation_ep, form.serializeForm())
                 .done(function (data, textStatus, jqXHR) {
                     if (!data.status) {
@@ -52,15 +61,15 @@ $(function () {
                                 form.find('.form-messages').append('<div class="alert alert-danger" role="alert">' + g_messages[i] + '</div>')
                         }
 
-                        form.trigger('pytsite:core:form:validation:fail');
+                        form.trigger('pytsite_form_validation_fail');
 
                         $('html, body').animate({
                             scrollTop: $('.has-error').first().offset().top
                         }, 500);
                     }
                     else {
+                        form.trigger('pytsite_form_validation_success');
                         form.addClass('validated');
-                        form.trigger('pytsite:core:form:validation:success');
                         form.submit()
                     }
 
@@ -69,7 +78,7 @@ $(function () {
                     form.find('.form-messages')
                         .append('<div class="alert alert-danger" role="alert">' + errorThrown + '</div>');
 
-                    form.trigger('pytsite:core:form:validation:fail');
+                    form.trigger('pytsite_form_validation_fail');
                 });
 
             return false;

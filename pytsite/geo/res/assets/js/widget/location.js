@@ -34,10 +34,14 @@ $(function () {
                             }
 
                             var input = widget.find(input_selector);
-                            if (input.length && input.val() == '0.0')
+                            if (input.length && input.val() == '0.0') {
                                 input.val(coords[k]);
+                                input.change();
+                            }
                         }
                     }
+
+                    widget.find('.lng_lat').val(JSON.stringify([coords.longitude, coords.latitude])).change();
                 });
             }
         }

@@ -9,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def cron_daily():
+def cron_hourly():
     _clean_tmp_files()
     _clean_sessions()
 
@@ -21,7 +21,7 @@ def _clean_tmp_files():
 
     for file_name in _listdir(tmp_dir):
         file_path = _path.join(tmp_dir, file_name)
-        if _path.isfile(file_path) and (_time.time() - _path.getmtime(file_path)) >= 3600:  # 1 hour
+        if _path.isfile(file_path) and (_time.time() - _path.getmtime(file_path)) >= 1800:  # 30 min
             _logger.info('Removing {}'.format(file_path), __name__)
             _unlink(file_path)
 

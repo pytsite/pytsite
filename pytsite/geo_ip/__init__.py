@@ -1,7 +1,10 @@
 """PytSite Geo IP Package.
 """
+# Public API
+from . import _odm_model as odm_model, _error as error
+
 from pytsite import odm as _odm
-from ._odm_model import GeoIP as _GeoIPModel
+
 
 # Public API
 from ._api import resolve
@@ -11,4 +14,4 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_odm.register_model('geo_ip', _GeoIPModel)
+_odm.register_model('geo_ip', odm_model.GeoIP)
