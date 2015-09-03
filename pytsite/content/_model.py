@@ -529,7 +529,7 @@ class Article(Content):
         self._define_field(_odm.field.Ref('section', model='section'))
         self._define_field(_odm.field.StringList('ext_links'))
         self._define_field(_odm.field.Bool('starred'))
-        self._define_field(_geo.field.Location('location'))
+        self._define_field(_geo.odm_field.Location('location'))
 
         self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 

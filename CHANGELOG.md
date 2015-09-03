@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.10.1
+### Changed
+- `auth.find_users()` now sorts by `login_count`, descending.
+
+### Fixed
+- Invalid reference to `geo.odm_field` in `content.model.Article` setup.
+
+
 ## 0.10
 ### Added
 - `geo_ip` package.

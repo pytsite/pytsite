@@ -251,7 +251,9 @@ def logout_url() -> str:
 
 
 def find_users(active_only: bool=True) -> _odm.Finder:
-    f = _odm.find('user')
+    """Get users finder.
+    """
+    f = _odm.find('user').sort([('login_count', _odm.I_DESC)])
     if active_only:
         f.where('status', '=', 'active')
 

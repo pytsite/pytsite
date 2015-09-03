@@ -1,5 +1,8 @@
 """Auth UI.
 """
+# Public API
+from . import _widget as widget
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -46,7 +49,3 @@ def __init():
                            permissions=('pytsite.odm_ui.browse.role',))
 
 __init()
-
-
-# Public API
-from . import _widget as widget
