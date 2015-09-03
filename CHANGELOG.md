@@ -8,6 +8,7 @@
 ### Changed
 - Automatic type conversion in setters of `odm.field.Integer` and `odm.field.Float`. 
 
+
 ## 0.9
 ### Added
 - `sitemap` package.
