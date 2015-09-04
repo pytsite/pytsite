@@ -1,5 +1,21 @@
 # PytSite Changelog
 
+## 0.11.1
+### Added
+- Now is possible to specify allowed members types, min and max lengths in `odm.field.List`.
+- New ODM field `odm.field.FloatList`. 
+- New event `pytsite.content.console.generate`.
+- New function `content.get_tags()`.
+- `--no-html` argument  in `content:generate` console command.
+
+### Fixed
+- Incorrect arguments order in `geo` widgets.
+
+### Changed
+- Some `odm.field.*` fields rework.
+- `geo.odm_field.Position` renamed to `geo.odm_field.LngLat`.
+
+
 ## 0.11
 ### Added
 - `auth_log` package.

@@ -32,7 +32,7 @@ def index(args: dict, inp: dict):
                 args['term'] = term
                 if isinstance(f.mock.fields[term_field], _odm.field.Ref):
                     f.where(term_field, '=', term)
-                elif isinstance(f.mock.fields[term_field], _odm.field.RefsListField):
+                elif isinstance(f.mock.fields[term_field], _odm.field.RefsList):
                     f.where(term_field, 'in', [term])
                 _metatag.t_set('title', term.title)
             else:

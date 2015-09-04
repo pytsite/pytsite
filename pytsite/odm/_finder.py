@@ -88,7 +88,7 @@ class Query:
                 arg = arg.ref
 
             # Convert list of instances to list of DBRefs
-            if isinstance(field, _field.RefsListField):
+            if isinstance(field, _field.RefsList):
                 if not isinstance(arg, list):
                     raise ValueError('List expected.')
 

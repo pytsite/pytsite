@@ -82,7 +82,7 @@ class GeoIP(_odm.Model):
         self._define_field(_odm.field.String('ip'))
         self._define_field(_odm.field.Float('longitude'))
         self._define_field(_odm.field.Float('latitude'))
-        self._define_field(_geo.odm_field.Position('lng_lat'))
+        self._define_field(_geo.odm_field.LngLat('lng_lat'))
         self._define_field(_odm.field.Integer('area_code'))
         self._define_field(_odm.field.Integer('dma_code'))
         self._define_field(_odm.field.Integer('postal_code'))

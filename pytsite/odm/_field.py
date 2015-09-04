@@ -4,6 +4,7 @@ from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
+from copy import deepcopy as _deepcopy
 from pytsite import lang as _lang
 
 __author__ = 'Alexander Shepetko'
@@ -16,6 +17,7 @@ class Abstract(_ABC):
     """
     def __init__(self, name: str, **kwargs):
         """Init.
+
         :param default:
         :param nonempty: bool
         """
@@ -23,18 +25,20 @@ class Abstract(_ABC):
         self._default = kwargs.get('default')
         self._nonempty = kwargs.get('nonempty', False)
         self._modified = False
-        self._value = None
-        self.set_val(self._default)
+        self._value = _deepcopy(self._default)
+        self.set_val(self._value)
 
     @property
     def nonempty(self) -> bool:
         return self._nonempty
 
-    def get_name(self):
+    @property
+    def name(self):
         """Get name of the field.
         """
         return self._name
 
+    @property
     def is_modified(self) -> bool:
         """Is the field has been modified?
         """
@@ -57,52 +61,42 @@ class Abstract(_ABC):
 
     def get_val(self, **kwargs):
         """Get value of the field.
+
+        :rtype:
         """
         return self._value
-
-    @property
-    def value(self):
-        """Shortcut for self.get_val().
-        """
-        return self.get_val()
 
     def get_storable_val(self):
-        """Get value suitable to store in a database.
+        """Get value suitable to store in the database.
         """
-        if self._nonempty:
-            if hasattr(self, '__len__') and not len(self._value):
-                raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
-            elif not self._value:
-                raise Exception("Value of the field '{}' cannot be empty.".format(self.get_name()))
-
         return self._value
 
-    def clear_val(self, reset_modified: bool=True, **kwargs):
+    def clr_val(self, reset_modified: bool=True, **kwargs):
         """Clears a value of the field.
         """
-        raise Exception('Not implemented yet.')
+        self._value = self._default
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
-        raise Exception('Not implemented yet.')
+        self._value += value
 
-    def subtract_val(self, value, change_modified: bool=True, **kwargs):
+    def sub_val(self, value, change_modified: bool=True, **kwargs):
         """Remove a value from the field.
         """
-        raise Exception('Not implemented yet.')
+        self._value -= value
 
     def inc_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
-        raise Exception('Not implemented yet.')
+        self._value += 1
 
     def dec_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
-        raise Exception('Not implemented yet.')
+        self._value -= 1
 
-    def delete(self):
+    def on_delete(self):
         """Hook method to provide for the entity notification mechanism about its deletion.
         """
         pass
@@ -111,6 +105,9 @@ class Abstract(_ABC):
         """Stringify field's value.
         """
         return str(self._value)
+
+    def __bool__(self) -> bool:
+        return bool(self._value)
 
 
 class ObjectId(Abstract):
@@ -131,31 +128,51 @@ class List(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        if not kwargs.get('default'):
+        self._allowed_types = kwargs.get('allowed_types', (int, str, float, list, dict, tuple))
+        self._min_len = kwargs.get('min_len', 0)
+        self._max_len = kwargs.get('max_len', 0)
+
+        if 'default' not in kwargs:
             kwargs['default'] = []
+
         super().__init__(name, **kwargs)
 
-    def set_val(self, value: list, change_modified: bool=True, **kwargs):
-        """Set value of the field.
+    def get_val(self, **kwargs) -> list:
+        """Get value of the field.
         """
-        if not isinstance(value, list):
-            raise TypeError("List expected")
+        return super().get_val(**kwargs)
+
+    def set_val(self, value, change_modified: bool=True, **kwargs):
+        """Set value of the field.
+
+        :type value: list | tuple
+        """
+        if type(value) not in (list, tuple):
+            raise TypeError('List or tuple expected.')
+
+        # Checking validness of types of the items
+        if self._allowed_types:
+            for v in value:
+                if type(v) not in self._allowed_types:
+                    raise TypeError("Value of the field '{}' cannot contain members of type {}."
+                                    .format(self.name, type(v)))
+
+        # Checking lengths
+        if self._min_len and len(value) < self._min_len:
+            raise ValueError("Value length cannot be less than {}.".format(self._min_len))
+        if self._max_len and len(value) > self._max_len:
+            raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
         return super().set_val(value, change_modified, **kwargs)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
-        allowed_types = (int, str, float, list, dict, tuple)
+        if type(value) not in self._allowed_types:
+            raise TypeError("Adding values of type {} is not allowed.".format(type(value)))
 
-        valid = False
-        for t in allowed_types:
-            if isinstance(value, t):
-                valid = True
-                break
-
-        if not valid:
-            raise TypeError("Invalid value type: {}.".format(type(value)))
+        if len(self.get_val()):
+            pass
 
         self._value.append(value)
 
@@ -164,33 +181,28 @@ class List(Abstract):
 
         return self
 
-    def get_val(self, **kwargs) -> list:
-        """Get value of the field.
-        """
-        return super().get_val(**kwargs)
 
-
-class UniqueListField(List):
-    """Unique List field.
+class UniqueList(List):
+    """Unique List.
     """
-    def set_val(self, value: list, change_modified: bool=True, **kwargs):
+    def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
+        :type value: list | tuple
         """
         clean_val = []
         for v in value:
             if v and v not in clean_val:
                 clean_val.append(v)
 
-        super().set_val(clean_val, change_modified, **kwargs)
-        return self
+        return super().set_val(clean_val, change_modified, **kwargs)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
-        current_val = self.get_val()
-        current_val.append(value)
+        if value not in self.get_val():
+            super().add_val(value, change_modified, **kwargs)
 
-        return self.set_val(current_val, change_modified, **kwargs)
+        return self
 
 
 class Dict(Abstract):
@@ -198,6 +210,7 @@ class Dict(Abstract):
     """
     def __init__(self, name: str, **kwargs):
         """Init.
+
         :param default: dict
         :param keys: tuple
         :param nonempty_keys: tuple
@@ -263,22 +276,23 @@ class Ref(Abstract):
     def get_val(self, **kwargs):
         """Get value of the field.
         """
+        value = self._value
         if isinstance(self._value, _bson_DBRef):
             from ._functions import get_by_ref
-            referenced_entity = get_by_ref(self._value)
+            referenced_entity = get_by_ref(value)
             if not referenced_entity:
                 self.set_val(None)  # Updating field's value about missing entity
             return referenced_entity
 
 
-class RefsListField(List):
+class RefsList(List):
     """List of DBRefs field.
     """
     def __init__(self, name: str, model: str, **kwargs):
         """Init.
         """
-        super().__init__(name, **kwargs)
         self._model = model
+        super().__init__(name, allowed_types=(_bson_DBRef,), **kwargs)
 
     @property
     def model(self) -> str:
@@ -301,15 +315,18 @@ class RefsListField(List):
             elif isinstance(item, _bson_DBRef):
                 clean_value.append(item)
             else:
-                raise TypeError("List of DBRefs or entities expected.")
+                raise TypeError("Field '{}': list of DBRefs or entities expected.".format(self.name))
 
         return super().set_val(clean_value, change_modified, **kwargs)
 
-    def get_val(self, **kwargs):
+    def get_val(self, **kwargs) -> list:
         """Get value of the field.
         """
         r = []
-        for ref in self._value:
+        v = self._value
+        """:type: list"""
+
+        for ref in v:
             from ._functions import get_by_ref
             entity = get_by_ref(ref)
             if entity:
@@ -339,7 +356,7 @@ class RefsListField(List):
         return self
 
 
-class RefsUniqueList(RefsListField):
+class RefsUniqueList(RefsList):
     """Unique list of DBRefs field.
     """
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
@@ -435,6 +452,9 @@ class Integer(Abstract):
 
         super().__init__(name, **kwargs)
 
+    def get_val(self, **kwargs) -> int:
+        return super().get_val(**kwargs)
+
     def set_val(self, value: int, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
@@ -507,13 +527,39 @@ class Bool(Abstract):
 
 
 class StringList(List):
-    # TODO
-    pass
+    """List of Strings.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, allowed_types=(str,), **kwargs)
+
+
+class IntegerList(List):
+    """List of Integers.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, allowed_types=(int,), **kwargs)
+
+
+class FloatList(List):
+    """List of Floats.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, allowed_types=(float,), **kwargs)
 
 
 class ListList(List):
-    # TODO
-    pass
+    """List of Lists.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, allowed_types=(list, tuple), **kwargs)
 
 
 class Virtual(Abstract):

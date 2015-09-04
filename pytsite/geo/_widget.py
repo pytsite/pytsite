@@ -138,7 +138,7 @@ class StaticMap(_widget.Base):
         self._lat = lat
         self._query = query
         self._zoom = kwargs.get('zoom', 13)
-        self._center = '%f,%f' % (self._lat, self._lng)
+        self._center = '%f,%f' % (self._lng, self._lat)
         self._width = kwargs.get('width', 320)
         self._height = kwargs.get('height', 240)
         self._link = kwargs.get('link', True)

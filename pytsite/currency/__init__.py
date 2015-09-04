@@ -1,5 +1,9 @@
 """Currency Plugin Package
 """
+# Public API
+from ._functions import get_currencies
+from . import _widget as widget, _odm_field as odm_field
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -27,7 +31,3 @@ def __init():
 
 # Package initialization
 __init()
-
-# Public API
-from ._functions import get_currencies
-from . import _widget as widget, _odm as odm

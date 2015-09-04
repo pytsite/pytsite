@@ -1,13 +1,13 @@
-"""COntent Console Commands.
+"""Content Console Commands.
 """
+from random import shuffle as _shuffle, random as _random
+import requests as _requests
+from pytsite import image as _image, auth as _auth, console as _console, lang as _lang, events as _events
+from . import _functions
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from random import shuffle as _shuffle, random as _random
-import requests as _requests
-from pytsite import image as _image, auth as _auth, console as _console, lang as _lang
-from . import _functions
 
 
 class Generate(_console.command.Abstract):
@@ -26,10 +26,11 @@ class Generate(_console.command.Abstract):
         """
         return _lang.t('pytsite.content@console_command_description_generate')
 
-    def usage(self):
+    @staticmethod
+    def usage():
         """Print usage info.
         """
-        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] '
+        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] '
                             '--model=MODEL --author=LOGIN')
 
     def execute(self, **kwargs: dict):
@@ -54,6 +55,8 @@ class Generate(_console.command.Abstract):
 
         language = kwargs.get('lang', _lang.get_current_lang())
 
+        no_html = kwargs.get('no-html')
+
         # Generate sections
         sections = list(_functions.get_sections(language))
         if not len(sections):
@@ -64,7 +67,6 @@ class Generate(_console.command.Abstract):
                 _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
 
         num = int(kwargs.get('num', 10))
-        num = num if num > 0 else 10
 
         for m in range(0, num):
             title = self._generate_title(int(kwargs.get('title-len', 7)))
@@ -72,17 +74,24 @@ class Generate(_console.command.Abstract):
             _shuffle(sections)
 
             body = []
-            images = []
+            images = [_image.create(self.lp_url)]
             for n in range(2, 6):
-                images.append(_image.create(self.lp_url))
-                body.append(_requests.get(self.li_url + '/decorate/link/ul/ol/dl/bq/').content.decode('utf-8'))
-                body.append('\n<p>[img:{}]</p>\n'.format(n))
-                body.append(_requests.get(self.li_url).content.decode('utf-8'))
+                if no_html:
+                    body.append(_requests.get(self.li_url + '/plaintext/').content.decode('utf-8'))
+                else:
+                    images.append(_image.create(self.lp_url))
+                    body.append(_requests.get(self.li_url + '/decorate/link/ul/ol/dl/bq/').content.decode('utf-8'))
+                    body.append('\n<p>[img:{}]</p>\n'.format(n))
+                    body.append(_requests.get(self.li_url).content.decode('utf-8'))
 
-            tags = []
-            for n in range(0, 5):
-                tag = _functions.create_tag(self._generate_title(1), language=language)
-                tags.append(tag)
+            tags = list(_functions.get_tags(language=language))
+            if len(tags) < 10:
+                for n in range(0, 10):
+                    tag = _functions.create_tag(self._generate_title(1), language=language)
+                    tags.append(tag)
+
+            _shuffle(tags)
+            tags = tags[:5]
 
             entity = _functions.create(model)
             entity.f_set('title', title)
@@ -99,12 +108,14 @@ class Generate(_console.command.Abstract):
             if entity.has_field('section'):
                 entity.f_set('section', sections[0])
 
+            _events.fire('pytsite.content.console.generate', entity=entity)
+
             entity.save()
 
             _console.print_info(_lang.t('pytsite.content@new_content_created', {'title': title}))
 
     def _generate_title(self, max_words=7) -> str:
-        title = str(_requests.get(self.li_url + '/1//plaintext/verylong').content.decode('utf-8')).strip()
+        title = str(_requests.get(self.li_url + '/1/plaintext/verylong').content.decode('utf-8')).strip()
 
         for s in [',', '.', ':', ';', '?', '-']:
             title = title.replace(s, '')

@@ -1,12 +1,12 @@
 """Currency Functions
 """
+import re as _re
+from pytsite import lang as _lang
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
-
-from pytsite import lang as _lang
 
 __currencies = []
 

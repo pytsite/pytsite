@@ -24,7 +24,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.DateTime('last_activity'))
         self._define_field(_odm.field.Integer('login_count'))
         self._define_field(_odm.field.String('status', default='active'))
-        self._define_field(_odm.field.RefsListField('roles', model='role'))
+        self._define_field(_odm.field.RefsList('roles', model='role'))
         self._define_field(_odm.field.Integer('gender'))
         self._define_field(_odm.field.String('phone'))
         self._define_field(_odm.field.Dict('options'))
@@ -183,7 +183,7 @@ class Role(_odm.Model):
         """
         self._define_field(_odm.field.String('name'))
         self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.UniqueListField('permissions'))
+        self._define_field(_odm.field.UniqueList('permissions'))
 
         self._define_index([('name', _odm.I_ASC)], unique=True)
 

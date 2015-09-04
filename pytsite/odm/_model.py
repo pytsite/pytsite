@@ -41,7 +41,7 @@ class Model(_ABC):
         self._define_field(_field.ObjectId('_id'))
         self._define_field(_field.String('_model', default=model))
         self._define_field(_field.Ref('_parent', model=model))
-        self._define_field(_field.RefsListField('_children', model=model))
+        self._define_field(_field.RefsList('_children', model=model))
         self._define_field(_field.DateTime('_created'))
         self._define_field(_field.DateTime('_modified'))
 
@@ -110,9 +110,9 @@ class Model(_ABC):
     def _define_field(self, field_obj: _field.Abstract):
         """Define a field.
         """
-        if self.has_field(field_obj.get_name()):
-            raise Exception("Field '{}' already defined in model '{}'.".format(field_obj.get_name(), self.model))
-        self._fields[field_obj.get_name()] = field_obj
+        if self.has_field(field_obj.name):
+            raise Exception("Field '{}' already defined in model '{}'.".format(field_obj.name, self.model))
+        self._fields[field_obj.name] = field_obj
 
         return self
 
@@ -217,6 +217,30 @@ class Model(_ABC):
         """
         return self.f_get('_modified')
 
+    @property
+    def is_new(self) -> bool:
+        """Is the entity new or already stored in a database?
+        """
+        with _threading.get_r_lock():
+            return self._is_new
+
+    @property
+    def is_modified(self) -> bool:
+        """Is the entity has been modified?
+        """
+        with _threading.get_r_lock():
+            for field_name, field in self._fields.items():
+                if field.is_modified:
+                    return True
+            return False
+
+    @property
+    def is_deleted(self) -> bool:
+        """Is the entity has been deleted?
+        """
+        with _threading.get_r_lock():
+            return self._is_deleted
+
     def f_set(self, field_name: str, value, **kwargs):
         """Set field's value.
         """
@@ -268,29 +292,10 @@ class Model(_ABC):
             self.get_field(field_name).dec_val()
             return self
 
-    @property
-    def is_new(self) -> bool:
-        """Is the entity new or already stored in a database?
+    def f_is_empty(self, field_name: str) -> bool:
+        """Checks if the field is empty.
         """
-        with _threading.get_r_lock():
-            return self._is_new
-
-    @property
-    def is_modified(self) -> bool:
-        """Is the entity has been modified?
-        """
-        with _threading.get_r_lock():
-            for field_name, field in self._fields.items():
-                if field.is_modified():
-                    return True
-            return False
-
-    @property
-    def is_deleted(self) -> bool:
-        """Is the entity has been deleted?
-        """
-        with _threading.get_r_lock():
-            return self._is_deleted
+        return not bool(self.f_get(field_name))
 
     def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
         """Save the entity.
@@ -306,6 +311,8 @@ class Model(_ABC):
             # Pre-save hook
             if not skip_hooks:
                 self._pre_save()
+                _events.fire('odm.entity.pre_save', entity=self)
+                _events.fire('odm.entity.pre_save.' + self.model, entity=self)
 
             # Updating change timestamp
             if update_timestamp:
@@ -316,15 +323,13 @@ class Model(_ABC):
             for f_name, field in self._fields.items():
                 if isinstance(field, _field.Virtual):
                     continue
+                if field.nonempty and not field:
+                    raise Exception("Value of the field '{}' cannot be empty.".format(f_name))
                 data[f_name] = field.get_storable_val()
 
             # Let DB to calculate object's ID
             if self._is_new:
                 del data['_id']
-
-            if not skip_hooks:
-                _events.fire('odm.entity.pre_save', entity=self)
-                _events.fire('odm.entity.pre_save.' + self.model, entity=self)
 
             # Saving data into collection
             if self._is_new:
@@ -375,7 +380,7 @@ class Model(_ABC):
 
             # Notify fields about entity deletion
             for f_name, field in self._fields.items():
-                field.delete()
+                field.on_delete()
 
             # Actual deletion from storage
             if not self._is_new:

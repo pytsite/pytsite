@@ -126,5 +126,9 @@ def create_section(title: str, alias: str=None, language: str=None) -> _model.Se
     return _taxonomy.dispense('section', title, alias, language).save()
 
 
+def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
+    return _taxonomy.find('tag', language).get(limit)
+
+
 def create_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
     return _taxonomy.dispense('tag', title, alias, language).save()
