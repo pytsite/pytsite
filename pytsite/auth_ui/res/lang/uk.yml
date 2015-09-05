@@ -4,6 +4,7 @@ roles: 'Ролі'
 login: 'Логін'
 email: 'Email'
 last_login: 'Останній вхід'
+_created: 'Реєстрація'
 last_activity: 'Остання активність'
 picture: 'Аватар'
 name: "Ім'я"

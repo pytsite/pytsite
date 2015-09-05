@@ -1,14 +1,14 @@
 """PytSite Language Support
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import yaml as _yaml
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path
 from ._error import TranslationError
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 __languages = []
@@ -43,7 +43,6 @@ def set_current_lang(code: str):
 def get_current_lang()->str:
     """Get current language.
     """
-    global __languages
     if not __languages:
         raise Exception("No languages are defined.")
 
@@ -67,7 +66,7 @@ def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
         return
 
     spec = _find_spec(pkg_name)
-    if not spec:
+    if not spec or not spec.loader:
         raise Exception("Package '{}' is not found.".format(pkg_name))
 
     lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)

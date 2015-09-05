@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.11.2
+### Added
+- Users' registration date in users browser.
+
+### Changed
+- `db.ssl` configuration parameter is `true` by default.
+
+### Fixed
+- Package search error in `lang.register_package()`.
+
+
 ## 0.11.1
 ### Added
 - Now is possible to specify allowed members types, min and max lengths in `odm.field.List`.

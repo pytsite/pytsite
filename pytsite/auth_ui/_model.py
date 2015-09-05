@@ -1,11 +1,11 @@
 """ODM UI Models.
 """
+from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
+    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
-    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui
 
 
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
@@ -49,7 +49,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = 'login', 'full_name', 'roles', 'status', 'profile_is_public', 'is_online', 'last_activity'
+        browser.data_fields = 'login', 'full_name', 'roles', 'status', 'profile_is_public', 'is_online', '_created', \
+                              'last_activity'
         browser.default_sort_field = 'last_activity'
 
     def get_browser_data_row(self) -> tuple:
@@ -71,6 +72,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             '<span class="label label-{}">{}</span>'.format(status_cls, _lang.t('pytsite.auth@status_' + self.f_get('status'))),
             '<span class="label label-info">{}</span>'.format(self.t('word_yes')) if self.profile_is_public else '',
             '<span class="label label-success">{}</span>'.format(self.t('word_yes')) if self.is_online else '',
+            self.f_get('_created', fmt='pretty_date_time'),
             self.f_get('last_activity', fmt='pretty_date_time')
         )
 

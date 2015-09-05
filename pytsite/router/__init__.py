@@ -264,6 +264,8 @@ def base_path(language: str=None) -> str:
 
 
 def server_name():
+    """Get server's name.
+    """
     from pytsite import reg
     name = reg.get('server.name', 'localhost')
     if _url_adapter:
@@ -273,6 +275,8 @@ def server_name():
 
 
 def scheme():
+    """Get current URL scheme.
+    """
     r = 'http'
     if _url_adapter:
         r = _url_adapter.url_scheme
@@ -281,7 +285,7 @@ def scheme():
 
 
 def base_url(language: str=None, query: dict=None):
-    """Get base URL of application.
+    """Get base URL of the application.
     """
     r = scheme() + '://' + server_name() + base_path(language)
     if query:

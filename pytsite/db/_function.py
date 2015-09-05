@@ -20,10 +20,10 @@ def get_config() -> dict:
     default = {
         'host': 'localhost',
         'port': 27017,
+        'ssl': True,
         'database': 'test',
         'user': None,
         'password': None,
-        'ssl': False,
     }
 
     return _util.dict_merge(default, _reg.get('db', {}))
