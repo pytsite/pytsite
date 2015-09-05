@@ -68,10 +68,7 @@ class SearchAddress(Location):
     def set_value(self, val: dict, **kwargs: dict):
         """Set value of the widget.
         """
-        if not isinstance(val, dict):
-            raise ValueError('Dict expected.')
-
-        if val:
+        if isinstance(val, dict) and val:
             for k in ['lng', 'lat', 'address', 'address_components']:
                 if k not in val:
                     raise ValueError("Value does not contain '{}' key.".format(k))
@@ -88,6 +85,9 @@ class SearchAddress(Location):
                 'lng': float(val['lng']),
                 'address_components': components
             }
+
+        elif val is not None:
+            raise ValueError('Dict or None expected.')
 
         return super().set_value(val, **kwargs)
 

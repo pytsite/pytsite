@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.11.3
+### Fixed
+- Error while settings value of the `geo.widget.SearchAddress`.
+
 ## 0.11.2
 ### Added
 - Users' registration date in users browser.
