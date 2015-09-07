@@ -15,7 +15,7 @@ def __init():
     """
     import sys
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots
-    from . import _ehs
+    from . import _eh
     from ._model import Tag, Section, ContentSubscriber
     from ._forms import Settings
     from ._console import Generate as GenerateConsoleCommand
@@ -54,11 +54,11 @@ def __init():
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))
 
     # Event handlers
-    events.listen('pytsite.router.dispatch', _ehs.router_dispatch)
-    events.listen('pytsite.cron.hourly', _ehs.cron_hourly)
-    events.listen('pytsite.cron.daily', _ehs.cron_daily)
-    events.listen('pytsite.cron.weekly', _ehs.cron_weekly)
-    events.listen('pytsite.update', _ehs.update)
+    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    events.listen('pytsite.cron.hourly', _eh.cron_hourly)
+    events.listen('pytsite.cron.daily', _eh.cron_daily)
+    events.listen('pytsite.cron.weekly', _eh.cron_weekly)
+    events.listen('pytsite.update', _eh.update)
 
     # Settings
     settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',

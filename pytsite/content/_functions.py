@@ -1,13 +1,14 @@
-"""Content Manager.
+"""PytSite Content Package.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from datetime import datetime as _datetime
 from pytsite import admin as _admin, taxonomy as _taxonomy, auth as _auth, odm as _odm, util as _util, \
     router as _router, lang as _lang
 from . import _model
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 
 __models = {}
 

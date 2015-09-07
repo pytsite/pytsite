@@ -126,11 +126,17 @@ def __init():
     # Initializing Cleanup package
     __import__('pytsite.cleanup')
 
-    # Initializing 'app' package
+    # Initializing 'app' package parts
     lang.register_package('app', 'lang')
     theme = reg.get('output.theme')
     tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
+
+    # Autoloading required modules
+    for module in reg.get('app.autoload', ()):
+        __import__(module)
+
+    # Initializing the 'app' package
     __import__('app')
 
 

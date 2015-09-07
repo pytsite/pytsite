@@ -154,7 +154,7 @@
                                 <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('pytsite.admin@profile') }}</a>
                             </div>
                             <div class="pull-right">
-                                {% set sign_out_url = router.ep_url('pytsite.auth.eps.logout') %}
+                                {% set sign_out_url = router.ep_url('pytsite.auth.ep.logout') %}
                                 <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('pytsite.admin@sign_out') }}</a>
                             </div>
                         </li>

@@ -20,7 +20,7 @@ def __init():
     router.add_rule(
         '/file/upload/<string:model>',
         'pytsite.file.eps.upload',
-        filters=('pytsite.auth.eps.filter_authorize',)
+        filters=('pytsite.auth.ep.filter_authorize',)
     )
 
     router.add_rule(

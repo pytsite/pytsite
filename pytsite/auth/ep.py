@@ -1,17 +1,17 @@
 """Pytsite Auth Endpoints.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
     router as _router
 from . import _functions
 
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 
 def login(args: dict, inp: dict) -> str:
-    """Get login form.
+    """Render login page.
     """
     if not _functions.get_current_user().is_anonymous:
         redirect_url = _router.base_url()
@@ -64,4 +64,4 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
     if '__form_redirect' in inp:
         del inp['__form_redirect']
 
-    return _http.response.Redirect(_router.ep_url('pytsite.auth.eps.login', inp))
+    return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.login', inp))

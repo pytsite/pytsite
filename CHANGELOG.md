@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.11.5
+### Added
+- Ability to specify modules to autoload in application config file.
+
+### Changed
+- `auth.eps` renamed to `auth.ep`.
+
+
 ## 0.11.4
 ### Added
 - New widget: `geo.widget.LatLng`.
