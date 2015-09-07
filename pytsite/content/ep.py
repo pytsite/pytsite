@@ -59,7 +59,7 @@ def index(args: dict, inp: dict):
 
     args['entities'] = list(f.skip(pager.skip).get(pager.limit))
     args['pager'] = pager
-    endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_index')
+    endpoint = _reg.get('content.endpoints.view.' + model, 'app.ep.' + model + '_index')
 
     return _router.call_endpoint(endpoint, args, inp)
 
@@ -124,7 +124,7 @@ def view(args: dict, inp: dict):
     _metatag.t_set('og:url', entity.url)
     _metatag.t_set('article:publisher', entity.url)
 
-    endpoint = _reg.get('content.endpoints.view.' + model, 'app.eps.' + model + '_view')
+    endpoint = _reg.get('content.endpoints.view.' + model, 'app.ep.' + model + '_view')
 
     _assetman.add('pytsite.content@js/content.js')
 
@@ -149,7 +149,7 @@ def propose(args: dict, inp: dict) -> str:
     """Propose content endpoint.
     """
     model = args.get('model')
-    endpoint = _reg.get('content.endpoints.propose.' + model, 'app.eps.' + model + '_propose')
+    endpoint = _reg.get('content.endpoints.propose.' + model, 'app.ep.' + model + '_propose')
 
     form = _odm_ui.get_m_form(model)
     form.get_widget('actions').get_child('action_cancel').href = _router.base_url()

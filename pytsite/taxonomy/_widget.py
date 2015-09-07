@@ -1,11 +1,11 @@
 """Tag Widgets.
 """
+from pytsite import widget as _widget, html as _html, odm as _odm, router as _router
+from . import _functions
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import widget as _widget, html as _html, odm as _odm, router as _router
-from . import _functions
 
 
 class TokensInput(_widget.input.Tokens):
@@ -17,7 +17,7 @@ class TokensInput(_widget.input.Tokens):
         super().__init__(**kwargs)
 
         self._model = model
-        self._remote_source = _router.endpoint_url('pytsite.taxonomy.eps.search_terms', {
+        self._remote_source = _router.ep_url('pytsite.taxonomy.eps.search_terms', {
             'model': self._model,
             'query': '__QUERY'
         })
@@ -76,7 +76,7 @@ class Cloud(_widget.Base):
         self._title_pattern = kwargs.get('title_pattern', '%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
 
-        self._group_cls += ' widget-taxonomy-cloud'
+        self._group_cls += ' widget-taxonomy-cloud {}'.format(self._model)
 
     def render(self) -> _html.Element:
         """Render the widget.

@@ -39,12 +39,12 @@ def __init():
                               permissions=('pytsite.odm_ui.browse.user', 'pytsite.odm_ui.browse.role'))
 
     # 'Users' admin sidebar menu
-    url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'user'})
+    url = router.ep_url('pytsite.odm_ui.eps.browse', {'model': 'user'})
     admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_ui@users', url, 'fa fa-user', weight=10,
                            permissions=('pytsite.odm_ui.browse.user',))
 
     # 'Roles' admin sidebar menu
-    url = router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': 'role'})
+    url = router.ep_url('pytsite.odm_ui.eps.browse', {'model': 'role'})
     admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_ui@roles', url, 'fa fa-users', weight=20,
                            permissions=('pytsite.odm_ui.browse.role',))
 

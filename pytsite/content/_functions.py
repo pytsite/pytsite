@@ -32,7 +32,7 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     perm_description = mock.package_name() + '@content_permission_bypass_moderation_' + model
     _auth.define_permission(perm_name, perm_description, mock.package_name())
 
-    menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
+    menu_url = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
     _admin.sidebar.add_menu(
         sid='content',
         mid=model,
@@ -128,6 +128,10 @@ def create_section(title: str, alias: str=None, language: str=None) -> _model.Se
 
 def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
     return _taxonomy.find('tag', language).get(limit)
+
+
+def get_tag(alias: str, language: str=None) -> _model.Section:
+    return _taxonomy.find('tag', language).where('alias', '=', alias).first()
 
 
 def create_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:

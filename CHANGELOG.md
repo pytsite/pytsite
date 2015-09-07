@@ -1,5 +1,23 @@
 # PytSite Changelog
 
+## 0.11.4
+### Added
+- New widget: `geo.widget.LatLng`.
+- `--short` argument  in `content:generate` console command.
+- Support for `maxlength` attribute in `html.Input` and `html.TextArea`.
+- Support for `max_length` attribute in `widget.input.Text`, `widget.input.TextArea` and descendants.
+- New function: `content.get_tag()`.
+
+### Changed
+- `content.eps` renamed to `content.ep`.
+- `router.endpoint_url()` renamed to `router.ep_url()`.
+- `router.endpoint_path()` renamed to `router.ep_path()`.
+
+### Fixed
+- Various errors in `currency.widget.Currency`.
+- Invalid longitude and latitude order in `geo.widget.*`.
+
+
 ## 0.11.3
 ### Fixed
 - Error while settings value of the `geo.widget.SearchAddress`.

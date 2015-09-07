@@ -429,15 +429,29 @@ class String(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
+        self._max_length = kwargs.get('max_length', 0)
+
         if kwargs.get('default') is None:
             kwargs['default'] = ''
 
         super().__init__(name, **kwargs)
 
+    @property
+    def max_length(self) -> int:
+        return self._max_length
+
+    @max_length.setter
+    def max_length(self, val: int):
+        self._max_length = int(val)
+
     def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         value = '' if value is None else str(value).strip()
+
+        if self._max_length:
+            value = value[:self._max_length]
+
         return super().set_val(value, change_modified, **kwargs)
 
 

@@ -381,7 +381,7 @@ class Form(BlockElement):
 
 class Input(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'value', 'placeholder', 'checked', 'required'
+        return 'value', 'placeholder', 'checked', 'required', 'maxlength'
 
     def _get_required_attrs(self) -> tuple:
         return 'type', 'name'
@@ -389,7 +389,7 @@ class Input(InlineElement, SingleTagElement):
 
 class TextArea(BlockElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'name', 'placeholder', 'rows', 'required'
+        return 'name', 'placeholder', 'rows', 'required', 'maxlength'
 
 
 class Label(InlineElement):

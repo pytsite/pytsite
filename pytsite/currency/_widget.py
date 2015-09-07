@@ -1,12 +1,12 @@
 """Currency Widgets
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import decimal as _decimal
 from pytsite import html as _html, widget as _widget
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Currency(_widget.input.Float):
@@ -29,7 +29,20 @@ class Currency(_widget.input.Float):
             value = {'amount': 0.0, 'currency': _functions.get_main_currency()}
 
         if not isinstance(value, dict):
-            raise ValueError('Dict expected.')
+            raise ValueError("Widget '{}': dict expected, while '{}' given.".format(self.uid, repr(value)))
+
+        for k in ('amount', 'currency'):
+            if k not in value:
+                raise ValueError("Widget '{}': '{}' is not in the value.".format(self.uid, k))
+
+        if not value['amount']:
+            value['amount'] = 0.0
+
+        if not value['currency']:
+            value['currency'] = _functions.get_main_currency()
+
+        if value['currency'] not in _functions.get_currencies():
+            raise ValueError("Widget '{}': '{}' is not a valid currency.".format(self.uid, value['currency']))
 
         value['amount'] = float(_decimal.Decimal(value['amount']).quantize(_decimal.Decimal('.01')))
         value['currency'] = value['currency'].upper()

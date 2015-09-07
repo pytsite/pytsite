@@ -96,7 +96,7 @@ class FilesUpload(_widget.Base):
 
     def render(self) -> str:
         self._data = {
-            'url': _router.endpoint_url('pytsite.file.eps.upload', {'model': self._model}),
+            'url': _router.ep_url('pytsite.file.eps.upload', {'model': self._model}),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,

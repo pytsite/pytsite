@@ -1,12 +1,12 @@
 """Input Widgets.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from abc import abstractmethod as _abstractmethod
 from pytsite import assetman as _assetman, browser as _client, html as _html, util as _util, tpl as _tpl
 from . import _base
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Input(_base.Base):
@@ -17,6 +17,7 @@ class Input(_base.Base):
         """
         super().__init__(**kwargs)
         self._required = kwargs.get('required', False)
+        self._max_length = kwargs.get('max_length')
 
     @property
     def required(self) -> bool:
@@ -57,6 +58,7 @@ class TextArea(_base.Base):
         super().__init__(**kwargs)
         self._rows = kwargs.get('rows', 5)
         self._required = kwargs.get('required', False)
+        self._max_length = kwargs.get('max_length')
         self._group_cls = ' '.join((self._group_cls, 'widget-textarea-input'))
 
     def render(self) -> str:
@@ -71,6 +73,9 @@ class TextArea(_base.Base):
             rows=self._rows,
             required=self._required
         )
+
+        if self._max_length:
+            html_input.set_attr('maxlength', int(self._max_length))
 
         return self._group_wrap(html_input)
 
@@ -101,6 +106,9 @@ class Text(Input):
             placeholder=self.placeholder,
             required=self._required
         )
+
+        if self._max_length:
+            inp.set_attr('maxlength', int(self._max_length))
 
         if self._prepend or self._append:
             group = _html.Div(cls='input-group')
@@ -167,6 +175,7 @@ class Float(Text):
         """
         if not value:
             value = 0.0
+
         return super().set_value(float(value), **kwargs)
 
     def render(self):

@@ -27,7 +27,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     _odm.register_model(model, cls)
     __models.append(model)
 
-    menu_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
+    menu_url = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
     _admin.sidebar.add_menu('taxonomy', model, menu_title, menu_url, menu_icon, weight=menu_weight,
                             permissions=('pytsite.odm_ui.browse.' + model,))
 

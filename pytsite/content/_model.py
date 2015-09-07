@@ -196,7 +196,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         """
         if field_name == 'url' and not self.is_new:
-            target_path = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': str(self.id)})
+            target_path = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)})
             r_alias = _route_alias.find_one_by_target(target_path, self.language)
             value = r_alias.f_get('alias') if r_alias else target_path
 
@@ -205,7 +205,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 value = _router.url(value)
 
         if field_name == 'edit_url' and self.id:
-            value = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {
+            value = _router.ep_url('pytsite.odm_ui.eps.get_m_form', {
                 'model': self.model,
                 'id': self.id
             })
@@ -258,7 +258,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
         if self.is_new:
             # Update route alias target which has been created in self._pre_save()
             if self.route_alias.target == 'NONE':
-                target = _router.endpoint_path('pytsite.content.eps.view', {'model': self.model, 'id': self.id})
+                target = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id})
                 self.route_alias.f_set('target', target).save()
 
             # Clean up not fully filled route aliases

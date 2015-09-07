@@ -26,9 +26,9 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
 
     # Action, redirect and validation endpoints
     frm.validation_ep = 'pytsite.odm_ui.eps.validate_m_form'
-    frm.action = _router.endpoint_url('pytsite.odm_ui.eps.post_m_form', {'model': model, 'id': eid if eid else '0'})
+    frm.action = _router.ep_url('pytsite.odm_ui.eps.post_m_form', {'model': model, 'id': eid if eid else '0'})
     if not _router.request.values_dict.get('__form_redirect'):
-        frm.redirect = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
+        frm.redirect = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
 
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('pytsite.odm_ui@save'),
@@ -66,7 +66,7 @@ def get_d_form(model: str, ids: list) -> _form.Base:
         raise _http.error.Forbidden()
 
     frm = _form.Base('odm-ui-delete-form')
-    frm.action = _router.endpoint_url('pytsite.odm_ui.eps.post_d_form', {'model': model})
+    frm.action = _router.ep_url('pytsite.odm_ui.eps.post_d_form', {'model': model})
     ol = _html.Ol()
 
     mock = dispense_entity(model)
@@ -81,7 +81,7 @@ def get_d_form(model: str, ids: list) -> _form.Base:
 
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, value=_lang.t('pytsite.odm_ui@delete'), color='danger', icon='fa fa-save')
-    cancel_button_url = _router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model})
+    cancel_button_url = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
     cancel_button = _widget.button.Link(weight=20, value=_lang.t('pytsite.odm_ui@cancel'), href=cancel_button_url,
                                         icon='fa fa-ban')
     actions_wrapper = _widget.static.Wrapper()

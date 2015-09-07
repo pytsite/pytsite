@@ -9,6 +9,45 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+class LngLat(_widget.Base):
+    """Get Latitude and Longitude Input Widget.
+    """
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+
+        _assetman.add('pytsite.geo@js/widget/lng-lat.js')
+        self._group_cls += ' widget-geo-lng-lat'
+
+    def set_value(self, val, **kwargs: dict):
+        """Set value of the widget.
+
+        :param val: list | tuple | str
+        """
+        if val is None:
+            val = [0.0, 0.0]
+        elif isinstance(val, str):
+            val = _json_loads(val)
+
+        if type(val) not in (list, tuple):
+            raise ValueError("Widget '{}': dict, tuple or None expected, while '{}' given.".
+                             format(self.name, repr(val)))
+
+        if len(val) != 2:
+            raise ValueError("Widget '{}': value must contain exact 2 items.".format(self.name))
+
+        if not isinstance(val[0], float) or not isinstance(val[0], float):
+            raise ValueError("Widget '{}': value must contain only float items.".format(self.name))
+
+        return super().set_value(val, **kwargs)
+
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        return self._group_wrap(_html.Input(type='hidden', name=self._uid, value=self.get_value()))
+
+
 class Location(_widget.Base):
     """Geo Address Input Widget.
     """
@@ -25,8 +64,9 @@ class Location(_widget.Base):
         """
         if val is None:
             val = {}
-        elif not isinstance(val, dict):
-            raise ValueError('Dict expected.')
+
+        if not isinstance(val, dict):
+            raise ValueError("Widget '{}': dict or None expected, while '{}' given.".format(self.name, repr(val)))
 
         return super().set_value(val, **kwargs)
 
@@ -81,8 +121,8 @@ class SearchAddress(Location):
 
             val = {
                 'address': val['address'],
-                'lat': float(val['lat']),
                 'lng': float(val['lng']),
+                'lat': float(val['lat']),
                 'address_components': components
             }
 
@@ -98,8 +138,8 @@ class SearchAddress(Location):
         if not val:
             val = {
                 'address': '',
-                'lat': 0.0,
                 'lng': 0.0,
+                'lat': 0.0,
                 'address_components': []
             }
 
@@ -128,7 +168,7 @@ class SearchAddress(Location):
 class StaticMap(_widget.Base):
     """Static Map Widget.
     """
-    def __init__(self, lng: float=51.48, lat: float=0.0, query: str=None, **kwargs: dict):
+    def __init__(self, lng: float=50.45, lat: float=30.523333, query: str=None, **kwargs: dict):
         """Init.
         """
         super().__init__(**kwargs)
@@ -138,7 +178,7 @@ class StaticMap(_widget.Base):
         self._lat = lat
         self._query = query
         self._zoom = kwargs.get('zoom', 13)
-        self._center = '%f,%f' % (self._lng, self._lat)
+        self._center = '%f,%f' % (self._lat, self._lng)
         self._width = kwargs.get('width', 320)
         self._height = kwargs.get('height', 240)
         self._link = kwargs.get('link', True)

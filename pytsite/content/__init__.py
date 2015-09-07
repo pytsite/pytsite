@@ -3,7 +3,7 @@
 # Public API
 from . import _model as model, _widget as widget
 from ._functions import register_model, get_models, find, get_model, get_model_title, create, get_sections, \
-    create_section, create_tag, get_tags, get_publish_statuses, get_section, is_model_registered
+    create_section, create_tag, get_tags, get_tag, get_publish_statuses, get_section, is_model_registered
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -28,20 +28,20 @@ def __init():
     assetman.add(__name__ + '@css/common.css')
 
     # Common routes
-    router.add_rule('/content/index/<string:model>', 'pytsite.content.eps.index')
-    router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.eps.view')
-    router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.eps.view_count')
-    router.add_rule('/content/search/<string:model>', 'pytsite.content.eps.search')
+    router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')
+    router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.ep.view')
+    router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.ep.view_count')
+    router.add_rule('/content/search/<string:model>', 'pytsite.content.ep.search')
 
     # Propose route
-    router.add_rule('/content/propose/<string:model>', 'pytsite.content.eps.propose',
-                    filters='pytsite.auth.eps.filter_authorize')
-    router.add_rule('/content/propose/<string:model>/submit', 'pytsite.content.eps.propose_submit',
-                    filters='pytsite.auth.eps.filter_authorize')
+    router.add_rule('/content/propose/<string:model>', 'pytsite.content.ep.propose',
+                    filters='pytsite.auth.ep.filter_authorize')
+    router.add_rule('/content/propose/<string:model>/submit', 'pytsite.content.ep.propose_submit',
+                    filters='pytsite.auth.ep.filter_authorize')
 
     # Content subscription routes
-    router.add_rule('/content/subscribe', 'pytsite.content.eps.subscribe', methods='POST')
-    router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.eps.unsubscribe')
+    router.add_rule('/content/subscribe', 'pytsite.content.ep.subscribe', methods='POST')
+    router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.ep.unsubscribe')
 
     # Taxonomy models
     taxonomy.register_model('section', Section, __name__ + '@sections')

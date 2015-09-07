@@ -64,4 +64,4 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
     if '__form_redirect' in inp:
         del inp['__form_redirect']
 
-    return _http.response.Redirect(_router.endpoint_url('pytsite.auth.eps.login', inp))
+    return _http.response.Redirect(_router.ep_url('pytsite.auth.eps.login', inp))

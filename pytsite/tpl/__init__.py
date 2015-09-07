@@ -1,7 +1,3 @@
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from datetime import datetime as _datetime
 from importlib import import_module as _import_module
 from os import path as _path
@@ -9,6 +5,11 @@ import jinja2 as _jinja
 from pytsite import metatag as _metatag, reg as _reg, assetman as _assetman, lang as _lang, browser as _browser, \
     util as _util
 from pytsite import router as _router
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 
 _packages = {}
 
@@ -71,7 +72,7 @@ _env.globals['t_plural'] = _lang.t_plural
 _env.globals['reg'] = _reg
 _env.globals['router'] = _router
 _env.globals['url'] = _router.url
-_env.globals['endpoint_url'] = _router.endpoint_url
+_env.globals['ep_url'] = _router.ep_url
 _env.globals['current_url'] = _router.current_url
 _env.globals['base_url'] = _router.base_url
 _env.globals['is_base_url'] = _router.is_base_url

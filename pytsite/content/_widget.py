@@ -1,12 +1,12 @@
 """Content Widgets.
 """
+from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
+    router as _router
+from . import _model, _functions
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
-    router as _router, util as _util
-from . import _model, _functions
 
 
 class ContentModelSelect(_widget.select.Select):
@@ -68,7 +68,7 @@ class SearchInput(_widget.Base):
         form.append(_html.Input(type='text', cls='form-control', name='search',  required=True,
                                 placeholder=_lang.t('pytsite.content@search_input_placeholder'),
                                 value=value))
-        form.set_attr('action', _router.endpoint_url('pytsite.content.eps.index', {
+        form.set_attr('action', _router.ep_url('pytsite.content.ep.index', {
             'model': self._model,
         }))
 

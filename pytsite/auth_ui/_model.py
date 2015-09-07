@@ -33,10 +33,10 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """Hook.
         """
         if field_name == 'profile_view_url':
-            value = _router.endpoint_url('pytsite.auth_ui.eps.profile_view', {'uid': self.id})
+            value = _router.ep_url('pytsite.auth_ui.eps.profile_view', {'uid': self.id})
 
         if field_name == 'profile_edit_url':
-            value = _router.endpoint_url('pytsite.auth_ui.eps.profile_edit', {
+            value = _router.ep_url('pytsite.auth_ui.eps.profile_edit', {
                 'uid': self.id,
                 '__form_redirect': _router.current_url(),
             })

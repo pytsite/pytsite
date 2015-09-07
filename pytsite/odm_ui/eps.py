@@ -97,7 +97,7 @@ def get_d_form(args: dict, inp: dict) -> str:
         ids = [ids]
 
     if not ids:
-        return _http.response.Redirect(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+        return _http.response.Redirect(_router.ep_url('pytsite.odm_ui.eps.browse', {'model': model}))
 
     form = _functions.get_d_form(model, ids)
 
@@ -118,4 +118,4 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
     except _odm.error.ForbidEntityDelete as e:
         _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
 
-    return _http.response.Redirect(_router.endpoint_url('pytsite.odm_ui.eps.browse', {'model': model}))
+    return _http.response.Redirect(_router.ep_url('pytsite.odm_ui.eps.browse', {'model': model}))

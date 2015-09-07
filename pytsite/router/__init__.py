@@ -374,11 +374,11 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
     return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False)
 
 
-def endpoint_path(endpoint: str, args: dict=None) -> str:
+def en_path(endpoint: str, args: dict=None) -> str:
     return url(_url_adapter.build(endpoint, args), relative=True)
 
 
-def endpoint_url(ep_name: str, args: dict=None, strip_lang=False) -> str:
+def ep_url(ep_name: str, args: dict=None, strip_lang=False) -> str:
     """Get URL for endpoint.
     """
     r = _url_adapter.build(ep_name, args)

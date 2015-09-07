@@ -109,14 +109,14 @@ class Browser:
     def get_table_skeleton(self) -> str:
         """Get browser table skeleton.
         """
-        data_url = _router.endpoint_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
+        data_url = _router.ep_url('pytsite.odm_ui.eps.get_browser_rows', {'model': self._model})
 
         # Toolbar
         toolbar = _html.Div(uid='odm-ui-browser-toolbar')
 
         # 'Create' toolbar button
         if self._check_entity_permission('create'):
-            create_form_url = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form', {'model': self._model, 'id': '0'})
+            create_form_url = _router.ep_url('pytsite.odm_ui.eps.get_m_form', {'model': self._model, 'id': '0'})
             toolbar.append(
                 _html.A(href=create_form_url, cls='btn btn-default add-button').append(
                     _html.I(cls='fa fa-plus')
@@ -126,7 +126,7 @@ class Browser:
 
         # 'Delete' toolbar button
         if self._check_entity_permission('delete'):
-            delete_form_url = _router.endpoint_url('pytsite.odm_ui.eps.get_d_form', {'model': self._model})
+            delete_form_url = _router.ep_url('pytsite.odm_ui.eps.get_d_form', {'model': self._model})
             toolbar.append(
                 _html.A(href=delete_form_url, cls='btn btn-danger mass-delete-button').append(
                     _html.I(cls='fa fa-remove')
@@ -230,13 +230,13 @@ class Browser:
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
         if self._check_entity_permission('modify', entity):
-            href = _router.endpoint_url('pytsite.odm_ui.eps.get_m_form',
+            href = _router.ep_url('pytsite.odm_ui.eps.get_m_form',
                                         {'model': entity.model, 'id': entity.id})
             group.append(_html.A(cls='btn btn-xs btn-default', href=href).append(_html.I(cls='fa fa-edit')))
 
         if self._check_entity_permission('delete', entity):
             group.append(_html.Span('&nbsp;'))
-            href = _router.endpoint_url('pytsite.odm_ui.eps.get_d_form',
+            href = _router.ep_url('pytsite.odm_ui.eps.get_d_form',
                                         {'model': entity.model, 'ids': entity.id})
             group.append(_html.A(cls='btn btn-xs btn-danger', href=href).append(_html.I(cls='fa fa-remove')))
 

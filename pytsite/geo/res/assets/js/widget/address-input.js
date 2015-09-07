@@ -15,8 +15,8 @@ $(function () {
         var uid = widget.data('widget-uid');
         var searchInput = widget.find('input[name="' + uid + '[search]"]');
         var addressInput = widget.find('input[name="' + uid + '[address]"]');
-        var latInput = widget.find('input[name="' + uid + '[lat]"]');
         var lngInput = widget.find('input[name="' + uid + '[lng]"]');
+        var latInput = widget.find('input[name="' + uid + '[lat]"]');
         var componentsInput = widget.find('input[name="' + uid + '[address_components]"]');
         var autocomplete = new google.maps.places.Autocomplete(searchInput[0], {
             types: ['geocode']
@@ -75,8 +75,8 @@ $(function () {
                             var loc = place.geometry.location;
                             searchInput.val(place.formatted_address);
                             addressInput.val(place.formatted_address);
-                            latInput.val(loc.lat());
                             lngInput.val(loc.lng());
+                            latInput.val(loc.lat());
                             componentsInput.val(JSON.stringify(place.address_components));
                         }
                     });

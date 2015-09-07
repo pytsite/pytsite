@@ -1,9 +1,9 @@
+import re as _re
+from werkzeug.wrappers import Request as _Request
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-import re as _re
-from werkzeug.wrappers import Request as _Request
 
 
 class Request(_Request):

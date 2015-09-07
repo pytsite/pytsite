@@ -54,7 +54,7 @@ class File(_odm.Model):
 
         if field_name == 'url':
             p = str(self.f_get('path')).split('/')
-            return _router.endpoint_url('pytsite.file.eps.get_download', {
+            return _router.ep_url('pytsite.file.eps.get_download', {
                 'model': p[0],
                 'p1': p[1],
                 'p2': p[2],

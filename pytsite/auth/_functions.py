@@ -114,7 +114,7 @@ def get_login_form(uid: str=None, cls: str=None, legend: str=None) -> _form.Base
     """Get a login form.
     """
     form = get_driver().get_login_form(uid, cls, legend)
-    form.action = _router.endpoint_url('pytsite.auth.eps.login_submit')
+    form.action = _router.ep_url('pytsite.auth.eps.login_submit')
 
     return form
 
@@ -254,7 +254,7 @@ def get_user_statuses() -> tuple:
 def logout_url() -> str:
     """Get logout URL.
     """
-    return _router.endpoint_url('pytsite.auth.eps.logout', {'redirect': _router.current_url()})
+    return _router.ep_url('pytsite.auth.eps.logout', {'redirect': _router.current_url()})
 
 
 def find_users(active_only: bool=True) -> _odm.Finder:

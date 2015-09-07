@@ -30,7 +30,7 @@ class Generate(_console.command.Abstract):
     def usage():
         """Print usage info.
         """
-        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] '
+        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] [--short] '
                             '--model=MODEL --author=LOGIN')
 
     def execute(self, **kwargs: dict):
@@ -53,9 +53,13 @@ class Generate(_console.command.Abstract):
         if not author:
             raise _console.Error("'{}' is not a registered user.".format(author_login))
 
+        num = int(kwargs.get('num', 10))
         language = kwargs.get('lang', _lang.get_current_lang())
-
         no_html = kwargs.get('no-html')
+        short = kwargs.get('short')
+
+        if short:
+            self.li_url += 'short/'
 
         # Generate sections
         sections = list(_functions.get_sections(language))
@@ -66,8 +70,6 @@ class Generate(_console.command.Abstract):
                 sections.append(section)
                 _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
 
-        num = int(kwargs.get('num', 10))
-
         for m in range(0, num):
             title = self._generate_title(int(kwargs.get('title-len', 7)))
             description = self._generate_title()
@@ -75,7 +77,7 @@ class Generate(_console.command.Abstract):
 
             body = []
             images = [_image.create(self.lp_url)]
-            for n in range(2, 6):
+            for n in range(2, 3 if short else 6):
                 if no_html:
                     body.append(_requests.get(self.li_url + '/plaintext/').content.decode('utf-8'))
                 else:
