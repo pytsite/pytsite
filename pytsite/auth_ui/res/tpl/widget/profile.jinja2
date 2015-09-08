@@ -1,8 +1,8 @@
 <div class="row">
     <div class="col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center col-image">
-        {% if user.profile_is_public %}<a href="{{ user.profile_view_url }}">{% endif %}
+        <a href="{{ user.profile_view_url }}">
             <img class="img-responsive img-circle" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
-        {% if user.profile_is_public %}</a>{% endif %}
+        </a>
     </div>
     <div class="col-xs-B-12 col-xs-8 col-sm-9 col-lg-10 col-content">
         <h3 class="text-xs-B-center text-xs-left">{{ user.full_name }}</h3>
@@ -30,7 +30,7 @@
             </ul>
         {% endif %}
 
-        {% if modify_button %}
+        {% if profile_is_editable %}
             <div class="row actions">
                 <div class="col-xs-12 text-xs-B-center text-xs-left">
                     <a href="{{ user.profile_edit_url }}"

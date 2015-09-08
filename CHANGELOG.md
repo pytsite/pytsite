@@ -1,6 +1,15 @@
 # PytSite Changelog
 
-## 0.11.5
+## 0.11.6 (2015-09-08)
+### Added
+- Passing `_name` and `_call` arguments to routes.
+- New event: `pytsite.auth.user.create`.
+
+### Changed
+- `login` and `email` arguments of the `auth.crate_user()` function have been swapped out
+
+
+## 0.11.5 (2015-09-07)
 ### Added
 - Ability to specify modules to autoload in application config file.
 
@@ -8,7 +17,7 @@
 - `auth.eps` renamed to `auth.ep`.
 
 
-## 0.11.4
+## 0.11.4 (2015-09-07)
 ### Added
 - New widget: `geo.widget.LatLng`.
 - `--short` argument  in `content:generate` console command.
@@ -26,11 +35,12 @@
 - Invalid longitude and latitude order in `geo.widget.*`.
 
 
-## 0.11.3
+## 0.11.3 (2015-09-05)
 ### Fixed
-- Error while settings value of the `geo.widget.SearchAddress`.
+- Error while setting value of the `geo.widget.SearchAddress`.
 
-## 0.11.2
+
+## 0.11.2 (2015-09-05)
 ### Added
 - Users' registration date in users browser.
 
@@ -41,7 +51,7 @@
 - Package search error in `lang.register_package()`.
 
 
-## 0.11.1
+## 0.11.1 (2015-09-04)
 ### Added
 - Now is possible to specify allowed members types, min and max lengths in `odm.field.List`.
 - New ODM field `odm.field.FloatList`. 
@@ -57,7 +67,7 @@
 - `geo.odm_field.Position` renamed to `geo.odm_field.LngLat`.
 
 
-## 0.11
+## 0.11 (2015-09-03)
 ### Added
 - `auth_log` package.
 - New events: `pytsite.auth.login` and `pytsite.auth.logout`.
@@ -66,7 +76,7 @@
 - Frequency of `cleanup` decreased to 1 hour.
 
 
-## 0.10.1
+## 0.10.1 (2015-09-03)
 ### Changed
 - `auth.find_users()` now sorts by `login_count`, descending.
 
@@ -74,7 +84,7 @@
 - Invalid reference to `geo.odm_field` in `content.model.Article` setup.
 
 
-## 0.10
+## 0.10 (2015-09-03)
 ### Added
 - `geo_ip` package.
 - ODM field `Position` in `geo` package.
@@ -83,7 +93,7 @@
 - Automatic type conversion in setters of `odm.field.Integer` and `odm.field.Float`. 
 
 
-## 0.9
+## 0.9 (2015-09-02)
 ### Added
 - `sitemap` package.
 - Session and temporary data cleanup is now maintained by `cron` instead of console commands.

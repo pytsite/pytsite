@@ -125,11 +125,11 @@ def post_login_form(args: dict, inp: dict) -> _http.response.Redirect:
     return get_driver().post_login_form(args, inp)
 
 
-def create_user(email: str, login: str=None, password: str=None) -> _model.User:
+def create_user(login: str, email: str=None, password: str=None) -> _model.User:
     """Create new user.
     """
-    if not login:
-        login = email
+    if not email:
+        email = login
 
     if get_user(login=login):
         raise Exception("User with login '{}' already exists.".format(login))
@@ -146,6 +146,8 @@ def create_user(email: str, login: str=None, password: str=None) -> _model.User:
             role = get_role(role_name)
             if role:
                 user.f_add('roles', role)
+
+    _events.fire('pytsite.auth.user.create', user=user)
 
     return user
 
@@ -206,7 +208,7 @@ def get_anonymous_user() -> _model.User:
     """
     global __anonymous_user
     if not __anonymous_user:
-        __anonymous_user = create_user('__anonymous@nowhere.com', '__anonymous')
+        __anonymous_user = create_user('__anonymous@__anonymous.__anonymous')
 
     return __anonymous_user
 

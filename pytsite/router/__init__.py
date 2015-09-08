@@ -88,6 +88,12 @@ def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, meth
     if not call:
         call = name
 
+    if not args:
+        args = {}
+
+    args['_name'] = name
+    args['_call'] = call
+
     rule = Rule(
         url_path=pattern,
         endpoint=name,
@@ -104,7 +110,7 @@ def add_path_alias(alias: str, target: str):
     _path_aliases[alias] = target
 
 
-def call_endpoint(name: str, args: dict=None, inp: dict=None):
+def call_ep(name: str, args: dict=None, inp: dict=None):
     """Call an endpoint.
     """
     endpoint = name.split('.')
@@ -199,14 +205,14 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_endpoint(flt_endpoint, flt_args, request.values_dict)
+            flt_response = call_ep(flt_endpoint, flt_args, request.values_dict)
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Processing response from handler
-        response_from_callable = call_endpoint(rule.call, rule_args, request.values_dict)
+        response_from_callable = call_ep(rule.call, rule_args, request.values_dict)
         if isinstance(response_from_callable, str):
             if _reg.get('output.minify'):
                 response_from_callable = _minify(response_from_callable, True, True)

@@ -49,7 +49,7 @@ class User(_odm.Model):
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.f_get('login') == '__anonymous'
+        return self.f_get('login') == '__anonymous@__anonymous.__anonymous'
 
     @property
     def is_admin(self) -> bool:
@@ -104,6 +104,10 @@ class User(_odm.Model):
     @property
     def status(self) -> bool:
         return self.f_get('status')
+
+    @property
+    def profile_is_public(self) -> bool:
+        return self.f_get('profile_is_public')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.

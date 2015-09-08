@@ -61,7 +61,7 @@ def index(args: dict, inp: dict):
     args['pager'] = pager
     endpoint = _reg.get('content.endpoints.view.' + model, 'app.ep.' + model + '_index')
 
-    return _router.call_endpoint(endpoint, args, inp)
+    return _router.call_ep(endpoint, args, inp)
 
 
 def view(args: dict, inp: dict):
@@ -128,7 +128,7 @@ def view(args: dict, inp: dict):
 
     _assetman.add('pytsite.content@js/content.js')
 
-    return _router.call_endpoint(endpoint, {'entity': entity})
+    return _router.call_ep(endpoint, {'entity': entity})
 
 
 def view_count(args: dict, inp: dict) -> int:
@@ -157,7 +157,7 @@ def propose(args: dict, inp: dict) -> str:
 
     _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
 
-    return _router.call_endpoint(endpoint, {
+    return _router.call_ep(endpoint, {
         'form': form
     })
 
