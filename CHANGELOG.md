@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.11.6 (2015-09-08)
+## 0.12 (2015-09-09)
 ### Added
 - Passing `_name` and `_call` arguments to routes.
 - New event: `pytsite.auth.user.create`.

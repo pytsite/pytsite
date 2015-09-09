@@ -3,7 +3,7 @@ pytsite = {};
 pytsite.js = {
     request: function(method, endpoint, data, success, error) {
         return $.ajax({
-            url: '/core/js/' + endpoint,
+            url: '/pytsite/browser/' + endpoint,
             method: method,
             data: data,
             success: success,

@@ -1,13 +1,13 @@
-"""JS API Init
+"""PytSite JS API.
 """
+from pytsite import assetman as _assetman, lang as _lang, events as _events, router as _router
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import assetman as _assetman, lang as _lang, events as _events, router as _router
 
-
-def _router_dispatch():
+def _router_dispatch_eh():
     _assetman.add(__name__ + '@js/jquery-2.1.4.min.js')
     _assetman.add(__name__ + '@js/common.js')
     _assetman.add(__name__ + '@js/lang.js')
@@ -53,8 +53,8 @@ def include(lib: str):
     else:
         raise Exception("Unknown library: '{}'.".format(lib))
 
-_router.add_rule('/core/js/<string:ep>', 'pytsite.browser.eps.request', methods=('GET', 'POST'))
+_router.add_rule('/pytsite/browser/<string:ep>', 'pytsite.browser.ep.request', methods=('GET', 'POST'))
 
 _assetman.register_package(__name__)
 
-_events.listen('pytsite.router.dispatch', _router_dispatch)
+_events.listen('pytsite.router.dispatch', _router_dispatch_eh)
