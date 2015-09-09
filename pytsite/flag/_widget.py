@@ -1,10 +1,10 @@
 """Flag Package Widgets.
 """
+from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, odm as _odm
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, odm as _odm
 
 
 class Flag(_widget.Base):
@@ -37,7 +37,7 @@ class Flag(_widget.Base):
     def render(self) -> _html.Element:
         current_user = _auth.get_current_user()
 
-        cls = 'widget flag'
+        cls = 'widget widget-flag'
         if not current_user.is_anonymous and self.flagged:
             cls += ' flagged'
 

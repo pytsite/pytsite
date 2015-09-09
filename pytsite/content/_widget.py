@@ -24,37 +24,24 @@ class ContentModelSelect(_widget.select.Select):
 class TagCloud(_taxonomy.widget.Cloud):
     """Tags Cloud Widget.
     """
-    def __init__(self, limit=10, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
-        super().__init__('tag', limit, **kwargs)
+        super().__init__('tag', **kwargs)
 
 
-class EntityTagCloud(_widget.Base):
+class EntityTagCloud(_taxonomy.widget.Cloud):
     """Tags Cloud of the Entity Widget.
     """
     def __init__(self, entity: _model.Content, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__('tag', **kwargs)
         self._entity = entity
-        self._link_pattern = '/tag/%s'
-        self._title_pattern = kwargs.get('title_pattern', '%s')
-        self._term_css = kwargs.get('term_css', 'label label-default')
 
-        self._group_cls += ' widget-content-tags'
-
-    def render(self) -> _html.Element:
-        """Render the widget.
-        """
-        root = _html.Div(child_separator=' ')
-        for tag in self._entity.f_get('tags'):
-            title = self._title_pattern % tag.f_get('title')
-            a_cls = 'tag {}'.format(self._term_css)
-            a = _html.A(title, href=self._link_pattern % tag.f_get('alias'), cls=a_cls)
-            root.append(a)
-
-        return self._group_wrap(root)
+    @property
+    def terms(self) -> list:
+        return self._entity.tags
 
 
 class SearchInput(_widget.Base):

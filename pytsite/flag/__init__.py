@@ -1,5 +1,9 @@
-"""Flag Plugin Init.
+"""PytSite Flag Package.
 """
+# Public API
+from . import _widget as widget
+from ._functions import count
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -27,8 +31,3 @@ def __init():
     events.listen('pytsite.router.dispatch', router_dispatch_eh)
 
 __init()
-
-
-# Public API
-from . import _widget as widget
-from ._functions import count

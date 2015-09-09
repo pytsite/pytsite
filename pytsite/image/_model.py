@@ -63,7 +63,7 @@ class Image(_file.model.File):
             from os import path
             p = str(self.f_get('path')).split(path.sep)
 
-            return _router.ep_url('pytsite.image.eps.get_resize', {
+            return _router.ep_url('pytsite.image.ep.resize', {
                 'width': int(kwargs.get('width', 0)),
                 'height': int(kwargs.get('height', 0)),
                 'p1': p[1],

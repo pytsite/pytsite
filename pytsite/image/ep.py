@@ -1,17 +1,17 @@
-"""Image views.
+"""Image Endpoints.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from os import path as _path, makedirs as _makedirs
 from math import floor as _floor
 from PIL import Image as _Image
 from pytsite import reg as _reg, http as _http
 from . import _functions
 
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
-def get_resize(args: dict, inp: dict) -> _http.response.Redirect:
+
+def resize(args: dict, inp: dict) -> _http.response.Redirect:
     requested_width = args['width']
     requested_height = args['height']
     file_path = _path.join('image', args['p1'], args['p2'], args['filename'])
@@ -90,7 +90,7 @@ def get_resize(args: dict, inp: dict) -> _http.response.Redirect:
             image.close()
 
             # Resize
-            resized = cropped.resize((resize_width, resize_height))
+            resized = cropped.resize((resize_width, resize_height), _Image.BILINEAR)
             image = resized
 
         image.save(target_abs_path)

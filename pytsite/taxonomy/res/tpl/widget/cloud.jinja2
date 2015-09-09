@@ -1,0 +1,5 @@
+<div class="widget widget-taxonomy-cloud {{ widget.model }}">
+    {% for term in widget.terms %}
+        <a href="{{ url(widget.link_pattern | format(term.alias)) }}" class="term {{ widget.model }} {{ widget.term_css }}">{{ widget.title_pattern | format(term.title) }}</a>
+    {% endfor %}
+</div>

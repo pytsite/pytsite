@@ -109,6 +109,10 @@ class User(_odm.Model):
     def profile_is_public(self) -> bool:
         return self.f_get('profile_is_public')
 
+    @property
+    def options(self) -> dict:
+        return self.f_get('options')
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.
         """

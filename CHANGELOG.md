@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.12.1 (2015-09-09)
+### Added
+- `flag.widget` initialization via JS API. 
+
+### Changed
+- Bilinear algorithm is now the default while resizing images in `image.ep.resize()`. 
+
 ## 0.12 (2015-09-09)
 ### Added
 - Passing `_name` and `_call` arguments to routes.

@@ -1,6 +1,6 @@
 """Tag Widgets.
 """
-from pytsite import widget as _widget, html as _html, odm as _odm, router as _router
+from pytsite import widget as _widget, html as _html, odm as _odm, router as _router, tpl as _tpl
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -62,7 +62,7 @@ class TokensInput(_widget.input.Tokens):
 class Cloud(_widget.Base):
     """Tags Cloud Widget.
     """
-    def __init__(self, model: str, num: int=10, **kwargs):
+    def __init__(self, model: str, tpl='pytsite.taxonomy@widget/cloud', **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
@@ -71,24 +71,41 @@ class Cloud(_widget.Base):
         if not _functions.is_model_registered(model):
             raise ValueError("'{}' is not a registered taxonomy model.".format(model))
 
-        self._num = num
+        self._tpl = tpl
+        self._num = kwargs.get('num', 10)
         self._link_pattern = kwargs.get('link_pattern', '/{}/%s'.format(model))
         self._title_pattern = kwargs.get('title_pattern', '%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
 
-        self._group_cls += ' widget-taxonomy-cloud {}'.format(self._model)
+    @property
+    def model(self) -> str:
+        return self._model
+
+    @property
+    def num(self) -> int:
+        return self._num
+
+    @property
+    def link_pattern(self) -> str:
+        return self._link_pattern
+
+    @property
+    def title_pattern(self) -> str:
+        return self._title_pattern
+
+    @property
+    def term_css(self) -> str:
+        return self._term_css
+
+    @property
+    def terms(self) -> _odm.FinderResult:
+        return _functions.find(self._model).get(self._num)
 
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        root = _html.Div(child_separator='  ')
-        weight = 10
         for term in _functions.find(self._model).get(self._num):
             title = self._title_pattern % term.title
-            a_cls = 'term {} weight-{} {}'.format(self._model, weight, self._term_css)
             href = _router.url(self._link_pattern % term.alias)
-            a = _html.A(title, href=href, cls=a_cls, data_weight=term.weight)
-            root.append(a)
-            weight -= 1
 
-        return self._group_wrap(root)
+        return _tpl.render(self._tpl, {'widget': self})
