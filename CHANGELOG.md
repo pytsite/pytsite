@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.13
+### Added
+- `description` and `nickname` fields in `auth.model.User`.
+- `validation.rule.Regex` rule.
+
+### Changed
+- Some changes in layout of the `auth_ui.widget.Profile`.
+
 ## 0.12.1 (2015-09-09)
 ### Added
 - `flag.widget` initialization via JS API. 

@@ -1,13 +1,12 @@
 """Event Handlers.
 """
+from datetime import datetime as _datetime
+from pytsite import lang as _lang, console as _console, router as _router, validation as _validation
+from . import _functions
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from datetime import datetime as _datetime
-
-from pytsite import lang as _lang, console as _console, router as _router, validation as _validation
-from . import _functions
 
 
 def app_setup():
@@ -49,3 +48,16 @@ def router_dispatch():
     if not user.is_anonymous:
         _router.no_cache = True
         user.f_set('last_activity', _datetime.now()).save(True, False)
+
+
+def update(version: str):
+    if version == '0.13.0':
+        _update_0_13()
+
+
+def _update_0_13():
+    from pytsite import util
+    for user in _functions.find_users(False).get():
+        if not user.nickname:
+            user.f_set('nickname', util.transform_str_1(user.full_name)).save()
+            _console.print_info('User updated: {}'.format(user.login))

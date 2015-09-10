@@ -16,6 +16,7 @@ def __init():
     """
     import sys
     from pytsite import reg, assetman, odm, events, tpl, lang, router, robots
+    from . import _eh
 
     # Resources
     tpl.register_package(__name__)
@@ -43,9 +44,9 @@ def __init():
     tpl.register_global('auth', _functions)
 
     # Event handlers
-    from ._ehs import app_setup, router_dispatch
-    events.listen('setup', app_setup)
-    events.listen('pytsite.router.dispatch', router_dispatch)
+    events.listen('setup', _eh.app_setup)
+    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    events.listen('pytsite.update', _eh.update)
 
     # Permissions
     _functions.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')

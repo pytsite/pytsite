@@ -5,6 +5,9 @@ from datetime import datetime as _datetime
 from pytsite import image as _image, odm as _odm, util as _util, router as _router
 
 
+ANONYMOUS_LOGIN = '__anonymous@__anonymous.__anonymous'
+
+
 class User(_odm.Model):
     """User ODM Model.
     """
@@ -12,13 +15,15 @@ class User(_odm.Model):
         """_setup() hook.
         """
         # Fields
-        self._define_field(_odm.field.String('login'))
-        self._define_field(_odm.field.String('email'))
-        self._define_field(_odm.field.String('password'))
+        self._define_field(_odm.field.String('login', nonempty=True))
+        self._define_field(_odm.field.String('email', nonempty=True))
+        self._define_field(_odm.field.String('password', nonempty=True))
+        self._define_field(_odm.field.String('nickname', nonempty=True))
         self._define_field(_odm.field.String('token'))
         self._define_field(_odm.field.String('first_name'))
         self._define_field(_odm.field.String('last_name'))
         self._define_field(_odm.field.String('full_name'))
+        self._define_field(_odm.field.String('description'))
         self._define_field(_odm.field.DateTime('birth_date'))
         self._define_field(_odm.field.DateTime('last_login'))
         self._define_field(_odm.field.DateTime('last_activity'))
@@ -35,6 +40,7 @@ class User(_odm.Model):
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)
+        self._define_index([('nickname', _odm.I_ASC)], unique=True)
         self._define_index([('token', _odm.I_ASC)], unique=True)
 
     @property
@@ -46,10 +52,14 @@ class User(_odm.Model):
         return self.f_get('email')
 
     @property
+    def nickname(self) -> str:
+        return self.f_get('nickname')
+
+    @property
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.f_get('login') == '__anonymous@__anonymous.__anonymous'
+        return self.f_get('login') == ANONYMOUS_LOGIN
 
     @property
     def is_admin(self) -> bool:
@@ -68,6 +78,10 @@ class User(_odm.Model):
     @property
     def full_name(self) -> str:
         return self.f_get('full_name')
+
+    @property
+    def description(self) -> str:
+        return self.f_get('description')
 
     @property
     def picture_url(self) -> str:
@@ -131,7 +145,7 @@ class User(_odm.Model):
     def _pre_save(self):
         """Hook.
         """
-        if self.f_get('login') == '__anonymous':
+        if self.f_get('login') == ANONYMOUS_LOGIN:
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.f_get('password'):

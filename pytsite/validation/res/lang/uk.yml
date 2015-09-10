@@ -11,3 +11,5 @@ validation_listlistitemnotempty: "Обов'язково для заповнен�
 validation_listlistitemurl: 'Некоректний URL (рядок :row, колонка :col)'
 validation_videohostingurl: 'Некоректний URL відеохостингу'
 validation_videohostingurl_row: 'Некоректний URL відеохостингу (рядок :row)'
+validation_regex: 'Не відповідає шаблону :pattern'
+validation_regex_row: 'Не відповідає шаблону :pattern (рядок :row)'

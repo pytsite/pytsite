@@ -1,33 +1,45 @@
 <div class="row">
     <div class="col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center col-image">
-        <a href="{{ user.profile_view_url }}">
-            <img class="img-responsive img-circle" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
-        </a>
+        <div class="image">
+            <a href="{{ user.profile_view_url }}">
+                <img class="img-responsive" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
+            </a>
+        </div>
+        <div class="urls">
+            {% if user.urls %}
+                <ul class="urls text-xs-B-center">
+                    {% for link in user.urls %}
+                        <li class="item">
+                            {% set cls = 'fa-globe' %}
+                            {% if 'github.com' in link %}{% set cls = 'fa-github' %}{% endif %}
+                            {% if 'twitter.com' in link %}{% set cls = 'fa-twitter' %}{% endif %}
+                            {% if 'facebook.com' in link %}{% set cls = 'fa-facebook' %}{% endif %}
+                            {% if 'google.com' in link %}{% set cls = 'fa-google' %}{% endif %}
+                            {% if 'linkedin.com' in link %}{% set cls = 'fa-linkedin' %}{% endif %}
+                            {% if 'tumblr.com' in link %}{% set cls = 'fa-tumblr' %}{% endif %}
+                            {% if 'vk.com' in link %}{% set cls = 'fa-vk' %}{% endif %}
+                            <a href="{{ link }}" target="_blank"><i class="fa fa-fw {{ cls }}"></i></a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
     </div>
     <div class="col-xs-B-12 col-xs-8 col-sm-9 col-lg-10 col-content">
         <h3 class="text-xs-B-center text-xs-left">{{ user.full_name }}</h3>
 
-        <ul class="info text-xs-B-center text-xs-left">
-            <li>{{ t('pytsite.auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>
-            <li>{{ t('pytsite.auth_ui@last_activity') }}: {{ user.last_activity | date('pretty_date_time') }}</li>
-        </ul>
+        {#        <ul class="info text-xs-B-center text-xs-left">#}
+        {#            <li>{{ t('pytsite.auth_ui@member_since') }}: {{ user.created | date('pretty_date') }}</li>#}
+        {#            {% if (user.last_activity | date('%s') | int) > 0 %}#}
+        {#                <li>{{ t('pytsite.auth_ui@last_activity') }}: {{ user.last_activity | date('pretty_date_time') }}</li>#}
+        {#            {% endif %}#}
+        {#        </ul>#}
 
-        {% if user.urls %}
-            <ul class="urls text-xs-B-center text-xs-left">
-                {% for link in user.urls %}
-                    <li class="item">
-                        {% set cls = 'fa-globe' %}
-                        {% if 'github.com' in link %}{% set cls = 'fa-github' %}{% endif %}
-                        {% if 'twitter.com' in link %}{% set cls = 'fa-twitter' %}{% endif %}
-                        {% if 'facebook.com' in link %}{% set cls = 'fa-facebook' %}{% endif %}
-                        {% if 'google.com' in link %}{% set cls = 'fa-google' %}{% endif %}
-                        {% if 'linkedin.com' in link %}{% set cls = 'fa-linkedin' %}{% endif %}
-                        {% if 'tumblr.com' in link %}{% set cls = 'fa-tumblr' %}{% endif %}
-                        {% if 'vk.com' in link %}{% set cls = 'fa-vk' %}{% endif %}
-                        <a href="{{ link }}" target="_blank"><i class="fa fa-fw {{ cls }}"></i></a>
-                    </li>
-                {% endfor %}
-            </ul>
+        {% if user.description %}
+            <p class="description">
+                {{ user.description | e | nl2br }}
+            </p>
         {% endif %}
 
         {% if profile_is_editable %}

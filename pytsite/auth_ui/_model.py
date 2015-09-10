@@ -92,10 +92,20 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             label=self.t('profile_is_public'),
         ))
 
+        # Image
+        from pytsite import image
+        form.add_widget(image.widget.ImagesUploadWidget(
+            weight=20,
+            uid='picture',
+            label=self.t('picture'),
+            value=self.picture,
+            max_file_size=1,
+        ))
+
         # Login
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.input.Text(
-                weight=20,
+                weight=30,
                 uid='login',
                 value=self.f_get('login'),
                 label=self.t('login'),
@@ -106,9 +116,21 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 _odm.validation.ODMFieldUnique('user', 'login', (self.id,))
             ))
 
+        # Nickname
+        form.add_widget(_widget.input.Text(
+            weight=40,
+            uid='nickname',
+            value=self.f_get('nickname'),
+            label=self.t('nickname'),
+        ))
+        form.add_rules('nickname', (
+            _validation.rule.NotEmpty(),
+            _validation.rule.Regex('pytsite.auth@nickname_str_rules', pattern='^[A-Za-z0-9\.\-]{3,24}$'),
+        ))
+
         # First name
         form.add_widget(_widget.input.Text(
-            weight=30,
+            weight=50,
             uid='first_name',
             value=self.first_name,
             label=self.t('first_name'),
@@ -117,7 +139,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Last name
         form.add_widget(_widget.input.Text(
-            weight=40,
+            weight=60,
             uid='last_name',
             value=self.last_name,
             label=self.t('last_name'),
@@ -125,17 +147,26 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Email
         form.add_widget(_widget.input.Text(
-            weight=50,
+            weight=70,
             uid='email',
             value=self.f_get('email'),
             label=self.t('email'),
         ))
         form.add_rules('email', (_validation.rule.NotEmpty(), _validation.rule.Email()))
 
+        # Description
+        form.add_widget(_widget.input.TextArea(
+            weight=70,
+            uid='description',
+            value=self.f_get('description'),
+            label=self.t('about_yourself'),
+            max_length=1024,
+        ))
+
         # Status
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.select.Select(
-                weight=60,
+                weight=80,
                 uid='status',
                 value=self.f_get('status'),
                 label=self.t('status'),
@@ -143,19 +174,9 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 h_size='col-sm-5 col-md-4 col-lg-3',
             ))
 
-        # Image
-        from pytsite import image
-        form.add_widget(image.widget.ImagesUploadWidget(
-            weight=70,
-            uid='picture',
-            label=self.t('picture'),
-            value=self.picture,
-            max_file_size=1,
-        ))
-
         # URLs
         form.add_widget(_widget.input.StringList(
-            weight=80,
+            weight=90,
             uid='urls',
             label=self.t('social_links'),
             value=self.urls,
@@ -167,7 +188,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Roles
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_odm_ui.widget.EntityCheckboxes(
-                weight=80,
+                weight=100,
                 uid='roles',
                 label=self.t('roles'),
                 model='role',
@@ -179,7 +200,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.input.Text(
-                weight=90,
+                weight=110,
                 uid='token',
                 value=self.f_get('token'),
                 label=self.t('token'),

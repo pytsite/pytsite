@@ -1,13 +1,13 @@
 """Basic Validation Rules.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re as _re
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util, lang as _lang
 from . import _error
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Base(_ABC):
@@ -137,37 +137,51 @@ class Float(Base):
             raise _error.ValidationError()
 
 
-class Url(Base):
-    """URL rule.
-    """
+class Regex(Base):
+    def __init__(self, msg_id: str=None, value=None, **kwargs):
+        super().__init__(msg_id, value, **kwargs)
+        self._ignore_case = kwargs.get('ignore_case', False)
+        self._pattern = kwargs.get('pattern', '')
+
+        if not self._pattern or not isinstance(self._pattern, str):
+            raise ValueError('Pattern must be a nonempty string.')
+
+        self._regex = _re.compile(self._pattern, _re.IGNORECASE) if self._ignore_case else _re.compile(self._pattern)
+
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
-        regex = _re.compile(
-            r'^(?:http|ftp)s?://'  # http:// or https://
-            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
-            r'localhost|'  # localhost...
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-            r'(?::\d+)?'  # optional port
-            r'(?:/?|[/?]\S+)$', _re.IGNORECASE)
-
         if isinstance(self.value, list):
             self._msg_id += '_row'
             self.value = _util.list_cleanup(self.value)
             for k, v in enumerate(self.value):
-                if not regex.match(v):
-                    raise _error.ValidationError({'row': k + 1})
+                if not self._regex.match(v):
+                    raise _error.ValidationError({'row': k + 1, 'pattern': self._pattern})
         elif isinstance(self.value, dict):
             self._msg_id += '_row'
             self.value = _util.dict_cleanup(self.value)
             for k, v in self.value.items():
-                if not regex.match(v):
-                    raise _error.ValidationError({'row': k + 1})
+                if not self._regex.match(v):
+                    raise _error.ValidationError({'row': k + 1, 'pattern': self._pattern})
         elif isinstance(self.value, str):
-            if not regex.match(self.value):
-                raise _error.ValidationError()
+            if not self._regex.match(self.value):
+                raise _error.ValidationError({'pattern': self._pattern})
         else:
             raise ValueError('List, dict or str expected.')
+
+
+class Url(Regex):
+    """URL rule.
+    """
+    def __init__(self, msg_id: str=None, value=None, **kwargs):
+        pattern = ('^(?:http|ftp)s?://'  # http:// or https://
+                   '(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain
+                   'localhost|'  # localhost...
+                   '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                   '(?::\d+)?'  # optional port
+                   '(?:/?|[/?]\S+)$')
+
+        super().__init__(msg_id, value, pattern=pattern, ignore_case=True, **kwargs)
 
 
 class VideoHostingUrl(Url):
@@ -213,15 +227,12 @@ class VideoHostingUrl(Url):
         return r
 
 
-class Email(Base):
+class Email(Regex):
     """Email rule.
     """
-    def _do_validate(self, validator=None, field_name: str=None):
-        """Do actual validation of the rule.
-        """
-        regex = _re.compile('^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-]+\.[a-z0-9]+$')
-        if not regex.search(str(self._value)):
-            raise _error.ValidationError()
+    def __init__(self, msg_id: str=None, value=None, **kwargs):
+        pattern = '^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-]+\.[a-z0-9]+$'
+        super().__init__(msg_id, value, pattern=pattern, **kwargs)
 
 
 class DateTime(Base):
