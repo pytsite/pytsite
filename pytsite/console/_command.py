@@ -1,10 +1,10 @@
 """Console Commands
 """
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
 
 
 class Abstract(_ABC):

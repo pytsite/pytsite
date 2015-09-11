@@ -1,15 +1,14 @@
 """PytSite Database Console Commands.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
-
 import subprocess as _subprocess
 import shutil as _shutil
 from os import path as _path
 from datetime import datetime as _datetime
 from pytsite import console as _console, reg as _reg
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class DbDump(_console.command.Abstract):
@@ -32,7 +31,7 @@ class DbDump(_console.command.Abstract):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
             raise Exception('Cannot find mongodump executable.')
 
-        _console.run_command('app:maintenance', enable=True)
+        _console.run_command('maintenance', enable=True)
 
         db_name = _reg.get('db.database')
         target_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump')
@@ -55,7 +54,7 @@ class DbDump(_console.command.Abstract):
 
         r = _subprocess.call(command, shell=True)
 
-        _console.run_command('app:maintenance', disable=True)
+        _console.run_command('maintenance', disable=True)
 
         return r
 
@@ -80,12 +79,13 @@ class DbRestore(_console.command.Abstract):
         if _subprocess.call('which mongorestore', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True):
             raise Exception('Cannot find mongorestore executable.')
 
-        _console.run_command('app:maintenance', enable=True)
+        _console.run_command('maintenance', enable=True)
 
         db_name = _reg.get('db.database')
         source_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump', db_name)
 
-        config = _db.get_config()
+        from . import _function
+        config = _function.get_config()
 
         command = 'mongorestore -h {}:{} --drop --gzip --stopOnError --dir {} -d {}'.\
             format(config['host'], config['port'], source_dir, db_name)
@@ -97,6 +97,6 @@ class DbRestore(_console.command.Abstract):
 
         r = _subprocess.call(command, shell=True)
 
-        _console.run_command('app:maintenance', disable=True)
+        _console.run_command('maintenance', disable=True)
 
         return r

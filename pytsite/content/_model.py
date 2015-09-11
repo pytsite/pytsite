@@ -327,7 +327,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
             title,
             str(_html.Span(status_str, cls='label label-' + status_cls)),
             self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
-            self.f_get('author').f_get('full_name')
+            self.f_get('author').full_name
         )
 
     def setup_m_form(self, form, stage: str):
@@ -489,7 +489,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
     def _send_waiting_status_notification(self):
         for u in _auth.find_users().get():
             if u.has_permission('pytsite.odm_ui.modify.' + self.model):
-                m_to = '{} <{}>'.format(u.f_get('full_name'), u.f_get('email'))
+                m_to = '{} <{}>'.format(u.full_name, u.email)
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
                 m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current_lang(), {
                     'user': u,

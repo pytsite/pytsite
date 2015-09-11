@@ -6,7 +6,7 @@ from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, http as _http, \
-    logger as _logger, router as _router
+    logger as _logger, router as _router, util as _util
 from .. import _functions, _error
 from .abstract import AbstractDriver
 
@@ -74,7 +74,7 @@ class ULoginDriver(AbstractDriver):
 
         try:
             # User is not exists and its creation is not allowed
-            if not user and not _reg.get('auth.allow_signup'):
+            if not user and not _reg.get('auth.signup.enabled'):
                 raise _error.LoginIncorrect()
 
             # Create new user
@@ -95,6 +95,15 @@ class ULoginDriver(AbstractDriver):
                 user.f_set('first_name', ulogin_data['first_name'])
             if not user.last_name and 'last_name' in ulogin_data:
                 user.f_set('last_name', ulogin_data['last_name'])
+
+            # Nickname
+            if not user.nickname:
+                if 'nickname' in ulogin_data:
+                    user.f_set('nickname', ulogin_data['nickname'])
+                elif user.first_name and user.last_name:
+                    user.f_set('nickname', _util.transform_str_1(user.first_name + '.' + user.last_name))
+                else:
+                    user.f_set('nickname', _util.transform_str_1(email))
 
             # Gender
             if not user.gender and 'sex' in ulogin_data:

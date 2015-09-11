@@ -67,8 +67,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         status_cls = 'info' if self.status == 'active' else 'default'
 
         return (
-            self.f_get('login'),
-            self.f_get('full_name'),
+            self.login,
+            self.full_name,
             groups_cell,
             '<span class="label label-{}">{}</span>'.format(status_cls,
                                                             _lang.t('pytsite.auth@status_' + self.f_get('status'))),

@@ -1,12 +1,11 @@
 """PytSite Console.
 """
+from pytsite import reg as _reg, lang as _lang
+from . import _error, _command
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import reg as _reg, lang as _lang
-from . import _error, _command
 
 
 __commands = {}

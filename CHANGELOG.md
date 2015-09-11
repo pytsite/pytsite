@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.14
+### Added
+- Set `nickname` field's value of the `auth.model.User` in `auth.driver.ulogin` 
+
+### Fixed
+- Errors in `db`'s console commands.
+- Error in `auth`'s `setup` event handler.
+
+### Changed
+- `auth.allow_signup` configuration parameter renamed to `auth.signup.enabled`.
+- `auth.signup_roles` configuration parameter renamed to `auth.signup.roles`.
+
+
 ## 0.13
 ### Added
 - `description` and `nickname` fields in `auth.model.User`.

@@ -141,8 +141,8 @@ def create_user(login: str, email: str=None, password: str=None) -> _model.User:
         user.f_set('password', password)
 
     # Automatic roles for new users
-    if _reg.get('auth.allow_signup'):
-        for role_name in _reg.get('auth.signup_roles', ['user']):
+    if _reg.get('auth.signup.enabled'):
+        for role_name in _reg.get('auth.signup.roles', ['user']):
             role = get_role(role_name)
             if role:
                 user.f_add('roles', role)

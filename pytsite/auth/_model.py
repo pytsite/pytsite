@@ -22,7 +22,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.String('token'))
         self._define_field(_odm.field.String('first_name'))
         self._define_field(_odm.field.String('last_name'))
-        self._define_field(_odm.field.String('full_name'))
+        self._define_field(_odm.field.Virtual('full_name'))
         self._define_field(_odm.field.String('description'))
         self._define_field(_odm.field.DateTime('birth_date'))
         self._define_field(_odm.field.DateTime('last_login'))
@@ -132,6 +132,10 @@ class User(_odm.Model):
         return self.f_get('token')
 
     @property
+    def roles(self) -> list:
+        return self.f_get('roles')
+
+    @property
     def options(self) -> dict:
         return self.f_get('options')
 
@@ -162,12 +166,10 @@ class User(_odm.Model):
         if not self.token:
             self.f_set('token', _util.random_str(32))
 
-        self.f_set('full_name', '{} {}'.format(self.first_name, self.last_name))
-
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.
         """
-        for role in self.f_get('roles'):
+        for role in self.roles:
             if role.f_get('name') == name:
                 return True
 
@@ -204,6 +206,9 @@ class User(_odm.Model):
 
         if field_name == 'is_online':
             value = (_datetime.now() - self.last_activity).seconds < 180
+
+        if field_name == 'full_name':
+            value = '{} {}'.format(self.first_name, self.last_name)
 
         return value
 

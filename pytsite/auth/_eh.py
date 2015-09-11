@@ -1,7 +1,7 @@
 """Event Handlers.
 """
 from datetime import datetime as _datetime
-from pytsite import lang as _lang, console as _console, router as _router, validation as _validation
+from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -33,7 +33,8 @@ def app_setup():
             raise Exception(v.messages)
 
         admin_user = _functions.create_user(email)
-        admin_user.f_set('full_name', _lang.t('pytsite.auth@administrator'))
+        admin_user.f_set('first_name', _lang.t('pytsite.auth@administrator'))
+        admin_user.f_set('nickname', _util.transform_str_1(admin_user.full_name))
         admin_user.f_add('roles', _functions.get_role('admin'))
         admin_user.save()
         _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
