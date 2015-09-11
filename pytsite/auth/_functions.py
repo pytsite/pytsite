@@ -152,13 +152,15 @@ def create_user(login: str, email: str=None, password: str=None) -> _model.User:
     return user
 
 
-def get_user(login: str=None, uid: str=None) -> _model.User:
+def get_user(login: str=None, uid: str=None, nickname: str=None) -> _model.User:
     """Get user by login or by uid.
     """
     if login:
         return _odm.find('user').where('login', '=', login).first()
-    if uid:
+    elif uid:
         return _odm.find('user').where('_id', '=', uid).first()
+    elif nickname:
+        return _odm.find('user').where('nickname', '=', nickname).first()
 
 
 def create_role(name: str, description: str=''):

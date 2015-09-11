@@ -1,13 +1,12 @@
 """ODM Validation Rules.
 """
+from bson.objectid import ObjectId as _ObjectId
+from pytsite import validation as _core_validation
+from . import _functions, _model
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from bson.objectid import ObjectId as _ObjectId
-
-from pytsite import validation as _core_validation
-from . import _functions, _model
 
 
 class ODMEntitiesList(_core_validation.rule.Base):
@@ -37,27 +36,29 @@ class ODMEntitiesList(_core_validation.rule.Base):
                     'detail': "Instance of '{}' model expected, but '{}' given.".format(self._model, v.model)})
 
 
-class ODMFieldUnique(_core_validation.rule.Base):
-    def __init__(self, model: str, field: str, exclude_ids: tuple=(), msg_id: str=None, value=None):
+class FieldUnique(_core_validation.rule.Base):
+    def __init__(self, model: str, field: str, msg_id: str=None, value=None, **kwargs):
         """Init.
+        :param exclude_ids: tuple | _ObjectId | str
         """
+        if not msg_id:
+            msg_id = 'pytsite.odm@validation_field_unique'
+
         super().__init__(msg_id, value)
         self._model = model
         self._field = field
+        self._exclude_ids = kwargs.get('exclude_ids')
 
-        if isinstance(exclude_ids, str):
-            exclude_ids = (exclude_ids,)
-        self._exclude_ids = exclude_ids
+        if type(self._exclude_ids) in (str, _ObjectId):
+            self._exclude_ids = (self._exclude_ids,)
 
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
         f = _functions.find(self._model).where(self._field, '=', self._value)
 
-        for oid in self._exclude_ids:
-            if not isinstance(oid, _ObjectId):
-                oid = _ObjectId(oid)
-            f.where('_id', '!=', oid)
+        if self._exclude_ids:
+            f.where('_id', 'nin', self._exclude_ids)
 
-        if f.first():
-            raise _core_validation.error.ValidationError()
+        if f.count():
+            raise _core_validation.error.ValidationError({'field': self._field})

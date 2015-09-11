@@ -1,9 +1,10 @@
 """Content Plugin Endpoints.
 """
+import re as _re
 from datetime import datetime as _datetime
 from pytsite import disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, reg as _reg, \
     http as _http, router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
-    lang as _lang, validation as _validation
+    lang as _lang, validation as _validation, logger as _logger
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,12 +14,16 @@ __license__ = 'MIT'
 def index(args: dict, inp: dict):
     """Content Index.
     """
+    # Delayed import to prevent exception during application initialization
     from . import _functions
 
+    # Checking if the model is registered
     model = args.get('model')
     if not model or not _functions.is_model_registered(model):
+        _logger.error("Content model '{}' is not found. Redirecting to home.".format(model), __name__)
         return _http.response.Redirect(_router.base_url())
 
+    # Getting finder
     f = _functions.find(model)
 
     # Filter by term
@@ -41,13 +46,19 @@ def index(args: dict, inp: dict):
             raise _http.error.NotFound()
 
     # Filter by author
-    author_id = inp.get('author')
-    if author_id:
-        author = _auth.get_user(uid=author_id)
+    author_identifier = inp.get('author') or args.get('author')
+    if author_identifier:
+        if _re.match('^[a-f0-9]{24}$', author_identifier):
+            author = _auth.get_user(uid=author_identifier)
+        else:
+            author = _auth.get_user(nickname=author_identifier)
+
         if author:
             _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': author.full_name}))
             f.where('author', '=', author)
             args['author'] = author
+        else:
+            raise _http.error.NotFound()
 
     # Search
     if inp.get('search'):

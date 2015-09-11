@@ -1,2 +1,3 @@
 reindex_console_command_description: 'Побудова індексів'
 reindex_model: 'Індексую модель :model'
+validation_field_unique: "Значення поля ':field' повинно бути унікальным"

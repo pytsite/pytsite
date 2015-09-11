@@ -124,6 +124,14 @@ class User(_odm.Model):
         return self.f_get('profile_is_public')
 
     @property
+    def password(self) -> bool:
+        return self.f_get('password')
+
+    @property
+    def token(self) -> bool:
+        return self.f_get('token')
+
+    @property
     def options(self) -> dict:
         return self.f_get('options')
 
@@ -133,7 +141,7 @@ class User(_odm.Model):
         if field_name == 'password':
             from ._functions import password_hash
             value = password_hash(value)
-            self.f_set('token', _hashlib.md5(_util.random_password().encode()).hexdigest())
+            self.f_set('token', _util.random_str(32))
 
         if field_name == 'status':
             from ._functions import get_user_statuses
@@ -145,11 +153,14 @@ class User(_odm.Model):
     def _pre_save(self):
         """Hook.
         """
-        if self.f_get('login') == ANONYMOUS_LOGIN:
+        if self.login == ANONYMOUS_LOGIN:
             raise Exception('Anonymous user cannot be saved.')
 
-        if not self.f_get('password'):
+        if not self.password:
             self.f_set('password', _util.random_password())
+
+        if not self.token:
+            self.f_set('token', _util.random_str(32))
 
         self.f_set('full_name', '{} {}'.format(self.first_name, self.last_name))
 

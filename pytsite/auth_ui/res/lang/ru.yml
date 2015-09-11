@@ -25,6 +25,10 @@ add_link: 'Добавить ссылку'
 is_online: 'Онлайн'
 word_yes: 'Да'
 word_no: 'Нет'
+this_login_already_used: 'Этот логин уже занят, попробуйте выбрать другой'
+this_nickname_already_used: 'Этот никнейм уже занят, попробуйте выбрать другой'
+this_email_already_used: 'Этот email уже занят, попробуйте выбрать другой'
+this_token_already_used: 'Этот токен уже занят, попробуйте выбрать другой'
 
 odm_ui_permission_group_description: 'Безопасность'
 

@@ -11,6 +11,7 @@ __license__ = 'MIT'
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """User UI.
     """
+
     def _setup(self):
         super()._setup()
         self._define_field(_odm.field.Bool('profile_is_public'))
@@ -69,7 +70,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('login'),
             self.f_get('full_name'),
             groups_cell,
-            '<span class="label label-{}">{}</span>'.format(status_cls, _lang.t('pytsite.auth@status_' + self.f_get('status'))),
+            '<span class="label label-{}">{}</span>'.format(status_cls,
+                                                            _lang.t('pytsite.auth@status_' + self.f_get('status'))),
             '<span class="label label-info">{}</span>'.format(self.t('word_yes')) if self.profile_is_public else '',
             '<span class="label label-success">{}</span>'.format(self.t('word_yes')) if self.is_online else '',
             self.f_get('_created', fmt='pretty_date_time'),
@@ -113,7 +115,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             form.add_rules('login', (
                 _validation.rule.NotEmpty(),
                 _validation.rule.Email(),
-                _odm.validation.ODMFieldUnique('user', 'login', (self.id,))
+                _odm.validation.FieldUnique('user', 'login', 'pytsite.auth_ui@this_login_already_used',
+                                            exclude_ids=self.id)
             ))
 
         # Nickname
@@ -125,7 +128,9 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
         form.add_rules('nickname', (
             _validation.rule.NotEmpty(),
-            _validation.rule.Regex('pytsite.auth@nickname_str_rules', pattern='^[A-Za-z0-9\.\-]{3,24}$'),
+            _validation.rule.Regex('^[A-Za-z0-9\.\-]{3,24}$', 'pytsite.auth@nickname_str_rules'),
+            _odm.validation.FieldUnique(self.model, 'nickname', 'pytsite.auth_ui@this_nickname_already_used',
+                                        exclude_ids=self.id)
         ))
 
         # First name
@@ -152,7 +157,12 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             value=self.f_get('email'),
             label=self.t('email'),
         ))
-        form.add_rules('email', (_validation.rule.NotEmpty(), _validation.rule.Email()))
+        form.add_rules('email', (
+            _validation.rule.NotEmpty(),
+            _validation.rule.Email(),
+            _odm.validation.FieldUnique(self.model, 'email', 'pytsite.auth_ui@this_email_already_used',
+                                        exclude_ids=self.id)
+        ))
 
         # Description
         form.add_widget(_widget.input.TextArea(
@@ -204,6 +214,11 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 uid='token',
                 value=self.f_get('token'),
                 label=self.t('token'),
+            ))
+            form.add_rules('token', (
+                _validation.rule.Regex('^[a-f0-9]{32}$'),
+                _odm.validation.FieldUnique(self.model, 'token', 'pytsite.auth_ui@this_token_already_used',
+                                            exclude_ids=self.id)
             ))
 
     def get_d_form_description(self) -> str:

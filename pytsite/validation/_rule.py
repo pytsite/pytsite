@@ -138,10 +138,10 @@ class Float(Base):
 
 
 class Regex(Base):
-    def __init__(self, msg_id: str=None, value=None, **kwargs):
+    def __init__(self, pattern: str, msg_id: str=None, value=None, **kwargs):
         super().__init__(msg_id, value, **kwargs)
+        self._pattern = pattern
         self._ignore_case = kwargs.get('ignore_case', False)
-        self._pattern = kwargs.get('pattern', '')
 
         if not self._pattern or not isinstance(self._pattern, str):
             raise ValueError('Pattern must be a nonempty string.')
@@ -151,6 +151,9 @@ class Regex(Base):
     def _do_validate(self, validator=None, field_name: str=None):
         """Do actual validation of the rule.
         """
+        if not self.value:
+            return
+
         if isinstance(self.value, list):
             self._msg_id += '_row'
             self.value = _util.list_cleanup(self.value)
@@ -181,7 +184,7 @@ class Url(Regex):
                    '(?::\d+)?'  # optional port
                    '(?:/?|[/?]\S+)$')
 
-        super().__init__(msg_id, value, pattern=pattern, ignore_case=True, **kwargs)
+        super().__init__(pattern, msg_id, value, ignore_case=True, **kwargs)
 
 
 class VideoHostingUrl(Url):
@@ -231,8 +234,7 @@ class Email(Regex):
     """Email rule.
     """
     def __init__(self, msg_id: str=None, value=None, **kwargs):
-        pattern = '^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-]+\.[a-z0-9]+$'
-        super().__init__(msg_id, value, pattern=pattern, **kwargs)
+        super().__init__('^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-]+\.[a-z0-9]+$', msg_id, value, **kwargs)
 
 
 class DateTime(Base):

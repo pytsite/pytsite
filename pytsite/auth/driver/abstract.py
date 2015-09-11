@@ -1,12 +1,11 @@
 """Abstract Auth Driver.
 """
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from pytsite import form as _form, http as _http
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-
-from pytsite import form as _form, http as _http
 
 
 class AbstractDriver(_ABC):

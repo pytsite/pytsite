@@ -8,6 +8,10 @@
 ### Changed
 - Some changes in layout of the `auth_ui.widget.Profile`.
 
+### Fixed
+- Various validations in `auth_ui.model.UserUI`.
+
+
 ## 0.12.1 (2015-09-09)
 ### Added
 - `flag.widget` initialization via JS API. 

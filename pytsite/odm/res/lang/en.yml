@@ -1,2 +1,3 @@
 reindex_console_command_description: 'Rebuild indices'
 reindex_model: "Indexing model ':model'"
+validation_field_unique: "Value of the field ':field' must be unique"
