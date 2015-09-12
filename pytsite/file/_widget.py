@@ -1,12 +1,12 @@
 """File Widgets.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _client, html as _html, \
     router as _router
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class FilesUpload(_widget.Base):
@@ -18,7 +18,7 @@ class FilesUpload(_widget.Base):
         """
         super().__init__(**kwargs)
 
-        self._group_cls = ' '.join((self._group_cls, 'widget-files-upload'))
+        self._css = ' '.join((self._css, 'widget-files-upload'))
 
         # Processing setter filtering
         self.set_value(self._value)
@@ -31,7 +31,7 @@ class FilesUpload(_widget.Base):
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
-        self._slot_cls = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3'
+        self._slot_css = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3'
 
         if self._max_files:
             self._data['max_files'] = self._max_files
@@ -87,12 +87,12 @@ class FilesUpload(_widget.Base):
         self._max_files = value
 
     @property
-    def slot_cls(self) -> str:
-        return self._slot_cls
+    def slot_css(self) -> str:
+        return self._slot_css
 
-    @slot_cls.setter
-    def slot_cls(self, value):
-        self._slot_cls = value
+    @slot_css.setter
+    def slot_css(self, value):
+        self._slot_css = value
 
     def render(self) -> str:
         self._data = {
@@ -103,7 +103,7 @@ class FilesUpload(_widget.Base):
             'accept_files': self._accept_files,
             'image_max_width': self._image_max_width,
             'image_max_height': self._image_max_height,
-            'slot_cls': self._slot_cls
+            'slot_css': self._slot_css
         }
         widget_content = _html.Div(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
         return self._group_wrap(widget_content)

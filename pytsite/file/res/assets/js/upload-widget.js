@@ -16,7 +16,7 @@ $.fn.extend({
         var acceptedFileTypes = fileInput.prop('accept');
         var progressSlot = widget.find('.progress');
         var progressBar = progressSlot.find('.progress-bar');
-        var slotCls = widget.data('slotCls');
+        var slotCss = widget.data('slotCss');
 
         if(acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
@@ -30,7 +30,7 @@ $.fn.extend({
         };
 
         var createSlot = function (fid, thumb_url) {
-            var slot = $('<div class="slot ' + slotCls + '" data-fid="' + fid + '">');
+            var slot = $('<div class="slot ' + slotCss + '" data-fid="' + fid + '">');
             var inner = $('<div class="inner">');
             slot.append(inner);
             inner.append($('<div class="thumb"><img class="img-responsive" src="{u}"></div>'.replace('{u}', thumb_url)));

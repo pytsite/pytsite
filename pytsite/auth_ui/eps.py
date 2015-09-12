@@ -12,7 +12,7 @@ def profile_view(args: dict, inp: dict) -> str:
     """
     tpl_name = _reg.get('auth_ui.tpl.profile_view', 'pytsite.auth_ui@profile_view')
     current_user = _auth.get_current_user()
-    profile_owner = _auth.get_user(uid=args.get('uid'))
+    profile_owner = _auth.get_user(nickname=args.get('nickname'))
     """:type: pytsite.auth_ui._model.UserUI"""
 
     if not profile_owner:
@@ -32,8 +32,11 @@ def profile_view(args: dict, inp: dict) -> str:
 def profile_edit(args: dict, inp: dict) -> str:
     """Profile edit endpoint.
     """
+    profile_owner = _auth.get_user(nickname=args.get('nickname'))
+    if not profile_owner:
+        raise _http.error.NotFound()
+
     tpl_name = _reg.get('auth_ui.tpl.profile_edit', 'pytsite.auth_ui@profile_edit')
-    profile_owner = _auth.get_user(uid=args.get('uid'))
     form = _odm_ui.get_m_form('user', str(profile_owner.id))
 
     return _tpl.render(tpl_name, {'form': form})

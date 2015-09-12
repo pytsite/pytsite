@@ -59,7 +59,7 @@ class TextArea(_base.Base):
         self._rows = kwargs.get('rows', 5)
         self._required = kwargs.get('required', False)
         self._max_length = kwargs.get('max_length')
-        self._group_cls = ' '.join((self._group_cls, 'widget-textarea-input'))
+        self._css = ' '.join((self._css, 'widget-textarea-input'))
 
     def render(self) -> str:
         """Render the widget.
@@ -68,7 +68,7 @@ class TextArea(_base.Base):
             content=self.get_value(),
             uid=self._uid,
             name=self._name,
-            cls=' '.join(('form-control', self._cls)),
+            cls=' '.join(('form-control', self._css)),
             placeholder=self.placeholder,
             rows=self._rows,
             required=self._required
@@ -89,7 +89,7 @@ class Text(Input):
         super().__init__(**kwargs)
         self._prepend = prepend
         self._append = append
-        self._group_cls = ' '.join((self._group_cls, 'widget-input-text'))
+        self._css = ' '.join((self._css, 'widget-input-text'))
         self._type = 'text'
 
     def render(self) -> _html.Element:
@@ -102,7 +102,7 @@ class Text(Input):
             uid=self._uid,
             name=self._name,
             value=self.get_value(),
-            cls=' '.join(('form-control', self._cls)),
+            cls=' '.join(('form-control', self._css)),
             placeholder=self.placeholder,
             required=self._required
         )
@@ -129,7 +129,7 @@ class TypeaheadText(Text):
         super().__init__(**kwargs)
         _client.include('typeahead')
         _assetman.add('pytsite.widget@js/typeahead.js')
-        self._group_cls = ' '.join((self._group_cls, 'widget-typeahead-text-input'))
+        self._css = ' '.join((self._css, 'widget-typeahead-text-input'))
         self._data['source_url'] = source_url
 
 
@@ -142,7 +142,7 @@ class Integer(Text):
         super().__init__(**kwargs)
         self._type = 'tel'
         self._allow_minus = kwargs.get('allow_minus', False)
-        self._group_cls = ' '.join((self._group_cls, 'widget-input-integer'))
+        self._css = ' '.join((self._css, 'widget-input-integer'))
         self._data['allow_minus'] = self._allow_minus
 
     def set_value(self, value, **kwargs: dict):
@@ -167,7 +167,7 @@ class Float(Text):
         super().__init__(**kwargs)
         self._type = 'tel'
         self._allow_minus = kwargs.get('allow_minus', False)
-        self._group_cls = ' '.join((self._group_cls, 'widget-input-float'))
+        self._css = ' '.join((self._css, 'widget-input-float'))
         self._data['allow_minus'] = self._allow_minus
 
     def set_value(self, value, **kwargs: dict):
@@ -195,7 +195,7 @@ class StringList(_base.Base):
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._max_values = kwargs.get('max_values', 10)
 
-        self._group_cls = ' '.join((self._group_cls, 'widget-string-list'))
+        self._css = ' '.join((self._css, 'widget-string-list'))
         self._data['max_values'] = self._max_values
 
         _assetman.add('pytsite.widget@js/list.js')
@@ -241,7 +241,7 @@ class ListList(StringList):
         if len(col_titles) != len(col_format):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
-        self._group_cls = ' '.join((self._group_cls, 'widget-list-list'))
+        self._css = ' '.join((self._css, 'widget-list-list'))
 
     @property
     def col_titles(self) -> list:
@@ -301,7 +301,7 @@ class Tokens(Input):
         """Init.
         """
         super().__init__(**kwargs)
-        self._group_cls = ' '.join((self._group_cls, 'widget-token-input'))
+        self._css = ' '.join((self._css, 'widget-token-input'))
         _client.include('tokenfield')
         _assetman.add('pytsite.widget@css/tokens.css')
         _assetman.add('pytsite.widget@js/tokens.js')
@@ -329,7 +329,7 @@ class Tokens(Input):
             uid=self._uid,
             name=self._name,
             value=','.join(self.get_value()) if self.get_value() else '',
-            cls=' '.join(('form-control', self._cls)),
+            cls=' '.join(('form-control', self._css)),
         )
 
         return self._group_wrap(html_input)

@@ -20,7 +20,7 @@ class Html(_base.Base):
         self._html_em = kwargs.get('html_em', _html.P)
 
     def render(self) -> str:
-        return self._html_em(self._value, cls=self._cls).render()
+        return self._html_em(self._value, cls=self._css).render()
 
 
 class Text(Html):
@@ -30,7 +30,7 @@ class Text(Html):
         """Init.
         """
         super().__init__(**kwargs)
-        self._group_cls = ' '.join((self._group_cls, 'widget-static-control'))
+        self._css = ' '.join((self._css, 'widget-static-control'))
 
     def render(self) -> str:
         """Render the widget.
@@ -92,7 +92,7 @@ class Wrapper(_base.Base):
         for child in self.children:
             r.append(child.render())
 
-        return _html.Div(self._children_sep.join(r), cls=self.cls).render()
+        return _html.Div(self._children_sep.join(r), cls=self.css).render()
 
 
 class VideoPlayer(_base.Base):

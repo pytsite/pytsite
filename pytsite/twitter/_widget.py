@@ -23,7 +23,7 @@ class Auth(_widget.Base):
 
         _assetman.add('pytsite.twitter@widget.js')
 
-        self._group_cls += ' widget-twitter-oauth'
+        self._css += ' widget-twitter-oauth'
 
     def render(self) -> _html.Element:
         """Render widget.

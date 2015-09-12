@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.14
+## 0.14 (2015-09-12)
 ### Added
 - Set `nickname` field's value of the `auth.model.User` in `auth.driver.ulogin` 
 
@@ -11,9 +11,17 @@
 ### Changed
 - `auth.allow_signup` configuration parameter renamed to `auth.signup.enabled`.
 - `auth.signup_roles` configuration parameter renamed to `auth.signup.roles`.
+- `widget.Base.cls` renamed to `widget.Base.css`.
+- `widget.Base.group_cls` removed in favour of `widget.Base.css`.
+- `file.widget.File.slot_cls` renamed to `file.widget.File.slot_css`.
+- `taxonomy.widget.Cloud.terms` now returns  list instead of iterator.
+- `taxonomy.widget.Cloud.title_pattern` renamed to `taxonomy.widget.Cloud.term_title_pattern`.
+- `content.widget.SearchInput` renamed to `content.widget.Search`.
+- `auth_ui.widget.Profile` improved.
+- `content.widget.Search` improved.
 
 
-## 0.13
+## 0.13 (2015-09-10)
 ### Added
 - `description` and `nickname` fields in `auth.model.User`.
 - `validation.rule.Regex` rule.

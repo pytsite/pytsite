@@ -1,0 +1,4 @@
+{% if widget.title %}
+    {{ '<' ~ widget.title_tag ~ '>' ~ widget.title | e ~ '</' ~ widget.title_tag ~ '>' }}
+{% endif %}
+{{ widget.form }}

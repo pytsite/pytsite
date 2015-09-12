@@ -1,13 +1,13 @@
 """Pytsite Form
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
     validation as _validation
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 _assetman.register_package(__name__)
@@ -28,7 +28,7 @@ class Base:
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
         self._legend = kwargs.get('legend', None)
-        self._cls = kwargs.get('cls', 'pytsite-form')
+        self._css = kwargs.get('css', 'pytsite-form')
         self._validation_ep = kwargs.get('validation_ep')
 
         redirect_url = _router.request.values_dict.get('__form_redirect')
@@ -39,7 +39,7 @@ class Base:
 
         self.add_widget(_widget.input.Hidden(uid='__form_location', value=_router.current_url()), area='form')
         self.add_widget(_widget.input.Hidden(uid='__form_redirect', value=_url_unquote(redirect_url)), area='form')
-        self.add_widget(_widget.static.Wrapper(cls='form-messages'))
+        self.add_widget(_widget.static.Wrapper(css='form-messages'))
 
         if not self._name:
             self._name = uid
@@ -101,16 +101,16 @@ class Base:
         self._legend = value
 
     @property
-    def cls(self) -> str:
+    def css(self) -> str:
         """Get CSS classes.
         """
-        return self._cls
+        return self._css
 
-    @cls.setter
-    def cls(self, value):
+    @css.setter
+    def css(self, value):
         """Set CSS classes.
         """
-        self._cls = 'pytsite-form ' + value
+        self._css = 'pytsite-form ' + value
 
     @property
     def messages(self):
@@ -203,7 +203,7 @@ class Base:
         """
         if self._legend and not self.has_widget('__form_legend'):
             self.add_widget(
-                _widget.static.Html(uid='__form_legend', value=self._legend, html_em=_html.H3, cls='box-title'),
+                _widget.static.Html(uid='__form_legend', value=self._legend, html_em=_html.H3, css='box-title'),
                 area='header'
             )
 
@@ -275,7 +275,7 @@ class Base:
         attrs = {
             'id': self.uid,
             'name': self.name,
-            'class': self.cls,
+            'class': self.css,
             'action': self.action,
             'method': self.method,
             'data-validation-ep': self.validation_ep,

@@ -133,7 +133,7 @@ class DateTime(_input.Text):
         _client.include('datetimepicker')
         _assetman.add('pytsite.widget@js/datetime.js')
 
-        self._group_cls = self._group_cls.replace('widget-input-text', 'widget-select-datetime')
+        self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -156,7 +156,7 @@ class DateTime(_input.Text):
             uid=self._uid,
             name=self._name,
             value=self.get_value().strftime('%d.%m.%Y %H:%M'),
-            cls=' '.join(('form-control', self._cls)),
+            cls=' '.join(('form-control', self._css)),
         )
 
         return self._group_wrap(html_input)

@@ -53,7 +53,7 @@ class TokensInput(_widget.input.Tokens):
             uid=self._uid,
             name=self._name,
             value=','.join([v.f_get('title') for v in self.get_value()]),
-            cls=' '.join(('form-control', self._cls)),
+            cls=' '.join(('form-control', self._css)),
         )
 
         return self._group_wrap(html_input)
@@ -74,8 +74,11 @@ class Cloud(_widget.Base):
         self._tpl = tpl
         self._num = kwargs.get('num', 10)
         self._link_pattern = kwargs.get('link_pattern', '/{}/%s'.format(model))
-        self._title_pattern = kwargs.get('title_pattern', '%s')
+        self._term_title_pattern = kwargs.get('term_title_pattern', '%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
+        self._title_tag = kwargs.get('title_tag', 'h3')
+
+        self._css += ' widget-taxonomy-cloud widget-taxonomy-cloud-{}'.format(self._model)
 
     @property
     def model(self) -> str:
@@ -90,22 +93,22 @@ class Cloud(_widget.Base):
         return self._link_pattern
 
     @property
-    def title_pattern(self) -> str:
-        return self._title_pattern
+    def term_title_pattern(self) -> str:
+        return self._term_title_pattern
 
     @property
     def term_css(self) -> str:
         return self._term_css
 
     @property
-    def terms(self) -> _odm.FinderResult:
-        return _functions.find(self._model).get(self._num)
+    def title_tag(self) -> str:
+        return self._title_tag
+
+    @property
+    def terms(self) -> list:
+        return list(_functions.find(self._model).get(self._num))
 
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        for term in _functions.find(self._model).get(self._num):
-            title = self._title_pattern % term.title
-            href = _router.url(self._link_pattern % term.alias)
-
-        return _tpl.render(self._tpl, {'widget': self})
+        return self._group_wrap(_tpl.render(self._tpl, {'widget': self}))

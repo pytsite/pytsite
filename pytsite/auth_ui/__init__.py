@@ -26,9 +26,9 @@ def __init():
     tpl.register_global('auth_ui', modules[__name__])
 
     # Routes
-    router.add_rule('/auth/profile/<string:uid>', __name__ + '.eps.profile_view')
-    router.add_rule('/auth/profile/<string:uid>/edit', __name__ + '.eps.profile_edit')
-    router.add_rule('/auth/profile/<string:uid>/edit/submit', __name__ + '.eps.profile_edit_submit', methods='POST')
+    router.add_rule('/auth/profile/<string:nickname>', __name__ + '.eps.profile_view')
+    router.add_rule('/auth/profile/<string:nickname>/edit', __name__ + '.eps.profile_edit')
+    router.add_rule('/auth/profile/<string:nickname>/edit/submit', __name__ + '.eps.profile_edit_submit', methods='POST')
 
     # Replace 'user' model with UI-compatible
     odm.register_model('user', _model.UserUI, True)

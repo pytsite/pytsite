@@ -18,7 +18,7 @@ class LngLat(_widget.Base):
         super().__init__(**kwargs)
 
         _assetman.add('pytsite.geo@js/widget/lng-lat.js')
-        self._group_cls += ' widget-geo-lng-lat'
+        self._css += ' widget-geo-lng-lat'
 
     def set_value(self, val, **kwargs: dict):
         """Set value of the widget.
@@ -57,7 +57,7 @@ class Location(_widget.Base):
         super().__init__(**kwargs)
 
         _assetman.add('pytsite.geo@js/widget/location.js')
-        self._group_cls += ' widget-geo-location'
+        self._css += ' widget-geo-location'
 
     def set_value(self, val: dict, **kwargs: dict):
         """Set value of the widget.
@@ -95,7 +95,7 @@ class SearchAddress(Location):
         _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng, 'js')
         _assetman.add('pytsite.geo@js/widget/address-input.js')
 
-        self._group_cls = self._group_cls.replace('widget-geo-location', 'widget-geo-search-address')
+        self._css = self._css.replace('widget-geo-location', 'widget-geo-search-address')
 
     @property
     def autodetect(self) -> bool:
@@ -183,7 +183,7 @@ class StaticMap(_widget.Base):
         self._height = kwargs.get('height', 240)
         self._link = kwargs.get('link', True)
 
-        self._group_cls += ' widget-geo-static-map'
+        self._css += ' widget-geo-static-map'
 
     @property
     def language(self) -> str:

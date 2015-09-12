@@ -22,7 +22,7 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
 
     # Creating form
     frm = _form.Base('odm-ui-form')
-    frm.cls += ' odm-ui-form odm-ui-form-' + model
+    frm.css += ' odm-ui-form odm-ui-form-' + model
 
     # Action, redirect and validation endpoints
     frm.validation_ep = 'pytsite.odm_ui.eps.validate_m_form'
@@ -35,7 +35,7 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
                                           color='primary', icon='fa fa-save')
     cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('pytsite.odm_ui@cancel'),
                                         href=frm.redirect, icon='fa fa-remove')
-    actions_wrapper = _widget.static.Wrapper(uid='actions', cls='actions-wrapper text-xs-B-center text-sm-left')
+    actions_wrapper = _widget.static.Wrapper(uid='actions', css='actions-wrapper text-xs-B-center text-sm-left')
     actions_wrapper.add_child(submit_button).add_child(cancel_button)
     frm.add_widget(actions_wrapper, area='footer')
 

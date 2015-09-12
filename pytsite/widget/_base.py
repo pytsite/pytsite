@@ -29,8 +29,7 @@ class Base(_ABC):
         self._label = kwargs.get('label')
         self._title = kwargs.get('title')
         self._placeholder = kwargs.get('placeholder')
-        self._cls = kwargs.get('cls', '')
-        self._group_cls = kwargs.get('group_cls', '')
+        self._css = kwargs.get('css', '')
         self._data = kwargs.get('group_data', {})
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
@@ -173,14 +172,14 @@ class Base(_ABC):
         return self._placeholder
 
     @property
-    def cls(self) -> str:
+    def css(self) -> str:
         """Get CSS classes of the widget.
         """
-        return self._cls
+        return self._css
 
-    @cls.setter
-    def cls(self, value):
-        self._cls = value
+    @css.setter
+    def css(self, value):
+        self._css = value
 
     @property
     def help(self):
@@ -188,22 +187,24 @@ class Base(_ABC):
         """
         return self._help
 
-    def _group_wrap(self, content: _html.Element, render_label: bool=True) -> _html.Element:
+    def _group_wrap(self, content, render_label: bool=True) -> _html.Element:
         """Wrap input string into 'form-group' container.
 
         :type content: pytsite.html.Element | str
         """
+        if isinstance(content, str):
+            content = _html.TagLessElement(content)
+
         if self._h_size:
             content = content.wrap(_html.Div(cls=self._h_size))
             content = content.wrap(_html.Div(cls='row'))
 
-        cls = 'form-group widget widget-uid-{}'.format(self.uid)
-        cls = ' '.join((cls, self._group_cls))
+        css = 'form-group widget widget-uid-{} {}'.format(self.uid, self._css)
 
         if self._hidden:
-            cls += ' hidden'
+            css += ' hidden'
 
-        group_wrapper = _html.Div(cls=cls, data_widget_uid=self.uid, data_widget_weight=self.weight)
+        group_wrapper = _html.Div(cls=css, data_widget_uid=self.uid, data_widget_weight=self.weight)
 
         if self._hidden:
             group_wrapper.set_attr('hidden', True)

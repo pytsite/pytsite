@@ -37,11 +37,11 @@ class Flag(_widget.Base):
     def render(self) -> _html.Element:
         current_user = _auth.get_current_user()
 
-        cls = 'widget widget-flag'
+        css = 'widget widget-flag'
         if not current_user.is_anonymous and self.flagged:
-            cls += ' flagged'
+            css += ' flagged'
 
         return _html.Span(_tpl.render('pytsite.flag@widget', {
             'widget': self,
             'current_user': current_user
-        }), cls=cls, data_uid=self._uid)
+        }), cls=css, data_uid=self._uid)

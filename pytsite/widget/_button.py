@@ -17,9 +17,9 @@ class Button(_base.Base):
         super().__init__(**kwargs)
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
-        self._cls += ' btn btn-' + self._color
+        self._css += ' btn btn-' + self._color
 
-        self._em = _html.Button(uid=self._uid, type='button', cls=self.cls)
+        self._em = _html.Button(uid=self._uid, type='button', cls=self.css)
 
     @property
     def icon(self) -> str:
@@ -46,7 +46,7 @@ class Submit(Button):
         """Init.
         """
         super().__init__(**kwargs)
-        self._em = _html.Button(uid=self._uid, type='submit', cls=self._cls)
+        self._em = _html.Button(uid=self._uid, type='submit', cls=self._css)
 
 
 class Link(Button):
@@ -56,7 +56,7 @@ class Link(Button):
         """Init.
         """
         super().__init__(**kwargs)
-        self._em = _html.A(uid=self._uid, href=href, cls=self._cls)
+        self._em = _html.A(uid=self._uid, href=href, cls=self._css)
 
     @property
     def href(self) -> str:

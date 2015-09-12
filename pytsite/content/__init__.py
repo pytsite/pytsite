@@ -31,6 +31,7 @@ def __init():
     router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')
     router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.ep.view')
     router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.ep.view_count')
+    router.add_rule('/content/search/<string:model>', 'pytsite.content.ep.search', call='pytsite.content.ep.index')
 
     # Propose route
     router.add_rule('/content/propose/<string:model>', 'pytsite.content.ep.propose',

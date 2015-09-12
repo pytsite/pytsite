@@ -14,12 +14,12 @@
                 </div>
             {% endfor %}
         {% endif %}
-        <div class="hidden slot progress {{ widget.slot_cls }}">
+        <div class="hidden slot progress {{ widget.slot_css }}">
             <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
                  style="width: 0;">0%
             </div>
         </div>
-        <div class="slot add-button {{ widget.slot_cls }}">
+        <div class="slot add-button {{ widget.slot_css }}">
             <div class="btn btn btn-default">
                 <i class="{{ widget.add_btn_icon }}"></i> {{ widget.add_btn_label }}
                 <input type="file" multiple accept="{{ widget.accept_files }}">

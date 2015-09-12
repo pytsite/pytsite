@@ -18,16 +18,17 @@ class Profile(_widget.Base):
         super().__init__(**kwargs)
         self._user = user
         self._tpl = tpl
-        self._group_cls += ' widget-auth-ui-profile'
+        self._css += ' widget-auth-ui-profile'
 
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        if not self._user.profile_is_public:
+        current_user = _auth.get_current_user()
+
+        if not self._user.profile_is_public and current_user.id != self._user.id:
             return ''
 
         profile_is_editable = False
-        current_user = _auth.get_current_user()
         if not current_user.is_anonymous:
             if current_user.id == self._user.id or current_user.has_permission('pytsite.odm_ui.modify.user'):
                 profile_is_editable = True

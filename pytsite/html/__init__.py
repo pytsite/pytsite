@@ -1,10 +1,11 @@
+import html as _html
+from abc import ABC as _ABC
+from pytsite import util as _util
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import html as _html
-from abc import ABC as _ABC
-from pytsite import util as _util
 
 _common_tag_attrs = (
     'accesskey',
@@ -36,7 +37,6 @@ class Element(_ABC):
     """
     def __init__(self, content: str=None, child_separator: str='', **kwargs):
         """Init.
-        :param cls
         """
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
