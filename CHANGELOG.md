@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.14.3 (2015-09-14)
+### Fixed
+- Incorrect usage of `css` argument in some forms.
+
+
 ## 0.14.2 (2015-09-14)
 ### Fixed
 - Small fix in `admin` and related packages.
