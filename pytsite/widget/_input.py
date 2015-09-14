@@ -102,7 +102,7 @@ class Text(Input):
             uid=self._uid,
             name=self._name,
             value=self.get_value(),
-            cls=' '.join(('form-control', self._css)),
+            cls='form-control',
             placeholder=self.placeholder,
             required=self._required
         )

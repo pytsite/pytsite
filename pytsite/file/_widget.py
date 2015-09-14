@@ -12,7 +12,6 @@ __license__ = 'MIT'
 class FilesUpload(_widget.Base):
     """Files Upload Widget.
     """
-
     def __init__(self, model: str, **kwargs: dict):
         """Init.
         """
@@ -31,7 +30,7 @@ class FilesUpload(_widget.Base):
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
-        self._slot_css = 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3'
+        self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3')
 
         if self._max_files:
             self._data['max_files'] = self._max_files
@@ -105,8 +104,12 @@ class FilesUpload(_widget.Base):
             'image_max_height': self._image_max_height,
             'slot_css': self._slot_css
         }
-        widget_content = _html.Div(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
-        return self._group_wrap(widget_content)
+
+        print(self._slot_css)
+
+        widget_em = _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
+
+        return self._group_wrap(widget_em)
 
     def set_value(self, value: list, **kwargs):
         """Set value of the widget.

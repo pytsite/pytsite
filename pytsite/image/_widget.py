@@ -1,10 +1,10 @@
 """Image Widgets.
 """
+from pytsite import file as _file
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import file as _file
 
 
 class ImagesUploadWidget(_file.widget.FilesUpload):

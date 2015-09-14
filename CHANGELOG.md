@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.14.1 (2015-09-14)
+### Fixed
+- Errors in JS initialization of `widget.input.TypeaheadText`.
+
+
 ## 0.14 (2015-09-12)
 ### Added
 - Set `nickname` field's value of the `auth.model.User` in `auth.driver.ulogin` 

@@ -1,11 +1,11 @@
 """Abstract Widget.
 """
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from pytsite import util as _util, html as _html
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import util as _util, html as _html
 
 
 class Base(_ABC):
@@ -30,7 +30,7 @@ class Base(_ABC):
         self._title = kwargs.get('title')
         self._placeholder = kwargs.get('placeholder')
         self._css = kwargs.get('css', '')
-        self._data = kwargs.get('group_data', {})
+        self._data = kwargs.get('data', {})
         self._help = kwargs.get('help')
         self._children_sep = '&nbsp;'
         self._children = []
