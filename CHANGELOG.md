@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.14.2 (2015-09-14)
+### Fixed
+- Small fix in `admin` and related packages.
+
+
 ## 0.14.1 (2015-09-14)
 ### Fixed
 - Errors in JS initialization of `widget.input.TypeaheadText`.

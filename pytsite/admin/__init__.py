@@ -1,5 +1,7 @@
 """Admin Package Init
 """
+from pytsite import reg as _reg
+
 # Public API
 from . import _sidebar as sidebar, _navbar as navbar
 
@@ -8,11 +10,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def base_path() -> str:
+    return _reg.get('admin.base_path', '/admin')
+
+
 def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite import reg, assetman, tpl, lang, router, auth, robots
+    from pytsite import assetman, tpl, lang, router, auth, robots
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -24,14 +30,13 @@ def __init():
     auth.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
 
     # Routes
-    base_path = reg.get('admin.base_path', '/admin')
     admin_route_filters = ('pytsite.auth.ep.filter_authorize:permissions=admin.use',)
-    router.add_rule(base_path, __name__ + '.eps.dashboard', filters=admin_route_filters)
+    router.add_rule(base_path(), __name__ + '.eps.dashboard', filters=admin_route_filters)
 
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 
     # robots.txt rules
-    robots.disallow(base_path + '/')
+    robots.disallow(base_path() + '/')
 
 # Initialization
 __init()

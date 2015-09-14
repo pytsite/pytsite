@@ -1,10 +1,10 @@
 """Admin Sidebar.
 """
+from pytsite import auth as _auth, util as _util, html as _html, lang as _lang, router as _router, reg as _reg
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import auth as _auth, util as _util, html as _html, lang as _lang, router as _router
 
 _sections = []
 _menus = {}
@@ -164,7 +164,7 @@ def render() -> _html.Aside:
 
             # 'active' CSS class
             current_path = _router.current_path(strip_lang=False)
-            if not current_path.endswith('/admin') and \
+            if not current_path.endswith(_reg.get('admin.base_path', '/admin')) and \
                     (current_path.endswith(href) or current_path.find(href + '/') >= 0):
                 li.set_attr('cls', 'active')
 
