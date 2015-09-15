@@ -1,6 +1,6 @@
 pytsite.flag = {
     init: function () {
-        $('.widget-flag').each(function () {
+        $('.widget-flag:not(".initialized")').each(function () {
             var widget = $(this);
             var uid = widget.data('uid');
 
@@ -18,6 +18,8 @@ pytsite.flag = {
                     widget.find('.count').text(data['count']);
                 });
             });
+
+            widget.addClass('initialized');
         });
     }
 };

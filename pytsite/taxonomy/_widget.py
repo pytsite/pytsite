@@ -77,6 +77,7 @@ class Cloud(_widget.Base):
         self._term_title_pattern = kwargs.get('term_title_pattern', '%s')
         self._term_css = kwargs.get('term_css', 'label label-default')
         self._title_tag = kwargs.get('title_tag', 'h3')
+        self._wrap = kwargs.get('wrap', True)
 
         self._css += ' widget-taxonomy-cloud widget-taxonomy-cloud-{}'.format(self._model)
 
@@ -108,7 +109,15 @@ class Cloud(_widget.Base):
     def terms(self) -> list:
         return list(_functions.find(self._model).get(self._num))
 
+    @property
+    def wrap(self) -> bool:
+        return self._wrap
+
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        return self._group_wrap(_tpl.render(self._tpl, {'widget': self}))
+        content = _html.TagLessElement(_tpl.render(self._tpl, {'widget': self}))
+        if self._wrap:
+            content = self._group_wrap(content)
+
+        return content

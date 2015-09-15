@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.14.4 (2015-09-15)
+### Added
+- New argument `wrap` in `taxonomy.widget.Cloud`.
+
+### Fixed
+- Erroneous second call to final endpoints in `browser`.
+
+
 ## 0.14.3 (2015-09-14)
 ### Fixed
 - Incorrect usage of `css` argument in some forms.
