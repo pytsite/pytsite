@@ -51,7 +51,7 @@ class Tag(_taxonomy.model.Term):
         browser.default_sort_order = _odm.I_DESC
 
 
-class Content(_odm.Model, _odm_ui.UIMixin):
+class Content(_odm_ui.Model):
     """Content Model.
     """
     def _setup(self):
@@ -205,7 +205,7 @@ class Content(_odm.Model, _odm_ui.UIMixin):
                 value = _router.url(value)
 
         if field_name == 'edit_url' and self.id:
-            value = _router.ep_url('pytsite.odm_ui.eps.get_m_form', {
+            value = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {
                 'model': self.model,
                 'id': self.id
             })

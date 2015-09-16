@@ -1,11 +1,11 @@
 """ODM UI Endpoints.
 """
+from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router
+from . import _functions, _browser
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router
-from . import _functions, _browser
 
 
 def browse(args: dict, inp: dict) -> str:
@@ -97,7 +97,7 @@ def get_d_form(args: dict, inp: dict) -> str:
         ids = [ids]
 
     if not ids:
-        return _http.response.Redirect(_router.ep_url('pytsite.odm_ui.eps.browse', {'model': model}))
+        return _http.response.Redirect(_router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
 
     form = _functions.get_d_form(model, ids)
 
@@ -106,16 +106,35 @@ def get_d_form(args: dict, inp: dict) -> str:
 
 def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
     """Submit delete form.
+
+    :rtype _http.response.Redirect | _http.response.JSON
     """
     model = args.get('model')
-    ids = inp.get('ids', [])
+    json = inp.get('json')
+    ids = inp.get('ids', ())
+
     if isinstance(ids, str):
         ids = [ids]
 
     try:
-        _functions.post_d_form(model, ids)
-        _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
-    except _odm.error.ForbidEntityDelete as e:
-        _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
+        if not _functions.check_permissions('delete', model, ids):
+            if json:
+                return _http.response.JSON({'status': False, 'error': str(e)}, 403)
+            else:
+                raise _http.error.Forbidden()
 
-    return _http.response.Redirect(_router.ep_url('pytsite.odm_ui.eps.browse', {'model': model}))
+        for eid in ids:
+            _functions.dispense_entity(model, eid).delete()
+
+        if json:
+            return _http.response.JSON({'status': True})
+        else:
+            _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+    except _odm.error.ForbidEntityDelete as e:
+        if json:
+            return _http.response.JSON({'status': False, 'error': str(e)}, 403)
+        else:
+            _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
+
+    redirect = inp.get('__form_redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+    return _http.response.Redirect(redirect)

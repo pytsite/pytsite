@@ -2,8 +2,9 @@
 """
 # Public API
 from . import _functions, _widget as widget
-from ._model import UIMixin
+from ._model import UIMixin, Model
 get_m_form = _functions.get_m_form
+check_permissions = _functions.check_permissions
 
 
 __author__ = 'Alexander Shepetko'
@@ -21,27 +22,25 @@ def __init():
     from ._model import UIMixin
 
     # Browse
-    router.add_rule(admin.base_path() + '/odm/<string:model>',
-                    'pytsite.odm_ui.eps.browse',
+    router.add_rule(admin.base_path() + '/odm_ui/<string:model>',
+                    'pytsite.odm_ui.ep.browse',
                     filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm/get_browser_rows/<string:model>',
-                    'pytsite.odm_ui.eps.get_browser_rows',
+    router.add_rule(admin.base_path() + '/odm_ui/get_browser_rows/<string:model>',
+                    'pytsite.odm_ui.ep.get_browser_rows',
                     filters='pytsite.auth.ep.filter_authorize')
 
     # Create/modify
-    router.add_rule(admin.base_path() + '/odm/<string:model>/modify/<string:id>',
-                    'pytsite.odm_ui.eps.get_m_form',
+    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/modify/<string:id>',
+                    'pytsite.odm_ui.ep.get_m_form',
                     filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm/<string:model>/modify/<string:id>/submit',
-                    'pytsite.odm_ui.eps.post_m_form', methods='POST',
+    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/modify/<string:id>/submit',
+                    'pytsite.odm_ui.ep.post_m_form', methods='POST',
                     filters='pytsite.auth.ep.filter_authorize')
 
     # Delete
-    router.add_rule(admin.base_path() + '/odm/<string:model>/delete',
-                    'pytsite.odm_ui.eps.get_d_form',
+    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.get_d_form',
                     filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm/<string:model>/delete/submit',
-                    'pytsite.odm_ui.eps.post_d_form', methods='POST',
+    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.post_d_form',
                     filters='pytsite.auth.ep.filter_authorize')
 
     lang.register_package(__name__)

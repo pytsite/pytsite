@@ -18,7 +18,7 @@ def __init():
     from . import _eh
     from ._model import Tag, Section, ContentSubscriber
     from ._forms import Settings
-    from ._console import Generate as GenerateConsoleCommand
+    from ._console_commands import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -63,7 +63,7 @@ def __init():
     # Settings
     settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',
                     perm_name='pytsite.content.settings',
-                    perm_description='content@manage_content_settings_permission')
+                    perm_description=__name__ + '@manage_content_settings_permission')
 
     # Console commands
     console.register_command(GenerateConsoleCommand())

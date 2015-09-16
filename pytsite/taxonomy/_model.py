@@ -1,13 +1,13 @@
 """Taxonomy Models.
 """
+from pytsite import odm_ui as _odm_ui, lang as _lang, validation as _validation, odm as _odm, widget as _widget
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import odm_ui as _odm_ui, lang as _lang, validation as _validation, odm as _odm, widget as _widget
 
-
-class Term(_odm.Model, _odm_ui.UIMixin):
+class Term(_odm_ui.Model):
     """Taxonomy Term Model.
     """
     def _setup(self):

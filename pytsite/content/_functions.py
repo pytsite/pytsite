@@ -33,7 +33,7 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     perm_description = mock.package_name() + '@content_permission_bypass_moderation_' + model
     _auth.define_permission(perm_name, perm_description, mock.package_name())
 
-    menu_url = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
+    menu_url = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
     _admin.sidebar.add_menu(
         sid='content',
         mid=model,

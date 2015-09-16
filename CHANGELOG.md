@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.15 (2015-09-16)
+## Added
+- New properties `can_be_modified` and `can_be_deleted` in `odm_ui.Model`.
+- New method `odm_ui.Model.get_delete_url()`
+
+## Changed
+- 
+
+
 ## 0.14.4 (2015-09-15)
 ### Added
 - New argument `wrap` in `taxonomy.widget.Cloud`.

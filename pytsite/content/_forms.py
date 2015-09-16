@@ -1,10 +1,10 @@
 """Content Forms.
 """
+from pytsite import form as _form, widget as _widget, lang as _lang
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import form as _form, widget as _widget, lang as _lang
 
 
 class Settings(_form.Base):

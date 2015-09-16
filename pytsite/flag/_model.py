@@ -1,10 +1,10 @@
 """Flag Package Models.
 """
+from pytsite import odm as _odm
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import odm as _odm
 
 
 class Flag(_odm.Model):

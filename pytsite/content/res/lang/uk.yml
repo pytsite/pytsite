@@ -45,6 +45,7 @@ console_command_description_generate: 'Генерація демонстраці
 new_section_created: 'Створено новий розділ: :title'
 new_content_created: 'Створений новий матеріал: :title'
 new_tag_created: 'Створено новий тег: :title'
+no_users_found: 'Не знайдено жодного користувача'
 
 odm_ui_permission_group_description: 'Контент'
 

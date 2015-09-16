@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _widget as widget
-from ._functions import count
+from ._functions import count, delete
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

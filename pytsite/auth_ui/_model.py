@@ -280,6 +280,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
             label=self.t('description'),
         ))
 
+        # Permissions tabs
         perms_tabs = _widget.static.Tabs(weight=30, uid='permissions', label=self.t('permissions'))
         for group in _auth.get_permission_groups():
             if group[0] == 'auth':

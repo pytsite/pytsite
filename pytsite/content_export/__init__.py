@@ -30,7 +30,7 @@ def __init():
 
     m = 'content_export'
     admin.sidebar.add_menu('misc', m, __name__ + '@export',
-                           href=router.ep_url('pytsite.odm_ui.eps.browse', {'model': m}),
+                           href=router.ep_url('pytsite.odm_ui.ep.browse', {'model': m}),
                            icon='fa fa-bullhorn',
                            permissions=('pytsite.odm_ui.browse.' + m, 'pytsite.odm_ui.browse_own.' + m))
 

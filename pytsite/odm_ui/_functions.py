@@ -1,12 +1,12 @@
 """ODM UI Manager.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
     form as _form, widget as _widget, html as _html
 from . import _model
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
@@ -15,9 +15,9 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     eid = eid if eid != '0' else None
 
     # Checking permissions
-    if not eid and not _check_permissions('create', model):
+    if not eid and not check_permissions('create', model):
         raise _http.error.Forbidden()
-    elif eid and not _check_permissions('modify', model, [eid]):
+    elif eid and not check_permissions('modify', model, [eid]):
         raise _http.error.Forbidden()
 
     # Creating form
@@ -25,10 +25,10 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
     # Action, redirect and validation endpoints
-    frm.validation_ep = 'pytsite.odm_ui.eps.validate_m_form'
-    frm.action = _router.ep_url('pytsite.odm_ui.eps.post_m_form', {'model': model, 'id': eid if eid else '0'})
+    frm.validation_ep = 'pytsite.odm_ui.ep.validate_m_form'
+    frm.action = _router.ep_url('pytsite.odm_ui.ep.post_m_form', {'model': model, 'id': eid if eid else '0'})
     if not _router.request.values_dict.get('__form_redirect'):
-        frm.redirect = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
+        frm.redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('pytsite.odm_ui@save'),
@@ -62,11 +62,11 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
 def get_d_form(model: str, ids: list) -> _form.Base:
     """Get entities delete _form.
     """
-    if not _check_permissions('delete', model, ids):
+    if not check_permissions('delete', model, ids):
         raise _http.error.Forbidden()
 
     frm = _form.Base('odm-ui-delete-form')
-    frm.action = _router.ep_url('pytsite.odm_ui.eps.post_d_form', {'model': model})
+    frm.action = _router.ep_url('pytsite.odm_ui.ep.post_d_form', {'model': model})
     ol = _html.Ol()
 
     mock = dispense_entity(model)
@@ -80,8 +80,9 @@ def get_d_form(model: str, ids: list) -> _form.Base:
     frm.add_widget(_widget.static.Text(html_em=_html.Div, title=str(ol)))
 
     # Action buttons
-    submit_button = _widget.button.Submit(weight=10, value=_lang.t('pytsite.odm_ui@delete'), color='danger', icon='fa fa-save')
-    cancel_button_url = _router.ep_url('pytsite.odm_ui.eps.browse', {'model': model})
+    submit_button = _widget.button.Submit(weight=10, value=_lang.t('pytsite.odm_ui@delete'), color='danger',
+                                          icon='fa fa-save')
+    cancel_button_url = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
     cancel_button = _widget.button.Link(weight=20, value=_lang.t('pytsite.odm_ui@cancel'), href=cancel_button_url,
                                         icon='fa fa-ban')
     actions_wrapper = _widget.static.Wrapper()
@@ -89,16 +90,6 @@ def get_d_form(model: str, ids: list) -> _form.Base:
     frm.add_widget(actions_wrapper, area='footer')
 
     return frm
-
-
-def post_d_form(model: str, ids: list):
-    """Process delete form submit.
-    """
-    if not _check_permissions('delete', model, ids):
-        raise _http.error.Forbidden()
-
-    for eid in ids:
-        dispense_entity(model, eid).delete()
 
 
 def dispense_entity(model: str, entity_id: str=None):
@@ -115,13 +106,16 @@ def dispense_entity(model: str, entity_id: str=None):
     return entity
 
 
-def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
+def check_permissions(perm_type: str, model: str, ids=None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
     current_user = _auth.get_current_user()
 
     if current_user.is_anonymous:
         return False
+
+    if type(ids) not in (list, tuple):
+        ids = (ids,)
 
     # Ability for users to modify themselves
     if perm_type == 'modify' and model == 'user' and len(ids) == 1:
@@ -131,9 +125,12 @@ def _check_permissions(perm_type: str, model: str, ids=None) -> bool:
 
     if perm_type == 'create' and current_user.has_permission('pytsite.odm_ui.create.' + model):
         return True
-    elif perm_type == 'modify' or perm_type == 'delete':
+    elif perm_type in ('modify', 'delete'):
+        # User can modify or delete ANY entity of this model
         if current_user.has_permission('pytsite.odm_ui.' + perm_type + '.' + model):
             return True
+
+        # User can modify or delete ONLY ITS OWN entity of this model
         else:
             own_perm = 'pytsite.odm_ui.' + perm_type + '_own.' + model
             if _auth.get_permission(own_perm) and current_user.has_permission(own_perm):
