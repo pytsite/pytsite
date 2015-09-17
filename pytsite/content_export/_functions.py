@@ -52,7 +52,7 @@ def cron_1min_eh():
     """
     lock = _threading.get_r_lock()
     cnt = 0
-    for exporter in _odm.find('content_export').where('enabled', '=', True).get():
+    for exporter in _odm.find('content_export').where('enabled', '!=', False).get():
         content_f = _content.find(exporter.content_model)
         content_f.where('publish_time', '>=', _datetime.now() - _timedelta(1))  # Last 24 hours
         content_f.where('options.content_export', 'nin', [str(exporter.id)])
