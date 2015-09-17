@@ -83,8 +83,10 @@ def cron_1min_eh():
                 entity_opts['content_export'].append(str(exporter.id))
                 entity.f_set('options', entity_opts).save()
                 cnt += 1
+
             except _error.ExportError as e:
-                _logger.error(str(e))
+                _logger.error(str(e), __name__)
+
             finally:
                 try:
                     lock.release()

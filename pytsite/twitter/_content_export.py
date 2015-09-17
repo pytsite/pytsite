@@ -1,13 +1,13 @@
 """Content Export Twitter Driver.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from twython import Twython as _Twython, TwythonError as _TwythonError
 from pytsite import content as _content, content_export as _content_export, widget as _widget, logger as _logger, \
     reg as _reg
 from ._widget import Auth as TwitterAuthWidget
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Driver(_content_export.AbstractDriver):
@@ -62,6 +62,6 @@ class Driver(_content_export.AbstractDriver):
                 status = ' '.join(status.split(' ')[:-1])
                 attempts -= 1
                 if not attempts:
-                    raise e
+                    raise _content_export.error.ExportError(str(e))
 
         _logger.info("Export finished. '{}'".format(entity.title), __name__)
