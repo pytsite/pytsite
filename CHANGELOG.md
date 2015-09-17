@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.15.2 (2015-09-17)
+### Fixed
+- Exception handling in `twitter`'s content export driver.
+
+
 ## 0.15.1 (2015-09-17)
 ### Fixed
 - Exception handling in `twitter`'s content export driver.

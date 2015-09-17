@@ -34,14 +34,16 @@ class Driver(_content_export.AbstractDriver):
         """
         _logger.info("Export started. '{}'".format(__name__, entity.title), __name__)
 
-        tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
-
-        media_ids = []
-        if entity.images:
-            img = entity.images[0]
-            with open(img.abs_path, 'rb') as f:
-                r = tw.upload_media(media=f)
-                media_ids.append(r['media_id'])
+        try:
+            tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
+            media_ids = []
+            if entity.images:
+                img = entity.images[0]
+                with open(img.abs_path, 'rb') as f:
+                    r = tw.upload_media(media=f)
+                    media_ids.append(r['media_id'])
+        except _TwythonError as e:
+            raise _content_export.error.ExportError(str(e))
 
         tags = []
         if entity.tags:
