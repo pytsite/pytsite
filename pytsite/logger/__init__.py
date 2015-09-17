@@ -51,10 +51,10 @@ def warn(msg: str, prefix: str=None):
     _logger.warn(msg)
 
 
-def error(msg: str, prefix: str=None):
+def error(msg: str, prefix: str=None, exc_info=True):
     """Log an ERROR message.
     """
     if prefix:
         msg = '{} {}'.format(prefix, msg)
 
-    _logger.error(msg, exc_info=True)
+    _logger.error(msg, exc_info=exc_info)

@@ -85,7 +85,7 @@ def cron_1min_eh():
                 cnt += 1
 
             except _error.ExportError as e:
-                _logger.error(str(e), __name__)
+                _logger.error(str(e), __name__, False)
 
             finally:
                 try:

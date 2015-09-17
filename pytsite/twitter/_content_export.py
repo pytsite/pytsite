@@ -32,7 +32,7 @@ class Driver(_content_export.AbstractDriver):
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
         """
-        _logger.info("Export started. '{}'".format(__name__, entity.title), __name__)
+        _logger.info("Export started. '{}'".format(entity.title), __name__)
 
         try:
             tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)

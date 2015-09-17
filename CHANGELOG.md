@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.15.3 (2015-09-17)
+### Added
+- `exc_info` argument in `logger.error()`.
+
 ## 0.15.2 (2015-09-17)
 ### Fixed
 - Exception handling in `twitter`'s content export driver.
