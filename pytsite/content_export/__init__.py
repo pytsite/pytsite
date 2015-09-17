@@ -1,5 +1,10 @@
 """PytSite Content Export Plugin.
 """
+# Public API
+from . import _model as model, _error as error
+from ._driver import Abstract as AbstractDriver
+from ._functions import register_driver
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -35,9 +40,3 @@ def __init():
                            permissions=('pytsite.odm_ui.browse.' + m, 'pytsite.odm_ui.browse_own.' + m))
 
 __init()
-
-
-# Public API
-from . import _model as model
-from ._driver import Abstract as AbstractDriver
-from ._functions import register_driver

@@ -1,12 +1,13 @@
 """Poster Functions.
 """
+from datetime import datetime, timedelta
+from pytsite import content as _content, odm as _odm, lang as _lang, logger as _logger, threading as _threading
+from . import _driver, _error
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from datetime import datetime, timedelta
-from pytsite import content as _content, odm as _odm, lang as _lang, logger as _logger, threading as _threading
-from . import _driver
 
 __drivers = {}
 
@@ -82,5 +83,10 @@ def cron_1min_eh():
                 entity_opts['content_export'].append(str(exporter.id))
                 entity.f_set('options', entity_opts).save()
                 cnt += 1
+            except _error.ExportError as e:
+                _logger.error(str(e))
             finally:
-                lock.release()
+                try:
+                    lock.release()
+                except RuntimeError:
+                    pass
