@@ -1,6 +1,6 @@
 """Poster Functions.
 """
-from datetime import datetime, timedelta
+from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import content as _content, odm as _odm, lang as _lang, logger as _logger, threading as _threading
 from . import _driver, _error
 
@@ -52,9 +52,9 @@ def cron_1min_eh():
     """
     lock = _threading.get_r_lock()
     cnt = 0
-    for exporter in _odm.find('content_export').get():
+    for exporter in _odm.find('content_export').where('enabled', '=', True).get():
         content_f = _content.find(exporter.content_model)
-        content_f.where('publish_time', '>=', datetime.now() - timedelta(1))
+        content_f.where('publish_time', '>=', _datetime.now() - _timedelta(1))  # Last 24 hours
         content_f.where('options.content_export', 'nin', [str(exporter.id)])
         content_f.sort([('publish_time', _odm.I_ASC)])
 
@@ -82,12 +82,17 @@ def cron_1min_eh():
                     entity_opts['content_export'] = []
                 entity_opts['content_export'].append(str(exporter.id))
                 entity.f_set('options', entity_opts).save()
-                cnt += 1
 
             except _error.ExportError as e:
+                exporter.f_inc('errors')
+                if exporter.errors >= 10:
+                    exporter.f_set('enabled', False)
+                exporter.save()
+
                 _logger.error(str(e), __name__, False)
 
             finally:
+                cnt += 1
                 try:
                     lock.release()
                 except RuntimeError:

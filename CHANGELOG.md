@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.16 (2015-09-17)
+### Added
+- `enabled` and `errors` fields in `content_export.model.ContentExport`.
+- Erroneously content exporters automatically will be automatically disabled.
+
+
 ## 0.15.3 (2015-09-17)
 ### Added
 - `exc_info` argument in `logger.error()`.
