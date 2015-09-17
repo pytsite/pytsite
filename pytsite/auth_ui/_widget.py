@@ -19,23 +19,30 @@ class Profile(_widget.Base):
         self._user = user
         self._tpl = tpl
         self._css += ' widget-auth-ui-profile'
+        self._col_image_css = kwargs.get('col_image_css', 'col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center')
+        self._col_content_css = kwargs.get('col_content_css', 'col-xs-B-12 col-xs-8 col-sm-9 col-lg-10')
 
     def render(self) -> _html.Element:
         """Render the widget.
         """
         current_user = _auth.get_current_user()
 
-        if not self._user.profile_is_public and current_user.id != self._user.id:
+        # Hidden profiles are visible only for owners and administrators
+        if not self._user.profile_is_public and current_user.id != self._user.id and not current_user.is_admin:
             return ''
 
+        # Check whether to show 'Edit' button
         profile_is_editable = False
         if not current_user.is_anonymous:
             if current_user.id == self._user.id or current_user.has_permission('pytsite.odm_ui.modify.user'):
                 profile_is_editable = True
 
-        wrapper = _html.TagLessElement(_tpl.render(self._tpl, {
+        # Rendering widget's template
+        content = _html.TagLessElement(_tpl.render(self._tpl, {
             'user': self._user,
-            'profile_is_editable': profile_is_editable
+            'profile_is_editable': profile_is_editable,
+            'col_image_css': self._col_image_css,
+            'col_content_css': self._col_content_css,
         }))
 
-        return self._group_wrap(wrapper)
+        return self._group_wrap(content)

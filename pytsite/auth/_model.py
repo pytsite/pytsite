@@ -37,6 +37,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.Virtual('picture_url'))
         self._define_field(_odm.field.StringList('urls'))
         self._define_field(_odm.field.Virtual('is_online'))
+        self._define_field(_odm.field.RefsList('followers', model='user'))
 
         # Indices
         self._define_index([('login', _odm.I_ASC)], unique=True)

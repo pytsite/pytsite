@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.17 (2015-09-xx)
+### Added
+- Jinja blocks markup in `auth_ui.widget.Profile`'s base template.
+- Arguments `col_image_css` and `col_content_css` in `auth_ui.widget.Profile`. 
+
+
 ## 0.16 (2015-09-17)
 ### Added
 - `enabled` and `errors` fields in `content_export.model.ContentExport`.
