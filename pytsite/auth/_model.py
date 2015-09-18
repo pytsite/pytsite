@@ -37,6 +37,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.Virtual('picture_url'))
         self._define_field(_odm.field.StringList('urls'))
         self._define_field(_odm.field.Virtual('is_online'))
+        self._define_field(_odm.field.RefsList('follows', model='user'))
         self._define_field(_odm.field.RefsList('followers', model='user'))
 
         # Indices
@@ -139,6 +140,14 @@ class User(_odm.Model):
     @property
     def options(self) -> dict:
         return self.f_get('options')
+
+    @property
+    def follows(self) -> list:
+        return self.f_get('follows')
+
+    @property
+    def followers(self) -> list:
+        return self.f_get('followers')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.

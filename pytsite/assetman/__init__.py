@@ -1,11 +1,16 @@
 """Assetman Plugin Init.
 """
+# Public API
+from ._functions import register_package, add, remove, dump_js, dump_css, get_url
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
 def __init():
+    """Package init wrapper.
+    """
     from pytsite import console, events, lang
     from . import _commands, _functions
 
@@ -23,7 +28,3 @@ def __init():
     events.listen('pytsite.update.after', app_update_event)
 
 __init()
-
-
-# Public API
-from ._functions import register_package, add, remove, dump_js, dump_css, get_url

@@ -14,13 +14,10 @@ __import__('pytsite.image')
 
 def __init():
     from sys import modules
-    from pytsite import admin
-    from pytsite import odm
-    from pytsite import tpl
-    from pytsite import lang
-    from pytsite import router
+    from pytsite import admin, odm, tpl, lang, router, assetman
     from . import _model
 
+    # Resources
     lang.register_package(__name__)
     tpl.register_package(__name__)
     tpl.register_global('auth_ui', modules[__name__])
@@ -47,5 +44,10 @@ def __init():
     url = router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'role'})
     admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_ui@roles', url, 'fa fa-users', weight=20,
                            permissions=('pytsite.odm_ui.browse.role',))
+
+    # Assets
+    assetman.register_package(__name__)
+    assetman.add(__name__ + '@css/widget/follow.css', forever=True)
+    assetman.add(__name__ + '@js/widget/follow.js', forever=True)
 
 __init()

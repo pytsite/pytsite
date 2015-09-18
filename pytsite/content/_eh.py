@@ -157,7 +157,7 @@ def _generate_feeds():
                 }
                 if entity.author.profile_is_public:
                     author_info['uri'] = _router.ep_url('pytsite.auth_ui.eps.profile_view', {
-                        'uid': str(entity.author.id),
+                        'nickname': str(entity.author.nickname),
                     })
                 entry.author(author_info)
 

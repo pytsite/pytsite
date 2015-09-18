@@ -1,14 +1,17 @@
 """PytSite Helper Functions.
 """
+import random as _random
+from copy import deepcopy as _deepcopy
+from werkzeug.utils import escape as _escape_html
+
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from werkzeug.utils import escape as escape_html
-
 
 def dict_merge(a: dict, b: dict) -> dict:
-    """Recursively merges dict's.
+    """Recursively merge dicts.
 
     Not just simple a['key'] = b['key'], if both a and b have a key who's
     value is a dict then dict_merge is called
@@ -16,23 +19,21 @@ def dict_merge(a: dict, b: dict) -> dict:
     https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
 
     if not isinstance(a, dict) or not isinstance(b, dict):
-        raise ValueError('Expected dictionaries as arguments.')
+        raise ValueError('Expected both dictionaries as arguments.')
 
-    from copy import deepcopy
-
-    result = deepcopy(a)
+    result = _deepcopy(a)
 
     for k, v in b.items():
         if k in result and isinstance(result[k], dict):
                 result[k] = dict_merge(result[k], v)
         else:
-            result[k] = deepcopy(v)
+            result[k] = _deepcopy(v)
 
     return result
 
 
 def mk_tmp_file() -> tuple:
-    """Creates temporary file.
+    """Create temporary file.
     """
     from os import path, mkdir
     from tempfile import mkstemp
@@ -51,8 +52,7 @@ def mk_tmp_file() -> tuple:
 def random_str(size=16, chars='0123456789abcdef'):
     """Generate random string.
     """
-    import random
-    return ''.join(random.choice(chars) for _ in range(size))
+    return ''.join(_random.choice(chars) for _ in range(size))
 
 
 def random_password(size=16):
@@ -85,7 +85,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
                     r += ' {}'.format(k)
             else:
                 v = str(v).strip()
-                r += ' {}="{}"'.format(k, escape_html(v))
+                r += ' {}="{}"'.format(k, _escape_html(v))
 
     return r
 
@@ -155,6 +155,7 @@ def get_class(cls: str) -> type:
     class_name = class_fqn[-1:][0]
     module_name = '.'.join(class_fqn[:-1])
     module = __import__(module_name, fromlist=[class_name])
+
     return getattr(module, class_name)
 
 

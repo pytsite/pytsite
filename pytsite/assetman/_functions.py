@@ -1,16 +1,16 @@
 """Asset Manager.
 """
+from os import path as _path
+from importlib.util import find_spec as _find_spec
+from pytsite import router as _router
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from os import path as _path
-from importlib.util import find_spec as _find_spec
-
-from pytsite import router as _router
 
 _packages = {}
-_links = {'css': [], 'js': []}
+_locations = {'css': [], 'js': []}
 
 
 def register_package(package_name: str, assets_dir: str='res/assets'):
@@ -33,8 +33,8 @@ def get_packages() -> dict:
     return _packages
 
 
-def add(location: str, collection: str=None):
-    """Shortcut.
+def add(location: str, collection: str=None, weight: int=0, forever=False):
+    """Add an asset.
     """
     if not collection:
         if location.endswith('.js'):
@@ -42,10 +42,10 @@ def add(location: str, collection: str=None):
         elif location.endswith('.css'):
             collection = 'css'
         else:
-            raise ValueError("Cannot detect collection of '{}'.".format(location))
+            raise ValueError("Cannot detect collection for location '{}'.".format(location))
 
-    if location not in _links[collection]:
-        _links[collection].append(location)
+    if location not in _locations[collection]:
+        _locations[collection].append((location, weight, forever))
 
 
 def remove(location: str, collection: str=None):
@@ -59,18 +59,18 @@ def remove(location: str, collection: str=None):
         else:
             raise ValueError("Cannot detect collection of '{}'.".format(location))
 
-    _links[collection] = [em for em in _links[collection] if em != location]
+    _locations[collection] = [l for l in _locations[collection] if l[0] != location]
 
 
 def reset():
     """Remove all previously added locations.
     """
-    global _links
-    _links = {'css': [], 'js': []}
+    for location in ('css', 'js'):
+        _locations[location] = [l for l in _locations[location] if l[2]]
 
 
 def get_locations(collection: str) -> list:
-    return [l for l in _links[collection]]
+    return [l[0] for l in sorted(_locations[collection], key=lambda x: x[1])]
 
 
 def dump_js() -> str:

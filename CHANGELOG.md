@@ -2,8 +2,15 @@
 
 ## 0.17 (2015-09-xx)
 ### Added
-- Jinja blocks markup in `auth_ui.widget.Profile`'s base template.
-- Arguments `col_image_css` and `col_content_css` in `auth_ui.widget.Profile`. 
+- Jinja blocks markup in `auth_ui.widget.Profile`'s base template and its rework.
+- `col_image_css` and `col_content_css` arguments in `auth_ui.widget.Profile`.
+- `followers` and `follows` fields in `auth.model.User`.
+- `weight` and `forever` arguments in `assetman.add()`.s
+- `forever` argument in `browser.include()`.
+- New widget: `ath_ui.widget.Follow`.
+
+### Fixed
+- Error while generating `content`'s RSS and Atom feeds.
 
 
 ## 0.16 (2015-09-17)

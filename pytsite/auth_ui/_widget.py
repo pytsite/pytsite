@@ -1,6 +1,6 @@
 """Auth UI Widgets.
 """
-from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, reg as _reg
+from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -46,3 +46,28 @@ class Profile(_widget.Base):
         }))
 
         return self._group_wrap(content)
+
+
+class Follow(_widget.Base):
+    """Follow Widget.
+    """
+    def __init__(self, user, tpl: str='pytsite.auth_ui@widget/follow', **kwargs):
+        """Init.
+
+        :type user: pytsite.auth._model.User|pytsite.auth_ui._model.UserUI
+        """
+        super().__init__(**kwargs)
+        self._tpl = tpl
+        self._user = user
+
+    def render(self) -> _html.Element:
+        """Render the widget.
+        """
+        if _auth.get_current_user().is_anonymous:
+            return _html.TagLessElement()
+
+        content = _tpl.render(self._tpl, {
+            'user': self._user
+        })
+
+        return _html.TagLessElement(content)

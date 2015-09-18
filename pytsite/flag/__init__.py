@@ -11,23 +11,18 @@ __license__ = 'MIT'
 
 def __init():
     import sys
-    from pytsite import assetman
-    from pytsite import odm
-    from pytsite import events
-    from pytsite import tpl
-    from pytsite import lang
+    from pytsite import assetman, odm, tpl, lang
     from . import _model
 
-    def router_dispatch_eh():
-        assetman.add('pytsite.flag@css/common.css')
-        assetman.add('pytsite.flag@js/common.js')
-
     lang.register_package(__name__)
-    assetman.register_package(__name__)
+
     tpl.register_package(__name__)
     tpl.register_global('flag', sys.modules[__package__])
+
     odm.register_model('flag', _model.Flag)
 
-    events.listen('pytsite.router.dispatch', router_dispatch_eh)
+    assetman.register_package(__name__)
+    assetman.add('pytsite.flag@css/common.css', forever=True)
+    assetman.add('pytsite.flag@js/common.js', forever=True)
 
 __init()
