@@ -34,10 +34,10 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """Hook.
         """
         if field_name == 'profile_view_url':
-            value = _router.ep_url('pytsite.auth_ui.eps.profile_view', {'nickname': self.nickname})
+            value = _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
 
         if field_name == 'profile_edit_url':
-            value = _router.ep_url('pytsite.auth_ui.eps.profile_edit', {
+            value = _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
                 'nickname': self.nickname,
                 '__form_redirect': _router.current_url(),
             })
@@ -96,7 +96,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Image
         from pytsite import image
-        form.add_widget(image.widget.ImagesUploadWidget(
+        form.add_widget(image.widget.ImagesUpload(
             weight=20,
             uid='picture',
             label=self.t('picture'),

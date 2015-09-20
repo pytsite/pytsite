@@ -176,6 +176,21 @@ class User(_odm.Model):
         if not self.token:
             self.f_set('token', _util.random_str(32))
 
+    def _pre_delete(self):
+        """Hook.
+        """
+        from . import _functions
+
+        if _functions.get_current_user() == self and self.is_admin:
+            raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
+
+        for model in _odm.get_registered_models():
+            for e in _odm.find(model).get():
+                for f_name in ('author', 'owner'):
+                    if e.has_field(f_name) and e.f_get(f_name) == self:
+                        raise _odm.error.ForbidEntityDelete(
+                            self.t('account_owns_entity', {'entity': e.model + ':' + str(e.id)}))
+
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.
         """
@@ -226,6 +241,18 @@ class User(_odm.Model):
 class Role(_odm.Model):
     """Role.
     """
+    @property
+    def name(self) -> str:
+        return self.f_get('name')
+
+    @property
+    def description(self) -> str:
+        return self.f_get('description')
+
+    @property
+    def permissions(self) -> list:
+        return self.f_get('permissions')
+
     def _setup(self):
         """_setup() hook.
         """
@@ -242,3 +269,12 @@ class Role(_odm.Model):
             raise TypeError("String expected")
 
         return value
+
+    def _pre_delete(self):
+        """Hook.
+        """
+        from . import _functions
+
+        for user in _functions.find_users(False).get():
+            if user.has_role(self.name):
+                raise _odm.error.ForbidEntityDelete(self.t('role_user_by_user', {'user': user.login}))

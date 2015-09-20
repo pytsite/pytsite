@@ -92,14 +92,16 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
 def get_d_form(args: dict, inp: dict) -> str:
     model = args.get('model')
 
+    # Entities IDs to delete
     ids = inp.get('ids', [])
     if isinstance(ids, str):
         ids = [ids]
 
-    if not ids:
-        return _http.response.Redirect(_router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+    # No required arguments has been received
+    if not model or not ids:
+        return _http.error.NotFound()
 
-    form = _functions.get_d_form(model, ids)
+    form = _functions.get_d_form(model, ids, _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
 
     return _tpl.render('pytsite.odm_ui@admin_delete_form', {'form': form})
 
@@ -119,7 +121,7 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
     try:
         if not _functions.check_permissions('delete', model, ids):
             if json:
-                return _http.response.JSON({'status': False, 'error': str(e)}, 403)
+                return _http.response.JSON({'status': False, 'error': 'Forbidden'}, 403)
             else:
                 raise _http.error.Forbidden()
 
@@ -134,7 +136,8 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
         if json:
             return _http.response.JSON({'status': False, 'error': str(e)}, 403)
         else:
-            _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + ': ' + str(e))
+            _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
     redirect = inp.get('__form_redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+
     return _http.response.Redirect(redirect)

@@ -21,7 +21,7 @@ def profile_view(args: dict, inp: dict) -> str:
     if current_user.is_anonymous and not profile_owner.profile_is_public:
         raise _http.error.NotFound()
 
-    if current_user.id != profile_owner.id and not profile_owner.profile_is_public:
+    if not current_user.is_admin and current_user.id != profile_owner.id and not profile_owner.profile_is_public:
         raise _http.error.NotFound()
 
     _metatag.t_set('title', profile_owner.full_name)

@@ -1,12 +1,12 @@
 """Route Paths Manager.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re
 from pytsite import util as _util, odm as _odm, lang as _lang
 from . import _model
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def create(alias: str, target: str, language: str=None) -> _model.RouteAlias:
@@ -21,30 +21,30 @@ def create(alias: str, target: str, language: str=None) -> _model.RouteAlias:
     return entity
 
 
-def sanitize_alias_string(string: str, language: str=None) -> str:
+def sanitize_alias_string(s: str, language: str=None) -> str:
     """Sanitize a path string.
     """
-    string = _util.transform_str_1(string)
+    s = _util.transform_str_1(s)
 
     if not language:
         language = _lang.get_current_lang()
 
-    if not string:
+    if not s:
         raise Exception('Alias cannot be empty.')
 
-    if not string.startswith('/'):
-        string = '/' + string
+    if not s.startswith('/'):
+        s = '/' + s
 
     itr = 0
     while True:
-        if not _odm.find('route_alias').where('alias', '=', string).where('language', '=', language).first():
-            return string
+        if not _odm.find('route_alias').where('alias', '=', s).where('language', '=', language).first():
+            return s
 
         itr += 1
         if itr == 1:
-            string += '-1'
+            s += '-1'
         else:
-            string = re.sub('-\d+$', '-' + str(itr), string)
+            s = re.sub('-\d+$', '-' + str(itr), s)
 
 
 def find() -> _odm.Finder:

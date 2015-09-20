@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.17 (2015-09-xx)
+## 0.17 (2015-09-20)
 ### Added
 - Jinja blocks markup in `auth_ui.widget.Profile`'s base template and its rework.
 - `col_image_css` and `col_content_css` arguments in `auth_ui.widget.Profile`.
@@ -8,6 +8,12 @@
 - `weight` and `forever` arguments in `assetman.add()`.s
 - `forever` argument in `browser.include()`.
 - New widget: `ath_ui.widget.Follow`.
+- Safety checking before deletion of `auth.model.User` and `auth.model.Role`.
+
+### Changed
+- `admin.eps` renamed to `admin.ep`.
+- `auth_ui.eps` renamed to `auth_ui.ep`.
+- `image.widget.ImagesUploadWidget` renamed to `image.widget.ImagesUpload`.
 
 ### Fixed
 - Error while generating `content`'s RSS and Atom feeds.

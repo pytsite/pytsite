@@ -211,10 +211,8 @@ class Finder:
         flt = self._query.compile()
         return collection.count(filter=flt, skip=self._skip, limit=self._limit)
 
-    def get(self, limit: int=0):
+    def get(self, limit: int=0) -> Result:
         """Execute the query and return a cursor.
-
-        :rtype: list[ODMModel]
         """
         self._limit = limit
         collection = self._mock.collection

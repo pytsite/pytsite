@@ -42,21 +42,25 @@
 
                 {% block user_description %}
                     {% if user.description %}
-                        <p class="description">
-                            {{ user.description | e | nl2br }}
-                        </p>
+                        {% block user_description_inner %}
+                            <p class="description">
+                                {{ user.description | e | nl2br }}
+                            </p>
+                        {% endblock user_description_inner %}
                     {% endif %}
                 {% endblock user_description %}
 
                 {% block user_counters %}
-                    <ul class="counters">
-                        {% block user_counters_inner %}
-                            <li class="item follows" title="{{ t('pytsite.auth@follows') }}"><i
-                                    class="fa fa-fw fa-user"></i>{{ user.follows | count }}</li>
-                            <li class="item followers" title="{{ t('pytsite.auth@followers') }}"><i
-                                    class="fa fa-fw fa-users"></i>{{ user.followers | count }}</li>
-                        {% endblock user_counters_inner %}
-                    </ul>
+                    <div class="row counters">
+                        <ul class="col-xs-12">
+                            {% block user_counters_inner %}
+                                <li class="item follows" title="{{ t('pytsite.auth@follows') }}"><i
+                                        class="fa fa-fw fa-user"></i>{{ user.follows | count }}</li>
+                                <li class="item followers" title="{{ t('pytsite.auth@followers') }}"><i
+                                        class="fa fa-fw fa-users"></i>{{ user.followers | count }}</li>
+                            {% endblock user_counters_inner %}
+                        </ul>
+                    </div>
                 {% endblock user_counters %}
 
                 {% block user_actions %}

@@ -237,14 +237,33 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except _HTTPException as e:
-        metatag.t_set('title', _lang.t('pytsite.router@error', {'code': e.code}))
-        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
+        try:
+            title = _lang.t('http_error_' + str(e.code))
+        except _lang.error.TranslationError:
+            title = _lang.t('pytsite.router@error', {'code': str(e.code)})
+
+        metatag.t_set('title', title)
+
+        wsgi_response = tpl.render('exceptions/common', {
+            'title': title,
+            'exception': e,
+            'traceback': _format_exc()
+        })
+
         return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
 
     except Exception as e:
         _logger.error(str(e), __name__)
-        metatag.t_set('title', _lang.t('pytsite.router@error', {'code': 500}))
-        wsgi_response = tpl.render('app@exceptions/common', {'exception': e, 'traceback': _format_exc()})
+
+        title = _lang.t('pytsite.router@error', {'code': '500'})
+        metatag.t_set('title', title)
+
+        wsgi_response = tpl.render('exceptions/common', {
+            'title': title,
+            'exception': e,
+            'traceback': _format_exc()
+        })
+
         return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 

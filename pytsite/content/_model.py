@@ -158,28 +158,27 @@ class Content(_odm_ui.Model):
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
-        if field_name == 'route_alias':
-            if isinstance(value, str):
-                value = value.strip()
-                if not value:
-                    raise ValueError('Route alias cannot be empty.')
+        if field_name == 'route_alias' and isinstance(value, str):
+            route_alias_str = self._generate_route_alias_str(value)
 
-                if not self.route_alias:
-                    # Create new route alias object with no target at this point
-                    value = _route_alias.create(value, 'NONE', self.language).save()
-                else:
-                    # Modify existing route alias object
-                    orig_value = self.route_alias
-                    if orig_value.f_get('alias') != value:
-                        orig_value.f_set('alias', value).save()
-                    value = orig_value
+            # No route alias is attached, so we need to create new one
+            if not self.route_alias:
+                value = _route_alias.create(route_alias_str, 'NONE', self.language).save()
 
-        if field_name == 'status':
+            # Existing route alias is attached and its value need to be changed
+            elif self.route_alias and self.route_alias.alias != route_alias_str:
+                self.route_alias.delete()
+                value = _route_alias.create(route_alias_str, 'NONE', self.language).save()
+
+            else:
+                value = self.route_alias
+
+        elif field_name == 'status':
             from ._functions import get_publish_statuses
             if value not in [v[0] for v in get_publish_statuses()]:
                 raise Exception("Invalid publish status: '{}'.".format(value))
 
-        if field_name == 'language':
+        elif field_name == 'language':
             if value not in _lang.get_langs():
                 raise ValueError("Language '{}' is not supported.".format(value))
 
@@ -255,12 +254,12 @@ class Content(_odm_ui.Model):
     def _after_save(self):
         """Hook.
         """
-        if self.is_new:
-            # Update route alias target which has been created in self._pre_save()
-            if self.route_alias.target == 'NONE':
-                target = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id})
-                self.route_alias.f_set('target', target).save()
+        # Update route alias target which has been created in self._pre_save()
+        if self.route_alias.target == 'NONE':
+            target = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id})
+            self.route_alias.f_set('target', target).save()
 
+        if self.is_new:
             # Clean up not fully filled route aliases
             f = _route_alias.find()
             f.where('target', '=', 'NONE').where('_created', '<', _datetime.now() - _timedelta(1))
@@ -366,7 +365,7 @@ class Content(_odm_ui.Model):
         # Images
         if self.has_field('images'):
             from pytsite import image
-            form.add_widget(image.widget.ImagesUploadWidget(
+            form.add_widget(image.widget.ImagesUpload(
                 weight=400,
                 uid='images',
                 label=self.t('images'),
@@ -497,6 +496,13 @@ class Content(_odm_ui.Model):
                 })
                 _mail.Message(m_to, m_subject, m_body).send()
 
+    def _generate_route_alias_str(self, s: str) -> str:
+        s = s.strip()
+        if not s and not self.title:
+            raise ValueError('Cannot generate route alias because title is empty.')
+        else:
+            return self.title
+
 
 class Page(Content):
     """Page Model.
@@ -582,16 +588,22 @@ class Article(Content):
     def _pre_save(self):
         """Hook.
         """
-        super()._pre_save()
-
-        route_alias = self.route_alias
-        if self.is_new and self.has_field('section') and self.section:
-            if not _re.match('/[^/]+/[^/]+', route_alias.alias) and self.section:
-                route_alias.f_set('alias', '/{}/{}'.format(self.section.alias, self.title)).save()
-
+        if self.is_new and self.has_field('section') and self.section and self.tags:
             for tag in self.tags:
                 tag.f_add('sections', self.section).save()
 
+        super()._pre_save()
+
+    def _generate_route_alias_str(self, s: str) -> str:
+        if not s:
+            if not self.title:
+                raise ValueError('Cannot generate route alias string due to empty title.')
+            s = self.title
+
+        if self.section and not _re.search('^/?[a-z0-9\-]+/[a-z0-9\-]+', s, _re.IGNORECASE):
+            return '/{}/{}'.format(self.section.alias, s)
+        else:
+            return '/{}'.format(s)
 
 class ContentSubscriber(_odm.Model):
     """content_subscriber ODM Model.

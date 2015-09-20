@@ -59,24 +59,27 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     return frm
 
 
-def get_d_form(model: str, ids: list) -> _form.Base:
+def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
     """Get entities delete _form.
     """
     if not check_permissions('delete', model, ids):
         raise _http.error.Forbidden()
 
+    # Form
     frm = _form.Base('odm-ui-delete-form')
     frm.action = _router.ep_url('pytsite.odm_ui.ep.post_d_form', {'model': model})
-    ol = _html.Ol()
+    if redirect:
+        frm.redirect = redirect
 
     mock = dispense_entity(model)
     _metatag.t_set('title', mock.t('odm_ui_form_legend_delete_' + model))
 
+    # Building HTML list with entities to delete
+    ol = _html.Ol()
     for eid in ids:
         entity = dispense_entity(model, eid)
         frm.add_widget(_widget.input.Hidden(name='ids', value=str(entity.id)))
         ol.append(_html.Li(entity.get_d_form_description()))
-
     frm.add_widget(_widget.static.Text(html_em=_html.Div, title=str(ol)))
 
     # Action buttons

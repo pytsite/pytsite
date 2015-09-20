@@ -17,3 +17,6 @@ nickname_str_rules: 'Никнейм должен содержать только
 about_yourself: 'Пара слов о себе'
 follows: 'Фолловит'
 followers: 'Фолловеры'
+you_cannot_delete_yourself: 'Вы не можете удалить собственную учётную запись, являясь администратором'
+account_owns_entity: "Учётная запись является владельцем сущности ':entity'"
+role_user_by_user: "Роль используется учётной записью ':user'"

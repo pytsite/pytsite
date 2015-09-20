@@ -14,7 +14,7 @@ __import__('pytsite.image')
 
 def __init():
     from sys import modules
-    from pytsite import admin, odm, tpl, lang, router, assetman
+    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg
     from . import _model
 
     # Resources
@@ -23,9 +23,10 @@ def __init():
     tpl.register_global('auth_ui', modules[__name__])
 
     # Routes
-    router.add_rule('/auth/profile/<string:nickname>', __name__ + '.eps.profile_view')
-    router.add_rule('/auth/profile/<string:nickname>/edit', __name__ + '.eps.profile_edit')
-    router.add_rule('/auth/profile/<string:nickname>/edit/submit', __name__ + '.eps.profile_edit_submit', methods='POST')
+    base_path = reg.get('auth.base_path', '/auth_ui')
+    router.add_rule(base_path + '/profile/<string:nickname>', __name__ + '.ep.profile_view')
+    router.add_rule(base_path + '/profile/<string:nickname>/edit', __name__ + '.ep.profile_edit')
+    router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', __name__ + '.ep.profile_edit_submit', methods='POST')
 
     # Replace 'user' model with UI-compatible
     odm.register_model('user', _model.UserUI, True)
@@ -47,7 +48,11 @@ def __init():
 
     # Assets
     assetman.register_package(__name__)
+    assetman.add(__name__ + '@css/widget/profile.css', forever=True)
     assetman.add(__name__ + '@css/widget/follow.css', forever=True)
     assetman.add(__name__ + '@js/widget/follow.js', forever=True)
+
+    # robots.txt rules
+    robots.disallow(base_path + '/')
 
 __init()

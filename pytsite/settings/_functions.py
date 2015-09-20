@@ -1,11 +1,12 @@
 """Settings Plugin Functions
 """
+from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm, widget as _widget, \
+    lang as _lang
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm, widget as _widget, \
-    lang as _lang
 
 __settings = {}
 
@@ -70,7 +71,7 @@ def get_form(uid) -> _form.Base:
         weight=10,
         value=_lang.t('pytsite.settings@cancel'),
         icon='fa fa-ban',
-        href=_router.ep_url('pytsite.admin.eps.dashboard')
+        href=_router.ep_url('pytsite.admin.ep.dashboard')
     ))
     frm.add_widget(actions, 'footer')
 

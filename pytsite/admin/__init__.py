@@ -31,7 +31,7 @@ def __init():
 
     # Routes
     admin_route_filters = ('pytsite.auth.ep.filter_authorize:permissions=admin.use',)
-    router.add_rule(base_path(), __name__ + '.eps.dashboard', filters=admin_route_filters)
+    router.add_rule(base_path(), __name__ + '.ep.dashboard', filters=admin_route_filters)
 
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 

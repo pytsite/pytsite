@@ -45,12 +45,16 @@ class FilesUpload(_widget.Base):
     def accept_files(self) -> str:
         return self._accept_files
 
+    @accept_files.setter
+    def accept_files(self, value: str):
+        self._accept_files = value
+
     @property
     def add_btn_label(self) -> str:
         return self._add_btn_label
 
     @add_btn_label.setter
-    def add_btn_label(self, value):
+    def add_btn_label(self, value: str):
         self._add_btn_label = value
 
     @property
@@ -58,7 +62,7 @@ class FilesUpload(_widget.Base):
         return self._add_btn_icon
 
     @add_btn_icon.setter
-    def add_btn_icon(self, value):
+    def add_btn_icon(self, value: str):
         self._add_btn_icon = value
 
     @property
@@ -66,7 +70,7 @@ class FilesUpload(_widget.Base):
         return self._image_max_width
 
     @image_max_width.setter
-    def image_max_width(self, value):
+    def image_max_width(self, value: int):
         self._image_max_width = value
 
     @property
@@ -74,7 +78,7 @@ class FilesUpload(_widget.Base):
         return self._image_max_width
 
     @image_max_height.setter
-    def image_max_height(self, value):
+    def image_max_height(self, value: int):
         self._image_max_height = value
 
     @property
@@ -86,11 +90,19 @@ class FilesUpload(_widget.Base):
         self._max_files = value
 
     @property
+    def max_file_size(self) -> int:
+        return self._max_file_size
+
+    @max_file_size.setter
+    def max_file_size(self, value: int):
+        self._max_file_size = value
+
+    @property
     def slot_css(self) -> str:
         return self._slot_css
 
     @slot_css.setter
-    def slot_css(self, value):
+    def slot_css(self, value: str):
         self._slot_css = value
 
     def render(self) -> str:
@@ -105,8 +117,6 @@ class FilesUpload(_widget.Base):
             'slot_css': self._slot_css
         }
 
-        print(self._slot_css)
-
         widget_em = _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
 
         return self._group_wrap(widget_em)
@@ -114,7 +124,6 @@ class FilesUpload(_widget.Base):
     def set_value(self, value: list, **kwargs):
         """Set value of the widget.
         """
-
         if value is None:
             return
 

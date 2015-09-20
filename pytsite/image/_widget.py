@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ImagesUploadWidget(_file.widget.FilesUpload):
+class ImagesUpload(_file.widget.FilesUpload):
     """Images Upload Widget.
     """
     def __init__(self, **kwargs: dict):

@@ -1,6 +1,6 @@
 """PytSite Helper Functions.
 """
-import random as _random
+import random as _random, re as _re
 from copy import deepcopy as _deepcopy
 from werkzeug.utils import escape as _escape_html
 
@@ -8,6 +8,12 @@ from werkzeug.utils import escape as _escape_html
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+def escape_html(s: str) -> str:
+    """Escape an HTML string.
+    """
+    return _escape_html(s)
 
 
 def dict_merge(a: dict, b: dict) -> dict:
@@ -125,11 +131,9 @@ def transliterate(text: str)->str:
     return r
 
 
-def transform_str_1(string: str) -> str:
+def transform_str_1(s: str) -> str:
     """Transform a string, variant 1.
     """
-    import re
-
     mapping = {
         '!': '', '@': '', '#': '', '$': '', '%': '', '^': '', '&': '', '*': '', '(': '', ')': '', '_': '',
         '=': '', '+': '', '"': '', "'": '', '{': '', '}': '', '[': '', ']': '', '`': '', '~': '', '|': '', '\\': '',
@@ -137,15 +141,21 @@ def transform_str_1(string: str) -> str:
     }
 
     for k, v in mapping.items():
-        string = string.replace(k, v)
+        s = s.replace(k, v)
 
-    string = transliterate(string.lower())
-    string = re.sub(r'/{2,}', '-', string)
-    string = re.sub(r'[^a-zA-Z0-9/]', '-', string)
-    string = re.sub(r'-{2,}', '-', string)
-    string = re.sub(r'(^-|-$)', '', string)
+    s = transliterate(s.lower())
+    s = _re.sub('/{2,}', '/', s)
+    s = _re.sub('[^a-zA-Z0-9/]', '-', s)
+    s = _re.sub('-{2,}', '-', s)
+    s = _re.sub('(^-|-$)', '', s)
 
-    return string
+    return s
+
+
+def transform_str_2(s: str) -> str:
+    """Transform a string, variant 2.
+    """
+    return _re.sub('/', '-', transform_str_1(s))
 
 
 def get_class(cls: str) -> type:

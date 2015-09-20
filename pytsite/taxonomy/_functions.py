@@ -62,7 +62,7 @@ def dispense(model: str, title: str, alias: str=None, language: str=None) -> Ter
     title = title.strip()
 
     if not alias:
-        alias = _util.transform_str_1(title)
+        alias = _util.transform_str_2(title)
 
     # Trying to find term by title
     term = find(model, language).where('title', 'regex_i', '^' + title + '$').first()
@@ -84,7 +84,7 @@ def dispense(model: str, title: str, alias: str=None, language: str=None) -> Ter
 def sanitize_alias_string(model: str, string: str) -> str:
     """Sanitize a path string.
     """
-    string = _util.transform_str_1(string)
+    string = _util.transform_str_2(string)
 
     itr = 0
     while True:

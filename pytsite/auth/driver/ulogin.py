@@ -101,9 +101,9 @@ class ULoginDriver(AbstractDriver):
                 if 'nickname' in ulogin_data:
                     user.f_set('nickname', ulogin_data['nickname'])
                 elif user.first_name and user.last_name:
-                    user.f_set('nickname', _util.transform_str_1(user.first_name + '.' + user.last_name))
+                    user.f_set('nickname', _util.transform_str_2(user.first_name + '.' + user.last_name))
                 else:
-                    user.f_set('nickname', _util.transform_str_1(email))
+                    user.f_set('nickname', _util.transform_str_2(email))
 
             # Gender
             if not user.gender and 'sex' in ulogin_data:
