@@ -1,7 +1,7 @@
 """Image Models.
 """
 import exifread as _exifread
-from pytsite import file as _file, odm as _odm, router as _router
+from pytsite import file as _file, odm as _odm, router as _router, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -83,7 +83,8 @@ class Image(_file.model.File):
     def get_html(self, alt: str='', css: str='') -> str:
         """Get HTML code to embed the image.
         """
+        alt = _util.escape_html(alt)
         path = self.path.replace('image/', '')
         css += ' img-responsive pytsite-img'
 
-        return '<div class="{}" data-path="{}" data-alt="{}"></div>'.format(css.strip(), path, alt)
+        return '<span class="{}" data-path="{}" data-alt="{}"></span>'.format(css.strip(), path, alt)

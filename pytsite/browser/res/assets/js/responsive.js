@@ -1,9 +1,10 @@
 pytsite.responsive = function () {
-    $('div.pytsite-img').each(function () {
+    $('span.pytsite-img').each(function () {
         var cont = $(this);
         var img_path = cont.data('path');
-        var img_alt = cont.data('alt');
+        var img_alt = cont.data('alt').replace(/"/g, '&quot;');
 
+        console.log(img_alt);
 
         if (typeof img_path == 'undefined')
             return null;

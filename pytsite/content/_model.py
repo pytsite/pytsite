@@ -452,11 +452,9 @@ class Content(_odm_ui.Model):
             if len(self.images) < img_index:
                 return ''
             img = self.images[img_index - 1]
-            title = _html.escape(self.title)
-            r = img.get_html(title)
-            print(r)
+            r = img.get_html(self.title)
             if match.group(2):
-                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, title, r)
+                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _html.escape(self.title), r)
             return r
 
         def process_vid_tag(match):

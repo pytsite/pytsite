@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.18.2 (2015-09-21)
+### Fixed
+- Quotes escaping in `image.model.Image.get_html()` and `browser`'s `responsive` lib.
+
+
 ## 0.18.1 (2015-09-21)
 ### Added
 - `css` argument in `image.model.Image.get_html()`.
