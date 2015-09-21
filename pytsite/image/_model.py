@@ -1,12 +1,11 @@
 """Image Models.
 """
+import exifread as _exifread
+from pytsite import file as _file, odm as _odm, router as _router
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-import exifread as _exifread
-
-from pytsite import file as _file, odm as _odm, router as _router
 
 
 class Image(_file.model.File):
@@ -80,3 +79,9 @@ class Image(_file.model.File):
         """Shortcut to use in Jinja templates.
         """
         return self.f_get('url', width=width or 0, height=height or 0)
+
+    def get_html(self, alt: str='') -> str:
+        """Get HTML code to embed the image.
+        """
+        path = self.path.replace('image/', '')
+        return '<div class="pytsite-img" data-path="{}" data-alt="{}"></div>'.format(path, alt)

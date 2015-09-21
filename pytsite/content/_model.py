@@ -453,7 +453,8 @@ class Content(_odm_ui.Model):
                 return ''
             img = self.images[img_index - 1]
             title = _html.escape(self.title)
-            r = '<img class="img-responsive" src="{}" data-path="{}" alt="{}">'.format(img.url, img.path, title)
+            r = img.get_html(title)
+            print(r)
             if match.group(2):
                 r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, title, r)
             return r

@@ -4,7 +4,7 @@ import re as _re
 from datetime import datetime as _datetime
 from pytsite import disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, reg as _reg, \
     http as _http, router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
-    lang as _lang, validation as _validation, logger as _logger
+    lang as _lang, validation as _validation, logger as _logger, browser as _browser
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

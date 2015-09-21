@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.18 (2015-09-21)
+### Added
+- `responsive` library in `browser`.
+- `image.model.Image.get_html()` method.
+
+
 ## 0.17 (2015-09-20)
 ### Added
 - Jinja blocks markup in `auth_ui.widget.Profile`'s base template and its rework.
