@@ -5,7 +5,7 @@ from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl
+    tpl as _tpl, auth_ui as _auth_ui
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -440,6 +440,15 @@ class Content(_odm_ui.Model):
                     label=self.t('path'),
                     value=self.route_alias.alias if self.route_alias else '',
                 ))
+
+            form.add_widget(_auth_ui.widget.UserSelect(
+                weight=1100,
+                uid='author',
+                label=self.t('author'),
+                value=_auth.get_current_user() if self.is_new else self.author,
+                h_size='col-sm-4',
+            ))
+            form.add_rule('author', _validation.rule.NotEmpty())
 
     def get_d_form_description(self) -> str:
         """Get delete form description.

@@ -1,7 +1,6 @@
 """Auth UI Widgets.
 """
-from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl
-
+from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, odm as _odm
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -71,3 +70,28 @@ class Follow(_widget.Base):
         })
 
         return _html.TagLessElement(content)
+
+
+class UserSelect(_widget.select.Select):
+    """User Select Widget.
+    """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        for user in _auth.find_users().sort([('first_name', _odm.I_ASC)]).get():
+            self._items.append(('user:' + str(user.id), '{} ({})'.format(user.full_name, user.login)))
+
+    def set_value(self, value, **kwargs):
+        if isinstance(value, _auth.model.User):
+            value = 'user:' + str(value.id)
+
+        return super().set_value(value, **kwargs)
+
+    def get_value(self, **kwargs) -> _auth.model.User:
+        value = super().get_value(**kwargs)
+        if value:
+            value = _odm.get_by_ref(value)
+            if isinstance(value, _auth.model.User):
+                return value
+        else:
+            return None

@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.19 (2015-09-21)
+### Added
+- New widget `auth_ui.widget.UserSelect()`.
+- User select widget on the `content.model.Content`'s form.
+
+
 ## 0.18.4 (2015-09-21)
 ### Fixed
 - Duplicates ignoring error in `assetman.add()`.
