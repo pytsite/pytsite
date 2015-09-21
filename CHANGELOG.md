@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.18.1 (2015-09-21)
+### Added
+- `css` argument in `image.model.Image.get_html()`.
+
+
 ## 0.18 (2015-09-21)
 ### Added
 - `responsive` library in `browser`.

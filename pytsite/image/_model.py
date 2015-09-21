@@ -70,7 +70,7 @@ class Image(_file.model.File):
                 'filename': p[3]
             }, strip_lang=True)
 
-        if field_name == 'thumb_url':
+        elif field_name == 'thumb_url':
             return self.f_get('url', width=int(kwargs.get('width', 422)), height=int(kwargs.get('height', 422)))
 
         return super()._on_f_get(field_name, value, **kwargs)
@@ -80,8 +80,10 @@ class Image(_file.model.File):
         """
         return self.f_get('url', width=width or 0, height=height or 0)
 
-    def get_html(self, alt: str='') -> str:
+    def get_html(self, alt: str='', css: str='') -> str:
         """Get HTML code to embed the image.
         """
         path = self.path.replace('image/', '')
-        return '<div class="pytsite-img" data-path="{}" data-alt="{}"></div>'.format(path, alt)
+        css += ' img-responsive pytsite-img'
+
+        return '<div class="{}" data-path="{}" data-alt="{}"></div>'.format(css.strip(), path, alt)

@@ -14,7 +14,7 @@ def __init():
     """Module Init Wrapper.
     """
     import sys
-    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots
+    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser
     from . import _eh
     from ._model import Tag, Section, ContentSubscriber
     from ._forms import Settings
@@ -24,8 +24,9 @@ def __init():
     tpl.register_package(__name__)
     tpl.register_global('content', sys.modules[__name__])
 
+    # Assets
     assetman.register_package(__name__)
-    assetman.add(__name__ + '@css/common.css')
+    browser.include('responsive', True)
 
     # Common routes
     router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')

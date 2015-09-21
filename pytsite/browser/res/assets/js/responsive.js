@@ -16,7 +16,7 @@ pytsite.responsive = function () {
             if (parent_cont.width() > 0) {
                 cont.replaceWith(function () {
                     img_path = '/image/resize/' + parent_cont.width() + '/0/' + img_path;
-                    return '<img class="img-responsive pytsite-img" src="' + img_path + '" alt="' + img_alt + '">';
+                    return '<img class="' + cont.attr('class') + '" src="' + img_path + '" alt="' + img_alt + '">';
                 });
 
                 break;
