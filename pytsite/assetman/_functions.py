@@ -44,7 +44,7 @@ def add(location: str, collection: str=None, weight: int=0, forever=False):
         else:
             raise ValueError("Cannot detect collection for location '{}'.".format(location))
 
-    if location not in _locations[collection]:
+    if not [i for i in _locations[collection] if i[0] == location]:
         _locations[collection].append((location, weight, forever))
 
 

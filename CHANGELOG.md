@@ -1,6 +1,12 @@
 # PytSite Changelog
 
+## 0.18.4 (2015-09-21)
+### Fixed
+- Duplicates ignoring error in `assetman.add()`.
+
+
 ## 0.18.3 (2015-09-21)
+### Added
 - `aspect_ratio` argument in `image.model.Image.get_html()`.
 - `data-aspect-ratio` property support by `browser`'s `responsive` library.
 

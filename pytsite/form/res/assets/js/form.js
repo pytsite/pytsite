@@ -72,7 +72,6 @@ $(function () {
                         form.addClass('validated');
                         form.submit()
                     }
-
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     form.find('.form-messages')
