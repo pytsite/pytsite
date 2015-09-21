@@ -3,8 +3,10 @@ pytsite.responsive = function () {
         var cont = $(this);
         var img_path = cont.data('path');
         var img_alt = cont.data('alt').replace(/"/g, '&quot;');
+        var aspect_ratio = null;
 
-        console.log(img_alt);
+        if (cont.data('aspect-ratio') != 'None')
+            aspect_ratio = parseFloat(cont.data('aspect-ratio'));
 
         if (typeof img_path == 'undefined')
             return null;
@@ -15,8 +17,14 @@ pytsite.responsive = function () {
         var parent_cont = $(cont).parent();
         while (true) {
             if (parent_cont.width() > 0) {
+                var width = parent_cont.width();
+                var height = 0;
+
+                if (aspect_ratio)
+                    height = parseInt(width / aspect_ratio);
+
                 cont.replaceWith(function () {
-                    img_path = '/image/resize/' + parent_cont.width() + '/0/' + img_path;
+                    img_path = '/image/resize/' + width + '/' + height + '/' + img_path;
                     return '<img class="' + cont.attr('class') + '" src="' + img_path + '" alt="' + img_alt + '">';
                 });
 

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.18.3 (2015-09-21)
+- `aspect_ratio` argument in `image.model.Image.get_html()`.
+- `data-aspect-ratio` property support by `browser`'s `responsive` library.
+
+
 ## 0.18.2 (2015-09-21)
 ### Fixed
 - Quotes escaping in `image.model.Image.get_html()` and `browser`'s `responsive` lib.

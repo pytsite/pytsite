@@ -80,11 +80,12 @@ class Image(_file.model.File):
         """
         return self.f_get('url', width=width or 0, height=height or 0)
 
-    def get_html(self, alt: str='', css: str='') -> str:
+    def get_html(self, alt: str='', css: str='', aspect_ratio: float=None) -> str:
         """Get HTML code to embed the image.
         """
         alt = _util.escape_html(alt)
         path = self.path.replace('image/', '')
         css += ' img-responsive pytsite-img'
 
-        return '<span class="{}" data-path="{}" data-alt="{}"></span>'.format(css.strip(), path, alt)
+        return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}"></span>'.\
+            format(css.strip(), path, alt, aspect_ratio)
