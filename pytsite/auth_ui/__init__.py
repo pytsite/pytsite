@@ -1,20 +1,16 @@
 """Auth UI.
 """
 # Public API
-from . import _widget as widget
+from . import _widget as widget, _model as model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-# Requirements
-__import__('pytsite.odm_ui')
-__import__('pytsite.image')
-
 
 def __init():
     from sys import modules
-    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg
+    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg, util
     from . import _model
 
     # Resources
@@ -23,14 +19,17 @@ def __init():
     tpl.register_global('auth_ui', modules[__name__])
 
     # Routes
-    base_path = reg.get('auth.base_path', '/auth_ui')
+    base_path = reg.get('auth_ui.base_path', '/auth_ui')
     router.add_rule(base_path + '/profile/<string:nickname>', __name__ + '.ep.profile_view')
     router.add_rule(base_path + '/profile/<string:nickname>/edit', __name__ + '.ep.profile_edit')
-    router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', __name__ + '.ep.profile_edit_submit', methods='POST')
+    router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', __name__ + '.ep.profile_edit_submit',
+                    methods='POST')
 
-    # Replace 'user' model with UI-compatible
-    odm.register_model('user', _model.UserUI, True)
-    odm.register_model('role', _model.RoleUI, True)
+    # Replace 'user' and 'role' models with UI-compatible
+    user_cls = util.get_class(reg.get('auth_ui.model.user', 'pytsite.auth_ui._model.UserUI'))
+    odm.register_model('user', user_cls, True)
+    role_cls = util.get_class(reg.get('auth_ui.model.role', 'pytsite.auth_ui._model.RoleUI'))
+    odm.register_model('role', role_cls, True)
 
     # 'Security' admin sidebar section
     admin.sidebar.add_section('auth', 'pytsite.auth_ui@security', 1000,
@@ -48,9 +47,9 @@ def __init():
 
     # Assets
     assetman.register_package(__name__)
-    assetman.add(__name__ + '@css/widget/profile.css', forever=True)
-    assetman.add(__name__ + '@css/widget/follow.css', forever=True)
-    assetman.add(__name__ + '@js/widget/follow.js', forever=True)
+    assetman.add(__name__ + '@css/widget/profile.css', forever=True, weight=100)
+    assetman.add(__name__ + '@css/widget/follow.css', forever=True, weight=100)
+    assetman.add(__name__ + '@js/widget/follow.js', forever=True, weight=100)
 
     # robots.txt rules
     robots.disallow(base_path + '/')

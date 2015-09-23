@@ -1,1 +1,14 @@
-<a href="#" class="widget widget-auth-ui-follow"></a>
+<span class="widget widget-auth-ui-follow" data-uid="{{ user.id }}">
+{% if current_user.is_anonymous %}
+{% else %}
+    {% if current_user in user.followers %}
+        <a href="#" class="btn btn-primary following"><i
+                class="fa fa-fw fa-check icon"></i>&nbsp;<span
+                class="text">{{ t('pytsite.auth_ui@following') }}</span></a>
+    {% else %}
+        <a href="#" class="btn btn-default non-following"><i
+                class="fa fa-fw fa-plus icon"></i>&nbsp;<span
+                class="text">{{ t('pytsite.auth_ui@follow') }}</span></a>
+    {% endif %}
+{% endif %}
+</span>

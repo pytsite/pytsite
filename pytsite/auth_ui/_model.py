@@ -11,7 +11,6 @@ __license__ = 'MIT'
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """User UI.
     """
-
     def _setup(self):
         super()._setup()
         self._define_field(_odm.field.Bool('profile_is_public'))
@@ -36,7 +35,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         if field_name == 'profile_view_url':
             value = _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
 
-        if field_name == 'profile_edit_url':
+        elif field_name == 'profile_edit_url':
             value = _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
                 'nickname': self.nickname,
                 '__form_redirect': _router.current_url(),

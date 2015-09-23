@@ -50,15 +50,6 @@ class Abstract(_ABC):
         self._modified = False
         return self
 
-    def set_val(self, value, change_modified: bool=True, **kwargs):
-        """Set value of the field.
-        """
-        self._value = value
-        if change_modified and not self._modified:
-            self._modified = True
-
-        return self
-
     def get_val(self, **kwargs):
         """Get value of the field.
 
@@ -71,30 +62,49 @@ class Abstract(_ABC):
         """
         return self._value
 
-    def clr_val(self, reset_modified: bool=True, **kwargs):
-        """Clears a value of the field.
+    def set_val(self, value, change_modified: bool=True, **kwargs):
+        """Set value of the field.
+        """
+        self._value = value
+        if change_modified and not self._modified:
+            self._modified = True
+
+        return self
+
+    def clr_val(self, change_modified: bool=True, **kwargs):
+        """Clear the field.
         """
         self._value = self._default
+        if change_modified and not self._modified:
+            self._modified = True
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
         self._value += value
+        if change_modified and not self._modified:
+            self._modified = True
 
     def sub_val(self, value, change_modified: bool=True, **kwargs):
         """Remove a value from the field.
         """
         self._value -= value
+        if change_modified and not self._modified:
+            self._modified = True
 
     def inc_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
         self._value += 1
+        if change_modified and not self._modified:
+            self._modified = True
 
     def dec_val(self, change_modified: bool=True, **kwargs):
         """Increment a value of the field.
         """
         self._value -= 1
+        if change_modified and not self._modified:
+            self._modified = True
 
     def on_delete(self):
         """Hook method to provide for the entity notification mechanism about its deletion.
@@ -131,8 +141,9 @@ class List(Abstract):
         self._allowed_types = kwargs.get('allowed_types', (int, str, float, list, dict, tuple))
         self._min_len = kwargs.get('min_len', 0)
         self._max_len = kwargs.get('max_len', 0)
+        self._unique = kwargs.get('unique', False)
 
-        if 'default' not in kwargs:
+        if not kwargs.get('default'):
             kwargs['default'] = []
 
         super().__init__(name, **kwargs)
@@ -157,11 +168,19 @@ class List(Abstract):
                     raise TypeError("Value of the field '{}' cannot contain members of type {}."
                                     .format(self.name, type(v)))
 
+        # Uniquize value
+        if self._unique:
+            clean_val = []
+            for v in value:
+                if v and v not in clean_val:
+                    clean_val.append(v)
+            value = clean_val
+
         # Checking lengths
         if self._min_len and len(value) < self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
         if self._max_len and len(value) > self._max_len:
-            raise ValueError("Value length cannot be less than {}.".format(self._min_len))
+            raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
         return super().set_val(value, change_modified, **kwargs)
 
@@ -171,13 +190,33 @@ class List(Abstract):
         if type(value) not in self._allowed_types:
             raise TypeError("Adding values of type {} is not allowed.".format(type(value)))
 
-        if len(self.get_val()):
-            pass
+        # Checking length
+        if (len(self.get_val()) + 1) > self._max_len:
+            raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
-        self._value.append(value)
+        # Checking for unique value
+        if self._unique:
+            if value not in self._value:
+                self._value.append(value)
+        else:
+            self._value.append(value)
 
         if change_modified:
             self._modified = True
+
+        return self
+
+    def sub_val(self, value, change_modified: bool=True, **kwargs):
+        """Subtract value from list.
+        """
+        if type(value) not in self._allowed_types:
+            return self
+
+        # Checking length
+        if (len(self.get_val()) - 1) < self._min_len:
+            raise ValueError("Value length cannot be less than {}.".format(self._min_len))
+
+        self._value = [v for v in self._value if v != value]
 
         return self
 
@@ -185,24 +224,10 @@ class List(Abstract):
 class UniqueList(List):
     """Unique List.
     """
-    def set_val(self, value, change_modified: bool=True, **kwargs):
-        """Set value of the field.
-        :type value: list | tuple
+    def __init__(self, name: str, **kwargs):
+        """Init.
         """
-        clean_val = []
-        for v in value:
-            if v and v not in clean_val:
-                clean_val.append(v)
-
-        return super().set_val(clean_val, change_modified, **kwargs)
-
-    def add_val(self, value, change_modified: bool=True, **kwargs):
-        """Add a value to the field.
-        """
-        if value not in self.get_val():
-            super().add_val(value, change_modified, **kwargs)
-
-        return self
+        super().__init__(name, unique=True, **kwargs)
 
 
 class Dict(Abstract):
@@ -291,8 +316,9 @@ class RefsList(List):
     def __init__(self, name: str, model: str, **kwargs):
         """Init.
         """
+        from ._model import Model
         self._model = model
-        super().__init__(name, allowed_types=(_bson_DBRef,), **kwargs)
+        super().__init__(name, allowed_types=(_bson_DBRef, Model), **kwargs)
 
     @property
     def model(self) -> str:
@@ -301,8 +327,8 @@ class RefsList(List):
     def set_val(self, value: list, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
-        if not isinstance(value, list) and not isinstance(value, tuple):
-            raise ValueError('List expected.')
+        if type(value) not in (list, tuple):
+            raise ValueError('List or tuple expected.')
 
         # Cleaning up value
         clean_value = []
@@ -322,12 +348,10 @@ class RefsList(List):
     def get_val(self, **kwargs) -> list:
         """Get value of the field.
         """
-        r = []
-        v = self._value
-        """:type: list"""
+        from ._functions import get_by_ref
 
-        for ref in v:
-            from ._functions import get_by_ref
+        r = []
+        for ref in self._value:
             entity = get_by_ref(ref)
             if entity:
                 r.append(entity)
@@ -342,16 +366,17 @@ class RefsList(List):
         """Add a value to the field.
         """
         from ._model import Model
-        if not isinstance(value, _bson_DBRef) and not isinstance(value, Model):
+
+        if isinstance(value, Model):
+            if self._model != '*' and value.model != self._model:
+                raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
+            value = value.ref
+        elif isinstance(value, _bson_DBRef):
+            value = value
+        else:
             raise TypeError("DBRef of entity expected.")
 
-        if isinstance(value, _bson_DBRef):
-            self._value.append(value)
-        elif isinstance(value, Model):
-            self._value.append(value.ref)
-
-        if change_modified:
-            self._modified = True
+        super().add_val(value, change_modified, **kwargs)
 
         return self
 
@@ -359,29 +384,10 @@ class RefsList(List):
 class RefsUniqueList(RefsList):
     """Unique list of DBRefs field.
     """
-    def set_val(self, value: list, change_modified: bool=True, **kwargs):
-        """Set value of the field.
+    def __init__(self, name: str, **kwargs):
+        """Init.
         """
-        super().set_val(value, change_modified, **kwargs)
-        clean_val = []
-        ids = []
-        for v in self.get_val():
-            if v.id not in ids:
-                clean_val.append(v)
-                ids.append(v.id)
-
-        return super().set_val(clean_val, change_modified, **kwargs)
-
-    def add_val(self, value, change_modified: bool=True, **kwargs):
-        """Add value to the field.
-        """
-        # Simply adding value
-        super().add_val(value, change_modified, **kwargs)
-
-        # Then filtering out duplicates
-        self.set_val(self.get_val(**kwargs), change_modified, **kwargs)
-
-        return self
+        super().__init__(name, unique=True, **kwargs)
 
 
 class DateTime(Abstract):

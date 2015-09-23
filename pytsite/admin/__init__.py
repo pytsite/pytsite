@@ -1,7 +1,5 @@
 """Admin Package Init
 """
-from pytsite import reg as _reg
-
 # Public API
 from . import _sidebar as sidebar, _navbar as navbar
 
@@ -11,7 +9,8 @@ __license__ = 'MIT'
 
 
 def base_path() -> str:
-    return _reg.get('admin.base_path', '/admin')
+    from pytsite import reg
+    return reg.get('admin.base_path', '/admin')
 
 
 def __init():

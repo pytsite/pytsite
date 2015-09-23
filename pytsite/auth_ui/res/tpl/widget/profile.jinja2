@@ -4,9 +4,11 @@
             <div class="{{ col_image_css }} col-image">
                 {% block user_image %}
                     <div class="image">
-                        <a href="{{ user.profile_view_url }}">
-                            <img class="img-responsive" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
-                        </a>
+                        {% block user_image_inner %}
+                            <a href="{{ user.profile_view_url }}">
+                                <img class="img-responsive" src="{{ user.picture_url }}" alt="{{ user.full_name }}">
+                            </a>
+                        {% endblock user_image_inner %}
                     </div>
                 {% endblock user_image %}
 
@@ -66,14 +68,15 @@
                 {% block user_actions %}
                     <div class="row actions">
                         {% block user_actions_inner %}
-                            {% if profile_is_editable %}
-                                <div class="col-xs-12 text-xs-B-center text-xs-left">
+                            <div class="col-xs-12 text-xs-B-center text-xs-left">
+                                {% if profile_is_editable %}
                                     <a href="{{ user.profile_edit_url }}"
                                        title="{{ t('pytsite.auth_ui@modify_profile') }}"
                                        class="btn btn-default"><i
                                             class="fa fa-edit"></i>&nbsp;{{ t('pytsite.auth_ui@modify_profile') }}</a>
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                                {{ auth_ui.widget.Follow(user) }}
+                            </div>
                         {% endblock user_actions_inner %}
                     </div>
                 {% endblock user_actions %}

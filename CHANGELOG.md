@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.20 (2015-xx-xx)
+### Added
+- New configuration parameters: `auth_ui.model.user` and `auth_ui.model.role`.
+- New method `odm.Model.f_sub()`;
+
+### Fixed
+- Options overwriting in `auth.model.model.User` by `auth.driver.ulogin`. 
+- Little fixes in `odm.field`
+
+
 ## 0.19 (2015-09-21)
 ### Added
 - New widget `auth_ui.widget.UserSelect()`.

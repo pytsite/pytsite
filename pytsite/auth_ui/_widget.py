@@ -66,7 +66,8 @@ class Follow(_widget.Base):
             return _html.TagLessElement()
 
         content = _tpl.render(self._tpl, {
-            'user': self._user
+            'current_user': _auth.get_current_user(),
+            'user': self._user,
         })
 
         return _html.TagLessElement(content)

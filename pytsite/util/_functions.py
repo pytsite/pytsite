@@ -158,10 +158,13 @@ def transform_str_2(s: str) -> str:
     return _re.sub('/', '-', transform_str_1(s))
 
 
-def get_class(cls: str) -> type:
+def get_class(s: str) -> type:
     """Get class by its fully qualified name.
     """
-    class_fqn = cls.split('.')
+    class_fqn = list_cleanup(s.split('.'))
+    if len(class_fqn) < 2:
+        raise Exception("Cannot determine class name from string '{}'.".format(s))
+
     class_name = class_fqn[-1:][0]
     module_name = '.'.join(class_fqn[:-1])
     module = __import__(module_name, fromlist=[class_name])

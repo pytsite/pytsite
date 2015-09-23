@@ -266,14 +266,26 @@ class Model(_ABC):
         """
         return value
 
-    def f_add(self, field_name: str, value):
+    def f_add(self, field_name: str, value, **kwargs):
         """Add a value to the field.
         """
         with _threading.get_r_lock():
-            self.get_field(field_name).add_val(self._on_f_add(field_name, value))
+            self.get_field(field_name).add_val(self._on_f_add(field_name, value, **kwargs))
             return self
 
     def _on_f_add(self, field_name: str, value, **kwargs: dict):
+        """On field's add value hook.
+        """
+        return value
+
+    def f_sub(self, field_name: str, value, **kwargs):
+        """Delete value from the field.
+        """
+        with _threading.get_r_lock():
+            self.get_field(field_name).sub_val(self._on_f_sub(field_name, value, **kwargs))
+            return self
+
+    def _on_f_sub(self, field_name: str, value, **kwargs):
         """On field's add value hook.
         """
         return value

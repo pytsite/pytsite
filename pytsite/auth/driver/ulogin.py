@@ -115,7 +115,7 @@ class ULoginDriver(AbstractDriver):
                 user.f_set('birth_date', _datetime(*b_date[0:5]))
 
             # Options
-            user.f_set('options', {'ulogin': ulogin_data})
+            user.options['ulogin'] = ulogin_data
 
             # Authorize
             _functions.authorize(user.save())
