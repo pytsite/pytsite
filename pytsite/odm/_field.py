@@ -139,8 +139,8 @@ class List(Abstract):
         """Init.
         """
         self._allowed_types = kwargs.get('allowed_types', (int, str, float, list, dict, tuple))
-        self._min_len = kwargs.get('min_len', 0)
-        self._max_len = kwargs.get('max_len', 0)
+        self._min_len = kwargs.get('min_len', None)
+        self._max_len = kwargs.get('max_len', None)
         self._unique = kwargs.get('unique', False)
 
         if not kwargs.get('default'):
@@ -177,9 +177,9 @@ class List(Abstract):
             value = clean_val
 
         # Checking lengths
-        if self._min_len and len(value) < self._min_len:
+        if self._min_len is not None and len(value) < self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
-        if self._max_len and len(value) > self._max_len:
+        if self._max_len is not None and len(value) > self._max_len:
             raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
         return super().set_val(value, change_modified, **kwargs)
@@ -191,7 +191,7 @@ class List(Abstract):
             raise TypeError("Adding values of type {} is not allowed.".format(type(value)))
 
         # Checking length
-        if (len(self.get_val()) + 1) > self._max_len:
+        if self._max_len is not None and (len(self.get_val()) + 1) > self._max_len:
             raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
         # Checking for unique value
@@ -213,7 +213,7 @@ class List(Abstract):
             return self
 
         # Checking length
-        if (len(self.get_val()) - 1) < self._min_len:
+        if self._min_len is not None and (len(self.get_val()) - 1) < self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
         self._value = [v for v in self._value if v != value]
@@ -435,7 +435,7 @@ class String(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        self._max_length = kwargs.get('max_length', 0)
+        self._max_length = kwargs.get('max_length', None)
 
         if kwargs.get('default') is None:
             kwargs['default'] = ''
@@ -448,14 +448,14 @@ class String(Abstract):
 
     @max_length.setter
     def max_length(self, val: int):
-        self._max_length = int(val)
+        self._max_length = val
 
     def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         value = '' if value is None else str(value).strip()
 
-        if self._max_length:
+        if self._max_length is not None:
             value = value[:self._max_length]
 
         return super().set_val(value, change_modified, **kwargs)

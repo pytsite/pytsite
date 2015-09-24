@@ -57,8 +57,9 @@ def update(version: str):
 
 
 def _update_0_13():
-    from pytsite import util
     for user in _functions.find_users(False).get():
         if not user.nickname:
-            user.f_set('nickname', util.transform_str_2(user.full_name)).save()
+            if not user.full_name:
+                user.f_set('first_name', _util.random_str())
+            user.f_set('nickname', _util.transform_str_2(user.full_name)).save()
             _console.print_info('User updated: {}'.format(user.login))

@@ -233,7 +233,9 @@ class User(_odm.Model):
             value = (_datetime.now() - self.last_activity).seconds < 180
 
         if field_name == 'full_name':
-            value = '{} {}'.format(self.first_name, self.last_name)
+            value = self.first_name
+            if self.last_name:
+                value += ' ' + self.last_name
 
         return value
 
