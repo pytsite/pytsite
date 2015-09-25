@@ -131,7 +131,7 @@ def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
     return _taxonomy.find('tag', language).get(limit)
 
 
-def get_tag(alias: str, language: str=None) -> _model.Section:
+def get_tag(alias: str, language: str=None) -> _model.Tag:
     return _taxonomy.find('tag', language).where('alias', '=', alias).first()
 
 

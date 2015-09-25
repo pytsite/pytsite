@@ -1,5 +1,9 @@
 # PytSite Changelog
 
+## 0.20.1 (2015-09-25)
+### Added
+- `data-alias` and `data-path` properties in `taxonomy.widget.Cloud`'s default template;
+
 ## 0.20 (2015-09-25)
 ### Added
 - New configuration parameters: `auth_ui.model.user` and `auth_ui.model.role`.
