@@ -22,7 +22,7 @@ class Base(_ABC):
         if not name:
             name = uid
 
-        self._uid = uid
+        self._entity = uid
         self._name = name
         self._weight = kwargs.get('weight', 0)
         self._value = None
@@ -119,7 +119,7 @@ class Base(_ABC):
     def uid(self) -> str:
         """Get UID of the widget.
         """
-        return self._uid
+        return self._entity
 
     @uid.setter
     def uid(self, value):
@@ -127,7 +127,7 @@ class Base(_ABC):
         """
         if self.uid == self.name:
             self.name = value
-        self._uid = value
+        self._entity = value
 
     @property
     def name(self) -> str:

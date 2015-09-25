@@ -1,5 +1,24 @@
 # PytSite Changelog
 
+## 0.20.2 (2015-09-xx)
+### Add
+- New events `pytsite.odm.entity.delete` and `pytsite.odm.entity.%model%.delete`.
+
+### Changed
+- `flag`'s API functions now accept `odm.Model` instead of string as input argument.
+- `flag`'s API functions now accept author of the flag(s) as optional argument.
+- `core.odm@register_model` event renamed to `pytsite.odm.register_model`.
+- `content.entity.pre_save` event renamed to `pytsite.content.entity.pre_save`.
+- `content.entity.pre_save.%model%` event renamed to `pytsite.content.entity.%model%.pre_save`.
+- `content.entity.save` event renamed to `pytsite.content.entity.save`.
+- `content.entity.save.%model%` event renamed to `pytsite.content.entity.%model%.save`.
+- `odm.entity.pre_save` event renamed to `pytsite.odm.entity.pre_save`.
+- `odm.entity.pre_save.%model%` event renamed to `pytsite.odm.entity.%model%.pre_save`.
+- `odm.entity.pre_delete` event renamed to `pytsite.odm.entity.pre_delete`.
+- `odm.entity.pre_delete.%model%` event renamed to `pytsite.odm.entity.%model%.pre_delete`.
+- `setup` event renamed to `pytsite.setup`.
+
+
 ## 0.20.1 (2015-09-25)
 ### Added
 - `data-alias` and `data-path` properties in `taxonomy.widget.Cloud`'s default template;

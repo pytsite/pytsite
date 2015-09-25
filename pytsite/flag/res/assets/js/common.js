@@ -2,13 +2,13 @@ pytsite.flag = {
     init: function () {
         $('.widget-flag:not(".initialized")').each(function () {
             var widget = $(this);
-            var uid = widget.data('uid');
+            var entity = widget.data('entity');
 
             widget.find('a').click(function (e) {
                 e.preventDefault();
 
                 pytsite.js.post('pytsite.flag.ep.toggle', {
-                    uid: uid
+                    entity: entity
                 }, function (data) {
                     if (data['status'] == 'flagged')
                         widget.addClass('flagged');

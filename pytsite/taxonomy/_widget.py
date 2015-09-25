@@ -50,7 +50,7 @@ class TokensInput(_widget.input.Tokens):
         """
         html_input = _html.Input(
             type='text',
-            uid=self._uid,
+            uid=self._entity,
             name=self._name,
             value=','.join([v.f_get('title') for v in self.get_value()]),
             cls=' '.join(('form-control', self._css)),

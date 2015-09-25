@@ -44,7 +44,7 @@ def __init():
     tpl.register_global('auth', _functions)
 
     # Event handlers
-    events.listen('setup', _eh.app_setup)
+    events.listen('pytsite.setup', _eh.app_setup)
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
     events.listen('pytsite.update', _eh.update)
 

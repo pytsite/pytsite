@@ -59,10 +59,10 @@ class Currency(_widget.input.Float):
 
     def render(self) -> _html.Element:
         r = super().render()
-        r.append(_html.Input(type='hidden', name=self._uid + '[currency]', value=self._currency))
+        r.append(_html.Input(type='hidden', name=self._entity + '[currency]', value=self._currency))
         new_uid = self.uid + '[amount]'
 
-        text_input = r.get_child_by_uid(self._uid)
+        text_input = r.get_child_by_uid(self._entity)
         text_input.set_attr('value', self._value['amount']).set_attr('uid', new_uid).set_attr('name', new_uid)
 
         return r

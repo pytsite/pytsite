@@ -27,8 +27,8 @@ class Checkbox(_input.Input):
         """Render the widget.
         """
 
-        em = _html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value)
-        em = em.wrap(_html.Label(self._label, label_for=self._uid))
+        em = _html.Input(uid=self._entity, name=self._name, type='checkbox', checked=self._value)
+        em = em.wrap(_html.Label(self._label, label_for=self._entity))
         div = em.wrap(_html.Div(cls='checkbox'))
 
         div.append(_html.Input(type='hidden', name=self._name))
@@ -153,7 +153,7 @@ class DateTime(_input.Text):
         """
         html_input = _html.Input(
             type='text',
-            uid=self._uid,
+            uid=self._entity,
             name=self._name,
             value=self.get_value().strftime('%d.%m.%Y %H:%M'),
             cls=' '.join(('form-control', self._css)),

@@ -28,7 +28,7 @@ def register_model(model: str, cls, replace: bool=False):
 
     __registered_models[model] = cls
 
-    _events.fire('core.odm@register_model', model=model, cls=cls, replace=replace)
+    _events.fire('pytsite.odm.register_model', model=model, cls=cls, replace=replace)
 
 
 def get_model_class(model: str) -> type:

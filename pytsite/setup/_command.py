@@ -31,7 +31,7 @@ class Setup(_console.command.Abstract):
         if _path.exists(lock_path):
             raise _console.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
-        _events.fire('setup')
+        _events.fire('pytsite.setup')
 
         # Writing lock file
         lock_dir = _path.dirname(lock_path)

@@ -248,8 +248,8 @@ class Content(_odm_ui.Model):
             else:
                 self.f_set('status', 'waiting')
 
-        _events.fire('content.entity.pre_save', entity=self)
-        _events.fire('content.entity.pre_save.' + self.model, entity=self)
+        _events.fire('pytsite.content.entity.pre_save', entity=self)
+        _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
 
     def _after_save(self):
         """Hook.
@@ -285,8 +285,8 @@ class Content(_odm_ui.Model):
             if not img.f_get('attached_to'):
                 img.f_set('attached_to', self).f_set('owner', self.author).save()
 
-        _events.fire('content.entity.save', entity=self)
-        _events.fire('content.entity.save.' + self.model, entity=self)
+        _events.fire('pytsite.content.entity.save', entity=self)
+        _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
 
     def _after_delete(self):
         """Hook.

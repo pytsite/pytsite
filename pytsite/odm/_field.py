@@ -380,6 +380,24 @@ class RefsList(List):
 
         return self
 
+    def sub_val(self, value, change_modified: bool=True, **kwargs):
+        """Subtract value fom the field.
+        """
+        from ._model import Model
+
+        if isinstance(value, Model):
+            if self._model != '*' and value.model != self._model:
+                raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
+            value = value.ref
+        elif isinstance(value, _bson_DBRef):
+            value = value
+        else:
+            raise TypeError("DBRef of entity expected.")
+
+        super().sub_val(value, change_modified, **kwargs)
+
+        return self
+
 
 class RefsUniqueList(RefsList):
     """Unique list of DBRefs field.

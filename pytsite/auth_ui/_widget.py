@@ -50,24 +50,32 @@ class Profile(_widget.Base):
 class Follow(_widget.Base):
     """Follow Widget.
     """
-    def __init__(self, user, tpl: str='pytsite.auth_ui@widget/follow', **kwargs):
+    def __init__(self, user, **kwargs):
         """Init.
 
         :type user: pytsite.auth._model.User|pytsite.auth_ui._model.UserUI
         """
         super().__init__(**kwargs)
-        self._tpl = tpl
+        self._current_user = _auth.get_current_user()
         self._user = user
+        self._tpl = kwargs.get('tpl', 'pytsite.auth_ui@widget/follow')
+        self._follow_msg_id = kwargs.get('follow_msg_id', 'pytsite.auth_ui@follow')
+        self._unfollow_msg_id = kwargs.get('unfollow_msg_id', 'pytsite.auth_ui@unfollow')
+        self._following_msg_id = 'pytsite.auth_ui@following'
 
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        if _auth.get_current_user().is_anonymous:
+        # Don't show the widget to unauthorized and profile owners
+        if self._current_user.is_anonymous or self._current_user == self._user:
             return _html.TagLessElement()
 
         content = _tpl.render(self._tpl, {
             'current_user': _auth.get_current_user(),
             'user': self._user,
+            'follow_msg_id': self._follow_msg_id,
+            'unfollow_msg_id': self._unfollow_msg_id,
+            'following_msg_id': self._following_msg_id,
         })
 
         return _html.TagLessElement(content)

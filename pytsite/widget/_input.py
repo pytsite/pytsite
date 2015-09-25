@@ -66,7 +66,7 @@ class TextArea(_base.Base):
         """
         html_input = _html.TextArea(
             content=self.get_value(),
-            uid=self._uid,
+            uid=self._entity,
             name=self._name,
             cls=' '.join(('form-control', self._css)),
             placeholder=self.placeholder,
@@ -99,7 +99,7 @@ class Text(Input):
 
         inp = _html.Input(
             type=self._type,
-            uid=self._uid,
+            uid=self._entity,
             name=self._name,
             value=self.get_value(),
             cls='form-control',
@@ -326,7 +326,7 @@ class Tokens(Input):
         """
         html_input = _html.Input(
             type='text',
-            uid=self._uid,
+            uid=self._entity,
             name=self._name,
             value=','.join(self.get_value()) if self.get_value() else '',
             cls=' '.join(('form-control', self._css)),

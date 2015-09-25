@@ -139,7 +139,7 @@ class FilesUpload(_widget.Base):
                 clean_val.append(entity)
 
         # Delete files which are has been removed from the widget.
-        to_delete = _router.request.values_dict.get(self._uid + '_to_delete')
+        to_delete = _router.request.values_dict.get(self._entity + '_to_delete')
         if to_delete and not kwargs.get('validation_mode'):  # IMPORTANT: not in form validation mode
             if isinstance(to_delete, str):
                 to_delete = [to_delete]

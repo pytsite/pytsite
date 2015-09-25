@@ -323,8 +323,8 @@ class Model(_ABC):
             # Pre-save hook
             if not skip_hooks:
                 self._pre_save()
-                _events.fire('odm.entity.pre_save', entity=self)
-                _events.fire('odm.entity.pre_save.' + self.model, entity=self)
+                _events.fire('pytsite.odm.entity.pre_save', entity=self)
+                _events.fire('pytsite.odm.entity.pre_save.' + self.model, entity=self)
 
             # Updating change timestamp
             if update_timestamp:
@@ -350,8 +350,8 @@ class Model(_ABC):
                 self.collection.replace_one({'_id': data['_id']}, data)
 
             if not skip_hooks:
-                _events.fire('odm.entity.save', entity=self)
-                _events.fire('odm.entity.save.' + self.model, entity=self)
+                _events.fire('pytsite.odm.entity.save', entity=self)
+                _events.fire('pytsite.odm.entity.save.' + self.model, entity=self)
 
             # Getting assigned ID from MongoDB
             if self._is_new:
@@ -386,8 +386,8 @@ class Model(_ABC):
         """
         with _threading.get_r_lock():
             # Pre delete hook
-            _events.fire('odm.entity.pre_delete', entity=self)
-            _events.fire('odm.entity.pre_delete.' + self.model, entity=self)
+            _events.fire('pytsite.odm.entity.pre_delete', entity=self)
+            _events.fire('pytsite.odm.entity.{}.pre_delete'.format(self.model), entity=self)
             self._pre_delete()
 
             # Notify fields about entity deletion
@@ -404,6 +404,8 @@ class Model(_ABC):
 
             # After delete hook
             self._after_delete()
+            _events.fire('pytsite.odm.entity.delete', entity=self)
+            _events.fire('pytsite.odm.entity.{}.delete'.format(self.model), entity=self)
 
         return self
 
