@@ -1,5 +1,5 @@
 {% if widget.title %}
-    {{ '<' ~ widget.title_tag ~ '>' ~ widget.title | e ~ '</' ~ widget.title_tag ~ '>' }}
+    {{ '<' ~ widget.title_tag ~ ' class="title">' ~ widget.title | e ~ '</' ~ widget.title_tag ~ '>' }}
 {% endif %}
 {% for term in widget.terms %}
     <a href="{{ url(widget.link_pattern | format(term.alias)) }}"

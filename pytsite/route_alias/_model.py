@@ -35,7 +35,7 @@ class RouteAlias(_odm.Model):
         """Hook.
         """
         if field_name == 'alias':
-            from . import _manager
-            value = _manager.sanitize_alias_string(value, self.language)
+            from . import _api
+            value = _api.sanitize_alias_string(value, self.language)
 
         return super()._on_f_set(field_name, value, **kwargs)

@@ -196,7 +196,7 @@ class Content(_odm_ui.Model):
         """
         if field_name == 'url' and not self.is_new:
             target_path = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)})
-            r_alias = _route_alias.find_one_by_target(target_path, self.language)
+            r_alias = _route_alias.find_by_target(target_path, self.language)
             value = r_alias.f_get('alias') if r_alias else target_path
 
             # Transform path to absolute URL

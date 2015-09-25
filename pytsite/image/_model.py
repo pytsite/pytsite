@@ -19,6 +19,18 @@ class Image(_file.model.File):
         self._define_field(_odm.field.Integer('height'))
         self._define_field(_odm.field.Dict('exif'))
 
+    @property
+    def width(self) -> int:
+        return self.f_get('width')
+
+    @property
+    def height(self) -> int:
+        return self.f_get('height')
+
+    @property
+    def exif(self) -> dict:
+        return self.f_get('exif')
+
     def _pre_save(self):
         """Hook.
         """
@@ -87,5 +99,6 @@ class Image(_file.model.File):
         path = self.path.replace('image/', '')
         css += ' img-responsive pytsite-img'
 
-        return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}"></span>'.\
-            format(css.strip(), path, alt, aspect_ratio)
+        return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}" ' \
+               'data-width="{}" data-height="{}"></span>'\
+            .format(css.strip(), path, alt, aspect_ratio, self.width, self.height)

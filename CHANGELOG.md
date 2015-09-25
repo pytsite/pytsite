@@ -1,13 +1,17 @@
 # PytSite Changelog
 
-## 0.20 (2015-xx-xx)
+## 0.20 (2015-09-25)
 ### Added
 - New configuration parameters: `auth_ui.model.user` and `auth_ui.model.role`.
-- New method `odm.Model.f_sub()`;
+- New method `odm.Model.f_sub()`.
+- New method `route_alias.find_by_alias()`.
+
+### Changed
+- `route_alias.find_one_by_target()` renamed to `route_alias.find_by_target()`.
 
 ### Fixed
-- Options overwriting in `auth.model.model.User` by `auth.driver.ulogin`. 
-- Little fixes in `odm.field`
+- Erroneous options overwriting of `auth.model.model.User` in `auth.driver.ulogin`. 
+- Little rewrite of `odm.field`
 
 
 ## 0.19 (2015-09-21)

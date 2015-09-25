@@ -1,4 +1,4 @@
-"""Route Paths Manager.
+"""Route Paths API.
 """
 import re
 from pytsite import util as _util, odm as _odm, lang as _lang
@@ -53,7 +53,16 @@ def find() -> _odm.Finder:
     return _odm.find('route_alias').where('language', '=', _lang.get_current_lang())
 
 
-def find_one_by_target(target: str, language: str=None) -> _model.RouteAlias:
+def find_by_alias(alias: str, language: str=None) -> _model.RouteAlias:
+    """Find route alias by target.
+    """
+    if not language:
+        language = _lang.get_current_lang()
+
+    return _odm.find('route_alias').where('alias', '=', alias).where('language', '=', language).first()
+
+
+def find_by_target(target: str, language: str=None) -> _model.RouteAlias:
     """Find route alias by target.
     """
     if not language:
