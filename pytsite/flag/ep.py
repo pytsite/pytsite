@@ -15,10 +15,4 @@ def toggle(args: dict, inp: dict) -> dict:
     if current_user.is_anonymous or not entity:
         raise ValueError('Invalid input arguments.')
 
-    if _api.count(entity, current_user):
-        _api.delete(entity, current_user)
-        return {'status': 'unflagged', 'count': _api.count(entity)}
-    else:
-        _api.flag(entity, current_user)
-
-    return {'status': 'flagged', 'count': _api.count(entity)}
+    return {'status': _api.toggle(entity, current_user), 'count': _api.count(entity)}

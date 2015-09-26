@@ -52,7 +52,7 @@ class Tag(_taxonomy.model.Term):
 
 
 class Content(_odm_ui.Model):
-    """Content Model.
+    """Base Content Model.
     """
     def _setup(self):
         """Hook.
@@ -521,6 +521,15 @@ class Page(Content):
 class Article(Content):
     """Article Model.
     """
+    def _setup(self):
+        super()._setup()
+        self._define_field(_odm.field.Ref('section', model='section'))
+        self._define_field(_odm.field.StringList('ext_links'))
+        self._define_field(_odm.field.Bool('starred'))
+        self._define_field(_geo.odm_field.Location('location'))
+
+        self._define_index([('location.lng_lat', _odm.I_GEO2D)])
+
     @property
     def section(self) -> Section:
         return self.f_get('section')
@@ -536,15 +545,6 @@ class Article(Content):
     @property
     def location(self) -> dict:
         return self.f_get('location')
-
-    def _setup(self):
-        super()._setup()
-        self._define_field(_odm.field.Ref('section', model='section'))
-        self._define_field(_odm.field.StringList('ext_links'))
-        self._define_field(_odm.field.Bool('starred'))
-        self._define_field(_geo.odm_field.Location('location'))
-
-        self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     def setup_m_form(self, form, stage: str):
         super().setup_m_form(form, stage)
@@ -586,12 +586,13 @@ class Article(Content):
             form.add_rule('ext_links', _validation.rule.Url())
 
         # Location
-        form.add_widget(_geo.widget.SearchAddress(
-            weight=660,
-            uid='location',
-            label=self.t('location'),
-            value=self.location
-        ))
+        if self.has_field('location'):
+            form.add_widget(_geo.widget.SearchAddress(
+                weight=660,
+                uid='location',
+                label=self.t('location'),
+                value=self.location
+            ))
 
     def _pre_save(self):
         """Hook.

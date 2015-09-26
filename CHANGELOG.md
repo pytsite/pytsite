@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## 0.20.2 (2015-09-xx)
+## 0.21 (2015-09-26)
 ### Add
 - New events `pytsite.odm.entity.delete` and `pytsite.odm.entity.%model%.delete`.
 
@@ -17,6 +17,9 @@
 - `odm.entity.pre_delete` event renamed to `pytsite.odm.entity.pre_delete`.
 - `odm.entity.pre_delete.%model%` event renamed to `pytsite.odm.entity.%model%.pre_delete`.
 - `setup` event renamed to `pytsite.setup`.
+
+### Fixed
+- `flag` total rework.
 
 
 ## 0.20.1 (2015-09-25)

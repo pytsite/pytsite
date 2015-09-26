@@ -10,7 +10,7 @@ pytsite.flag = {
                 pytsite.js.post('pytsite.flag.ep.toggle', {
                     entity: entity
                 }, function (data) {
-                    if (data['status'] == 'flagged')
+                    if (data['status'])
                         widget.addClass('flagged');
                     else
                         widget.removeClass('flagged');

@@ -30,17 +30,11 @@ class Flag(_widget.Base):
     def count(self) -> int:
         return _api.count(self._entity)
 
-    @property
-    def flagged(self) -> bool:
-        """Is entity flagged by current user.
-        """
-        return bool(_api.count(self._entity, _auth.get_current_user()))
-
     def render(self) -> _html.Element:
         current_user = _auth.get_current_user()
 
         css = 'widget widget-flag'
-        if not current_user.is_anonymous and self.flagged:
+        if _api.is_flagged(self._entity, current_user):
             css += ' flagged'
 
         return _html.Span(_tpl.render('pytsite.flag@widget', {
