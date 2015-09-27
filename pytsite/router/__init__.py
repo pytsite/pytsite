@@ -128,6 +128,14 @@ def call_ep(name: str, args: dict=None, inp: dict=None):
     if not hasattr(callable_obj, '__call__'):
         raise Exception("'{}.{}' is not callable".format(module_name, callable_name))
 
+    if '_call' in args:
+        args['_call_orig'] = args['_call']
+    args['_call'] = name
+
+    if '_name' in args:
+        args['_name_orig'] = args['_name']
+    args['_name'] = name
+
     return callable_obj(args, inp)
 
 

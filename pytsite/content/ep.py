@@ -139,7 +139,9 @@ def view(args: dict, inp: dict):
 
     _assetman.add('pytsite.content@js/content.js')
 
-    return _router.call_ep(endpoint, {'entity': entity})
+    args['entity'] = entity
+
+    return _router.call_ep(endpoint, args, inp)
 
 
 def view_count(args: dict, inp: dict) -> int:

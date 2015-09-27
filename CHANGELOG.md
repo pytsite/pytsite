@@ -1,9 +1,10 @@
 # PytSite Changelog
 
-## 0.21.1 (2015-09-xx)
+## 0.21.1 (2015-09-27)
 ### Added
 - English translations in `content`, `admin`, `lang`, `taxonomy`, `router`, `auth_ui`, `settings`, `odm_ui`.
-- New argument `strip_lang` in `router.ep_path()`. 
+- New argument `strip_lang` in `router.ep_path()`.
+- New arguments passed to endpoints via `router.call_ep()`: `_call_orig` and `_name_orig`.
 
 ### Fixed
 - Incorrect path alias resolving in `content.model.Content.url`.
