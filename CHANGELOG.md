@@ -1,7 +1,16 @@
 # PytSite Changelog
 
+## 0.21.1 (2015-09-xx)
+### Added
+- English translations in `content`, `admin`, `lang`, `taxonomy`, `router`, `auth_ui`, `settings`, `odm_ui`.
+- New argument `strip_lang` in `router.ep_path()`. 
+
+### Fixed
+- Incorrect path alias resolving in `content.model.Content.url`.
+
+
 ## 0.21 (2015-09-26)
-### Add
+### Added
 - New events `pytsite.odm.entity.delete` and `pytsite.odm.entity.%model%.delete`.
 
 ### Changed

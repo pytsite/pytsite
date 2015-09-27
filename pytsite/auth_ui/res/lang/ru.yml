@@ -33,7 +33,6 @@ follow: 'Подписаться'
 following: 'Подписан'
 unfollow: 'Отписаться'
 
-
 odm_ui_permission_group_description: 'Безопасность'
 
 odm_ui_browser_title_user: 'Обзор пользователей'

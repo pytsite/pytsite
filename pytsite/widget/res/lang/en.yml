@@ -1,0 +1,7 @@
+delete: 'Delete'
+first_page: 'First page'
+last_page: 'Last page'
+previous_page: 'Previous page'
+next_page: 'Next page'
+page_num: 'Page :num'
+select_none_item: 'None'

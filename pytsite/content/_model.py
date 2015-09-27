@@ -195,7 +195,7 @@ class Content(_odm_ui.Model):
         """Hook.
         """
         if field_name == 'url' and not self.is_new:
-            target_path = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)})
+            target_path = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)}, True)
             r_alias = _route_alias.find_by_target(target_path, self.language)
             value = r_alias.f_get('alias') if r_alias else target_path
 
@@ -256,7 +256,7 @@ class Content(_odm_ui.Model):
         """
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
-            target = _router.en_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id})
+            target = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id})
             self.route_alias.f_set('target', target).save()
 
         if self.is_new:

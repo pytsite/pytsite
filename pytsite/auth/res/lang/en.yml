@@ -1,0 +1,22 @@
+authorization: 'Authorization'
+authorization_error: 'Suthorization error'
+enter_admin_email: "Enter administrator's email"
+role_has_been_created: 'New role has been created: :name'
+user_has_been_created: 'New user has been created: :login'
+administrator: 'Administrator'
+admin_role_description: 'Administrator'
+user_role_description: 'Ordinary user'
+status_active: 'Active'
+status_disabled: 'Disabled'
+status_waiting: 'Awaiting confirmation'
+admin_permission_description: 'Global administrator'
+auth_permission_group_description: 'Security'
+login: 'Login'
+logout: 'Logout'
+nickname_str_rules: 'Nickname should contain only latin letters, digits, dots, dashes, and must have a length of from 3 to 24 characters'
+about_yourself: 'A few words about yourself'
+follows: 'Follows'
+followers: 'Followers'
+you_cannot_delete_yourself: 'You can not delete your own account as an administrator'
+account_owns_entity: "this account is the owner of the entity ':entity'"
+role_user_by_user: "Role is used by user ':user'"

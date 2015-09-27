@@ -399,8 +399,8 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
     return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False)
 
 
-def en_path(endpoint: str, args: dict=None) -> str:
-    return url(_url_adapter.build(endpoint, args), relative=True)
+def ep_path(endpoint: str, args: dict=None, strip_lang=False) -> str:
+    return url(_url_adapter.build(endpoint, args), relative=True, strip_lang=strip_lang)
 
 
 def ep_url(ep_name: str, args: dict=None, strip_lang=False) -> str:

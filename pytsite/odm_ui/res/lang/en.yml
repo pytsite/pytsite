@@ -1,0 +1,7 @@
+id: 'ID'
+actions: 'Actions'
+save: 'Save'
+cancel: 'Cancel'
+delete: 'Delete'
+operation_successful: 'Operation has been successfully completed'
+entity_deletion_forbidden: 'Cannot complete deletion'
