@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.21.2 (2015-09-28)
+### Added
+- Store user's profile URL by `auth.driver.ulogin` while logging in.
+
+### Fixed
+- Layout errors in `auth_ui.widget.Profile`.
+- User's nickname composing in `auth.driver.ulogin`.
+
+
 ## 0.21.1 (2015-09-27)
 ### Added
 - English translations in `content`, `admin`, `lang`, `taxonomy`, `router`, `auth_ui`, `settings`, `odm_ui`.

@@ -54,7 +54,7 @@
 
                 {% block user_counters %}
                     <div class="row counters">
-                        <ul class="col-xs-12">
+                        <ul class="col-xs-12 text-xs-B-center text-xs-left">
                             {% block user_counters_inner %}
                                 <li class="item follows" title="{{ t('pytsite.auth@follows') }}"><i
                                         class="fa fa-fw fa-user"></i>{{ user.follows | count }}</li>
@@ -74,6 +74,7 @@
                                        title="{{ t('pytsite.auth_ui@modify_profile') }}"
                                        class="btn btn-default"><i
                                             class="fa fa-edit"></i>&nbsp;{{ t('pytsite.auth_ui@modify_profile') }}</a>
+                                    &nbsp;
                                 {% endif %}
                                 {{ auth_ui.widget.Follow(user) }}
                             </div>

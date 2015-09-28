@@ -99,9 +99,11 @@ class ULoginDriver(AbstractDriver):
             # Nickname
             if not user.nickname:
                 if 'nickname' in ulogin_data:
-                    user.f_set('nickname', ulogin_data['nickname'])
+                    user.f_set('nickname', _util.transform_str_2(ulogin_data['nickname']))
                 elif user.first_name and user.last_name:
                     user.f_set('nickname', _util.transform_str_2(user.first_name + '.' + user.last_name))
+                elif user.first_name:
+                    user.f_set('nickname', _util.transform_str_2(user.first_name))
                 else:
                     user.f_set('nickname', _util.transform_str_2(email))
 
@@ -113,6 +115,10 @@ class ULoginDriver(AbstractDriver):
             if 'bdate' in ulogin_data:
                 b_date = _strptime(ulogin_data['bdate'], '%d.%m.%Y')
                 user.f_set('birth_date', _datetime(*b_date[0:5]))
+
+            # Link to profile
+            if 'profile' in ulogin_data and ulogin_data['profile']:
+                user.f_add('urls', ulogin_data['profile'])
 
             # Options
             user.options['ulogin'] = ulogin_data

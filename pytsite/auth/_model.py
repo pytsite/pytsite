@@ -35,7 +35,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.Dict('options'))
         self._define_field(_odm.field.Ref('picture', model='image'))
         self._define_field(_odm.field.Virtual('picture_url'))
-        self._define_field(_odm.field.StringList('urls'))
+        self._define_field(_odm.field.StringList('urls', unique=True))
         self._define_field(_odm.field.Virtual('is_online'))
         self._define_field(_odm.field.RefsList('follows', model='user'))
         self._define_field(_odm.field.RefsList('followers', model='user'))
@@ -184,10 +184,15 @@ class User(_odm.Model):
         if _functions.get_current_user() == self and self.is_admin:
             raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
 
+        # Search for entities which user owns
         for model in _odm.get_registered_models():
             for e in _odm.find(model).get():
                 for f_name in ('author', 'owner'):
                     if e.has_field(f_name) and e.f_get(f_name) == self:
+                        # Skip self avatar to avoid  deletion block
+                        if model == 'image' and self.picture == e:
+                            continue
+
                         raise _odm.error.ForbidEntityDelete(
                             self.t('account_owns_entity', {'entity': e.model + ':' + str(e.id)}))
 
