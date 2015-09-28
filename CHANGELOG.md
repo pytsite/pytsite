@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.21.3 (2015-09-28)
+### Fixed
+- Entity description emptiness check while generating RSS and Atom feeds in `content`.
+
+
 ## 0.21.2 (2015-09-28)
 ### Added
 - Store user's profile URL by `auth.driver.ulogin` while logging in.

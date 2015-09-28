@@ -134,18 +134,33 @@ def _generate_feeds():
     feed_length = _reg.get('content.feed.length', 20)
     content_settings = _settings.get_setting('content')
     for lang in _lang.get_langs():
+        # Feed title
         feed_title = content_settings.get('home_title_' + lang)
+        if not feed_title:
+            raise ValueError('Cannot set feed title. Please set it on the content settings form.')
+
+        # Feed description
         feed_description = content_settings.get('home_description_' + lang)
+        if not feed_description:
+            raise ValueError('Cannot set feed description. Please set it on the content settings form.')
+
         for model in _reg.get('content.feed.models', []):
             _logger.info("Feeds generation started for model '{}', language '{}'.".format(model, lang), __name__)
             feed_writer = _feed.Writer(feed_title, _router.base_url(), feed_description)
             for entity in _functions.find(model).get(feed_length):
                 entry = feed_writer.add_entry()
 
+                # Entry unique ID
                 md5.update(entity.title.encode())
                 entry.id(md5.hexdigest())
+
+                # Entry title
                 entry.title(entity.title)
-                entry.content(entity.description, type='text/plain')
+
+                # Description
+                entry.content(entity.description if entity.description else entity.title, type='text/plain')
+
+                # Link
                 entry.link({'href': entity.url})
 
                 tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
@@ -174,6 +189,7 @@ def _generate_feeds():
                             'label': tag.title,
                         })
 
+            # Write feed into files
             for out_type in 'rss', 'atom':
                 out_path = _path.join(output_dir, '{}-{}-{}.xml'.format(out_type, model, lang))
                 if out_type == 'rss':

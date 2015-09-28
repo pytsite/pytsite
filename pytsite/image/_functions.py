@@ -1,12 +1,12 @@
 """Image manager.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from PIL import Image
 from pytsite import file as _file
 from . import _model
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def create(source_path: str, name: str=None, description: str=None, remove_source: bool=False,
