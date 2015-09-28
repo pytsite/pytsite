@@ -302,7 +302,7 @@ class Content(_odm_ui.Model):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = 'title', 'status', 'publish_time', 'author'
+        browser.data_fields = 'title', 'status', 'images', 'publish_time', 'author'
         browser.default_sort_field = 'publish_time'
 
         def finder_adjust(finder: _odm.Finder):
@@ -322,9 +322,12 @@ class Content(_odm_ui.Model):
         elif status == 'unpublished':
             status_cls = 'default'
 
+        images_cls = 'default' if not len(self.images) else 'primary'
+
         return (
             title,
             str(_html.Span(status_str, cls='label label-' + status_cls)),
+            '<span class="label label-{}">{}</span>'.format(images_cls, len(self.images)),
             self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
             self.f_get('author').full_name
         )

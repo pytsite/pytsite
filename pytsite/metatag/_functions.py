@@ -14,7 +14,6 @@ __allowed_tags = (
     'charset',
     'viewport',
     'keywords',
-    'author',
     'og:title',
     'og:description',
     'og:locale',

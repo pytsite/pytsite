@@ -1,8 +1,13 @@
 # PytSite Changelog
 
+## 0.21.4 (2015-09-28)
+### Added
+- `images` column in admin content view browser. 
+
+
 ## 0.21.3 (2015-09-28)
 ### Fixed
-- Entity description emptiness check while generating RSS and Atom feeds in `content`.
+- Entity description emptiness check while generating RSS and Atom feeds in content.
 
 
 ## 0.21.2 (2015-09-28)
