@@ -110,10 +110,10 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(uid: str=None, css: str=None, legend: str=None) -> _form.Base:
+def get_login_form(uid='', css='', title='') -> _form.Base:
     """Get a login form.
     """
-    form = get_driver().get_login_form(uid, css, legend)
+    form = get_driver().get_login_form(uid, css, title)
     form.action = _router.ep_url('pytsite.auth.ep.login_submit')
 
     return form

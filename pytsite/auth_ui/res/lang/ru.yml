@@ -36,9 +36,9 @@ unfollow: 'Отписаться'
 odm_ui_permission_group_description: 'Безопасность'
 
 odm_ui_browser_title_user: 'Обзор пользователей'
-odm_ui_form_legend_create_user: 'Создание нового пользователя'
-odm_ui_form_legend_modify_user: 'Изменение пользователя'
-odm_ui_form_legend_delete_user: 'Удаление пользователей'
+odm_ui_form_title_create_user: 'Создание нового пользователя'
+odm_ui_form_title_modify_user: 'Изменение пользователя'
+odm_ui_form_title_delete_user: 'Удаление пользователей'
 
 odm_ui_permission_browse_user: 'Обзор ВСЕХ пользователей'
 odm_ui_permission_browse_own_user: 'Обзор пользователей'
@@ -49,9 +49,9 @@ odm_ui_permission_delete_user: 'Удаление ЛЮБЫХ пользовате
 odm_ui_permission_delete_own_user: 'Удаление пользователей'
 
 odm_ui_browser_title_role: 'Обзор ролей'
-odm_ui_form_legend_create_role: 'Создание новой роли'
-odm_ui_form_legend_modify_role: 'Изменение роли'
-odm_ui_form_legend_delete_role: 'Удаление ролей'
+odm_ui_form_title_create_role: 'Создание новой роли'
+odm_ui_form_title_modify_role: 'Изменение роли'
+odm_ui_form_title_delete_role: 'Удаление ролей'
 
 odm_ui_permission_browse_role: 'Обзор ВСЕХ ролей'
 odm_ui_permission_browse_own_role: 'Обзор ролей'

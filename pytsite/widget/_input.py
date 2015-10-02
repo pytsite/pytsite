@@ -133,6 +133,16 @@ class TypeaheadText(Text):
         self._data['source_url'] = source_url
 
 
+class Email(Text):
+    """Email Input Widget.
+    """
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._type = 'email'
+
+
 class Integer(Text):
     """Integer Input Widget
     """

@@ -178,7 +178,7 @@ class Url(Regex):
     """
     def __init__(self, msg_id: str=None, value=None, **kwargs):
         pattern = ('^(?:http|ftp)s?://'  # http:// or https://
-                   '(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain
+                   '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain
                    'localhost|'  # localhost...
                    '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
                    '(?::\d+)?'  # optional port

@@ -1,12 +1,12 @@
-"""Checkboxes Widgets.
+"""PytSite Select Widgets.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from datetime import datetime as _datetime
 from pytsite import assetman as _assetman, browser as _client, html as _html, lang as _lang
 from . import _input
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Checkbox(_input.Input):
@@ -17,6 +17,7 @@ class Checkbox(_input.Input):
         """Init.
         """
         super().__init__(**kwargs)
+        self._label_disabled = True
 
     def set_value(self, value, **kwargs):
         """Set value of the widget.
@@ -33,7 +34,7 @@ class Checkbox(_input.Input):
 
         div.append(_html.Input(type='hidden', name=self._name))
 
-        return self._group_wrap(div, False)
+        return self._group_wrap(div)
 
 
 class Select(_input.Input):

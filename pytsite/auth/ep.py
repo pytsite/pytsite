@@ -23,7 +23,7 @@ def login(args: dict, inp: dict) -> str:
     _metatag.t_set('title', _lang.t('pytsite.auth@authorization'))
 
     return _tpl.render('pytsite.auth@views/login', {
-        'form': _functions.get_login_form(legend=_lang.t('pytsite.auth@authorization'))
+        'form': _functions.get_login_form(title=_lang.t('pytsite.auth@authorization'))
     })
 
 

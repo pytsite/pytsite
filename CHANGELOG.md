@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.22
+### Added
+- `form.Base.get_widgets()` method.
+- `widget.Base.form_area` property.
+- `util.weight_sort()` now supports objects.
+- `widget.input.Email` widget.
+- New attributes in `widget.Base`: `label_hidden` and `label_disabled`.
+
+### Changes
+- `form.add_widget()`'s `area` argument removed in favour of the `widget.Base.form_area` property.
+- Output generation of forms is fully template based now.
+
+### Fixed
+- `form.Base` has been refactored.
+- Underscore recognition in domain part of URL in `validation.Rule.Url`.
+
+
 ## 0.21.4 (2015-09-28)
 ### Added
 - `images` column in admin content view browser. 

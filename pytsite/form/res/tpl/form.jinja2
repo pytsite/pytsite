@@ -1,0 +1,59 @@
+{% block open_tag %}
+    <form role="form" method="{{ form.method }}" action="{{ form.action }}" id="{{ form.uid }}" name="{{ form.name }}"
+          class="{{ form.css }}"
+          {% if form.validation_ep %}data-validation-ep="{{ form.validation_ep }}"{% endif %}>
+{% endblock open_tag %}
+
+{% block area_hidden %}
+    {% set widgets = form.get_widgets('hidden') %}
+    {% if widgets %}
+        <div class="{{ form.area_hidden_css }}">
+            {% for uid, widget in widgets.items() %}
+                {{ widget }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block area_header %}
+    {% set widgets = form.get_widgets('header') %}
+    {% if widgets or form.title %}
+        <div class="{{ form.area_header_css }}">
+            {% if form.title %}
+                <h3 class="{{ form.title_css }}">{{ form.title | e }}</h3>
+            {% endif %}
+            {% if widgets %}
+                {% for uid, widget in widgets.items() %}
+                    {{ widget }}
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block area_body %}
+    {% set widgets = form.get_widgets('body') %}
+    {% if widgets %}
+        <div class="{{ form.area_body_css }}">
+            {% for uid, widget in widgets.items() %}
+                {{ widget }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block area_footer %}
+    {% set widgets = form.get_widgets('footer') %}
+    {% if widgets %}
+        <div class="{{ form.area_footer_css }}">
+            {% for uid, widget in widgets.items() %}
+                {{ widget }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block close_tag %}
+    </form>
+{% endblock close_tag %}
+

@@ -18,6 +18,7 @@ __license__ = 'MIT'
 class Login(_widget.Base):
     """ULogin Widget.
     """
+
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -33,14 +34,15 @@ class Login(_widget.Base):
 class LoginForm(_form.Base):
     """ULogin Login Form.
     """
+
     def _setup(self):
         """_setup() hook.
         """
         for k, v in _router.request.values.items():
-            self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v))
+            self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
 
         if not self.has_widget(self.uid + '-token'):
-            self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token'))
+            self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token', form_area='hidden'))
 
         self.add_widget(Login())
 
@@ -48,13 +50,14 @@ class LoginForm(_form.Base):
 class ULoginDriver(AbstractDriver):
     """ULogin Driver.
     """
-    def get_login_form(self, uid: str=None, css: str=None, legend: str=None) -> _form.Base:
+
+    def get_login_form(self, uid='', css='', title='') -> _form.Base:
         """Get the login form.
         """
         if not uid:
             uid = 'pytsite-auth-login'
 
-        return LoginForm(uid=uid, css=css, legend=legend)
+        return LoginForm(uid=uid, css=css, title=title)
 
     def post_login_form(self, args: dict, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.

@@ -49,9 +49,9 @@ no_users_found: 'Не найдено ни одного пользователя'
 odm_ui_permission_group_description: 'Содержимое'
 
 odm_ui_browser_title_section: 'Обзор разделов'
-odm_ui_form_legend_create_section: 'Создание раздела'
-odm_ui_form_legend_modify_section: 'Изменение раздела'
-odm_ui_form_legend_delete_section: 'Удаление разделов'
+odm_ui_form_title_create_section: 'Создание раздела'
+odm_ui_form_title_modify_section: 'Изменение раздела'
+odm_ui_form_title_delete_section: 'Удаление разделов'
 
 odm_ui_permission_create_section: 'Создание разделов'
 odm_ui_permission_browse_section: 'Обзор ВСЕХ разделов'
@@ -59,9 +59,9 @@ odm_ui_permission_modify_section: 'Изменение ЛЮБЫХ раздело�
 odm_ui_permission_delete_section: 'Удаление ЛЮБЫХ разделов'
 
 odm_ui_browser_title_tag: 'Обзор тегов'
-odm_ui_form_legend_create_tag: 'Создание тега'
-odm_ui_form_legend_modify_tag: 'Изменение тега'
-odm_ui_form_legend_delete_tag: 'Удаление тегов'
+odm_ui_form_title_create_tag: 'Создание тега'
+odm_ui_form_title_modify_tag: 'Изменение тега'
+odm_ui_form_title_delete_tag: 'Удаление тегов'
 
 odm_ui_permission_create_tag: 'Создание тегов'
 odm_ui_permission_browse_tag: 'Обзор ВСЕХ тегов'

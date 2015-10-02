@@ -1,11 +1,11 @@
 """Currency Plugin Forms
 """
+from pytsite import form as _form, lang as _lang, validation as _validation
+from . import _functions, _widget
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import form as _form, lang as _lang, validation as _validation
-from . import _functions, _widget
 
 
 class Settings(_form.Base):

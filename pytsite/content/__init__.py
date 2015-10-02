@@ -17,7 +17,7 @@ def __init():
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser
     from . import _eh
     from ._model import Tag, Section, ContentSubscriber
-    from ._forms import Settings
+    from ._form import Settings
     from ._console_commands import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)

@@ -1,5 +1,6 @@
 """Settings Plugin Functions
 """
+from collections import OrderedDict as _OrderedDict
 from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm, widget as _widget, \
     lang as _lang
 
@@ -57,10 +58,11 @@ def get_form(uid) -> _form.Base:
 
     frm.add_widget(_widget.input.Hidden(
         uid='__setting_uid',
-        value=uid
-    ), 'form')
+        value=uid,
+        form_area='hidden',
+    ))
 
-    actions = _widget.static.Wrapper(uid='actions')
+    actions = _widget.static.Wrapper(uid='actions', form_area='footer')
     actions.add_child(_widget.button.Submit(
         weight=10,
         value=_lang.t('pytsite.settings@save'),
@@ -73,7 +75,7 @@ def get_form(uid) -> _form.Base:
         icon='fa fa-ban',
         href=_router.ep_url('pytsite.admin.ep.dashboard')
     ))
-    frm.add_widget(actions, 'footer')
+    frm.add_widget(actions)
 
     return frm
 
@@ -91,7 +93,7 @@ def get_setting(uid) -> dict:
     return entity.f_get('value')
 
 
-def set_setting(uid, value: dict):
+def set_setting(uid, value: _OrderedDict):
     """Set setting value.
     """
     entity = _odm.find('setting').where('uid', '=', uid).first()

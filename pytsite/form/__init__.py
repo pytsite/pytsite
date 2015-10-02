@@ -1,35 +1,48 @@
-"""Pytsite Form
+"""Pytsite Form Package.
 """
 from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation
+    validation as _validation, tpl as _tpl
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _assetman.register_package(__name__)
+_tpl.register_package(__name__)
 
 
 class Base:
     """Abstract form.
     """
-    def __init__(self, uid: str, **kwargs: dict):
+
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        self._areas = ('form', 'header', 'body', 'footer')
-        self._widgets = _OrderedDict()
+        self._widgets = {}
+        self._areas = ('hidden', 'header', 'body', 'footer')
         self._validator = _validation.Validator()
 
         self._uid = uid
-        self._name = kwargs.get('name', None)
+        self._name = kwargs.get('name', '')
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
-        self._legend = kwargs.get('legend', None)
-        self._css = kwargs.get('css', 'pytsite-form')
+
         self._validation_ep = kwargs.get('validation_ep')
+        self._tpl = kwargs.get('tpl', 'pytsite.form@form')
+
+        self._css = kwargs.get('css', '')
+        self._css += ' pytsite-form'
+
+        self._title = kwargs.get('title')
+        self._title_css = kwargs.get('title_css', 'box-title')
+        self._title_tag = kwargs.get('title_tag', 'h3')
+
+        self._area_hidden_css = kwargs.get('area_hidden_css', 'form-area-hidden hidden')
+        self._area_header_css = kwargs.get('area_header_css', 'form-area-header box-header')
+        self._area_body_css = kwargs.get('area_body_css', 'form-area-body box-body')
+        self._area_footer_css = kwargs.get('area_footer_css', 'form-area-footer box-footer')
 
         redirect_url = _router.request.values_dict.get('__form_redirect')
         if not redirect_url:
@@ -37,8 +50,16 @@ class Base:
         elif isinstance(redirect_url, list):
             redirect_url = redirect_url[0]
 
-        self.add_widget(_widget.input.Hidden(uid='__form_location', value=_router.current_url()), area='form')
-        self.add_widget(_widget.input.Hidden(uid='__form_redirect', value=_url_unquote(redirect_url)), area='form')
+        self.add_widget(_widget.input.Hidden(
+            uid='__form_location',
+            value=_router.current_url(),
+            form_area='hidden')
+        )
+        self.add_widget(_widget.input.Hidden(
+            uid='__form_redirect',
+            value=_url_unquote(redirect_url),
+            form_area='hidden')
+        )
         self.add_widget(_widget.static.Wrapper(css='form-messages'))
 
         if not self._name:
@@ -53,6 +74,12 @@ class Base:
         """_setup() hook.
         """
         pass
+
+    @property
+    def areas(self) -> tuple:
+        """Get form's areas.
+        """
+        return self._areas
 
     @property
     def uid(self) -> str:
@@ -89,16 +116,20 @@ class Base:
         self._action = value
 
     @property
-    def legend(self) -> str:
-        """Get legend.
+    def title(self) -> str:
+        """Get title.
         """
-        return self._legend
+        return self._title
 
-    @legend.setter
-    def legend(self, value: str):
-        """Set legend.
+    @title.setter
+    def title(self, value: str):
+        """Set title.
         """
-        self._legend = value
+        self._title = value
+
+    @property
+    def title_css(self) -> str:
+        return self._title_css
 
     @property
     def css(self) -> str:
@@ -110,7 +141,23 @@ class Base:
     def css(self, value):
         """Set CSS classes.
         """
-        self._css = 'pytsite-form ' + value
+        self._css = value + ' pytsite-form'
+
+    @property
+    def area_hidden_css(self) -> str:
+        return self._area_hidden_css
+
+    @property
+    def area_header_css(self) -> str:
+        return self._area_header_css
+
+    @property
+    def area_body_css(self) -> str:
+        return self._area_body_css
+
+    @property
+    def area_footer_css(self) -> str:
+        return self._area_footer_css
 
     @property
     def messages(self):
@@ -132,25 +179,23 @@ class Base:
 
     @property
     def values(self) -> dict:
-        r = _OrderedDict()
-        for k, v in self._widgets.items():
-            r[k] = v['_widget'].get_value()
-
-        return r
+        return _OrderedDict([(w.uid, w.get_value()) for w in self.get_widgets().values()])
 
     @property
     def fields(self) -> list:
-        return self._widgets.keys()
+        """Get list of names of all widgets.
+        """
+        return self.get_widgets().keys()
 
     @property
     def redirect(self) -> str:
-        """Get after form submit redirect URL.
+        """Get redirect URL after successful form submit.
         """
         return self.get_widget('__form_redirect').get_value()
 
     @redirect.setter
     def redirect(self, value):
-        """Redirect URL after sucessfull form submit.
+        """Set redirect URL after successful form submit.
         """
         self.get_widget('__form_redirect').set_value(_url_unquote(value))
 
@@ -201,35 +246,23 @@ class Base:
     def render(self) -> str:
         """Render the form.
         """
-        if self._legend and not self.has_widget('__form_legend'):
-            self.add_widget(
-                _widget.static.Html(uid='__form_legend', value=self._legend, html_em=_html.H3, css='box-title'),
-                area='header'
-            )
-
-        body = ''
-        for area in self._areas:
-            rendered_area = self._render_widgets(area)
-            body += rendered_area
-
-        return self._render_open_tag() + body + self._render_close_tag()
+        return _tpl.render(self._tpl, {'form': self})
 
     def __str__(self) -> str:
         """Render the form.
         """
         return self.render()
 
-    def add_widget(self, w: _widget.Base, area: str='body'):
+    def add_widget(self, widget: _widget.Base):
         """Add a widget.
         """
-        if area not in self._areas:
-            raise ValueError("Invalid form area: '{}'".format(area))
+        if widget.form_area not in self._areas:
+            raise ValueError("Invalid form area: '{}'".format(widget.form_area))
 
-        uid = w.uid
-        if uid in self._widgets:
-            raise KeyError("Widget '{}' already exists.".format(uid))
+        if widget.uid in self._widgets:
+            raise KeyError("Widget '{}' is already added.".format(widget.uid))
 
-        self._widgets[uid] = {'_widget': w, 'area': area}
+        self._widgets[widget.uid] = widget
 
         return self
 
@@ -241,6 +274,7 @@ class Base:
             replacement.weight = current.weight
 
         replacement.uid = uid
+        replacement.form_area = current.form_area
 
         self.remove_widget(uid).add_widget(replacement)
 
@@ -257,7 +291,22 @@ class Base:
         if not self.has_widget(uid):
             raise KeyError("Widget '{}' is not exists.".format(uid))
 
-        return self._widgets[uid]['_widget']
+        return self._widgets[uid]
+
+    def get_widgets(self, area: str=None) -> dict:
+        """Get widgets.
+        """
+        widgets = []
+
+        # Get widgets from area(s) and preparing it for sorting
+        areas = (area,) if area else self._areas
+        for a in areas:
+            for w in self._widgets.values():
+                if w.form_area == a:
+                    widgets.append(w)
+
+        # Sort by weight
+        return _OrderedDict([(w.uid, w) for w in _util.weight_sort(widgets)])
 
     def remove_widget(self, uid):
         """Remove widget from the form.
@@ -268,55 +317,3 @@ class Base:
         self._validator.remove_rules(uid)
 
         return self
-
-    def _render_open_tag(self) -> str:
-        """Render form's open tag.
-        """
-        attrs = {
-            'id': self.uid,
-            'name': self.name,
-            'class': self.css,
-            'action': self.action,
-            'method': self.method,
-            'data-validation-ep': self.validation_ep,
-        }
-
-        r = '<form {}>\n'.format(_util.html_attrs_str(attrs))
-
-        return r + '\n'
-
-    def _render_widgets(self, area: str) -> str:
-        """Render widgets.
-        """
-        widgets_to_render = []
-        for uid, w in self._widgets.items():
-            if w['area'] == area:
-                _widget = w['_widget']
-                widgets_to_render.append({'weight': _widget.weight, '_widget': _widget})
-
-        rendered_widgets = []
-        for v in _util.weight_sort(widgets_to_render):
-            rendered_widgets.append(str(v['_widget'].render()))
-
-        if not rendered_widgets:
-            return ''
-
-        return self._render_area(area, '\n'.join(rendered_widgets))
-
-    @staticmethod
-    def _render_area(area: str, content: str):
-        """Render area.
-        """
-        if area == 'form':
-            return content + '\n'
-        else:
-            cls = 'box-' + area
-            if area == 'header':
-                cls += ' with-border'
-            return _html.Div(content + '\n', cls=cls).render()
-
-    @staticmethod
-    def _render_close_tag() -> str:
-        """Render form's close tag.
-        """
-        return '</form>\n'

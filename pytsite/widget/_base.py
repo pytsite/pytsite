@@ -28,6 +28,8 @@ class Base(_ABC):
         self._value = None
         self._label = kwargs.get('label')
         self._title = kwargs.get('title')
+        self._label_hidden = kwargs.get('label_hidden', False)
+        self._label_disabled = kwargs.get('label_disabled', False)
         self._placeholder = kwargs.get('placeholder')
         self._css = kwargs.get('css', '')
         self._data = kwargs.get('data', {})
@@ -36,6 +38,7 @@ class Base(_ABC):
         self._children = []
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
+        self._form_area = kwargs.get('form_area', 'body')
 
         # It is important to filter value through the setter-method
         self.set_value(kwargs.get('value'))
@@ -78,12 +81,14 @@ class Base(_ABC):
         """Hides the widget.
         """
         self._hidden = True
+
         return self
 
     def show(self):
         """Shows the widget.
         """
         self._hidden = True
+
         return self
 
     @property
@@ -187,7 +192,15 @@ class Base(_ABC):
         """
         return self._help
 
-    def _group_wrap(self, content, render_label: bool=True) -> _html.Element:
+    @property
+    def form_area(self) -> str:
+        return self._form_area
+
+    @form_area.setter
+    def form_area(self, area: str):
+        self._form_area = area
+
+    def _group_wrap(self, content) -> _html.Element:
         """Wrap input string into 'form-group' container.
 
         :type content: pytsite.html.Element | str
@@ -213,8 +226,14 @@ class Base(_ABC):
             for k, v in self._data.items():
                 group_wrapper.set_attr('data_' + k, v)
 
-        if render_label and self.label:
-            group_wrapper.append(_html.Label(self.label, label_for=self.uid))
+        if not self._label and self._placeholder:
+            self._label = self.placeholder
+
+        if self.label and not self._label_disabled:
+            label = _html.Label(self.label, label_for=self.uid)
+            if self._label_hidden:
+                label.set_attr('class', 'sr-only')
+            group_wrapper.append(label)
 
         group_wrapper.append(content)
 

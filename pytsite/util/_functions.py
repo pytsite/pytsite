@@ -71,7 +71,10 @@ def random_password(size=16):
 def weight_sort(inp: list, key: str='weight') -> list:
     """Sort list by weight.
     """
-    return sorted(inp, key=lambda x: x[key])
+    def f_sort(x):
+        return getattr(x, key) if hasattr(x, key) else x[key]
+
+    return sorted(inp, key=f_sort)
 
 
 def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
