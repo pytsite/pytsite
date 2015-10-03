@@ -1,19 +1,21 @@
 # PytSite Changelog
 
-## 0.22
+## 0.22 (2015-10-03)
 ### Added
+- New package `contact`.
 - `form.Base.get_widgets()` method.
 - `widget.Base.form_area` property.
 - `util.weight_sort()` now supports objects.
 - `widget.input.Email` widget.
 - New attributes in `widget.Base`: `label_hidden` and `label_disabled`.
+- New shortcut method `form.Base.render_widget()`.
 
 ### Changes
 - `form.add_widget()`'s `area` argument removed in favour of the `widget.Base.form_area` property.
 - Output generation of forms is fully template based now.
 
 ### Fixed
-- `form.Base` has been refactored.
+- `form` and `validation` was partly refactored.
 - Underscore recognition in domain part of URL in `validation.Rule.Url`.
 
 
@@ -542,7 +544,7 @@
 - Removed unnecessary thread locks in `core.odm.Model`.
 - Incorrect behaviour of `content.eps.index()` in case of `term_field` argument usage.
 - Arguments cleanup while processing login form in `auth`.
-- Strings strip in `core.validation.rule.NotEmpty`.
+- Strings strip in `core.validation.rule.NonEmpty`.
 - Improved regexp in `core.validation.rule.Email`.
 - Input arguments pass-through to called endpoint in `core.eps.index()`.  
 

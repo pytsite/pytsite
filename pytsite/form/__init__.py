@@ -17,19 +17,18 @@ class Base:
     """Abstract form.
     """
 
-    def __init__(self, uid: str, **kwargs):
+    def __init__(self, uid: str=None, **kwargs):
         """Init.
         """
         self._widgets = {}
         self._areas = ('hidden', 'header', 'body', 'footer')
-        self._validator = _validation.Validator()
 
-        self._uid = uid
+        self._uid = uid if uid else _util.random_str()
         self._name = kwargs.get('name', '')
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
 
-        self._validation_ep = kwargs.get('validation_ep')
+        self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ep.validate')
         self._tpl = kwargs.get('tpl', 'pytsite.form@form')
 
         self._css = kwargs.get('css', '')
@@ -60,7 +59,11 @@ class Base:
             value=_url_unquote(redirect_url),
             form_area='hidden')
         )
-        self.add_widget(_widget.static.Wrapper(css='form-messages'))
+
+        self.add_widget(_widget.static.Wrapper(
+            css='form-messages',
+            form_area='header',
+        ))
 
         if not self._name:
             self._name = uid
@@ -86,6 +89,12 @@ class Base:
         """Get form ID.
         """
         return self._uid
+
+    @property
+    def cid(self) -> str:
+        """Class ID.
+        """
+        return '{}.{}'.format(self.__module__, self.__class__.__name__)
 
     @property
     def name(self) -> str:
@@ -160,12 +169,6 @@ class Base:
         return self._area_footer_css
 
     @property
-    def messages(self):
-        """Get validation messages.
-        """
-        return self._validator.messages
-
-    @property
     def validation_ep(self) -> str:
         """Get validation endpoint.
         """
@@ -209,17 +212,14 @@ class Base:
         return self
 
     def add_rule(self, widget_uid: str, rule: _validation.rule.Base):
-        """Add a rule to the validator.
+        """Add a rule to the widget.
         """
-        if widget_uid not in self._widgets:
-            raise KeyError("Widget '{}' is not exists.".format(widget_uid))
-
-        self._validator.add_rule(widget_uid, rule)
+        self.get_widget(widget_uid).add_rule(rule)
 
         return self
 
     def add_rules(self, widget_uid: str, rules: tuple):
-        """Add multiple rules to the validator.
+        """Add multiple rules to the widgets.
         """
         for rule in rules:
             self.add_rule(widget_uid, rule)
@@ -227,21 +227,29 @@ class Base:
         return self
 
     def remove_rules(self, widget_uid: str):
-        """Remove validation's rules.
+        """Remove validation's rules from the widget.
         """
-        if widget_uid not in self._widgets:
-            raise KeyError("Widget '{}' is not exists.".format(widget_uid))
-        self._validator.remove_rules(widget_uid)
+        self.get_widget(widget_uid).remove_rules()
 
-    def validate(self) -> bool:
+        return self
+
+    def validate(self):
         """Validate the form.
         """
+        errors = {}
         # Setting values of the validator
-        for uid in self.fields:
-            if self._validator.has_field(uid):
-                self._validator.set_value(uid, self.get_widget(uid).get_value(validation_mode=True))
+        for widget in self.get_widgets().values():
+            try:
+                widget.validate()
+            except _validation.error.ValidatorError as e:
+                for field_name, exception_errors in e.errors.items():
+                    if field_name not in errors:
+                        errors[field_name] = []
+                    for error_msg in exception_errors:
+                        errors[field_name].append(error_msg)
 
-        return self._validator.validate()
+        if errors:
+            raise _validation.error.ValidatorError(errors)
 
     def render(self) -> str:
         """Render the form.
@@ -293,8 +301,10 @@ class Base:
 
         return self._widgets[uid]
 
-    def get_widgets(self, area: str=None) -> dict:
+    def get_widgets(self, area: str=None):
         """Get widgets.
+
+        :rtype: dict[str, _widget.Base]
         """
         widgets = []
 
@@ -314,6 +324,9 @@ class Base:
         if uid in self._widgets:
             del self._widgets[uid]
 
-        self._validator.remove_rules(uid)
-
         return self
+
+    def render_widget(self, widget_uid: str) -> _html.Element:
+        """Render form's widget.
+        """
+        return self.get_widget(widget_uid).render()

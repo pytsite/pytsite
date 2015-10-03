@@ -24,22 +24,21 @@ def app_setup():
             _console.print_success(_lang.t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
 
     # Creating administrator
-    try:
-        email = input(_lang.t('pytsite.auth@enter_admin_email') + ': ')
-        v = _validation.Validator()
-        v.add_rule('email', _validation.rule.NotEmpty())
-        v.add_rule('email', _validation.rule.Email()).set_value('email', email)
-        if not v.validate():
-            raise Exception(v.messages)
 
-        admin_user = _functions.create_user(email)
-        admin_user.f_set('first_name', _lang.t('pytsite.auth@administrator'))
-        admin_user.f_set('nickname', _util.transform_str_2(admin_user.full_name))
-        admin_user.f_add('roles', _functions.get_role('admin'))
-        admin_user.save()
-        _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
-    except Exception as e:
+    email = input(_lang.t('pytsite.auth@enter_admin_email') + ': ')
+    try:
+        _validation.rule.NonEmpty(email, 'pytsite.auth@email_cannot_be_empty').validate()
+        _validation.rule.Email(email).validate()
+    except _validation.error.RuleError as e:
         raise _console.Error(e)
+
+    admin_user = _functions.create_user(email)
+    admin_user.f_set('first_name', _lang.t('pytsite.auth@administrator'))
+    admin_user.f_set('nickname', _util.transform_str_2(admin_user.full_name))
+    admin_user.f_add('roles', _functions.get_role('admin'))
+    admin_user.save()
+    _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
+
 
 
 def router_dispatch():

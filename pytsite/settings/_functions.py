@@ -1,6 +1,5 @@
 """Settings Plugin Functions
 """
-from collections import OrderedDict as _OrderedDict
 from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm, widget as _widget, \
     lang as _lang
 
@@ -50,34 +49,34 @@ def get_form(uid) -> _form.Base:
     """Get form for setting.
     """
     frm_class = get_definition(uid)['form_cls']
-    frm = frm_class('settings-' + uid)
+    form = frm_class('settings-' + uid)
     """:type : _form.Base """
 
-    frm.action = _router.ep_url('pytsite.settings.eps.form_submit', {'uid': uid})
-    frm.validation_ep = 'pytsite.settings.eps.form_validate'
+    form.action = _router.ep_url('pytsite.settings.eps.form_submit', {'uid': uid})
+    form.validation_ep = 'pytsite.settings.eps.form_validate'
 
-    frm.add_widget(_widget.input.Hidden(
+    form.add_widget(_widget.input.Hidden(
         uid='__setting_uid',
         value=uid,
         form_area='hidden',
     ))
 
-    actions = _widget.static.Wrapper(uid='actions', form_area='footer')
-    actions.add_child(_widget.button.Submit(
+    form.add_widget(_widget.button.Submit(
+        form_area='footer',
         weight=10,
         value=_lang.t('pytsite.settings@save'),
         icon='fa fa-save',
-        color='primary'
+        color='primary',
     ))
-    actions.add_child(_widget.button.Link(
-        weight=10,
+    form.add_widget(_widget.button.Link(
+        form_area='footer',
+        weight=20,
         value=_lang.t('pytsite.settings@cancel'),
         icon='fa fa-ban',
         href=_router.ep_url('pytsite.admin.ep.dashboard')
     ))
-    frm.add_widget(actions)
 
-    return frm
+    return form
 
 
 def get_setting(uid) -> dict:
@@ -93,7 +92,7 @@ def get_setting(uid) -> dict:
     return entity.f_get('value')
 
 
-def set_setting(uid, value: _OrderedDict):
+def set_setting(uid, value: dict):
     """Set setting value.
     """
     entity = _odm.find('setting').where('uid', '=', uid).first()

@@ -45,7 +45,7 @@ class LngLat(_widget.Base):
     def render(self) -> _html.Element:
         """Render the widget.
         """
-        return self._group_wrap(_html.Input(type='hidden', name=self._entity, value=self.get_value()))
+        return self._group_wrap(_html.Input(type='hidden', name=self._uid, value=self.get_value()))
 
 
 class Location(_widget.Base):
@@ -76,7 +76,7 @@ class Location(_widget.Base):
         inputs = _html.TagLessElement()
         for k in ('lng', 'lat', 'lng_lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
             inp_val = self._value[k] if k in self._value else ''
-            inputs.append(_html.Input(type='hidden', cls=k, name=self._entity + '[' + k + ']', value=inp_val))
+            inputs.append(_html.Input(type='hidden', cls=k, name=self._uid + '[' + k + ']', value=inp_val))
 
         return self._group_wrap(inputs)
 
@@ -154,11 +154,11 @@ class SearchAddress(Location):
         address_components = _json_dumps(self.value['address_components'])
 
         inputs = _html.TagLessElement()
-        inputs.append(_html.Input(type='text', name=self._entity + '[search]', cls='form-control', value=address))
-        inputs.append(_html.Input(type='hidden', name=self._entity + '[lng]', value=lng))
-        inputs.append(_html.Input(type='hidden', name=self._entity + '[lat]', value=lat))
-        inputs.append(_html.Input(type='hidden', name=self._entity + '[address]', value=address))
-        inputs.append(_html.Input(type='hidden', name=self._entity + '[address_components]', value=address_components))
+        inputs.append(_html.Input(type='text', name=self._uid + '[search]', cls='form-control', value=address))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[lng]', value=lng))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[lat]', value=lat))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[address]', value=address))
+        inputs.append(_html.Input(type='hidden', name=self._uid + '[address_components]', value=address_components))
 
         self._data['autodetect'] = int(self._autodetect)
 

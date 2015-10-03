@@ -15,12 +15,12 @@ class Flag(_widget.Base):
         """Init.
         """
         super().__init__(**kwargs)
-        self._entity = entity
+        self._uid = entity
         self._icon = kwargs.get('icon', 'fa fa-star')
 
     @property
     def entity(self) -> str:
-        return self._entity
+        return self._uid
 
     @property
     def icon(self) -> str:
@@ -28,16 +28,16 @@ class Flag(_widget.Base):
 
     @property
     def count(self) -> int:
-        return _api.count(self._entity)
+        return _api.count(self._uid)
 
     def render(self) -> _html.Element:
         current_user = _auth.get_current_user()
 
         css = 'widget widget-flag'
-        if _api.is_flagged(self._entity, current_user):
+        if _api.is_flagged(self._uid, current_user):
             css += ' flagged'
 
         return _html.Span(_tpl.render('pytsite.flag@widget', {
             'widget': self,
             'current_user': current_user
-        }), cls=css, data_entity='{}:{}'.format(self._entity.model, self._entity.id))
+        }), cls=css, data_entity='{}:{}'.format(self._uid.model, self._uid.id))

@@ -13,6 +13,10 @@ $.fn.serializeForm = function () {
             o[this.name] = this.value || '';
     });
 
+    var form_cid = this.data('cid');
+    if (typeof form_cid != 'undefined')
+        o.__form_cid = form_cid;
+
     return o;
 };
 
@@ -25,14 +29,16 @@ $(function () {
             var validation_ep = form.data('validationEp');
             if (typeof validation_ep == 'undefined' || form.hasClass('validated')) {
                 // If form doesn't define validation endpoint it considered as validated
-                if (typeof validation_ep == 'undefined')
+                if (typeof validation_ep == 'undefined') {
                     form.addClass('validated');
+                    form.addClass('ready-to-submit');
+                }
 
                 // Notify others
-                form.trigger('pytsite_form_submit', form);
+                form.trigger('pytsite_form_submit', [form]);
 
-                // Submit form only if it STILL has class 'validated'
-                return form.hasClass('validated');
+                // Submit form only if it STILL has classes 'validated' and 'ready-to-submit'
+                return form.hasClass('validated') && form.hasClass('ready-to-submit');
             }
 
             // Cleaning up error messages
@@ -55,7 +61,7 @@ $(function () {
                                 w_group.append('<span class="help-block error">' + w_messages[widget_uid][i] + '</span>');
                         }
 
-                        if (data.messages.global.length) {
+                        if (typeof data.messages.global != 'undefined' && data.messages.global.length) {
                             var g_messages = data.messages.global;
                             for (i in g_messages)
                                 form.find('.form-messages').append('<div class="alert alert-danger" role="alert">' + g_messages[i] + '</div>')
@@ -67,9 +73,11 @@ $(function () {
                             scrollTop: $('.has-error').first().offset().top
                         }, 500);
                     }
+                    // Validation completed successfully. Now re-issue event to perform further tasks.
                     else {
-                        form.trigger('pytsite_form_validation_success');
                         form.addClass('validated');
+                        form.addClass('ready-to-submit');
+                        form.trigger('pytsite_form_validation_success');
                         form.submit()
                     }
                 })

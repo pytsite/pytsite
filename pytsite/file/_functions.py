@@ -1,9 +1,5 @@
 """File manager.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re as _re
 import os as _os
 import shutil as _shutil
@@ -14,6 +10,10 @@ from urllib.parse import urlparse as _urlparse
 from bson.dbref import DBRef as _DBRef
 from pytsite import reg as _reg, util as _util, odm as _odm, validation as _validation
 from . import _model
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
@@ -49,9 +49,9 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     """Create a file from path or URL.
     """
     # Store remote file to the local if URL was specified
-    url_validator = _validation.Validator()
-    url_validator.add_rule('url', _validation.rule.Url(value=source_path))
-    if url_validator.validate():
+    try:
+        _validation.rule.Url(source_path).validate()
+
         # Copying remote file to the temporary local file
         with _urlopen(source_path) as src:
             data = src.read()
@@ -67,6 +67,8 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 
         remove_source = True
         source_path = tmp_file_path
+    except _validation.error.RuleError:
+        pass
 
     mime = _magic.from_file(source_path, True).decode()
     abs_target_path = _build_store_path(mime, model, propose_store_path)

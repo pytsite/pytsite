@@ -1,0 +1,9 @@
+your_name: 'Your name'
+sender_name: "Sender's name"
+your_email: 'Your email'
+sender_email: "Sender's email"
+message: 'Message'
+send_message: 'Send'
+message_successfully_sent: 'Your message was succesfully sent. Thank you.'
+error_occurred: 'Error occurred'
+message_from_site: 'Message from site :name'

@@ -102,6 +102,7 @@ class Term(_odm_ui.Model):
             uid='title',
             label=self.t('title'),
             value=self.f_get('title'),
+            required=True,
         ))
 
         form.add_widget(_widget.input.Text(
@@ -139,8 +140,6 @@ class Term(_odm_ui.Model):
             title=lang_title,
             value=self.language if self.language else _lang.get_current_lang(),
         )))
-
-        form.add_rule('title', _validation.rule.NotEmpty())
 
     def get_d_form_description(self) -> str:
         """Hook.

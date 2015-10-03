@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http
+from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http, \
+    validation as _validation
 from . import _functions
 
 
@@ -33,17 +34,17 @@ def form(args: dict, inp: dict) -> str:
 def form_validate(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
-    global_messages = []
     uid = inp.get('__setting_uid')
 
     if not _check_permissions(uid):
         raise _http.error.Forbidden()
 
-    frm = _functions.get_form(uid)
-    v_status = frm.fill(inp, validation_mode=True).validate()
-    widget_messages = frm.messages
 
-    return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
+    try:
+        _functions.get_form(uid).fill(inp, validation_mode=True).validate()
+        return {'status': True}
+    except _validation.error.ValidatorError as e:
+        return {'status': False, 'messages': {'widgets': e.errors}}
 
 
 def form_submit(args: dict, inp: dict) -> _http.response.Redirect:

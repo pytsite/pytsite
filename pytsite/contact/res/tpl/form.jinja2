@@ -1,1 +1,23 @@
 {% extends 'pytsite.form@form' %}
+
+{% block area_body %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            {{ form.render_widget('contact_name') }}
+        </div>
+        <div class="col-xs-12 col-sm-6">
+            {{ form.render_widget('contact_email') }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            {{ form.render_widget('contact_message') }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block area_footer %}
+    <div class="text-center">
+        {{ form.render_widget('contact_submit') }}
+    </div>
+{% endblock %}

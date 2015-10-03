@@ -404,6 +404,9 @@ class Select(BlockElement):
     def _get_required_attrs(self) -> tuple:
         return 'name',
 
+    def _get_valid_attrs(self):
+        return 'required',
+
 
 class Option(InlineElement):
     def _get_required_attrs(self) -> tuple:

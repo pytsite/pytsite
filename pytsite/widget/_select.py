@@ -1,7 +1,7 @@
 """PytSite Select Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import assetman as _assetman, browser as _client, html as _html, lang as _lang
+from pytsite import assetman as _assetman, browser as _client, html as _html, lang as _lang, validation as _validation
 from . import _input
 
 __author__ = 'Alexander Shepetko'
@@ -12,7 +12,6 @@ __license__ = 'MIT'
 class Checkbox(_input.Input):
     """Single Checkbox Widget.
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """
@@ -28,8 +27,8 @@ class Checkbox(_input.Input):
         """Render the widget.
         """
 
-        em = _html.Input(uid=self._entity, name=self._name, type='checkbox', checked=self._value)
-        em = em.wrap(_html.Label(self._label, label_for=self._entity))
+        em = _html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value)
+        em = em.wrap(_html.Label(self._label, label_for=self._uid))
         div = em.wrap(_html.Div(cls='checkbox'))
 
         div.append(_html.Input(type='hidden', name=self._name))
@@ -43,6 +42,7 @@ class Select(_input.Input):
     def __init__(self, **kwargs: dict):
         """Init.
         """
+        self._required = kwargs.get('required', False)
         self._items = kwargs.get('items', [])
         self._selected_item = None
 
@@ -54,12 +54,15 @@ class Select(_input.Input):
         """Set value of the widget.
         """
         self._selected_item = value
-        return super().set_value(value, **kwargs)
+
+        super().set_value(value, **kwargs)
+
+        return self
 
     def render(self):
         """Render the widget.
         """
-        select = _html.Select(name=self.uid, cls='form-control')
+        select = _html.Select(name=self.uid, cls='form-control', required=self._required)
         select.append(_html.Option('--- ' + _lang.t('pytsite.widget@select_none_item') + ' ---', value=''))
         for item in self._items:
             option = _html.Option(item[1], value=item[0])
@@ -133,8 +136,8 @@ class DateTime(_input.Text):
         super().__init__(**kwargs)
         _client.include('datetimepicker')
         _assetman.add('pytsite.widget@js/datetime.js')
-
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
+        self.add_rule(_validation.rule.DateTime())
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -154,10 +157,11 @@ class DateTime(_input.Text):
         """
         html_input = _html.Input(
             type='text',
-            uid=self._entity,
+            uid=self._uid,
             name=self._name,
             value=self.get_value().strftime('%d.%m.%Y %H:%M'),
             cls=' '.join(('form-control', self._css)),
+            required=self._required,
         )
 
         return self._group_wrap(html_input)

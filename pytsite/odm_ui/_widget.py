@@ -1,11 +1,11 @@
 """ODM UI Widgets.
 """
+from bson.dbref import DBRef as _DBRef
+from pytsite import widget as _widget, odm as _odm, lang as _lang
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from bson.dbref import DBRef as _DBRef
-from pytsite import widget as _widget, odm as _odm, lang as _lang
 
 
 class EntitySelect(_widget.select.Select):
@@ -29,7 +29,7 @@ class EntitySelect(_widget.select.Select):
     def sort_field(self, value: str):
         self._sort_field = value
 
-    def set_value(self, value: _odm.Model, **kwargs):
+    def set_value(self, value, **kwargs):
         """Set value of the widget.
         """
         if isinstance(value, _odm.Model):
@@ -46,16 +46,22 @@ class EntitySelect(_widget.select.Select):
             self._selected_item = value.model + ':' + str(value.id)
 
         self._value = value
+
+        # Because it is impossible to call parent's set_value()
+        if self._validator.has_field(self.uid):
+            self._validator.set_value(self.uid, value)
+
         return self
 
     def render(self):
         """Render the widget.
         """
+        # Setup finder
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
-
         if self._finder_adjust:
             self._finder_adjust(finder)
 
+        # Building items list
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
             self._items.append((k, str(entity.f_get(self._caption_field))))

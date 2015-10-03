@@ -1,7 +1,8 @@
 """Input Widgets.
 """
 from abc import abstractmethod as _abstractmethod
-from pytsite import assetman as _assetman, browser as _client, html as _html, util as _util, tpl as _tpl
+from pytsite import assetman as _assetman, browser as _client, html as _html, util as _util, tpl as _tpl, \
+    validation as _validation
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -19,13 +20,24 @@ class Input(_base.Base):
         self._required = kwargs.get('required', False)
         self._max_length = kwargs.get('max_length')
 
+        if self.required:
+            self.add_rule(_validation.rule.NonEmpty())
+
     @property
     def required(self) -> bool:
         return self._required
 
     @required.setter
     def required(self, value: bool):
+        self._clear_non_empty()
+        if value:
+            self.add_rule(_validation.rule.NonEmpty())
+
         self._required = value
+
+    def _clear_non_empty(self):
+        rules = [r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)]
+        self.remove_rules().add_rules(rules)
 
     @_abstractmethod
     def render(self) -> _html.Element:
@@ -66,7 +78,7 @@ class TextArea(_base.Base):
         """
         html_input = _html.TextArea(
             content=self.get_value(),
-            uid=self._entity,
+            uid=self._uid,
             name=self._name,
             cls=' '.join(('form-control', self._css)),
             placeholder=self.placeholder,
@@ -99,7 +111,7 @@ class Text(Input):
 
         inp = _html.Input(
             type=self._type,
-            uid=self._entity,
+            uid=self._uid,
             name=self._name,
             value=self.get_value(),
             cls='form-control',
@@ -141,6 +153,7 @@ class Email(Text):
         """
         super().__init__(**kwargs)
         self._type = 'email'
+        self.add_rule(_validation.rule.Email())
 
 
 class Integer(Text):
@@ -154,6 +167,7 @@ class Integer(Text):
         self._allow_minus = kwargs.get('allow_minus', False)
         self._css = ' '.join((self._css, 'widget-input-integer'))
         self._data['allow_minus'] = self._allow_minus
+        self.add_rule(_validation.rule.Integer())
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -179,6 +193,7 @@ class Float(Text):
         self._allow_minus = kwargs.get('allow_minus', False)
         self._css = ' '.join((self._css, 'widget-input-float'))
         self._data['allow_minus'] = self._allow_minus
+        self.add_rule(_validation.rule.Float())
 
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
@@ -222,7 +237,7 @@ class StringList(_base.Base):
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
-        if value is None:
+        if not value:
             value = []
 
         if not isinstance(value, list):
@@ -336,7 +351,7 @@ class Tokens(Input):
         """
         html_input = _html.Input(
             type='text',
-            uid=self._entity,
+            uid=self._uid,
             name=self._name,
             value=','.join(self.get_value()) if self.get_value() else '',
             cls=' '.join(('form-control', self._css)),

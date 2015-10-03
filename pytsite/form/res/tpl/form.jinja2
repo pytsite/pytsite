@@ -1,6 +1,6 @@
 {% block open_tag %}
     <form role="form" method="{{ form.method }}" action="{{ form.action }}" id="{{ form.uid }}" name="{{ form.name }}"
-          class="{{ form.css }}"
+          class="{{ form.css }}" data-cid="{{ form.cid }}"
           {% if form.validation_ep %}data-validation-ep="{{ form.validation_ep }}"{% endif %}>
 {% endblock open_tag %}
 

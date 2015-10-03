@@ -23,4 +23,4 @@ class CKEditor(_widget.Base):
     def render(self) -> str:
         """Render the widget.
         """
-        return self._group_wrap(_html.TextArea(self.get_value(), name=self._entity))
+        return self._group_wrap(_html.TextArea(self.get_value(), name=self._uid))

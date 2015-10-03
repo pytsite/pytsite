@@ -37,11 +37,11 @@ class EntityTagCloud(_taxonomy.widget.Cloud):
         """Init.
         """
         super().__init__('tag', **kwargs)
-        self._entity = entity
+        self._uid = entity
 
     @property
     def terms(self) -> list:
-        return self._entity.tags
+        return self._uid.tags
 
 
 class Search(_widget.Base):

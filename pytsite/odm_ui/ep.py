@@ -1,6 +1,7 @@
 """ODM UI Endpoints.
 """
-from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router
+from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
+    validation as _validation
 from . import _functions, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -51,11 +52,12 @@ def validate_m_form(args: dict, inp: dict) -> dict:
     if not model:
         return {'status': True}
 
-    form = _functions.get_m_form(model, entity_id, 'validate')
-    v_status = form.fill(inp, validation_mode=True).validate()
-    widget_messages = form.messages
-
-    return {'status': v_status, 'messages': {'global': global_messages, 'widgets': widget_messages}}
+    try:
+        form = _functions.get_m_form(model, entity_id, 'validate')
+        form.fill(inp, validation_mode=True).validate()
+        return {'status': True}
+    except _validation.error.ValidatorError as e:
+        return {'status': False, 'messages': {'widgets': e.errors}}
 
 
 def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
@@ -68,8 +70,10 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     form = _functions.get_m_form(model, entity_id, 'submit')
 
     # Fill and validate form
-    if not form.fill(inp).validate():
-        _router.session.add_error(str(form.messages))
+    try:
+        form.fill(inp).validate()
+    except _validation.error.ValidatorError as e:
+        _router.session.add_error(str(e.errors))
         raise _http.error.InternalServerError()
 
     # Dispense entity and populate its fields with form's values

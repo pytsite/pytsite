@@ -105,17 +105,18 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Login
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            form.add_widget(_widget.input.Text(
+            form.add_widget(_widget.input.Email(
                 weight=30,
                 uid='login',
                 value=self.f_get('login'),
                 label=self.t('login'),
+                required=True,
             ))
-            form.add_rules('login', (
-                _validation.rule.NotEmpty(),
-                _validation.rule.Email(),
-                _odm.validation.FieldUnique('user', 'login', 'pytsite.auth_ui@this_login_already_used',
-                                            exclude_ids=self.id)
+            form.add_rule('login', _odm.validation.FieldUnique(
+                'pytsite.auth_ui@this_login_already_used',
+                model='user',
+                field='login',
+                exclude_ids=self.id
             ))
 
         # Nickname
@@ -124,13 +125,16 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             uid='nickname',
             value=self.f_get('nickname'),
             label=self.t('nickname'),
+            required=True,
         ))
         form.add_rules('nickname', (
-            _validation.rule.NotEmpty(),
-            _validation.rule.Regex('^[A-Za-z0-9\.\-]{3,24}$', 'pytsite.auth@nickname_str_rules'),
-            _odm.validation.FieldUnique(self.model, 'nickname', 'pytsite.auth_ui@this_nickname_already_used',
-                                        exclude_ids=self.id)
-        ))
+            _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules', pattern='^[A-Za-z0-9\.\-]{3,24}$'),
+            _odm.validation.FieldUnique(
+                msg_id='pytsite.auth_ui@this_nickname_already_used',
+                model=self.model,
+                field='nickname',
+                exclude_ids=self.id
+        )))
 
         # First name
         form.add_widget(_widget.input.Text(
@@ -138,8 +142,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             uid='first_name',
             value=self.first_name,
             label=self.t('first_name'),
+            required=True,
         ))
-        form.add_rule('first_name', _validation.rule.NotEmpty())
 
         # Last name
         form.add_widget(_widget.input.Text(
@@ -150,17 +154,18 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Email
-        form.add_widget(_widget.input.Text(
+        form.add_widget(_widget.input.Email(
             weight=70,
             uid='email',
             value=self.f_get('email'),
             label=self.t('email'),
+            required=True,
         ))
-        form.add_rules('email', (
-            _validation.rule.NotEmpty(),
-            _validation.rule.Email(),
-            _odm.validation.FieldUnique(self.model, 'email', 'pytsite.auth_ui@this_email_already_used',
-                                        exclude_ids=self.id)
+        form.add_rule('email', _odm.validation.FieldUnique(
+            msg_id='pytsite.auth_ui@this_email_already_used',
+            model=self.model,
+            field='email',
+            exclude_ids=self.id
         ))
 
         # Description
@@ -181,6 +186,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 label=self.t('status'),
                 items=_auth.get_user_statuses(),
                 h_size='col-sm-5 col-md-4 col-lg-3',
+                required=True,
             ))
 
         # URLs
@@ -215,9 +221,12 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 label=self.t('token'),
             ))
             form.add_rules('token', (
-                _validation.rule.Regex('^[a-f0-9]{32}$'),
-                _odm.validation.FieldUnique(self.model, 'token', 'pytsite.auth_ui@this_token_already_used',
-                                            exclude_ids=self.id)
+                _validation.rule.Regex(pattern='^[a-f0-9]{32}$'),
+                _odm.validation.FieldUnique(
+                    msg_id='pytsite.auth_ui@this_token_already_used',
+                    model=self.model,
+                    field='token',
+                    exclude_ids=self.id)
             ))
 
     def get_d_form_description(self) -> str:
@@ -270,6 +279,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
             uid='name',
             value=self.f_get('name'),
             label=self.t('name'),
+            required=True,
         ))
 
         form.add_widget(_widget.input.Text(
@@ -277,6 +287,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
             uid='description',
             value=self.f_get('description'),
             label=self.t('description'),
+            required=True,
         ))
 
         # Permissions tabs
@@ -300,9 +311,6 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         form.add_widget(_widget.input.Hidden(name='permissions', value=''))
         form.add_widget(perms_tabs)
-
-        form.add_rules('name', (_validation.rule.NotEmpty(),))
-        form.add_rules('description', (_validation.rule.NotEmpty(),))
 
     def get_d_form_description(self) -> str:
         """Get delete form description.

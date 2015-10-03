@@ -8,7 +8,9 @@ __license__ = 'MIT'
 
 
 class Contact(_form.Base):
-    def __init__(self, uid='contact-form', **kwargs):
+    """Contact Form.
+    """
+    def __init__(self, uid='pytsite-contact-form', **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
@@ -19,12 +21,31 @@ class Contact(_form.Base):
         """
         self.add_widget(_widget.input.Text(
             weight=10,
-            uid='contact_sender_name',
-            placeholder=_lang.t('pytsite.contact@sender_name'),
+            uid='contact_name',
+            placeholder=_lang.t('pytsite.contact@your_name'),
+            label_hidden=True,
+            required=True,
         ))
 
         self.add_widget(_widget.input.Email(
             weight=20,
-            uid='contact_sender_email',
-            placeholder=_lang.t('pytsite.contact@sender_email'),
+            uid='contact_email',
+            placeholder=_lang.t('pytsite.contact@your_email'),
+            label_hidden=True,
+            required=True,
+        ))
+
+        self.add_widget(_widget.input.TextArea(
+            weight=30,
+            uid='contact_message',
+            placeholder=_lang.t('pytsite.contact@message'),
+            label_hidden=True,
+            required=True,
+        ))
+
+        self.add_widget(_widget.button.Submit(
+            form_area='footer',
+            weight=10,
+            uid='contact_submit',
+            value=_lang.t('pytsite.contact@send_message'),
         ))

@@ -10,12 +10,10 @@ from pytsite import validation as _validation
 class AddressNotEmpty(_validation.rule.DictPartsNotEmpty):
     """Check if an address structure is empty.
     """
-    def __init__(self, msg_id: str=None, value=None):
+    def __init__(self, value=None, msg_id: str=None):
         """Init.
         """
         if not msg_id:
             msg_id = 'pytsite.geo@validation_geoaddressnotempty'
 
-        super().__init__(msg_id, value)
-
-        self._keys = ('address', 'lng_lat', 'components')
+        super().__init__(value, msg_id, ('address', 'lng_lat', 'components'))

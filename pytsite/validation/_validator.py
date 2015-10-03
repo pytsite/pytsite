@@ -1,10 +1,10 @@
 """Validator.
 """
+from . import _rule, _error
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from . import _rule
 
 
 class Validator:
@@ -16,7 +16,7 @@ class Validator:
         self._rules = {}
 
     def add_rule(self, field: str, rule: _rule.Base):
-        """Add a rule to the validator field.
+        """Add a rule.
         """
         if field not in self._rules:
             self._rules[field] = []
@@ -30,6 +30,12 @@ class Validator:
         """
         return field in self._rules
 
+    def get_rules(self, field: str) -> list:
+        if not self.has_field(field):
+            raise KeyError("Field '{}' is not defined.". format(field))
+
+        return self._rules[field]
+
     def remove_rules(self, field: str):
         """Remove all rules for the field.
         """
@@ -39,7 +45,7 @@ class Validator:
         return self
 
     def set_value(self, field: str, value):
-        """Set rule's value.
+        """Set field's value.
         """
         if not self.has_field(field):
             raise KeyError("Field '{}' is not defined.". format(field))
@@ -49,27 +55,18 @@ class Validator:
 
         return self
 
-    def validate(self) -> bool:
-        """Validate the validator.
+    def validate(self):
+        """Validate the all rules of the validator.
         """
-        r = True
-        for field_name, rules in self._rules.items():
-            for rule in rules:
-                if not rule.validate(self, field_name) and r is True:
-                    r = False
-        return r
+        errors = {}
 
-    @property
-    def messages(self):
-        """Get validation messages.
-        """
-        r = {}
-        for field_name, rules in self._rules.items():
-            for rule in rules:
-                msg = rule.message
-                if msg:
-                    if field_name not in r:
-                        r[field_name] = []
-                    r[field_name].append(rule.message)
-
-        return r
+        for field_name, field_rules in self._rules.items():
+            for rule in field_rules:
+                try:
+                    rule.validate()
+                except _error.RuleError as e:
+                    if field_name not in errors:
+                        errors[field_name] = []
+                    errors[field_name].append(str(e))
+        if errors:
+            raise _error.ValidatorError(errors)

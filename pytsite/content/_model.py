@@ -345,8 +345,8 @@ class Content(_odm_ui.Model):
             uid='title',
             label=self.t('title'),
             value=self.title,
+            required=True,
         ))
-        form.add_rule('title', _validation.rule.NotEmpty())
 
         # Description
         form.add_widget(_widget.input.Text(
@@ -394,7 +394,7 @@ class Content(_odm_ui.Model):
             label=self.t('body'),
             value=self.f_get('body', process_tags=False),
         ))
-        form.add_rule('body', _validation.rule.NotEmpty())
+        form.add_rule('body', _validation.rule.NonEmpty())
 
         # Status
         current_user = _auth.get_current_user()
@@ -406,8 +406,8 @@ class Content(_odm_ui.Model):
                 value=self.status if self.status else 'published',
                 h_size='col-sm-4 col-md-3 col-lg-2',
                 items=_functions.get_publish_statuses(),
+                required=True,
             ))
-            form.add_rule('status', _validation.rule.NotEmpty())
 
         # Publish time
         form.add_widget(_widget.select.DateTime(
@@ -416,8 +416,8 @@ class Content(_odm_ui.Model):
             label=self.t('publish_time'),
             value=_datetime.now() if self.is_new else self.f_get('publish_time'),
             h_size='col-sm-4 col-md-3 col-lg-2',
+            required=True,
         ))
-        form.add_rules('publish_time', (_validation.rule.NotEmpty(), _validation.rule.DateTime()))
 
         # Language
         if self.is_new:
@@ -450,8 +450,8 @@ class Content(_odm_ui.Model):
                 label=self.t('author'),
                 value=_auth.get_current_user() if self.is_new else self.author,
                 h_size='col-sm-4',
+                required=True,
             ))
-            form.add_rule('author', _validation.rule.NotEmpty())
 
     def get_d_form_description(self) -> str:
         """Get delete form description.
@@ -573,9 +573,9 @@ class Article(Content):
                 label=self.t('section'),
                 value=self.section,
                 h_size='col-sm-6',
-                finder_adjust=section_finder_adj
+                finder_adjust=section_finder_adj,
+                required=True,
             ))
-            form.add_rule('section', _validation.rule.NotEmpty())
 
         # External links
         if self.has_field('ext_links'):

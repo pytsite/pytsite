@@ -1,4 +1,4 @@
-validation_notempty: "Обов'язкове поле"
+validation_nonempty: "Обов'язкове поле"
 validation_integer: 'Повинно бути цілим числом'
 validation_email: 'Некоректний email'
 validation_datetime: 'Некоректна дата'

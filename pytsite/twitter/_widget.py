@@ -41,15 +41,15 @@ class Auth(_widget.Base):
             self._screen_name = token['screen_name']
 
         wrapper = _html.Div()
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._entity, 'oauth_token'),
+        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'oauth_token'),
                                    value=self._oauth_token))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._entity, 'oauth_token_secret'),
+        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'oauth_token_secret'),
                                    value=self._oauth_token_secret))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._entity, 'user_id'),
+        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'user_id'),
                                    value=self._user_id))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._entity, 'screen_name'),
+        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'screen_name'),
                                    value=self._screen_name))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._entity, 'title'),
+        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'title'),
                                    value=self._screen_name))
 
         if self._screen_name:

@@ -1,0 +1,9 @@
+your_name: "Ваше Ім'я"
+sender_name: "Ім'я відправника"
+your_email: 'Ваш email'
+sender_email: 'Email відправника'
+message: "Повідомлення"
+send_message: "Надіслати"
+message_successfully_sent: 'Ваше повідомлення було успішно відправлено. Дякуємо.'
+error_occurred: 'Виникла помилка'
+message_from_site: 'Повідомлення з сайту :name'

@@ -1,7 +1,7 @@
 """Abstract Widget.
 """
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import util as _util, html as _html
+from pytsite import util as _util, html as _html, validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,7 +22,7 @@ class Base(_ABC):
         if not name:
             name = uid
 
-        self._entity = uid
+        self._uid = uid
         self._name = name
         self._weight = kwargs.get('weight', 0)
         self._value = None
@@ -39,6 +39,7 @@ class Base(_ABC):
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
         self._form_area = kwargs.get('form_area', 'body')
+        self._validator = _validation.Validator()
 
         # It is important to filter value through the setter-method
         self.set_value(kwargs.get('value'))
@@ -70,11 +71,15 @@ class Base(_ABC):
         """Set value of the widget.
         """
         self._value = value
+        if self._validator.has_field(self.uid):
+            self._validator.set_value(self.uid, value)
 
         return self
 
     @value.setter
     def value(self, val):
+        """Shortcut for set_value().
+        """
         self.set_value(val)
 
     def hide(self):
@@ -118,13 +123,14 @@ class Base(_ABC):
         :rtype: pytsite.widget._base.Base
         """
         self._children = [w for w in self._children if w.uid != uid]
+
         return self
 
     @property
     def uid(self) -> str:
         """Get UID of the widget.
         """
-        return self._entity
+        return self._uid
 
     @uid.setter
     def uid(self, value):
@@ -132,7 +138,7 @@ class Base(_ABC):
         """
         if self.uid == self.name:
             self.name = value
-        self._entity = value
+        self._uid = value
 
     @property
     def name(self) -> str:
@@ -199,6 +205,38 @@ class Base(_ABC):
     @form_area.setter
     def form_area(self, area: str):
         self._form_area = area
+
+    def validate(self):
+        """Validate the widget.
+        """
+        self._validator.validate()
+
+    def add_rule(self, rule: _validation.rule.Base):
+        """Add single validation rule.
+        """
+        self._validator.add_rule(self._uid, rule)
+
+        return self
+
+    def add_rules(self, rules: list):
+        """Add multiple validation rules.
+        """
+        for rule in rules:
+            self.add_rules(rule)
+
+        return self
+
+    def get_rules(self) -> list:
+        """Get validation rules.
+        """
+        return self._validator.get_rules(self.uid)
+
+    def remove_rules(self):
+        """Add validation rules.
+        """
+        self._validator.remove_rules(self.uid)
+
+        return self
 
     def _group_wrap(self, content) -> _html.Element:
         """Wrap input string into 'form-group' container.

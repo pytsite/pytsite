@@ -1,4 +1,4 @@
-validation_notempty: 'Required'
+validation_nonempty: 'Required'
 validation_integer: 'Integer expected'
 validation_email: 'Invalid email'
 validation_datetime: 'Invalid date'

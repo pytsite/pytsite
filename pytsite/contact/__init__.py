@@ -11,3 +11,5 @@ __license__ = 'MIT'
 _assetman.register_package(__name__)
 _lang.register_package(__name__)
 _tpl.register_package(__name__)
+
+_assetman.add('pytsite.contact@js/common.js', forever=True)

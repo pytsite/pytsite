@@ -20,3 +20,4 @@ followers: 'Підписчиків'
 you_cannot_delete_yourself: "Ви не можете видалити свій обліковий запис, будучи адміністратором"
 account_owns_entity: "Обліковий запис є власником сутності ':entity'"
 role_user_by_user: "Роль використовується обліковим записом ':user'"
+email_cannot_be_empty: 'Email не може бути порожнім'
