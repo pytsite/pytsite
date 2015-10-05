@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.22.1 (2015-10-05)
+### Changed
+- `rjsmin` requirement replaced with `jsmin`.
+- `cssutils` requirement replaced with `cssmin`.
+
 ## 0.22 (2015-10-03)
 ### Added
 - New package `contact`.

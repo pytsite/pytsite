@@ -1,9 +1,5 @@
 """Assetman Console Commands.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re as _re
 import json as _json
 from os import path as _path, walk as _walk, makedirs as _makedirs
@@ -12,6 +8,10 @@ from webassets import Environment as _Environment, Bundle as _Bundle
 from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
 from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class CompileAssets(_console.command.Abstract):
@@ -63,10 +63,10 @@ class CompileAssets(_console.command.Abstract):
                         ext = '.css'
 
                     if ext == '.js' and _reg.get('output.minify') and not src.endswith('.min.js'):
-                        filters.append('rjsmin')
+                        filters.append('jsmin')
 
                     if ext == '.css' and _reg.get('output.minify') and not src.endswith('.min.css'):
-                        filters.append('cssutils')
+                        filters.append('cssmin')
 
                     bundle = _Bundle(src, filters=filters)
                     env = _Environment(directory=package_assets_dir, debug=debug, versions=False,
