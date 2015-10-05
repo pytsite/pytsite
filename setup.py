@@ -59,7 +59,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Natural Language :: Russian',
-        'Natural Language :: Ukrainian',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: JavaScript',
