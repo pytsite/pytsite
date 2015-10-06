@@ -61,7 +61,7 @@ class Query:
     @staticmethod
     def _resolve_language(code: str=None):
         if not code:
-            code = _lang.get_current_lang()
+            code = _lang.get_current()
 
         if code == 'en':
             return 'english'

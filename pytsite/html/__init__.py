@@ -35,7 +35,7 @@ def escape(s: str, quote=True) -> str:
 class Element(_ABC):
     """Base HTML Element.
     """
-    def __init__(self, content: str=None, child_separator: str='', **kwargs):
+    def __init__(self, content: str=None, child_separator: str='', content_first=False, **kwargs):
         """Init.
         """
         self._tag_name = self.__class__.__name__.lower()
@@ -43,6 +43,7 @@ class Element(_ABC):
         self._children = []
         self._attrs = {}
         self._child_separator = child_separator
+        self._content_first = content_first
 
         for k, v in kwargs.items():
             self.set_attr(k, v)
@@ -106,13 +107,13 @@ class Element(_ABC):
 
         valid_children = self._get_valid_children()
 
-        if isinstance(valid_children, str):
-            if valid_children == 'any_inline' and not isinstance(child, InlineElement):
-                raise ValueError("Element '{0}' cannot be child of '{1}'".format(child.tag_name, self.tag_name))
-            if valid_children == 'any_block' and not isinstance(child, BlockElement):
-                raise ValueError("Element '{0}' cannot be child of '{1}'".format(child.tag_name, self.tag_name))
-        elif isinstance(valid_children, tuple) and child.tag_name not in self._get_valid_children():
-                raise ValueError("Element '{0}' cannot be child of '{1}'".format(child.tag_name, self.tag_name))
+        if 'any' not in self._get_valid_children():
+            if isinstance(child, InlineElement):
+                if 'inline' not in self._get_valid_children() and child.tag_name not in self._get_valid_children():
+                    raise ValueError("Element '{}' cannot be child of '{}'".format(child.tag_name, self.tag_name))
+            elif isinstance(child, BlockElement):
+                if 'block' not in self._get_valid_children() and child.tag_name not in self._get_valid_children():
+                    raise ValueError("Element '{}' cannot be child of '{}'".format(child.tag_name, self.tag_name))
 
         self._children.append(self._validate_child(child))
 
@@ -175,13 +176,21 @@ class Element(_ABC):
         """Render the element.
         """
         r = self._render_open_tag()
-        r += self._render_children()
 
-        # Element's content
-        if self._content:
-            if self._children:
+        if self._content_first:
+            if self._content:
+                r += self._content
+            if self._children and self._content:
                 r += '&nbsp;'
-            r += self._content
+            if self._children:
+                r += self._render_children()
+        else:
+            if self._children:
+                r += self._render_children()
+            if self._children and self._content:
+                r += '&nbsp;'
+            if self._content:
+                r += self._content
 
         r += self._render_close_tag()
 
@@ -219,16 +228,15 @@ class TagLessElement(Element):
 class InlineElement(Element):
     """Inline element.
     """
-
-    def _get_valid_children(self):
-        return 'any_inline'
+    def _get_valid_children(self) -> tuple:
+        return 'inline',
 
 
 class BlockElement(Element):
     """Block element.
     """
-    def _get_valid_children(self):
-        return 'any'
+    def _get_valid_children(self) -> tuple:
+        return 'any',
 
 
 class Span(InlineElement):
@@ -333,8 +341,9 @@ class Ol(Ul):
     pass
 
 
-class Li(Span):
-    pass
+class Li(BlockElement):
+    def _get_valid_children(self) -> tuple:
+        return 'inline', 'ul'
 
 
 class Table(BlockElement):

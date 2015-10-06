@@ -34,6 +34,7 @@ def __init():
     router.add_rule(base_path + '/login', __name__ + '.ep.login')
     router.add_rule(base_path + '/login/post', __name__ + '.ep.login_submit', methods='POST')
     router.add_rule(base_path + '/logout', __name__ + '.ep.logout')
+    router.add_path_langs(base_path + '/login')
 
     # Default auth driver
     from . import _functions

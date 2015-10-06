@@ -54,7 +54,7 @@ class Generate(_console.command.Abstract):
             raise _console.Error("'{}' is not a registered content model.".format(model))
 
         num = int(kwargs.get('num', 10))
-        language = kwargs.get('lang', _lang.get_current_lang())
+        language = kwargs.get('lang', _lang.get_current())
         no_html = kwargs.get('no-html')
         short = kwargs.get('short')
 

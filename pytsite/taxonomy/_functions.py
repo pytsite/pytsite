@@ -45,7 +45,7 @@ def find(model: str, language: str=None):
         raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
 
     if not language:
-        language = _lang.get_current_lang()
+        language = _lang.get_current()
 
     return _odm.find(model).where('language', '=', language).sort([('weight', _odm.I_DESC)])
 
@@ -57,7 +57,7 @@ def dispense(model: str, title: str, alias: str=None, language: str=None) -> Ter
         raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
 
     if not language:
-        language = _lang.get_current_lang()
+        language = _lang.get_current()
 
     title = title.strip()
 

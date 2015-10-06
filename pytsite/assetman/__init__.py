@@ -1,7 +1,7 @@
 """Assetman Plugin Init.
 """
 # Public API
-from ._functions import register_package, add, remove, dump_js, dump_css, get_url
+from ._functions import register_package, add, remove, dump_js, dump_css, get_url, add_inline, dump_inline
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

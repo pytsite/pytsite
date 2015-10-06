@@ -76,7 +76,7 @@ def __init():
 
     # Initializing language subsystem
     from . import lang
-    lang.define_languages(reg.get('lang.languages', ['ru']))
+    lang.define(reg.get('lang.languages', ['ru']))
 
     # Initializing template subsystem
     from . import tpl

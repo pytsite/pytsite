@@ -9,7 +9,7 @@ from werkzeug.routing import Map as _Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from htmlmin import minify as _minify
-from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, events as _events
+from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -19,6 +19,7 @@ __license__ = 'MIT'
 _routes = _Map()
 _url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 _path_aliases = {}
+_hreflangs = {'/': _lang.langs()}
 
 # Registering module's language package
 _lang.register_package(__name__)
@@ -110,6 +111,32 @@ def add_path_alias(alias: str, target: str):
     _path_aliases[alias] = target
 
 
+def add_path_langs(path: str, langs=None):
+    """Define languages on which path is available.
+    :param langs: list | tuple
+    """
+    if path not in _hreflangs:
+        available_langs = _lang.langs()
+        if not langs:
+            _hreflangs[path] = available_langs
+        else:
+            _hreflangs[path] = [l for l in langs if l in available_langs]
+
+
+def get_path_langs(path: str=None, current_lang: str=None) -> list:
+    """Get languages  on which path is available.
+    """
+    if not path:
+        path = current_path(True)
+
+    if path in _hreflangs:
+        if not current_lang:
+            current_lang = _lang.get_current()
+        return [l for l in _hreflangs[path] if l != current_lang]
+
+    return []
+
+
 def call_ep(name: str, args: dict=None, inp: dict=None):
     """Call an endpoint.
     """
@@ -146,7 +173,7 @@ def dispatch(env: dict, start_response: callable):
     global _url_adapter, request, session, no_cache
 
     if _path.exists(_reg.get('paths.maintenance.lock')):
-        wsgi_response = _http.response.Response(response='We are in maintenance mode now. Please try again later.',
+        wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
 
@@ -163,19 +190,25 @@ def dispatch(env: dict, start_response: callable):
     no_cache = False
 
     # Detect language from path
-    languages = _lang.get_langs()
+    languages = _lang.langs()
     if len(languages) > 1:
         if _re.search('^/[a-z]{2}(/|$)', env['PATH_INFO']):
+            # Extract language code as first two-letters of the path
             lang_code = env['PATH_INFO'][1:3]
-            _lang.set_current_lang(lang_code)
-            env['PATH_INFO'] = env['PATH_INFO'][3:]
-            if not env['PATH_INFO']:
-                env['PATH_INFO'] = '/'
-            if lang_code == languages[0]:
-                return _http.response.Redirect(env['PATH_INFO'], 301)(env, start_response)
+            try:
+                _lang.set_current(lang_code)
+                env['PATH_INFO'] = env['PATH_INFO'][3:]
+                if not env['PATH_INFO']:
+                    env['PATH_INFO'] = '/'
+                # If requested language is default, redirect to path without language prefix
+                if lang_code == languages[0]:
+                    return _http.response.Redirect(env['PATH_INFO'], 301)(env, start_response)
+            except _lang.error.LanguageNotSupported:
+                # If language is not defined, do nothing. 404 will fired in the code below.
+                pass
         else:
-            # Set first defined language as default
-            _lang.set_current_lang(languages[0])
+            # No language code found in the path. Set first defined language as current.
+            _lang.set_current(languages[0])
 
     # Notify listeners
     events.fire('pytsite.router.pre_dispatch', path_info=env['PATH_INFO'])
@@ -217,7 +250,12 @@ def dispatch(env: dict, start_response: callable):
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
+        # Preparing response object
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
+
+        # Set hreflang
+        for lang in get_path_langs():
+            _metatag.t_set('link', href=current_url(strip_query=True, lang=lang), rel='alternate', hreflang=lang)
 
         # Processing response from handler
         response_from_callable = call_ep(rule.call, rule_args, request.values_dict)
@@ -275,23 +313,22 @@ def dispatch(env: dict, start_response: callable):
         return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)
 
 
-def base_path(language: str=None) -> str:
+def base_path(lang: str=None) -> str:
     """Get base path of application.
     """
-    from pytsite import lang
-    available_langs = lang.get_langs()
+    available_langs = _lang.langs()
 
     if len(available_langs) == 1:
         return '/'
 
-    if not language:
-        language = lang.get_current_lang()
-    if language not in available_langs:
-        raise Exception("Language '{}' is not supported.".format(language))
+    if not lang:
+        lang = _lang.get_current()
+    if lang not in available_langs:
+        raise Exception("Language '{}' is not supported.".format(lang))
 
     r = '/'
-    if language != available_langs[0]:
-        r += language + '/'
+    if lang != available_langs[0]:
+        r += lang + '/'
 
     return r
 
@@ -317,10 +354,10 @@ def scheme():
     return r
 
 
-def base_url(language: str=None, query: dict=None):
+def base_url(lang: str=None, query: dict=None):
     """Get base URL of the application.
     """
-    r = scheme() + '://' + server_name() + base_path(language)
+    r = scheme() + '://' + server_name() + base_path(lang)
     if query:
         r = url(r, query=query)
 
@@ -375,7 +412,7 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     return r
 
 
-def current_path(strip_query=False, resolve_alias=True, strip_lang=True) -> str:
+def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str=None) -> str:
     """Get current path.
     """
     if not request:
@@ -392,7 +429,7 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True) -> str:
                 break
 
     if not strip_lang:
-        path = str(base_path() + path).replace('//', '/')
+        path = str(base_path(lang) + path).replace('//', '/')
 
     r = str(path)
     if not strip_query:
@@ -401,10 +438,10 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True) -> str:
     return r
 
 
-def current_url(strip_query: bool=False, resolve_alias: bool=True) -> str:
+def current_url(strip_query: bool=False, resolve_alias: bool=True, lang: str=None) -> str:
     """Get current URL.
     """
-    return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False)
+    return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False, lang)
 
 
 def ep_path(endpoint: str, args: dict=None, strip_lang=False) -> str:

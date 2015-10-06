@@ -16,7 +16,7 @@ def __router_pre_dispatch_handler(path_info: str):
     """
     p = _odm.find('route_alias') \
         .where('alias', '=', path_info) \
-        .where('language', '=', _lang.get_current_lang()) \
+        .where('language', '=', _lang.get_current()) \
         .first()
 
     if p:

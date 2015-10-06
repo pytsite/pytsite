@@ -85,14 +85,14 @@ class CompileAssets(_console.command.Abstract):
         # Compile translations
         _console.print_info(_lang.t('pytsite.assetman@compiling_translations'))
         translations = {}
-        for lang_code in _lang.get_langs():
+        for lang_code in _lang.langs():
             translations[lang_code] = {}
             for pkg_name, info in _lang.get_packages().items():
                 _logger.info("Compiling translations for {} ({})".format(pkg_name, lang_code), __name__)
                 translations[lang_code][pkg_name] = _lang.load_lang_file(pkg_name, lang_code)
 
-        str_output = 'pytsite.lang.langs={};'.format(_json.dumps(_lang.get_langs()))
-        str_output += 'pytsite.lang.current_lang="{}";'.format(_lang.get_current_lang())
+        str_output = 'pytsite.lang.langs={};'.format(_json.dumps(_lang.langs()))
+        str_output += 'pytsite.lang.current_lang="{}";'.format(_lang.get_current())
         str_output += 'pytsite.lang.translations={};'.format(_json.dumps(translations))
         output_file = _path.join(_reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
         output_dir = _path.dirname(output_file)

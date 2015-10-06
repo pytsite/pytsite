@@ -7,7 +7,7 @@ from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, feed as _feed, reg as _reg, logger as _logger, \
     tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, \
-    console as _console
+    console as _console, assetman as _assetman
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -39,7 +39,7 @@ def router_dispatch():
     if not _router.is_base_url():
         return
 
-    lng = _lang.get_current_lang()
+    lng = _lang.get_current()
     settings = _settings.get_setting('content')
 
     for s_key in ['title', 'description', 'keywords']:
@@ -53,6 +53,9 @@ def router_dispatch():
             if s_key in ['title', 'description']:
                 _metatag.t_set('og:' + s_key, s_val)
                 _metatag.t_set('twitter:' + s_key, s_val)
+
+    if 'add_js' in settings:
+        _assetman.add_inline(settings['add_js'])
 
 
 def update(version: str):
@@ -133,7 +136,7 @@ def _generate_feeds():
     md5 = _hashlib.md5()
     feed_length = _reg.get('content.feed.length', 20)
     content_settings = _settings.get_setting('content')
-    for lang in _lang.get_langs():
+    for lang in _lang.langs():
         # Feed title
         feed_title = content_settings.get('home_title_' + lang)
         if not feed_title:
@@ -201,7 +204,7 @@ def _generate_feeds():
 
 
 def _update_0_7_0():
-    for lang_code in _lang.get_langs():
+    for lang_code in _lang.langs():
         for model in _functions.get_models().keys():
             for entity in _functions.find(model, None, False, lang_code).get():
                 # Updating only entities without 'language_db' field

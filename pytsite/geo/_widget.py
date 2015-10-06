@@ -91,7 +91,7 @@ class SearchAddress(Location):
 
         self._autodetect = kwargs.get('autodetect', False)
 
-        lng = _lang.get_current_lang()
+        lng = _lang.get_current()
         _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng, 'js')
         _assetman.add('pytsite.geo@js/widget/address-input.js')
 
@@ -173,7 +173,7 @@ class StaticMap(_widget.Base):
         """
         super().__init__(**kwargs)
 
-        self._language = kwargs.get('language', _lang.get_current_lang())
+        self._language = kwargs.get('language', _lang.get_current())
         self._lng = lng
         self._lat = lat
         self._query = query

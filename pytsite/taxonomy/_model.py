@@ -15,7 +15,7 @@ class Term(_odm_ui.Model):
         """
         self._define_field(_odm.field.String('title', nonempty=True))
         self._define_field(_odm.field.String('alias', nonempty=True))
-        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self._define_field(_odm.field.Integer('weight'))
         self._define_field(_odm.field.Integer('order'))
 
@@ -58,7 +58,7 @@ class Term(_odm_ui.Model):
                 value = _functions.sanitize_alias_string(self.model, value)
 
         if field_name == 'language':
-            if value not in _lang.get_langs():
+            if value not in _lang.langs():
                 raise ValueError("Language '{}' is not supported.".format(value))
 
         return super()._on_f_set(field_name, value, **kwargs)
@@ -80,7 +80,7 @@ class Term(_odm_ui.Model):
         browser.default_sort_order = _odm.I_ASC
 
         def finder_adjust(finder: _odm.Finder):
-            finder.where('language', '=', _lang.get_current_lang())
+            finder.where('language', '=', _lang.get_current())
         browser.finder_adjust = finder_adjust
 
     def get_browser_data_row(self) -> tuple:
@@ -131,14 +131,14 @@ class Term(_odm_ui.Model):
 
         # Language
         if self.is_new:
-            lang_title = _lang.t('lang_title_' + _lang.get_current_lang())
+            lang_title = _lang.t('lang_title_' + _lang.get_current())
         else:
             lang_title = _lang.t('lang_title_' + self.language)
         form.add_widget((_widget.static.Text(
             weight=900,
             label=self.t('language'),
             title=lang_title,
-            value=self.language if self.language else _lang.get_current_lang(),
+            value=self.language if self.language else _lang.get_current(),
         )))
 
     def get_d_form_description(self) -> str:

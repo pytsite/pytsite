@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.23 (2015-10-06)
+### Added
+- New widget `widget.select.LanguageNav`.
+- Basic support for `hreflang` in router.
+- Basic support for adding inline code in `assetman`.
+
+### Changed
+- `lang.define_languages()` renamed to `lang.define()`.
+- `lang.set_current_lang()` renamed to `lang.set_current()`.
+- `lang.get_current_lang()` renamed to `lang.get_current()`.
+- `lang.get_langs()` renamed to `lang.langs()`.
+- `lang.get_lang_title()` renamed to `lang.lang_title()` and improved.
+
+### Fixed
+- 'Unsupported language' exception in case of specifying it in the URL path.
+
+
 ## 0.22.1 (2015-10-05)
 ### Changed
 - `rjsmin` requirement replaced with `jsmin`.

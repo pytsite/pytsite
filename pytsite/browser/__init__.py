@@ -11,7 +11,7 @@ def include(lib: str, forever=False):
     if lib == 'jquery-ui':
         _assetman.add(__name__ + '@jquery-ui/jquery-ui.min.css', forever=forever)
         _assetman.add(__name__ + '@jquery-ui/jquery-ui.min.js', forever=forever)
-        _assetman.add(__name__ + '@jquery-ui/i18n/datepicker-{}.js'.format(_lang.get_current_lang()), forever=forever)
+        _assetman.add(__name__ + '@jquery-ui/i18n/datepicker-{}.js'.format(_lang.get_current()), forever=forever)
     elif lib == 'bootstrap':
         include('font-awesome', forever=forever)
         _assetman.add(__name__ + '@bootstrap/css/bootstrap.min.css', forever=forever)
@@ -21,7 +21,7 @@ def include(lib: str, forever=False):
     elif lib == 'bootstrap-table':
         _assetman.add(__name__ + '@bootstrap-table/bootstrap-table.min.css', forever=forever)
         _assetman.add(__name__ + '@bootstrap-table/bootstrap-table.min.js', forever=forever)
-        current_lang = _lang.get_current_lang()
+        current_lang = _lang.get_current()
         locale = current_lang + '-' + current_lang.upper()
         if current_lang == 'uk':
             locale = 'uk-UA'

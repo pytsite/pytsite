@@ -11,6 +11,7 @@ __license__ = 'MIT'
 
 _packages = {}
 _locations = {'css': [], 'js': []}
+_inline = []
 
 
 def register_package(package_name: str, assets_dir: str='res/assets'):
@@ -33,7 +34,7 @@ def get_packages() -> dict:
     return _packages
 
 
-def add(location: str, collection: str=None, weight: int=0, forever=False):
+def add(location: str, collection: str=None, weight=0, forever=False):
     """Add an asset.
     """
     if not collection:
@@ -46,6 +47,10 @@ def add(location: str, collection: str=None, weight: int=0, forever=False):
 
     if not [i for i in _locations[collection] if i[0] == location]:
         _locations[collection].append((location, weight, forever))
+
+
+def add_inline(s: str, weight=0, forever=False):
+    _inline.append((s, weight, forever))
 
 
 def remove(location: str, collection: str=None):
@@ -65,12 +70,22 @@ def remove(location: str, collection: str=None):
 def reset():
     """Remove all previously added locations.
     """
+    global _inline
+
     for location in ('css', 'js'):
+        # Filter out all except 'forever' items
         _locations[location] = [l for l in _locations[location] if l[2]]
+
+    # Filter out all except 'forever' items
+    _inline = [item for item in _inline if item[2]]
 
 
 def get_locations(collection: str) -> list:
     return [l[0] for l in sorted(_locations[collection], key=lambda x: x[1])]
+
+
+def get_inline() -> list:
+    return sorted(_inline, key=lambda x: x[1])
 
 
 def dump_js() -> str:
@@ -89,6 +104,14 @@ def dump_css() -> str:
     r = ''
     for location in get_locations('css'):
         r += '<link rel="stylesheet" href="{}">\n'.format(get_url(location))
+
+    return r
+
+
+def dump_inline() -> str:
+    r = ''
+    for item in _inline:
+        r += item[0]
 
     return r
 

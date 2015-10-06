@@ -94,7 +94,7 @@ def find(model: str, status='published', check_publish_time=True, language: str=
     f = _odm.find(model).sort([('publish_time', _odm.I_DESC)])
 
     if not language:
-        language = _lang.get_current_lang()
+        language = _lang.get_current()
     f.where('language', '=', language)
 
     if status:

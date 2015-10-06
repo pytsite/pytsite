@@ -68,7 +68,7 @@ class Content(_odm_ui.Model):
         self._define_field(_odm.field.String('status', nonempty=True))
         self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
-        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current_lang()))
+        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self._define_field(_odm.field.String('language_db', nonempty=True))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
         self._define_field(_odm.field.StringList('video_links'))
@@ -179,7 +179,7 @@ class Content(_odm_ui.Model):
                 raise Exception("Invalid publish status: '{}'.".format(value))
 
         elif field_name == 'language':
-            if value not in _lang.get_langs():
+            if value not in _lang.langs():
                 raise ValueError("Language '{}' is not supported.".format(value))
 
             if value == 'en':
@@ -227,7 +227,7 @@ class Content(_odm_ui.Model):
 
         # Language is required
         if not self.language or not self.f_get('language_db'):
-            self.f_set('language', _lang.get_current_lang())
+            self.f_set('language', _lang.get_current())
 
         # Author is required
         if not self.author and current_user:
@@ -306,7 +306,7 @@ class Content(_odm_ui.Model):
         browser.default_sort_field = 'publish_time'
 
         def finder_adjust(finder: _odm.Finder):
-            finder.where('language', '=', _lang.get_current_lang())
+            finder.where('language', '=', _lang.get_current())
         browser.finder_adjust = finder_adjust
 
     def get_browser_data_row(self) -> tuple:
@@ -421,7 +421,7 @@ class Content(_odm_ui.Model):
 
         # Language
         if self.is_new:
-            lang_title = _lang.t('lang_title_' + _lang.get_current_lang())
+            lang_title = _lang.t('lang_title_' + _lang.get_current())
         else:
             lang_title = _lang.t('lang_title_' + self.language)
         form.add_widget(_widget.static.Text(
@@ -429,8 +429,8 @@ class Content(_odm_ui.Model):
             uid='language',
             label=self.t('language'),
             title=lang_title,
-            value=_lang.get_current_lang() if self.is_new else self.language,
-            hidden=False if len(_lang.get_langs()) > 1 else True,
+            value=_lang.get_current() if self.is_new else self.language,
+            hidden=False if len(_lang.langs()) > 1 else True,
         ))
 
         # Visible only for admins
@@ -501,7 +501,7 @@ class Content(_odm_ui.Model):
             if u.has_permission('pytsite.odm_ui.modify.' + self.model):
                 m_to = '{} <{}>'.format(u.full_name, u.email)
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
-                m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current_lang(), {
+                m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current(), {
                     'user': u,
                     'entity': self,
                 })
@@ -564,7 +564,7 @@ class Article(Content):
         # Section
         if self.has_field('section'):
             def section_finder_adj(finder: _odm.Finder):
-                finder.where('language', '=', _lang.get_current_lang())
+                finder.where('language', '=', _lang.get_current())
             form.add_widget(_odm_ui.widget.EntitySelect(
                 weight=60,
                 uid='section',

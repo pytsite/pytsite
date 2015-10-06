@@ -1,8 +1,9 @@
 """PytSite Select Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import assetman as _assetman, browser as _client, html as _html, lang as _lang, validation as _validation
-from . import _input
+from pytsite import assetman as _assetman, browser as _client, html as _html, lang as _lang, validation as _validation, \
+    router as _router
+from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -125,9 +126,54 @@ class Language(Select):
         super().__init__(**kwargs)
         self._items = kwargs.get('items', [])
 
-        for code in _lang.get_langs():
-            self._items.append((code, _lang.get_lang_title(code)))
+        for code in _lang.langs():
+            self._items.append((code, _lang.lang_title(code)))
 
+
+class LanguageNav(_base.Base):
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+        self._css += ' nav navbar-nav lang-switch'
+        self._dropdown = kwargs.get('dropdown')
+
+    def render(self):
+        if len(_lang.langs()) == 1:
+            return _html.TagLessElement()
+
+        root_ul = _html.Ul(cls=self._css)
+        cur_lang = _lang.get_current()
+
+        if self._dropdown:
+            dropdown_root = _html.Li(cls='dropdown')
+            toggle_a = _html.A(_lang.lang_title(cur_lang), cls='dropdown-toggle lang-' + cur_lang,
+                               data_toggle='dropdown', role='button',
+                               aria_haspopup='true', aria_expanded='false', href='#', content_first=True)
+            toggle_a.append(_html.Span(cls='caret'))
+
+            dropdown_menu = _html.Ul(cls='dropdown-menu')
+            for lang in _lang.langs():
+                if lang != cur_lang and lang in _router.get_path_langs():
+                    dropdown_menu.append(_html.Li().append(
+                        _html.A(_lang.lang_title(lang), cls='lang-' + lang, href=_router.current_url(lang=lang)))
+                    )
+
+            dropdown_root.append(toggle_a).append(dropdown_menu)
+            root_ul.append(dropdown_root)
+        else:
+            for lang in _lang.langs():
+                if lang == cur_lang:
+                    root_ul.append(_html.Li(cls='active').append(
+                        _html.A(_lang.lang_title(lang), cls='lang-' + lang, href='#',
+                                title=_lang.lang_title(lang))))
+                elif lang in _router.get_path_langs():
+                    root_ul.append(_html.Li().append(
+                        _html.A(_lang.lang_title(lang), cls='lang-' + lang, href=_router.current_url(lang=lang),
+                                title=_lang.lang_title(lang))))
+
+
+        return root_ul
 
 class DateTime(_input.Text):
     def __init__(self, **kwargs):

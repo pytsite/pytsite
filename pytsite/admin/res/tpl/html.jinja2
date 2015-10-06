@@ -4,7 +4,7 @@
 {% do assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css') %}
 {% do assetman.add('pytsite.admin@AdminLTE/js/app.js') %}
 <!DOCTYPE html>
-<html>
+<html lang="{{ lang.get_current() }}">
 <head>
     {{ metatag.dump_all() }}
     {{ assetman.dump_css() }}

@@ -12,7 +12,7 @@ class Settings(_form.Base):
     """
     def _setup(self):
         i = 10
-        for lang_code in _lang.get_langs():
+        for lang_code in _lang.langs():
             self.add_widget(_widget.input.Text(
                 uid='setting_home_title_' + lang_code,
                 label=_lang.t('pytsite.content@home_page_title', language=lang_code),

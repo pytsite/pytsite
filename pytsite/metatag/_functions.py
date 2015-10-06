@@ -1,15 +1,17 @@
 """PytSite Meta Tags Support.
 """
+from pytsite import lang as _lang, util as _util
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import lang as _lang, util as _util
 
 __tags = {}
 __allowed_tags = (
     'title',
     'author',
+    'link',
     'description',
     'charset',
     'viewport',
@@ -41,13 +43,29 @@ def reset():
     }
 
 
-def t_set(tag: str, value: str):
+def t_set(tag: str, value: str=None, **kwargs):
     """Set tag value.
     """
     if tag not in __allowed_tags:
         raise Exception("Unknown tag '{}'".format(tag))
 
-    __tags[tag] = _util.escape_html(value)
+    if tag in ('link',):
+        if tag not in __tags:
+            __tags[tag] = []
+
+        if tag == 'link':
+            if not kwargs.get('rel'):
+                raise ValueError("<link> tag must contain 'rel' attribute")
+            if not kwargs.get('href'):
+                raise ValueError("<link> tag must contain 'href' attribute")
+
+        value = ''
+        for k, v in kwargs.items():
+            value += ' {}="{}"'.format(k, v)
+
+        __tags['link'].append(value)
+    else:
+        __tags[tag] = _util.escape_html(value)
 
 
 def get(tag: str) -> str:
@@ -71,6 +89,10 @@ def dump(tag: str) -> str:
         r = '<title>{} | {}</title>\n'.format(__tags[tag], _lang.t('app_name'))
     elif tag.startswith('og:') or tag.startswith('author:'):
         r = '<meta property="{}" content="{}">'.format(tag, __tags[tag])
+    elif tag == 'link':
+        r = ''
+        for value in __tags[tag]:
+            r += '<{}{}>\n'.format(tag, value)
     else:
         r = '<meta name="{}" content="{}">'.format(tag, __tags[tag])
 

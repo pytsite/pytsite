@@ -4,7 +4,7 @@ import yaml as _yaml
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path
-from ._error import TranslationError
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -16,31 +16,31 @@ __current_language = None
 __packages = {}
 
 
-def define_languages(languages: list):
+def define(languages: list):
     """Define available languages.
     """
     global __languages
     __languages = languages
-    set_current_lang(languages[0])
+    set_current(languages[0])
 
 
-def get_langs():
+def langs():
     """Get all available languages.
     """
     return __languages
 
 
-def set_current_lang(code: str):
+def set_current(code: str):
     """Set current default language.
     """
     if code not in __languages:
-        raise Exception("Language '{}' is not defined.".format(code))
+        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(code))
 
     global __current_language
     __current_language = code
 
 
-def get_current_lang()->str:
+def get_current() -> str:
     """Get current language.
     """
     if not __languages:
@@ -84,10 +84,10 @@ def t(msg_id: str, args: dict=None, language: str=None) -> str:
     """Translate a string.
     """
     if not language:
-        language = get_current_lang()
+        language = get_current()
 
     if language not in __languages:
-        raise TranslationError("Language '{}' is not defined.".format(language))
+        raise _error.TranslationError("Language '{}' is not supported.".format(language))
 
     # Determining package name and message ID
     package_name = 'app'
@@ -100,7 +100,7 @@ def t(msg_id: str, args: dict=None, language: str=None) -> str:
 
     content = load_lang_file(package_name, language)
     if msg_id not in content:
-        raise TranslationError("Translation is not found for '{}'".format(package_name + '@' + msg_id))
+        raise _error.TranslationError("Translation is not found for '{}'".format(package_name + '@' + msg_id))
 
     msg = content[msg_id]
     """:type : str"""
@@ -116,7 +116,7 @@ def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
     """Translate a string in plural form.
     """
     if not language:
-        language = get_current_lang()
+        language = get_current()
 
     # Language is not cyrillic
     if language not in ['ru', 'uk']:
@@ -137,10 +137,15 @@ def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
             return t(msg_id + '_plural_one')
 
 
-def get_lang_title(code: str) -> str:
+def lang_title(language: str=None) -> str:
     """Get human readable language name.
     """
-    return t('lang_title_' + code)
+    if not language:
+        language = get_current()
+    try:
+        return t('lang_title_' + language)
+    except _error.TranslationError:
+        return language
 
 
 def load_lang_file(package_name: str, language: str=None):
@@ -151,7 +156,7 @@ def load_lang_file(package_name: str, language: str=None):
         raise Exception("Package '{}' is not registered.".format(package_name))
 
     if not language:
-        language = get_current_lang()
+        language = get_current()
 
     # Getting from cache
     if language in __packages[package_name]:
