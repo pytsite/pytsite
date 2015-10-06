@@ -1,5 +1,8 @@
 # PytSite Changelog
 
+## 0.23.1 (2015-10-06)
+- `twitter:site` support in `metatag`.
+
 ## 0.23 (2015-10-06)
 ### Added
 - New widget `widget.select.LanguageNav`.

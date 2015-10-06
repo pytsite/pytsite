@@ -29,6 +29,7 @@ __allowed_tags = (
     'twitter:title',
     'twitter:description',
     'twitter:image',
+    'twitter:site',
 )
 
 
