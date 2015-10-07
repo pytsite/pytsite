@@ -90,6 +90,9 @@ def __init():
     # Initializing router
     from . import router
 
+    # Initializing asset manager
+    from pytsite import assetman
+
     # Initializing metatag
     from . import metatag
     events.listen('pytsite.router.dispatch', metatag.reset)
@@ -107,9 +110,6 @@ def __init():
                 args[k] = v
 
         router.add_rule(url_path, name=name, call=call, args=args, methods=methods, filters=filters)
-
-    # Initializing asset manager
-    from pytsite import assetman
 
     # Initializing Browser module
     __import__('pytsite.browser')
@@ -131,6 +131,9 @@ def __init():
     theme = reg.get('output.theme')
     tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
+
+    # Settings favicon href
+    reg.set_val('metatag.favicon.href', assetman.get_url('img/favicon.png'))
 
     # Autoloading required modules
     for module in reg.get('app.autoload', ()):

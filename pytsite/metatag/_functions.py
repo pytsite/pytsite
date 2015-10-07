@@ -1,13 +1,14 @@
 """PytSite Meta Tags Support.
 """
-from pytsite import lang as _lang, util as _util
+from pytsite import lang as _lang, util as _util, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-__tags = {}
+__tags = {'link': []}
+
 __allowed_tags = (
     'title',
     'author',
@@ -37,11 +38,13 @@ def reset():
     """Reset tags.
     """
     global __tags
-    __tags = {
-        'charset': 'UTF-8',
-        'title': _lang.t('pytsite.metatag@untitled_document'),
-        'viewport': 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0',
-    }
+
+    __tags = {'link': []}
+
+    t_set('charset', 'UTF-8')
+    t_set('title', _lang.t('pytsite.metatag@untitled_document'))
+    t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
+    t_set('link', rel='icon', type='image/png', href=_reg.get('metatag.favicon.href'))
 
 
 def t_set(tag: str, value: str=None, **kwargs):
@@ -51,9 +54,6 @@ def t_set(tag: str, value: str=None, **kwargs):
         raise Exception("Unknown tag '{}'".format(tag))
 
     if tag in ('link',):
-        if tag not in __tags:
-            __tags[tag] = []
-
         if tag == 'link':
             if not kwargs.get('rel'):
                 raise ValueError("<link> tag must contain 'rel' attribute")

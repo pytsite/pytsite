@@ -169,7 +169,7 @@ def call_ep(name: str, args: dict=None, inp: dict=None):
 def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
-    from pytsite import tpl, metatag, events
+    from pytsite import tpl, events
     global _url_adapter, request, session, no_cache
 
     if _path.exists(_reg.get('paths.maintenance.lock')):
@@ -288,7 +288,7 @@ def dispatch(env: dict, start_response: callable):
         except _lang.error.TranslationError:
             title = _lang.t('pytsite.router@error', {'code': str(e.code)})
 
-        metatag.t_set('title', title)
+        _metatag.t_set('title', title)
 
         wsgi_response = tpl.render('exceptions/common', {
             'title': title,
@@ -302,7 +302,7 @@ def dispatch(env: dict, start_response: callable):
         _logger.error(str(e), __name__)
 
         title = _lang.t('pytsite.router@error', {'code': '500'})
-        metatag.t_set('title', title)
+        _metatag.t_set('title', title)
 
         wsgi_response = tpl.render('exceptions/common', {
             'title': title,

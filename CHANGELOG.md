@@ -1,6 +1,11 @@
 # PytSite Changelog
 
+## 0.23.2 (2015-10-07)
+### Added
+- favicon support in `metatag`.
+
 ## 0.23.1 (2015-10-06)
+### Added
 - `twitter:site` support in `metatag`.
 
 ## 0.23 (2015-10-06)
