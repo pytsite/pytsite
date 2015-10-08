@@ -148,4 +148,4 @@ class FilesUpload(_widget.Base):
                 if file:
                     file.delete()
 
-        self._value = clean_val
+        super().set_value(clean_val, **kwargs)

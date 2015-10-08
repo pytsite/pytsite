@@ -45,6 +45,7 @@ new_section_created: 'Создан новый раздел: :title'
 new_content_created: 'Создан новый материал: :title'
 new_tag_created: 'Создан новый тег: :title'
 no_users_found: 'Не найдено ни одного пользователя'
+image_required: 'Загрузите хотя бы одно изображение'
 
 odm_ui_permission_group_description: 'Содержимое'
 

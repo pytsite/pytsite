@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.23.4 (2015-10-08)
+### Changes
+- 'images' field is now required in `content.model.Article`.
+
+### Fixed
+- Error in arguments order while constructing `Url()` in `validation.rule.ListListItemUrl()'.
+- Error in setting validator's value in `file.widget.FilesUpload`. 
+
 ## 0.23.3 (2015-10-08)
 ### Added
 - 'section' column in `content`'s articles browser UI.

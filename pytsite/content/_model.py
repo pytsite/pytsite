@@ -574,7 +574,13 @@ class Article(Content):
         return r
 
     def setup_m_form(self, form, stage: str):
+        """Hook.
+        :type form: pytsite.form.Base
+        """
         super().setup_m_form(form, stage)
+
+        # At least one image required
+        form.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))
 
         # Starred
         if self.has_field('starred') and _auth.get_current_user().is_admin:

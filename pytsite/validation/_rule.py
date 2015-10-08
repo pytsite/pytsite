@@ -40,12 +40,12 @@ class NonEmpty(Base):
     def validate(self):
         """Do actual validation of the rule.
         """
-        if isinstance(self.value, list):
-            self.value = _util.list_cleanup(self.value)
-        elif isinstance(self.value, dict):
-            self.value = _util.dict_cleanup(self.value)
-        elif isinstance(self.value, str):
-            self.value = self.value.strip()
+        if isinstance(self._value, list):
+            self._value = _util.list_cleanup(self._value)
+        elif isinstance(self._value, dict):
+            self._value = _util.dict_cleanup(self._value)
+        elif isinstance(self._value, str):
+            self._value = self._value.strip()
 
         if not self._value:
             raise _error.RuleError(self._msg_id)
@@ -266,6 +266,7 @@ class ListListItemUrl(ListListItemNotEmpty):
             if self._index + 1 > len(sub_list):
                 raise _error.RuleError(self._msg_id, {'row': row + 1, 'col': self._index + 1})
 
-            url_rule = Url(self._msg_id, sub_list[self._index])
-            if not url_rule.validate():
+            try:
+                Url(sub_list[self._index], self._msg_id).validate()
+            except _error.RuleError:
                 raise _error.RuleError(self._msg_id, {'row': row + 1, 'col': self._index + 1})

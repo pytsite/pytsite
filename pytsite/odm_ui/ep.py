@@ -45,8 +45,6 @@ def get_m_form(args: dict, inp: dict) -> str:
 def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
-    global_messages = []
-
     model = inp.get('__model')
     entity_id = inp.get('__entity_id')
     if not model:

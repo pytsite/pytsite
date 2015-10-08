@@ -45,6 +45,7 @@ new_section_created: 'Created a new section: :title'
 new_content_created: 'Created new material: :title'
 new_tag_created: 'Created new tag: :title'
 no_users_found: 'No users found'
+image_required: 'At least one image required'
 
 odm_ui_permission_group_description: 'Content'
 
