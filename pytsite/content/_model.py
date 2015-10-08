@@ -71,13 +71,14 @@ class Content(_odm_ui.Model):
         self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self._define_field(_odm.field.String('language_db', nonempty=True))
         self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
-        self._define_field(_odm.field.StringList('video_links'))
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('edit_url'))
         self._define_field(_odm.field.Dict('options'))
 
         self._define_index([('publish_time', _odm.I_DESC)])
         self._define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
+
+
 
     @property
     def title(self) -> str:
@@ -159,7 +160,10 @@ class Content(_odm_ui.Model):
         """Hook.
         """
         if field_name == 'route_alias' and isinstance(value, str):
+            # Sanitizing path
             route_alias_str = self._generate_route_alias_str(value)
+
+            print('--- ' + route_alias_str)
 
             # No route alias is attached, so we need to create new one
             if not self.route_alias:
@@ -435,14 +439,12 @@ class Content(_odm_ui.Model):
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
-            # Route alias
-            if not self.is_new:
-                form.add_widget(_widget.input.Text(
-                    weight=1000,
-                    uid='route_alias',
-                    label=self.t('path'),
-                    value=self.route_alias.alias if self.route_alias else '',
-                ))
+            form.add_widget(_widget.input.Text(
+                weight=1000,
+                uid='route_alias',
+                label=self.t('path'),
+                value=self.route_alias.alias if self.route_alias else '',
+            ))
 
             form.add_widget(_auth_ui.widget.UserSelect(
                 weight=1100,
@@ -509,10 +511,13 @@ class Content(_odm_ui.Model):
 
     def _generate_route_alias_str(self, s: str) -> str:
         s = s.strip()
-        if not s and not self.title:
-            raise ValueError('Cannot generate route alias because title is empty.')
-        else:
-            return self.title
+        if not s:
+            if self.title:
+                s = self.title
+            else:
+                raise ValueError('Cannot generate route alias because title is empty.')
+
+        return s
 
 
 class Page(Content):
@@ -526,11 +531,13 @@ class Article(Content):
     """
     def _setup(self):
         super()._setup()
-        self._define_field(_odm.field.Ref('section', model='section'))
-        self._define_field(_odm.field.StringList('ext_links'))
-        self._define_field(_odm.field.Bool('starred'))
-        self._define_field(_geo.odm_field.Location('location'))
 
+        self._define_field(_odm.field.Ref('section', model='section'))
+        self._define_field(_odm.field.Bool('starred'))
+        self._define_field(_odm.field.StringList('video_links'))
+        self._define_field(_odm.field.StringList('ext_links'))
+
+        self._define_field(_geo.odm_field.Location('location'))
         self._define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     @property
@@ -548,6 +555,23 @@ class Article(Content):
     @property
     def location(self) -> dict:
         return self.f_get('location')
+
+    def setup_browser(self, browser):
+        """Setup ODM UI browser hook.
+
+        :type browser: pytsite.odm_ui._browser.Browser
+        :return: None
+        """
+        super().setup_browser(browser)
+        browser.data_fields = 'title', 'section', 'status', 'images', 'publish_time', 'author'
+
+    def get_browser_data_row(self) -> tuple:
+        """Get single UI browser row hook.
+        """
+        r = list(super().get_browser_data_row())
+        r.insert(1, self.section.title)
+
+        return r
 
     def setup_m_form(self, form, stage: str):
         super().setup_m_form(form, stage)
@@ -616,6 +640,7 @@ class Article(Content):
             return '/{}/{}'.format(self.section.alias, s)
         else:
             return '/{}'.format(s)
+
 
 class ContentSubscriber(_odm.Model):
     """content_subscriber ODM Model.

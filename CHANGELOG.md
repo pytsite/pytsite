@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.23.3 (2015-10-08)
+### Added
+- 'section' column in `content`'s articles browser UI.
+
+### Fixed
+- Changing content path's aliases error.
+- Showing empty header area in forms. 
+
 ## 0.23.2 (2015-10-07)
 ### Added
 - favicon support in `metatag`.

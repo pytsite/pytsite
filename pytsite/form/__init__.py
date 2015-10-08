@@ -16,7 +16,6 @@ _tpl.register_package(__name__)
 class Base:
     """Abstract form.
     """
-
     def __init__(self, uid: str=None, **kwargs):
         """Init.
         """
@@ -62,7 +61,6 @@ class Base:
 
         self.add_widget(_widget.static.Wrapper(
             css='form-messages',
-            form_area='header',
         ))
 
         if not self._name:
