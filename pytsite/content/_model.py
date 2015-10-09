@@ -163,8 +163,6 @@ class Content(_odm_ui.Model):
             # Sanitizing path
             route_alias_str = self._generate_route_alias_str(value)
 
-            print('--- ' + route_alias_str)
-
             # No route alias is attached, so we need to create new one
             if not self.route_alias:
                 value = _route_alias.create(route_alias_str, 'NONE', self.language).save()

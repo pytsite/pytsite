@@ -36,26 +36,24 @@ def cron_weekly():
 def router_dispatch():
     """'pytsite.router.dispatch' Event Handler.
     """
-    if not _router.is_base_url():
-        return
-
-    lng = _lang.get_current()
     settings = _settings.get_setting('content')
-
-    for s_key in ['title', 'description', 'keywords']:
-        s_full_key = 'home_{}_{}'.format(s_key, lng)
-        if s_full_key in settings:
-            s_val = settings[s_full_key]
-            if isinstance(s_val, list):
-                s_val = ','.join(s_val)
-            _metatag.t_set(s_key, s_val)
-
-            if s_key in ['title', 'description']:
-                _metatag.t_set('og:' + s_key, s_val)
-                _metatag.t_set('twitter:' + s_key, s_val)
 
     if 'add_js' in settings:
         _assetman.add_inline(settings['add_js'])
+
+    if _router.is_base_url():
+        lng = _lang.get_current()
+        for s_key in ['title', 'description', 'keywords']:
+            s_full_key = 'home_{}_{}'.format(s_key, lng)
+            if s_full_key in settings:
+                s_val = settings[s_full_key]
+                if isinstance(s_val, list):
+                    s_val = ','.join(s_val)
+                _metatag.t_set(s_key, s_val)
+
+                if s_key in ['title', 'description']:
+                    _metatag.t_set('og:' + s_key, s_val)
+                    _metatag.t_set('twitter:' + s_key, s_val)
 
 
 def update(version: str):

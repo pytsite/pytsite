@@ -1,7 +1,12 @@
 # PytSite Changelog
 
+## 0.23.5 (2015-10-10)
+### Fixed
+- Non working inline JS code injection on internal pages in `content`.
+
+
 ## 0.23.4 (2015-10-08)
-### Changes
+### Changed
 - 'images' field is now required in `content.model.Article`.
 
 ### Fixed
