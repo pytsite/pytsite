@@ -142,6 +142,7 @@ class Url(Regex):
         pattern = ('^(?:http|ftp)s?://'  # http:// or https://
                    '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain
                    'localhost|'  # localhost...
+                   'pytsite-project|'  # for testing purposes
                    '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
                    '(?::\d+)?'  # optional port
                    '(?:/?|[/?]\S+)$')

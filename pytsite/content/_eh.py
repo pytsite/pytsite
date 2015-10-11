@@ -94,29 +94,34 @@ def _generate_sitemap():
 
     sitemap_index = _sitemap.Index()
     links_per_file = 50000
-    loop = 1
+    loop_count = 1
     loop_links = 1
     sitemap = _sitemap.Sitemap()
     sitemap.add_url(_router.base_url(), _datetime.now(), 'always', 1)
-    for model in _reg.get('content.sitemap.models', []):
-        _logger.info("Sitemap generation started for model '{}'.".format(model), __name__)
-        for entity in _functions.find(model).get():
-            sitemap.add_url(entity.url, entity.publish_time)
-            loop_links += 1
-            if loop_links >= links_per_file:
-                loop += 1
-                loop_links = 0
-                sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop), True)
-                _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
-                sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
-                del sitemap
-                sitemap = _sitemap.Sitemap()
+    for lang in _lang.langs():
+        for model in _reg.get('content.sitemap.models', []):
+            _logger.info("Sitemap generation started for model '{}', language '{}'.".\
+                         format(model, _lang.lang_title(lang)), __name__)
 
-        if len(sitemap):
-            sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop), True)
-            _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
-            sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
-            del sitemap
+            for entity in _functions.find(model, language=lang).get():
+                sitemap.add_url(entity.url, entity.publish_time)
+                loop_links += 1
+
+                # Flush sitemap
+                if loop_links >= links_per_file:
+                    loop_count += 1
+                    loop_links = 0
+                    sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop_count), True)
+                    _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
+                    sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
+                    del sitemap
+                    sitemap = _sitemap.Sitemap()
+
+    # If non-flushed sitemap exist
+    if len(sitemap):
+        sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop_count), True)
+        _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
+        sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
 
     if len(sitemap_index):
         sitemap_index_path = sitemap_index.write(_path.join(output_dir, 'index.xml'))

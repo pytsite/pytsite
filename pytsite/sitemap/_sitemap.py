@@ -1,15 +1,13 @@
 """Sitemap Builder.
 """
+import gzip as _gzip
+from datetime import datetime as _datetime
+from lxml import etree as _etree
+from pytsite import validation as _validation
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-import gzip as _gzip
-from datetime import datetime as _datetime
-
-from lxml import etree as _etree
-
-from pytsite import validation as _validation
 
 
 class _FileWriterMixin:
@@ -41,9 +39,7 @@ class Sitemap(_FileWriterMixin):
         if changefreq and changefreq not in valid_freq:
             raise AttributeError('changefreq must be one of the following: ' + repr(valid_freq))
 
-        v = _validation.rule.Url(value=url)
-        if not v.validate():
-            raise AttributeError(v.message)
+        _validation.rule.Url(url).validate()
 
         self._urls.append({
             'loc': url,
@@ -98,9 +94,7 @@ class Index(_FileWriterMixin):
     def add_url(self, url: str, lastmod: _datetime=None):
         """Add an URL to the sitemap index.
         """
-        v = _validation.rule.Url(value=url)
-        if not v.validate():
-            raise AttributeError(v.message)
+        _validation.rule.Url(url).validate()
 
         self._urls.append({
             'loc': url,

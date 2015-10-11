@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.23.6 (2015-10-11)
+### Added
+- Languages support while sitemap generation in `content`.
+
+### Fixed
+- Error while URLs validation in `sitemap`.
+- Error while URLs validation in `feed`.
+
+
 ## 0.23.5 (2015-10-10)
 ### Fixed
 - Non working inline JS code injection on internal pages in `content`.

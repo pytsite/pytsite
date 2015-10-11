@@ -202,8 +202,7 @@ class Content(_odm_ui.Model):
             value = r_alias.f_get('alias') if r_alias else target_path
 
             # Transform path to absolute URL
-            if not kwargs.get('relative', False):
-                value = _router.url(value)
+            value = _router.url(value, self.language, relative=kwargs.get('relative', False))
 
         if field_name == 'edit_url' and self.id:
             value = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {

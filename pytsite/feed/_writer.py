@@ -1,15 +1,13 @@
 """Feed Writer.
 """
+import hashlib as _hashlib
+from time import strftime as _strftime
+from feedgen.feed import FeedGenerator as _FeedGenerator, FeedEntry as _FeedEntry
+from pytsite import validation as _validation
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-import hashlib as _hashlib
-from time import strftime as _strftime
-
-from feedgen.feed import FeedGenerator as _FeedGenerator, FeedEntry as _FeedEntry
-
-from pytsite import validation as _validation
 
 
 class Writer:
@@ -18,9 +16,7 @@ class Writer:
     def __init__(self, title: str, link: str, description: str):
         """Init.
         """
-        v = _validation.rule.Url(value=link)
-        if not v.validate():
-            raise ValueError(v.message)
+        _validation.rule.Url(value=link).validate()
 
         self._generator = _FeedGenerator()
         self._generator.title(title)
