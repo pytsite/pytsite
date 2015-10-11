@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.23.7 (2015-10-11)
+### Added
+- CKeditor updated to 4.5.4.
+
+### Fixed
+- CKEditor JS file corruption after unnecessary minifying.
+
+
 ## 0.23.6 (2015-10-11)
 ### Added
 - Languages support while sitemap generation in `content`.

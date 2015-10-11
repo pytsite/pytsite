@@ -92,7 +92,7 @@ class SearchAddress(Location):
         self._autodetect = kwargs.get('autodetect', False)
 
         lng = _lang.get_current()
-        _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&language=' + lng, 'js')
+        _assetman.add('https://maps.googleapis.com/maps/api/js?libraries=places&amp;language=' + lng, 'js')
         _assetman.add('pytsite.geo@js/widget/address-input.js')
 
         self._css = self._css.replace('widget-geo-location', 'widget-geo-search-address')

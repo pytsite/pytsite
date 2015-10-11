@@ -11,7 +11,8 @@ def include(lib: str, forever=False):
     if lib == 'jquery-ui':
         _assetman.add(__name__ + '@jquery-ui/jquery-ui.min.css', forever=forever)
         _assetman.add(__name__ + '@jquery-ui/jquery-ui.min.js', forever=forever)
-        _assetman.add(__name__ + '@jquery-ui/i18n/datepicker-{}.js'.format(_lang.get_current()), forever=forever)
+        if _lang.get_current() != 'en':
+            _assetman.add(__name__ + '@jquery-ui/i18n/datepicker-{}.js'.format(_lang.get_current()), forever=forever)
     elif lib == 'bootstrap':
         include('font-awesome', forever=forever)
         _assetman.add(__name__ + '@bootstrap/css/bootstrap.min.css', forever=forever)

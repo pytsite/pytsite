@@ -62,11 +62,11 @@ class CompileAssets(_console.command.Abstract):
                         dst = _re.sub(r'\.less$', '.css', dst)
                         ext = '.css'
 
-                    if ext == '.js' and _reg.get('output.minify') and not src.endswith('.min.js'):
-                        filters.append('jsmin')
-
-                    if ext == '.css' and _reg.get('output.minify') and not src.endswith('.min.css'):
-                        filters.append('cssmin')
+                    if _reg.get('output.minify'):
+                        if ext == '.js' and not src.endswith('.min.js'):
+                            filters.append('jsmin')
+                        if ext == '.css' and not src.endswith('.min.css'):
+                            filters.append('cssmin')
 
                     bundle = _Bundle(src, filters=filters)
                     env = _Environment(directory=package_assets_dir, debug=debug, versions=False,

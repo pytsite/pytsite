@@ -15,8 +15,9 @@ class CKEditor(_widget.Base):
         """
         super().__init__(**kwargs)
         self._css = ' '.join((self._css, 'widget-ckeditor'))
+        _assetman.add('pytsite.ckeditor@js/ckeditor_preconfig.js')
         _assetman.add('pytsite.ckeditor@ckeditor/skins/moono/editor.css')
-        _assetman.add('pytsite.ckeditor@ckeditor/ckeditor.js')
+        _assetman.add('pytsite.ckeditor@ckeditor/ckeditor.min.js')
         _assetman.add('pytsite.ckeditor@ckeditor/adapters/jquery.js')
         _assetman.add('pytsite.ckeditor@js/ckeditor.js')
 
