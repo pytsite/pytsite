@@ -46,6 +46,11 @@ def include(lib: str, forever=False):
         _assetman.add(__name__ + '@datetimepicker/jquery.datetimepicker.css', forever=forever)
     elif lib == 'responsive':
         _assetman.add(__name__ + '@js/responsive.js', forever=forever)
+    elif lib == 'animate':
+        _assetman.add(__name__ + '@css/animate.css', forever=forever)
+    elif lib == 'wow':
+        include('animate', forever=forever)
+        _assetman.add(__name__ + '@js/wow.min.js', forever=forever)
     else:
         raise Exception("Unknown library: '{}'.".format(lib))
 

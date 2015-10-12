@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.25 (2015-10-12)
+### Added
+- Support for `animate` and `wow` libraries in `browser`.
+
+
 ## 0.24 (2015-10-12)
 ### Added
 - New function `lang.is_translation_defined()`.
