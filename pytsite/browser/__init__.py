@@ -51,6 +51,21 @@ def include(lib: str, forever=False):
     elif lib == 'wow':
         include('animate', forever=forever)
         _assetman.add(__name__ + '@js/wow.min.js', forever=forever)
+    elif lib == 'mousewheel':
+        _assetman.add(__name__ + '@js/jquery.mousewheel.min.js', forever=forever)
+    elif lib == 'smoothscroll':
+        include('mousewheel', forever=forever)
+        _assetman.add(__name__ + '@js/jquery.simplr.smoothscroll.min.js', forever=forever)
+        _assetman.add(__name__ + '@js/smoothscroll-init.js', forever=forever)
+    elif lib == 'enllax':
+        _assetman.add(__name__ + '@js/jquery.enllax.min.js', forever=forever)
+    elif lib == 'scrollto':
+        _assetman.add(__name__ + '@js/jquery.scrollTo.min.js', forever=forever)
+    elif lib == 'waypoints':
+        _assetman.add(__name__ + '@js/jquery.waypoints.min.js', forever=forever)
+    elif lib == 'slippry':
+        _assetman.add(__name__ + '@js/slippry.min.js', forever=forever)
+        _assetman.add(__name__ + '@css/slippry.css', forever=forever)
     else:
         raise Exception("Unknown library: '{}'.".format(lib))
 

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.26 (2015-10-13)
+### Added
+- Support for `mousewheel`,`smoothscroll`, `enllax`, `scrollto`, `waypoints`, `slippry`, libraries in `browser`.
+
+
 ## 0.25 (2015-10-12)
 ### Added
 - Support for `animate` and `wow` libraries in `browser`.
