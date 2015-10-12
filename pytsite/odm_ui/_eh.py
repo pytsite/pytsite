@@ -22,6 +22,7 @@ def odm_register_model(model: str, cls: type, replace: bool):
     if not isinstance(mock, UIMixin):
         return
 
+    # Detecting model's package name
     assert isinstance(mock, _odm.Model)  # Just for correct type hinting in PyCharm
     pkg_name = mock.package_name()
 
@@ -30,17 +31,17 @@ def odm_register_model(model: str, cls: type, replace: bool):
         _lang.register_package(pkg_name)
 
     # Registering permission group if doesn't already registered
-    permission_group = pkg_name
-    if not _auth.get_permission_group(permission_group):
-        _auth.define_permission_group(permission_group, pkg_name + '@odm_ui_permission_group_description')
+    if not _auth.get_permission_group(pkg_name):
+        _auth.define_permission_group(pkg_name, pkg_name + '@odm_ui_permission_group_description')
 
     # Registering permissions
     if model not in __models:
         for perm_name in 'create', 'browse', 'browse_own', 'modify', 'modify_own', 'delete', 'delete_own':
             if perm_name.endswith('_own') and not mock.has_field('author') and not mock.has_field('owner'):
                 continue
-            perm_description = pkg_name + '@odm_ui_permission_' + perm_name + '_' + model
+
             perm_full_name = 'pytsite.odm_ui.' + perm_name + '.' + model
+            perm_description = mock.resolve_partly_msg_id('odm_ui_permission_' + perm_name + '_' + model)
             _auth.define_permission(perm_full_name, perm_description, pkg_name)
 
     __models[model] = model

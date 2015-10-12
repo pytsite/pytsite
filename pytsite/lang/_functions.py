@@ -80,6 +80,33 @@ def get_packages() -> dict:
     return __packages
 
 
+def split_msg_id(msg_id: str) -> tuple:
+    package_name = 'app'
+    msg_id = msg_id.split('@')
+    if len(msg_id) == 2:
+        package_name = msg_id[0]
+        msg_id = msg_id[1]
+    else:
+        msg_id = msg_id[0]
+
+    return package_name, msg_id
+
+
+def is_translation_defined(msg_id: str, language: str=None) -> bool:
+    if not language:
+        language = get_current()
+
+    if language not in __languages:
+        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
+
+    # Determining package name and message ID
+    package_name, msg_id = split_msg_id(msg_id)
+    if msg_id not in load_lang_file(package_name, language):
+        return False
+
+    return True
+
+
 def t(msg_id: str, args: dict=None, language: str=None) -> str:
     """Translate a string.
     """
@@ -89,20 +116,16 @@ def t(msg_id: str, args: dict=None, language: str=None) -> str:
     if language not in __languages:
         raise _error.TranslationError("Language '{}' is not supported.".format(language))
 
-    # Determining package name and message ID
-    package_name = 'app'
-    msg_id = msg_id.split('@')
-    if len(msg_id) == 2:
-        package_name = msg_id[0]
-        msg_id = msg_id[1]
-    else:
-        msg_id = msg_id[0]
+    if not is_translation_defined(msg_id, language):
+        raise _error.TranslationError("Translation is not found for '{}'".format(msg_id))
 
-    content = load_lang_file(package_name, language)
-    if msg_id not in content:
+    # Determining package name and message ID
+    package_name, msg_id = split_msg_id(msg_id)
+    lang_file_content = load_lang_file(package_name, language)
+    if msg_id not in lang_file_content:
         raise _error.TranslationError("Translation is not found for '{}'".format(package_name + '@' + msg_id))
 
-    msg = content[msg_id]
+    msg = lang_file_content[msg_id]
     """:type : str"""
 
     if args:
@@ -148,24 +171,24 @@ def lang_title(language: str=None) -> str:
         return language
 
 
-def load_lang_file(package_name: str, language: str=None):
+def load_lang_file(pkg_name: str, language: str=None):
     """Load package's language file.
     """
     # Is the package registered?
-    if package_name not in __packages:
-        raise Exception("Package '{}' is not registered.".format(package_name))
+    if not is_package_registered(pkg_name):
+        raise _error.PackageNotRegistered("Package '{}' is not registered.".format(pkg_name))
 
     if not language:
         language = get_current()
 
     # Getting from cache
-    if language in __packages[package_name]:
-        return __packages[package_name][language]
+    if language in __packages[pkg_name]:
+        return __packages[pkg_name][language]
 
     content = {}
 
     # Actual data loading
-    file_path = _path.join(__packages[package_name]['__path'], language + '.yml')
+    file_path = _path.join(__packages[pkg_name]['__path'], language + '.yml')
     if not _path.exists(file_path):
         return content
 
@@ -176,7 +199,7 @@ def load_lang_file(package_name: str, language: str=None):
         content = {}
 
     # Caching
-    __packages[package_name][language] = content
+    __packages[pkg_name][language] = content
 
     return content
 

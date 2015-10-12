@@ -1,12 +1,11 @@
 """ODM Console Commands.
 """
+from pytsite import console as _console, lang as _lang, logger as _logger
+from . import _functions
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-
-from pytsite import console as _console, lang as _lang, logger as _logger
-from . import _functions
 
 
 class RebuildIndices(_console.command.Abstract):

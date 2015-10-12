@@ -68,3 +68,31 @@ odm_ui_permission_create_tag: 'Создание тегов'
 odm_ui_permission_browse_tag: 'Обзор ВСЕХ тегов'
 odm_ui_permission_modify_tag: 'Изменение ЛЮБЫХ тегов'
 odm_ui_permission_delete_tag: 'Удаление ЛЮБЫХ тегов'
+
+odm_ui_browser_title_article: Статьи
+odm_ui_form_title_create_article: Создание статьи
+odm_ui_form_title_modify_article: Изменение статьи
+odm_ui_form_title_delete_article: Удаление статей
+
+odm_ui_permission_create_article: Создание статей
+odm_ui_permission_browse_own_article: Обзор статей
+odm_ui_permission_browse_article: Обзор ВСЕХ статей
+odm_ui_permission_modify_own_article: Изменение статей
+odm_ui_permission_modify_article: Изменение ЛЮБЫХ статей
+odm_ui_permission_delete_own_article: Удаление статей
+odm_ui_permission_delete_article: Удаление ЛЮБЫХ статей
+content_permission_bypass_moderation_article: Публикация СТАТЕЙ без модерации
+
+odm_ui_browser_title_page: Страницы
+odm_ui_form_title_create_page: Создание страницы
+odm_ui_form_title_modify_page: Изменение страницы
+odm_ui_form_title_delete_page: Удаление страниц
+
+odm_ui_permission_create_page: Создание страниц
+odm_ui_permission_browse_own_page: Обзор страниц
+odm_ui_permission_browse_page: Обзор ВСЕХ страниц
+odm_ui_permission_modify_own_page: Изменение страниц
+odm_ui_permission_modify_page: Изменение ЛЮБЫХ страниц
+odm_ui_permission_delete_own_page: Удаление страниц
+odm_ui_permission_delete_page: Удаление ЛЮБЫХ страниц
+content_permission_bypass_moderation_page: Публикация СТРАНИЦ без модерации

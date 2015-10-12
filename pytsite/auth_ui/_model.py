@@ -57,11 +57,11 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """Get single UI browser row hook.
         """
         groups_cell = ''
-        for g in self.f_get('roles'):
+        for role in self.f_get('roles'):
             cls = 'label label-default'
-            if g.f_get('name') == 'admin':
+            if role.name == 'admin':
                 cls += ' label-danger'
-            groups_cell += str(_html.Span(_lang.t(g.f_get('description')), cls=cls)) + ' '
+            groups_cell += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
 
         status_cls = 'info' if self.status == 'active' else 'default'
 
@@ -303,7 +303,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
                     _html.Div(cls='checkbox').append(
                         _html.Label(_lang.t(perm[1]), label_for='permissions-checkbox-' + p_name).append(
                             _html.Input(type='checkbox', uid='permissions-checkbox-' + p_name,
-                                        name='permissions', value=p_name, checked=p_name in self.f_get('permissions'))
+                                        name='permissions', value=p_name, checked=p_name in self.permissions)
                         )
                     )
                 )

@@ -25,20 +25,23 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     if not replace and is_model_registered(model):
         raise KeyError("Model '{}' is already registered.".format(model))
 
+    # Register ODM model
     _odm.register_model(model, cls, replace)
+
+    # Saving info about registered model
     __models[model] = (cls, title)
 
+    # Register 'bypass_moderation' permission
     mock = _odm.dispense(model)
     perm_name = 'pytsite.content.bypass_moderation.' + model
-    perm_description = mock.package_name() + '@content_permission_bypass_moderation_' + model
+    perm_description = mock.resolve_partly_msg_id('content_permission_bypass_moderation_' + model)
     _auth.define_permission(perm_name, perm_description, mock.package_name())
 
-    menu_url = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
     _admin.sidebar.add_menu(
         sid='content',
         mid=model,
         title=title,
-        href=menu_url,
+        href=_router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}),
         icon=icon,
         weight=menu_weight,
         permissions=(

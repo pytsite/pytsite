@@ -11,14 +11,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-# Dependencies
-__import__('pytsite.auth')
-__import__('pytsite.admin')
-
 
 def __init():
     from pytsite import assetman, events, tpl, lang, router, admin
-    from . import _event_handlers
+    from . import _eh
     from ._model import UIMixin
 
     # Browse
@@ -47,6 +43,6 @@ def __init():
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
-    events.listen('pytsite.odm.register_model', _event_handlers.odm_register_model)
+    events.listen('pytsite.odm.register_model', _eh.odm_register_model)
 
 __init()

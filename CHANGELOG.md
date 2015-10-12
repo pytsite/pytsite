@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.24 (2015-10-12)
+### Added
+- New function `lang.is_translation_defined()`.
+
+### Changed
+- Automatic ODM collections reindexing on `console`'s 'update' command is now disabled.
+
+### Fixed
+- Cascading translations in `content`'s models.
+
+
 ## 0.23.7 (2015-10-11)
 ### Added
 - CKeditor updated to 4.5.4.

@@ -1,13 +1,14 @@
 """PytSite Update Console Commands.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import pickle as _pickle
+import subprocess as _subprocess
 from os import path as _path
 from pytsite import console as _console, events as _events, lang as _lang, version as _pytsite_ver, reg as _reg, \
     logger as _logger, maintenance as _maintenance
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Update(_console.command.Abstract):
@@ -31,6 +32,8 @@ class Update(_console.command.Abstract):
         cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
 
         _maintenance.enable()
+
+        _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
         stop = False
         for major in range(0, 1):
@@ -65,8 +68,6 @@ class Update(_console.command.Abstract):
 
         self._save_state(state)
         _maintenance.disable()
-
-        # _events.fire('pytsite.update')
 
     def _get_state(self) -> set:
         data = set()

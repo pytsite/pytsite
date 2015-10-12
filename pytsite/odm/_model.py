@@ -426,29 +426,25 @@ class Model(_ABC):
         return '.'.join(cls.__module__.split('.')[:-1])
 
     @classmethod
-    def t(cls, msg_id: str, args: dict=None) -> str:
+    def t(cls, partly_msg_id: str, args: dict=None) -> str:
         """Translate a string in model context.
         """
-        for super_cls in cls.__mro__:
-            if issubclass(super_cls, Model):
-                try:
-                    return _lang.t(super_cls.package_name() + '@' + msg_id, args)
-                except _lang.error.TranslationError:
-                    pass
-
-        raise _lang.error.TranslationError("Translation is not found for '{}'".format(
-            cls.package_name() + '@' + msg_id))
+        return _lang.t(cls.resolve_partly_msg_id(partly_msg_id), args)
 
     @classmethod
-    def t_plural(cls, msg_id: str, num: int=2) -> str:
+    def t_plural(cls, partly_msg_id: str, num: int=2) -> str:
         """Translate a string into plural form.
         """
+        return _lang.t_plural(cls.resolve_partly_msg_id(partly_msg_id), num)
+
+    @classmethod
+    def resolve_partly_msg_id(cls, partly_msg_id: str) -> str:
+        # Searching for translation up in hierarchy
         for super_cls in cls.__mro__:
             if issubclass(super_cls, Model):
-                try:
-                    return _lang.t_plural(super_cls.package_name() + '@' + msg_id, num)
-                except _lang.error.TranslationError:
-                    pass
+                full_msg_id = super_cls.package_name() + '@' + partly_msg_id
+                if _lang.is_translation_defined(full_msg_id):
+                    return full_msg_id
 
         raise _lang.error.TranslationError("Translation is not found for '{}'".format(
-            cls.package_name() + '@' + msg_id))
+            cls.package_name() + '@' + partly_msg_id))

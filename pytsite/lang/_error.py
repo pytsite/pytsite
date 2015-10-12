@@ -9,5 +9,9 @@ class LanguageNotSupported(Exception):
     pass
 
 
+class PackageNotRegistered(Exception):
+    pass
+
+
 class TranslationError(Exception):
     pass

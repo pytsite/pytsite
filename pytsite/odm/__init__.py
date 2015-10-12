@@ -13,17 +13,11 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, events, lang
+    from pytsite import console, lang
     from . import _command
-
-    def app_update_event():
-        """'app.update' event handler.
-        """
-        console.run_command('odm:reindex')
 
     lang.register_package(__name__)
     console.register_command(_command.RebuildIndices())
-    events.listen('pytsite.update.after', app_update_event)
 
 
 _init()
