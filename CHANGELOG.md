@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.27 (2015-10-13)
+### Changed
+- `content`'s feeds generation moved to separate function `content.generate_feeds()`.
+
+
 ## 0.26 (2015-10-13)
 ### Added
 - Support for `mousewheel`,`smoothscroll`, `enllax`, `scrollto`, `waypoints`, `slippry`, libraries in `browser`.

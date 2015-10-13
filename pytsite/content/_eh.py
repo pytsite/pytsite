@@ -1,11 +1,9 @@
 """Event Handlers.
 """
-import hashlib as _hashlib
-import pytz as _pytz
 from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import settings as _settings, sitemap as _sitemap, feed as _feed, reg as _reg, logger as _logger, \
+from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, \
     tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, \
     console as _console, assetman as _assetman
 from . import _functions
@@ -100,7 +98,7 @@ def _generate_sitemap():
     sitemap.add_url(_router.base_url(), _datetime.now(), 'always', 1)
     for lang in _lang.langs():
         for model in _reg.get('content.sitemap.models', []):
-            _logger.info("Sitemap generation started for model '{}', language '{}'.".\
+            _logger.info("Sitemap generation started for model '{}', language '{}'.".
                          format(model, _lang.lang_title(lang)), __name__)
 
             for entity in _functions.find(model, language=lang).get():
@@ -131,79 +129,9 @@ def _generate_sitemap():
 
 
 def _generate_feeds():
-    output_dir = _path.join(_reg.get('paths.static'), 'feed')
-    if _path.exists(output_dir):
-        _rmtree(output_dir)
-    _makedirs(output_dir, 0o755, True)
-
-    md5 = _hashlib.md5()
-    feed_length = _reg.get('content.feed.length', 20)
-    content_settings = _settings.get_setting('content')
     for lang in _lang.langs():
-        # Feed title
-        feed_title = content_settings.get('home_title_' + lang)
-        if not feed_title:
-            raise ValueError('Cannot set feed title. Please set it on the content settings form.')
-
-        # Feed description
-        feed_description = content_settings.get('home_description_' + lang)
-        if not feed_description:
-            raise ValueError('Cannot set feed description. Please set it on the content settings form.')
-
         for model in _reg.get('content.feed.models', []):
-            _logger.info("Feeds generation started for model '{}', language '{}'.".format(model, lang), __name__)
-            feed_writer = _feed.Writer(feed_title, _router.base_url(), feed_description)
-            for entity in _functions.find(model).get(feed_length):
-                entry = feed_writer.add_entry()
-
-                # Entry unique ID
-                md5.update(entity.title.encode())
-                entry.id(md5.hexdigest())
-
-                # Entry title
-                entry.title(entity.title)
-
-                # Description
-                entry.content(entity.description if entity.description else entity.title, type='text/plain')
-
-                # Link
-                entry.link({'href': entity.url})
-
-                tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-                entry.pubdate(tz.localize(entity.publish_time))
-
-                author_info = {
-                    'name': entity.author.full_name,
-                    'email': entity.author.email,
-                }
-                if entity.author.profile_is_public:
-                    author_info['uri'] = _router.ep_url('pytsite.auth_ui.ep.profile_view', {
-                        'nickname': str(entity.author.nickname),
-                    })
-                entry.author(author_info)
-
-                if entity.has_field('section'):
-                    entry.category({
-                        'term': entity.section.alias,
-                        'label': entity.section.title,
-                    })
-
-                if entity.has_field('tags'):
-                    for tag in entity.tags:
-                        entry.category({
-                            'term': tag.alias,
-                            'label': tag.title,
-                        })
-
-            # Write feed into files
-            for out_type in 'rss', 'atom':
-                out_path = _path.join(output_dir, '{}-{}-{}.xml'.format(out_type, model, lang))
-                if out_type == 'rss':
-                    feed_writer.rss_file(out_path, True)
-                    _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)
-                if out_type == 'atom':
-                    feed_writer.atom_file(out_path, True)
-                    _logger.info("Atom feed successfully written to '{}'.".format(out_path), __name__)
+            _functions.generate_feeds(model, '{}-{}'.format(model, lang), language=lang)
 
 
 def _update_0_7_0():
