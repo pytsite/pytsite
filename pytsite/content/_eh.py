@@ -131,7 +131,10 @@ def _generate_sitemap():
 def _generate_feeds():
     for lang in _lang.langs():
         for model in _reg.get('content.feed.models', []):
-            _functions.generate_feeds(model, '{}-{}'.format(model, lang), language=lang)
+            filename = model
+            if len(_lang.langs()) > 1:
+                filename += '-{}'.format(lang)
+            _functions.generate_feeds(model, filename, language=lang)
 
 
 def _update_0_7_0():

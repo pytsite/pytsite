@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.27.1 (2015-10-13)
+### Fixed
+- Excluded language part from `content`'s feeds file names if defined languages count equals 1.
+
+
 ## 0.27 (2015-10-13)
 ### Changed
 - `content`'s feeds generation moved to separate function `content.generate_feeds()`.
