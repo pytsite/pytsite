@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.27.2 (2015-10-14)
+### Fixed
+- `browser`: added missed images for slippry.
+
+
 ## 0.27.1 (2015-10-13)
 ### Fixed
 - Excluded language part from `content`'s feeds file names if defined languages count equals 1.
