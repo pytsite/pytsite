@@ -1,12 +1,11 @@
-"""Twitter oAuth Driver.
+"""Twitter Auth Widget.
 """
+from pytsite import widget as _widget, html as _html, lang as _lang, assetman as _assetman, router as _router
+from ._session import Session as TwitterSession
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-
-from pytsite import widget as _widget, html as _html, lang as _lang, assetman as _assetman, router as _router
-from ._session import Session as TwitterSession
 
 
 class Auth(_widget.Base):

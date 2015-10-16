@@ -1,12 +1,12 @@
 """Twitter Session.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from datetime import datetime as _dt
 from requests_oauthlib import OAuth1Session
 from pytsite import reg as _reg, router as _router
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Session:

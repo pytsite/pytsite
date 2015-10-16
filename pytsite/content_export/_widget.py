@@ -1,11 +1,11 @@
 """Content Export Widgets.
 """
+from pytsite import widget as _widget, lang as _lang
+from ._functions import get_drivers as _get_drivers
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import widget as _widget, lang as _lang
-from ._functions import get_drivers as _get_drivers
 
 
 class DriverSelect(_widget.select.Select):

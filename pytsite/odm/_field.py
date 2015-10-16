@@ -4,9 +4,7 @@ from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
-from bson.son import SON as _SON
 from copy import deepcopy as _deepcopy
-from collections import OrderedDict as _OrderedDict
 from pytsite import lang as _lang
 
 __author__ = 'Alexander Shepetko'

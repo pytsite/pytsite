@@ -275,6 +275,9 @@ class Base(_ABC):
 
         group_wrapper.append(content)
 
+        if self._help:
+            group_wrapper.append(_html.Span(self._help, cls='help-block'))
+
         return group_wrapper
 
     def __str__(self) -> str:

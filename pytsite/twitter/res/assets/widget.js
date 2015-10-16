@@ -9,7 +9,7 @@ $(function () {
                 widget.find('span.help-block.error').remove();
                 var oauth_token = widget.find('input[name="' + widget.data('widgetUid') + '[oauth_token]"]').first().val();
                 if (!oauth_token) {
-                    var msg = t('pytsite.twitter@you_nas_not _authorized');
+                    var msg = t('pytsite.twitter@you_are_not_authorized');
                     widget.addClass('has-error');
                     widget.append('<span class="help-block error">' + msg + '</span>');
                     return false;

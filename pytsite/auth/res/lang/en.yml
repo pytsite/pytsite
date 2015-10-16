@@ -1,5 +1,5 @@
 authorization: 'Authorization'
-authorization_error: 'Suthorization error'
+authorization_error: 'Authorization error'
 enter_admin_email: "Enter administrator's email"
 role_has_been_created: 'New role has been created: :name'
 user_has_been_created: 'New user has been created: :login'

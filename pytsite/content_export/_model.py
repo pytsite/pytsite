@@ -90,6 +90,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         """
         req_val = _router.request.values_dict
 
+        # First step
         if not req_val.get('step'):
             form.add_widget(_widget.select.Checkbox(
                 weight=10,
@@ -143,6 +144,8 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             """:type: pytsite.widget._button.Submit"""
             submit_btn.set_value(self.t('next'))
             submit_btn.icon = 'fa fa-angle-double-right'
+
+        # Second step
         else:
             driver = req_val.get('driver')
 
@@ -177,17 +180,10 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=errors if errors else 0
             ))
 
-            if driver:
-                form.add_widget(_functions.load_driver(driver).get_widget('driver_opts', **self.driver_opts))
+            form.add_widget(_functions.load_driver(driver).get_widget('driver_opts', **self.driver_opts))
 
         form.add_rule('content_model', _validation.rule.NonEmpty())
         form.add_rule('driver', _validation.rule.NonEmpty())
-
-    def submit_m_form(self, form):
-        """Hook.
-        :type form: pytsite.form.Base
-        """
-        pass
 
     def get_d_form_description(self) -> str:
         """Hook.

@@ -1,0 +1,6 @@
+vkontakte: VK
+access_url: Access URL
+access_url_help: Follow this <a href=":link" target="_blank">link</a>, then copy content of the address bar to this field
+access_token: Access token
+user_id: User ID
+invalid_access_url: Invalid access URL
