@@ -20,6 +20,7 @@ class Auth(_widget.Base):
         self._access_url = kwargs.get('access_url', '')
         self._access_token = kwargs.get('access_token', '')
         self._user_id = kwargs.get('user_id', '')
+        self._group_id = kwargs.get('group_id', '')
 
         _assetman.add('pytsite.vk@js/widget.js')
 
@@ -44,6 +45,15 @@ class Auth(_widget.Base):
             label=_lang.t('pytsite.vk@access_url'),
             help=_lang.t('pytsite.vk@access_url_help', {'link': authorize_url}),
             value=self._access_url,
+        ).render())
+
+        wrapper.append(_widget.input.Integer(
+            weight=20,
+            uid='group_id',
+            name='{}[group_id]'.format(self._uid),
+            label=_lang.t('pytsite.vk@group_id'),
+            value=self._group_id,
+            h_size='col-sm-2'
         ).render())
 
         wrapper.append(_widget.input.Hidden(

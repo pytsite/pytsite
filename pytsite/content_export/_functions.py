@@ -54,16 +54,20 @@ def cron_1min_eh():
     cnt = 0
     for exporter in _odm.find('content_export').where('enabled', '!=', False).get():
         content_f = _content.find(exporter.content_model)
-        content_f.where('publish_time', '>=', _datetime.now() - _timedelta(1))  # Last 24 hours
+        content_f.where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age))
         content_f.where('options.content_export', 'nin', [str(exporter.id)])
         content_f.sort([('publish_time', _odm.I_ASC)])
+
+        # Get content only with images
+        if exporter.with_images_only:
+            content_f.where('images', '!=', [])
 
         # Filter by content owner
         if not exporter.process_all_authors:
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            if cnt == 1:
+            if cnt == 2:
                 return
 
             try:
@@ -83,11 +87,14 @@ def cron_1min_eh():
                 entity_opts['content_export'].append(str(exporter.id))
                 entity.f_set('options', entity_opts).save()
 
+                # Reset errors count to zero after each successful export
+                if exporter.errors:
+                    exporter.f_set('errors', 0).save()
+
             except _error.ExportError as e:
                 exporter.f_inc('errors')
                 if exporter.errors >= 10:
-                    exporter.f_set('enabled', False)
-                exporter.save()
+                    exporter.f_set('enabled', False).save()
 
                 _logger.error(str(e), __name__, False)
 

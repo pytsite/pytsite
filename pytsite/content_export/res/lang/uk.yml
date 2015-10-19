@@ -10,6 +10,8 @@ word_no: 'Ні'
 process_all_authors: 'Всі матеріали'
 enabled: 'Увімкнений'
 errors: 'Помилки'
+max_age: 'Вік контенту (дні)'
+with_images_only: 'Тільки з зображеннями'
 
 odm_ui_browser_title_content_export: 'Експорт контенту'
 odm_ui_form_title_create_content_export: 'Новий експорт контенту'

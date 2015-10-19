@@ -10,6 +10,8 @@ word_no: 'No'
 process_all_authors: 'All authors'
 enabled: 'Enabled'
 errors: 'Errors'
+max_age: 'Content age (days)'
+with_images_only: 'Only with images'
 
 odm_ui_browser_title_content_export: 'Content export'
 odm_ui_form_title_create_content_export: 'Create content export'

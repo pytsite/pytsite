@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.28
+### Added
+- New package: `vk`.
+- New fields in `content_export`'s model: `only_with_images` and `max_age`.
+
+
 ## 0.27.2 (2015-10-14)
 ### Fixed
 - `browser`: added missed images for slippry.

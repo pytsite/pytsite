@@ -18,10 +18,12 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.String('driver', nonempty=True))
         self._define_field(_odm.field.Dict('driver_opts'))
         self._define_field(_odm.field.String('content_model', nonempty=True))
-        self._define_field(_odm.field.Bool('process_all_authors'))
+        self._define_field(_odm.field.Bool('process_all_authors', default=True))
+        self._define_field(_odm.field.Bool('with_images_only', default=True))
         self._define_field(_odm.field.Ref('owner', model='user', nonempty=True))
         self._define_field(_odm.field.Bool('enabled', default=True))
         self._define_field(_odm.field.Integer('errors'))
+        self._define_field(_odm.field.Integer('max_age', default=14))
 
     @property
     def driver(self) -> str:
@@ -44,12 +46,20 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('process_all_authors')
 
     @property
+    def with_images_only(self) -> bool:
+        return self.f_get('with_images_only')
+
+    @property
     def enabled(self) -> bool:
         return self.f_get('enabled')
 
     @property
     def errors(self) -> int:
         return self.f_get('errors')
+
+    @property
+    def max_age(self) -> int:
+        return self.f_get('max_age')
 
     def _pre_save(self):
         """Hook.
@@ -66,6 +76,8 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             'driver',
             'driver_opts',
             'process_all_authors',
+            'with_images_only',
+            'max_age',
             'enabled',
             'errors',
             'owner'
@@ -78,11 +90,14 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         driver = _functions.get_driver_title(self.driver)
         all_authors = '<span class="label label-success">' + self.t('word_yes') + '</span>' \
             if self.process_all_authors else ''
+        w_images = '<span class="label label-success">' + self.t('word_yes') + '</span>' \
+            if self.with_images_only else ''
+        max_age = self.max_age
         enabled = '<span class="label label-success">' + self.t('word_yes') + '</span>' if self.enabled else ''
         errors = '<span class="label label-danger">' + str(self.errors) + '</span>' if self.errors else ''
 
-        return content_model, driver, self.driver_opts.get('title', ''), all_authors, enabled, errors, \
-               self.owner.full_name
+        return content_model, driver, self.driver_opts.get('title', ''), all_authors, w_images, max_age, enabled, \
+               errors, self.owner.full_name
 
     def setup_m_form(self, form, stage: str):
         """Hook.
@@ -106,24 +121,41 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=self.process_all_authors,
             ))
 
-            form.add_widget(_content.widget.ContentModelSelect(
+            form.add_widget(_widget.select.Checkbox(
                 weight=30,
+                uid='with_images_only',
+                label=self.t('with_images_only'),
+                value=self.with_images_only,
+            ))
+
+            form.add_widget(_content.widget.ContentModelSelect(
+                weight=40,
                 uid='content_model',
                 label=self.t('content_model'),
                 value=self.content_model,
-                h_size='col-sm-6'
+                h_size='col-sm-4',
+                required=True,
             ))
 
             form.add_widget(_content_export_widget.DriverSelect(
-                weight=40,
+                weight=50,
                 uid='driver',
                 label=self.t('driver'),
                 value=self.driver,
-                h_size='col-sm-6'
+                h_size='col-sm-4',
+                required=True,
             ))
 
             form.add_widget(_widget.input.Integer(
-                weight=50,
+                weight=60,
+                uid='max_age',
+                label=self.t('max_age'),
+                value=self.max_age,
+                h_size='col-sm-1'
+            ))
+
+            form.add_widget(_widget.input.Integer(
+                weight=70,
                 uid='errors',
                 label=self.t('errors'),
                 value=self.errors,
@@ -170,8 +202,19 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             ))
 
             form.add_widget(_widget.input.Hidden(
+                uid='with_images_only',
+                value=req_val.get('with_images_only')
+            ))
+
+            form.add_widget(_widget.input.Hidden(
                 uid='enabled',
                 value=req_val.get('enabled')
+            ))
+
+            max_age = req_val.get('max_age')
+            form.add_widget(_widget.input.Hidden(
+                uid='max_age',
+                value=max_age if max_age else 14
             ))
 
             errors = req_val.get('errors')

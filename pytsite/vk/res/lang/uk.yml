@@ -1,0 +1,7 @@
+vkontakte: VK
+access_url: URL авторизації
+access_url_help: Перейдіть за цим <a href=":link" target="_blank">посиланням</a>, потім скопіюйте вміст рядка адреси в це поле
+access_token: Токен доступу
+user_id: ID користувача
+invalid_access_url: Неправильний URL авторизації
+group_id: ID групи

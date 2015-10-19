@@ -4,3 +4,4 @@ access_url_help: Follow this <a href=":link" target="_blank">link</a>, then copy
 access_token: Access token
 user_id: User ID
 invalid_access_url: Invalid access URL
+group_id: Group ID
