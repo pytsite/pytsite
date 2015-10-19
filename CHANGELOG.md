@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.28.1
+### Fixed
+- `content_export`'s driver initialization error in `vk`.
+
+
 ## 0.28
 ### Added
 - New package: `vk`.
