@@ -1,11 +1,16 @@
 # PytSite Changelog
 
-## 0.28.1
+## 0.29 (2015-10-20)
+### Added
+- Font Awesome updated to version 4.4.0.
+
+
+## 0.28.1 (2015-10-20)
 ### Fixed
 - `content_export`'s driver initialization error in `vk`.
 
 
-## 0.28
+## 0.28 (2015-10-20)
 ### Added
 - New package: `vk`.
 - New fields in `content_export`'s model: `only_with_images` and `max_age`.
