@@ -1,7 +1,8 @@
 """Poster Functions.
 """
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import content as _content, odm as _odm, lang as _lang, logger as _logger, threading as _threading
+from pytsite import content as _content, odm as _odm, lang as _lang, logger as _logger, threading as _threading, \
+    reg as _reg
 from . import _driver, _error
 
 __author__ = 'Alexander Shepetko'
@@ -51,8 +52,11 @@ def cron_1min_eh():
     """'pytsite.cron.5m' event handler.
     """
     lock = _threading.get_r_lock()
+    limit = _reg.get('content_export.limit', 2)
+    max_errors = _reg.get('content_export.max_errors', 10)
     cnt = 0
-    for exporter in _odm.find('content_export').where('enabled', '!=', False).get():
+    exporters_f = _odm.find('content_export').where('enabled', '!=', False).sort([('errors', _odm.I_ASC)])
+    for exporter in exporters_f.get():
         content_f = _content.find(exporter.content_model)
         content_f.where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age))
         content_f.where('options.content_export', 'nin', [str(exporter.id)])
@@ -67,7 +71,7 @@ def cron_1min_eh():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            if cnt == 2:
+            if cnt == limit:
                 return
 
             try:
@@ -93,7 +97,7 @@ def cron_1min_eh():
 
             except _error.ExportError as e:
                 exporter.f_inc('errors')
-                if exporter.errors >= 10:
+                if exporter.errors >= max_errors:
                     exporter.f_set('enabled', False).save()
 
                 _logger.error(str(e), __name__, False)

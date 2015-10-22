@@ -223,7 +223,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=errors if errors else 0
             ))
 
-            form.add_widget(_functions.load_driver(driver).get_widget('driver_opts', **self.driver_opts))
+            form.add_widget(_functions.load_driver(driver).get_settings_widget('driver_opts', **self.driver_opts))
 
         form.add_rule('content_model', _validation.rule.NonEmpty())
         form.add_rule('driver', _validation.rule.NonEmpty())

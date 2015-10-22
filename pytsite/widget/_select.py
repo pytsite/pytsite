@@ -27,12 +27,11 @@ class Checkbox(_input.Input):
     def render(self):
         """Render the widget.
         """
-
-        em = _html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value)
-        em = em.wrap(_html.Label(self._label, label_for=self._uid))
-        div = em.wrap(_html.Div(cls='checkbox'))
-
+        div = _html.Div(cls='checkbox')
         div.append(_html.Input(type='hidden', name=self._name))
+        label = _html.Label(self._label, label_for=self._uid)
+        label.append(_html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value))
+        div.append(label)
 
         return self._group_wrap(div)
 
@@ -45,7 +44,7 @@ class Select(_input.Input):
         """
         self._required = kwargs.get('required', False)
         self._items = kwargs.get('items', [])
-        self._selected_item = None
+        self._selected_item = kwargs.get('selected_item', [])
 
         super().__init__(**kwargs)
         if not isinstance(self._items, list) and not isinstance(self._items, tuple) :
@@ -63,7 +62,7 @@ class Select(_input.Input):
     def render(self):
         """Render the widget.
         """
-        select = _html.Select(name=self.uid, cls='form-control', required=self._required)
+        select = _html.Select(name=self.name, cls='form-control', required=self._required)
         select.append(_html.Option('--- ' + _lang.t('pytsite.widget@select_none_item') + ' ---', value=''))
         for item in self._items:
             option = _html.Option(item[1], value=item[0])

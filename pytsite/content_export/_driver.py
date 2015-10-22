@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 class Abstract(_ABC):
     @_abstractmethod
-    def get_widget(self, uid: str, **kwargs: dict) -> _widget.Base:
+    def get_settings_widget(self, uid: str, **kwargs: dict) -> _widget.Base:
         pass
 
     @_abstractmethod

@@ -4,7 +4,6 @@ import random as _random, re as _re
 from copy import deepcopy as _deepcopy
 from werkzeug.utils import escape as _escape_html
 
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'

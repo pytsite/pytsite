@@ -42,7 +42,8 @@ class Base(_ABC):
         self._validator = _validation.Validator()
 
         # It is important to filter value through the setter-method
-        self.set_value(kwargs.get('value'))
+        if 'value' in kwargs:
+            self.set_value(kwargs.get('value'))
 
     def add_child(self, widget):
         """Add a child widget.

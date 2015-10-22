@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.30 (2015-10-22)
+### Added
+- New package: `tumblr`.
+
+
 ## 0.29 (2015-10-20)
 ### Added
 - Font Awesome updated to version 4.4.0.
