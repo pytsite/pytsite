@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.30.1 (2015-10-23)
+### Fixed
+- Error in `content`'s propose form.
+
+
 ## 0.30 (2015-10-22)
 ### Added
 - New package: `tumblr`.
