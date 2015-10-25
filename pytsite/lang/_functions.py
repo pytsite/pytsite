@@ -24,10 +24,13 @@ def define(languages: list):
     set_current(languages[0])
 
 
-def langs():
+def langs(include_current=True):
     """Get all available languages.
     """
-    return __languages
+    if include_current:
+        return __languages
+    else:
+        return [lng for lng in __languages if lng != __current_language]
 
 
 def set_current(code: str):

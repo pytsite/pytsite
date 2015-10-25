@@ -1,8 +1,8 @@
 """PytSite Select Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import assetman as _assetman, browser as _client, html as _html, lang as _lang, validation as _validation, \
-    router as _router
+from pytsite import assetman as _assetman, browser as _browser, html as _html, lang as _lang, validation as _validation, \
+    hreflang as _hreflang, router as _router
 from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
@@ -39,36 +39,55 @@ class Checkbox(_input.Input):
 class Select(_input.Input):
     """Select Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, **kwargs):
         """Init.
         """
-        self._required = kwargs.get('required', False)
-        self._items = kwargs.get('items', [])
-        self._selected_item = kwargs.get('selected_item', [])
-
         super().__init__(**kwargs)
-        if not isinstance(self._items, list) and not isinstance(self._items, tuple) :
+
+        self._items = kwargs.get('items', [])
+        if type(self._items) not in (list, tuple):
             raise TypeError('List or tuple expected.')
 
-    def set_value(self, value, **kwargs: dict):
-        """Set value of the widget.
-        """
-        self._selected_item = value
-
-        super().set_value(value, **kwargs)
-
-        return self
-
-    def render(self):
-        """Render the widget.
-        """
+    def _get_select_html_em(self) -> _html.Element:
         select = _html.Select(name=self.name, cls='form-control', required=self._required)
         select.append(_html.Option('--- ' + _lang.t('pytsite.widget@select_none_item') + ' ---', value=''))
         for item in self._items:
             option = _html.Option(item[1], value=item[0])
-            if item[0] == self._selected_item:
+            if item[0] == self._value:
                 option.set_attr('selected', True)
             select.append(option)
+
+        return select
+
+    def render(self):
+        """Render the widget.
+        """
+        return self._group_wrap(self._get_select_html_em())
+
+
+class Select2(Select):
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        super().__init__(**kwargs)
+
+        _browser.include('select2')
+        _assetman.add('pytsite.widget@js/select2.js')
+
+        self._theme = kwargs.get('theme', 'bootstrap')
+        self._ajax_url = kwargs.get('ajax_url')
+        self._ajax_delay = kwargs.get('ajax_delay', 750)
+        self._ajax_data_type = kwargs.get('ajax_data_type', 'json')
+        self._css += ' widget-select-select2'
+
+    def render(self):
+        select = self._get_select_html_em()
+
+        if self._ajax_url:
+            select.set_attr('data_theme', self._theme)
+            select.set_attr('data_ajax_url', self._ajax_url)
+            select.set_attr('data_ajax_delay', self._ajax_delay)
+            select.set_attr('data_ajax_data_type', self._ajax_data_type)
 
         return self._group_wrap(select)
 
@@ -134,8 +153,12 @@ class LanguageNav(_base.Base):
         """Init.
         """
         super().__init__(**kwargs)
-        self._css += ' nav navbar-nav lang-switch'
+        self._bootstrap = kwargs.get('bootstrap', True)
         self._dropdown = kwargs.get('dropdown')
+        self._css += ' lang-switch'
+
+        if self._bootstrap:
+            self._css += ' nav navbar-nav'
 
     def render(self):
         if len(_lang.langs()) == 1:
@@ -152,34 +175,40 @@ class LanguageNav(_base.Base):
             toggle_a.append(_html.Span(cls='caret'))
 
             dropdown_menu = _html.Ul(cls='dropdown-menu')
-            for lang in _lang.langs():
-                if lang != cur_lang and lang in _router.get_path_langs():
+            for lng in _lang.langs(True):
+                hl = _hreflang.get(lng)
+                if hl:
                     dropdown_menu.append(_html.Li().append(
-                        _html.A(_lang.lang_title(lang), cls='lang-' + lang, href=_router.current_url(lang=lang)))
+                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=hl))
                     )
 
             dropdown_root.append(toggle_a).append(dropdown_menu)
             root_ul.append(dropdown_root)
         else:
-            for lang in _lang.langs():
-                if lang == cur_lang:
+            for lng in _lang.langs():
+                lang_title = _lang.lang_title(lng)
+                if lng == cur_lang:
                     root_ul.append(_html.Li(cls='active').append(
-                        _html.A(_lang.lang_title(lang), cls='lang-' + lang, href='#',
-                                title=_lang.lang_title(lang))))
-                elif lang in _router.get_path_langs():
+                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.current_url(),
+                                title=lang_title)))
+                elif _hreflang.get(lng):
                     root_ul.append(_html.Li().append(
-                        _html.A(_lang.lang_title(lang), cls='lang-' + lang, href=_router.current_url(lang=lang),
-                                title=_lang.lang_title(lang))))
-
+                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_hreflang.get(lng),
+                                title=lang_title)))
+                else:
+                    root_ul.append(_html.Li().append(
+                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.base_url(lang=lng),
+                                title=lang_title)))
 
         return root_ul
+
 
 class DateTime(_input.Text):
     def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
-        _client.include('datetimepicker')
+        _browser.include('datetimepicker')
         _assetman.add('pytsite.widget@js/datetime.js')
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
         self.add_rule(_validation.rule.DateTime())

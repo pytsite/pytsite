@@ -17,7 +17,13 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite import assetman, tpl, lang, router, auth, robots
+    from pytsite import assetman, tpl, lang, router, auth, robots, hreflang, events
+
+    def router_dispatch_eh():
+        # Alternate languages
+        if router.current_path(True).startswith(base_path()):
+            for lng in lang.langs(False):
+                hreflang.add(lng, router.url(router.current_path(), lang=lng))
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -31,12 +37,13 @@ def __init():
     # Routes
     admin_route_filters = ('pytsite.auth.ep.filter_authorize:permissions=admin.use',)
     router.add_rule(base_path(), __name__ + '.ep.dashboard', filters=admin_route_filters)
-    router.add_path_langs(base_path())
 
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 
     # robots.txt rules
     robots.disallow(base_path() + '/')
+
+    events.listen('pytsite.router.dispatch', router_dispatch_eh)
 
 # Initialization
 __init()

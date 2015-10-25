@@ -1,6 +1,6 @@
 """PytSite Meta Tags Support.
 """
-from pytsite import lang as _lang, util as _util, reg as _reg
+from pytsite import lang as _lang, util as _util, reg as _reg, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -103,6 +103,8 @@ def dump(tag: str) -> str:
 def dump_all() -> str:
     """Dump all tags.
     """
+    _events.fire('pytsite.metatag.dump_all')
+
     r = str()
     for tag in __tags:
         r += dump(tag) + '\n'

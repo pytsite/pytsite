@@ -66,6 +66,12 @@ def include(lib: str, forever=False):
     elif lib == 'slippry':
         _assetman.add(__name__ + '@js/slippry.min.js', forever=forever)
         _assetman.add(__name__ + '@css/slippry.css', forever=forever)
+    elif lib == 'select2':
+        include('mousewheel', forever=forever)
+        _assetman.add(__name__ + '@select2/js/select2.full.min.js', forever=forever)
+        _assetman.add(__name__ + '@select2/js/i18n/{}.js'.format(_lang.get_current()), forever=forever)
+        _assetman.add(__name__ + '@select2/css/select2.min.css', forever=forever)
+        _assetman.add(__name__ + '@select2/css/select2-bootstrap.min.css', forever=forever)
     else:
         raise Exception("Unknown library: '{}'.".format(lib))
 

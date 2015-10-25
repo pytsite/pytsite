@@ -46,6 +46,7 @@ new_content_created: 'Створений новий матеріал: :title'
 new_tag_created: 'Створено новий тег: :title'
 no_users_found: 'Не знайдено жодного користувача'
 image_required: 'Завантажте хоча б одне зображення'
+localization: 'Локалізація (:lang)'
 
 odm_ui_permission_group_description: 'Контент'
 

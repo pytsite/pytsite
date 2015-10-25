@@ -1,7 +1,7 @@
 """ODM UI Endpoints.
 """
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
-    validation as _validation
+    validation as _validation, auth as _auth
 from . import _functions, _browser
 
 __author__ = 'Alexander Shepetko'

@@ -115,6 +115,8 @@ def dispense_entity(model: str, entity_id: str=None):
 
 def check_permissions(perm_type: str, model: str, ids=None) -> bool:
     """Check current user's permissions to operate with entity(es).
+
+    :param perm_type: Valid types: 'create', 'browse', 'modify', 'delete'
     """
     current_user = _auth.get_current_user()
 
@@ -132,15 +134,15 @@ def check_permissions(perm_type: str, model: str, ids=None) -> bool:
 
     if perm_type == 'create' and current_user.has_permission('pytsite.odm_ui.create.' + model):
         return True
-    elif perm_type in ('modify', 'delete'):
-        # User can modify or delete ANY entity of this model
+    elif perm_type in ('browse', 'modify', 'delete'):
+        # User can browse, modify or delete ANY entity of this model
         if current_user.has_permission('pytsite.odm_ui.' + perm_type + '.' + model):
             return True
 
-        # User can modify or delete ONLY ITS OWN entity of this model
-        else:
-            own_perm = 'pytsite.odm_ui.' + perm_type + '_own.' + model
-            if _auth.get_permission(own_perm) and current_user.has_permission(own_perm):
+        # User can browse, modify or delete ONLY ITS OWN entity of this model
+        elif ids:
+            own_perm_name = 'pytsite.odm_ui.' + perm_type + '_own.' + model
+            if _auth.get_permission(own_perm_name) and current_user.has_permission(own_perm_name):
                 for eid in ids:
                     entity = dispense_entity(model, eid)
                     if not entity:

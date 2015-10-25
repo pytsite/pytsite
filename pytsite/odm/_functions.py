@@ -110,13 +110,13 @@ def get_by_ref(ref: _DBRef):
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def resolve_ref(something) -> _DBRef:
+def resolve_ref(something):
     """Resolve DB object ref.
 
-    :type something: str | ODMModel | DBRef
-    :rtype: DBRef
+    :type something: str | ODMModel | DBRef | None
+    :rtype: DBRef | None
     """
-    if isinstance(something, _DBRef):
+    if type(something) in (_DBRef, None):
         return something
 
     if isinstance(something, _model.Model):

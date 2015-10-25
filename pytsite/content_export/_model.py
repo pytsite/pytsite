@@ -128,7 +128,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=self.with_images_only,
             ))
 
-            form.add_widget(_content.widget.ContentModelSelect(
+            form.add_widget(_content.widget.ModelSelect(
                 weight=40,
                 uid='content_model',
                 label=self.t('content_model'),

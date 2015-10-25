@@ -4,7 +4,7 @@ import re as _re
 from datetime import datetime as _datetime
 from pytsite import disqus as _disqus, taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, reg as _reg, \
     http as _http, router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
-    lang as _lang, validation as _validation, logger as _logger
+    lang as _lang, validation as _validation, logger as _logger, hreflang as _hreflang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -135,11 +135,16 @@ def view(args: dict, inp: dict):
     _metatag.t_set('og:url', entity.url)
     _metatag.t_set('article:publisher', entity.url)
 
-    endpoint = _reg.get('content.endpoints.view.' + model, 'app.ep.' + model + '_view')
+    # Alternate languages URLs
+    for lng in _lang.langs(False):
+        f_name = 'localization_' + lng
+        if entity.has_field(f_name) and entity.f_get(f_name):
+            _hreflang.add(lng, entity.f_get(f_name).url)
 
     _assetman.add('pytsite.content@js/content.js')
 
     args['entity'] = entity
+    endpoint = _reg.get('content.endpoints.view.' + model, 'app.ep.' + model + '_view')
 
     return _router.call_ep(endpoint, args, inp)
 
@@ -202,3 +207,36 @@ def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
         _router.session.add_success(_lang.t('pytsite.content@unsubscription_successful'))
 
     return _http.response.Redirect(_router.base_url())
+
+
+def ajax_search(args: dict, inp: dict) -> _http.response.JSON:
+    from . import _functions
+
+    # Query is mandatory parameter
+    query = inp.get('q')
+    if not query:
+        return _http.response.JSON({'results': ()})
+
+    # Anonymous users cannot perform search
+    user = _auth.get_current_user()
+    if user.is_anonymous:
+        raise _http.error.Forbidden()
+
+    model = args.get('model')
+    language = inp.get('language', _lang.get_current())
+
+    # User can browse ANY entities
+    if user.has_permission('pytsite.odm_ui.browse.' + model):
+        f = _functions.find(model, status=None, check_publish_time=None, language=language)
+    # User can browse only its OWN entities
+    elif user.has_permission('pytsite.odm_ui.browse_own.' + model):
+        f = _functions.find(model, status=None, check_publish_time=None, language=language)
+        f.where('author', '=', user)
+    # User cannot browse entities, so its rights equals to the anonymous user
+    else:
+        f = _functions.find(model, language=language)
+
+    f.sort([('title', _odm.I_ASC)]).where('title', 'regex_i', query)
+    r = [{'id': e.model + ':' + str(e.id), 'text': e.title} for e in f.get(20)]
+
+    return _http.response.JSON({'results': r})

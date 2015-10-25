@@ -275,11 +275,11 @@ class Dict(Abstract):
 class Ref(Abstract):
     """Ref Field.
     """
-    def __init__(self, name: str, model: str, **kwargs):
+    def __init__(self, name: str, model: str='*', **kwargs):
         """Init.
         """
-        super().__init__(name, **kwargs)
         self._model = model
+        super().__init__(name, **kwargs)
 
     @property
     def model(self) -> str:
@@ -287,32 +287,41 @@ class Ref(Abstract):
 
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
+
+        :type value: pytsite.odm._model.Model | _bson_DBRef | str | None
         """
         from ._model import Model
 
-        if isinstance(value, list) or isinstance(value, tuple):
+        if value is None:
+            return super().set_val(value, change_modified, **kwargs)
+
+        # Get first item from the iterable value
+        if type(value) in (list, tuple):
             value = value[0] if len(value) else None
 
-        if isinstance(value, _bson_DBRef) or value is None:
+        if isinstance(value, _bson_DBRef):
             pass
+        elif isinstance(value, str):
+            from ._functions import resolve_ref
+            value = resolve_ref(value)
         elif isinstance(value, Model):
+            # Checking if this model is allowed
             if self._model != '*' and value.model != self._model:
                 raise ValueError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
-        else:
-            raise TypeError("Field '{}': entity or DBRef expected, but '{}' given.".format(self._name, repr(value)))
 
         return super().set_val(value, change_modified, **kwargs)
 
     def get_val(self, **kwargs):
         """Get value of the field.
         """
-        value = self._value
         if isinstance(self._value, _bson_DBRef):
             from ._functions import get_by_ref
-            referenced_entity = get_by_ref(value)
+
+            referenced_entity = get_by_ref(self._value)
             if not referenced_entity:
                 self.set_val(None)  # Updating field's value about missing entity
+
             return referenced_entity
 
 

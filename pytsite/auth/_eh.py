@@ -1,7 +1,8 @@
 """Event Handlers.
 """
 from datetime import datetime as _datetime
-from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util
+from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util, \
+    hreflang as _hreflang, reg as _reg
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -40,14 +41,20 @@ def app_setup():
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
 
 
-
 def router_dispatch():
     """pytsite.router.dispatch Event Handler.
     """
+    # Update user activity timestamp
     user = _functions.get_current_user()
     if not user.is_anonymous:
         _router.no_cache = True
         user.f_set('last_activity', _datetime.now()).save(True, False)
+
+    # Alternate languages
+    base_path = _reg.get('auth.base_path', '/auth/login')
+    if base_path == _router.current_path(True):
+        for lng in _lang.langs(False):
+            _hreflang.add(lng, _router.url(base_path, lang=lng))
 
 
 def update(version: str):

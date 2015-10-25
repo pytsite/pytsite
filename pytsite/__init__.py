@@ -95,7 +95,9 @@ def __init():
 
     # Initializing metatag
     from . import metatag
-    events.listen('pytsite.router.dispatch', metatag.reset)
+
+    # Initializing hreflang
+    from . import hreflang
 
     # Loading routes from the registry
     for url_path, opts in reg.get('routes', {}).items():

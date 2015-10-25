@@ -9,7 +9,8 @@ from werkzeug.routing import Map as _Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from htmlmin import minify as _minify
-from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag
+from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag, \
+    hreflang as _hreflang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -19,7 +20,6 @@ __license__ = 'MIT'
 _routes = _Map()
 _url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 _path_aliases = {}
-_hreflangs = {'/': _lang.langs()}
 
 # Registering module's language package
 _lang.register_package(__name__)
@@ -109,32 +109,6 @@ def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, meth
 
 def add_path_alias(alias: str, target: str):
     _path_aliases[alias] = target
-
-
-def add_path_langs(path: str, langs=None):
-    """Define languages on which path is available.
-    :param langs: list | tuple
-    """
-    if path not in _hreflangs:
-        available_langs = _lang.langs()
-        if not langs:
-            _hreflangs[path] = available_langs
-        else:
-            _hreflangs[path] = [l for l in langs if l in available_langs]
-
-
-def get_path_langs(path: str=None, current_lang: str=None) -> list:
-    """Get languages  on which path is available.
-    """
-    if not path:
-        path = current_path(True)
-
-    if path in _hreflangs:
-        if not current_lang:
-            current_lang = _lang.get_current()
-        return [l for l in _hreflangs[path] if l != current_lang]
-
-    return []
 
 
 def call_ep(name: str, args: dict=None, inp: dict=None):
@@ -229,6 +203,7 @@ def dispatch(env: dict, start_response: callable):
     else:
         session = _session_store.new()
 
+    # Processing
     try:
         rule, rule_args = _url_adapter.match(return_rule=True)
 
@@ -252,10 +227,6 @@ def dispatch(env: dict, start_response: callable):
 
         # Preparing response object
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
-
-        # Set hreflang
-        for lang in get_path_langs():
-            _metatag.t_set('link', href=current_url(strip_query=True, lang=lang), rel='alternate', hreflang=lang)
 
         # Processing response from handler
         response_from_callable = call_ep(rule.call, rule_args, request.values_dict)
@@ -398,8 +369,10 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
         r[4] = _urlparse.urlencode(parsed_qs, doseq=True)
 
     # Adding language suffix
-    if not strip_lang and not _re.search('^/[a-z]{2}/', parsed_url[2]):
-        r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
+    if not strip_lang:
+        lang_re = '^/({})/'.format('|'.join(_lang.langs()))
+        if not _re.search(lang_re, parsed_url[2]):
+            r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
 
     r = _urlparse.urlunparse(r)
 

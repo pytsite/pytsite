@@ -1,7 +1,7 @@
 """Content Widgets.
 """
 from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
-    router as _router, tpl as _tpl
+    router as _router, tpl as _tpl, odm as _odm
 from . import _model, _functions
 
 __author__ = 'Alexander Shepetko'
@@ -9,16 +9,46 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ContentModelSelect(_widget.select.Select):
+class ModelSelect(_widget.select.Select):
     """Content Model Select Widget.
     """
-    def __init__(self, **kwargs: dict):
-        super().__init__(**kwargs)
+    def __init__(self, **kwargs):
         self._items = []
         u = _auth.get_current_user()
         for k, v in _functions.get_models().items():
             if u.has_permission('pytsite.odm_ui.browse.' + k) or u.has_permission('pytsite.odm_ui.browse_own.' + k):
                 self._items.append((k, _lang.t(v[1])))
+
+        super().__init__(**kwargs)
+
+
+class EntitySelect(_widget.select.Select2):
+    def __init__(self, model: str, language: str=None, **kwargs):
+        if not language:
+            language = _lang.get_current()
+
+        kwargs['ajax_url'] = _router.ep_url('pytsite.content.ep.ajax_search', {
+            'model': model,
+            'language': language,
+        })
+
+        super().__init__(**kwargs)
+
+    def set_value(self, value, **kwargs):
+        if isinstance(value, str) and not value:
+            value = None
+        elif isinstance(value, _model.Content):
+            value = value.model + ':' + str(value.id)
+
+        return super().set_value(value, **kwargs)
+
+    def render(self):
+        # In AJAX-mode Select2 doesn't contain any items,
+        # but if we have selected item, it is necessary to append it
+        if self._ajax_url and self._value:
+            self._items.append((self._value, _odm.get_by_ref(self._value).title))
+
+        return super().render()
 
 
 class TagCloud(_taxonomy.widget.Cloud):

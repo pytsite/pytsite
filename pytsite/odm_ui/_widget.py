@@ -1,7 +1,7 @@
 """ODM UI Widgets.
 """
 from bson.dbref import DBRef as _DBRef
-from pytsite import widget as _widget, odm as _odm, lang as _lang
+from pytsite import widget as _widget, odm as _odm, lang as _lang, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -32,26 +32,15 @@ class EntitySelect(_widget.select.Select):
     def set_value(self, value, **kwargs):
         """Set value of the widget.
         """
-        if isinstance(value, _odm.Model):
-            self._selected_item = value.model + ':' + str(value.id)
-        elif isinstance(value, str):
-            if value.find(':') > 0:
-                self._selected_item = value
-                model, eid = value.split(':')
-                value = _odm.find(model).where('_id', '=', eid).first()
-            else:
-                value = None
+        if isinstance(value, str) and not value:
+            value = None
+        elif isinstance(value, _odm.Model):
+            value = value.model + ':' + str(value.id)
         elif isinstance(value, _DBRef):
             value = _odm.get_by_ref(value)
-            self._selected_item = value.model + ':' + str(value.id)
+            value = value.model + ':' + str(value.id)
 
-        self._value = value
-
-        # Because it is impossible to call parent's set_value()
-        if self._validator.has_field(self.uid):
-            self._validator.set_value(self.uid, value)
-
-        return self
+        return super().set_value(value, **kwargs)
 
     def render(self):
         """Render the widget.

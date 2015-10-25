@@ -66,7 +66,6 @@ class Content(_odm_ui.Model):
         self._define_field(_odm.field.Integer('comments_count'))
         self._define_field(_odm.field.RefsUniqueList('images', model='image'))
         self._define_field(_odm.field.String('status', nonempty=True))
-        self._define_field(_odm.field.RefsUniqueList('localizations', model=self.model))
         self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
         self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self._define_field(_odm.field.String('language_db', nonempty=True))
@@ -75,10 +74,11 @@ class Content(_odm_ui.Model):
         self._define_field(_odm.field.Virtual('edit_url'))
         self._define_field(_odm.field.Dict('options'))
 
+        for lng in _lang.langs():
+            self._define_field(_odm.field.Ref('localization_' + lng, model=self.model))
+
         self._define_index([('publish_time', _odm.I_DESC)])
         self._define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
-
-
 
     @property
     def title(self) -> str:
@@ -163,7 +163,7 @@ class Content(_odm_ui.Model):
             # Sanitizing path
             route_alias_str = self._generate_route_alias_str(value)
 
-            # No route alias is attached, so we need to create new one
+            # No route alias is attached, so we need to create a new one
             if not self.route_alias:
                 value = _route_alias.create(route_alias_str, 'NONE', self.language).save()
 
@@ -199,7 +199,7 @@ class Content(_odm_ui.Model):
         if field_name == 'url' and not self.is_new:
             target_path = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)}, True)
             r_alias = _route_alias.find_by_target(target_path, self.language)
-            value = r_alias.f_get('alias') if r_alias else target_path
+            value = r_alias.alias if r_alias else target_path
 
             # Transform path to absolute URL
             value = _router.url(value, self.language, relative=kwargs.get('relative', False))
@@ -257,7 +257,7 @@ class Content(_odm_ui.Model):
         """
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
-            target = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id})
+            target = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id}, True)
             self.route_alias.f_set('target', target).save()
 
         if self.is_new:
@@ -285,6 +285,17 @@ class Content(_odm_ui.Model):
         for img in self.images:
             if not img.f_get('attached_to'):
                 img.f_set('attached_to', self).f_set('owner', self.author).save()
+
+        # Updating localization entities references
+        for lng in _lang.langs(False):
+            localization = self.f_get('localization_' + lng)
+            if isinstance(localization, Content):
+                if localization.f_get('localization_' + self.language) != self:
+                    localization.f_set('localization_' + self.language, self).save()
+            elif localization is None:
+                f = _functions.find(self.model, language=lng).where('localization_' + self.language, '=', self)
+                for referenced in f.get():
+                    referenced.f_set('localization_' + self.language, None).save()
 
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
@@ -434,17 +445,29 @@ class Content(_odm_ui.Model):
             hidden=False if len(_lang.langs()) > 1 else True,
         ))
 
+        # Localization selects
+        from ._widget import EntitySelect
+        for i, lng in enumerate(_lang.langs(False)):
+            form.add_widget(EntitySelect(
+                weight=1000 + i,
+                uid='localization_' + lng,
+                label=self.t('localization', {'lang': _lang.lang_title(lng)}),
+                model=self.model,
+                language=lng,
+                value=self.f_get('localization_' + lng)
+            ))
+
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             form.add_widget(_widget.input.Text(
-                weight=1000,
+                weight=1100,
                 uid='route_alias',
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
             form.add_widget(_auth_ui.widget.UserSelect(
-                weight=1100,
+                weight=1200,
                 uid='author',
                 label=self.t('author'),
                 value=_auth.get_current_user() if self.is_new else self.author,

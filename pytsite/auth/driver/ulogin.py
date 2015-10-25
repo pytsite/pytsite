@@ -139,6 +139,8 @@ class ULoginDriver(AbstractDriver):
             if 'redirect' in inp:
                 redirect = inp['redirect']
                 del inp['redirect']
+                if '__form_redirect' in inp:
+                    del inp['__form_redirect']
                 return _http.response.Redirect(_router.url(redirect, query=inp))
             elif '__form_redirect' in inp:
                 redirect = inp['__form_redirect']

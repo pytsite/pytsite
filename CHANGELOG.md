@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.31 (2015-10-25)
+### Added
+- `bootstrap` argument in `widget.select.LanguageNav`.
+- New widget `widget.select Select2`.
+- New `browser`'s library: `select2`.
+- `include_current` argument in `lang.langs()`.
+- Localization select on `content`'s entities forms.
+- hreflangs support by `content` entities.
+
+### Fixed
+- Incomplete items list in `widget.select.LanguageNav`.
+- Incorrect language detection in JavaScript `t()` function.
+
+
 ## 0.30.1 (2015-10-23)
 ### Fixed
 - Error in `content`'s propose form.
