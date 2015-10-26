@@ -186,12 +186,12 @@ def authorize(user: _model.User, count_login=True, issue_event=True) -> _model.U
     """Authorize user.
     """
     if not user:
-        raise _error.LoginIncorrect('pytsite.auth@authorization_error')
+        raise _error.LoginError('pytsite.auth@authorization_error')
 
     # Checking user status
     if user.f_get('status') != 'active':
-        logout_current_user()
-        raise _error.LoginIncorrect('pytsite.auth@authorization_error')
+        logout_current_user(issue_event)
+        raise _error.LoginError('pytsite.auth@authorization_error')
 
     # Saving statistical information
     if count_login:
@@ -232,16 +232,17 @@ def get_current_user() -> _model.User:
 
         return authorize(user, False, False)
 
-    except _error.LoginIncorrect:
+    except _error.LoginError:
         return get_anonymous_user()
 
 
-def logout_current_user():
+def logout_current_user(issue_event=True):
     """Log out current user.
     """
     user = get_current_user()
     if not user.is_anonymous:
-        _events.fire('pytsite.auth.logout', user=user)
+        if issue_event:
+            _events.fire('pytsite.auth.logout', user=user)
         del _router.session['pytsite.auth.login']
 
 

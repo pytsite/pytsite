@@ -1,6 +1,7 @@
 """Auth Log ODM Models.
 """
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -8,6 +9,19 @@ __license__ = 'MIT'
 
 
 class AuthLog(_odm_ui.Model):
+    def _setup(self):
+        """Hook.
+        """
+        self._define_field(_odm.field.Ref('user', model='user'))
+        self._define_field(_odm.field.String('ip', nonempty=True))
+        self._define_field(_odm.field.Integer('severity', default=_api.SEVERITY_INFO))
+        self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.Virtual('geo_ip'))
+
+        self._define_index(('user', _odm.I_ASC))
+        self._define_index(('ip', _odm.I_ASC))
+        self._define_index(('severity', _odm.I_ASC))
+
     @property
     def user(self) -> _auth.model.User:
         return self.f_get('user')
@@ -19,6 +33,10 @@ class AuthLog(_odm_ui.Model):
     @property
     def description(self) -> str:
         return self.f_get('description')
+
+    @property
+    def severity(self) -> int:
+        return self.f_get('severity')
 
     @property
     def geo_ip(self) -> _geo_ip.odm_model.GeoIP:
@@ -33,19 +51,30 @@ class AuthLog(_odm_ui.Model):
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        browser.data_fields = ('user', 'ip', 'geo_data', 'description', 'timestamp')
+        browser.data_fields = ('user', 'ip', 'geo_data', 'description', 'severity', '_created')
 
     def get_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        user = self.user.full_name
+        user = self.user.full_name if self.user else ''
         ip = self.ip
         g_ip = self.geo_ip
         geo = '{}, {}'.format(g_ip.country, g_ip.city) if g_ip.country else ''
-        description = _lang.t(self.description)
+        description = self.description
         modified = self.f_get('_modified', fmt='pretty_date_time')
 
-        return user, ip, geo, description, modified
+        severity_class = 'info'
+        severity_name = _lang.t('pytsite.auth_log@severity_info')
+        if self.severity == _api.SEVERITY_WARNING:
+            severity_class = 'warning'
+            severity_name = _lang.t('pytsite.auth_log@severity_warning')
+        elif self.severity == _api.SEVERITY_ERROR:
+            severity_class = 'warning'
+            severity_name = _lang.t('pytsite.auth_log@severity_error')
+
+        severity = '<span class="label label-{}">{}</span>'.format(severity_class, severity_name)
+
+        return user, ip, geo, description, severity, modified
 
     def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
@@ -53,13 +82,3 @@ class AuthLog(_odm_ui.Model):
         """
         pass
 
-    def _setup(self):
-        """Hook.
-        """
-        self._define_field(_odm.field.Ref('user', model='user', nonempty=True))
-        self._define_field(_odm.field.String('ip', nonempty=True))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.Virtual('geo_ip'))
-
-        self._define_index(('user', _odm.I_ASC))
-        self._define_index(('ip', _odm.I_ASC))

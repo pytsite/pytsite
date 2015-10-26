@@ -2,10 +2,14 @@ log: Журнал
 user: Пользователь
 ip: IP
 description: Описание
-timestamp: Время
+_created: Время
 geo_data: Гео
 login: Вход
 logout: Выход
+severity: Серьёзность
+severity_info: Инфо
+severity_warning: Предупреждение
+severity_error: Ошибка
 
 odm_ui_browser_title_auth_log: Журнал безопаности
 odm_ui_form_title_create_auth_log: Создание элемента журнала безопасности

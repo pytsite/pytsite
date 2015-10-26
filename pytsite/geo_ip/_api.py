@@ -18,9 +18,8 @@ def resolve(ip: str) -> dict:
     entity = _odm.find('geo_ip').where('ip', '=', ip).first()
 
     if not entity:
-        if _private_ip_re.match(ip):
-            entity = _odm.dispense('geo_ip').f_set('ip', ip).save()
-        else:
+        entity = _odm.dispense('geo_ip').f_set('ip', ip)
+        if not _private_ip_re.match(ip):
             r = _requests.get('http://www.telize.com/geoip/{}'.format(ip))
             if r.status_code != 200:
                 raise Exception(r.text)
@@ -29,6 +28,6 @@ def resolve(ip: str) -> dict:
                 if f_name not in ('offset',):
                     entity.f_set(f_name, f_val)
 
-            entity.save()
+        entity.save()
 
     return entity

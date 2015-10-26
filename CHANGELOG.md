@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.32.2 (2015-10-27)
+
+### Added
+- New event `pytsite.auth.login_error`.
+- Support for severity by `auth_log`'s model.
+- `auth_log` ODM UI improvements.
+
+### Changed
+- `pytsite.auth.error.LoginIncorrect` renamed to `pytsite.auth.error.LoginError`.
+
+### Fixed
+- Error while resolving non-private IP addresses in `geo_ip.resolve()`. 
+
+
 ## 0.32.1 (2015-10-26)
 ### Fixed
 - Unused import in `router` which leads to crash at startup.

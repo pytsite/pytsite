@@ -65,12 +65,12 @@ class ULoginDriver(AbstractDriver):
         # Reading response from uLogin
         response = _urlopen('http://ulogin.ru/token.php?{}'.format(_urlencode(inp)))
         if response.status != 200:
-            raise _error.LoginIncorrect("Bad response status code from uLogin: {}.".format(response.status))
+            raise _error.LoginError("Bad response status code from uLogin: {}.".format(response.status))
         ulogin_data = _json.loads(response.read().decode('utf-8'))
         if 'error' in ulogin_data:
-            raise _error.LoginIncorrect("Bad response from uLogin: '{}'.".format(ulogin_data['error']))
+            raise _error.LoginError("Bad response from uLogin: '{}'.".format(ulogin_data['error']))
         if 'email' not in ulogin_data or ulogin_data['verified_email'] != '1':
-            raise _error.LoginIncorrect("Email '{}' is not verified by uLogin.".format(ulogin_data['email']))
+            raise _error.LoginError("Email '{}' is not verified by uLogin.".format(ulogin_data['email']))
 
         email = ulogin_data['email']
         user = _functions.get_user(email)
@@ -78,7 +78,7 @@ class ULoginDriver(AbstractDriver):
         try:
             # User is not exists and its creation is not allowed
             if not user and not _reg.get('auth.signup.enabled'):
-                raise _error.LoginIncorrect()
+                raise _error.LoginError(_lang.t('pytsite.auth@signup_is_disabled'))
 
             # Create new user
             if not user:
@@ -149,7 +149,7 @@ class ULoginDriver(AbstractDriver):
             else:
                 return _http.response.Redirect(_router.base_url(query=inp))
 
-        except _error.LoginIncorrect as e:
+        except _error.LoginError as e:
             _logger.warn('Login incorrect. {}'.format(e), __name__)
             _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
             if '__form_redirect' in inp:
