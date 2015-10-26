@@ -204,12 +204,16 @@ class LanguageNav(_base.Base):
 
 
 class DateTime(_input.Text):
+    """Date/Time Select Widget.
+    """
     def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
+
         _browser.include('datetimepicker')
         _assetman.add('pytsite.widget@js/datetime.js')
+
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
         self.add_rule(_validation.rule.DateTime())
 

@@ -1,2 +1,19 @@
-login: 'Вхід'
-logout: 'Вихід'
+log: Журнал
+user: Користувач
+ip: IP
+description: Опис
+timestamp: Час
+geo_data: Гео
+login: Вхід
+logout: Вихід
+
+odm_ui_browser_title_auth_log: Журнал безпеки
+odm_ui_form_title_create_auth_log: Створення елемента журналу безпеки
+odm_ui_form_title_modify_auth_log: Зміна елемента журналу безпеки
+odm_ui_form_title_delete_auth_log: Видалення елементів журналу безпеки
+
+odm_ui_permission_group_description: Журнал безпеки
+odm_ui_permission_create_auth_log: Створення елементів журналу безпеки
+odm_ui_permission_browse_auth_log: Огляд ВСІХ елементів журналу безпеки
+odm_ui_permission_modify_auth_log: Зміна БУДЬ-ЯКИХ елементів журналу безпеки
+odm_ui_permission_delete_auth_log: Видалення БУДЬ-ЯКИХ елементів журналу безпеки

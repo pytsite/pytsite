@@ -9,30 +9,23 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-# Dependencies
-__import__('pytsite.content')
-
 
 def __init():
     """Init wrapper.
     """
-    from pytsite import admin
-    from pytsite import odm
-    from pytsite import events
-    from pytsite import lang
-    from pytsite import router
-    from ._model import ContentExport
-    from ._functions import cron_1min_eh
+    from pytsite import admin, odm, events, lang, router
+    from . import _model, _eh
 
     # Resources
     lang.register_package(__name__)
 
     # ODM models
-    odm.register_model('content_export', ContentExport)
+    odm.register_model('content_export', _model.ContentExport)
 
     # Event handlers
-    events.listen('pytsite.cron.1min', cron_1min_eh)
+    events.listen('pytsite.cron.1min', _eh.cron_1min_eh)
 
+    # Sidebar menu
     m = 'content_export'
     admin.sidebar.add_menu('misc', m, __name__ + '@export',
                            href=router.ep_url('pytsite.odm_ui.ep.browse', {'model': m}),

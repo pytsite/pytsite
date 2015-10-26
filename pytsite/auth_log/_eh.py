@@ -25,4 +25,5 @@ def _create_odm_entity(user: _auth.model.User, description: str):
     e.f_set('ip', _router.request.remote_addr)
     e.f_set('description', description)
     e.save()
+
     return e

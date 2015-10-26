@@ -1,7 +1,8 @@
 """Poster Model.
 """
+from datetime import datetime as _datetime
 from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, validation as _validation, \
-    router as _router, widget as _widget
+    router as _router, widget as _widget, util as _util
 from . import _widget as _content_export_widget, _functions
 
 __author__ = 'Alexander Shepetko'
@@ -23,7 +24,9 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.Ref('owner', model='user', nonempty=True))
         self._define_field(_odm.field.Bool('enabled', default=True))
         self._define_field(_odm.field.Integer('errors'))
+        self._define_field(_odm.field.String('last_error'))
         self._define_field(_odm.field.Integer('max_age', default=14))
+        self._define_field(_odm.field.DateTime('paused_till'))
 
     @property
     def driver(self) -> str:
@@ -58,8 +61,16 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('errors')
 
     @property
+    def last_error(self) -> str:
+        return self.f_get('last_error')
+
+    @property
     def max_age(self) -> int:
         return self.f_get('max_age')
+
+    @property
+    def paused_till(self) -> _datetime:
+        return self.f_get('paused_till')
 
     def _pre_save(self):
         """Hook.
@@ -80,6 +91,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             'max_age',
             'enabled',
             'errors',
+            'paused_till',
             'owner'
         )
 
@@ -94,79 +106,97 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             if self.with_images_only else ''
         max_age = self.max_age
         enabled = '<span class="label label-success">' + self.t('word_yes') + '</span>' if self.enabled else ''
-        errors = '<span class="label label-danger">' + str(self.errors) + '</span>' if self.errors else ''
+
+        if self.errors:
+            errors = '<span class="label label-danger" title="{}">{}</span>'\
+                .format(_util.escape_html(self.last_error), self.errors)
+        else:
+            errors = ''
+
+        paused_till = self.f_get('paused_till', fmt='pretty_date_time') if _datetime.now() < self.paused_till else ''
 
         return content_model, driver, self.driver_opts.get('title', ''), all_authors, w_images, max_age, enabled, \
-               errors, self.owner.full_name
+               errors, paused_till, self.owner.full_name
 
     def setup_m_form(self, form, stage: str):
         """Hook.
         :type form: pytsite.form.Base
         """
-        req_val = _router.request.values_dict
+        inp = _router.request.values_dict
+        step = int(inp.get('step', 0))
 
-        # First step
-        if not req_val.get('step'):
-            form.add_widget(_widget.select.Checkbox(
-                weight=10,
-                uid='enabled',
-                label=self.t('enabled'),
-                value=self.enabled,
-            ))
+        form.add_widget(_widget.select.Checkbox(
+            weight=10,
+            uid='enabled',
+            label=self.t('enabled'),
+            value=self.enabled if not step else inp.get('enabled'),
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_widget.select.Checkbox(
-                weight=20,
-                uid='process_all_authors',
-                label=self.t('process_all_authors'),
-                value=self.process_all_authors,
-            ))
+        form.add_widget(_widget.select.Checkbox(
+            weight=20,
+            uid='process_all_authors',
+            label=self.t('process_all_authors'),
+            value=self.process_all_authors if not step else  inp.get('process_all_authors'),
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_widget.select.Checkbox(
-                weight=30,
-                uid='with_images_only',
-                label=self.t('with_images_only'),
-                value=self.with_images_only,
-            ))
+        form.add_widget(_widget.select.Checkbox(
+            weight=30,
+            uid='with_images_only',
+            label=self.t('with_images_only'),
+            value=self.with_images_only if not step else inp.get('with_images_only'),
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_content.widget.ModelSelect(
-                weight=40,
-                uid='content_model',
-                label=self.t('content_model'),
-                value=self.content_model,
-                h_size='col-sm-4',
-                required=True,
-            ))
+        form.add_widget(_content.widget.ModelSelect(
+            weight=40,
+            uid='content_model',
+            label=self.t('content_model'),
+            value=self.content_model if not step else inp.get('content_model'),
+            h_size='col-sm-4',
+            required=True,
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_content_export_widget.DriverSelect(
-                weight=50,
-                uid='driver',
-                label=self.t('driver'),
-                value=self.driver,
-                h_size='col-sm-4',
-                required=True,
-            ))
+        form.add_widget(_content_export_widget.DriverSelect(
+            weight=50,
+            uid='driver',
+            label=self.t('driver'),
+            value=self.driver if not step else inp.get('driver'),
+            h_size='col-sm-4',
+            required=True,
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_widget.input.Integer(
-                weight=60,
-                uid='max_age',
-                label=self.t('max_age'),
-                value=self.max_age,
-                h_size='col-sm-1'
-            ))
+        form.add_widget(_widget.input.Integer(
+            weight=60,
+            uid='max_age',
+            label=self.t('max_age'),
+            value=self.max_age if not step else inp.get('max_age'),
+            h_size='col-sm-1',
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_widget.input.Integer(
-                weight=70,
-                uid='errors',
-                label=self.t('errors'),
-                value=self.errors,
-                h_size='col-sm-1'
-            ))
+        form.add_widget(_widget.select.DateTime(
+            weight=70,
+            uid='paused_till',
+            label=self.t('paused_till'),
+            value=self.paused_till if not step else inp.get('paused_till'),
+            h_size='col-sm-5 col-md-4 col-lg-3',
+            hidden=True if step else False,
+        ))
 
-            form.add_widget(_widget.input.Hidden(
-                uid='step',
-                value='2',
-            ))
+        form.add_widget(_widget.input.Integer(
+            weight=80,
+            uid='errors',
+            label=self.t('errors'),
+            value=self.errors if not step else inp.get('errors'),
+            h_size='col-sm-1',
+            hidden=True if step else False,
+        ))
 
+        if not step:
             form.method = 'GET'
             form.action = _router.current_url()
             form.remove_widget('__form_location')
@@ -177,58 +207,20 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             submit_btn.set_value(self.t('next'))
             submit_btn.icon = 'fa fa-angle-double-right'
 
-        # Second step
-        else:
-            driver = req_val.get('driver')
-
             form.add_widget(_widget.input.Hidden(
                 uid='step',
-                value='3'
+                value=1,
             ))
-
-            form.add_widget(_widget.input.Hidden(
-                uid='content_model',
-                value=req_val.get('content_model')
-            ))
-
-            form.add_widget(_widget.input.Hidden(
-                uid='driver',
-                value=driver
-            ))
-
-            form.add_widget(_widget.input.Hidden(
-                uid='process_all_authors',
-                value=req_val.get('process_all_authors')
-            ))
-
-            form.add_widget(_widget.input.Hidden(
-                uid='with_images_only',
-                value=req_val.get('with_images_only')
-            ))
-
-            form.add_widget(_widget.input.Hidden(
-                uid='enabled',
-                value=req_val.get('enabled')
-            ))
-
-            max_age = req_val.get('max_age')
-            form.add_widget(_widget.input.Hidden(
-                uid='max_age',
-                value=max_age if max_age else 14
-            ))
-
-            errors = req_val.get('errors')
-            form.add_widget(_widget.input.Hidden(
-                uid='errors',
-                value=errors if errors else 0
-            ))
-
+        # Second step
+        else:
+            driver = inp.get('driver')
             form.add_widget(_functions.load_driver(driver).get_settings_widget('driver_opts', **self.driver_opts))
-
-        form.add_rule('content_model', _validation.rule.NonEmpty())
-        form.add_rule('driver', _validation.rule.NonEmpty())
+            form.add_widget(_widget.input.Hidden(
+                uid='step',
+                value=3,
+            ))
 
     def get_d_form_description(self) -> str:
         """Hook.
         """
-        return str(self.id)
+        return '{} ({})'.format(self.driver, self.driver_opts['title'])

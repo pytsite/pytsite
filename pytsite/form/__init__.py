@@ -299,6 +299,12 @@ class Base:
 
         return self._widgets[uid]
 
+    def hide_widget(self, uid):
+        """Hide a widget.
+        """
+        self.get_widget(uid).hide()
+        return self
+
     def get_widgets(self, area: str=None):
         """Get widgets.
 

@@ -79,7 +79,7 @@ class GeoIP(_odm.Model):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('ip'))
+        self._define_field(_odm.field.String('ip', nonempty=True))
         self._define_field(_odm.field.Float('longitude'))
         self._define_field(_odm.field.Float('latitude'))
         self._define_field(_geo.odm_field.LngLat('lng_lat'))

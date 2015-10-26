@@ -27,7 +27,7 @@ class UIMixin(_ABC):
         pass
 
     @staticmethod
-    def browser_search(self, finder: _odm.Finder, query: str):
+    def browser_search(finder: _odm.Finder, query: str):
         """Adjust ODM browser finder in search operation.
         """
         for k, field in finder.mock.fields.items():
@@ -55,6 +55,11 @@ class UIMixin(_ABC):
 
 
 class Model(_odm.Model, UIMixin):
+    def get_d_form_description(self) -> str:
+        """Get delete form description.
+        """
+        return str(self.id)
+
     @property
     def can_be_modified(self) -> bool:
         from . import _functions

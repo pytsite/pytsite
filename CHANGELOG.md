@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.32 (2015-10-26)
+### Added
+- ODM UI implementation for `auth_log`.
+- Timed pausing `content_export`'s exporters in case of errors. 
+- New fields `paused_till` and `last_error` in `content_export.model.ContentExport`.
+
+### Fixed
+- Error in `content.widget.ModelSelect`.
+
+
 ## 0.31 (2015-10-25)
 ### Added
 - `bootstrap` argument in `widget.select.LanguageNav`.

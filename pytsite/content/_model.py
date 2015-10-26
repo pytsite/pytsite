@@ -426,7 +426,7 @@ class Content(_odm_ui.Model):
             weight=800,
             uid='publish_time',
             label=self.t('publish_time'),
-            value=_datetime.now() if self.is_new else self.f_get('publish_time'),
+            value=_datetime.now() if self.is_new else self.publish_time,
             h_size='col-sm-4 col-md-3 col-lg-2',
             required=True,
         ))

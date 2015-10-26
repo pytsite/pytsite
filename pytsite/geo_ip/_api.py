@@ -1,11 +1,15 @@
 """PytSite Geo IP Functions.
 """
 import requests as _requests
+import re as _re
 from pytsite import odm as _odm
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_private_ip_re = _re.compile('(127\.|10\.|172\.(16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32)|192\.168\.)')
 
 
 def resolve(ip: str) -> dict:
@@ -14,15 +18,17 @@ def resolve(ip: str) -> dict:
     entity = _odm.find('geo_ip').where('ip', '=', ip).first()
 
     if not entity:
-        r = _requests.get('http://www.telize.com/geoip/{}'.format(ip))
-        if r.status_code != 200:
-            raise Exception(r.text)
+        if _private_ip_re.match(ip):
+            entity = _odm.dispense('geo_ip').f_set('ip', ip).save()
+        else:
+            r = _requests.get('http://www.telize.com/geoip/{}'.format(ip))
+            if r.status_code != 200:
+                raise Exception(r.text)
 
-        entity = _odm.dispense('geo_ip')
-        for f_name, f_val in r.json().items():
-            if f_name not in ('offset',):
-                entity.f_set(f_name, f_val)
+            for f_name, f_val in r.json().items():
+                if f_name not in ('offset',):
+                    entity.f_set(f_name, f_val)
 
-        entity.save()
+            entity.save()
 
     return entity
