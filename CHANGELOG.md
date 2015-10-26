@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.32.1 (2015-10-26)
+### Fixed
+- Unused import in `router` which leads to crash at startup.
+
+
 ## 0.32 (2015-10-26)
 ### Added
 - ODM UI implementation for `auth_log`.
