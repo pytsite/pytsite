@@ -77,6 +77,9 @@ def cron_1min_eh():
                     # Pausing exporter
                     exporter.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
+                # Stop iterating over entities and go on with new exporter
+                break
+
             finally:
                 exporter.save()
                 cnt += 1

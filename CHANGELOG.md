@@ -1,7 +1,11 @@
 # PytSite Changelog
 
-## 0.32.2 (2015-10-27)
+## 0.32.3 (2015-10-27)
+### Fixed
+- Incorrect loop logic in `content_export`.
 
+
+## 0.32.2 (2015-10-27)
 ### Added
 - New event `pytsite.auth.login_error`.
 - Support for severity by `auth_log`'s model.
