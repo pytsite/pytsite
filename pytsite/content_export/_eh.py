@@ -15,7 +15,7 @@ def cron_1min_eh():
     lock = _threading.get_r_lock()
     limit = _reg.get('content_export.limit', 2)
     max_errors = _reg.get('content_export.max_errors', 13)
-    delay_errors = _reg.get('content_export.delay_errors', 60)
+    delay_errors = _reg.get('content_export.delay_errors', 120)
     cnt = 0
     exporters_f = _odm.find('content_export') \
         .where('enabled', '!=', False) \

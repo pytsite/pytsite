@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.32.4 (2015-10-28)
+### Changed
+- Default value of the config parameter `content_export.delay_errors` increased to 2 hours.
+
+### Fixed
+- Incomplete driver options title in `tumblr`'s auth widget.
+
+
 ## 0.32.3 (2015-10-27)
 ### Fixed
 - Incorrect loop logic in `content_export`.
