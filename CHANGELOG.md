@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.33 (2015-11-xx)
+## Added
+- New package `reddit` (partly completed).
+
+
+
 ## 0.32.4 (2015-10-28)
 ### Changed
 - Default value of the config parameter `content_export.delay_errors` increased to 2 hours.
