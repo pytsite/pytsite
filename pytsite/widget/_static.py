@@ -86,7 +86,7 @@ class Container(_base.Base):
     Can contain only child widgets.
     """
     def get_html_em(self) -> _html.Element:
-        html_container = _html.Div(cls=self.css)
+        html_container = _html.Div(cls=self.css, child_sep=self._child_sep)
         for child in self.children:
             html_container.append(child.get_html_em())
 

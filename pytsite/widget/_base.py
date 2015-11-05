@@ -34,7 +34,7 @@ class Base(_ABC):
         self._css = kwargs.get('css', '')
         self._data = kwargs.get('data', {})
         self._help = kwargs.get('help')
-        self._children_sep = '&nbsp;'
+        self._child_sep = kwargs.get('child_sep', '&nbsp;')
         self._children = []
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)

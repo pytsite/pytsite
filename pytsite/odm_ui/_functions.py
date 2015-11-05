@@ -35,13 +35,13 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
                                           color='primary', icon='fa fa-save')
     cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('pytsite.odm_ui@cancel'),
                                         href=frm.redirect, icon='fa fa-remove')
-    actions_wrapper = _widget.static.Container(
+    actions = _widget.static.Container(
         uid='actions',
         css='actions-wrapper text-xs-B-center text-sm-left',
         form_area='footer',
     )
-    actions_wrapper.append(submit_button).append(cancel_button)
-    frm.add_widget(actions_wrapper)
+    actions.append(submit_button).append(cancel_button)
+    frm.add_widget(actions)
 
     # Metadata
     frm.add_widget(_widget.input.Hidden(uid='__model', value=model, form_area='hidden'))

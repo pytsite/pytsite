@@ -35,14 +35,14 @@ def escape(s: str, quote=True) -> str:
 class Element(_ABC):
     """Base HTML Element.
     """
-    def __init__(self, content: str=None, child_separator: str='', content_first=False, **kwargs):
+    def __init__(self, content: str=None, child_sep: str='', content_first=False, **kwargs):
         """Init.
         """
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
         self._children = []
         self._attrs = {}
-        self._child_separator = child_separator
+        self._child_sep = child_sep
         self._content_first = content_first
 
         for k, v in kwargs.items():
@@ -109,12 +109,12 @@ class Element(_ABC):
 
         valid_children = self._get_valid_children()
 
-        if 'any' not in self._get_valid_children():
+        if 'any' not in valid_children:
             if isinstance(child, InlineElement):
-                if 'inline' not in self._get_valid_children() and child.tag_name not in self._get_valid_children():
+                if 'inline' not in valid_children and child.tag_name not in valid_children:
                     raise ValueError("Element '{}' cannot be child of '{}'".format(child.tag_name, self.tag_name))
             elif isinstance(child, BlockElement):
-                if 'block' not in self._get_valid_children() and child.tag_name not in self._get_valid_children():
+                if 'block' not in valid_children and child.tag_name not in valid_children:
                     raise ValueError("Element '{}' cannot be child of '{}'".format(child.tag_name, self.tag_name))
 
         self._children.append(self._validate_child(child))
@@ -172,7 +172,7 @@ class Element(_ABC):
         if self._children:
             for child in self._children:
                 children.append(str(child))
-        return self._child_separator.join(children)
+        return self._child_sep.join(children)
 
     def render(self) -> str:
         """Render the element.

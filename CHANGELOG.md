@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.33.1 (2015-11-05)
+### Fixed
+- Children separator output in widgets.
+
+
 ## 0.33 (2015-11-05)
 ### Added
 - New package: `reddit` (partly completed).
