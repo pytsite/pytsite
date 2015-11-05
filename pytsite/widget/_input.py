@@ -1,6 +1,5 @@
 """Input Widgets.
 """
-from abc import abstractmethod as _abstractmethod
 from pytsite import assetman as _assetman, browser as _client, html as _html, util as _util, tpl as _tpl, \
     validation as _validation
 from . import _base
@@ -11,7 +10,7 @@ __license__ = 'MIT'
 
 
 class Input(_base.Base):
-    """Input Widget.
+    """Abstract Input Widget.
     """
     def __init__(self, **kwargs):
         """Init.
@@ -39,15 +38,11 @@ class Input(_base.Base):
         rules = [r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)]
         self.remove_rules().add_rules(rules)
 
-    @_abstractmethod
-    def render(self) -> _html.Element:
-        pass
-
 
 class Hidden(Input):
     """Hidden Input Widget
     """
-    def render(self) -> str:
+    def get_html_em(self) -> str:
         """Render the widget.
         """
         html_input = _html.Input(
@@ -73,7 +68,7 @@ class TextArea(_base.Base):
         self._max_length = kwargs.get('max_length')
         self._css = ' '.join((self._css, 'widget-textarea-input'))
 
-    def render(self) -> str:
+    def get_html_em(self) -> str:
         """Render the widget.
         """
         html_input = _html.TextArea(
@@ -95,16 +90,16 @@ class TextArea(_base.Base):
 class Text(Input):
     """Text Input Widget
     """
-    def __init__(self, prepend: str=None, append: str=None, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
-        self._prepend = prepend
-        self._append = append
+        self._prepend = kwargs.get('prepend')
+        self._append = kwargs.get('append')
         self._css = ' '.join((self._css, 'widget-input-text'))
         self._type = 'text'
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget
         """
         _assetman.add('pytsite.widget@js/text.js')
@@ -132,6 +127,12 @@ class Text(Input):
             inp = group
 
         return self._group_wrap(inp)
+
+
+class Password(Text):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._type = 'password'
 
 
 class TypeaheadText(Text):
@@ -169,17 +170,15 @@ class Integer(Text):
         self._data['allow_minus'] = self._allow_minus
         self.add_rule(_validation.rule.Integer())
 
+        _client.include('inputmask')
+        _assetman.add('pytsite.widget@js/integer.js')
+
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
         if not value:
             value = 0
         return super().set_value(int(value), **kwargs)
-
-    def render(self):
-        _client.include('inputmask')
-        _assetman.add('pytsite.widget@js/integer.js')
-        return super().render()
 
 
 class Float(Text):
@@ -195,6 +194,9 @@ class Float(Text):
         self._data['allow_minus'] = self._allow_minus
         self.add_rule(_validation.rule.Float())
 
+        _client.include('inputmask')
+        _assetman.add('pytsite.widget@js/float.js')
+
     def set_value(self, value, **kwargs: dict):
         """Set value of the widget.
         """
@@ -202,11 +204,6 @@ class Float(Text):
             value = 0.0
 
         return super().set_value(float(value), **kwargs)
-
-    def render(self):
-        _client.include('inputmask')
-        _assetman.add('pytsite.widget@js/float.js')
-        return super().render()
 
 
 class StringList(_base.Base):
@@ -245,11 +242,10 @@ class StringList(_base.Base):
 
         return super().set_value(_util.list_cleanup(value), **kwargs)
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        widget_content = _html.Div(_tpl.render('pytsite.widget@string_list', {'widget': self}))
-        return self._group_wrap(widget_content)
+        return self._group_wrap(_html.Div(_tpl.render('pytsite.widget@string_list', {'widget': self})))
 
 
 class ListList(StringList):
@@ -312,11 +308,10 @@ class ListList(StringList):
 
         return super().set_value(new_value, **kwargs)
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        widget_content = _html.Div(_tpl.render('pytsite.widget@list_list', {'widget': self}))
-        return self._group_wrap(widget_content)
+        return self._group_wrap(_html.Div(_tpl.render('pytsite.widget@list_list', {'widget': self})))
 
 
 class Tokens(Input):
@@ -346,7 +341,7 @@ class Tokens(Input):
 
         return super().set_value(value)
 
-    def render(self) -> str:
+    def get_html_em(self) -> str:
         """Render the widget.
         """
         html_input = _html.Input(

@@ -27,7 +27,7 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     # Action, redirect and validation endpoints
     frm.validation_ep = 'pytsite.odm_ui.ep.validate_m_form'
     frm.action = _router.ep_url('pytsite.odm_ui.ep.post_m_form', {'model': model, 'id': eid if eid else '0'})
-    if not _router.request.values_dict.get('__form_redirect'):
+    if not _router.request.inp.get('__form_redirect'):
         frm.redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 
     # Action buttons
@@ -35,12 +35,12 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
                                           color='primary', icon='fa fa-save')
     cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('pytsite.odm_ui@cancel'),
                                         href=frm.redirect, icon='fa fa-remove')
-    actions_wrapper = _widget.static.Wrapper(
+    actions_wrapper = _widget.static.Container(
         uid='actions',
         css='actions-wrapper text-xs-B-center text-sm-left',
         form_area='footer',
     )
-    actions_wrapper.add_child(submit_button).add_child(cancel_button)
+    actions_wrapper.append(submit_button).append(cancel_button)
     frm.add_widget(actions_wrapper)
 
     # Metadata
@@ -84,7 +84,7 @@ def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
         entity = dispense_entity(model, eid)
         frm.add_widget(_widget.input.Hidden(name='ids', value=str(entity.id)))
         ol.append(_html.Li(entity.get_d_form_description()))
-    frm.add_widget(_widget.static.Text(html_em=_html.Div, title=str(ol)))
+    frm.add_widget(_widget.static.Text(title=str(ol)))
 
     # Action buttons
     submit_button = _widget.button.Submit(weight=10, value=_lang.t('pytsite.odm_ui@delete'), color='danger',
@@ -92,8 +92,8 @@ def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
     cancel_button_url = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
     cancel_button = _widget.button.Link(weight=20, value=_lang.t('pytsite.odm_ui@cancel'), href=cancel_button_url,
                                         icon='fa fa-ban')
-    actions_wrapper = _widget.static.Wrapper(form_area='footer')
-    actions_wrapper.add_child(submit_button).add_child(cancel_button)
+    actions_wrapper = _widget.static.Container(form_area='footer')
+    actions_wrapper.append(submit_button).append(cancel_button)
     frm.add_widget(actions_wrapper)
 
     return frm

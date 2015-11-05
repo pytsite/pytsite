@@ -30,7 +30,7 @@ class Flag(_widget.Base):
     def count(self) -> int:
         return _api.count(self._uid)
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         current_user = _auth.get_current_user()
 
         css = 'widget widget-flag'

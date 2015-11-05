@@ -23,10 +23,12 @@ def include(lib: str, forever=False):
         _assetman.add(__name__ + '@bootstrap-table/bootstrap-table.min.css', forever=forever)
         _assetman.add(__name__ + '@bootstrap-table/bootstrap-table.min.js', forever=forever)
         current_lang = _lang.get_current()
-        locale = current_lang + '-' + current_lang.upper()
-        if current_lang == 'uk':
-            locale = 'uk-UA'
-        _assetman.add(__name__ + '@bootstrap-table/locale/bootstrap-table-{}.min.js'. format(locale), forever=forever)
+        if current_lang != 'en':
+            locale = current_lang + '-' + current_lang.upper()
+            if current_lang == 'uk':
+                locale = 'uk-UA'
+            _assetman.add(__name__ + '@bootstrap-table/locale/bootstrap-table-{}.min.js'. format(locale),
+                          forever=forever)
     elif lib == 'font-awesome':
         _assetman.add(__name__ + '@font-awesome/css/font-awesome.min.css', forever=forever)
     elif lib == 'imagesloaded':

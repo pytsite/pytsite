@@ -27,13 +27,13 @@ class Auth(_widget.Base):
 
         self._css += ' widget-reddit-oauth'
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render widget.
         """
         # If 'code' is here, we need to exchange it to an access token
-        auth_state = _router.request.values_dict.get('state')
-        auth_code = _router.request.values_dict.get('code')
-        error = _router.request.values_dict.get('error')
+        auth_state = _router.request.inp.get('state')
+        auth_code = _router.request.inp.get('code')
+        error = _router.request.inp.get('error')
         if auth_code and auth_state and not error:
             access_data = RedditAuthSession(auth_state).get_access_token(auth_code)
             self._access_token = access_data['access_token']
@@ -63,7 +63,7 @@ class Auth(_widget.Base):
             pass
             a = '<a href="http://reddit.com/user/{}" target="_blank"><i class="fa fa-fw fa-reddit"></i>&nbsp;{}</a>'.\
                 format(self._screen_name, self._screen_name)
-            wrapper.append(_widget.static.Text(title=a).render())
+            wrapper.append(_widget.static.Text(title=a).get_html_em())
             #
             # user_info = RedditSession(self._oauth_token, self._oauth_token_secret).user_info()
             # blogs = [(i['name'], i['title']) for i in user_info['blogs']]

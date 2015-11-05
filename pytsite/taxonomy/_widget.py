@@ -45,7 +45,7 @@ class TokensInput(_widget.input.Tokens):
 
         super().set_value(clean_value)
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         html_input = _html.Input(
@@ -113,7 +113,7 @@ class Cloud(_widget.Base):
     def wrap(self) -> bool:
         return self._wrap
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         content = _html.TagLessElement(_tpl.render(self._tpl, {'widget': self}))

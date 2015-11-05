@@ -1,7 +1,5 @@
-"""Pytsite Robots Module.
+"""Pytsite Robots Init.
 """
-from pytsite import events as _events
-from . import _eh
 
 # Public API
 from ._api import disallow, sitemap
@@ -11,4 +9,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_events.listen('pytsite.cron.daily', _eh.cron_daily)
+def __init():
+    from pytsite import events
+    from . import _eh
+
+    events.listen('pytsite.cron.daily', _eh.cron_daily)
+
+__init()

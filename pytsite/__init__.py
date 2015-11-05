@@ -135,7 +135,7 @@ def __init():
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
 
     # Settings favicon href
-    reg.set_val('metatag.favicon.href', assetman.get_url('img/favicon.png'))
+    reg.set_val('metatag.favicon.href', assetman.url('img/favicon.png'))
 
     # Autoloading required modules
     for module in reg.get('app.autoload', ()):

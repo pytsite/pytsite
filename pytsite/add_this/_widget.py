@@ -29,7 +29,7 @@ class AddThis(_widget.Base):
 
         _assetman.add('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id, 'js')
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         div = _html.Div(cls='addthis_' + self._type)

@@ -45,13 +45,13 @@ class EntitySelect(_widget.select.Select2):
 
         return super().set_value(value, **kwargs)
 
-    def render(self):
+    def get_html_em(self):
         # In AJAX-mode Select2 doesn't contain any items,
         # but if we have selected item, it is necessary to append it
         if self._ajax_url and self._value:
             self._items.append((self._value, _odm.get_by_ref(self._value).title))
 
-        return super().render()
+        return super().get_html_em()
 
 
 class TagCloud(_taxonomy.widget.Cloud):
@@ -82,7 +82,7 @@ class Search(_widget.Base):
         """Init.
         """
         super().__init__(**kwargs)
-        self._value = _router.request.values_dict.get('search', '')
+        self._value = _router.request.inp.get('search', '')
         self._model = model
         self._title_tag = kwargs.get('title_tag', 'h3')
 
@@ -106,7 +106,7 @@ class Search(_widget.Base):
     def form(self) -> _html.Element:
         return self._form
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         return self._group_wrap(_tpl.render('pytsite.content@widget/search', {'widget': self}))

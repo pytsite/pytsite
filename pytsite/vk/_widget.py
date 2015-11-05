@@ -24,7 +24,7 @@ class Auth(_widget.Base):
 
         _assetman.add('pytsite.vk@js/widget.js')
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render widget.
         """
         authorize_url = _router.url('https://oauth.vk.com/authorize', query={
@@ -45,7 +45,7 @@ class Auth(_widget.Base):
             label=_lang.t('pytsite.vk@access_url'),
             help=_lang.t('pytsite.vk@access_url_help', {'link': authorize_url}),
             value=self._access_url,
-        ).render())
+        ).get_html_em())
 
         wrapper.append(_widget.input.Integer(
             weight=20,
@@ -54,18 +54,18 @@ class Auth(_widget.Base):
             label=_lang.t('pytsite.vk@group_id'),
             value=self._group_id,
             h_size='col-sm-2'
-        ).render())
+        ).get_html_em())
 
         wrapper.append(_widget.input.Hidden(
             uid='access_token',
             name='{}[access_token]'.format(self._uid),
             value=self._access_token,
-        ).render())
+        ).get_html_em())
 
         wrapper.append(_widget.input.Hidden(
             uid='user_id',
             name='{}[user_id]'.format(self._uid),
             value=self._user_id,
-        ).render())
+        ).get_html_em())
 
         return self._group_wrap(wrapper)

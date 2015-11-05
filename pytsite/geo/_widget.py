@@ -42,7 +42,7 @@ class LngLat(_widget.Base):
 
         return super().set_value(val, **kwargs)
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         return self._group_wrap(_html.Input(type='hidden', name=self._uid, value=self.get_value()))
@@ -70,7 +70,7 @@ class Location(_widget.Base):
 
         return super().set_value(val, **kwargs)
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         inputs = _html.TagLessElement()
@@ -145,7 +145,7 @@ class SearchAddress(Location):
 
         return val
 
-    def render(self) -> str:
+    def get_html_em(self) -> str:
         """Render the widget.
         """
         lng = self.value['lng']
@@ -191,7 +191,7 @@ class StaticMap(_widget.Base):
         """
         return self._language
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         if not self._lat and not self._lng:

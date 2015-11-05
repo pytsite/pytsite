@@ -42,7 +42,7 @@ class EntitySelect(_widget.select.Select):
 
         return super().set_value(value, **kwargs)
 
-    def render(self):
+    def get_html_em(self):
         """Render the widget.
         """
         # Setup finder
@@ -55,7 +55,7 @@ class EntitySelect(_widget.select.Select):
             k = entity.model + ':' + str(entity.id)
             self._items.append((k, str(entity.f_get(self._caption_field))))
 
-        return super().render()
+        return super().get_html_em()
 
 
 class EntityCheckboxes(_widget.select.Checkboxes):
@@ -117,10 +117,10 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         self._value = clean_val
         return self
 
-    def render(self):
+    def get_html_em(self):
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
             k = entity.model + ':' + str(entity.id)
             self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))
 
-        return super().render()
+        return super().get_html_em()

@@ -101,9 +101,11 @@ class Element(_ABC):
 
     def append(self, child):
         """Append child.
+
+        :type child: Element
         """
         if not isinstance(child, Element):
-            raise TypeError("Element expected.")
+            raise TypeError("Element expected, got {}: {}.".format(child.__class__.__name__, child))
 
         valid_children = self._get_valid_children()
 

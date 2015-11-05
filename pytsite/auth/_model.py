@@ -126,11 +126,11 @@ class User(_odm.Model):
         return self.f_get('profile_is_public')
 
     @property
-    def password(self) -> bool:
+    def password(self) -> str:
         return self.f_get('password')
 
     @property
-    def token(self) -> bool:
+    def token(self) -> str:
         return self.f_get('token')
 
     @property
@@ -153,12 +153,21 @@ class User(_odm.Model):
         """_on_f_set() hook.
         """
         if field_name == 'password':
-            from ._functions import password_hash
-            value = password_hash(value)
-            self.f_set('token', _util.random_str(32))
+            from ._api import password_hash
+            if value:
+                value = password_hash(value)
+                self.f_set('token', _util.random_str(32))
+            else:
+                if self.is_new:
+                    # Set random password
+                    value = password_hash(_util.random_password())
+                    self.f_set('token', _util.random_str(32))
+                else:
+                    # Keep old password
+                    value = self.password
 
         if field_name == 'status':
-            from ._functions import get_user_statuses
+            from ._api import get_user_statuses
             if value not in [v[0] for v in get_user_statuses()]:
                 raise Exception("Invalid user status: '{}'.".format(value))
 
@@ -171,7 +180,8 @@ class User(_odm.Model):
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.password:
-            self.f_set('password', _util.random_password())
+            print('PRE')
+            self.f_set('password', '')
 
         if not self.token:
             self.f_set('token', _util.random_str(32))
@@ -179,9 +189,9 @@ class User(_odm.Model):
     def _pre_delete(self):
         """Hook.
         """
-        from . import _functions
+        from . import _api
 
-        if _functions.get_current_user() == self and self.is_admin:
+        if _api.get_current_user() == self and self.is_admin:
             raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
 
         # Search for entities which user owns
@@ -208,8 +218,8 @@ class User(_odm.Model):
     def has_permission(self, name: str) -> bool:
         """Checks if the user has permission.
         """
-        from . import _functions
-        if not _functions.is_permission_defined(name):
+        from . import _api
+        if not _api.is_permission_defined(name):
             raise KeyError("Permission '{}' is not defined.".format(name))
 
         # Admin 'has' any role
@@ -280,8 +290,8 @@ class Role(_odm.Model):
     def _pre_delete(self):
         """Hook.
         """
-        from . import _functions
+        from . import _api
 
-        for user in _functions.find_users(False).get():
+        for user in _api.find_users(False).get():
             if user.has_role(self.name):
                 raise _odm.error.ForbidEntityDelete(self.t('role_user_by_user', {'user': user.login}))

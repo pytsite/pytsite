@@ -24,14 +24,14 @@ class Auth(_widget.Base):
 
         self._css += ' widget-twitter-oauth'
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render widget.
         """
         session = TwitterSession(oauth_token=self._oauth_token, oauth_token_secret=self._oauth_token_secret)
         """:type: pytsite.twitter._oauth.Driver"""
 
         # If 'verifier' is here, we need to exchange it to an access token
-        inp_oauth_verifier = _router.request.values_dict.get('oauth_verifier')
+        inp_oauth_verifier = _router.request.inp.get('oauth_verifier')
         if inp_oauth_verifier:
             token = session.get_access_token(inp_oauth_verifier)
             self._oauth_token = token['oauth_token']

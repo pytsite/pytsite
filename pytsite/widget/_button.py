@@ -1,17 +1,17 @@
 """Button Widgets.
 """
+from pytsite import html as _html
+from . import _base
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import html as _html
-from . import _base
 
 
 class Button(_base.Base):
     """Button.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
@@ -19,7 +19,7 @@ class Button(_base.Base):
         self._color = kwargs.get('color', 'default')
         self._css += ' btn btn-' + self._color
 
-        self._em = _html.Button(uid=self._uid, type='button', cls=self.css)
+        self._html_em = _html.Button(uid=self._uid, type='button', cls=self.css)
 
     @property
     def icon(self) -> str:
@@ -29,14 +29,14 @@ class Button(_base.Base):
     def icon(self, value):
         self._icon = value
 
-    def render(self) -> str:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        self._em.content = self.get_value()
-        if self._icon and not self._em.children:
-            self._em.append(_html.I(cls=self._icon))
+        self._html_em.content = self.get_value()
+        if self._icon and not self._html_em.children:
+            self._html_em.append(_html.I(cls=self._icon))
 
-        return self._em.render()
+        return self._html_em
 
 
 class Submit(Button):
@@ -46,7 +46,7 @@ class Submit(Button):
         """Init.
         """
         super().__init__(**kwargs)
-        self._em = _html.Button(uid=self._uid, type='submit', cls=self._css)
+        self._html_em = _html.Button(uid=self._uid, type='submit', cls=self._css)
 
 
 class Link(Button):
@@ -56,12 +56,12 @@ class Link(Button):
         """Init.
         """
         super().__init__(**kwargs)
-        self._em = _html.A(uid=self._uid, href=href, cls=self._css)
+        self._html_em = _html.A(uid=self._uid, href=href, cls=self._css)
 
     @property
     def href(self) -> str:
-        return self._em.get_attr('href')
+        return self._html_em.get_attr('href')
 
     @href.setter
     def href(self, value: str):
-        self._em.set_attr('href', value)
+        self._html_em.set_attr('href', value)

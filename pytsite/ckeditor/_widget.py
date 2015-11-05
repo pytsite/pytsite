@@ -21,7 +21,7 @@ class CKEditor(_widget.Base):
         _assetman.add('pytsite.ckeditor@ckeditor/adapters/jquery.js')
         _assetman.add('pytsite.ckeditor@js/ckeditor.js')
 
-    def render(self) -> str:
+    def get_html_em(self) -> str:
         """Render the widget.
         """
         return self._group_wrap(_html.TextArea(self.get_value(), name=self._uid))

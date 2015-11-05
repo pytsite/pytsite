@@ -122,7 +122,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         """Hook.
         :type form: pytsite.form.Base
         """
-        inp = _router.request.values_dict
+        inp = _router.request.inp
         step = int(inp.get('step', 0))
 
         form.add_widget(_widget.select.Checkbox(

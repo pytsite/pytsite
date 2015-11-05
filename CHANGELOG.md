@@ -1,9 +1,10 @@
 # PytSite Changelog
 
-## 0.33 (2015-11-xx)
-## Added
-- New package `reddit` (partly completed).
-
+## 0.33 (2015-11-05)
+### Added
+- New package: `reddit` (partly completed).
+- New package: `fb` (partly completed).
+- New `auth` driver: `password`.
 
 
 ## 0.32.4 (2015-10-28)

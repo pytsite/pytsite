@@ -57,8 +57,8 @@ class Currency(_widget.input.Float):
 
         return self._value
 
-    def render(self) -> _html.Element:
-        r = super().render()
+    def get_html_em(self) -> _html.Element:
+        r = super().get_html_em()
         r.append(_html.Input(type='hidden', name=self._uid + '[currency]', value=self._currency))
         new_uid = self.uid + '[amount]'
 

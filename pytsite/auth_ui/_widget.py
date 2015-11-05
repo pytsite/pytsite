@@ -21,7 +21,7 @@ class Profile(_widget.Base):
         self._col_image_css = kwargs.get('col_image_css', 'col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center')
         self._col_content_css = kwargs.get('col_content_css', 'col-xs-B-12 col-xs-8 col-sm-9 col-lg-10')
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         current_user = _auth.get_current_user()
@@ -63,7 +63,7 @@ class Follow(_widget.Base):
         self._unfollow_msg_id = kwargs.get('unfollow_msg_id', 'pytsite.auth_ui@unfollow')
         self._following_msg_id = 'pytsite.auth_ui@following'
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         # Don't show the widget to unauthorized and profile owners

@@ -22,3 +22,5 @@ account_owns_entity: "this account is the owner of the entity ':entity'"
 role_user_by_user: "Role is used by user ':user'"
 email_cannot_be_empty: 'Email cannot be empty'
 signup_is_disabled: 'Signup is disabled'
+email: Email
+password: Password

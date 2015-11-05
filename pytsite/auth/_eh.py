@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util, \
     hreflang as _hreflang, reg as _reg
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -17,8 +17,8 @@ def app_setup():
     admin_role = ('admin', 'pytsite.auth@admin_role_description')
     user_role = ('user', 'pytsite.auth@user_role_description')
     for role in admin_role, user_role:
-        if not _functions.get_role(name=role[0]):
-            role_entity = _functions.create_role(role[0], role[1])
+        if not _api.get_role(name=role[0]):
+            role_entity = _api.create_role(role[0], role[1])
             if role_entity.f_get('name') == 'admin':
                 role_entity.f_add('permissions', 'admin')
             role_entity.save()
@@ -33,10 +33,10 @@ def app_setup():
     except _validation.error.RuleError as e:
         raise _console.Error(e)
 
-    admin_user = _functions.create_user(email)
+    admin_user = _api.create_user(email)
     admin_user.f_set('first_name', _lang.t('pytsite.auth@administrator'))
     admin_user.f_set('nickname', _util.transform_str_2(admin_user.full_name))
-    admin_user.f_add('roles', _functions.get_role('admin'))
+    admin_user.f_add('roles', _api.get_role('admin'))
     admin_user.save()
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
 
@@ -45,7 +45,7 @@ def router_dispatch():
     """pytsite.router.dispatch Event Handler.
     """
     # Update user activity timestamp
-    user = _functions.get_current_user()
+    user = _api.get_current_user()
     if not user.is_anonymous:
         _router.no_cache = True
         user.f_set('last_activity', _datetime.now()).save(True, False)
@@ -63,7 +63,7 @@ def update(version: str):
 
 
 def _update_0_13():
-    for user in _functions.find_users(False).get():
+    for user in _api.find_users(False).get():
         if not user.nickname:
             if not user.full_name:
                 user.f_set('first_name', _util.random_str())

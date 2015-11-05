@@ -24,7 +24,7 @@ class Checkbox(_input.Input):
         """
         self._value = bool(value)
 
-    def render(self):
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         div = _html.Div(cls='checkbox')
@@ -59,7 +59,7 @@ class Select(_input.Input):
 
         return select
 
-    def render(self):
+    def get_html_em(self):
         """Render the widget.
         """
         return self._group_wrap(self._get_select_html_em())
@@ -80,7 +80,7 @@ class Select2(Select):
         self._ajax_data_type = kwargs.get('ajax_data_type', 'json')
         self._css += ' widget-select-select2'
 
-    def render(self):
+    def get_html_em(self):
         select = self._get_select_html_em()
 
         if self._ajax_url:
@@ -117,7 +117,7 @@ class Checkboxes(Select):
         self._value = value
         self._selected_items = value
 
-    def render(self) -> str:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         div = _html.Div()
@@ -160,7 +160,7 @@ class LanguageNav(_base.Base):
         if self._bootstrap:
             self._css += ' nav navbar-nav'
 
-    def render(self):
+    def get_html_em(self) -> _html.Element:
         if len(_lang.langs()) == 1:
             return _html.TagLessElement()
 
@@ -230,7 +230,7 @@ class DateTime(_input.Text):
         """
         return super().get_value(**kwargs)
 
-    def render(self) -> str:
+    def get_html_em(self) -> _html.Element:
         """Render the widget
         """
         html_input = _html.Input(

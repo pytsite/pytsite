@@ -168,9 +168,16 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             exclude_ids=self.id
         ))
 
+        # Password
+        form.add_widget(_widget.input.Password(
+            weight=80,
+            uid='password',
+            label=self.t('password'),
+        ))
+
         # Description
         form.add_widget(_widget.input.TextArea(
-            weight=70,
+            weight=90,
             uid='description',
             value=self.f_get('description'),
             label=self.t('about_yourself'),
@@ -180,7 +187,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Status
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.select.Select(
-                weight=80,
+                weight=100,
                 uid='status',
                 value=self.f_get('status'),
                 label=self.t('status'),
@@ -191,7 +198,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # URLs
         form.add_widget(_widget.input.StringList(
-            weight=90,
+            weight=110,
             uid='urls',
             label=self.t('social_links'),
             value=self.urls,
@@ -203,7 +210,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Roles
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_odm_ui.widget.EntityCheckboxes(
-                weight=100,
+                weight=120,
                 uid='roles',
                 label=self.t('roles'),
                 model='role',
@@ -215,7 +222,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.input.Text(
-                weight=110,
+                weight=130,
                 uid='token',
                 value=self.f_get('token'),
                 label=self.t('token'),

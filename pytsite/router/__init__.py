@@ -17,7 +17,7 @@ __license__ = 'MIT'
 
 
 _routes = _Map()
-_url_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
+_map_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 _path_aliases = {}
 
 # Registering module's language package
@@ -47,16 +47,14 @@ class Rule(_Rule):
     """Routing Rule.
     """
     def __init__(self, url_path: str, **kwargs):
-        self.call = kwargs.get('call')
-        self.filters = kwargs.get('filters', ())
+        self.call = kwargs.pop('call')
+        self.filters = kwargs.pop('filters', ())
 
         endpoint = kwargs.get('endpoint')
         try:
             _routes.iter_rules(endpoint)
             raise Exception("Endpoint name '{}' already used.".format(endpoint))
         except KeyError:
-            del kwargs['call']
-            del kwargs['filters']
             super().__init__(url_path, **kwargs)
 
     def get_rules(self, rules_map):
@@ -143,7 +141,7 @@ def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
     from pytsite import tpl, events
-    global _url_adapter, request, session, no_cache
+    global _map_adapter, request, session, no_cache
 
     if _path.exists(_reg.get('paths.maintenance.lock')):
         wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
@@ -151,12 +149,12 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     # Remove trailing slash
-    _url_adapter = _routes.bind_to_environ(env)
-    path_info = _url_adapter.path_info
+    _map_adapter = _routes.bind_to_environ(env)
+    path_info = _map_adapter.path_info
     if len(path_info) > 1 and path_info.endswith('/'):
         redirect_url = _re.sub('/$', '', path_info)
-        if _url_adapter.query_args:
-            redirect_url += '?' + _url_adapter.query_args
+        if _map_adapter.query_args:
+            redirect_url += '?' + _map_adapter.query_args
         return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # All requests are cached by default
@@ -190,7 +188,7 @@ def dispatch(env: dict, start_response: callable):
     env['PATH_INFO'] = _path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
 
     # Replace url adapter with modified environment
-    _url_adapter = _routes.bind_to_environ(env)
+    _map_adapter = _routes.bind_to_environ(env)
 
     # Creating request
     request = _http.request.Request(env)
@@ -204,7 +202,7 @@ def dispatch(env: dict, start_response: callable):
 
     # Processing
     try:
-        rule, rule_args = _url_adapter.match(return_rule=True)
+        rule, rule_args = _map_adapter.match(return_rule=True)
 
         # Notify listeners
         events.fire('pytsite.router.dispatch')
@@ -220,7 +218,7 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_ep(flt_endpoint, flt_args, request.values_dict)
+            flt_response = call_ep(flt_endpoint, flt_args, request.inp)
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
@@ -228,7 +226,7 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Processing response from handler
-        response_from_callable = call_ep(rule.call, rule_args, request.values_dict)
+        response_from_callable = call_ep(rule.call, rule_args, request.inp)
         if isinstance(response_from_callable, str):
             if _reg.get('output.minify'):
                 response_from_callable = _minify(response_from_callable, True, True)
@@ -308,8 +306,8 @@ def server_name():
     """
     from pytsite import reg
     name = reg.get('server.name', 'localhost')
-    if _url_adapter:
-        name = _url_adapter.server_name
+    if _map_adapter:
+        name = _map_adapter.server_name
 
     return name
 
@@ -318,8 +316,8 @@ def scheme():
     """Get current URL scheme.
     """
     r = 'http'
-    if _url_adapter:
-        r = _url_adapter.url_scheme
+    if _map_adapter:
+        r = _map_adapter.url_scheme
 
     return r
 
@@ -417,11 +415,11 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True, lang: str=Non
 
 
 def ep_path(endpoint: str, args: dict=None, strip_lang=False) -> str:
-    return url(_url_adapter.build(endpoint, args), relative=True, strip_lang=strip_lang)
+    return url(_map_adapter.build(endpoint, args), relative=True, strip_lang=strip_lang)
 
 
 def ep_url(ep_name: str, args: dict=None, strip_lang=False) -> str:
     """Get URL for endpoint.
     """
-    r = _url_adapter.build(ep_name, args)
+    r = _map_adapter.build(ep_name, args)
     return url(r, strip_lang=strip_lang, relative=False)

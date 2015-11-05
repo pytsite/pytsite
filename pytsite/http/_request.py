@@ -10,7 +10,7 @@ class Request(_Request):
     """HTTP request.
     """
     @property
-    def values_dict(self) -> dict:
+    def inp(self) -> dict:
         r = {}
 
         for part in self.values.lists():

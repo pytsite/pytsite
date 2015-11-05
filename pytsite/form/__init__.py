@@ -30,8 +30,8 @@ class Base:
         self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ep.validate')
         self._tpl = kwargs.get('tpl', 'pytsite.form@form')
 
-        self._css = kwargs.get('css', '')
-        self._css += ' pytsite-form'
+        self._css = kwargs.get('css', '') + ' pytsite-form'
+        self._css = self._css.strip()
 
         self._title = kwargs.get('title')
         self._title_css = kwargs.get('title_css', 'box-title')
@@ -42,7 +42,7 @@ class Base:
         self._area_body_css = kwargs.get('area_body_css', 'form-area-body box-body')
         self._area_footer_css = kwargs.get('area_footer_css', 'form-area-footer box-footer')
 
-        redirect_url = _router.request.values_dict.get('__form_redirect')
+        redirect_url = _router.request.inp.get('__form_redirect')
         if not redirect_url:
             redirect_url = _router.current_url()
         elif isinstance(redirect_url, list):
@@ -59,7 +59,7 @@ class Base:
             form_area='hidden')
         )
 
-        self.add_widget(_widget.static.Wrapper(
+        self.add_widget(_widget.static.Container(
             css='form-messages',
         ))
 
@@ -333,4 +333,4 @@ class Base:
     def render_widget(self, widget_uid: str) -> _html.Element:
         """Render form's widget.
         """
-        return self.get_widget(widget_uid).render()
+        return self.get_widget(widget_uid).get_html_em()

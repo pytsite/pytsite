@@ -24,12 +24,12 @@ class Auth(_widget.Base):
 
         self._css += ' widget-tumblr-oauth'
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render widget.
         """
         # If 'verifier' is here, we need to exchange it to an access token
-        inp_oauth_token = _router.request.values_dict.get('oauth_token')
-        inp_oauth_verifier = _router.request.values_dict.get('oauth_verifier')
+        inp_oauth_token = _router.request.inp.get('oauth_token')
+        inp_oauth_verifier = _router.request.inp.get('oauth_verifier')
         if inp_oauth_token and inp_oauth_verifier:
             access_data = TumblrAuthSession(inp_oauth_token).get_access_token(_router.current_url())
             self._oauth_token = access_data['oauth_token']
@@ -50,14 +50,14 @@ class Auth(_widget.Base):
         if self._oauth_token and self._oauth_token_secret and self._screen_name:
             a = '<a href="http://{}.tumblr.com" target="_blank"><i class="fa fa-fw fa-tumblr"></i>&nbsp;{}</a>'.\
                 format(self._screen_name, self._screen_name)
-            wrapper.append(_widget.static.Text(title=a).render())
+            wrapper.append(_widget.static.Text(title=a).get_html_em())
 
             user_info = TumblrSession(self._oauth_token, self._oauth_token_secret).user_info()
             blogs = [(i['name'], i['title']) for i in user_info['blogs']]
             blog_select = _widget.select.Select(name='{}[{}]'.format(self._uid, 'user_blog'), h_size='col-sm-6',
                                                 items=blogs, value=self._user_blog, required=True,
                                                 label=_lang.t('pytsite.tumblr@blog'))
-            wrapper.append(blog_select.render())
+            wrapper.append(blog_select.get_html_em())
         else:
             auth_s = TumblrAuthSession(callback_uri=_router.current_url()).fetch_request_token()
             wrapper.append(

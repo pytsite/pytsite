@@ -21,4 +21,6 @@ you_cannot_delete_yourself: "Ви не можете видалити свій о
 account_owns_entity: "Обліковий запис є власником сутності ':entity'"
 role_user_by_user: "Роль використовується обліковим записом ':user'"
 email_cannot_be_empty: 'Email не може бути порожнім'
-signup_is_disabled: 'Реєстрація користувачів відключена'
+signup_is_disabled: 'Реєстрацію нових користувачів відключено'
+email: 'Email'
+password: 'Пароль'

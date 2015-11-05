@@ -6,8 +6,8 @@ from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, http as _http, \
-    logger as _logger, router as _router, util as _util
-from .. import _functions, _error
+    logger as _logger, router as _router, util as _util, html as _html
+from .. import _api, _error
 from .abstract import AbstractDriver
 
 __author__ = 'Alexander Shepetko'
@@ -15,51 +15,50 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Login(_widget.Base):
+class _LoginWidget(_widget.Base):
     """ULogin Widget.
     """
-
     def __init__(self, **kwargs: dict):
         """Init.
         """
         super().__init__()
         self._redirect_url = kwargs.get('redirect_url', '')
 
-    def render(self) -> str:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        return _tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self})
+        return _html.TagLessElement(_tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self}))
 
 
-class LoginForm(_form.Base):
+class _LoginForm(_form.Base):
     """ULogin Login Form.
     """
-
     def _setup(self):
         """_setup() hook.
         """
-        for k, v in _router.request.values.items():
+        for k, v in _router.request.inp.items():
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
 
         if not self.has_widget(self.uid + '-token'):
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token', form_area='hidden'))
 
-        self.add_widget(Login())
+        self.add_widget(_LoginWidget())
 
 
-class ULoginDriver(AbstractDriver):
+class Driver(AbstractDriver):
     """ULogin Driver.
     """
+    def get_name(self) -> str:
+        """Get name of the driver.
+        """
+        return 'ulogin'
 
-    def get_login_form(self, uid='', css='', title='') -> _form.Base:
+    def get_login_form(self, uid: str, css: str, title: str) -> _form.Base:
         """Get the login form.
         """
-        if not uid:
-            uid = 'pytsite-auth-login'
+        return _LoginForm(uid=uid, css=css, title=title)
 
-        return LoginForm(uid=uid, css=css, title=title)
-
-    def post_login_form(self, args: dict, inp: dict) -> _http.response.Redirect:
+    def post_login_form(self, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.
         """
         # Reading response from uLogin
@@ -73,7 +72,7 @@ class ULoginDriver(AbstractDriver):
             raise _error.LoginError("Email '{}' is not verified by uLogin.".format(ulogin_data['email']))
 
         email = ulogin_data['email']
-        user = _functions.get_user(email)
+        user = _api.get_user(email)
 
         try:
             # User is not exists and its creation is not allowed
@@ -82,7 +81,7 @@ class ULoginDriver(AbstractDriver):
 
             # Create new user
             if not user:
-                user = _functions.create_user(email)
+                user = _api.create_user(email)
 
             # Picture
             if not user.f_get('picture'):
@@ -127,7 +126,7 @@ class ULoginDriver(AbstractDriver):
             user.options['ulogin'] = ulogin_data
 
             # Authorize
-            _functions.authorize(user.save())
+            _api.authorize(user.save())
 
             # Unneeded arguments
             if '__form_location' in inp:

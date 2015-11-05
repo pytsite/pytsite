@@ -1,29 +1,29 @@
 """Static Widgets.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re as _re
 from math import ceil as _ceil
 from pytsite import html as _html, lang as _lang, router as _router
 from . import _base
 
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
-class Html(_base.Base):
-    """Static HTML Widget.
+
+class Wrapper(_base.Base):
+    """Wrapper widget for pytsite.html.Element instances.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, em: _html.Element, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
-        self._html_em = kwargs.get('html_em', _html.P)
+        self._em = em
 
-    def render(self) -> str:
-        return self._html_em(self._value, cls=self._css).render()
+    def get_html_em(self) -> _html.Element:
+        return self._em
 
 
-class Text(Html):
+class Text(_base.Base):
     """Static Text Widget.
     """
     def __init__(self, **kwargs):
@@ -32,12 +32,12 @@ class Text(Html):
         super().__init__(**kwargs)
         self._css = ' '.join((self._css, 'widget-static-control'))
 
-    def render(self) -> str:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         container = _html.TagLessElement()
         container.append(_html.Input(type='hidden', uid=self.uid, name=self.uid, value=self.value))
-        container.append(self._html_em(self.title, cls='form-control-static'))
+        container.append(_html.P(self.title, cls='form-control-static'))
 
         return self._group_wrap(container)
 
@@ -58,7 +58,7 @@ class Tabs(_base.Base):
         self._tabs.append((tid, title, content))
         return self
 
-    def render(self) -> str:
+    def get_html_em(self) -> str:
         wrapper = _html.Div(role='tabpanel')
         tabs_ul = _html.Ul(cls='nav nav-tabs', role='tablist')
         content = _html.Div(cls='tab-content')
@@ -80,25 +80,23 @@ class Tabs(_base.Base):
         return self._group_wrap(wrapper)
 
 
-class Wrapper(_base.Base):
-    """Wrapper Widget.
+class Container(_base.Base):
+    """Container Widget.
 
     Can contain only child widgets.
     """
-    def render(self) -> str:
-        """Render the widget.
-        """
-        r = []
+    def get_html_em(self) -> _html.Element:
+        html_container = _html.Div(cls=self.css)
         for child in self.children:
-            r.append(child.render())
+            html_container.append(child.get_html_em())
 
-        return _html.Div(self._children_sep.join(r), cls=self.css).render()
+        return html_container
 
 
 class VideoPlayer(_base.Base):
     """Video player widget.
     """
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         return self._get_embed(self.get_value())
@@ -164,14 +162,14 @@ class Pager(_base.Base):
         self._items_per_page = int(per_page)
         self._total_pages = _ceil(total_items / per_page)
         self._visible_numbers = int(visible_numbers) - 1
-        self._current_page = int(_router.request.values_dict.get('page', 1))
+        self._current_page = int(_router.request.inp.get('page', 1))
 
         if self._current_page < 1:
             self._current_page = 1
         if self._current_page > self._total_pages:
             self._current_page = self._total_pages
 
-    def render(self) -> _html.Element:
+    def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         if self._total_pages == 1:

@@ -93,7 +93,7 @@ def dump_js() -> str:
     """
     r = ''
     for location in get_locations('js'):
-        r += '<script type="text/javascript" src="{}"></script>\n'.format(get_url(location))
+        r += '<script type="text/javascript" src="{}"></script>\n'.format(url(location))
 
     return r
 
@@ -103,7 +103,7 @@ def dump_css() -> str:
     """
     r = ''
     for location in get_locations('css'):
-        r += '<link rel="stylesheet" href="{}">\n'.format(get_url(location))
+        r += '<link rel="stylesheet" href="{}">\n'.format(url(location))
 
     return r
 
@@ -116,7 +116,7 @@ def dump_inline() -> str:
     return r
 
 
-def get_url(location: str) -> str:
+def url(location: str) -> str:
     """Get URL of an asset.
     """
     if location.startswith('http') or location.startswith('//'):

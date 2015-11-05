@@ -10,13 +10,23 @@ __license__ = 'MIT'
 
 class AbstractDriver(_ABC):
     @_abstractmethod
-    def get_login_form(self, uid='', css='', title='') -> _form.Base:
-        """Login form get handler.
+    def get_name(self) -> str:
+        """Get name of the driver.
         """
-        raise NotImplementedError()
+        pass
+
+    @property
+    def name(self) -> str:
+        return self.get_name()
 
     @_abstractmethod
-    def post_login_form(self, args: dict, inp: dict) -> _http.response.Redirect:
+    def get_login_form(self, uid: str, css: str, title: str) -> _form.Base:
+        """Login form get handler.
+        """
+        pass
+
+    @_abstractmethod
+    def post_login_form(self, inp: dict) -> _http.response.Redirect:
         """Login form post handler.
         """
-        raise NotImplementedError()
+        pass

@@ -1,5 +1,6 @@
 """Auth Manager.
 """
+from collections import OrderedDict
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router, \
     events as _events
@@ -10,43 +11,60 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__driver = None
+__drivers = OrderedDict()
+""":type: dict[_AbstractDriver]"""
+
 __permission_groups = []
 __permissions = []
 __anonymous_user = None
 
 
 def password_hash(secret: str) -> str:
-    """Hash string.
+    """Hash a password.
     """
     from werkzeug.security import generate_password_hash
     return generate_password_hash(secret)
 
 
 def password_verify(clear_text: str, hashed: str) -> bool:
-    """Verify hashed string.
+    """Verify hashed password.
     """
     from werkzeug.security import check_password_hash
     return check_password_hash(hashed, clear_text)
 
 
-def set_driver(driver: _AbstractDriver):
+def register_driver(driver: _AbstractDriver):
     """Change current driver.
     """
     if not isinstance(driver, _AbstractDriver):
         raise TypeError('Instance of AbstractDriver expected.')
 
-    global __driver
-    __driver = driver
+    name = driver.get_name()
+    if name in __drivers:
+        raise ValueError("Driver '{}' is already registered.".format(name))
+
+    __drivers[name] = driver
 
 
-def get_driver() -> _AbstractDriver:
+def get_driver(name: str=None) -> _AbstractDriver:
     """Get current driver.
     """
-    if not __driver:
-        raise Exception("No driver selected.")
+    if not name:
+        if __drivers:
+            name = next(iter(__drivers.values())).get_name()
+        else:
+            raise Exception('No driver registered.')
 
-    return __driver
+    if name not in __drivers:
+        raise ValueError("Driver '{}' is not registered.".format(name))
+
+    return __drivers[name]
+
+
+def get_default_driver() -> _AbstractDriver:
+    """Get default driver.
+    """
+    return get_driver(_reg.get('auth.default_driver'))
 
 
 def get_permission_group(name: str) -> tuple:
@@ -110,19 +128,28 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(uid='', css='', title='') -> _form.Base:
+def get_login_form(driver_name: str=None, uid='', css='', title='') -> _form.Base:
     """Get a login form.
     """
-    form = get_driver().get_login_form(uid, css, title)
-    form.action = _router.ep_url('pytsite.auth.ep.login_submit')
+    driver = get_driver(driver_name)
+
+    css += 'pytsite-auth-login driver-' + driver.name
+
+    if not uid:
+        uid = 'pytsite-auth-login'
+    if not title:
+        title = _lang.t('pytsite.auth@authorization')
+
+    form = driver.get_login_form(uid, css, title)
+    form.action = _router.ep_url('pytsite.auth.ep.login_submit', {'driver': driver.name})
 
     return form
 
 
-def post_login_form(args: dict, inp: dict) -> _http.response.Redirect:
+def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
     """Post a login form.
     """
-    return get_driver().post_login_form(args, inp)
+    return get_driver(driver_name).post_login_form(inp)
 
 
 def create_user(login: str, email: str=None, password: str=None) -> _model.User:

@@ -1,4 +1,4 @@
-"""Abstract Widget.
+"""Abstract Base Widget.
 """
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util, html as _html, validation as _validation
@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 class Base(_ABC):
-    """Abstract widget.
+    """Abstract Base Widget.
     """
     def __init__(self, **kwargs: dict):
         """Init.
@@ -45,19 +45,30 @@ class Base(_ABC):
         if 'value' in kwargs:
             self.set_value(kwargs.get('value'))
 
-    def add_child(self, widget):
-        """Add a child widget.
+    def append(self, widget):
+        """Append a child widget.
+
+        :type widget: Base
         """
         self._children.append(widget)
+
         return self
 
     @_abstractmethod
-    def render(self) -> _html.Element:
-        """Render the widget.
+    def get_html_em(self) -> _html.Element:
+        """Get an HTML element representation of the widget.
         """
         pass
 
-    def get_value(self, **kwargs: dict):
+    def render(self) -> str:
+        """Render the widget into a string.
+        """
+        return self.get_html_em().render()
+
+    def __str__(self) -> str:
+        return self.render()
+
+    def get_value(self, **kwargs):
         """Get value of the widget.
         """
         return self._value
@@ -68,7 +79,7 @@ class Base(_ABC):
         """
         return self.get_value()
 
-    def set_value(self, value, **kwargs: dict):
+    def set_value(self, value, **kwargs):
         """Set value of the widget.
         """
         self._value = value
@@ -98,8 +109,10 @@ class Base(_ABC):
         return self
 
     @property
-    def children(self) -> list:
+    def children(self):
         """Get children widgets.
+
+        :rtype: list[Base]
         """
         sort = []
         for w in self._children:
@@ -242,10 +255,12 @@ class Base(_ABC):
     def _group_wrap(self, content) -> _html.Element:
         """Wrap input string into 'form-group' container.
 
-        :type content: pytsite.html.Element | str
+        :type content: pytsite.widget._base.Base | pytsite.html.Element | str
         """
         if isinstance(content, str):
             content = _html.TagLessElement(content)
+        elif isinstance(content, Base):
+            content = content.get_html_em()
 
         if self._h_size:
             content = content.wrap(_html.Div(cls=self._h_size))
@@ -280,6 +295,3 @@ class Base(_ABC):
             group_wrapper.append(_html.Span(self._help, cls='help-block'))
 
         return group_wrapper
-
-    def __str__(self) -> str:
-        return str(self.render())
