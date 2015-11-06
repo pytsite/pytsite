@@ -152,6 +152,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         form.add_widget(_content.widget.ModelSelect(
             weight=40,
             uid='content_model',
+            check_perms=False,
             label=self.t('content_model'),
             value=self.content_model if not step else inp.get('content_model'),
             h_size='col-sm-4',

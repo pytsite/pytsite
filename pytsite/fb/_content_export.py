@@ -29,11 +29,10 @@ class Driver(_content_export.AbstractDriver):
         """:type: dict"""
 
         try:
-            thumb_url = entity.images[0].get_url(640) if entity.images else None
             tags = ' '.join(['#' + t.title for t in entity.tags if ' ' not in t.title])
-            description = entity.description + ' ' + tags
+            message = entity.description + ' ' + tags
             user_id = opts['page_id'] if opts['page_id'] else None
-            s.feed_link(entity.url, user_id, thumb_url, entity.title, description=description)
+            s.feed_message(message, entity.url, user_id)
         except Exception as e:
             raise _content_export.error.ExportError(e)
 

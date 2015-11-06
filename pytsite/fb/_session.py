@@ -49,12 +49,18 @@ class AuthSession():
 
 
 class Session():
+    """Facebook Session.
+    """
     def __init__(self, access_token: str):
+        """Init.
+        """
         self._app_id = _reg.get('fb.app_id')
         self._app_secret = _reg.get('fb.app_secret')
         self._access_token = access_token
 
     def request(self, endpoint, method='GET', **kwargs) -> dict:
+        """Perform request.
+        """
         if method.upper() == 'POST':
             params = {'access_token': self._access_token}
             return _requests.post(_API_REQUEST_URL + endpoint, params=params, data=kwargs).json()
@@ -63,6 +69,8 @@ class Session():
             return _requests.get(_API_REQUEST_URL + endpoint, params=kwargs).json()
 
     def paginated_request(self, endpoint, **kwargs) -> _Generator:
+        """Perform paginated request.
+        """
         r = self.request(endpoint, 'GET', **kwargs)
         if 'paging' not in r:
             raise Exception("Endpoint '{}' didn't return paginated response.")
@@ -76,26 +84,28 @@ class Session():
                 break
 
     def me(self) -> dict:
+        """Get information about authenticated user.
+        """
         return self.request('me')
 
     def accounts(self, user_id: int=None) -> _Generator:
+        """Get user's accounts.
+        """
         if not user_id:
             user_id = 'me'
 
         return self.paginated_request('{}/accounts'.format(user_id))
 
-    def feed_message(self, msg: str, user_id: int=None) -> dict:
+    def feed_message(self, message: str=None, link: str=None, user_id: int=None, link_picture: str=None,
+                     link_title: str=None, link_caption: str=None, link_description: str=None):
+        """Post a message on user's feed.
+        """
         # https://developers.facebook.com/docs/graph-api/reference/v2.5/user/feed/#publish
+        if not message and not link:
+            raise ValueError('Either message or link is required.')
+
         if not user_id:
             user_id = 'me'
 
-        return self.request('{}/feed'.format(user_id), 'POST', message=msg)
-
-    def feed_link(self, link: str, user_id: int=None, picture: str=None, name: str=None, caption: str=None,
-                  description: str=None):
-        # https://developers.facebook.com/docs/graph-api/reference/v2.5/user/feed/#publish
-        if not user_id:
-            user_id = 'me'
-
-        return self.request('{}/feed'.format(user_id), 'POST', link=link, picture=picture, name=name, caption=caption,
-                            description=description)
+        return self.request('{}/feed'.format(user_id), 'POST', message=message, link=link, picture=link_picture,
+                            name=link_title, caption=link_caption, description=link_description)

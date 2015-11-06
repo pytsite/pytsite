@@ -180,7 +180,6 @@ class User(_odm.Model):
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.password:
-            print('PRE')
             self.f_set('password', '')
 
         if not self.token:

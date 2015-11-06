@@ -16,10 +16,15 @@ class ModelSelect(_widget.select.Select):
     """Content Model Select Widget.
     """
     def __init__(self, **kwargs):
+        self._check_perms = kwargs.get('check_perms', True)
+
         items = []
         u = _auth.get_current_user()
         for k, v in _functions.get_models().items():
-            if u.has_permission('pytsite.odm_ui.browse.' + k) or u.has_permission('pytsite.odm_ui.browse_own.' + k):
+            if self._check_perms:
+                if u.has_permission('pytsite.odm_ui.browse.' + k) or u.has_permission('pytsite.odm_ui.browse_own.' + k):
+                    items.append((k, _lang.t(v[1])))
+            else:
                 items.append((k, _lang.t(v[1])))
 
         super().__init__(items=sorted(items, key=lambda x: x[1]), **kwargs)

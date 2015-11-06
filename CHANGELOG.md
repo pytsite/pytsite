@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.33.2 (2015-11-06)
+### Changed
+- `fb.Session.feed_link()` removed in favour of `fb.Session.feed_message()`.
+
+
 ## 0.33.1 (2015-11-05)
 ### Fixed
 - Children separator output in widgets.
