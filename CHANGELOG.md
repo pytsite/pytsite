@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.33.3 (2015-11-09)
+### Added
+- `fb`: export from behalf of a page.
+
+### Fixed
+- Incorrect building of the redirect URL in the `ulogin` auth driver. 
+
+
 ## 0.33.2 (2015-11-06)
 ### Changed
 - `fb.Session.feed_link()` removed in favour of `fb.Session.feed_message()`.

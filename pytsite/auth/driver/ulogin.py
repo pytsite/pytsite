@@ -157,4 +157,7 @@ class Driver(AbstractDriver):
                 del inp['__form_location']
             if 'token' in inp:
                 del inp['token']
+
+            inp['driver'] = 'ulogin'
+
             return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.login', args=inp))

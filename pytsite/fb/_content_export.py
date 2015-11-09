@@ -16,24 +16,37 @@ class Driver(_content_export.AbstractDriver):
         self._access_token = kwargs.get('access_token')
 
     def get_settings_widget(self, uid: str, **kwargs: dict):
-        return _FacebookAuthWidget(uid=uid, scope='public_profile,email,user_friends,publish_actions,manage_pages',
-                                   **kwargs)
+        scope = 'public_profile,email,user_friends,publish_actions,manage_pages,publish_pages'
+        return _FacebookAuthWidget(uid=uid, scope=scope, **kwargs)
 
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
         """
         _logger.info("Export started. '{}'".format(entity.title), __name__)
 
-        s = _Session(self._access_token)
+        user_session = _Session(self._access_token)
         opts = exporter.driver_opts
         """:type: dict"""
 
         try:
             tags = ' '.join(['#' + t.title for t in entity.tags if ' ' not in t.title])
             message = entity.description + ' ' + tags
-            user_id = opts['page_id'] if opts['page_id'] else None
-            s.feed_message(message, entity.url, user_id)
+
+            if opts['page_id']:
+                page_session = _Session(self._get_page_access_token(opts['page_id'], user_session))
+                page_session.feed_message(message, entity.url)
+            else:
+                user_session.feed_message(message, entity.url)
         except Exception as e:
             raise _content_export.error.ExportError(e)
 
         _logger.info("Export finished. '{}'".format(entity.title), __name__)
+
+    def _get_page_access_token(self, page_id: str, user_session: _Session) -> str:
+        """Get page access token.
+        """
+        for acc in user_session.accounts():
+            if 'id' in acc and acc['id'] == page_id:
+                return acc['access_token']
+
+        raise Exception('Cannot get access token for page with id == {}'.format(page_id))
