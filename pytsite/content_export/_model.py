@@ -1,8 +1,8 @@
 """Poster Model.
 """
 from datetime import datetime as _datetime
-from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, validation as _validation, \
-    router as _router, widget as _widget, util as _util
+from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, router as _router, \
+    widget as _widget, util as _util
 from . import _widget as _content_export_widget, _functions
 
 __author__ = 'Alexander Shepetko'
@@ -27,6 +27,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         self._define_field(_odm.field.String('last_error'))
         self._define_field(_odm.field.Integer('max_age', default=14))
         self._define_field(_odm.field.DateTime('paused_till'))
+        self._define_field(_odm.field.List('add_tags'))
 
     @property
     def driver(self) -> str:
@@ -71,6 +72,10 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
     @property
     def paused_till(self) -> _datetime:
         return self.f_get('paused_till')
+
+    @property
+    def add_tags(self) -> list:
+        return self.f_get('add_tags')
 
     def _pre_save(self):
         """Hook.
@@ -179,8 +184,16 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             hidden=True if step else False,
         ))
 
+        form.add_widget(_widget.input.Tokens(
+            weight=60,
+            uid='add_tags',
+            label=self.t('additional_tags'),
+            value=self.add_tags if not step else inp.get('add_tags'),
+            hidden=True if step else False,
+        ))
+
         form.add_widget(_widget.select.DateTime(
-            weight=70,
+            weight=80,
             uid='paused_till',
             label=self.t('paused_till'),
             value=self.paused_till if not step else inp.get('paused_till'),
@@ -189,7 +202,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         ))
 
         form.add_widget(_widget.input.Integer(
-            weight=80,
+            weight=90,
             uid='errors',
             label=self.t('errors'),
             value=self.errors if not step else inp.get('errors'),

@@ -29,8 +29,9 @@ class Driver(_content_export.AbstractDriver):
         """:type: dict"""
 
         try:
-            tags = ' '.join(['#' + t.title for t in entity.tags if ' ' not in t.title])
-            message = entity.description + ' ' + tags
+            tags = ['#' + t for t in exporter.add_tags if ' ' not in t]
+            tags += ['#' + t.title for t in entity.tags if ' ' not in t.title]
+            message = entity.description + ' ' + ' '.join(tags) + ' ' + entity.url
 
             if opts['page_id']:
                 page_session = _Session(self._get_page_access_token(opts['page_id'], user_session))

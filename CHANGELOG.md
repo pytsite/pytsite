@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.33.4 (2015-11-11)
+### Added
+- Support for [Telize](http://www.telize.com/)-1.04's `organization` field in `geo_ip`.
+- `add_tags` in `content_export`'s driver.
+
+
 ## 0.33.3 (2015-11-09)
 ### Added
 - `fb`: export from behalf of a page.

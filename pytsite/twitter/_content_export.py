@@ -45,13 +45,8 @@ class Driver(_content_export.AbstractDriver):
         except _TwythonError as e:
             raise _content_export.error.ExportError(str(e))
 
-        tags = []
-        if entity.tags:
-            for tag in entity.tags:
-                if tag.title.find(' ') < 0:
-                    tag = tag.title
-                    tag = '#' + tag
-                    tags.append(tag)
+        tags = ['#' + t for t in exporter.add_tags if ' ' not in t]
+        tags += ['#' + t.title for t in entity.tags if ' ' not in t.title]
 
         attempts = 20
         status = '{} {} {}'.format(entity.title, entity.url, ' '.join(tags))

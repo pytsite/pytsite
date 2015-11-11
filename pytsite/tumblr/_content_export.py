@@ -1,7 +1,6 @@
 """Content Export Tumblr Driver.
 """
-from pytsite import content as _content, content_export as _content_export, widget as _widget, logger as _logger, \
-    reg as _reg
+from pytsite import content as _content, content_export as _content_export, widget as _widget, logger as _logger
 from ._widget import Auth as TumblrAuthWidget
 from ._session import Session
 
@@ -33,12 +32,17 @@ class Driver(_content_export.AbstractDriver):
         opts = exporter.driver_opts
         """:type: dict"""
 
+
         try:
+            tags = exporter.add_tags
+            """:type: list[str]"""
+
+            tags += [t.title for t in entity.tags]
+
             thumb_url = entity.images[0].get_url(640) if entity.images else None
             author = entity.author.full_name
-            tags = ','.join([t.title for t in entity.tags])
             s.blog_post_link(opts['user_blog'], entity.url, entity.title, entity.description, thumb_url,
-                             author=author, tags=tags)
+                             author=author, tags=','.join(tags))
         except Exception as e:
             raise _content_export.error.ExportError(e)
 

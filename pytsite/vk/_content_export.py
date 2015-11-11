@@ -34,11 +34,8 @@ class Driver(_content_export.AbstractDriver):
         """
         _logger.info("Export started. '{}'".format(entity.title), __name__)
 
-        tags = []
-        for tag in entity.tags:
-            if tag.title.find(' ') < 0:
-                tags.append('#' + tag.title)
-
+        tags = ['#' + t for t in exporter.add_tags if ' ' not in t]
+        tags += ['#' + t.title for t in entity.tags if ' ' not in t.title]
         message = '{} {} {}'.format(entity.title, ' '.join(tags), entity.url)
 
         try:

@@ -13,6 +13,7 @@ errors: Ошибки
 max_age: Возраст контента
 with_images_only: Только с картинками
 paused_till: Пауза до
+additional_tags: Дополнительные теги
 
 odm_ui_browser_title_content_export: Экспорт контента
 odm_ui_form_title_create_content_export: Новый экспорт контента

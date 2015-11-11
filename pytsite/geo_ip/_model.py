@@ -76,6 +76,9 @@ class GeoIP(_odm.Model):
     def asn(self) -> str:
         return self.f_get('asn')
 
+    def organization(self) -> str:
+        return self.f_get('organization')
+
     def _setup(self):
         """Hook.
         """
@@ -96,6 +99,7 @@ class GeoIP(_odm.Model):
         self._define_field(_odm.field.String('timezone'))
         self._define_field(_odm.field.String('isp'))
         self._define_field(_odm.field.String('asn'))
+        self._define_field(_odm.field.String('organization'))
 
         self._define_index(('ip', _odm.I_ASC), unique=True)
         self._define_index(('lng_lat', _odm.I_GEO2D))

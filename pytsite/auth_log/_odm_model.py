@@ -39,7 +39,7 @@ class AuthLog(_odm_ui.Model):
         return self.f_get('severity')
 
     @property
-    def geo_ip(self) -> _geo_ip.odm_model.GeoIP:
+    def geo_ip(self) -> _geo_ip.model.GeoIP:
         try:
             return _geo_ip.resolve(self.ip)
         except _geo_ip.error.ResolveError:
