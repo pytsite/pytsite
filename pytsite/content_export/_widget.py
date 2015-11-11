@@ -16,4 +16,4 @@ class DriverSelect(_widget.select.Select):
         """
         super().__init__(**kwargs)
 
-        self._items = [(k, _lang.t(v[0])) for k, v in _get_drivers().items()]
+        self._items = sorted([(k, _lang.t(v[0])) for k, v in _get_drivers().items()])

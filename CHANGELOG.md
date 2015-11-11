@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.33.6 (2015-11-11)
+### Added
+- `cleanup` argument in `odm.field.List` constructor. 
+
+
 ## 0.33.5 (2015-11-11)
 ### Fixed
 - Improper paginated result checking in `fb`'s session.

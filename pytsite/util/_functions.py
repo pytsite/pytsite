@@ -175,7 +175,7 @@ def get_class(s: str) -> type:
 
 
 def list_cleanup(inp: list) -> list:
-    """Remove empty values from list.
+    """Remove empty string values from a list.
     """
     r = []
     for v in inp:
@@ -188,7 +188,7 @@ def list_cleanup(inp: list) -> list:
 
 
 def dict_cleanup(inp: dict) -> dict:
-    """Remove empty values from dict.
+    """Remove empty string values from dict.
     """
     r = {}
     for k, v in inp.items():

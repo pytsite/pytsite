@@ -5,7 +5,7 @@ from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
 from copy import deepcopy as _deepcopy
-from pytsite import lang as _lang
+from pytsite import lang as _lang, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -142,6 +142,7 @@ class List(Abstract):
         self._min_len = kwargs.get('min_len', None)
         self._max_len = kwargs.get('max_len', None)
         self._unique = kwargs.get('unique', False)
+        self._cleanup = kwargs.get('cleanup', True)
 
         if not kwargs.get('default'):
             kwargs['default'] = []
@@ -188,13 +189,17 @@ class List(Abstract):
         if self._max_len is not None and len(value) > self._max_len:
             raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
+        # Cleaning up empty string values
+        if self._cleanup:
+            value = _util.list_cleanup(value)
+
         return super().set_val(value, change_modified, **kwargs)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
         """
         if type(value) not in self._allowed_types:
-            raise TypeError("Adding values of type {} is not allowed.".format(type(value)))
+            raise TypeError("Adding values of type '{}' is not allowed.".format(type(value)))
 
         # Checking length
         if self._max_len is not None and (len(self.get_val()) + 1) > self._max_len:
@@ -205,7 +210,14 @@ class List(Abstract):
             if value not in self._value:
                 self._value.append(value)
         else:
-            self._value.append(value)
+            if self._cleanup:
+                # Cleaning up empty string values
+                if isinstance(value, str):
+                    value = value.strip()
+                if value:
+                    self._value.append(value)
+            else:
+                self._value.append(value)
 
         if change_modified:
             self._modified = True
