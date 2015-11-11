@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.33.5 (2015-11-11)
+### Fixed
+- Improper paginated result checking in `fb`'s session.
+
+
 ## 0.33.4 (2015-11-11)
 ### Added
 - Support for [Telize](http://www.telize.com/)-1.04's `organization` field in `geo_ip`.

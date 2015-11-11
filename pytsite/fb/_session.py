@@ -72,7 +72,7 @@ class Session():
         """Perform paginated request.
         """
         r = self.request(endpoint, 'GET', **kwargs)
-        if 'paging' not in r:
+        if 'data' not in r:
             raise Exception("Endpoint '{}' didn't return paginated response.")
 
         while True:
