@@ -92,7 +92,6 @@ class CompileAssets(_console.command.Abstract):
                 translations[lang_code][pkg_name] = _lang.load_lang_file(pkg_name, lang_code)
 
         str_output = 'pytsite.lang.langs={};'.format(_json.dumps(_lang.langs()))
-        str_output += 'pytsite.lang.current_lang=document.documentElement.getAttribute("lang");'
         str_output += 'pytsite.lang.translations={};'.format(_json.dumps(translations))
         output_file = _path.join(_reg.get('paths.static'), 'assets', 'app', 'js', 'translations.js')
         output_dir = _path.dirname(output_file)

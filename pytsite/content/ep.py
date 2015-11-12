@@ -184,8 +184,7 @@ def subscribe(args: dict, inp: dict) -> str:
     """Subscribe to digest endpoint.
     """
     email = inp.get('email')
-    if not _validation.rule.Email(value=email).validate():
-        raise Exception(_lang.t('pytsite.content@invalid_email'))
+    _validation.rule.Email(value=email).validate()
 
     s = _odm.find('content_subscriber').where('email', '=', email).first()
     if s:
@@ -200,8 +199,7 @@ def subscribe(args: dict, inp: dict) -> str:
 def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
     """Unsubscribe from digest endpoint.
     """
-    sid = args.get('id')
-    s = _odm.dispense('content_subscriber', sid)
+    s = _odm.dispense('content_subscriber', args.get('id'))
     if s:
         s.f_set('enabled', False).save()
         _router.session.add_success(_lang.t('pytsite.content@unsubscription_successful'))

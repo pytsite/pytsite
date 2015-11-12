@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.34.1 (2015-11-12)
+### Fixed
+- Improper email validation in `content.ep.subscribe()` endpoint. 
+- Support for fallback language in JS `lang`.
+
+
 ## 0.34 (2015-11-12)
 ### Added
 - Support for fallback language in `lang`.

@@ -3,7 +3,7 @@ $(function() {
         var widget = $(this);
         widget.find('textarea').ckeditor({
             extraPlugins: 'youtube',
-            language: pytsite.lang.current_lang,
+            language: pytsite.lang.current(),
             filebrowserUploadUrl: '/file/upload/image',
             height: 500,
             toolbar: [

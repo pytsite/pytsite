@@ -1,4 +1,4 @@
-pytsite = {};
+var pytsite = {};
 
 pytsite.js = {
     request: function(method, endpoint, data, success, error) {
@@ -10,10 +10,12 @@ pytsite.js = {
             error: error
         });
     },
+
     get: function(endpoint, data, success, error) {
-        return pytsite.js.request('GET', endpoint, data, success, error)
+        return this.request('GET', endpoint, data, success, error)
     },
+
     post: function(endpoint, data, success, error) {
-        return pytsite.js.request('POST', endpoint, data, success, error)
+        return this.request('POST', endpoint, data, success, error)
     }
 };
