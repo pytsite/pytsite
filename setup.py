@@ -60,7 +60,7 @@ setup(
         'Natural Language :: English',
         'Natural Language :: Russian',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: JavaScript',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Application Frameworks',

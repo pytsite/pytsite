@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.34 (2015-11-12)
+### Added
+- Support for fallback language in `lang`.
+
+### Changed
+- Switched to [ip-api.com](http://ip-api.com) in `geo_ip`.
+
+
 ## 0.33.6 (2015-11-11)
 ### Added
 - `cleanup` argument in `odm.field.List` constructor. 

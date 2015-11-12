@@ -251,11 +251,7 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except _HTTPException as e:
-        try:
-            title = _lang.t('http_error_' + str(e.code))
-        except _lang.error.TranslationError:
-            title = _lang.t('pytsite.router@error', {'code': str(e.code)})
-
+        title = _lang.t('http_error_' + str(e.code))
         _metatag.t_set('title', title)
 
         wsgi_response = tpl.render('exceptions/common', {

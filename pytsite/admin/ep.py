@@ -12,7 +12,7 @@ def dashboard(args: dict, inp: dict):
 
     app_name = _lang.t('app_name')
     try:
-        app_name_short = _lang.t('app_name_short')
+        app_name_short = _lang.t('app_name_short', exceptions=True)
     except _lang.error.TranslationError:
         app_name_short = app_name
 

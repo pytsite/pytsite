@@ -12,7 +12,8 @@ __license__ = 'MIT'
 
 
 __languages = []
-__current_language = None
+__current = None
+__fallback = None
 __packages = {}
 
 
@@ -22,6 +23,7 @@ def define(languages: list):
     global __languages
     __languages = languages
     set_current(languages[0])
+    set_fallback(languages[0])
 
 
 def langs(include_current=True):
@@ -30,17 +32,27 @@ def langs(include_current=True):
     if include_current:
         return __languages
     else:
-        return [lng for lng in __languages if lng != __current_language]
+        return [lng for lng in __languages if lng != __current]
 
 
-def set_current(code: str):
+def set_current(language: str):
     """Set current default language.
     """
-    if code not in __languages:
-        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(code))
+    if language not in __languages:
+        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
 
-    global __current_language
-    __current_language = code
+    global __current
+    __current = language
+
+
+def set_fallback(language: str):
+    """Set fallback language.
+    """
+    if language not in __languages:
+        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
+
+    global __fallback
+    __fallback = language
 
 
 def get_current() -> str:
@@ -49,11 +61,16 @@ def get_current() -> str:
     if not __languages:
         raise Exception("No languages are defined.")
 
-    global __current_language
-    if not __current_language:
-        __current_language = __languages[0]
+    return __current
 
-    return __current_language
+
+def get_fallback() -> str:
+    """Get fallback language.
+    """
+    if not __languages:
+        raise Exception("No languages are defined.")
+
+    return __fallback
 
 
 def is_package_registered(pkg_name):
@@ -80,22 +97,14 @@ def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
 
 
 def get_packages() -> dict:
+    """Get info about registered packages.
+    """
     return __packages
 
 
-def split_msg_id(msg_id: str) -> tuple:
-    package_name = 'app'
-    msg_id = msg_id.split('@')
-    if len(msg_id) == 2:
-        package_name = msg_id[0]
-        msg_id = msg_id[1]
-    else:
-        msg_id = msg_id[0]
-
-    return package_name, msg_id
-
-
 def is_translation_defined(msg_id: str, language: str=None) -> bool:
+    """Check if the translation is definen for message ID.
+    """
     if not language:
         language = get_current()
 
@@ -103,34 +112,41 @@ def is_translation_defined(msg_id: str, language: str=None) -> bool:
         raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
 
     # Determining package name and message ID
-    package_name, msg_id = split_msg_id(msg_id)
+    package_name, msg_id = _split_msg_id(msg_id)
     if msg_id not in load_lang_file(package_name, language):
         return False
 
     return True
 
 
-def t(msg_id: str, args: dict=None, language: str=None) -> str:
-    """Translate a string.
+def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, fallback=True) -> str:
+    """Translate a message ID.
     """
     if not language:
         language = get_current()
 
     if language not in __languages:
-        raise _error.TranslationError("Language '{}' is not supported.".format(language))
-
-    if not is_translation_defined(msg_id, language):
-        raise _error.TranslationError("Translation is not found for '{}'".format(msg_id))
+        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
 
     # Determining package name and message ID
-    package_name, msg_id = split_msg_id(msg_id)
+    package_name, msg_id = _split_msg_id(msg_id)
+
+    # Loading language file data
     lang_file_content = load_lang_file(package_name, language)
+
+    # Searching for fallback translation
     if msg_id not in lang_file_content:
-        raise _error.TranslationError("Translation is not found for '{}'".format(package_name + '@' + msg_id))
+        if fallback and get_fallback() != language:
+            return t(msg_id, args, get_fallback(), exceptions, False)
+        else:
+            if exceptions:
+                raise _error.TranslationError("Translation is not found for '{}@{}'".format(package_name, msg_id))
+            else:
+                return package_name + '@' + msg_id
 
     msg = lang_file_content[msg_id]
-    """:type : str"""
 
+    # Replacing placeholders
     if args:
         for k, v in args.items():
             msg = msg.replace(':' + str(k), str(v))
@@ -144,13 +160,13 @@ def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
     if not language:
         language = get_current()
 
-    # Language is not cyrillic
-    if language not in ['ru', 'uk']:
+    if language in ['en']:
         if num == 1:
             return t(msg_id + '_plural_one')
         else:
             return t(msg_id + '_plural_two')
 
+    # Language is not english
     if 11 <= num <= 19:
         return t(msg_id + '_plural_zero')
     else:
@@ -169,13 +185,15 @@ def lang_title(language: str=None) -> str:
     if not language:
         language = get_current()
     try:
-        return t('lang_title_' + language)
+        return t('lang_title_' + language, exceptions=True)
     except _error.TranslationError:
         return language
 
 
 def load_lang_file(pkg_name: str, language: str=None):
     """Load package's language file.
+
+    :rtype: dict[str, str]
     """
     # Is the package registered?
     if not is_package_registered(pkg_name):
@@ -208,6 +226,8 @@ def load_lang_file(pkg_name: str, language: str=None):
 
 
 def time_ago(time: _datetime) -> str:
+    """Format date/time as 'time ago' phrase.
+    """
     diff = _datetime.now() - time
     """:type: datetime.timedelta"""
 
@@ -235,6 +255,8 @@ def time_ago(time: _datetime) -> str:
 
 
 def pretty_date(time: _datetime) -> str:
+    """Format date as pretty string.
+    """
     r = '{} {}'.format(time.day, t_plural('pytsite.lang@month_' + str(time.month)))
 
     diff = _datetime.now() - time
@@ -245,4 +267,20 @@ def pretty_date(time: _datetime) -> str:
 
 
 def pretty_date_time(time: _datetime) -> str:
+    """Format date/time as pretty string.
+    """
     return '{}, {}'.format(pretty_date(time), time.strftime('%H:%M'))
+
+
+def _split_msg_id(msg_id: str) -> tuple:
+    """Split message ID into message ID and package name.
+    """
+    package_name = 'app'
+    msg_id = msg_id.split('@')
+    if len(msg_id) == 2:
+        package_name = msg_id[0]
+        msg_id = msg_id[1]
+    else:
+        msg_id = msg_id[0]
+
+    return package_name, msg_id

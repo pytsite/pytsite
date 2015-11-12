@@ -79,20 +79,20 @@ def fmt(value: dict, decimal_places: int=2, html=False):
 
 def get_title(code: str) -> str:
     try:
-        return _lang.t('currency_' + get_currency(code) + '_title')
+        return _lang.t('currency_' + get_currency(code) + '_title', exceptions=True)
     except _lang.error.TranslationError:
         return ''
 
 
 def get_symbol_before(code: str) -> str:
     try:
-        return _lang.t('currency_' + get_currency(code) + '_symbol_before')
+        return _lang.t('currency_' + get_currency(code) + '_symbol_before', exceptions=True)
     except _lang.error.TranslationError:
         return ''
 
 
 def get_symbol_after(code: str) -> str:
     try:
-        return _lang.t('currency_' + get_currency(code) + '_symbol_after')
+        return _lang.t('currency_' + get_currency(code) + '_symbol_after', exceptions=True)
     except _lang.error.TranslationError:
         return ''
