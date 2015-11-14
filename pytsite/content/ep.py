@@ -193,7 +193,7 @@ def subscribe(args: dict, inp: dict) -> str:
         if not s.f_get('enabled'):
             s.f_set('enabled', True)
     else:
-        s = _odm.dispense('content_subscriber').f_set('email', email).f_sset('language', lng)
+        s = _odm.dispense('content_subscriber').f_set('email', email).f_set('language', lng)
 
     s.save()
 

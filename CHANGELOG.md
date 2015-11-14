@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.35.3 (2015-11-14)
+### Fixed
+- Typo in `content`.
+
+
 ## 0.35.2 (2015-11-14)
 ### Fixed
 - Multilingual digest subscriptions in `content`.
