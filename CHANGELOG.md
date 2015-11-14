@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.35.1 (2015-11-14)
+### Fixed
+- Support for 'pytsite.content.ep.subscribe' endpoint in `browser`.
+
+
 ## 0.35 (2015-11-14)
 ### Added
 - `browser`'s JS endpoints now must be registered before usage.

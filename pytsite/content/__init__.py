@@ -47,6 +47,7 @@ def __init():
 
     # Content subscription routes
     router.add_rule('/content/subscribe', 'pytsite.content.ep.subscribe', methods='POST')
+    browser.register_ep('pytsite.content.ep.subscribe')
     router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.ep.unsubscribe')
 
     # Taxonomy models
