@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.35.2 (2015-11-14)
+### Fixed
+- Multilingual digest subscriptions in `content`.
+
+
 ## 0.35.1 (2015-11-14)
 ### Fixed
 - Support for 'pytsite.content.ep.subscribe' endpoint in `browser`.

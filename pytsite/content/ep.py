@@ -186,12 +186,14 @@ def subscribe(args: dict, inp: dict) -> str:
     email = inp.get('email')
     _validation.rule.Email(value=email).validate()
 
-    s = _odm.find('content_subscriber').where('email', '=', email).first()
+    lng = _lang.get_current()
+
+    s = _odm.find('content_subscriber').where('email', '=', email).where('language', '=', lng).first()
     if s:
         if not s.f_get('enabled'):
             s.f_set('enabled', True)
     else:
-        s = _odm.dispense('content_subscriber').f_set('email', email).f_set('language', _lang.get_current())
+        s = _odm.dispense('content_subscriber').f_set('email', email).f_sset('language', lng)
 
     s.save()
 

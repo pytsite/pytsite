@@ -678,4 +678,4 @@ class ContentSubscriber(_odm.Model):
         self._define_field(_odm.field.Bool('enabled', default=True))
         self._define_field(_odm.field.String('language', nonempty=True))
 
-        self._define_index([('email', _odm.I_ASC)], unique=True)
+        self._define_index([('email', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
