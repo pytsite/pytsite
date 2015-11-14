@@ -189,9 +189,11 @@ def subscribe(args: dict, inp: dict) -> str:
     s = _odm.find('content_subscriber').where('email', '=', email).first()
     if s:
         if not s.f_get('enabled'):
-            s.f_set('enabled', True).save()
+            s.f_set('enabled', True)
     else:
-        _odm.dispense('content_subscriber').f_set('email', email).save()
+        s = _odm.dispense('content_subscriber').f_set('email', email).f_set('language', _lang.get_current())
+
+    s.save()
 
     return _lang.t('pytsite.content@digest_subscription_success')
 

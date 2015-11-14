@@ -1,6 +1,7 @@
 """PytSite Router.
 """
 import re as _re
+from typing import Callable as _Callable
 from os import path as _path, makedirs as _makedirs
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
@@ -108,33 +109,37 @@ def add_path_alias(alias: str, target: str):
     _path_aliases[alias] = target
 
 
-def call_ep(name: str, args: dict=None, inp: dict=None):
-    """Call an endpoint.
-    """
-    endpoint = name.split('.')
+def get_ep_callable(ep_name: str) -> callable:
+    endpoint = ep_name.split('.')
     if not len(endpoint):
-        raise TypeError("Invalid format of endpoint specification: '{}'".format(name))
+        raise TypeError("Invalid format of endpoint specification: '{}'".format(ep_name))
 
     module_name = '.'.join(endpoint[0:len(endpoint)-1])
     callable_name = endpoint[-1]
 
     module = _import_module(module_name)
     if callable_name not in dir(module):
-        raise Exception("'{}.{}' is not callable".format(module_name, callable_name))
+        raise Exception("'{}' is not callable".format(ep_name))
 
     callable_obj = getattr(module, callable_name)
     if not hasattr(callable_obj, '__call__'):
-        raise Exception("'{}.{}' is not callable".format(module_name, callable_name))
+        raise Exception("'{}' is not callable".format(ep_name))
 
+    return callable_obj
+
+
+def call_ep(ep_name: str, args: dict=None, inp: dict=None):
+    """Call a callable.
+    """
     if '_call' in args:
         args['_call_orig'] = args['_call']
-    args['_call'] = name
+    args['_call'] = ep_name
 
     if '_name' in args:
         args['_name_orig'] = args['_name']
-    args['_name'] = name
+    args['_name'] = ep_name
 
-    return callable_obj(args, inp)
+    return get_ep_callable(ep_name)(args, inp)
 
 
 def dispatch(env: dict, start_response: callable):

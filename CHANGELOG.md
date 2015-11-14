@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.35 (2015-11-14)
+### Added
+- `browser`'s JS endpoints now must be registered before usage.
+- Multilingual mail digests in `content`.
+
+
 ## 0.34.1 (2015-11-12)
 ### Fixed
 - Improper email validation in `content.ep.subscribe()` endpoint. 

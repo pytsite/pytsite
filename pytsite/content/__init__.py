@@ -29,6 +29,9 @@ def __init():
     assetman.register_package(__name__)
     browser.include('responsive', True)
 
+    # Browser API endpoints
+    browser.register_ep('pytsite.content.ep.view_count')
+
     # Common routes
     router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')
     router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.ep.view')
@@ -73,5 +76,6 @@ def __init():
 
     # Sitemap location in robots.txt
     robots.sitemap('/sitemap/index.xml')
+
 
 __init()

@@ -66,18 +66,25 @@ def _mail_digest():
     if not model:
         return
 
-    _logger.info('Weekly mail digest start.', __name__)
-
-    for subscriber in _odm.find('content_subscriber').where('enabled', '=', True).get():
-        content_f = _functions.find(model).where('publish_time', '>', _datetime.now() - _timedelta(7))
-        content_f.sort([('views_count', _odm.I_DESC)])
-        m_body = _tpl.render(_reg.get('content.digest.tpl', 'mail/digest'), {
-            'entities': content_f.get(_reg.get('content.digest.num', 10)),
-            'subscriber': subscriber
-        })
-        _mail.Message(subscriber.f_get('email'), _lang.t('pytsite.content@weekly_digest_mail_subject'), m_body).send()
-
-    _logger.info('Weekly mail digest stop.', __name__)
+    for lng in _lang.langs():
+        _logger.info("Weekly mail digest for language {} started.".format(lng), __name__)
+        f = _odm.find('content_subscriber').where('enabled', '=', True).where('language', '=', lng)
+        for subscriber in f.get():
+            content_f = _functions.find(model, language=lng)
+            content_f.where('publish_time', '>', _datetime.now() - _timedelta(7))
+            content_f.sort([('views_count', _odm.I_DESC)])
+            m_body = _tpl.render(_reg.get('content.digest.tpl', 'mail/content/digest'), {
+                'entities': content_f.get(_reg.get('content.digest.num', 10)),
+                'subscriber': subscriber,
+                'language': lng,
+            })
+            msg = _mail.Message(
+                subscriber.f_get('email'),
+                _lang.t('pytsite.content@weekly_digest_mail_subject', language=lng),
+                m_body
+            )
+            msg.send()
+        _logger.info("Weekly mail digest for language {} finished.".format(lng), __name__)
 
 
 def _generate_sitemap():

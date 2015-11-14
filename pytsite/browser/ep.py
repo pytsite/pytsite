@@ -1,21 +1,25 @@
-"""JS API Endpoints.
+"""pytsite.browser Endpoints.
 """
-from pytsite import http, router, logger
+from pytsite import http as _http, router as _router, logger as _logger
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def request(args: dict, inp: dict) -> http.response.JSON:
-    ep = args.get('ep')
+def request(args: dict, inp: dict) -> _http.response.JSON:
+    ep_name = args.get('ep')
 
     try:
-        return http.response.JSON(router.call_ep(ep, args, inp))
+        if not _api.is_ep_registered(ep_name):
+            raise _http.error.NotFound()
 
-    except http.error.NotFound:
-        return http.response.JSON({'error': "Endpoint '{}' is not found.".format(ep)}, status=404)
+        return _http.response.JSON(_router.call_ep(ep_name, args, inp))
+
+    except _http.error.NotFound:
+        return _http.response.JSON({'error': "Unknown endpoint: '{}'".format(ep_name)}, status=404)
 
     except Exception as e:
-        logger.error(str(e), __name__)
-        return http.response.JSON({'error': str(e)}, status=500)
+        _logger.error(str(e), __name__)
+        return _http.response.JSON({'error': str(e)}, status=500)

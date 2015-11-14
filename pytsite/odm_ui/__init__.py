@@ -3,9 +3,9 @@
 # Public API
 from . import _functions, _widget as widget
 from ._model import UIMixin, Model
+
 get_m_form = _functions.get_m_form
 check_permissions = _functions.check_permissions
-
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +13,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, events, tpl, lang, router, admin
+    from pytsite import assetman, events, tpl, lang, router, admin, browser
     from . import _eh
     from ._model import UIMixin
 
@@ -44,5 +44,7 @@ def __init():
     assetman.register_package(__name__)
 
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)
+
+    browser.register_ep('pytsite.odm_ui.ep.validate_m_form')
 
 __init()

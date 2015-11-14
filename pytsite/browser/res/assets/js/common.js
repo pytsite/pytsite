@@ -1,9 +1,13 @@
 var pytsite = {};
 
-pytsite.js = {
+pytsite.browser = {
     request: function(method, endpoint, data, success, error) {
+        var url_prefix = '/';
+        if (pytsite.lang.current() != pytsite.lang.fallback())
+            url_prefix += pytsite.lang.current() + '/';
+
         return $.ajax({
-            url: '/pytsite/browser/' + endpoint,
+            url: url_prefix + 'pytsite/browser/' + endpoint,
             method: method,
             data: data,
             success: success,

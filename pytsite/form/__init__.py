@@ -3,7 +3,7 @@
 from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation, tpl as _tpl
+    validation as _validation, tpl as _tpl, browser as _browser
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,6 +11,7 @@ __license__ = 'MIT'
 
 _assetman.register_package(__name__)
 _tpl.register_package(__name__)
+_browser.register_ep('pytsite.form.ep.validate')
 
 
 class Base:
