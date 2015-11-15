@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.35.4 (2015-11-15)
+### Fixed
+- Link to homepage in `widget.select.LanguageNav`.
+
+
 ## 0.35.3 (2015-11-14)
 ### Fixed
 - Typo in `content`.

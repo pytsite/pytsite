@@ -1,8 +1,8 @@
 """PytSite Select Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import assetman as _assetman, browser as _browser, html as _html, lang as _lang, validation as _validation, \
-    hreflang as _hreflang, router as _router
+from pytsite import assetman as _assetman, browser as _browser, html as _html, lang as _lang, \
+    validation as _validation, hreflang as _hreflang, router as _router
 from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
@@ -149,6 +149,8 @@ class Language(Select):
 
 
 class LanguageNav(_base.Base):
+    """Language Nav Widget.
+    """
     def __init__(self, **kwargs):
         """Init.
         """
@@ -168,6 +170,7 @@ class LanguageNav(_base.Base):
         cur_lang = _lang.get_current()
 
         if self._dropdown:
+            # Dropdown menu
             dropdown_root = _html.Li(cls='dropdown')
             toggle_a = _html.A(_lang.lang_title(cur_lang), cls='dropdown-toggle lang-' + cur_lang,
                                data_toggle='dropdown', role='button',
@@ -175,27 +178,36 @@ class LanguageNav(_base.Base):
             toggle_a.append(_html.Span(cls='caret'))
 
             dropdown_menu = _html.Ul(cls='dropdown-menu')
-            for lng in _lang.langs(True):
+            for lng in _lang.langs(False):
                 hl = _hreflang.get(lng)
                 if hl:
                     dropdown_menu.append(_html.Li().append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=hl))
                     )
+                else:
+                    # Link to homepage
+                    dropdown_menu.append(_html.Li().append(
+                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.base_url(lang=lng)))
+                    )
 
             dropdown_root.append(toggle_a).append(dropdown_menu)
             root_ul.append(dropdown_root)
         else:
+            # Simple list
             for lng in _lang.langs():
                 lang_title = _lang.lang_title(lng)
                 if lng == cur_lang:
+                    # Active language
                     root_ul.append(_html.Li(cls='active').append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.current_url(),
                                 title=lang_title)))
                 elif _hreflang.get(lng):
+                    # Inactive language, related link
                     root_ul.append(_html.Li().append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_hreflang.get(lng),
                                 title=lang_title)))
                 else:
+                    # Link to homepage, no related link found
                     root_ul.append(_html.Li().append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.base_url(lang=lng),
                                 title=lang_title)))
