@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.35.5 (2015-11-15)
+### Fixed
+- 'postal_code' field type in `geo_ip` ODM model.
+
+
 ## 0.35.4 (2015-11-15)
 ### Fixed
 - Link to homepage in `widget.select.LanguageNav`.

@@ -76,7 +76,7 @@ class GeoIP(_odm.Model):
         self._define_field(_odm.field.Float('longitude'))
         self._define_field(_geo.odm_field.LngLat('lng_lat'))
         self._define_field(_odm.field.String('organization'))
-        self._define_field(_odm.field.Integer('postal_code'))
+        self._define_field(_odm.field.String('postal_code'))
         self._define_field(_odm.field.String('region'))
         self._define_field(_odm.field.String('region_name'))
         self._define_field(_odm.field.String('timezone'))
