@@ -11,7 +11,7 @@ __license__ = 'MIT'
 # Init wrapper
 def __init():
     import sys
-    from pytsite import odm, tpl, lang, router, admin
+    from pytsite import odm, tpl, lang, router, admin, browser
     from ._model import Setting
 
     # Language package
@@ -31,6 +31,9 @@ def __init():
 
     # Sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',))
+
+    # Browser API endpoints
+    browser.register_ep('pytsite.settings.eps.form_validate')
 
 
 # Package initialization

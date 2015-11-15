@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.35.6 (2015-11-15)
+### Fixed
+- Form validation in `settings`.
+
+
 ## 0.35.5 (2015-11-15)
 ### Fixed
 - 'postal_code' field type in `geo_ip` ODM model.

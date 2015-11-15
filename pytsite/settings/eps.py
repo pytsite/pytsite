@@ -1,13 +1,13 @@
 """Settings Plugin Endpoints
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import re as _re
 from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http, \
     validation as _validation
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def form(args: dict, inp: dict) -> str:
@@ -38,7 +38,6 @@ def form_validate(args: dict, inp: dict) -> dict:
 
     if not _check_permissions(uid):
         raise _http.error.Forbidden()
-
 
     try:
         _functions.get_form(uid).fill(inp, validation_mode=True).validate()
