@@ -446,5 +446,4 @@ class Model(_ABC):
                 if _lang.is_translation_defined(full_msg_id):
                     return full_msg_id
 
-        raise _lang.error.TranslationError("Translation is not found for '{}'".format(
-            cls.package_name() + '@' + partly_msg_id))
+        return partly_msg_id

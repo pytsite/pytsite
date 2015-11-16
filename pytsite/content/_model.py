@@ -613,9 +613,7 @@ class Article(Content):
 
         # Section
         if self.has_field('section'):
-            def section_finder_adj(finder: _odm.Finder):
-                finder.where('language', '=', _lang.get_current())
-            form.add_widget(_odm_ui.widget.EntitySelect(
+            form.add_widget(_taxonomy.widget.TermSelect(
                 weight=60,
                 uid='section',
                 model='section',
@@ -623,7 +621,6 @@ class Article(Content):
                 label=self.t('section'),
                 value=self.section,
                 h_size='col-sm-6',
-                finder_adjust=section_finder_adj,
                 required=True,
             ))
 

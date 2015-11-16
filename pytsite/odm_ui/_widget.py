@@ -11,14 +11,17 @@ __license__ = 'MIT'
 class EntitySelect(_widget.select.Select):
     """Select Entity with Select Widget.
     """
-    def __init__(self, model: str, caption_field: str, sort_field: str=None, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
         super().__init__(**kwargs)
 
-        self._model = model
-        self._caption_field = caption_field
-        self._sort_field = sort_field if sort_field else caption_field
+        self._model = kwargs.get('model')
+        if not self._model:
+            raise ValueError('Model must be specified.')
+
+        self._caption_field = kwargs.get('caption_field')
+        self._sort_field = kwargs.get('sort_field', self._caption_field)
         self._finder_adjust = kwargs.get('finder_adjust')
 
     @property
@@ -42,13 +45,17 @@ class EntitySelect(_widget.select.Select):
 
         return super().set_value(value, **kwargs)
 
-    def get_html_em(self):
-        """Render the widget.
-        """
-        # Setup finder
+    def _get_finder(self) -> _odm.Finder:
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         if self._finder_adjust:
             self._finder_adjust(finder)
+
+        return finder
+
+    def get_html_em(self):
+        """Render the widget.
+        """
+        finder = self._get_finder()
 
         # Building items list
         for entity in finder.get():

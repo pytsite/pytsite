@@ -102,24 +102,17 @@ def get_packages() -> dict:
     return __packages
 
 
-def is_translation_defined(msg_id: str, language: str=None) -> bool:
-    """Check if the translation is definen for message ID.
+def is_translation_defined(msg_id: str, language: str=None, use_fallback=True) -> bool:
+    """Check if the translation is defined for message ID.
     """
-    if not language:
-        language = get_current()
-
-    if language not in __languages:
-        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
-
-    # Determining package name and message ID
-    package_name, msg_id = _split_msg_id(msg_id)
-    if msg_id not in load_lang_file(package_name, language):
+    try:
+        t(msg_id, None, language, True, use_fallback)
+        return True
+    except _error.TranslationError:
         return False
 
-    return True
 
-
-def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, fallback=True) -> str:
+def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, use_fallback=True) -> str:
     """Translate a message ID.
     """
     if not language:
@@ -136,8 +129,9 @@ def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, fallba
 
     # Searching for fallback translation
     if msg_id not in lang_file_content:
-        if fallback and get_fallback() != language:
-            return t(msg_id, args, get_fallback(), exceptions, False)
+        fallback = get_fallback()
+        if use_fallback and fallback != language:
+            return t(package_name + '@' + msg_id, args, fallback, exceptions, False)
         else:
             if exceptions:
                 raise _error.TranslationError("Translation is not found for '{}@{}'".format(package_name, msg_id))

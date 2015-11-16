@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.36 (2015-11-16)
+### Added
+- New widget: `taxonomy.widget.TermSelect`.
+
+### Fixed
+- Translation errors in `odm.Model.t()`.
+
+
 ## 0.35.6 (2015-11-15)
 ### Fixed
 - Form validation in `settings`.

@@ -1,11 +1,24 @@
 """Tag Widgets.
 """
-from pytsite import widget as _widget, html as _html, odm as _odm, router as _router, tpl as _tpl
+from pytsite import widget as _widget, html as _html, odm as _odm, router as _router, tpl as _tpl, odm_ui as _odm_ui, \
+    lang as _lang
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+class TermSelect(_odm_ui.widget.EntitySelect):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._language = kwargs.get('language', _lang.get_current())
+
+    def _get_finder(self):
+        finder = super()._get_finder()
+        finder.where('language', '=', self._language)
+
+        return finder
 
 
 class TokensInput(_widget.input.Tokens):
