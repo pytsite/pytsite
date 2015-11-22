@@ -24,7 +24,7 @@ class Driver(_content_export.AbstractDriver):
         self._oauth_token = kwargs.get('oauth_token')
         self._oauth_token_secret = kwargs.get('oauth_token_secret')
 
-    def get_settings_widget(self, uid: str, **kwargs: dict) -> _widget.Base:
+    def get_settings_widget(self, uid: str, **kwargs) -> _widget.Base:
         """Get widget for content export edit form.
         """
         return TwitterAuthWidget(uid=uid, **kwargs)

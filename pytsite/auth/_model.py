@@ -1,11 +1,47 @@
 """Auth Models
 """
 import hashlib as _hashlib
+from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from pytsite import image as _image, odm as _odm, util as _util, router as _router
 
 
-ANONYMOUS_LOGIN = '__anonymous@__anonymous.__anonymous'
+_ANONYMOUS_LOGIN = '__anonymous@__anonymous.__anonymous'
+
+
+class Role(_odm.Model):
+    """Role.
+    """
+    def _setup(self):
+        """Hook.
+        """
+        self._define_field(_odm.field.String('name'))
+        self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.UniqueList('permissions', allowed_types=(str,)))
+
+        self._define_index([('name', _odm.I_ASC)], unique=True)
+
+    @property
+    def name(self) -> str:
+        return self.f_get('name')
+
+    @property
+    def description(self) -> str:
+        return self.f_get('description')
+
+    @property
+    def permissions(self) -> _Iterable[str]:
+        return self.f_get('permissions')
+
+    def _pre_delete(self):
+        """Hook.
+        """
+        from . import _api
+
+        # Check if the role is used by users
+        for user in _api.find_users(False).get():
+            if user.has_role(self.name):
+                raise _odm.error.ForbidEntityDelete(self.t('role_user_by_user', {'user': user.login}))
 
 
 class User(_odm.Model):
@@ -61,7 +97,7 @@ class User(_odm.Model):
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.f_get('login') == ANONYMOUS_LOGIN
+        return self.f_get('login') == _ANONYMOUS_LOGIN
 
     @property
     def is_admin(self) -> bool:
@@ -110,7 +146,7 @@ class User(_odm.Model):
         return self.f_get('picture')
 
     @property
-    def urls(self) -> list:
+    def urls(self) -> tuple:
         return self.f_get('urls')
 
     @property
@@ -134,7 +170,7 @@ class User(_odm.Model):
         return self.f_get('token')
 
     @property
-    def roles(self) -> list:
+    def roles(self) -> _Iterable[Role]:
         return self.f_get('roles')
 
     @property
@@ -142,11 +178,17 @@ class User(_odm.Model):
         return self.f_get('options')
 
     @property
-    def follows(self) -> list:
+    def follows(self):
+        """
+        :return: _Iterable[User]
+        """
         return self.f_get('follows')
 
     @property
-    def followers(self) -> list:
+    def followers(self):
+        """
+        :return: _Iterable[User]
+        """
         return self.f_get('followers')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
@@ -176,7 +218,7 @@ class User(_odm.Model):
     def _pre_save(self):
         """Hook.
         """
-        if self.login == ANONYMOUS_LOGIN:
+        if self.login == _ANONYMOUS_LOGIN:
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.password:
@@ -208,11 +250,7 @@ class User(_odm.Model):
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.
         """
-        for role in self.roles:
-            if role.f_get('name') == name:
-                return True
-
-        return False
+        return name in [role.name for role in self.roles]
 
     def has_permission(self, name: str) -> bool:
         """Checks if the user has permission.
@@ -225,8 +263,8 @@ class User(_odm.Model):
         if self.is_admin:
             return True
 
-        for role in self.f_get('roles'):
-            if name in role.f_get('permissions'):
+        for role in self.roles:
+            if name in role.permissions:
                 return True
 
         return False
@@ -252,45 +290,3 @@ class User(_odm.Model):
                 value += ' ' + self.last_name
 
         return value
-
-
-class Role(_odm.Model):
-    """Role.
-    """
-    @property
-    def name(self) -> str:
-        return self.f_get('name')
-
-    @property
-    def description(self) -> str:
-        return self.f_get('description')
-
-    @property
-    def permissions(self) -> list:
-        return self.f_get('permissions')
-
-    def _setup(self):
-        """_setup() hook.
-        """
-        self._define_field(_odm.field.String('name'))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.UniqueList('permissions'))
-
-        self._define_index([('name', _odm.I_ASC)], unique=True)
-
-    def _on_f_add(self, field_name: str, value, **kwargs: dict):
-        """_on_f_add() hook.
-        """
-        if field_name == 'permissions' and not isinstance(value, str):
-            raise TypeError("String expected")
-
-        return value
-
-    def _pre_delete(self):
-        """Hook.
-        """
-        from . import _api
-
-        for user in _api.find_users(False).get():
-            if user.has_role(self.name):
-                raise _odm.error.ForbidEntityDelete(self.t('role_user_by_user', {'user': user.login}))

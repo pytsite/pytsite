@@ -13,10 +13,11 @@ __license__ = 'MIT'
 class Auth(_widget.Base):
     """Facebook Authorization Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._app_id = _reg.get('fb.app_id')
         self._app_secret = _reg.get('fb.app_secret')
         self._scope = kwargs.get('scope', 'public_profile,email,user_friends')

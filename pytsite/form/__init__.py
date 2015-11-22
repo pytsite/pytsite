@@ -21,7 +21,15 @@ class Base:
         """Init.
         """
         self._widgets = {}
+
+        # Form areas where widgets can be placed
         self._areas = ('hidden', 'header', 'body', 'footer')
+
+        # Areas' CSS classes
+        self._area_hidden_css = kwargs.get('area_hidden_css', 'form-area-hidden hidden')
+        self._area_header_css = kwargs.get('area_header_css', 'form-area-header box-header')
+        self._area_body_css = kwargs.get('area_body_css', 'form-area-body box-body')
+        self._area_footer_css = kwargs.get('area_footer_css', 'form-area-footer box-footer')
 
         self._uid = uid if uid else _util.random_str()
         self._name = kwargs.get('name', '')
@@ -31,17 +39,14 @@ class Base:
         self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ep.validate')
         self._tpl = kwargs.get('tpl', 'pytsite.form@form')
 
+        # <form>'s tag CSS class
         self._css = kwargs.get('css', '') + ' pytsite-form'
         self._css = self._css.strip()
 
+        # Form title
         self._title = kwargs.get('title')
         self._title_css = kwargs.get('title_css', 'box-title')
         self._title_tag = kwargs.get('title_tag', 'h3')
-
-        self._area_hidden_css = kwargs.get('area_hidden_css', 'form-area-hidden hidden')
-        self._area_header_css = kwargs.get('area_header_css', 'form-area-header box-header')
-        self._area_body_css = kwargs.get('area_body_css', 'form-area-body box-body')
-        self._area_footer_css = kwargs.get('area_footer_css', 'form-area-footer box-footer')
 
         redirect_url = _router.request.inp.get('__form_redirect')
         if not redirect_url:
@@ -54,6 +59,7 @@ class Base:
             value=_router.current_url(),
             form_area='hidden')
         )
+
         self.add_widget(_widget.input.Hidden(
             uid='__form_redirect',
             value=_url_unquote(redirect_url),
@@ -61,6 +67,7 @@ class Base:
         )
 
         self.add_widget(_widget.static.Container(
+            uid='__form_messages',
             css='form-messages',
         ))
 
@@ -181,7 +188,7 @@ class Base:
 
     @property
     def values(self) -> dict:
-        return _OrderedDict([(w.uid, w.get_value()) for w in self.get_widgets().values()])
+        return _OrderedDict([(w.uid, w.get_val()) for w in self.get_widgets().values()])
 
     @property
     def fields(self) -> list:
@@ -193,20 +200,20 @@ class Base:
     def redirect(self) -> str:
         """Get redirect URL after successful form submit.
         """
-        return self.get_widget('__form_redirect').get_value()
+        return self.get_widget('__form_redirect').get_val()
 
     @redirect.setter
     def redirect(self, value):
         """Set redirect URL after successful form submit.
         """
-        self.get_widget('__form_redirect').set_value(_url_unquote(value))
+        self.get_widget('__form_redirect').set_val(_url_unquote(value))
 
-    def fill(self, values: dict, **kwargs: dict):
+    def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
         for field_name, field_value in values.items():
             if self.has_widget(field_name):
-                self.get_widget(field_name).set_value(field_value, **kwargs)
+                self.get_widget(field_name).set_val(field_value, **kwargs)
 
         return self
 
@@ -236,7 +243,7 @@ class Base:
         """Validate the form.
         """
         errors = {}
-        # Setting values of the validator
+        # Validate each widget
         for widget in self.get_widgets().values():
             try:
                 widget.validate()
@@ -280,7 +287,6 @@ class Base:
         if not replacement.weight and current.weight:
             replacement.weight = current.weight
 
-        replacement.uid = uid
         replacement.form_area = current.form_area
 
         self.remove_widget(uid).add_widget(replacement)
@@ -323,11 +329,12 @@ class Base:
         # Sort by weight
         return _OrderedDict([(w.uid, w) for w in _util.weight_sort(widgets)])
 
-    def remove_widget(self, uid):
+    def remove_widget(self, widget_uid):
         """Remove widget from the form.
         """
-        if uid in self._widgets:
-            del self._widgets[uid]
+        if widget_uid in self._widgets:
+            self.remove_rules(widget_uid)
+            del self._widgets[widget_uid]
 
         return self
 

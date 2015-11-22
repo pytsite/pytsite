@@ -11,10 +11,11 @@ __license__ = 'MIT'
 class Auth(_widget.Base):
     """Twitter oAuth Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._oauth_token = kwargs.get('oauth_token', '')
         self._oauth_token_secret = kwargs.get('oauth_token_secret', '')
         self._screen_name = kwargs.get('screen_name', '')

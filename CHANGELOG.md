@@ -1,11 +1,30 @@
 # PytSite Changelog
 
+## 0.37 (2015-11-xx)
+### Added
+- New validation rule: `validation.rule.Number`.
+- New validation rules: `validation.rule.Greater`, `validation.rule.Less`.
+- New validation rules: `validation.rule.GreaterOrEqual`, `validation.rule.LessOrEqual`.
+
+### Changed
+- `odm.field.List` and descendants now return `tuple` by `get_val()` instead of `list`.
+- `widget.Base.get_value()` renamed to `widget.Base.get_val()`.
+- `widget.Base.set_value()` renamed to `widget.Base.set_val()`.
+- `currency.widget.Currency` slightly rewritten.
+- `uid` argument of `widget.Base` is mandatory now.
+
+### Fixed
+- Title and CSS settings in `auth.get_login_form()`.
+- Non-strings processing in `util.list_cleanup()` and `util.dict_cleanup()`.
+
+
 ## 0.36 (2015-11-16)
 ### Added
 - New widget: `taxonomy.widget.TermSelect`.
 
 ### Fixed
 - Translation errors in `odm.Model.t()`.
+- `TypeError` catch in `validation.rule.Float`.
 
 
 ## 0.35.6 (2015-11-15)

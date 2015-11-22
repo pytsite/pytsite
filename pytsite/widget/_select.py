@@ -13,13 +13,13 @@ __license__ = 'MIT'
 class Checkbox(_input.Input):
     """Single Checkbox Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._label_disabled = True
 
-    def set_value(self, value, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         self._value = bool(value)
@@ -39,10 +39,10 @@ class Checkbox(_input.Input):
 class Select(_input.Input):
     """Select Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         self._items = kwargs.get('items', [])
         if type(self._items) not in (list, tuple):
@@ -66,10 +66,10 @@ class Select(_input.Input):
 
 
 class Select2(Select):
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         _browser.include('select2')
         _assetman.add('pytsite.widget@js/select2.js')
@@ -95,19 +95,19 @@ class Select2(Select):
 class Checkboxes(Select):
     """Group of Checkboxes Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
-        self.set_value(kwargs.get('value', []))
+        self.set_val(kwargs.get('value', []))
 
         if not isinstance(self._value, list):
             raise TypeError("List expected.")
 
         self._selected_items = kwargs.get('selected_items', self._value)
 
-    def set_value(self, value: list, **kwargs):
+    def set_val(self, value: list, **kwargs):
         """Set value of the widget.
         """
 
@@ -138,10 +138,10 @@ class Checkboxes(Select):
 class Language(Select):
     """Select Language Widget
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._items = kwargs.get('items', [])
 
         for code in _lang.langs():
@@ -151,10 +151,10 @@ class Language(Select):
 class LanguageNav(_base.Base):
     """Language Nav Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._bootstrap = kwargs.get('bootstrap', True)
         self._dropdown = kwargs.get('dropdown')
         self._css += ' lang-switch'
@@ -218,10 +218,10 @@ class LanguageNav(_base.Base):
 class DateTime(_input.Text):
     """Date/Time Select Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         _browser.include('datetimepicker')
         _assetman.add('pytsite.widget@js/datetime.js')
@@ -229,18 +229,18 @@ class DateTime(_input.Text):
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
         self.add_rule(_validation.rule.DateTime())
 
-    def set_value(self, value, **kwargs: dict):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         if value and isinstance(value, str):
             value = _datetime.strptime(value, '%d.%m.%Y %H:%M')
 
-        return super().set_value(value, **kwargs)
+        return super().set_val(value, **kwargs)
 
-    def get_value(self, **kwargs: dict) -> _datetime:
+    def get_val(self, **kwargs) -> _datetime:
         """Get value of the widget.
         """
-        return super().get_value(**kwargs)
+        return super().get_val(**kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget
@@ -249,7 +249,7 @@ class DateTime(_input.Text):
             type='text',
             uid=self._uid,
             name=self._name,
-            value=self.get_value().strftime('%d.%m.%Y %H:%M'),
+            value=self.get_val().strftime('%d.%m.%Y %H:%M'),
             cls=' '.join(('form-control', self._css)),
             required=self._required,
         )

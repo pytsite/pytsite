@@ -15,7 +15,7 @@ class Driver(_content_export.AbstractDriver):
         """
         self._access_token = kwargs.get('access_token')
 
-    def get_settings_widget(self, uid: str, **kwargs: dict):
+    def get_settings_widget(self, uid: str, **kwargs):
         scope = 'public_profile,email,user_friends,publish_actions,manage_pages,publish_pages'
         return _FacebookAuthWidget(uid=uid, scope=scope, **kwargs)
 

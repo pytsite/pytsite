@@ -1,4 +1,4 @@
-"""Pytsite Robots Init.
+"""Pytsite Robots Package.
 """
 
 # Public API

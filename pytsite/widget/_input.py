@@ -12,10 +12,10 @@ __license__ = 'MIT'
 class Input(_base.Base):
     """Abstract Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._required = kwargs.get('required', False)
         self._max_length = kwargs.get('max_length')
 
@@ -28,13 +28,15 @@ class Input(_base.Base):
 
     @required.setter
     def required(self, value: bool):
-        self._clear_non_empty()
+
         if value:
             self.add_rule(_validation.rule.NonEmpty())
+        else:
+            self._clear_non_empty_rule()
 
         self._required = value
 
-    def _clear_non_empty(self):
+    def _clear_non_empty_rule(self):
         rules = [r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)]
         self.remove_rules().add_rules(rules)
 
@@ -59,10 +61,11 @@ class Hidden(Input):
 class TextArea(_base.Base):
     """Text Area Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._rows = kwargs.get('rows', 5)
         self._required = kwargs.get('required', False)
         self._max_length = kwargs.get('max_length')
@@ -72,7 +75,7 @@ class TextArea(_base.Base):
         """Render the widget.
         """
         html_input = _html.TextArea(
-            content=self.get_value(),
+            content=self.get_val(),
             uid=self._uid,
             name=self._name,
             cls=' '.join(('form-control', self._css)),
@@ -90,10 +93,11 @@ class TextArea(_base.Base):
 class Text(Input):
     """Text Input Widget
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._prepend = kwargs.get('prepend')
         self._append = kwargs.get('append')
         self._css = ' '.join((self._css, 'widget-input-text'))
@@ -108,7 +112,7 @@ class Text(Input):
             type=self._type,
             uid=self._uid,
             name=self._name,
-            value=self.get_value(),
+            value=self.get_val(),
             cls='form-control',
             placeholder=self.placeholder,
             required=self._required
@@ -130,16 +134,22 @@ class Text(Input):
 
 
 class Password(Text):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
+
         self._type = 'password'
 
 
 class TypeaheadText(Text):
-    def __init__(self, source_url: str, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
+        source_url = kwargs.get('source_url')
+        if not source_url:
+            raise ValueError('Source URL is not specified.')
+
         _client.include('typeahead')
         _assetman.add('pytsite.widget@js/typeahead.js')
         self._css = ' '.join((self._css, 'widget-typeahead-text-input'))
@@ -149,70 +159,87 @@ class TypeaheadText(Text):
 class Email(Text):
     """Email Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._type = 'email'
         self.add_rule(_validation.rule.Email())
 
 
-class Integer(Text):
-    """Integer Input Widget
-    """
-    def __init__(self, **kwargs):
+class Number(Text):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._type = 'tel'
         self._allow_minus = kwargs.get('allow_minus', False)
+        self._min = kwargs.get('min')
+        self._max = kwargs.get('max')
         self._css = ' '.join((self._css, 'widget-input-integer'))
         self._data['allow_minus'] = self._allow_minus
+
+        # Validation rules
         self.add_rule(_validation.rule.Integer())
+        if self._min is not None:
+            self.add_rule(_validation.rule.GreaterOrEqual(self._min))
+        if self._max is not None:
+            self.add_rule(_validation.rule.LessOrEqual(self._max))
 
         _client.include('inputmask')
         _assetman.add('pytsite.widget@js/integer.js')
 
-    def set_value(self, value, **kwargs: dict):
-        """Set value of the widget.
-        """
-        if not value:
-            value = 0
-        return super().set_value(int(value), **kwargs)
 
-
-class Float(Text):
-    """Float Input Widget
+class Integer(Number):
+    """Integer Input Widget
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
-        self._type = 'tel'
-        self._allow_minus = kwargs.get('allow_minus', False)
-        self._css = ' '.join((self._css, 'widget-input-float'))
-        self._data['allow_minus'] = self._allow_minus
-        self.add_rule(_validation.rule.Float())
+        super().__init__(uid, **kwargs)
 
-        _client.include('inputmask')
-        _assetman.add('pytsite.widget@js/float.js')
+        self._css = ' '.join((self._css, 'widget-input-integer'))
+        self.add_rule(_validation.rule.Integer())
+        _assetman.add('pytsite.widget@js/integer.js')
 
-    def set_value(self, value, **kwargs: dict):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if not value:
+        if value is None:
+            value = 0
+
+        return super().set_val(int(value), **kwargs)
+
+
+class Float(Number):
+    """Float Input Widget
+    """
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, **kwargs)
+
+        self._css = ' '.join((self._css, 'widget-input-float'))
+        self.add_rule(_validation.rule.Float())
+        _assetman.add('pytsite.widget@js/float.js')
+
+    def set_val(self, value, **kwargs):
+        """Set value of the widget.
+        """
+        if value is None:
             value = 0.0
 
-        return super().set_value(float(value), **kwargs)
+        return super().set_val(float(value), **kwargs)
 
 
 class StringList(_base.Base):
     """List of strings widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._add_btn_label = kwargs.get('add_btn_label', '')
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._max_values = kwargs.get('max_values', 10)
@@ -231,16 +258,16 @@ class StringList(_base.Base):
     def add_btn_icon(self) -> str:
         return self._add_btn_icon
 
-    def set_value(self, value, **kwargs: dict):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         if not value:
             value = []
 
-        if not isinstance(value, list):
-            raise ValueError('List expected.')
+        if type(value) not in (list, tuple):
+            raise ValueError('List or tuple expected.')
 
-        return super().set_value(_util.list_cleanup(value), **kwargs)
+        return super().set_val(_util.list_cleanup(value), **kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
@@ -251,28 +278,28 @@ class StringList(_base.Base):
 class ListList(StringList):
     """List of lists widget.
     """
-    def __init__(self, col_titles: tuple, col_format: tuple, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
 
-        self._col_titles = col_titles
-        self._col_format = col_format
+        self._col_titles = kwargs.get('col_titles', ())
+        self._col_format = kwargs.get('col_format', ())
 
-        if not col_titles or not col_format:
+        if not self._col_titles or not self._col_format:
             raise ValueError("'col_titles' and 'col_format' cannot be empty.")
-        if len(col_titles) != len(col_format):
+        if len(self._col_titles) != len(self._col_format):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
         self._css = ' '.join((self._css, 'widget-list-list'))
 
     @property
-    def col_titles(self) -> list:
+    def col_titles(self) -> tuple:
         return self._col_titles
 
     @property
-    def col_format(self) -> list:
+    def col_format(self) -> tuple:
         return self._col_format
 
-    def set_value(self, value, **kwargs: dict):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         if value is None:
@@ -296,7 +323,7 @@ class ListList(StringList):
                 if not isinstance(item, str):
                     raise ValueError('str expected.')
 
-        return super().set_value(value, **kwargs)
+        return super().set_val(value, **kwargs)
 
     def _set_value_from_string_list(self, value: list, **kwargs):
         new_value = []
@@ -306,7 +333,7 @@ class ListList(StringList):
             if _util.list_cleanup(value_to_append):
                 new_value.append(value_to_append)
 
-        return super().set_value(new_value, **kwargs)
+        return super().set_val(new_value, **kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
@@ -317,10 +344,11 @@ class ListList(StringList):
 class Tokens(Input):
     """Tokens Text Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._css = ' '.join((self._css, 'widget-token-input'))
         _client.include('tokenfield')
         _assetman.add('pytsite.widget@css/tokens.css')
@@ -333,13 +361,13 @@ class Tokens(Input):
             'remote_source': self._remote_source,
         }
 
-    def set_value(self, value, **kwargs: dict):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         if isinstance(value, str):
             value = value.split(',')
 
-        return super().set_value(value)
+        return super().set_val(value)
 
     def get_html_em(self) -> str:
         """Render the widget.
@@ -348,7 +376,7 @@ class Tokens(Input):
             type='text',
             uid=self._uid,
             name=self._name,
-            value=','.join(self.get_value()) if self.get_value() else '',
+            value=','.join(self.get_val()) if self.get_val() else '',
             cls=' '.join(('form-control', self._css)),
         )
 

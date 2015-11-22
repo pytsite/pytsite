@@ -33,7 +33,7 @@ class Generate(_console.command.Abstract):
         _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] [--short] '
                             '[--author=LOGIN] --model=MODEL ')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute teh command.
         """
         model = kwargs.get('model')

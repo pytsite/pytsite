@@ -12,15 +12,15 @@ __license__ = 'MIT'
 class LngLat(_widget.Base):
     """Get Latitude and Longitude Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         _assetman.add('pytsite.geo@js/widget/lng-lat.js')
         self._css += ' widget-geo-lng-lat'
 
-    def set_value(self, val, **kwargs: dict):
+    def set_val(self, val, **kwargs):
         """Set value of the widget.
 
         :param val: list | tuple | str
@@ -40,26 +40,26 @@ class LngLat(_widget.Base):
         if not isinstance(val[0], float) or not isinstance(val[0], float):
             raise ValueError("Widget '{}': value must contain only float items.".format(self.name))
 
-        return super().set_value(val, **kwargs)
+        return super().set_val(val, **kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        return self._group_wrap(_html.Input(type='hidden', name=self._uid, value=self.get_value()))
+        return self._group_wrap(_html.Input(type='hidden', name=self._uid, value=_json_dumps(self.get_val())))
 
 
 class Location(_widget.Base):
     """Geo Address Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         _assetman.add('pytsite.geo@js/widget/location.js')
         self._css += ' widget-geo-location'
 
-    def set_value(self, val: dict, **kwargs: dict):
+    def set_val(self, val: dict, **kwargs):
         """Set value of the widget.
         """
         if val is None:
@@ -68,7 +68,7 @@ class Location(_widget.Base):
         if not isinstance(val, dict):
             raise ValueError("Widget '{}': dict or None expected, while '{}' given.".format(self.name, repr(val)))
 
-        return super().set_value(val, **kwargs)
+        return super().set_val(val, **kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
@@ -84,10 +84,10 @@ class Location(_widget.Base):
 class SearchAddress(Location):
     """Geo Address Input Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         self._autodetect = kwargs.get('autodetect', False)
 
@@ -105,7 +105,7 @@ class SearchAddress(Location):
     def autodetect(self, value: bool):
         self._autodetect = value
 
-    def set_value(self, val: dict, **kwargs: dict):
+    def set_val(self, val: dict, **kwargs):
         """Set value of the widget.
         """
         if isinstance(val, dict) and val:
@@ -129,12 +129,12 @@ class SearchAddress(Location):
         elif val is not None:
             raise ValueError('Dict or None expected.')
 
-        return super().set_value(val, **kwargs)
+        return super().set_val(val, **kwargs)
 
-    def get_value(self, **kwargs: dict):
+    def get_val(self, **kwargs):
         """Set value of the widget.
         """
-        val = super().get_value(**kwargs)
+        val = super().get_val(**kwargs)
         if not val:
             val = {
                 'address': '',
@@ -168,15 +168,15 @@ class SearchAddress(Location):
 class StaticMap(_widget.Base):
     """Static Map Widget.
     """
-    def __init__(self, lng: float=50.45, lat: float=30.523333, query: str=None, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         self._language = kwargs.get('language', _lang.get_current())
-        self._lng = lng
-        self._lat = lat
-        self._query = query
+        self._lng = kwargs.get('lng', 50.45)
+        self._lat = kwargs.get('lat', 30.523333)
+        self._query = kwargs.get('query')
         self._zoom = kwargs.get('zoom', 13)
         self._center = '%f,%f' % (self._lat, self._lng)
         self._width = kwargs.get('width', 320)

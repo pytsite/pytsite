@@ -1,6 +1,6 @@
 """Taxonomy Models.
 """
-from pytsite import odm_ui as _odm_ui, lang as _lang, validation as _validation, odm as _odm, widget as _widget
+from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -134,12 +134,13 @@ class Term(_odm_ui.Model):
             lang_title = _lang.t('lang_title_' + _lang.get_current())
         else:
             lang_title = _lang.t('lang_title_' + self.language)
-        form.add_widget((_widget.static.Text(
+        form.add_widget(_widget.static.Text(
+            uid='language',
             weight=900,
             label=self.t('language'),
             title=lang_title,
             value=self.language if self.language else _lang.get_current(),
-        )))
+        ))
 
     def get_d_form_description(self) -> str:
         """Hook.

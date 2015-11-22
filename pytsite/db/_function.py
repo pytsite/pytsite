@@ -1,16 +1,17 @@
 """PytSite Database Functions.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
-import ssl
+import ssl as _ssl
 from pymongo import MongoClient as _MongoClient
 from pymongo.database import Database as _Database
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import ServerSelectionTimeoutError
 from pytsite import util as _util, reg as _reg
 from pytsite import logger as _logger
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 
 __client = None
 __database = None
@@ -37,7 +38,8 @@ def get_client() -> _MongoClient:
         return __client
 
     config = get_config()
-    __client = _MongoClient(config['host'], config['port'], ssl=config['ssl'], ssl_cert_reqs=ssl.CERT_NONE)
+    __client = _MongoClient(config['host'], config['port'], ssl=config['ssl'], ssl_cert_reqs=_ssl.CERT_NONE,
+                            connect=False)
 
     return __client
 

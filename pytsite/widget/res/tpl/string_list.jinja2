@@ -7,8 +7,8 @@
 {% endmacro %}
 
 <div class="slots">
-    {% if widget.get_value() %}
-        {% for v in widget.get_value() %}
+    {% if widget.get_val() %}
+        {% for v in widget.get_val() %}
             {{ slot(loop.index, v) }}
         {% endfor %}
     {% else %}

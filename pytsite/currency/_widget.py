@@ -10,48 +10,40 @@ __license__ = 'MIT'
 
 
 class Currency(_widget.input.Float):
-    def __init__(self, currency: str=None, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
-        if not currency:
-            currency = _functions.get_main_currency()
-        currency = currency.upper()
+        currency = kwargs.get('currency', _functions.get_main_currency()).upper()
+        if currency not in _functions.get_currencies():
+            raise ValueError("Widget '{}': '{}' is not a valid currency.".format(self.uid, currency))
 
         self._currency = currency
         self._append = currency
+        self._value = {'amount': 0.0, 'currency': self._currency}
 
-    def set_value(self, value, **kwargs: dict):
+        # Remove validation rules which defined in super class
+        self.remove_rules()
+
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if not value:
-            value = {'amount': 0.0, 'currency': _functions.get_main_currency()}
+        if value is None:
+            return
 
-        if not isinstance(value, dict):
-            raise ValueError("Widget '{}': dict expected, while '{}' given.".format(self.uid, repr(value)))
+        if isinstance(value, dict) and 'amount' in value:
+            amount = float(value['amount'])
+        elif isinstance(value, tuple) and value:
+            amount = float(value[0])
+        else:
+            amount = float(value)
 
-        for k in ('amount', 'currency'):
-            if k not in value:
-                raise ValueError("Widget '{}': '{}' is not in the value.".format(self.uid, k))
-
-        if not value['amount']:
-            value['amount'] = 0.0
-
-        if not value['currency']:
-            value['currency'] = _functions.get_main_currency()
-
-        if value['currency'] not in _functions.get_currencies():
-            raise ValueError("Widget '{}': '{}' is not a valid currency.".format(self.uid, value['currency']))
-
-        value['amount'] = float(_decimal.Decimal(value['amount']).quantize(_decimal.Decimal('.01')))
-        value['currency'] = value['currency'].upper()
-
-        self._value = value
+        self._value['amount'] = float(_decimal.Decimal(amount).quantize(_decimal.Decimal('.01')))
 
         return self
 
-    def get_value(self, **kwargs: dict):
+    def get_val(self, **kwargs):
         if kwargs.get('validation_mode'):
             return self._value['amount']
 

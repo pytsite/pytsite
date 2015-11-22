@@ -45,9 +45,6 @@ class Model(_ABC):
         self._define_field(_field.DateTime('_created'))
         self._define_field(_field.DateTime('_modified'))
 
-        # Store model into separate field
-        self.f_set('_model', model)
-
         # setup() hook
         self._setup()
 
@@ -273,7 +270,7 @@ class Model(_ABC):
             self.get_field(field_name).add_val(self._on_f_add(field_name, value, **kwargs))
             return self
 
-    def _on_f_add(self, field_name: str, value, **kwargs: dict):
+    def _on_f_add(self, field_name: str, value, **kwargs):
         """On field's add value hook.
         """
         return value

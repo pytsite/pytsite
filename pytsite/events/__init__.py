@@ -17,7 +17,7 @@ def listen(event: str, listener: callable):
     __listeners[event].append(listener)
 
 
-def fire(event: str, stop_after: int=None, **kwargs: dict):
+def fire(event: str, stop_after: int=None, **kwargs):
     """Fires an event to listeners.
     """
     if event not in __listeners:
@@ -31,7 +31,7 @@ def fire(event: str, stop_after: int=None, **kwargs: dict):
             return
 
 
-def first(event: str, **kwargs: dict):
+def first(event: str, **kwargs):
     """Fires an event and process only one handler.
     """
     return fire(event, stop_after=1, **kwargs)

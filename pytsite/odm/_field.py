@@ -1,5 +1,6 @@
 """ODM Fields.
 """
+from typing import Any as _Any
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from bson.objectid import ObjectId as _bson_ObjectID
@@ -26,6 +27,8 @@ class Abstract(_ABC):
         self._nonempty = kwargs.get('nonempty', False)
         self._modified = False
         self._value = _deepcopy(self._default)
+
+        # Pass initial value through the setter
         self.set_val(self._value)
 
     @property
@@ -33,7 +36,7 @@ class Abstract(_ABC):
         return self._nonempty
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Get name of the field.
         """
         return self._name
@@ -48,12 +51,11 @@ class Abstract(_ABC):
         """Reset the 'modified' status of the field.
         """
         self._modified = False
+
         return self
 
-    def get_val(self, **kwargs):
+    def get_val(self, **kwargs) -> _Any:
         """Get value of the field.
-
-        :rtype:
         """
         return self._value
 
@@ -139,32 +141,32 @@ class List(Abstract):
         """Init.
         """
         self._allowed_types = kwargs.get('allowed_types', (int, str, float, list, dict, tuple))
-        self._min_len = kwargs.get('min_len', None)
-        self._max_len = kwargs.get('max_len', None)
+        self._min_len = kwargs.get('min_len')
+        self._max_len = kwargs.get('max_len')
         self._unique = kwargs.get('unique', False)
         self._cleanup = kwargs.get('cleanup', True)
 
-        if not kwargs.get('default'):
-            kwargs['default'] = []
+        if kwargs.get('default') is None:
+            kwargs['default'] = ()
 
         super().__init__(name, **kwargs)
 
-    def get_val(self, **kwargs) -> list:
+    def get_val(self, **kwargs) -> tuple:
         """Get value of the field.
         """
-        return super().get_val(**kwargs)
+        return tuple(super().get_val(**kwargs))
 
     def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
 
         :type value: list | tuple
         """
-        if not value:
-            value = ()
-
         if type(value) not in (list, tuple):
             raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, repr(value)))
 
+        # In internals value is always a list
+        if value is None:
+            value = []
         if isinstance(value, tuple):
             value = list(value)
 
@@ -351,7 +353,7 @@ class RefsList(List):
     def model(self) -> str:
         return self._model
 
-    def set_val(self, value: list, change_modified: bool=True, **kwargs):
+    def set_val(self, value, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         if type(value) not in (list, tuple):
@@ -372,7 +374,7 @@ class RefsList(List):
 
         return super().set_val(clean_value, change_modified, **kwargs)
 
-    def get_val(self, **kwargs) -> list:
+    def get_val(self, **kwargs) -> tuple:
         """Get value of the field.
         """
         from ._functions import get_by_ref
@@ -387,7 +389,7 @@ class RefsList(List):
         if sort_by:
             r = sorted(r, key=lambda item: item.f_get(sort_by), reverse=kwargs.get('sort_reverse', False))
 
-        return r
+        return tuple(r)
 
     def add_val(self, value, change_modified: bool=True, **kwargs):
         """Add a value to the field.
@@ -480,28 +482,26 @@ class String(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        self._max_length = kwargs.get('max_length', None)
-
-        if kwargs.get('default') is None:
-            kwargs['default'] = ''
+        kwargs['default'] = kwargs.get('default', '')
+        self._max_len = kwargs.get('max_len')
 
         super().__init__(name, **kwargs)
 
     @property
-    def max_length(self) -> int:
-        return self._max_length
+    def max_len(self) -> int:
+        return self._max_len
 
-    @max_length.setter
-    def max_length(self, val: int):
-        self._max_length = val
+    @max_len.setter
+    def max_len(self, val: int):
+        self._max_len = val
 
     def set_val(self, value: str, change_modified: bool=True, **kwargs):
         """Set value of the field.
         """
         value = '' if value is None else str(value).strip()
 
-        if self._max_length is not None:
-            value = value[:self._max_length]
+        if self._max_len is not None:
+            value = value[:self._max_len]
 
         return super().set_val(value, change_modified, **kwargs)
 

@@ -10,6 +10,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+_re_num = _re.compile('\-?\d+(\.\d+)?')
+_re_int_num = _re.compile('\-?\d+')
+_re_float_num = _re.compile('\-?\d+\.\d+')
+
+
 class Base(_ABC):
     """Base Rule.
     """
@@ -51,7 +56,7 @@ class NonEmpty(Base):
             raise _error.RuleError(self._msg_id)
 
 
-class DictPartsNotEmpty(Base):
+class DictPartsNonEmpty(Base):
     """Check if a dict particular key values are not empty.
     """
     def __init__(self, value: None, msg_id: str=None, keys: tuple=()):
@@ -75,15 +80,25 @@ class DictPartsNotEmpty(Base):
                 raise _error.RuleError(self._msg_id, {'keys': self._keys})
 
 
+class Number(Base):
+    """Number validation rule.
+    """
+    def validate(self):
+        if isinstance(self._value, str) and not _re_num.match(self._value):
+            raise _error.RuleError(self._msg_id)
+        elif type(self._value) not in (None, float, int):
+            raise _error.RuleError(self._msg_id)
+
+
 class Integer(Base):
     """Integer Validation Rule.
     """
     def validate(self):
         """Do actual validation of the rule.
         """
-        try:
-            int(self._value)
-        except ValueError:
+        if isinstance(self._value, str) and not _re_int_num.match(self._value):
+            raise _error.RuleError(self._msg_id)
+        if type(self._value) not in (None, int):
             raise _error.RuleError(self._msg_id)
 
 
@@ -93,10 +108,57 @@ class Float(Base):
     def validate(self):
         """Do actual validation of the rule.
         """
-        try:
-            float(self._value)
-        except ValueError:
+        if isinstance(self._value, str) and not _re_float_num.match(self._value):
             raise _error.RuleError(self._msg_id)
+        elif type(self._value) not in (None, float):
+            raise _error.RuleError(self._msg_id)
+
+
+class Less(Number):
+    def __init__(self, value: float=None, msg_id: str=None, **kwargs):
+        """Init.
+        """
+        super().__init__(value, msg_id)
+        self._than = kwargs.get('than', 0.0)
+
+    def validate(self):
+        """Do actual validation of the rule.
+        """
+        super().validate()
+        if float(self.value) >= float(self._than):
+            raise _error.RuleError(self._msg_id, {'than': str(self._than)})
+
+
+class LessOrEqual(Less):
+    def validate(self):
+        """Do actual validation of the rule.
+        """
+        if float(self.value) > float(self._than):
+            raise _error.RuleError(self._msg_id, {'than': str(self._than)})
+
+
+class Greater(Number):
+    def __init__(self, value: float=None, msg_id: str=None, **kwargs):
+        """Init.
+        """
+        super().__init__(value, msg_id)
+        self._than = kwargs.get('than', 0.0)
+
+    def validate(self):
+        """Do actual validation of the rule.
+        """
+        super().validate()
+        if float(self.value) <= float(self._than):
+            raise _error.RuleError(self._msg_id, {'than': str(self._than)})
+
+
+class GreaterOrEqual(Greater):
+    def validate(self):
+        """Do actual validation of the rule.
+        """
+        super().validate()
+        if float(self.value) < float(self._than):
+            raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
 
 class Regex(Base):
@@ -140,9 +202,8 @@ class Url(Regex):
     """
     def __init__(self, value: str=None, msg_id: str=None):
         pattern = ('^(?:http|ftp)s?://'  # http:// or https://
-                   '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain
+                   '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
                    'localhost|'  # localhost...
-                   'pytsite-project|'  # for testing purposes
                    '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
                    '(?::\d+)?'  # optional port
                    '(?:/?|[/?]\S+)$')
@@ -212,21 +273,6 @@ class DateTime(Base):
                 raise _error.RuleError(self._msg_id)
         elif not isinstance(self._value, datetime):
             raise _error.RuleError(self._msg_id)
-
-
-class FloatGreaterThan(Float):
-    def __init__(self, value: float=None, msg_id: str=None, than=0.0):
-        """Init.
-        """
-        super().__init__(value, msg_id)
-        self._than = than
-
-    def validate(self):
-        """Do actual validation of the rule.
-        """
-        super().validate()
-        if self.value <= self._than:
-            raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
 
 class ListListItemNotEmpty(Base):

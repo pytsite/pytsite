@@ -24,7 +24,7 @@ class Setup(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.setup@setup_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute the command.
         """
         lock_path = _reg.get('paths.setup.lock')

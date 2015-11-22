@@ -11,9 +11,8 @@ __license__ = 'MIT'
 class DriverSelect(_widget.select.Select):
     """Content Export Driver Select Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
-
+        super().__init__(uid, **kwargs)
         self._items = sorted([(k, _lang.t(v[0])) for k, v in _get_drivers().items()])

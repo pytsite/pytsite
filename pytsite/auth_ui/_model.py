@@ -134,7 +134,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 model=self.model,
                 field='nickname',
                 exclude_ids=self.id
-        )))
+            )
+        ))
 
         # First name
         form.add_widget(_widget.input.Text(
@@ -298,7 +299,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
         ))
 
         # Permissions tabs
-        perms_tabs = _widget.static.Tabs(weight=30, uid='permissions', label=self.t('permissions'))
+        perms_tabs = _widget.static.Tabs('permissions-tabs', weight=30, label=self.t('permissions'))
         for group in _auth.get_permission_groups():
             if group[0] == 'auth':
                 continue
@@ -316,7 +317,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
                 )
             perms_tabs.add_tab('permissions-' + group[0], _lang.t(group[1]), tab_content.render())
 
-        form.add_widget(_widget.input.Hidden(name='permissions', value=''))
+        form.add_widget(_widget.input.Hidden('permissions', value=''))
         form.add_widget(perms_tabs)
 
     def get_d_form_description(self) -> str:

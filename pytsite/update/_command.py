@@ -24,7 +24,7 @@ class Update(_console.command.Abstract):
         """
         return _lang.t('pytsite.update@update_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute the command.
         """
         state = self._get_state()

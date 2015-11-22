@@ -11,14 +11,14 @@ __license__ = 'MIT'
 class EntitySelect(_widget.select.Select):
     """Select Entity with Select Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
         self._model = kwargs.get('model')
         if not self._model:
-            raise ValueError('Model must be specified.')
+            raise ValueError('Model is not specified.')
 
         self._caption_field = kwargs.get('caption_field')
         self._sort_field = kwargs.get('sort_field', self._caption_field)
@@ -32,7 +32,7 @@ class EntitySelect(_widget.select.Select):
     def sort_field(self, value: str):
         self._sort_field = value
 
-    def set_value(self, value, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         if isinstance(value, str) and not value:
@@ -43,7 +43,7 @@ class EntitySelect(_widget.select.Select):
             value = _odm.get_by_ref(value)
             value = value.model + ':' + str(value.id)
 
-        return super().set_value(value, **kwargs)
+        return super().set_val(value, **kwargs)
 
     def _get_finder(self) -> _odm.Finder:
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
@@ -68,12 +68,12 @@ class EntitySelect(_widget.select.Select):
 class EntityCheckboxes(_widget.select.Checkboxes):
     """Select Entities with Checkboxes Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
-        self.set_value(kwargs.get('value'))
+        self.set_val(kwargs.get('value'))
         self._model = kwargs.get('model')
         self._caption_field = kwargs.get('caption_field')
         self._sort_field = kwargs.get('sort_field', self._caption_field)
@@ -98,7 +98,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         """
         self._sort_field = value
 
-    def set_value(self, value, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
 
         :param value: list[pytsite.odm.models.ODMModel] | list[DBRef] | list[str]
@@ -108,7 +108,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         if isinstance(value, str) or value is None:
             value = [value] if value else []
 
-        if not isinstance(value, list):
+        if type(value) not in (list, tuple):
             raise TypeError('List of entities expected as a value of the widget.')
 
         self._selected_items = []

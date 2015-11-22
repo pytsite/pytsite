@@ -1,5 +1,6 @@
 """Abstract Base Widget.
 """
+from typing import Iterable as _Iterable
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util, html as _html, validation as _validation
 
@@ -11,19 +12,11 @@ __license__ = 'MIT'
 class Base(_ABC):
     """Abstract Base Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        uid = kwargs.get('uid')
-        if not uid:
-            uid = 'uid_' + _util.random_str()
-
-        name = kwargs.get('name')
-        if not name:
-            name = uid
-
         self._uid = uid
-        self._name = name
+        self._name = kwargs.get('name', uid)
         self._weight = kwargs.get('weight', 0)
         self._value = None
         self._label = kwargs.get('label')
@@ -43,7 +36,7 @@ class Base(_ABC):
 
         # It is important to filter value through the setter-method
         if 'value' in kwargs:
-            self.set_value(kwargs.get('value'))
+            self.set_val(kwargs.get('value'))
 
     def append(self, widget):
         """Append a child widget.
@@ -68,7 +61,7 @@ class Base(_ABC):
     def __str__(self) -> str:
         return self.render()
 
-    def get_value(self, **kwargs):
+    def get_val(self, **kwargs):
         """Get value of the widget.
         """
         return self._value
@@ -77,14 +70,14 @@ class Base(_ABC):
     def value(self):
         """Shortcut for get_value().
         """
-        return self.get_value()
+        return self.get_val()
 
-    def set_value(self, value, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
         self._value = value
         if self._validator.has_field(self.uid):
-            self._validator.set_value(self.uid, value)
+            self._validator.set_val(self.uid, value)
 
         return self
 
@@ -92,7 +85,7 @@ class Base(_ABC):
     def value(self, val):
         """Shortcut for set_value().
         """
-        self.set_value(val)
+        self.set_val(val)
 
     def hide(self):
         """Hides the widget.
@@ -232,7 +225,7 @@ class Base(_ABC):
 
         return self
 
-    def add_rules(self, rules: list):
+    def add_rules(self, rules: _Iterable):
         """Add multiple validation rules.
         """
         for rule in rules:

@@ -1,15 +1,20 @@
-validation_nonempty: 'Required'
-validation_integer: 'Integer expected'
-validation_email: 'Invalid email'
-validation_datetime: 'Invalid date'
-validation_odmentitieslist: ':detail'
-validation_odmfieldunique: 'Must be unique'
-validation_url: 'Invalid URL'
-validation_url_row: 'Invalid URL (row :row)'
-validation_floatgreaterthan: 'Must be greater than :than'
-validation_listlistitemnotempty: 'Required field (row :row, column :col)'
-validation_listlistitemurl: 'Invalid URL (row :row, column :col)'
-validation_videohostingurl: 'Incorrect video hosting URL'
-validation_videohostingurl_row: 'Incorrect video hosting URL (row :row)'
-validation_regex: 'Does not matches pattern :pattern'
-validation_regex_row: 'Does not matches pattern :pattern (row :row)'
+validation_nonempty: Required
+validation_number: Number expected
+validation_integer: Integer expected
+validation_email: Invalid email
+validation_datetime: Invalid date
+validation_odmentitieslist: :detail
+validation_odmfieldunique: Must be unique
+validation_url: Invalid URL
+validation_url_row: Invalid URL (row :row)
+validation_float: Float number expected
+validation_greater: Must be greater than :than
+validation_greaterorequals: Must be greater or equals :than
+validation_less: Must be less than :than
+validation_lessorequals: Must be less or equals :than
+validation_listlistitemnotempty: Required field (row :row, column :col)
+validation_listlistitemurl: Invalid URL (row :row, column :col)
+validation_videohostingurl: Incorrect video hosting URL
+validation_videohostingurl_row: Incorrect video hosting URL (row :row)
+validation_regex: Does not matches pattern :pattern
+validation_regex_row: Does not matches pattern :pattern (row :row)

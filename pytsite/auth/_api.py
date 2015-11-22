@@ -128,19 +128,20 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(driver_name: str=None, uid='', css='', title='') -> _form.Base:
+def get_login_form(driver_name: str=None, uid=None, css='', title=None) -> _form.Base:
     """Get a login form.
     """
     driver = get_driver(driver_name)
 
-    css += 'pytsite-auth-login driver-' + driver.name
+    css += ' pytsite-auth-login driver-' + driver.name
 
-    if not uid:
+    if uid is None:
         uid = 'pytsite-auth-login'
-    if not title:
+
+    if title is None:
         title = _lang.t('pytsite.auth@authorization')
 
-    form = driver.get_login_form(uid, css, title)
+    form = driver.get_login_form(uid, css.strip(), title)
     form.action = _router.ep_url('pytsite.auth.ep.login_submit', {'driver': driver.name})
 
     return form

@@ -62,13 +62,16 @@ def get_form(uid) -> _form.Base:
     ))
 
     form.add_widget(_widget.button.Submit(
+        uid='button-save',
         form_area='footer',
         weight=10,
         value=_lang.t('pytsite.settings@save'),
         icon='fa fa-save',
         color='primary',
     ))
+
     form.add_widget(_widget.button.Link(
+        uid='button-cancel',
         form_area='footer',
         weight=20,
         value=_lang.t('pytsite.settings@cancel'),

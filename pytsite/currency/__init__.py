@@ -1,4 +1,4 @@
-"""Currency Plugin Package
+"""PytSite Currency Package.
 """
 # Public API
 from ._functions import get_currencies

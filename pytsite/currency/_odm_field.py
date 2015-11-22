@@ -25,13 +25,14 @@ class Currency(_odm.field.Abstract):
             if value['currency'] not in _functions.get_currencies():
                 raise ValueError("{} is not a valid currency.".format(value['currency']))
 
-            # Quantize amount and convert it to float
-            value['amount'] = float(_decimal.Decimal(value['amount']).quantize(_decimal.Decimal('.01')))
-
         elif type(value) in (float, int, str):
             value = {'amount': value, 'currency': _functions.get_main_currency()}
 
         elif value is not None:
             raise ValueError("Field '{}': dictionary, float, integer or string expected.".format(self.name))
+
+        if value:
+            # Quantize amount and convert it to float
+            value['amount'] = float(_decimal.Decimal(value['amount']).quantize(_decimal.Decimal('.01')))
 
         return super().set_val(value, change_modified, **kwargs)

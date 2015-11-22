@@ -175,32 +175,36 @@ def get_class(s: str) -> type:
 
 
 def list_cleanup(inp: list) -> list:
-    """Remove empty string values from a list.
+    """Remove empty strings from a list.
     """
     r = []
     for v in inp:
         if isinstance(v, str):
             v = v.strip()
-        if v:
+            if v:
+                r.append(v)
+        else:
             r.append(v)
 
     return r
 
 
 def dict_cleanup(inp: dict) -> dict:
-    """Remove empty string values from dict.
+    """Remove empty strings from dict.
     """
     r = {}
     for k, v in inp.items():
         if isinstance(v, str):
             v = v.strip()
-        if v:
+            if v:
+                r[k] = v
+        else:
             r[k] = v
 
     return r
 
 
-def nav_link(href: str, anchor: str, **kwargs: dict) -> str:
+def nav_link(href: str, anchor: str, **kwargs) -> str:
     """Generate 'navigation' link.
     """
     from pytsite import html, router

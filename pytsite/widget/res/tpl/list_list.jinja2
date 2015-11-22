@@ -24,8 +24,8 @@
         <th class="delete-btn"></th>
     </tr>
     </thead>
-    {% if widget.get_value() %}
-        {% for v in widget.get_value() %}
+    {% if widget.get_val() %}
+        {% for v in widget.get_val() %}
             {{ slot(loop.index, v) }}
         {% endfor %}
     {% else %}

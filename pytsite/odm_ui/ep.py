@@ -51,8 +51,7 @@ def validate_m_form(args: dict, inp: dict) -> dict:
         return {'status': True}
 
     try:
-        form = _functions.get_m_form(model, entity_id, 'validate')
-        form.fill(inp, validation_mode=True).validate()
+        _functions.get_m_form(model, entity_id, 'validate').fill(inp, validation_mode=True).validate()
         return {'status': True}
     except _validation.error.ValidatorError as e:
         return {'status': False, 'messages': {'widgets': e.errors}}

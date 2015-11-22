@@ -26,7 +26,7 @@ def form(args: dict, inp: dict) -> str:
     for k, v in _functions.get_setting(uid).items():
         field_name = 'setting_' + k
         if frm.has_widget(field_name):
-            frm.get_widget(field_name).set_value(v)
+            frm.get_widget(field_name).set_val(v)
 
     return _tpl.render('pytsite.settings@form', {'form': frm})
 

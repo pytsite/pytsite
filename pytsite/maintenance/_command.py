@@ -22,7 +22,7 @@ class Maintenance(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.maintenance@maintenance_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute the command.
         """
         if 'enable' in kwargs:

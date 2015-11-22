@@ -11,10 +11,11 @@ __license__ = 'MIT'
 class Auth(_widget.Base):
     """Twitter oAuth Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._css += ' widget-vk-oauth'
         self._scope = kwargs.get('scope', ('wall', 'offline', 'photos'))
         self._access_url = kwargs.get('access_url', '')

@@ -28,7 +28,7 @@ class CompileAssets(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.assetman@assetman_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute The Command.
         """
         static_dir = _reg.get('paths.static')

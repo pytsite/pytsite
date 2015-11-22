@@ -218,7 +218,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             form.remove_widget('__entity_id')
             submit_btn = form.get_widget('actions').get_child('action_submit')
             """:type: pytsite.widget._button.Submit"""
-            submit_btn.set_value(self.t('next'))
+            submit_btn.set_val(self.t('next'))
             submit_btn.icon = 'fa fa-angle-double-right'
 
             form.add_widget(_widget.input.Hidden(

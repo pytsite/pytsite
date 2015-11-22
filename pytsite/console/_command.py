@@ -19,5 +19,5 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         pass

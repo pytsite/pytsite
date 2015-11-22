@@ -37,7 +37,7 @@ def get_command(name: str) -> _command.Abstract:
     return __commands[name]
 
 
-def run_command(name: str, **kwargs: dict):
+def run_command(name: str, **kwargs):
     """Run a console command.
     """
     return get_command(name).execute(**kwargs)

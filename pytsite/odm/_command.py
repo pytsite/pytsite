@@ -21,7 +21,7 @@ class RebuildIndices(_console.command.Abstract):
         """
         return _lang.t('pytsite.odm@reindex_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute the command.
         """
         for model in _functions.get_registered_models():

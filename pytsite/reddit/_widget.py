@@ -1,6 +1,6 @@
 """Reddit Auth Widget.
 """
-from datetime import datetime as _datetime, timedelta as _timedelta
+from datetime import datetime as _datetime
 from pytsite import widget as _widget, html as _html, lang as _lang, assetman as _assetman, router as _router
 from ._session import Session as RedditSession, AuthSession as RedditAuthSession
 
@@ -12,10 +12,11 @@ __license__ = 'MIT'
 class Auth(_widget.Base):
     """Twitter oAuth Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._access_token = kwargs.get('access_token', '')
         self._access_token_type = kwargs.get('access_token_type', '')
         self._access_token_expires = kwargs.get('access_token_expires', '')

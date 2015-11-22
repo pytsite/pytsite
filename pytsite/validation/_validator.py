@@ -44,7 +44,7 @@ class Validator:
 
         return self
 
-    def set_value(self, field: str, value):
+    def set_val(self, field: str, value):
         """Set field's value.
         """
         if not self.has_field(field):

@@ -18,10 +18,10 @@ __license__ = 'MIT'
 class _LoginWidget(_widget.Base):
     """ULogin Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__()
+        super().__init__(uid, **kwargs)
         self._redirect_url = kwargs.get('redirect_url', '')
 
     def get_html_em(self) -> _html.Element:
@@ -42,7 +42,7 @@ class _LoginForm(_form.Base):
         if not self.has_widget(self.uid + '-token'):
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token', form_area='hidden'))
 
-        self.add_widget(_LoginWidget())
+        self.add_widget(_LoginWidget(self.uid + '-widget-ulogin'))
 
 
 class Driver(AbstractDriver):

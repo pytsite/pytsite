@@ -11,10 +11,11 @@ __license__ = 'MIT'
 class Button(_base.Base):
     """Button.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
         self._css += ' btn btn-' + self._color
@@ -32,7 +33,7 @@ class Button(_base.Base):
     def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        self._html_em.content = self.get_value()
+        self._html_em.content = self.get_val()
         if self._icon and not self._html_em.children:
             self._html_em.append(_html.I(cls=self._icon))
 
@@ -42,21 +43,21 @@ class Button(_base.Base):
 class Submit(Button):
     """Submit Button.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._html_em = _html.Button(uid=self._uid, type='submit', cls=self._css)
 
 
 class Link(Button):
     """Link Button.
     """
-    def __init__(self, href: str, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
-        self._html_em = _html.A(uid=self._uid, href=href, cls=self._css)
+        super().__init__(uid, **kwargs)
+        self._html_em = _html.A(uid=self._uid, href=kwargs.get('href', '#'), cls=self._css)
 
     @property
     def href(self) -> str:

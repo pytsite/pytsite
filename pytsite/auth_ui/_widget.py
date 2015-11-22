@@ -9,14 +9,18 @@ __license__ = 'MIT'
 class Profile(_widget.Base):
     """User Profile Widget.
     """
-    def __init__(self, user, tpl: str='pytsite.auth_ui@widget/profile', **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
 
         :type user: pytsite.auth._model.User|pytsite.auth_ui._model.UserUI
         """
-        super().__init__(**kwargs)
-        self._user = user
-        self._tpl = tpl
+        super().__init__(uid, **kwargs)
+
+        self._user = kwargs.get('user')
+        if not self._user:
+            raise ValueError('User is not specified.')
+
+        self._tpl = kwargs.get('tpl', 'pytsite.auth_ui@widget/profile')
         self._css += ' widget-auth-ui-profile'
         self._col_image_css = kwargs.get('col_image_css', 'col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center')
         self._col_content_css = kwargs.get('col_content_css', 'col-xs-B-12 col-xs-8 col-sm-9 col-lg-10')
@@ -50,14 +54,18 @@ class Profile(_widget.Base):
 class Follow(_widget.Base):
     """Follow Widget.
     """
-    def __init__(self, user, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
 
         :type user: pytsite.auth._model.User|pytsite.auth_ui._model.UserUI
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
+        self._user = kwargs.get('user')
+        if not self._user:
+            raise ValueError('User is not specified.')
+
         self._current_user = _auth.get_current_user()
-        self._user = user
         self._tpl = kwargs.get('tpl', 'pytsite.auth_ui@widget/follow')
         self._follow_msg_id = kwargs.get('follow_msg_id', 'pytsite.auth_ui@follow')
         self._unfollow_msg_id = kwargs.get('unfollow_msg_id', 'pytsite.auth_ui@unfollow')
@@ -84,20 +92,20 @@ class Follow(_widget.Base):
 class UserSelect(_widget.select.Select):
     """User Select Widget.
     """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
 
         for user in _auth.find_users().sort([('first_name', _odm.I_ASC)]).get():
             self._items.append(('user:' + str(user.id), '{} ({})'.format(user.full_name, user.login)))
 
-    def set_value(self, value, **kwargs):
+    def set_val(self, value, **kwargs):
         if isinstance(value, _auth.model.User):
             value = 'user:' + str(value.id)
 
-        return super().set_value(value, **kwargs)
+        return super().set_val(value, **kwargs)
 
-    def get_value(self, **kwargs) -> _auth.model.User:
-        value = super().get_value(**kwargs)
+    def get_val(self, **kwargs) -> _auth.model.User:
+        value = super().get_val(**kwargs)
         if value:
             value = _odm.get_by_ref(value)
             if isinstance(value, _auth.model.User):

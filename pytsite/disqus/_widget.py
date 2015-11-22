@@ -1,19 +1,20 @@
 """Disqus Widgets.
 """
+from pytsite import widget as _widget, html as _html, reg as _reg, tpl as _tpl
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import widget as _widget, html as _html, reg as _reg, tpl as _tpl
 
 
 class Disqus(_widget.Base):
     """Disqus Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
         short_name = _reg.get('disqus.short_name')
         if not short_name:
             raise ValueError("Configuration parameter 'disqus.short_name' is not defined.")

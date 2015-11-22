@@ -1,7 +1,7 @@
 <div class="files-upload-wrapper">
     <div class="slots row">
-        {% if widget.get_value() %}
-            {% for item in widget.get_value() %}
+        {% if widget.get_val() %}
+            {% for item in widget.get_val() %}
                 {% set fid = item.model~':'~item.id %}
                 <div class="slot {{ widget.slot_css }}" data-fid="{{ fid }}">
                     <div class="inner">

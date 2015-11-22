@@ -13,11 +13,15 @@ __license__ = 'MIT'
 class Wrapper(_base.Base):
     """Wrapper widget for pytsite.html.Element instances.
     """
-    def __init__(self, em: _html.Element, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
+        :param em: pytsite.html.Element
         """
-        super().__init__(**kwargs)
-        self._em = em
+        super().__init__(uid, **kwargs)
+
+        self._em = kwargs.get('em')
+        if not self._em:
+            raise ValueError('Element is not specified.')
 
     def get_html_em(self) -> _html.Element:
         return self._em
@@ -26,17 +30,17 @@ class Wrapper(_base.Base):
 class Text(_base.Base):
     """Static Text Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._css = ' '.join((self._css, 'widget-static-control'))
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
         container = _html.TagLessElement()
-        container.append(_html.Input(type='hidden', uid=self.uid, name=self.uid, value=self.value))
+        container.append(_html.Input(type='hidden', uid=self.uid, name=self.name, value=self.value))
         container.append(_html.P(self.title, cls='form-control-static'))
 
         return self._group_wrap(container)
@@ -45,10 +49,10 @@ class Text(_base.Base):
 class Tabs(_base.Base):
     """Tabs Widget.
     """
-    def __init__(self, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
         self._tabs = []
 
     def add_tab(self, tid: str, title: str, content: str):
@@ -99,7 +103,7 @@ class VideoPlayer(_base.Base):
     def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        return self._get_embed(self.get_value())
+        return self._get_embed(self.get_val())
 
     def _get_embed(self, url: str) -> _html.Element:
         """Get player embed code.
@@ -153,15 +157,15 @@ class VideoPlayer(_base.Base):
 class Pager(_base.Base):
     """Pager Widget.
     """
-    def __init__(self, total_items: int, per_page: int=100, visible_numbers: int=5, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
-        self._total_items = int(total_items)
-        self._items_per_page = int(per_page)
-        self._total_pages = _ceil(total_items / per_page)
-        self._visible_numbers = int(visible_numbers) - 1
+        self._total_items = int(kwargs.get('total_items'))
+        self._items_per_page = int(kwargs.get('per_page', 100))
+        self._total_pages = _ceil(self._total_items / self._items_per_page)
+        self._visible_numbers = int(kwargs.get('visible_numbers', 5)) - 1
         self._current_page = int(_router.request.inp.get('page', 1))
 
         if self._current_page < 1:

@@ -3,9 +3,6 @@
 from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
     router as _router, tpl as _tpl, odm as _odm
 from . import _model, _functions
-from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
-    router as _router, tpl as _tpl, odm as _odm
-from . import _model, _functions
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,7 +12,7 @@ __license__ = 'MIT'
 class ModelSelect(_widget.select.Select):
     """Content Model Select Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         self._check_perms = kwargs.get('check_perms', True)
 
         items = []
@@ -27,28 +24,25 @@ class ModelSelect(_widget.select.Select):
             else:
                 items.append((k, _lang.t(v[1])))
 
-        super().__init__(items=sorted(items, key=lambda x: x[1]), **kwargs)
+        super().__init__(uid, items=sorted(items, key=lambda x: x[1]), **kwargs)
 
 
 class EntitySelect(_widget.select.Select2):
-    def __init__(self, model: str, language: str=None, **kwargs):
-        if not language:
-            language = _lang.get_current()
-
+    def __init__(self, uid: str, **kwargs):
         kwargs['ajax_url'] = _router.ep_url('pytsite.content.ep.ajax_search', {
-            'model': model,
-            'language': language,
+            'model': kwargs.get('model'),
+            'language': kwargs.get('language', _lang.get_current()),
         })
 
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
 
-    def set_value(self, value, **kwargs):
+    def set_val(self, value, **kwargs):
         if isinstance(value, str) and not value:
             value = None
         elif isinstance(value, _model.Content):
             value = value.model + ':' + str(value.id)
 
-        return super().set_value(value, **kwargs)
+        return super().set_val(value, **kwargs)
 
     def get_html_em(self):
         # In AJAX-mode Select2 doesn't contain any items,
@@ -62,33 +56,40 @@ class EntitySelect(_widget.select.Select2):
 class TagCloud(_taxonomy.widget.Cloud):
     """Tags Cloud Widget.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__('tag', **kwargs)
+        super().__init__(uid, model='tag', **kwargs)
 
 
 class EntityTagCloud(_taxonomy.widget.Cloud):
     """Tags Cloud of the Entity Widget.
     """
-    def __init__(self, entity: _model.Content, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__('tag', **kwargs)
-        self._uid = entity
+        super().__init__(uid, model='tag', **kwargs)
+
+        self._entity = kwargs.get('entity')
+        if not self._entity:
+            raise ValueError('Entity is not specified.')
 
     @property
-    def terms(self) -> list:
-        return self._uid.tags
+    def terms(self) -> tuple:
+        return self._entity.tags
 
 
 class Search(_widget.Base):
-    def __init__(self, model: str, **kwargs):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
+        self._model = kwargs.get('model')
+        if not self._model:
+            raise ValueError('Model is not specified.')
+
         self._value = _router.request.inp.get('search', '')
-        self._model = model
         self._title_tag = kwargs.get('title_tag', 'h3')
 
         self._form = _html.Form(cls='wrapper form-inline', method='GET')

@@ -25,7 +25,7 @@ class DbDump(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.db@db_dump_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute the command.
         """
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
@@ -73,7 +73,7 @@ class DbRestore(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.db@db_restore_console_command_description')
 
-    def execute(self, **kwargs: dict):
+    def execute(self, **kwargs):
         """Execute the command.
         """
         if _subprocess.call('which mongorestore', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True):

@@ -69,9 +69,12 @@ $(function () {
 
                         form.trigger('pytsite_form_validation_fail');
 
-                        $('html, body').animate({
-                            scrollTop: $('.has-error').first().offset().top
-                        }, 500);
+                        var has_error = $('.has-error');
+                        if (has_error.length) {
+                            $('html, body').animate({
+                                scrollTop: has_error.first().offset().top
+                            }, 500);
+                        }
                     }
                     // Validation completed successfully. Now re-issue event to perform further tasks.
                     else {

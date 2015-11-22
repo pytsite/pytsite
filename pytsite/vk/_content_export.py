@@ -24,7 +24,7 @@ class Driver(_content_export.AbstractDriver):
         self._user_id = int(kwargs.get('user_id', 0))
         self._group_id = int(kwargs.get('group_id', 0))
 
-    def get_settings_widget(self, uid: str, **kwargs: dict) -> _widget.Base:
+    def get_settings_widget(self, uid: str, **kwargs) -> _widget.Base:
         """Get widget for content export edit form.
         """
         return _VKAuthWidget(uid=uid, **kwargs)

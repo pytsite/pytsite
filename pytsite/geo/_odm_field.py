@@ -13,12 +13,13 @@ class LngLat(_odm.field.FloatList):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=[0.0, 0.0], min_len=2, max_len=2, **kwargs)
+        default = kwargs.get('default', (0.0, 0.0))
+        super().__init__(name, default=default, min_len=2, max_len=2, **kwargs)
 
     def __bool__(self):
         """Checks if the field is empty.
         """
-        return self._value != [0.0, 0.0]
+        return self._value != (0.0, 0.0)
 
 
 class Location(_odm.field.Abstract):

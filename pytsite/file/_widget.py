@@ -12,17 +12,20 @@ __license__ = 'MIT'
 class FilesUpload(_widget.Base):
     """Files Upload Widget.
     """
-    def __init__(self, model: str, **kwargs: dict):
+    def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(**kwargs)
+        super().__init__(uid, **kwargs)
+
+        self._model = kwargs.get('model')
+        if not self._model:
+            raise ValueError('Model is not specified.')
 
         self._css = ' '.join((self._css, 'widget-files-upload'))
 
         # Processing setter filtering
-        self.set_value(self._value)
+        self.set_val(self._value)
 
-        self._model = model
         self._max_file_size = int(kwargs.get('max_file_size', 2))
         self._max_files = int(kwargs.get('max_files', 1))
         self._accept_files = kwargs.get('accept_files', '*/*')
@@ -121,7 +124,7 @@ class FilesUpload(_widget.Base):
 
         return self._group_wrap(widget_em)
 
-    def set_value(self, value: list, **kwargs):
+    def set_val(self, value: list, **kwargs):
         """Set value of the widget.
         """
         if value is None:
@@ -148,4 +151,4 @@ class FilesUpload(_widget.Base):
                 if file:
                     file.delete()
 
-        super().set_value(clean_val, **kwargs)
+        super().set_val(clean_val, **kwargs)
