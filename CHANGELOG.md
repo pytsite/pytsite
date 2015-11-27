@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.37.1 (2015-11-28)
+### Fixed
+- Improper `widget.static.Pager` initialization in `content`.
+
+
 ## 0.37 (2015-11-28)
 ### Added
 - New validation rule: `validation.rule.Number`.

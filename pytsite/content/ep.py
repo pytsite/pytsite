@@ -66,7 +66,7 @@ def index(args: dict, inp: dict):
         f.where_text(query)
         _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
 
-    pager = _widget.static.Pager(f.count(), 10)
+    pager = _widget.static.Pager('content-pager', total_items=f.count(), per_page=10)
 
     args['entities'] = list(f.skip(pager.skip).get(pager.limit))
     args['pager'] = pager
