@@ -1,4 +1,4 @@
-"""ODM Entities Browser.
+"""PytSite ODM Entities Browser.
 """
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _client, \
     odm as _odm, lang as _lang, http as _http, html as _html
@@ -19,7 +19,7 @@ class Browser:
         self._title = None
         self._model = model
         self._current_user = auth.get_current_user()
-        self._head_columns = ()
+        self._data_fields = ()
         self._default_sort_field = '_modified'
         self._default_sort_order = _odm.I_DESC
         self._finder_adjust = self._default_finder_adjust
@@ -69,7 +69,7 @@ class Browser:
     def data_fields(self) -> tuple:
         """Get browser data fields.
         """
-        return self._head_columns
+        return self._data_fields
 
     @data_fields.setter
     def data_fields(self, value: tuple):
@@ -77,7 +77,7 @@ class Browser:
         """
         if not isinstance(value, tuple):
             raise TypeError('Tuple expected.')
-        self._head_columns = value
+        self._data_fields = value
 
     @property
     def default_sort_field(self) -> str:
@@ -161,7 +161,16 @@ class Browser:
 
         # Head cells
         for col in self.data_fields:
-            th = _html.Th(self._entity_mock.t(col), data_field=col, data_sortable='true')
+            if isinstance(col, str):
+                data_field = col
+                title = self._entity_mock.t(col)
+            elif isinstance(col, tuple) and len(col) == 2:
+                data_field = col[0]
+                title = self._entity_mock.t(col[1])
+            else:
+                raise ValueError('Invalid format of data field definition.')
+
+            th = _html.Th(title, data_field=data_field, data_sortable='true')
             t_head_row.append(th)
 
         # Actions column

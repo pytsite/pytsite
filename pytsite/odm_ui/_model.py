@@ -34,7 +34,6 @@ class UIMixin(_ABC):
             if field.__class__ == _odm.field.String:
                 finder.or_where(k, 'regex_i', query)
 
-    @_abstractmethod
     def setup_m_form(self, form, stage: str):
         """Modify form setup hook.
         :type form: pytsite.form.Base

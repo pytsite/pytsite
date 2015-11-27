@@ -1,5 +1,6 @@
 """Facebook Content Export Driver.
 """
+import re as _re
 from pytsite import content_export as _content_export, logger as _logger, content as _content
 from ._widget import Auth as _FacebookAuthWidget
 from ._session import Session as _Session
@@ -7,6 +8,9 @@ from ._session import Session as _Session
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_tag_cleanup_re = _re.compile('[\-_\s]+')
 
 
 class Driver(_content_export.AbstractDriver):
@@ -29,8 +33,8 @@ class Driver(_content_export.AbstractDriver):
         """:type: dict"""
 
         try:
-            tags = ['#' + t for t in exporter.add_tags if ' ' not in t]
-            tags += ['#' + t.title for t in entity.tags if ' ' not in t.title]
+            tags = ['#' + _tag_cleanup_re.sub('', t) for t in exporter.add_tags]
+            tags += ['#' + _tag_cleanup_re.sub('', t.title) for t in entity.tags]
             message = entity.description + ' ' + ' '.join(tags) + ' ' + entity.url
 
             if opts['page_id']:

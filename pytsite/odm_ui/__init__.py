@@ -3,7 +3,6 @@
 # Public API
 from . import _functions, _widget as widget
 from ._model import UIMixin, Model
-
 get_m_form = _functions.get_m_form
 check_permissions = _functions.check_permissions
 

@@ -32,7 +32,6 @@ class Driver(_content_export.AbstractDriver):
         opts = exporter.driver_opts
         """:type: dict"""
 
-
         try:
             tags = exporter.add_tags
             """:type: list[str]"""
