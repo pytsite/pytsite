@@ -36,7 +36,7 @@ pytsite.lang = {
         // Search for package
         if (!(pkg in this.translations[language])) {
             if (this.langs.length && language != this.fallback())
-                return this.t(msg_id, args, this.fallback());
+                return this.t(pkg + '@' + msg_id, args, this.fallback());
             else
                 return pkg + '@' + msg_id;
         }
@@ -45,7 +45,7 @@ pytsite.lang = {
         var pkg_strings = this.translations[language][pkg];
         if(!(msg_id in pkg_strings)) {
             if (this.langs.length && language != this.fallback())
-                return this.t(msg_id, args, this.fallback());
+                return this.t(pkg + '@' + msg_id, args, this.fallback());
             else
                 return pkg + '@' + msg_id;
         }

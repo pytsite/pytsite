@@ -505,7 +505,7 @@ class Content(_odm_ui.Model):
     def _extract_body_images(self) -> tuple:
         """Transforms inline <img> tags into [img] tags
         """
-        images = self.images
+        images = list(self.images)
         img_index = len(images)
 
         def replace_func(match):

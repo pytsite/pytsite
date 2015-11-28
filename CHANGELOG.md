@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.37.6 (2015-11-28)
+### Added
+- All translations in `browser.select2` and `ckeditor`.
+- `browser.select2` updated to version 4.0.1.
+
+### Fixed
+- Error while parsing image tags in `content.model` body field.
+- Error in `pytsite.lang.t` JS function.
+
 ## 0.37.5 (2015-11-28)
 ### Added
 - 'pl', 'it' translations in `browser.select2` library.
