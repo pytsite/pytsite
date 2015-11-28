@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.37.4 (2015-11-28)
+### Fixed
+- Error in `auth_ui` template.
+
+
 ## 0.37.3 (2015-11-28)
 ### Fixed
 - Video embedding error in `content.model.Content`.
