@@ -9,14 +9,22 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Currency(_widget.input.Float):
+class Select(_widget.select.Select):
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
+
+        items = _functions.get_all()
+        self._items = zip(items, items)
+
+
+class Input(_widget.input.Float):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
 
-        currency = kwargs.get('currency', _functions.get_main_currency()).upper()
-        if currency not in _functions.get_currencies():
+        currency = kwargs.get('currency', _functions.get_main()).upper()
+        if currency not in _functions.get_all():
             raise ValueError("Widget '{}': '{}' is not a valid currency.".format(self.uid, currency))
 
         self._currency = currency

@@ -11,9 +11,9 @@ __license__ = 'MIT'
 class Settings(_form.Base):
     def _setup(self):
         weight = 10
-        main_cur = _functions.get_main_currency()
-        for cur in _functions.get_currencies(False):
-            self.add_widget(_widget.Currency(
+        main_cur = _functions.get_main()
+        for cur in _functions.get_all(False):
+            self.add_widget(_widget.Input(
                 uid='setting_exchange_rate_' + cur,
                 weight=weight,
                 label=_lang.t('pytsite.currency@exchange_rate', {'code': cur}),

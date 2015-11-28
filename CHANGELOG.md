@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.37.3 (2015-11-28)
+### Fixed
+- Video embedding error in `content.model.Content`.
+
+
 ## 0.37.2 (2015-11-28)
 ### Fixed
 - Improper input value checking in `file.widget.FilesUpload`.

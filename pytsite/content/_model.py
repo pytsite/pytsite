@@ -495,7 +495,7 @@ class Content(_odm_ui.Model):
             vid_index = int(match.group(1))
             if len(self.video_links) < vid_index:
                 return ''
-            return str(_widget.static.VideoPlayer(value=self.video_links[vid_index - 1]))
+            return str(_widget.static.VideoPlayer('content-video-' + str(vid_index), value=self.video_links[vid_index - 1]))
 
         inp = _re.sub('\[img:(\d+)(:link_orig)?\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)

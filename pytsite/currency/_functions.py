@@ -9,6 +9,7 @@ __license__ = 'MIT'
 
 
 __currencies = []
+__main = None
 
 
 def define(code: str):
@@ -21,28 +22,39 @@ def define(code: str):
     __currencies.append(code)
 
 
-def get_currencies(include_main: bool=True) -> list:
+def get_all(include_main: bool=True) -> tuple:
     """Get defined currencies.
-    """
-    r = []
-    for c in __currencies:
-        if not include_main and c == get_main_currency():
-            continue
-        r.append(c)
-
-    return r
-
-
-def get_main_currency() -> str:
-    """Get main currency code.
     """
     if not __currencies:
         raise Exception('No currencies are defined.')
 
-    return __currencies[0]
+    if include_main:
+        return tuple(__currencies)
+    else:
+        return tuple([code for code in __currencies if code != __main])
 
 
-def get_currency(code: str) -> str:
+def get_main() -> str:
+    """Get main currency.
+    """
+    if not __currencies:
+        raise Exception('No currencies are defined.')
+
+    return __main
+
+
+def set_main(code: str):
+    """Set main currency.
+    """
+    code = code.upper()
+    if code not in __currencies:
+        raise KeyError("Currency '{}' is not defined.")
+
+    global __main
+    __main = code
+
+
+def get(code: str) -> str:
     code = code.upper()
     if code not in __currencies:
         raise KeyError("Currency '{}' is not defined.")
@@ -79,20 +91,20 @@ def fmt(value: dict, decimal_places: int=2, html=False):
 
 def get_title(code: str) -> str:
     try:
-        return _lang.t('currency_' + get_currency(code) + '_title', exceptions=True)
+        return _lang.t('currency_' + get(code) + '_title', exceptions=True)
     except _lang.error.TranslationError:
         return ''
 
 
 def get_symbol_before(code: str) -> str:
     try:
-        return _lang.t('currency_' + get_currency(code) + '_symbol_before', exceptions=True)
+        return _lang.t('currency_' + get(code) + '_symbol_before', exceptions=True)
     except _lang.error.TranslationError:
         return ''
 
 
 def get_symbol_after(code: str) -> str:
     try:
-        return _lang.t('currency_' + get_currency(code) + '_symbol_after', exceptions=True)
+        return _lang.t('currency_' + get(code) + '_symbol_after', exceptions=True)
     except _lang.error.TranslationError:
         return ''
