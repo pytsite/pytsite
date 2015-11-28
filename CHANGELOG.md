@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.37.5 (2015-11-28)
+### Added
+- 'pl', 'it' translations in `browser.select2` library.
+
+
 ## 0.37.4 (2015-11-28)
 ### Fixed
 - Error in `auth_ui` template.
