@@ -353,8 +353,8 @@ class Content(_odm_ui.Model):
 
         # Title
         form.add_widget(_widget.input.Text(
-            weight=100,
             uid='title',
+            weight=100,
             label=self.t('title'),
             value=self.title,
             required=True,
@@ -362,16 +362,16 @@ class Content(_odm_ui.Model):
 
         # Description
         form.add_widget(_widget.input.Text(
-            weight=200,
             uid='description',
+            weight=200,
             label=self.t('description'),
             value=self.description,
         ))
 
         # Tags
         form.add_widget(_taxonomy.widget.TokensInput(
-            weight=300,
             uid='tags',
+            weight=300,
             model='tag',
             label=self.t('tags'),
             value=self.tags,
@@ -381,8 +381,8 @@ class Content(_odm_ui.Model):
         if self.has_field('images'):
             from pytsite import image
             form.add_widget(image.widget.ImagesUpload(
-                weight=400,
                 uid='images',
+                weight=400,
                 label=self.t('images'),
                 value=self.f_get('images'),
                 max_files=10
@@ -391,8 +391,8 @@ class Content(_odm_ui.Model):
         # Video links
         if self.has_field('video_links'):
             form.add_widget(_widget.input.StringList(
-                weight=500,
                 uid='video_links',
+                weight=500,
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
                 value=self.video_links
@@ -401,8 +401,8 @@ class Content(_odm_ui.Model):
 
         # Body
         form.add_widget(_ckeditor.widget.CKEditor(
-            weight=600,
             uid='body',
+            weight=600,
             label=self.t('body'),
             value=self.f_get('body', process_tags=False),
         ))
@@ -412,8 +412,8 @@ class Content(_odm_ui.Model):
         current_user = _auth.get_current_user()
         if current_user and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
             form.add_widget(_widget.select.Select(
-                weight=700,
                 uid='status',
+                weight=700,
                 label=self.t('status'),
                 value=self.status if self.status else 'published',
                 h_size='col-sm-4 col-md-3 col-lg-2',
@@ -423,8 +423,8 @@ class Content(_odm_ui.Model):
 
         # Publish time
         form.add_widget(_widget.select.DateTime(
-            weight=800,
             uid='publish_time',
+            weight=800,
             label=self.t('publish_time'),
             value=_datetime.now() if self.is_new else self.publish_time,
             h_size='col-sm-4 col-md-3 col-lg-2',
@@ -437,8 +437,8 @@ class Content(_odm_ui.Model):
         else:
             lang_title = _lang.t('lang_title_' + self.language)
         form.add_widget(_widget.static.Text(
-            weight=900,
             uid='language',
+            weight=900,
             label=self.t('language'),
             title=lang_title,
             value=_lang.get_current() if self.is_new else self.language,
@@ -449,8 +449,8 @@ class Content(_odm_ui.Model):
         from ._widget import EntitySelect
         for i, lng in enumerate(_lang.langs(False)):
             form.add_widget(EntitySelect(
-                weight=1000 + i,
                 uid='localization_' + lng,
+                weight=1000 + i,
                 label=self.t('localization', {'lang': _lang.lang_title(lng)}),
                 model=self.model,
                 language=lng,
@@ -460,15 +460,15 @@ class Content(_odm_ui.Model):
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             form.add_widget(_widget.input.Text(
-                weight=1100,
                 uid='route_alias',
+                weight=1100,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
             form.add_widget(_auth_ui.widget.UserSelect(
-                weight=1200,
                 uid='author',
+                weight=1200,
                 label=self.t('author'),
                 value=_auth.get_current_user() if self.is_new else self.author,
                 h_size='col-sm-4',
@@ -605,8 +605,8 @@ class Article(Content):
         # Starred
         if self.has_field('starred') and _auth.get_current_user().is_admin:
             form.add_widget(_widget.select.Checkbox(
-                weight=30,
                 uid='starred',
+                weight=30,
                 label=self.t('starred'),
                 value=self.starred,
             ))
@@ -614,8 +614,8 @@ class Article(Content):
         # Section
         if self.has_field('section'):
             form.add_widget(_taxonomy.widget.TermSelect(
-                weight=60,
                 uid='section',
+                weight=60,
                 model='section',
                 caption_field='title',
                 label=self.t('section'),
@@ -627,8 +627,8 @@ class Article(Content):
         # External links
         if self.has_field('ext_links'):
             form.add_widget(_widget.input.StringList(
-                weight=630,
                 uid='ext_links',
+                weight=630,
                 label=self.t('external_links'),
                 add_btn_label=self.t('add_link'),
                 value=self.ext_links
@@ -638,8 +638,8 @@ class Article(Content):
         # Location
         if self.has_field('location'):
             form.add_widget(_geo.widget.SearchAddress(
-                weight=660,
                 uid='location',
+                weight=660,
                 label=self.t('location'),
                 value=self.location
             ))

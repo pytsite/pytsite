@@ -46,4 +46,4 @@ class Flag(_widget.Base):
         return _html.Span(_tpl.render('pytsite.flag@widget', {
             'widget': self,
             'current_user': current_user
-        }), cls=css, data_entity='{}:{}'.format(self._entity.model, self._uid.id))
+        }), cls=css, data_entity='{}:{}'.format(self._entity.model, self._entity.id))

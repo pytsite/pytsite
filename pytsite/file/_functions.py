@@ -27,7 +27,7 @@ def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
     if extension == '.jpe':
         extension = '.jpg'
 
-    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str(16)) + extension
+    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
     if propose:
         m = _re.match('(\w{2})/(\w{2})/(\w{16})(\.\w+)$', propose)
         if m:
@@ -39,7 +39,7 @@ def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
             store_path = possible_target_path
             break
         else:
-            possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str(16)) + extension
+            possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
 
     return store_path
 
@@ -111,7 +111,6 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
 def get(uid: str=None, rel_path: str=None, model: str='file') -> _model.File:
     """Get file.
     """
-
     if not uid and not rel_path:
         raise Exception("Not enough arguments.")
 
@@ -124,7 +123,6 @@ def get(uid: str=None, rel_path: str=None, model: str='file') -> _model.File:
 def get_by_ref(ref: _DBRef) -> _model.File:
     """Get file by ref.
     """
-
     entity = _odm.get_by_ref(ref)
     if not entity:
         return

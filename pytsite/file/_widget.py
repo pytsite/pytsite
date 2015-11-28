@@ -130,8 +130,8 @@ class FilesUpload(_widget.Base):
         if value is None:
             return
 
-        if not isinstance(value, list):
-            value = [value]
+        if type(value) not in (list, tuple):
+            value = tuple(value)
 
         clean_val = []
         for val in value:

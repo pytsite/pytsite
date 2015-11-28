@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.37.2 (2015-11-28)
+### Fixed
+- Improper input value checking in `file.widget.FilesUpload`.
+- Typo in `flag.widget.Flag`.
+
+
 ## 0.37.1 (2015-11-28)
 ### Fixed
 - Improper `widget.static.Pager` initialization in `content`.
