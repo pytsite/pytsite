@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.38 (unreleased)
+### Added
+- Automatic application root path detection.
+- Tests for `odm` API methods.
+
+## 0.37.7 (2015-11-29)
+### Fixed
+- Error in `file.widget.FilesUpload`.
+
+
 ## 0.37.6 (2015-11-28)
 ### Added
 - All translations in `browser.select2` and `ckeditor`.
@@ -8,6 +18,7 @@
 ### Fixed
 - Error while parsing image tags in `content.model` body field.
 - Error in `pytsite.lang.t` JS function.
+
 
 ## 0.37.5 (2015-11-28)
 ### Added

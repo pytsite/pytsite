@@ -131,7 +131,7 @@ class FilesUpload(_widget.Base):
             return
 
         if type(value) not in (list, tuple):
-            value = tuple(value)
+            value = (value,)
 
         clean_val = []
         for val in value:
@@ -141,7 +141,7 @@ class FilesUpload(_widget.Base):
             if entity:
                 clean_val.append(entity)
 
-        # Delete files which are has been removed from the widget.
+        # Delete files which are has been removed from the widget on the browser's side
         to_delete = _router.request.inp.get(self._uid + '_to_delete')
         if to_delete and not kwargs.get('validation_mode'):  # IMPORTANT: not in form validation mode
             if isinstance(to_delete, str):
