@@ -1,0 +1,37 @@
+wallet: Кошелёк
+wallets: Кошельки
+transactions: Транзакции
+
+title: Название
+currency: Валюта
+balance: Остаток
+owner: Владелец
+amount: Сумма
+
+odm_ui_permission_group_description: Кошелёк
+
+odm_ui_browser_title_wallet: Кошельки
+odm_ui_form_title_create_wallet: Создание кошелька
+odm_ui_form_title_modify_wallet: Изменение кошелька
+odm_ui_form_title_delete_wallet: Удаление кошельков
+
+odm_ui_browser_title_wallet_transaction: Транзакции
+odm_ui_form_title_create_wallet_transaction: Создание транзакции
+odm_ui_form_title_modify_wallet_transaction: Изменение транзакции
+odm_ui_form_title_delete_wallet_transaction: Удаление транзакций
+
+odm_ui_permission_create_wallet: Создание кошельков
+odm_ui_permission_browse_wallet: Обзор ВСЕХ кошельков
+odm_ui_permission_browse_own_wallet: Обзор кошельков
+odm_ui_permission_modify_wallet: Изменение ЛЮБЫХ кошельков
+odm_ui_permission_modify_own_wallet: Изменение кошельков
+odm_ui_permission_delete_wallet: Удаление ЛЮБЫХ кошельков
+odm_ui_permission_delete_own_wallet: Удаление кошельков
+
+odm_ui_permission_create_wallet_transaction: Создание транзакций
+odm_ui_permission_browse_wallet_transaction: Обзор ВСЕХ транзакций
+odm_ui_permission_browse_own_wallet_transaction: Обзор транзакций
+odm_ui_permission_modify_wallet_transaction: Изменение ЛЮБЫХ транзакций
+odm_ui_permission_modify_own_wallet_transaction: Изменение транзакций
+odm_ui_permission_delete_wallet_transaction: Удаление ЛЮБЫХ транзакций
+odm_ui_permission_delete_own_wallet_transaction: Удаление транзакций
