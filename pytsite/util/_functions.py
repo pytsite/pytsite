@@ -163,9 +163,12 @@ def transform_str_2(s: str) -> str:
 def get_class(s: str) -> type:
     """Get class by its fully qualified name.
     """
+    if not isinstance(s, str):
+        raise ValueError('String expected.')
+
     class_fqn = list_cleanup(s.split('.'))
     if len(class_fqn) < 2:
-        raise Exception("Cannot determine class name from string '{}'.".format(s))
+        raise NameError("Cannot determine class name from string '{}'.".format(s))
 
     class_name = class_fqn[-1:][0]
     module_name = '.'.join(class_fqn[:-1])

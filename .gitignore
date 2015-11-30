@@ -1,5 +1,9 @@
+/env
+/.cache
+/dist
+/testing/app/log
+/testing/app/tmp
 *.pyc
 *.pyo
 *.webassets-cache
 *.egg-info
-dist

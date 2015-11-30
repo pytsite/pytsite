@@ -34,9 +34,9 @@ class Driver(_content_export.AbstractDriver):
 
         try:
             tags = exporter.add_tags
-            """:type: list[str]"""
+            """:type: tuple[str]"""
 
-            tags += [t.title for t in entity.tags]
+            tags += tuple(t.title for t in entity.tags)
 
             thumb_url = entity.images[0].get_url(640) if entity.images else None
             author = entity.author.full_name

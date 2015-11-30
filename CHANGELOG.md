@@ -5,6 +5,12 @@
 - Automatic application root path detection.
 - Tests for `odm` API methods.
 
+
+## 0.37.8 (2015-11-30)
+### Fixed
+- Improper tuple concatenation error in `tumblr`'s content export driver.
+
+
 ## 0.37.7 (2015-11-29)
 ### Fixed
 - Error in `file.widget.FilesUpload`.
