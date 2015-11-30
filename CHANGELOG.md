@@ -6,6 +6,11 @@
 - Tests for `odm` API methods.
 
 
+## 0.37.9 (2015-11-30)
+### Fixed
+- Missing widgets UIDs in `tumblr`'s auth widget.
+
+
 ## 0.37.8 (2015-11-30)
 ### Fixed
 - Improper tuple concatenation error in `tumblr`'s content export driver.
