@@ -1,14 +1,13 @@
 """Description.
 """
+from bson import DBRef as _DBRef, ObjectId as _ObjectId
+from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
+from pytsite import lang as _lang
+from . import _model, _field
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from bson import DBRef as _DBRef, ObjectId as _ObjectId
-from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
-
-from pytsite import lang as _lang
-from . import _model, _field
 
 
 class Query:
@@ -134,7 +133,7 @@ class Result:
         return self
 
     def __next__(self):
-        from ._functions import dispense
+        from ._api import dispense
         doc = next(self._cursor)
 
         return dispense(self._model_name, doc['_id'])
@@ -144,7 +143,7 @@ class Finder:
     def __init__(self, model_name: str):
         """Init.
         """
-        from ._functions import dispense
+        from ._api import dispense
 
         self._model = model_name
         self._mock = dispense(model_name)
@@ -238,7 +237,7 @@ class Finder:
         return result[0]
 
     def distinct(self, field_name: str) -> list:
-        from ._functions import get_by_ref
+        from ._api import get_by_ref
         values = self._mock.collection.distinct(field_name, self._query.compile())
         r = []
         for v in values:

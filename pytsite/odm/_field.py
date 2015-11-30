@@ -316,7 +316,7 @@ class Ref(Abstract):
         if isinstance(value, _bson_DBRef):
             pass
         elif isinstance(value, str):
-            from ._functions import resolve_ref
+            from ._api import resolve_ref
             value = resolve_ref(value)
         elif isinstance(value, Model):
             # Checking if this model is allowed
@@ -330,7 +330,7 @@ class Ref(Abstract):
         """Get value of the field.
         """
         if isinstance(self._value, _bson_DBRef):
-            from ._functions import get_by_ref
+            from ._api import get_by_ref
 
             referenced_entity = get_by_ref(self._value)
             if not referenced_entity:
@@ -377,7 +377,7 @@ class RefsList(List):
     def get_val(self, **kwargs) -> tuple:
         """Get value of the field.
         """
-        from ._functions import get_by_ref
+        from ._api import get_by_ref
 
         r = []
         for ref in self._value:
@@ -571,6 +571,10 @@ class Float(Abstract):
         if not isinstance(value, float):
             raise ValueError('Float expected.')
         return self.set_val(self.get_val(**kwargs) + value, change_modified, **kwargs)
+
+
+class Decimal(Float):
+    pass
 
 
 class Bool(Abstract):

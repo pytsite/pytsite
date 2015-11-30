@@ -155,7 +155,7 @@ class Model(_ABC):
         """Get field's object.
         """
         if not self.has_field(field_name):
-            raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
+            raise _error.FieldNotDefined("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
         return self._fields[field_name]
 
     @property
@@ -165,7 +165,7 @@ class Model(_ABC):
         return _db.get_collection(self._collection_name)
 
     @property
-    def fields(self):
+    def fields(self) -> _OrderedDict:
         """Get all field objects.
         """
         return self._fields
@@ -364,7 +364,9 @@ class Model(_ABC):
 
             # Entity is not new anymore
             if self._is_new:
+                from ._api import cache_put
                 self._is_new = False
+                cache_put(self)
 
         return self
 
@@ -394,7 +396,7 @@ class Model(_ABC):
             # Actual deletion from storage
             if not self._is_new:
                 self.collection.delete_one({'_id': self.id})
-                from ._functions import cache_delete
+                from ._api import cache_delete
                 cache_delete(self)
 
             self._is_deleted = True

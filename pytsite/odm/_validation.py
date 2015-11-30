@@ -2,7 +2,7 @@
 """
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import validation as _pytsite_validation
-from . import _functions, _model
+from . import _api, _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -55,7 +55,7 @@ class FieldUnique(_pytsite_validation.rule.Base):
     def validate(self):
         """Do actual validation of the rule.
         """
-        f = _functions.find(self._model).where(self._field, '=', self._value)
+        f = _api.find(self._model).where(self._field, '=', self._value)
 
         if self._exclude_ids:
             f.where('_id', 'nin', self._exclude_ids)

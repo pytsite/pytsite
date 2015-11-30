@@ -30,28 +30,33 @@ def version():
 
 
 def __init():
-    """Init wrapper to hide imports.
+    """Init wrapper.
     """
-    from os import path, environ
+    from os import path, environ, getcwd
     from getpass import getuser
     from socket import gethostname
     from . import reg
 
-    if 'PYTSITE_APP_ROOT' not in environ:
-        raise Exception("The 'PYTSITE_APP_ROOT' environment variable is not defined.")
-
-    # Environment
+    # Environment name
     reg.set_val('env.name', getuser() + '@' + gethostname())
 
-    # Base filesystem paths
-    root_path = path.abspath(environ['PYTSITE_APP_ROOT'])
+    # Detecting application directory path
+    if 'PYTSITE_APP_ROOT' in environ:
+        root_path = path.abspath(environ['PYTSITE_APP_ROOT'])
+    elif path.exists(path.join(getcwd(), 'app')):
+        root_path = getcwd()
+    else:
+        raise Exception('Cannot find application directory.')
+
+    # Check root
     if not path.exists(root_path) or not path.isdir(root_path):
         raise Exception("{} is not exists or it is not a directory.".format(root_path))
+
+    # Base filesystem paths
     app_path = path.join(root_path, 'app')
-    static_path = path.join(root_path, 'static')
     reg.set_val('paths.root', root_path)
     reg.set_val('paths.app', app_path)
-    reg.set_val('paths.static', static_path)
+    reg.set_val('paths.static', path.join(root_path, 'static'))
     for n in ['config', 'log', 'storage', 'tmp', 'themes']:
         reg.set_val('paths.' + n, path.join(app_path, n))
 
