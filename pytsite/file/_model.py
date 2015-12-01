@@ -20,7 +20,7 @@ class File(_odm.Model):
         self._define_field(_odm.field.String('mime', nonempty=True))
         self._define_field(_odm.field.Integer('length', nonempty=True))
         self._define_field(_odm.field.Ref('owner', model='user'))
-        self._define_field(_odm.field.Ref('attached_to', '*'))
+        self._define_field(_odm.field.Ref('attached_to'))
         self._define_field(_odm.field.Virtual('abs_path'))
         self._define_field(_odm.field.Virtual('url'))
         self._define_field(_odm.field.Virtual('thumb_url'))
@@ -40,6 +40,14 @@ class File(_odm.Model):
     @property
     def name(self) -> str:
         return self.f_get('name')
+
+    @property
+    def length(self) -> int:
+        return self.f_get('length')
+
+    @property
+    def mime(self) -> str:
+        return self.f_get('mime')
 
     def _after_delete(self):
         """_after_delete() hook.

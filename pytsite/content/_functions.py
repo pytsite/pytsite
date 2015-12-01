@@ -1,11 +1,10 @@
 """PytSite Content Package.
 """
-import hashlib as _hashlib
-import pytz as _pytz
+from typing import Callable as _Callable
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
 from pytsite import admin as _admin, taxonomy as _taxonomy, auth as _auth, odm as _odm, util as _util, \
-    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, settings as _settings
+    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -145,26 +144,18 @@ def create_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
     return _taxonomy.dispense('tag', title, alias, language).save()
 
 
-def generate_feeds(model: str, filename: str, finder_adj=None, **kwargs):
-    md5 = _hashlib.md5()
-    content_settings = _settings.get_setting('content')
+def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, language: str=None,
+                 finder_setup: _Callable[[_odm.Finder], None]=None,
+                 item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
+                 **kwargs):
+    """
+    """
     length = kwargs.get('length', 20)
-    language = kwargs.get('language', _lang.get_current())
-    title = kwargs.get('title', content_settings.get('home_title_' + language))
-    description = kwargs.get('description', content_settings.get('home_description_' + language))
-
-    if not title:
-        raise ValueError('Cannot set feed title. Please set it on the content settings form.')
-    if not description:
-        raise ValueError('Cannot set feed description. Please set it on the content settings form.')
-
-    # Setup writer
-    writer = _feed.Writer(title, _router.base_url(), description)
 
     # Setup finder
     finder = find(model, language=language)
-    if finder_adj:
-        finder_adj(finder)
+    if finder_setup:
+        finder_setup(finder)
 
     # Preparing output directory
     output_dir = _path.join(_reg.get('paths.static'), 'feed')
@@ -172,53 +163,29 @@ def generate_feeds(model: str, filename: str, finder_adj=None, **kwargs):
         _makedirs(output_dir, 0o755, True)
 
     for entity in finder.get(length):
-        entry = writer.add_entry()
-
-        # Entry unique ID
-        md5.update(entity.title.encode())
-        entry.id(md5.hexdigest())
-
-        # Entry title
-        entry.title(entity.title)
-
-        # Description
-        entry.content(entity.description if entity.description else entity.title, type='text/plain')
-
-        # Link
-        entry.link({'href': entity.url})
-
-        # Publish date
-        tz = _pytz.timezone(_reg.get('server.timezone', 'UTC'))
-        entry.pubdate(tz.localize(entity.publish_time))
-
-        author_info = {'name': entity.author.full_name, 'email': entity.author.email}
-        if entity.author.profile_is_public:
-            author_info['uri'] = _router.ep_url('pytsite.auth_ui.ep.profile_view', {
-                'nickname': str(entity.author.nickname),
-            })
-        entry.author(author_info)
+        item = generator.dispense_item()
+        item.title = entity.title
+        item.link = entity.url
+        item.description = entity.description if entity.description else entity.title
+        item.pub_date = entity.publish_time
+        item.author = '{} ({})'.format(entity.author.email, entity.author.full_name)
 
         if entity.has_field('section'):
-            entry.category({
-                'term': entity.section.alias,
-                'label': entity.section.title,
-            })
+            item.add_child(_feed.rss.Category(entity.section.title))
+        elif entity.has_field('tags'):
+            item.add_child(_feed.rss.Category(entity.tags[0].title))
 
-        if entity.has_field('tags'):
-            for tag in entity.tags:
-                entry.category({
-                    'term': tag.alias,
-                    'label': tag.title,
-                })
+        if entity.has_field('images'):
+            for img in entity.images:
+                item.add_child(_feed.rss.Enclosure(img.url, img.length, img.mime))
 
-    # Write feed into files
-    for out_type in 'rss', 'atom':
-        out_path = _path.join(output_dir, '{}-{}.xml'.format(out_type, filename))
+        if item_setup:
+            item_setup(item, entity)
 
-        if out_type == 'rss':
-            writer.rss_file(out_path, True)
-            _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)
+        generator.add_item(item)
 
-        if out_type == 'atom':
-            writer.atom_file(out_path, True)
-            _logger.info("Atom feed successfully written to '{}'.".format(out_path), __name__)
+    # Write feed content
+    out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, language))
+    with open(out_path, 'wt') as f:
+        f.write(generator.generate())
+    _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)

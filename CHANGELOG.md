@@ -1,9 +1,13 @@
 # PytSite Changelog
 
-## 0.38 (unreleased)
+## 0.xx (unreleased)
 ### Added
 - Automatic application root path detection.
 - Tests for `odm` API methods.
+
+## 0.38
+### Added
+- `feed` completely rewritten.
 
 
 ## 0.37.9 (2015-11-30)

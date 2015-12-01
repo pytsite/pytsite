@@ -35,6 +35,8 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
                 raise _pytsite_validation.error.RuleError(self._msg_id, {
                     'detail': "Instance of '{}' model expected, but '{}' given.".format(self._model, v.model)})
 
+        return self._value
+
 
 class FieldUnique(_pytsite_validation.rule.Base):
     def __init__(self, value=None, msg_id: str=None, model: str=None, field: str=None, exclude_ids=None):
@@ -62,3 +64,5 @@ class FieldUnique(_pytsite_validation.rule.Base):
 
         if f.count():
             raise _pytsite_validation.error.RuleError(self._msg_id, {'field': self._field})
+
+        return self._value

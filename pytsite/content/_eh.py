@@ -5,7 +5,7 @@ from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, \
     tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, \
-    console as _console, assetman as _assetman
+    console as _console, assetman as _assetman, feed as _feed
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -136,12 +136,17 @@ def _generate_sitemap():
 
 
 def _generate_feeds():
+    content_settings = _settings.get_setting('content')
+
     for lang in _lang.langs():
+        title = content_settings.get('home_title_' + lang)
+        description = content_settings.get('home_description_' + lang)
+
+        # Generate RSS feed
         for model in _reg.get('content.feed.models', []):
-            filename = model
-            if len(_lang.langs()) > 1:
-                filename += '-{}'.format(lang)
-            _functions.generate_feeds(model, filename, language=lang)
+            generator = _feed.rss.Generator(title, _router.base_url(lang), description)
+            filename = 'rss-{}'.format(model)
+            _functions.generate_rss(generator, model, filename, lang)
 
 
 def _update_0_7_0():

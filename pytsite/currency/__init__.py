@@ -2,7 +2,7 @@
 """
 # Public API
 from ._functions import get_all, get_main
-from . import _widget as widget, _field as field
+from . import _widget as widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
