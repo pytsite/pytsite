@@ -5,6 +5,9 @@
 - Automatic application root path detection.
 - Tests for `odm` API methods.
 
+## 0.38.2 (2015-12-02)
+### Added
+- Images and iframes cleanup in `feed.yandex_news.Item.full_text`.
 
 ## 0.38.1 (2015-12-02)
 ### Added
