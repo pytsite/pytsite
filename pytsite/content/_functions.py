@@ -144,7 +144,7 @@ def create_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
     return _taxonomy.dispense('tag', title, alias, language).save()
 
 
-def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, language: str=None,
+def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str=None,
                  finder_setup: _Callable[[_odm.Finder], None]=None,
                  item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
                  **kwargs):
@@ -152,8 +152,11 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lang
     """
     length = kwargs.get('length', 20)
 
+    if not lng:
+        lng = _lang.get_current()
+
     # Setup finder
-    finder = find(model, language=language)
+    finder = find(model, language=lng)
     if finder_setup:
         finder_setup(finder)
 
@@ -185,7 +188,7 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lang
         generator.add_item(item)
 
     # Write feed content
-    out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, language))
+    out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, lng))
     with open(out_path, 'wt') as f:
         f.write(generator.generate())
     _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)
