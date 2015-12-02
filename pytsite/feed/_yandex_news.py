@@ -12,7 +12,7 @@ __license__ = 'MIT'
 
 _full_text_re = (
     _re.compile('<img[^>]*>', _re.IGNORECASE),
-    _re.compile('<iframe[^>]*>.+</iframe>', _re.IGNORECASE)
+    _re.compile('<iframe[^>]*>.*</iframe>', _re.IGNORECASE)
 )
 
 

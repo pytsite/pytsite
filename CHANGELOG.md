@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.38.4 (2015-12-02)
+### Fixed
+- 'yandex:full-text' iframes incomplete cleanup. 
+
+
 ## 0.38.3 (2015-12-02)
 ### Added
 - Automatic application root path detection.
