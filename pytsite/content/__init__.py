@@ -4,7 +4,7 @@
 from . import _model as model, _widget as widget
 from ._functions import register_model, get_models, find, get_model, get_model_title, create, get_sections, \
     create_section, create_tag, get_tags, get_tag, get_publish_statuses, get_section, is_model_registered, \
-    generate_feeds
+    generate_rss
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

@@ -51,19 +51,19 @@ class Auth(_widget.Base):
         if self._oauth_token and self._oauth_token_secret and self._screen_name:
             a = '<a href="http://{}.tumblr.com" target="_blank"><i class="fa fa-fw fa-tumblr"></i>&nbsp;{}</a>'.\
                 format(self._screen_name, self._screen_name)
-            wrapper.append(_widget.static.Text(title=a).get_html_em())
+            wrapper.append(_widget.static.Text('widget-link', title=a).get_html_em())
 
             user_info = TumblrSession(self._oauth_token, self._oauth_token_secret).user_info()
             blogs = [(i['name'], i['title']) for i in user_info['blogs']]
-            blog_select = _widget.select.Select(name='{}[{}]'.format(self._uid, 'user_blog'), h_size='col-sm-6',
-                                                items=blogs, value=self._user_blog, required=True,
+            blog_select = _widget.select.Select('blog-select', name='{}[{}]'.format(self._uid, 'user_blog'),
+                                                h_size='col-sm-6', items=blogs, value=self._user_blog, required=True,
                                                 label=_lang.t('pytsite.tumblr@blog'))
             wrapper.append(blog_select.get_html_em())
         else:
             auth_s = TumblrAuthSession(callback_uri=_router.current_url()).fetch_request_token()
             wrapper.append(
-                _html.A(_lang.t('pytsite.tumblr@authorization'), href=auth_s.get_authorization_url())
-                    .append(_html.I(cls='fa fa-fw fa-tumblr'))
+                _html.A(_lang.t('pytsite.tumblr@authorization'), href=auth_s.get_authorization_url()).
+                    append(_html.I(cls='fa fa-fw fa-tumblr'))
             )
 
         return self._group_wrap(wrapper)

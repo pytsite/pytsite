@@ -23,10 +23,15 @@ def version():
 
     if __version[1] > 99:
         raise ValueError('Version minor cannot be greater 99.')
-    if __version[2] > 9:
-        raise ValueError('Version revision cannot be greater 9.')
+    if __version[2] > 99:
+        raise ValueError('Version revision cannot be greater 99.')
 
     return __version
+
+
+def version_str() -> str:
+    v = version()
+    return '{}.{}.{}'.format(v[0], v[1], v[2])
 
 
 def __init():

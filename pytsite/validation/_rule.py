@@ -55,6 +55,8 @@ class NonEmpty(Base):
         if not self._value:
             raise _error.RuleError(self._msg_id)
 
+        return self._value
+
 
 class DictPartsNonEmpty(Base):
     """Check if a dict particular key values are not empty.
@@ -79,6 +81,8 @@ class DictPartsNonEmpty(Base):
             if k not in self._value or not self._value[k]:
                 raise _error.RuleError(self._msg_id, {'keys': self._keys})
 
+        return self._value
+
 
 class Number(Base):
     """Number validation rule.
@@ -88,6 +92,8 @@ class Number(Base):
             raise _error.RuleError(self._msg_id)
         elif type(self._value) not in (None, float, int):
             raise _error.RuleError(self._msg_id)
+
+        return self._value
 
 
 class Integer(Base):
@@ -101,6 +107,8 @@ class Integer(Base):
         if type(self._value) not in (None, int):
             raise _error.RuleError(self._msg_id)
 
+        return self._value
+
 
 class Float(Base):
     """Float Validation Rule.
@@ -112,6 +120,8 @@ class Float(Base):
             raise _error.RuleError(self._msg_id)
         elif type(self._value) not in (None, float):
             raise _error.RuleError(self._msg_id)
+
+        return self._value
 
 
 class Less(Number):
@@ -128,6 +138,8 @@ class Less(Number):
         if float(self.value) >= float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
+        return self._value
+
 
 class LessOrEqual(Less):
     def validate(self):
@@ -135,6 +147,8 @@ class LessOrEqual(Less):
         """
         if float(self.value) > float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
+
+        return self._value
 
 
 class Greater(Number):
@@ -151,6 +165,8 @@ class Greater(Number):
         if float(self.value) <= float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
+        return self._value
+
 
 class GreaterOrEqual(Greater):
     def validate(self):
@@ -159,6 +175,8 @@ class GreaterOrEqual(Greater):
         super().validate()
         if float(self.value) < float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
+
+        return self._value
 
 
 class Regex(Base):
@@ -196,6 +214,8 @@ class Regex(Base):
         else:
             raise ValueError('List, dict or str expected.')
 
+        return self.value
+
 
 class Url(Regex):
     """URL rule.
@@ -232,6 +252,8 @@ class VideoHostingUrl(Url):
                 raise _error.RuleError(self._msg_id)
         else:
             raise ValueError('List, dict or str expected.')
+
+        return self._value
 
     def _validate_str(self, inp: str):
         for re in self._get_re():
@@ -274,6 +296,8 @@ class DateTime(Base):
         elif not isinstance(self._value, datetime):
             raise _error.RuleError(self._msg_id)
 
+        return self._value
+
 
 class ListListItemNotEmpty(Base):
     def __init__(self, value: list=None, msg_id: str=None, sub_list_item_index: int=0):
@@ -298,6 +322,8 @@ class ListListItemNotEmpty(Base):
             if not sub_list[self._index]:
                 raise _error.RuleError(self._msg_id, {'row': row + 1, 'col': self._index + 1})
 
+        return self._value
+
 
 class ListListItemUrl(ListListItemNotEmpty):
     def validate(self):
@@ -317,3 +343,5 @@ class ListListItemUrl(ListListItemNotEmpty):
                 Url(sub_list[self._index], self._msg_id).validate()
             except _error.RuleError:
                 raise _error.RuleError(self._msg_id, {'row': row + 1, 'col': self._index + 1})
+
+        return self._value

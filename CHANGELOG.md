@@ -1,9 +1,31 @@
 # PytSite Changelog
 
-## 0.38 (unreleased)
+## 0.xx (unreleased)
 ### Added
 - Automatic application root path detection.
 - Tests for `odm` API methods.
+
+## 0.38.2 (2015-12-02)
+### Added
+- Images and iframes cleanup in `feed.yandex_news.Item.full_text`.
+
+## 0.38.1 (2015-12-02)
+### Added
+- `feed.yandex_news.PdaLink` element.
+
+### Fixed
+- Type error in `auth_ui.widget.Profile`.
+- Incorrect placement of 'yandex:logo' tag in `feed.yandex_news.Generator`.
+
+
+## 0.38 (2015-12-01)
+### Added
+- `feed` completely rewritten.
+
+
+## 0.37.9 (2015-11-30)
+### Fixed
+- Missing widgets UIDs in `tumblr`'s auth widget.
 
 
 ## 0.37.8 (2015-11-30)

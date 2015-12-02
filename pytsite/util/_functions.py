@@ -1,8 +1,13 @@
 """PytSite Helper Functions.
 """
-import random as _random, re as _re
+import random as _random
+import re as _re
+import pytz as _pytz
+from time import tzname
 from copy import deepcopy as _deepcopy
+from datetime import datetime as _datetime
 from werkzeug.utils import escape as _escape_html
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -220,3 +225,10 @@ def nav_link(href: str, anchor: str, **kwargs) -> str:
         li.set_attr('cls', 'active')
 
     return str(li.append(html.A(anchor, href=router.url(href, strip_query=True), **kwargs)))
+
+
+def rfc822_datetime(dt: _datetime=None) -> str:
+    if not dt:
+        dt = _pytz.timezone(tzname[0]).localize(_datetime.now())
+
+    return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
