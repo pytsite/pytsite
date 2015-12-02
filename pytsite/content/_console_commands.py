@@ -110,7 +110,7 @@ class Generate(_console.command.Abstract):
                     body.append('\n<p>[img:{}]</p>\n'.format(n))
                     body.append(_requests.get(self.li_url).content.decode('utf-8'))
 
-            entity = _functions.create(model)
+            entity = _functions.dispense(model)
             entity.f_set('title', title)
             entity.f_set('description', description)
             entity.f_set('body', ''.join(body))

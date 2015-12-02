@@ -1,9 +1,10 @@
 # PytSite Changelog
 
-## 0.xx (unreleased)
+## 0.38.3 (2015-12-02)
 ### Added
 - Automatic application root path detection.
-- Tests for `odm` API methods.
+- Tests for `odm` API functions and for some `odm.Model` methods.
+
 
 ## 0.38.2 (2015-12-02)
 ### Added

@@ -21,6 +21,9 @@ class Model(_ABC):
     """
     def __init__(self, model: str, obj_id=None):
         """Init.
+
+        :type model: str
+        :type obj_id: str | _ObjectId
         """
         if not hasattr(self, 'collection_name'):
             self._collection_name = None
@@ -181,7 +184,8 @@ class Model(_ABC):
         """Get entity's DBRef.
         """
         if not self.id:
-            raise Exception("Entity must be stored first.")
+            raise _error.EntityNotStored('Entity must be stored before you can get its ref.')
+
         return _DBRef(self.collection.name, self.id)
 
     @property
@@ -197,8 +201,10 @@ class Model(_ABC):
         return self.f_get('_parent')
 
     @property
-    def children(self) -> list:
+    def children(self):
         """Get children entities.
+
+        :rtype: typing.Tuple[Model]
         """
         return self.f_get('_children')
 
@@ -306,6 +312,16 @@ class Model(_ABC):
         """
         return not bool(self.f_get(field_name))
 
+    def append_child(self, child):
+        """Append child to the entity
+
+        :param child: pytsite.odm._model.Model
+        """
+        child.f_set('_parent', self)
+        self.f_add('_children', child)
+
+        return self
+
     def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
         """Save the entity.
         """
@@ -367,6 +383,11 @@ class Model(_ABC):
                 from ._api import cache_put
                 self._is_new = False
                 cache_put(self)
+
+            # Save children with updated '_parent' field
+            for child in self.children:
+                if child.is_modified:
+                    child.save(True, False)
 
         return self
 

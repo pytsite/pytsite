@@ -17,6 +17,10 @@ class EntityNotFound(Exception):
     pass
 
 
+class EntityNotStored(Exception):
+    pass
+
+
 class ForbidEntityDelete(Exception):
     pass
 

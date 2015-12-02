@@ -81,7 +81,7 @@ def get_model_title(model: str) -> str:
     return _lang.t(get_model(model)[1])
 
 
-def create(model: str) -> _model.Content:
+def dispense(model: str) -> _model.Content:
     """Create content entity.
     """
     if not is_model_registered(model):
