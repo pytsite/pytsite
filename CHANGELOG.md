@@ -5,6 +5,16 @@
 - Automatic application root path detection.
 - Tests for `odm` API methods.
 
+
+## 0.38.1
+### Added
+- `feed.yandex_news.PdaLink` element.
+
+### Fixed
+- Type error in `auth_ui.widget.Profile`.
+- Incorrect placement of 'yandex:logo' tag in `feed.yandex_news.Generator`.
+
+
 ## 0.38
 ### Added
 - `feed` completely rewritten.

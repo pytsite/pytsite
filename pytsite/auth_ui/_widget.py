@@ -32,7 +32,7 @@ class Profile(_widget.Base):
 
         # Hidden profiles are visible only for owners and administrators
         if not self._user.profile_is_public and current_user.id != self._user.id and not current_user.is_admin:
-            return ''
+            return _html.TagLessElement()
 
         # Check whether to show 'Edit' button
         profile_is_editable = False

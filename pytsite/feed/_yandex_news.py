@@ -24,6 +24,19 @@ class Logo(_abstract.Serializable):
         return em
 
 
+class PdaLink(_abstract.Serializable):
+    def __init__(self, url: str):
+        super().__init__()
+        self._url = _validation.rule.NonEmpty(url).validate()
+        self._url = _validation.rule.Url(url).validate()
+
+    def get_content(self) -> _etree.Element:
+        em = _etree.Element('pdalink')
+        em.text = self._url
+
+        return em
+
+
 class Item(_rss.Item):
     def __init__(self,  **kwargs):
         super().__init__(**kwargs)
@@ -55,8 +68,8 @@ class Generator(_rss.Generator):
             'media': 'http://search.yahoo.com/mrss/'
         }
 
-        self._logo = [Logo(logo), Logo(logo_square, square=True)]
-        """:type list[Logo]"""
+        self._logo = (Logo(logo), Logo(logo_square, square=True))
+        """:type tuple[Logo]"""
 
         super().__init__(title, link, description, nsmap)
 
@@ -66,7 +79,8 @@ class Generator(_rss.Generator):
     def get_xml_element(self) -> _etree.Element:
         em = super().get_xml_element()
 
+        # Insert yandex:logo after lastBuildDate
         for logo in self._logo:
-            em.append(logo.get_content())
+            em[0].insert(5, logo.get_content())
 
         return em
