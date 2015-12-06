@@ -78,12 +78,9 @@ class TestModel:
         assert TestModel.entity_m_one.ref.id is TestModel.entity_m_one.id
 
     def test_append_child(self):
-        # Create two entities of the same model
+        # Setup
         one_1 = odm.dispense('model_one')
         one_2 = odm.dispense('model_one')
-
-        one_1.f_set('str_f', 'e1')
-        one_2.f_set('str_f', 'e2')
 
         # Check initial state
         assert len(one_1.children) == 0
@@ -104,26 +101,7 @@ class TestModel:
         one_1_id = str(one_1.id)
         one_1.append_child(one_2)
 
-        # Check state after append
-        assert len(one_1.children) == 1
-        assert one_1.children[0] is one_2
-        assert one_2.parent is one_1
-
-        # At this step DO NOT save one_1 so relations info SHOULD NOT be stored
-        odm.cache_delete(one_1)
-        odm.cache_delete(one_2)
-        del one_1, one_2
-        one_1 = odm.find('model_one').where('_id', '=', one_1_id).first()
-        one_2 = odm.find('model_one').where('_id', '=', one_2_id).first()
-        assert len(one_1.children) == 0
-        assert one_2.parent is None
-
-        # Now repeat previous steps, but save after child addition
-        one_1.append_child(one_2).save()
-        odm.cache_delete(one_2)
-        del one_1, one_2
-        one_1 = odm.find('model_one').where('_id', '=', one_1_id).first()
-        one_2 = odm.find('model_one').where('_id', '=', one_2_id).first()
+        # Checking references
         assert len(one_1.children) == 1
         assert one_1.children[0] is one_2
         assert one_2.parent is one_1
@@ -131,3 +109,48 @@ class TestModel:
         # Cleanup
         one_1.delete()
         one_2.delete()
+
+        # Test of appending child of different model
+        one = odm.dispense('model_one')
+        two = odm.dispense('model_two')
+        with pytest.raises(TypeError):
+            one.append_child(two)
+
+        # Cleanup
+        one.delete()
+        two.delete()
+
+    def test_remove_child(self):
+        # Setup
+        one_1 = odm.dispense('model_one').save()
+        one_2 = odm.dispense('model_one').save()
+        one_3 = odm.dispense('model_one').save()
+
+        # Append children
+        one_1.append_child(one_2)
+        one_1.append_child(one_3)
+
+        # Checking references
+        assert len(one_1.children) == 2
+        assert one_1.children[0] is one_2
+        assert one_1.children[1] is one_3
+        assert one_2.parent is one_1
+        assert one_3.parent is one_1
+
+        # Remove first child
+        one_1.remove_child(one_2)
+        assert len(one_1.children) == 1
+        assert one_1.children[0] is one_3
+        assert one_2.parent is None
+        assert one_3.parent is one_1
+
+        # Remove second child
+        one_1.remove_child(one_3)
+        assert len(one_1.children) == 0
+        assert one_2.parent is None
+        assert one_3.parent is None
+
+        # Cleanup
+        one_1.delete()
+        one_2.delete()
+        one_3.delete()

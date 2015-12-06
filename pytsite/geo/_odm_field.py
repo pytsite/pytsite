@@ -16,7 +16,8 @@ class LngLat(_odm.field.FloatList):
         default = kwargs.get('default', (0.0, 0.0))
         super().__init__(name, default=default, min_len=2, max_len=2, **kwargs)
 
-    def __bool__(self):
+    @property
+    def is_empty(self) -> bool:
         """Checks if the field is empty.
         """
         return self._value != (0.0, 0.0)

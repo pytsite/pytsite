@@ -27,3 +27,7 @@ class ForbidEntityDelete(Exception):
 
 class FieldNotDefined(Exception):
     pass
+
+
+class EntityDeleted(Exception):
+    pass

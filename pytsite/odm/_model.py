@@ -1,5 +1,6 @@
 """ODM models.
 """
+from typing import Any as _Any
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
@@ -149,28 +150,41 @@ class Model(_ABC):
         """
         pass
 
+    def _check_deletion(self):
+        if self.is_deleted:
+            raise _error.EntityDeleted('Entity has been deleted.')
+
     def has_field(self, field_name: str) -> bool:
         """Check if the entity has field.
         """
+        self._check_deletion()
+
         return False if field_name not in self._fields else True
 
     def get_field(self, field_name) -> _field.Abstract:
         """Get field's object.
         """
+        self._check_deletion()
+
         if not self.has_field(field_name):
             raise _error.FieldNotDefined("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
+
         return self._fields[field_name]
 
     @property
     def collection(self) -> _Collection:
         """Get entity's collection.
         """
+        self._check_deletion()
+
         return _db.get_collection(self._collection_name)
 
     @property
     def fields(self) -> _OrderedDict:
         """Get all field objects.
         """
+        self._check_deletion()
+
         return self._fields
 
     @property
@@ -183,6 +197,8 @@ class Model(_ABC):
     def ref(self) -> _DBRef:
         """Get entity's DBRef.
         """
+        self._check_deletion()
+
         if not self.id:
             raise _error.EntityNotStored('Entity must be stored before you can get its ref.')
 
@@ -225,6 +241,7 @@ class Model(_ABC):
         """Is the entity new or already stored in a database?
         """
         with _threading.get_r_lock():
+            self._check_deletion()
             return self._is_new
 
     @property
@@ -232,6 +249,7 @@ class Model(_ABC):
         """Is the entity has been modified?
         """
         with _threading.get_r_lock():
+            self._check_deletion()
             for field_name, field in self._fields.items():
                 if field.is_modified:
                     return True
@@ -244,13 +262,15 @@ class Model(_ABC):
         with _threading.get_r_lock():
             return self._is_deleted
 
-    def f_set(self, field_name: str, value, **kwargs):
+    def f_set(self, field_name: str, value, update_state=True, **kwargs):
         """Set field's value.
         """
         with _threading.get_r_lock():
+            self._check_deletion()
             value = self._on_f_set(field_name, value, **kwargs)
-            self.get_field(field_name).set_val(value, **kwargs)
-            return self
+            self.get_field(field_name).set_val(value, update_state, **kwargs)
+
+        return self
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """On set field's value hook.
@@ -261,19 +281,23 @@ class Model(_ABC):
         """Get field's value.
         """
         with _threading.get_r_lock():
+            self._check_deletion()
             field_val = self.get_field(field_name).get_val(**kwargs)
-            return self._on_f_get(field_name, field_val, **kwargs)
+            field_val = self._on_f_get(field_name, field_val, **kwargs)
+            return field_val
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.
         """
         return value
 
-    def f_add(self, field_name: str, value, **kwargs):
+    def f_add(self, field_name: str, value, update_state=True, **kwargs):
         """Add a value to the field.
         """
         with _threading.get_r_lock():
-            self.get_field(field_name).add_val(self._on_f_add(field_name, value, **kwargs))
+            self._check_deletion()
+            value = self._on_f_add(field_name, value, **kwargs)
+            self.get_field(field_name).add_val(value, update_state, **kwargs)
             return self
 
     def _on_f_add(self, field_name: str, value, **kwargs):
@@ -281,52 +305,97 @@ class Model(_ABC):
         """
         return value
 
-    def f_sub(self, field_name: str, value, **kwargs):
-        """Delete value from the field.
+    def f_sub(self, field_name: str, value, update_state=True, **kwargs):
+        """Subtract value from the field.
         """
         with _threading.get_r_lock():
-            self.get_field(field_name).sub_val(self._on_f_sub(field_name, value, **kwargs))
+            self._check_deletion()
+            value = self._on_f_sub(field_name, value, **kwargs)
+            self.get_field(field_name).sub_val(value, update_state, **kwargs)
             return self
 
-    def _on_f_sub(self, field_name: str, value, **kwargs):
-        """On field's add value hook.
+    def _on_f_sub(self, field_name: str, value, **kwargs) -> _Any:
+        """On field's subtract value hook.
         """
         return value
 
-    def f_inc(self, field_name: str):
+    def f_inc(self, field_name: str, update_state=True, **kwargs):
         """Increment value of the field.
         """
         with _threading.get_r_lock():
-            self.get_field(field_name).inc_val()
+            self._check_deletion()
+            self._on_f_inc(field_name, **kwargs)
+            self.get_field(field_name).inc_val(update_state, **kwargs)
             return self
 
-    def f_dec(self, field_name: str):
+    def _on_f_inc(self, field_name: str, **kwargs):
+        """On field's increment value hook.
+        """
+        pass
+
+    def f_dec(self, field_name: str, update_state=True, **kwargs):
         """Decrement value of the field
         """
         with _threading.get_r_lock():
-            self.get_field(field_name).dec_val()
+            self._check_deletion()
+            self._on_f_dec(field_name, **kwargs)
+            self.get_field(field_name).dec_val(update_state, **kwargs)
             return self
+
+    def _on_f_dec(self, field_name: str, **kwargs):
+        """On field's decrement value hook.
+        """
+        pass
+
+    def f_clr(self, field_name: str, update_state=True, **kwargs):
+        """Creal field.
+        """
+        with _threading.get_r_lock():
+            self._check_deletion()
+            self._on_f_clr(field_name, **kwargs)
+            self.get_field(field_name).clr_val(update_state, **kwargs)
+            return self
+
+    def _on_f_clr(self, field_name: str, **kwargs):
+        """On field's clear value hook.
+        """
+        pass
 
     def f_is_empty(self, field_name: str) -> bool:
         """Checks if the field is empty.
         """
-        return not bool(self.f_get(field_name))
+        with _threading.get_r_lock():
+            self._check_deletion()
+            return self.get_field(field_name).is_empty
 
     def append_child(self, child):
         """Append child to the entity
 
-        :param child: pytsite.odm._model.Model
+        :type child: Model
         """
-        child.f_set('_parent', self)
-        self.f_add('_children', child)
+        with _threading.get_r_lock():
+            self._check_deletion()
+            child.f_set('_parent', self)
+            self.f_add('_children', child)
+
+        return self
+
+    def remove_child(self, child):
+        """Remove child from the entity.
+
+        :type child: Model
+        """
+        with _threading.get_r_lock():
+            self._check_deletion()
+            self.f_sub('_children', child)
+            child.f_clr('_parent')
 
         return self
 
     def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
         """Save the entity.
         """
-        if self.is_deleted:
-            raise Exception("Entity has been deleted from the storage.")
+        self._check_deletion()
 
         # Don't save entity if it wasn't changed
         if not self.is_modified:
@@ -348,7 +417,7 @@ class Model(_ABC):
             for f_name, field in self._fields.items():
                 if isinstance(field, _field.Virtual):
                     continue
-                if field.nonempty and not field:
+                if field.nonempty and field.is_empty:
                     raise Exception("Value of the field '{}' cannot be empty.".format(f_name))
                 data[f_name] = field.get_storable_val()
 
@@ -404,6 +473,8 @@ class Model(_ABC):
     def delete(self):
         """Delete the entity.
         """
+        self._check_deletion()
+
         with _threading.get_r_lock():
             # Pre delete hook
             _events.fire('pytsite.odm.entity.pre_delete', entity=self)
@@ -412,7 +483,10 @@ class Model(_ABC):
 
             # Notify fields about entity deletion
             for f_name, field in self._fields.items():
-                field.on_delete()
+                field.on_entity_delete()
+
+            # Get children to notify them abou parent deletion
+            children = self.children
 
             # Actual deletion from storage
             if not self._is_new:
@@ -420,12 +494,16 @@ class Model(_ABC):
                 from ._api import cache_delete
                 cache_delete(self)
 
-            self._is_deleted = True
+            # Clearing parent reference from orphaned children
+            for child in children:
+                child.f_clr('_parent').save()
 
             # After delete hook
             self._after_delete()
             _events.fire('pytsite.odm.entity.delete', entity=self)
             _events.fire('pytsite.odm.entity.{}.delete'.format(self.model), entity=self)
+
+            self._is_deleted = True
 
         return self
 
