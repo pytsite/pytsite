@@ -243,10 +243,11 @@ class Content(_odm_ui.Model):
         self.f_set('body', body).f_set('images', images)
 
         # Changing status if necessary
-        if not current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
-            self.f_set('status', 'waiting')
-        elif not self.status:
-            self.f_set('status', 'published')
+        if self.is_new:
+            if not current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+                self.f_set('status', 'waiting')
+            elif not self.status:
+                self.f_set('status', 'published')
 
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)

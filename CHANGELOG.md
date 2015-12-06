@@ -1,6 +1,11 @@
 # PytSite Changelog
 
-## 0.39
+## 0.39.1 (2015-12-08)
+## Fixed
+- Improper models status set in `content` while saving entities.
+
+
+## 0.39 (2015-12-08)
 ### Added
 - New ODM field: `odm.field.Decimal`.
 - New permission definitions in `content`: 'pytsite.content.set_publish_time.*' and 
