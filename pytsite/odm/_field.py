@@ -118,7 +118,7 @@ class Abstract(_ABC):
 
     @property
     def is_empty(self) -> bool:
-        return bool(self._value)
+        return not bool(self.get_val())
 
 
 class ObjectId(Abstract):

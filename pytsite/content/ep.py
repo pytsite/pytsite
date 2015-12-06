@@ -15,16 +15,16 @@ def index(args: dict, inp: dict):
     """Content Index.
     """
     # Delayed import to prevent exception during application initialization
-    from . import _functions
+    from . import _api
 
     # Checking if the model is registered
     model = args.get('model')
-    if not model or not _functions.is_model_registered(model):
+    if not model or not _api.is_model_registered(model):
         _logger.error("Content model '{}' is not found. Redirecting to home.".format(model), __name__)
         return _http.response.Redirect(_router.base_url())
 
     # Getting finder
-    f = _functions.find(model)
+    f = _api.find(model)
 
     # Filter by term
     term_field = args.get('term_field')
@@ -78,10 +78,10 @@ def index(args: dict, inp: dict):
 def view(args: dict, inp: dict):
     """View Content Entity.
     """
-    from . import _functions
+    from . import _api
 
     model = args.get('model')
-    entity = _functions.find(model, None, False).where('_id', '=', args.get('id')).first()
+    entity = _api.find(model, None, False).where('_id', '=', args.get('id')).first()
     """:type: pytsite.content._model.Content"""
 
     if not entity:
@@ -154,8 +154,8 @@ def view_count(args: dict, inp: dict) -> int:
     eid = inp.get('id')
 
     if model and eid:
-        from . import _functions
-        entity = _functions.find(model).where('_id', '=', eid).first()
+        from . import _api
+        entity = _api.find(model).where('_id', '=', eid).first()
         if entity:
             entity.f_inc('views_count').save(skip_hooks=True, update_timestamp=False)
             return entity.f_get('views_count')
@@ -212,7 +212,7 @@ def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
 
 
 def ajax_search(args: dict, inp: dict) -> _http.response.JSON:
-    from . import _functions
+    from . import _api
 
     # Query is mandatory parameter
     query = inp.get('q')
@@ -229,14 +229,14 @@ def ajax_search(args: dict, inp: dict) -> _http.response.JSON:
 
     # User can browse ANY entities
     if user.has_permission('pytsite.odm_ui.browse.' + model):
-        f = _functions.find(model, status=None, check_publish_time=None, language=language)
+        f = _api.find(model, status=None, check_publish_time=None, language=language)
     # User can browse only its OWN entities
     elif user.has_permission('pytsite.odm_ui.browse_own.' + model):
-        f = _functions.find(model, status=None, check_publish_time=None, language=language)
+        f = _api.find(model, status=None, check_publish_time=None, language=language)
         f.where('author', '=', user)
     # User cannot browse entities, so its rights equals to the anonymous user
     else:
-        f = _functions.find(model, language=language)
+        f = _api.find(model, language=language)
 
     f.sort([('title', _odm.I_ASC)]).where('title', 'regex_i', query)
     r = [{'id': e.model + ':' + str(e.id), 'text': e.title} for e in f.get(20)]

@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _model as model, _widget as widget
-from ._functions import register_model, get_models, find, get_model, get_model_title, dispense, get_sections, \
+from ._api import register_model, get_models, find, get_model, get_model_title, dispense, get_sections, \
     create_section, create_tag, get_tags, get_tag, get_publish_statuses, get_section, is_model_registered, \
     generate_rss
 

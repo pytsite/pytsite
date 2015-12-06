@@ -12,7 +12,7 @@ status_unpublished: 'Вимкнено'
 section: 'Розділ'
 sections: 'Розділи'
 tags: 'Теги'
-referenced_entity_exists: "існує посилання з сутності :model ('title')"
+referenced_entity_exists: 'існує посилання з сутності :model (:title)'
 language: 'Мова'
 images: 'Зображення'
 video: 'Відео'
@@ -32,9 +32,9 @@ weekly_digest_mail_subject: 'Кращі публікації за тиждень
 digest_subscription_success: 'Дякуємо за оформлення підписки на нашу розсилку!'
 invalid_email: 'Невірний email'
 unsubscription_successful: 'Вас було успішно відписано від розсилки.'
-home_page_title: 'Title головної сторінки (UA)'
-home_page_description: 'Description головної сторінки (UA)'
-home_page_keywords: 'Keywords головної сторінки (UA)'
+home_page_title: 'Title головної сторінки (:lang_code)'
+home_page_description: 'Description головної сторінки (:lang_code)'
+home_page_keywords: 'Keywords головної сторінки (:lang_code)'
 search: 'Пошук :query'
 search_input_placeholder: 'Пошук'
 manage_content_settings_permission: 'Керувати налаштуваннями контенту'
@@ -70,30 +70,34 @@ odm_ui_permission_browse_tag: 'Огляд ВСІХ тегів'
 odm_ui_permission_modify_tag: 'Зміна БУДЬ-ЯКИХ тегів'
 odm_ui_permission_delete_tag: 'Видалення БУДЬ-ЯКИХ тегів'
 
-odm_ui_browser_title_article: Статті
-odm_ui_form_title_create_article: Створення статті
-odm_ui_form_title_modify_article: Зміна статті
-odm_ui_form_title_delete_article: Видалення статей
+odm_ui_browser_title_article: 'Статті'
+odm_ui_form_title_create_article: 'Створення статті'
+odm_ui_form_title_modify_article: 'Зміна статті'
+odm_ui_form_title_delete_article: 'Видалення статей'
 
-odm_ui_permission_create_article: Створення статей
-odm_ui_permission_browse_own_article: Огляд статей
-odm_ui_permission_browse_article: Огляд ВСІХ статей
-odm_ui_permission_modify_own_article: Зміна статей
-odm_ui_permission_modify_article: Зміна БУДЬ-ЯКИХ статей
-odm_ui_permission_delete_own_article: Видалення статей
-odm_ui_permission_delete_article: Видалення БУДЬ-ЯКИХ статей
-content_permission_bypass_moderation_article: Публікація СТАТЕЙ без модерації
+odm_ui_permission_create_article: 'Створення статей'
+odm_ui_permission_browse_own_article: 'Огляд статей'
+odm_ui_permission_browse_article: 'Огляд ВСІХ статей'
+odm_ui_permission_modify_own_article: 'Зміна статей'
+odm_ui_permission_modify_article: 'Зміна БУДЬ-ЯКИХ статей'
+odm_ui_permission_delete_own_article: 'Видалення статей'
+odm_ui_permission_delete_article: 'Видалення БУДЬ-ЯКИХ статей'
+content_permission_bypass_moderation_article: 'Публікація СТАТЕЙ без модерації'
+content_permission_set_localization_article: 'Управління локалізацією СТАТЕЙ'
+content_permission_set_publish_time_article: 'Управління часом публікації СТАТЕЙ'
 
-odm_ui_browser_title_page: Сторінки
-odm_ui_form_title_create_page: Нова сторінка
-odm_ui_form_title_modify_page: Зміна сторінки
-odm_ui_form_title_delete_page: Видалення сторінок
+odm_ui_browser_title_page: 'Сторінки'
+odm_ui_form_title_create_page: 'Нова сторінка'
+odm_ui_form_title_modify_page: 'Зміна сторінки'
+odm_ui_form_title_delete_page: 'Видалення сторінок'
 
-odm_ui_permission_create_page: Створення сторінок
-odm_ui_permission_browse_own_page: Огляд сторінок
-odm_ui_permission_browse_page: Огляд ВСІХ сторінок
-odm_ui_permission_modify_own_page: Зміна сторінок
-odm_ui_permission_modify_page: Зміна БУДЬ-ЯКИХ сторінок
-odm_ui_permission_delete_own_page: Видалення сторінок
-odm_ui_permission_delete_page: Видалення БУДЬ-ЯКИХ сторінок
-content_permission_bypass_moderation_page: Публікація СТОРІНОК без модерації
+odm_ui_permission_create_page: 'Створення сторінок'
+odm_ui_permission_browse_own_page: 'Огляд сторінок'
+odm_ui_permission_browse_page: 'Огляд ВСІХ сторінок'
+odm_ui_permission_modify_own_page: 'Зміна сторінок'
+odm_ui_permission_modify_page: 'Зміна БУДЬ-ЯКИХ сторінок'
+odm_ui_permission_delete_own_page: 'Видалення сторінок'
+odm_ui_permission_delete_page: 'Видалення БУДЬ-ЯКИХ сторінок'
+content_permission_bypass_moderation_page: 'Публікація СТОРІНОК без модерації'
+content_permission_set_localization_page: 'Управління локалізацією СТОРІНОК'
+content_permission_set_publish_time_page: 'Управління часом публікації СТОРІНОК'

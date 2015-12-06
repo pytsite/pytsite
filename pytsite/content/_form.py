@@ -15,21 +15,24 @@ class Settings(_form.Base):
         for lang_code in _lang.langs():
             self.add_widget(_widget.input.Text(
                 uid='setting_home_title_' + lang_code,
-                label=_lang.t('pytsite.content@home_page_title', language=lang_code),
+                label=_lang.t('pytsite.content@home_page_title', {'lang_code': lang_code.upper()},
+                              language=lang_code),
                 weight=i,
             ))
             i += 10
 
             self.add_widget(_widget.input.Text(
                 uid='setting_home_description_' + lang_code,
-                label=_lang.t('pytsite.content@home_page_description', language=lang_code),
+                label=_lang.t('pytsite.content@home_page_description', {'lang_code': lang_code.upper()},
+                              language=lang_code),
                 weight=i,
             ))
             i += 10
 
             self.add_widget(_widget.input.Tokens(
                 uid='setting_home_keywords_' + lang_code,
-                label=_lang.t('pytsite.content@home_page_keywords', language=lang_code),
+                label=_lang.t('pytsite.content@home_page_keywords', {'lang_code': lang_code.upper()},
+                              language=lang_code),
                 weight=i,
             ))
             i += 10

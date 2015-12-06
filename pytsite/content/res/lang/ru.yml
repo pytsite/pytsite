@@ -12,7 +12,7 @@ status_unpublished: 'Отключено'
 section: 'Раздел'
 sections: 'Разделы'
 tags: 'Теги'
-referenced_entity_exists: "существует ссылка из сущности :model (':title')"
+referenced_entity_exists: 'существует ссылка из сущности :model (:title)'
 language: 'Язык'
 images: 'Изображения'
 video: 'Видео'
@@ -32,9 +32,9 @@ weekly_digest_mail_subject: 'Лучшие публикации за неделю
 digest_subscription_success: 'Благодарим вас за оформление подписки на нашу рассылку!'
 invalid_email: 'Неверный email'
 unsubscription_successful: 'Вы были успешно отписаны от рассылки.'
-home_page_title: 'Title главной страницы (RU)'
-home_page_description: 'Description главной страницы (RU)'
-home_page_keywords: 'Keywords главной страницы (RU)'
+home_page_title: 'Title главной страницы (:lang_code)'
+home_page_description: 'Description главной страницы (:lang_code)'
+home_page_keywords: 'Keywords главной страницы (:lang_code)'
 search: 'Поиск :query'
 search_input_placeholder: 'Поиск'
 manage_content_settings_permission: 'Управлять настройками содержимого'
@@ -70,30 +70,34 @@ odm_ui_permission_browse_tag: 'Обзор ВСЕХ тегов'
 odm_ui_permission_modify_tag: 'Изменение ЛЮБЫХ тегов'
 odm_ui_permission_delete_tag: 'Удаление ЛЮБЫХ тегов'
 
-odm_ui_browser_title_article: Статьи
-odm_ui_form_title_create_article: Создание статьи
-odm_ui_form_title_modify_article: Изменение статьи
-odm_ui_form_title_delete_article: Удаление статей
+odm_ui_browser_title_article: 'Статьи'
+odm_ui_form_title_create_article: 'Создание статьи'
+odm_ui_form_title_modify_article: 'Изменение статьи'
+odm_ui_form_title_delete_article: 'Удаление статей'
 
-odm_ui_permission_create_article: Создание статей
-odm_ui_permission_browse_own_article: Обзор статей
-odm_ui_permission_browse_article: Обзор ВСЕХ статей
-odm_ui_permission_modify_own_article: Изменение статей
-odm_ui_permission_modify_article: Изменение ЛЮБЫХ статей
-odm_ui_permission_delete_own_article: Удаление статей
-odm_ui_permission_delete_article: Удаление ЛЮБЫХ статей
-content_permission_bypass_moderation_article: Публикация СТАТЕЙ без модерации
+odm_ui_permission_create_article: 'Создание статей'
+odm_ui_permission_browse_own_article: 'Обзор статей'
+odm_ui_permission_browse_article: 'Обзор ВСЕХ статей'
+odm_ui_permission_modify_own_article: 'Изменение статей'
+odm_ui_permission_modify_article: 'Изменение ЛЮБЫХ статей'
+odm_ui_permission_delete_own_article: 'Удаление статей'
+odm_ui_permission_delete_article: 'Удаление ЛЮБЫХ статей'
+content_permission_bypass_moderation_article: 'Публикация СТАТЕЙ без модерации'
+content_permission_set_localization_article: 'Управление локализацией СТАТЕЙ'
+content_permission_set_publish_time_article: 'Управление временем публикации СТАТЕЙ'
 
-odm_ui_browser_title_page: Страницы
-odm_ui_form_title_create_page: Создание страницы
-odm_ui_form_title_modify_page: Изменение страницы
-odm_ui_form_title_delete_page: Удаление страниц
+odm_ui_browser_title_page: 'Страницы'
+odm_ui_form_title_create_page: 'Создание страницы'
+odm_ui_form_title_modify_page: 'Изменение страницы'
+odm_ui_form_title_delete_page: 'Удаление страниц'
 
-odm_ui_permission_create_page: Создание страниц
-odm_ui_permission_browse_own_page: Обзор страниц
-odm_ui_permission_browse_page: Обзор ВСЕХ страниц
-odm_ui_permission_modify_own_page: Изменение страниц
-odm_ui_permission_modify_page: Изменение ЛЮБЫХ страниц
-odm_ui_permission_delete_own_page: Удаление страниц
-odm_ui_permission_delete_page: Удаление ЛЮБЫХ страниц
-content_permission_bypass_moderation_page: Публикация СТРАНИЦ без модерации
+odm_ui_permission_create_page: 'Создание страниц'
+odm_ui_permission_browse_own_page: 'Обзор страниц'
+odm_ui_permission_browse_page: 'Обзор ВСЕХ страниц'
+odm_ui_permission_modify_own_page: 'Изменение страниц'
+odm_ui_permission_modify_page: 'Изменение ЛЮБЫХ страниц'
+odm_ui_permission_delete_own_page: 'Удаление страниц'
+odm_ui_permission_delete_page: 'Удаление ЛЮБЫХ страниц'
+content_permission_bypass_moderation_page: 'Публикация СТРАНИЦ без модерации'
+content_permission_set_localization_page: 'Управление локализацией СТРАНИЦ'
+content_permission_set_publish_time_page: 'Управление временем публикации СТРАНИЦ'

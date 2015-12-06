@@ -3,7 +3,7 @@
 from random import shuffle as _shuffle, random as _random, randint as _randint
 import requests as _requests
 from pytsite import image as _image, auth as _auth, console as _console, lang as _lang, events as _events
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -50,7 +50,7 @@ class Generate(_console.command.Abstract):
                 raise _console.Error("'{}' is not a registered user.".format(author_login))
 
         # Checking if the content model registered
-        if not _functions.is_model_registered(model):
+        if not _api.is_model_registered(model):
             raise _console.Error("'{}' is not a registered content model.".format(model))
 
         num = int(kwargs.get('num', 10))
@@ -62,19 +62,19 @@ class Generate(_console.command.Abstract):
             self.li_url += 'short/'
 
         # Generate sections
-        sections = list(_functions.get_sections(language))
+        sections = list(_api.get_sections(language))
         if not len(sections):
             for m in range(0, 3):
                 title = self._generate_title(1)
-                section = _functions.create_section(title, language=language)
+                section = _api.create_section(title, language=language)
                 sections.append(section)
                 _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
 
         # Generate tags
-        tags = list(_functions.get_tags(language=language))
+        tags = list(_api.get_tags(language=language))
         if len(tags) < 10:
             for n in range(0, 10):
-                tag = _functions.create_tag(self._generate_title(1), language=language)
+                tag = _api.create_tag(self._generate_title(1), language=language)
                 tags.append(tag)
 
         # Generate content entities
@@ -110,7 +110,7 @@ class Generate(_console.command.Abstract):
                     body.append('\n<p>[img:{}]</p>\n'.format(n))
                     body.append(_requests.get(self.li_url).content.decode('utf-8'))
 
-            entity = _functions.dispense(model)
+            entity = _api.dispense(model)
             entity.f_set('title', title)
             entity.f_set('description', description)
             entity.f_set('body', ''.join(body))

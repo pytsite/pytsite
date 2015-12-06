@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.39
+### Added
+- New ODM field: `odm.field.Decimal`.
+- New permission definitions in `content`: 'pytsite.content.set_publish_time.*' and 
+  'pytsite.content.set_localization.*'.
+
+
 ## 0.38.4 (2015-12-02)
 ### Fixed
 - 'yandex:full-text' iframes incomplete cleanup. 

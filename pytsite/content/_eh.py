@@ -6,7 +6,7 @@ from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, \
     tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, \
     console as _console, assetman as _assetman, feed as _feed
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -70,7 +70,7 @@ def _mail_digest():
         _logger.info("Weekly mail digest for language {} started.".format(lng), __name__)
         f = _odm.find('content_subscriber').where('enabled', '=', True).where('language', '=', lng)
         for subscriber in f.get():
-            content_f = _functions.find(model, language=lng)
+            content_f = _api.find(model, language=lng)
             content_f.where('publish_time', '>', _datetime.now() - _timedelta(7))
             content_f.sort([('views_count', _odm.I_DESC)])
             m_body = _tpl.render(_reg.get('content.digest.tpl', 'mail/content/digest'), {
@@ -108,7 +108,7 @@ def _generate_sitemap():
             _logger.info("Sitemap generation started for model '{}', language '{}'.".
                          format(model, _lang.lang_title(lang)), __name__)
 
-            for entity in _functions.find(model, language=lang).get():
+            for entity in _api.find(model, language=lang).get():
                 sitemap.add_url(entity.url, entity.publish_time)
                 loop_links += 1
 
@@ -146,13 +146,13 @@ def _generate_feeds():
         for model in _reg.get('content.feed.models', []):
             generator = _feed.rss.Generator(title, _router.base_url(lang), description)
             filename = 'rss-{}'.format(model)
-            _functions.generate_rss(generator, model, filename, lang)
+            _api.generate_rss(generator, model, filename, lang)
 
 
 def _update_0_7_0():
     for lang_code in _lang.langs():
-        for model in _functions.get_models().keys():
-            for entity in _functions.find(model, None, False, lang_code).get():
+        for model in _api.get_models().keys():
+            for entity in _api.find(model, None, False, lang_code).get():
                 # Updating only entities without 'language_db' field
                 if entity.f_get('language_db'):
                     continue

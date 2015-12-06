@@ -1,7 +1,6 @@
 """PytSite Router.
 """
 import re as _re
-from typing import Callable as _Callable
 from os import path as _path, makedirs as _makedirs
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse

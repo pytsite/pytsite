@@ -16,9 +16,9 @@ class Section(_taxonomy.model.Term):
     """Section Model.
     """
     def _pre_delete(self):
-        from . import _functions
-        for m in _functions.get_models():
-            f = _functions.find(m, status=None, check_publish_time=False)
+        from . import _api
+        for m in _api.get_models():
+            f = _api.find(m, status=None, check_publish_time=False)
             if not f.mock.has_field('section'):
                 continue
             r_entity = f.where('section', '=', self).first()
@@ -176,7 +176,7 @@ class Content(_odm_ui.Model):
                 value = self.route_alias
 
         elif field_name == 'status':
-            from ._functions import get_publish_statuses
+            from ._api import get_publish_statuses
             if value not in [v[0] for v in get_publish_statuses()]:
                 raise Exception("Invalid publish status: '{}'.".format(value))
 
@@ -231,7 +231,7 @@ class Content(_odm_ui.Model):
             self.f_set('language', _lang.get_current())
 
         # Author is required
-        if not self.author and current_user:
+        if not self.author and not current_user.is_anonymous:
             self.f_set('author', current_user)
 
         # Route alias is required
@@ -243,11 +243,10 @@ class Content(_odm_ui.Model):
         self.f_set('body', body).f_set('images', images)
 
         # Changing status if necessary
-        if not self.status:
-            if current_user and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
-                self.f_set('status', 'published')
-            else:
-                self.f_set('status', 'waiting')
+        if not current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+            self.f_set('status', 'waiting')
+        elif not self.status:
+            self.f_set('status', 'published')
 
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
@@ -274,11 +273,11 @@ class Content(_odm_ui.Model):
                     _router.session.add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
 
         # Recalculate tags weights
-        from . import _functions
+        from . import _api
         for tag in self.tags:
             weight = 0
-            for model in _functions.get_models().keys():
-                weight += _functions.find(model, language=self.language).where('tags', 'in', [tag]).count()
+            for model in _api.get_models().keys():
+                weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
             tag.f_set('weight', weight).save()
 
         # Creating back links in images
@@ -293,7 +292,7 @@ class Content(_odm_ui.Model):
                 if localization.f_get('localization_' + self.language) != self:
                     localization.f_set('localization_' + self.language, self).save()
             elif localization is None:
-                f = _functions.find(self.model, language=lng).where('localization_' + self.language, '=', self)
+                f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
                 for referenced in f.get():
                     referenced.f_set('localization_' + self.language, None).save()
 
@@ -348,8 +347,10 @@ class Content(_odm_ui.Model):
         """Hook.
         :type form: pytsite.form.Base
         """
-        from . import _functions
+        from . import _api
         _assetman.add('pytsite.content@js/content.js')
+
+        current_user = _auth.get_current_user()
 
         # Title
         form.add_widget(_widget.input.Text(
@@ -409,53 +410,55 @@ class Content(_odm_ui.Model):
         form.add_rule('body', _validation.rule.NonEmpty())
 
         # Status
-        current_user = _auth.get_current_user()
-        if current_user and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+        if current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
             form.add_widget(_widget.select.Select(
                 uid='status',
                 weight=700,
                 label=self.t('status'),
                 value=self.status if self.status else 'published',
                 h_size='col-sm-4 col-md-3 col-lg-2',
-                items=_functions.get_publish_statuses(),
+                items=_api.get_publish_statuses(),
                 required=True,
             ))
 
         # Publish time
-        form.add_widget(_widget.select.DateTime(
-            uid='publish_time',
-            weight=800,
-            label=self.t('publish_time'),
-            value=_datetime.now() if self.is_new else self.publish_time,
-            h_size='col-sm-4 col-md-3 col-lg-2',
-            required=True,
-        ))
-
-        # Language
-        if self.is_new:
-            lang_title = _lang.t('lang_title_' + _lang.get_current())
-        else:
-            lang_title = _lang.t('lang_title_' + self.language)
-        form.add_widget(_widget.static.Text(
-            uid='language',
-            weight=900,
-            label=self.t('language'),
-            title=lang_title,
-            value=_lang.get_current() if self.is_new else self.language,
-            hidden=False if len(_lang.langs()) > 1 else True,
-        ))
-
-        # Localization selects
-        from ._widget import EntitySelect
-        for i, lng in enumerate(_lang.langs(False)):
-            form.add_widget(EntitySelect(
-                uid='localization_' + lng,
-                weight=1000 + i,
-                label=self.t('localization', {'lang': _lang.lang_title(lng)}),
-                model=self.model,
-                language=lng,
-                value=self.f_get('localization_' + lng)
+        if current_user.has_permission('pytsite.content.set_publish_time.' + self.model):
+            form.add_widget(_widget.select.DateTime(
+                uid='publish_time',
+                weight=800,
+                label=self.t('publish_time'),
+                value=_datetime.now() if self.is_new else self.publish_time,
+                h_size='col-sm-4 col-md-3 col-lg-2',
+                required=True,
             ))
+
+        # Language settings
+        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
+            # Language
+            if self.is_new:
+                lang_title = _lang.t('lang_title_' + _lang.get_current())
+            else:
+                lang_title = _lang.t('lang_title_' + self.language)
+            form.add_widget(_widget.static.Text(
+                uid='language',
+                weight=900,
+                label=self.t('language'),
+                title=lang_title,
+                value=_lang.get_current() if self.is_new else self.language,
+                hidden=False if len(_lang.langs()) > 1 else True,
+            ))
+
+            # Localization selects
+            from ._widget import EntitySelect
+            for i, lng in enumerate(_lang.langs(False)):
+                form.add_widget(EntitySelect(
+                    uid='localization_' + lng,
+                    weight=1000 + i,
+                    label=self.t('localization', {'lang': _lang.lang_title(lng)}),
+                    model=self.model,
+                    language=lng,
+                    value=self.f_get('localization_' + lng)
+                ))
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
@@ -495,7 +498,8 @@ class Content(_odm_ui.Model):
             vid_index = int(match.group(1))
             if len(self.video_links) < vid_index:
                 return ''
-            return str(_widget.static.VideoPlayer('content-video-' + str(vid_index), value=self.video_links[vid_index - 1]))
+            return str(_widget.static.VideoPlayer('content-video-' + str(vid_index),
+                                                  value=self.video_links[vid_index - 1]))
 
         inp = _re.sub('\[img:(\d+)(:link_orig)?\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)

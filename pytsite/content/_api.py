@@ -17,7 +17,9 @@ __models = {}
 
 def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='fa fa-file-text-o', replace=False):
     """Register content model.
+    :type cls: str | _odm.Model
     """
+    # Resolve class
     if isinstance(cls, str):
         cls = _util.get_class(cls)
 
@@ -30,14 +32,23 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     # Register ODM model
     _odm.register_model(model, cls, replace)
 
-    # Saving info about registered model
+    # Saving info about registered _content_ model
     __models[model] = (cls, title)
 
-    # Register 'bypass_moderation' permission
-    mock = _odm.dispense(model)
+    # Define 'bypass_moderation' permission
     perm_name = 'pytsite.content.bypass_moderation.' + model
-    perm_description = mock.resolve_partly_msg_id('content_permission_bypass_moderation_' + model)
-    _auth.define_permission(perm_name, perm_description, mock.package_name())
+    perm_description = cls.resolve_partly_msg_id('content_permission_bypass_moderation_' + model)
+    _auth.define_permission(perm_name, perm_description, cls.package_name())
+
+    # Define 'set_localization' permission
+    perm_name = 'pytsite.content.set_localization.' + model
+    perm_description = cls.resolve_partly_msg_id('content_permission_set_localization_' + model)
+    _auth.define_permission(perm_name, perm_description, cls.package_name())
+
+    # Define 'set_date' permission
+    perm_name = 'pytsite.content.set_publish_time.' + model
+    perm_description = cls.resolve_partly_msg_id('content_permission_set_publish_time_' + model)
+    _auth.define_permission(perm_name, perm_description, cls.package_name())
 
     _admin.sidebar.add_menu(
         sid='content',

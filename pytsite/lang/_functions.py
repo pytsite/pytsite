@@ -28,6 +28,7 @@ def define(languages: list):
 
 def langs(include_current=True):
     """Get all available languages.
+    :rtype: list[str]
     """
     if include_current:
         return __languages
