@@ -1,0 +1,10 @@
+<h1>Hello, {{ user.full_name }}!</h1>
+<p>
+    Your site <a href="{{ base_url() }}">{{ t('app_name') }}</a> received a new content proposition
+    "{{ entity.title }}" from user {{ entity.author.full_name }}.
+    Please <a href="{{ entity.edit_url }}">don't forget to review this content.</a>.
+</p>
+<p>
+    --<br/>
+    Sincerely yours, robot of the {{ t('app_name') }}.
+</p>

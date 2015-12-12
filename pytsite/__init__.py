@@ -42,6 +42,9 @@ def __init():
     from socket import gethostname
     from . import reg
 
+    # Environment type
+    reg.set_val('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
+
     # Environment name
     reg.set_val('env.name', getuser() + '@' + gethostname())
 

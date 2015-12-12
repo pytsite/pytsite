@@ -1,7 +1,15 @@
 # PytSite Changelog
 
+## 0.39.2 (2015-12-12)
+### Added
+- New registry variable: 'env.type'.
+
+### Fixed
+- Missing mail template for english language in `content`.
+
+
 ## 0.39.1 (2015-12-08)
-## Fixed
+### Fixed
 - Improper models status set in `content` while saving entities.
 
 
