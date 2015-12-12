@@ -49,6 +49,7 @@ setup(
         'requests_oauthlib',
         'twython',
         'lxml',
+        'pytz',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
