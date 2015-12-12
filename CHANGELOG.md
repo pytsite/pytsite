@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.39.3 (2015-12-12)
+### Fixed
+- Missing package in setup.py.
+
+
 ## 0.39.2 (2015-12-12)
 ### Added
 - New registry variable: 'env.type'.
