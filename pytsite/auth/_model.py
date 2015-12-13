@@ -6,7 +6,7 @@ from datetime import datetime as _datetime
 from pytsite import image as _image, odm as _odm, util as _util, router as _router
 
 
-_ANONYMOUS_LOGIN = '__anonymous@__anonymous.__anonymous'
+ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 
 
 class Role(_odm.Model):
@@ -33,7 +33,7 @@ class Role(_odm.Model):
     def permissions(self) -> _Iterable[str]:
         return self.f_get('permissions')
 
-    def _pre_delete(self):
+    def _pre_delete(self, **kwargs):
         """Hook.
         """
         from . import _api
@@ -55,7 +55,7 @@ class User(_odm.Model):
         self._define_field(_odm.field.String('email', nonempty=True))
         self._define_field(_odm.field.String('password', nonempty=True))
         self._define_field(_odm.field.String('nickname', nonempty=True))
-        self._define_field(_odm.field.String('token'))
+        self._define_field(_odm.field.String('token', nonempty=True))
         self._define_field(_odm.field.String('first_name'))
         self._define_field(_odm.field.String('last_name'))
         self._define_field(_odm.field.Virtual('full_name'))
@@ -97,7 +97,7 @@ class User(_odm.Model):
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.f_get('login') == _ANONYMOUS_LOGIN
+        return self.f_get('login') == ANONYMOUS_USER_LOGIN
 
     @property
     def is_admin(self) -> bool:
@@ -213,12 +213,17 @@ class User(_odm.Model):
             if value not in [v[0] for v in get_user_statuses()]:
                 raise Exception("Invalid user status: '{}'.".format(value))
 
+        if field_name == 'nickname':
+            from ._api import user_nickname_rule
+            user_nickname_rule.value = value
+            user_nickname_rule.validate()
+
         return value
 
     def _pre_save(self):
         """Hook.
         """
-        if self.login == _ANONYMOUS_LOGIN:
+        if self.login == ANONYMOUS_USER_LOGIN:
             raise Exception('Anonymous user cannot be saved.')
 
         if not self.password:
@@ -227,7 +232,13 @@ class User(_odm.Model):
         if not self.token:
             self.f_set('token', _util.random_str(32))
 
-    def _pre_delete(self):
+        if not self.nickname:
+            if self.full_name:
+                self.f_set('nickname', self.full_name.replace(' ', '.').lower())
+            else:
+                self.f_set('nickname', self.login.replace('@', '.').lower())
+
+    def _pre_delete(self, **kwargs):
         """Hook.
         """
         from . import _api

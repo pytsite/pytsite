@@ -4,7 +4,7 @@
 from . import _error as error, _model as model
 from ._api import define_permission_group,  define_permission, get_current_user, get_permission, \
     get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role, \
-    get_login_form, find_users, register_driver, get_default_driver
+    get_login_form, find_users, register_driver, get_default_driver, user_nickname_rule
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

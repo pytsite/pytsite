@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router, \
-    events as _events
+    events as _events, validation as _validation
 from .driver.abstract import AbstractDriver as _AbstractDriver
 from . import _error, _model
 
@@ -17,6 +17,10 @@ __drivers = OrderedDict()
 __permission_groups = []
 __permissions = []
 __anonymous_user = None
+
+
+user_login_rule = _validation.rule.Email()
+user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules', pattern='^[A-Za-z0-9\.\-]{3,24}$')
 
 
 def password_hash(secret: str) -> str:
@@ -153,27 +157,23 @@ def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
     return get_driver(driver_name).post_login_form(inp)
 
 
-def create_user(login: str, email: str=None, password: str=None) -> _model.User:
+def create_user(login: str, password: str='') -> _model.User:
     """Create new user.
     """
-    if not email:
-        email = login
+    user_login_rule.value = login
+    user_login_rule.validate()
 
-    if get_user(login=login):
+    if get_user(login):
         raise Exception("User with login '{}' already exists.".format(login))
 
     user = _odm.dispense('user')
-    user.f_set('login', login).f_set('email', email)
-
-    if password:
-        user.f_set('password', password)
+    user.f_set('login', login).f_set('email', login).f_set('password', password)
 
     # Automatic roles for new users
-    if _reg.get('auth.signup.enabled'):
-        for role_name in _reg.get('auth.signup.roles', ['user']):
-            role = get_role(role_name)
-            if role:
-                user.f_add('roles', role)
+    for role_name in _reg.get('auth.signup.roles', ['user']):
+        role = get_role(role_name)
+        if role:
+            user.f_add('roles', role)
 
     _events.fire('pytsite.auth.user.create', user=user)
 
@@ -238,7 +238,7 @@ def get_anonymous_user() -> _model.User:
     """
     global __anonymous_user
     if not __anonymous_user:
-        __anonymous_user = create_user('__anonymous@__anonymous.__anonymous')
+        __anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
 
     return __anonymous_user
 

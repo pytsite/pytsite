@@ -128,7 +128,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             required=True,
         ))
         form.add_rules('nickname', (
-            _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules', pattern='^[A-Za-z0-9\.\-]{3,24}$'),
+            _auth.user_nickname_rule,
             _odm.validation.FieldUnique(
                 msg_id='pytsite.auth_ui@this_nickname_already_used',
                 model=self.model,
