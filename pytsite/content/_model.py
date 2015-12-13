@@ -15,7 +15,7 @@ __license__ = 'MIT'
 class Section(_taxonomy.model.Term):
     """Section Model.
     """
-    def _pre_delete(self):
+    def _pre_delete(self, **kwargs):
         from . import _api
         for m in _api.get_models():
             f = _api.find(m, status=None, check_publish_time=False)
