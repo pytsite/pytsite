@@ -232,3 +232,10 @@ def rfc822_datetime(dt: _datetime=None) -> str:
         dt = _pytz.timezone(tzname[0]).localize(_datetime.now())
 
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
+
+
+def w3c_datetime(dt: _datetime=None) -> str:
+    if not dt:
+        dt = _pytz.timezone(tzname[0]).localize(_datetime.now())
+
+    return dt.strftime('%Y-%m-%dT%H:%M:%S%z')
