@@ -31,3 +31,7 @@ class FieldNotDefined(Exception):
 
 class EntityDeleted(Exception):
     pass
+
+
+class FieldEmpty(Exception):
+    pass

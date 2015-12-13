@@ -418,7 +418,7 @@ class Model(_ABC):
                 if isinstance(field, _field.Virtual):
                     continue
                 if field.nonempty and field.is_empty:
-                    raise Exception("Value of the field '{}' cannot be empty.".format(f_name))
+                    raise _error.FieldEmpty("Value of the field '{}' cannot be empty.".format(f_name))
                 data[f_name] = field.get_storable_val()
 
             # Let DB to calculate object's ID
@@ -470,7 +470,7 @@ class Model(_ABC):
         """
         pass
 
-    def delete(self):
+    def delete(self, **kwargs):
         """Delete the entity.
         """
         self._check_deletion()
@@ -479,7 +479,7 @@ class Model(_ABC):
             # Pre delete hook
             _events.fire('pytsite.odm.entity.pre_delete', entity=self)
             _events.fire('pytsite.odm.entity.{}.pre_delete'.format(self.model), entity=self)
-            self._pre_delete()
+            self._pre_delete(**kwargs)
 
             # Notify fields about entity deletion
             for f_name, field in self._fields.items():
@@ -507,7 +507,7 @@ class Model(_ABC):
 
         return self
 
-    def _pre_delete(self):
+    def _pre_delete(self, **kwargs):
         """Pre delete hook.
         """
         pass

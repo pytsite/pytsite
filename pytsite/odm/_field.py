@@ -3,7 +3,7 @@
 from typing import Any as _Any
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
-from decimal import Decimal as _Decimal, getcontext as _decimal_getcontext
+from decimal import Decimal as _Decimal, getcontext as _decimal_getcontext, setcontext as _decimal_setcontext
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
 from copy import deepcopy as _deepcopy
@@ -78,7 +78,7 @@ class Abstract(_ABC):
     def clr_val(self, update_state: bool=True, **kwargs):
         """Clear the field.
         """
-        self._value = self._default
+        self._value = _deepcopy(self._default)
         if update_state and not self._modified:
             self._modified = True
 
@@ -229,7 +229,7 @@ class List(Abstract):
         """Subtract value from list.
         """
         if type(value) not in self._allowed_types:
-            return self
+            raise TypeError("Subtracting values of type '{}' is not allowed.".format(type(value)))
 
         # Checking length
         if self._min_len is not None and (len(self.get_val()) - 1) < self._min_len:
@@ -420,7 +420,7 @@ class RefsList(List):
                 raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
         elif isinstance(value, _bson_DBRef):
-            value = value
+            pass
         else:
             raise TypeError("DBRef of entity expected.")
 
@@ -453,6 +453,9 @@ class DateTime(Abstract):
     def set_val(self, value: _datetime, update_state: bool=True, **kwargs):
         """Set field's value.
         """
+        if value is None:
+            value = self._default
+
         if not isinstance(value, _datetime):
             raise TypeError("DateTime expected, while '{}' got".format(value))
 
@@ -547,78 +550,55 @@ class Integer(Abstract):
         return self.set_val(self.get_val(**kwargs) - 1, update_state, **kwargs)
 
 
-class Float(Abstract):
-    """Float field.
-    """
-    def __init__(self, name: str, **kwargs):
-        """Init.
-        """
-        if kwargs.get('default') is None:
-            kwargs['default'] = 0.0
-
-        super().__init__(name, **kwargs)
-
-    def get_val(self, **kwargs) -> float:
-        """Get value of the field.
-        """
-        return super().get_val(**kwargs)
-
-    def set_val(self, value: float, update_state: bool=True, **kwargs):
-        """Set value of the field.
-        """
-        if not isinstance(value, float):
-            value = float(value)
-
-        return super().set_val(value, update_state, **kwargs)
-
-    def add_val(self, value: float, update_state: bool=True, **kwargs):
-        """Add a value to the value of the field.
-        """
-        if not isinstance(value, float):
-            value = float(value)
-
-        return self.set_val(self.get_val(**kwargs) + value, update_state, **kwargs)
-
-    def sub_val(self, value: float, update_state: bool=True, **kwargs):
-        """Add a value to the value of the field.
-        """
-        if not isinstance(value, float):
-            value = float(value)
-
-        return self.set_val(self.get_val(**kwargs) - value, update_state, **kwargs)
-
-
 class Decimal(Abstract):
     """Decimal Field.
     """
     def __init__(self, name: str, **kwargs):
         """Init.
+
+        :type precision: int
+        :type round: int
         """
         self._precision = kwargs.get('precision', 28)
+        self._round = kwargs.get('round')
 
-        default = kwargs.get('default')
-        if default is None:
-            kwargs['default'] = _Decimal(0)
-        else:
-            if isinstance(default, float):
-                default = str(default)
-            kwargs['default'] = _Decimal(default)
+        default = kwargs.get('default', _Decimal(0))
+        if isinstance(default, float):
+            default = str(default)
+        if not isinstance(default, _Decimal):
+            default = _Decimal(default)
+
+        if self._round:
+            default = round(default, self._round)
+
+        kwargs['default'] = default
 
         super().__init__(name, **kwargs)
 
     def get_val(self, **kwargs) -> _Decimal:
+        """Get value of the field.
+        """
         return super().get_val()
 
     def get_storable_val(self) -> float:
+        """Get storable value of the field.
+        """
         return float(self.get_val())
 
     def set_val(self, value, update_state: bool=True, **kwargs):
-        """
+        """ Set value of the field.
+
         :type value: _Decimal | float | integer | str | tuple
         """
         if isinstance(value, float):
             value = str(value)
-        return super().set_val(_Decimal(value), update_state, **kwargs)
+        if not isinstance(value, _Decimal):
+            value = _Decimal(value)
+
+        if self._round:
+            value = round(value, self._round)
+
+        return super().set_val(value, update_state, **kwargs)
 
     def add_val(self, value, update_state: bool=True, **kwargs):
         """
@@ -626,7 +606,14 @@ class Decimal(Abstract):
         """
         if isinstance(value, float):
             value = str(value)
-        return super().add_val(_Decimal(value), update_state, **kwargs)
+
+        if not isinstance(value, _Decimal):
+            value = _Decimal(value)
+
+        if self._round:
+            value = round(value, self._round)
+
+        return super().add_val(value, update_state, **kwargs)
 
     def sub_val(self, value, update_state: bool=True, **kwargs):
         """
@@ -634,7 +621,14 @@ class Decimal(Abstract):
         """
         if isinstance(value, float):
             value = str(value)
-        return super().sub_val(_Decimal(value), update_state, **kwargs)
+
+        if not isinstance(value, _Decimal):
+            value = _Decimal(value)
+
+        if self._round:
+            value = round(value, self._round)
+
+        return super().sub_val(value, update_state, **kwargs)
 
 
 class Bool(Abstract):
