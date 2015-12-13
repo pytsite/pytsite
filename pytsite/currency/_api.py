@@ -2,6 +2,7 @@
 """
 import re as _re
 from pytsite import lang as _lang
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,18 +16,20 @@ __main = None
 def define(code: str):
     """Define a currency.
     """
-    code = code.upper()
     if code in __currencies:
-        raise KeyError("Currency '{}' already defined.")
+        raise _error.CurrencyAlreadyDefined("Currency '{}' is already defined.".format(code))
 
     __currencies.append(code)
+
+    if not get_main():
+        set_main(code)
 
 
 def get_all(include_main: bool=True) -> tuple:
     """Get defined currencies.
     """
     if not __currencies:
-        raise Exception('No currencies are defined.')
+        raise _error.NoCurrenciesDefined('No currencies was defined.')
 
     if include_main:
         return tuple(__currencies)
@@ -38,7 +41,7 @@ def get_main() -> str:
     """Get main currency.
     """
     if not __currencies:
-        raise Exception('No currencies are defined.')
+        raise _error.NoCurrenciesDefined('No currencies was defined.')
 
     return __main
 
@@ -46,18 +49,16 @@ def get_main() -> str:
 def set_main(code: str):
     """Set main currency.
     """
-    code = code.upper()
     if code not in __currencies:
-        raise KeyError("Currency '{}' is not defined.")
+        raise _error.CurrencyNotDefined("Currency '{}' is not defined.".format(code))
 
     global __main
     __main = code
 
 
 def get(code: str) -> str:
-    code = code.upper()
     if code not in __currencies:
-        raise KeyError("Currency '{}' is not defined.")
+        raise _error.CurrencyNotDefined("Currency '{}' is not defined.".format(code))
 
     return code
 

@@ -1,7 +1,7 @@
 """Currency Plugin Forms
 """
 from pytsite import form as _form, lang as _lang, validation as _validation
-from . import _functions, _widget
+from . import _api, _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,8 +11,8 @@ __license__ = 'MIT'
 class Settings(_form.Base):
     def _setup(self):
         weight = 10
-        main_cur = _functions.get_main()
-        for cur in _functions.get_all(False):
+        main_cur = _api.get_main()
+        for cur in _api.get_all(False):
             self.add_widget(_widget.Input(
                 uid='setting_exchange_rate_' + cur,
                 weight=weight,

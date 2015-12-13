@@ -2,7 +2,7 @@
 """
 import decimal as _decimal
 from pytsite import html as _html, widget as _widget
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +13,7 @@ class Select(_widget.select.Select):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
-        items = _functions.get_all()
+        items = _api.get_all()
         self._items = zip(items, items)
 
 
@@ -23,8 +23,8 @@ class Input(_widget.input.Float):
         """
         super().__init__(uid, **kwargs)
 
-        currency = kwargs.get('currency', _functions.get_main()).upper()
-        if currency not in _functions.get_all():
+        currency = kwargs.get('currency', _api.get_main()).upper()
+        if currency not in _api.get_all():
             raise ValueError("Widget '{}': '{}' is not a valid currency.".format(self.uid, currency))
 
         self._currency = currency

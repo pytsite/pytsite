@@ -1,8 +1,8 @@
 """PytSite Currency Package.
 """
 # Public API
-from ._functions import get_all, get_main
-from . import _widget as widget
+from ._api import get_all, get_main
+from . import _widget as widget, _error as error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,20 +13,20 @@ def __init():
     """Init wrapper.
     """
     from pytsite import reg, tpl, lang, settings
-    from . import _functions, _form
+    from . import _api, _form
 
     # Language package
     lang.register_package(__name__)
 
     # Loading currencies from registry config
-    for code in reg.get('currency.currencies'):
-        _functions.define(code)
+    for code in reg.get('currency.currencies', ('USD',)):
+        _api.define(code)
 
-    # Setting
+    # Settings form
     settings.define('currency', _form.Settings, __name__ + '@currency', 'fa fa-dollar')
 
     # Tpl globals
-    tpl.register_global('currency', _functions)
+    tpl.register_global('currency', _api)
 
 
 # Package initialization
