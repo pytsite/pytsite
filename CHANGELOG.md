@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.40 (2015-12-13)
+### Added
+- Base functions in `wallet`.
+
+### Changed
+- Some refactoring of `currency`, `auth` and `odm`.
+
+### Fixed
+- Bugs in `sitemap`.
+
+
 ## 0.39.3 (2015-12-12)
 ### Fixed
 - Missing package in setup.py.
