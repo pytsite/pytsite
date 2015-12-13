@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.40.2 (2015-12-13)
+### Fixed
+- Times format in `sitemap`.
+
+
 ## 0.40.1 (2015-12-13)
 ### Added
 - New function `util.w3c_datetime()`.

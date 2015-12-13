@@ -68,10 +68,9 @@ class Sitemap(_FileWriterMixin):
             priority_em.text = url['priority']
             url_em.append(priority_em)
 
-            if url['lastmod']:
-                lastmod_em = _etree.Element('lastmod')
-                lastmod_em.text = url['lastmod'].strftime('%Y-%m-%d')
-                url_em.append(lastmod_em)
+            lastmod_em = _etree.Element('lastmod')
+            lastmod_em.text = _util.w3c_datetime(url['lastmod'])
+            url_em.append(lastmod_em)
 
             root_em.append(url_em)
 
@@ -114,7 +113,7 @@ class Index(_FileWriterMixin):
 
             # Lastmod
             lastmod_em = _etree.Element('lastmod')
-            lastmod_em.text = _util.rfc822_datetime(url['lastmod'])
+            lastmod_em.text = _util.w3c_datetime(url['lastmod'])
             sitemap_em.append(lastmod_em)
 
             # Add 'sitemap' to the 'sitemapindex' root
