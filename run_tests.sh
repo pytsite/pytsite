@@ -15,6 +15,8 @@ else
 fi
 
 cd testing
-py.test --exitfirst tests
-#py.test --exitfirst --cov=../pytsite --cov-report=html tests
-#py.test --help
+if [ ! -z ${1} ]; then
+    py.test --exitfirst tests/${1}
+else
+    py.test --exitfirst tests
+fi
