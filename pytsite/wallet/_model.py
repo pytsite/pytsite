@@ -13,7 +13,7 @@ __license__ = 'MIT'
 _main_currency = _currency.get_main()
 
 
-class Account(_odm_ui.Model):
+class Account(_odm_ui.UIModel):
     """Wallet ODM Model.
     """
     def _setup(self):
@@ -71,6 +71,7 @@ class Account(_odm_ui.Model):
 
     def _pre_delete(self, **kwargs):
         """Hook.
+
         :param force: only for testing purposes.
         """
         if not kwargs.get('force'):
@@ -78,7 +79,8 @@ class Account(_odm_ui.Model):
             if f.count():
                 raise _odm.error.ForbidEntityDelete('Cannot delete account due to its usage in transaction(s).')
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -86,12 +88,13 @@ class Account(_odm_ui.Model):
         """
         browser.data_fields = ('aid', 'currency', 'balance', 'owner')
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        return self.aid, self.currency, 'FIXME', self.owner.full_name
+        return self.aid, self.currency, str(self.balance), self.owner.full_name
 
-    def setup_m_form(self, form, stage: str):
+    def ui_setup_m_form(self, form, stage: str):
         """Modify form setup hook.
         :type form: pytsite.form.Base
         """
@@ -119,6 +122,8 @@ class Account(_odm_ui.Model):
             required=True,
             value=self.aid,
         ))
+        form.add_rule('aid', _odm.validation.FieldUnique(msg_id='pytsite.wallet@validation_account_id',
+                                                         model=self.model, field='aid', exclude_ids=self.id))
 
         form.add_widget(_auth_ui.widget.UserSelect(
             uid='owner',
@@ -129,7 +134,7 @@ class Account(_odm_ui.Model):
         ))
 
 
-class Transaction(_odm_ui.Model):
+class Transaction(_odm_ui.UIModel):
     """Transaction ODM Model.
     """
     def _setup(self):
@@ -189,7 +194,8 @@ class Transaction(_odm_ui.Model):
 
         return self
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -197,7 +203,16 @@ class Transaction(_odm_ui.Model):
         """
         browser.data_fields = ('aid', 'wallet', 'amount')
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return self.description, self.source.aid, 'FIXME'
+
+    @staticmethod
+    def ui_is_modification_allowed() -> bool:
+        return False
+
+    @staticmethod
+    def ui_is_deletion_allowed() -> bool:
+        return False

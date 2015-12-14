@@ -177,18 +177,18 @@ class Number(Text):
         self._allow_minus = kwargs.get('allow_minus', False)
         self._min = kwargs.get('min')
         self._max = kwargs.get('max')
-        self._css = ' '.join((self._css, 'widget-input-integer'))
-        self._data['allow_minus'] = self._allow_minus
+        self._css = ' '.join((self._css, 'widget-input-number'))
+
+        if self._allow_minus:
+            self._data['allow_minus'] = 'true'
 
         # Validation rules
-        self.add_rule(_validation.rule.Integer())
         if self._min is not None:
-            self.add_rule(_validation.rule.GreaterOrEqual(self._min))
+            self.add_rule(_validation.rule.GreaterOrEqual(than=self._min))
         if self._max is not None:
-            self.add_rule(_validation.rule.LessOrEqual(self._max))
+            self.add_rule(_validation.rule.LessOrEqual(than=self._max))
 
         _client.include('inputmask')
-        _assetman.add('pytsite.widget@js/integer.js')
 
 
 class Integer(Number):
@@ -229,6 +229,10 @@ class Float(Number):
         """
         if value is None:
             value = 0.0
+        elif isinstance(value, str):
+            value = value.strip()
+            if not value:
+                value = 0.0
 
         return super().set_val(float(value), **kwargs)
 

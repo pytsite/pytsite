@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.xx.x (unreleased)
+### Added
+- New methods in `odm.Finder`: `remove_where()` as `remove_or_where()`.
+- `currency` is ready for work.
+
+### Fixed
+- Little fixes of `auth_log`.
+- Incorrect check in `validation.rule.NonEmpty` rule.
+
+### Changed
+- `odm_ui` models refactored.
+
+
 ## 0.39.3 (2015-12-12)
 ### Fixed
 - Missing package in setup.py.
@@ -571,7 +584,7 @@
 ## 0.15 (2015-09-17)
 ### Added
 - New properties `can_be_modified` and `can_be_deleted` in `odm_ui.Model`.
-- New method `odm_ui.Model.get_delete_url()`
+- New method `odm_ui.Model.ui_get_delete_url()`
 
 ### Changed
 - `author` argument of the `content:generate` console command is now optional.
@@ -847,7 +860,7 @@
 
 ### Fixed
 - Error in `auth.logout_url`.
-- Field existence check in `content.model.Article.setup_m_form()`.
+- Field existence check in `content.model.Article.ui_setup_m_form()`.
 - Error in template `flag@widget`.
 - Incorrect behaviour in `core.validation.rule.DictPartsNotEmpty`.
 - Error in `geo.rule.AddressNotEmpty`.
@@ -1093,7 +1106,7 @@
     - New ODM `file.model.File` properties: `url`, `path`, `abs_path`.
     - New field: `attached_to`.
 - `odm_ui`:
-    - New `stage` argument in `odm_ui.UIMixin.setup_m_form()` hook.
+    - New `stage` argument in `odm_ui.UIMixin.ui_setup_m_form()` hook.
 - `route_alias`:
     - New `route_alias.model.RouteAlias` properties: `alias`, `target`, `language`.
 - `taxonomy`:
