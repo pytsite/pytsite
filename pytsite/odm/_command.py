@@ -24,8 +24,8 @@ class RebuildIndices(_console.command.Abstract):
     def execute(self, **kwargs):
         """Execute the command.
         """
-        for model in _functions.get_registered_models():
+        for model in _api.get_registered_models():
             msg = _lang.t('pytsite.odm@reindex_model', {'model': model})
             _console.print_info(msg)
             _logger.info(msg, __name__)
-            _functions.dispense(model).reindex()
+            _api.dispense(model).reindex()

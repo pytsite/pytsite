@@ -41,6 +41,7 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
 class FieldUnique(_pytsite_validation.rule.Base):
     def __init__(self, value=None, msg_id: str=None, model: str=None, field: str=None, exclude_ids=None):
         """Init.
+
         :param exclude_ids: tuple | _ObjectId | str
         """
         if not msg_id:

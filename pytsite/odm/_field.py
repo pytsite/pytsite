@@ -443,6 +443,7 @@ class DateTime(Abstract):
     """
     def __init__(self, name: str, **kwargs):
         """Init.
+
         :param default: _datetime
         """
         if kwargs.get('default') is None:
@@ -457,7 +458,7 @@ class DateTime(Abstract):
             value = self._default
 
         if not isinstance(value, _datetime):
-            raise TypeError("DateTime expected, while '{}' got".format(value))
+            raise TypeError("DateTime expected, while got {}".format(value))
 
         return super().set_val(value, update_state, **kwargs)
 

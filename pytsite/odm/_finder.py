@@ -109,6 +109,8 @@ class Query:
             self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 
     def add_text_search(self, logical_op: str, search: str, language: str=None):
+        """Add text search criteria.
+        """
         logical_op = self._resolve_logical_op(logical_op)
         if logical_op not in self._criteria:
             self._criteria[logical_op] = []
@@ -118,8 +120,21 @@ class Query:
             '$language': self._resolve_language(language)}}
         )
 
+    def remove_criteria(self, logical_op: str, field_name: str):
+        logical_op = self._resolve_logical_op(logical_op)
+
+        if logical_op not in self._criteria:
+            return
+
+        clean = []
+        for item in self._criteria[logical_op]:
+            if field_name not in item:
+                clean.append(item)
+
+        self._criteria[logical_op] = clean
+
     def compile(self) -> list:
-        """Get criteria.
+        """Get compiled query.
         """
         return self._criteria
 
@@ -183,6 +198,20 @@ class Finder:
         """Add '$or $text' criteria.
         """
         self._query.add_text_search('$or', search)
+
+        return self
+
+    def remove_where(self, field_name: str):
+        """Remove field from criteria.
+        """
+        self._query.remove_criteria('$and', field_name)
+
+        return self
+
+    def remove_or_where(self, field_name: str):
+        """Remove field from criteria.
+        """
+        self._query.remove_criteria('$or', field_name)
 
         return self
 

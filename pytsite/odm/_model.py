@@ -82,6 +82,7 @@ class Model(_ABC):
 
     def _define_index(self, fields, unique=False):
         """Define an index.
+
         :param fields: list|tuple
         """
         if isinstance(fields, tuple):
