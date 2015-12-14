@@ -1,10 +1,10 @@
 """Pytsite ODM UI.
 """
 # Public API
-from . import _functions, _widget as widget
-from ._model import UIMixin, Model
-get_m_form = _functions.get_m_form
-check_permissions = _functions.check_permissions
+from . import _api, _widget as widget
+from ._model import UIMixin, UIModel
+get_m_form = _api.get_m_form
+check_permissions = _api.check_permissions
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

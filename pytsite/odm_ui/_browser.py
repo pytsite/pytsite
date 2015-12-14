@@ -1,9 +1,10 @@
 """PytSite ODM Entities Browser.
 """
+from typing import Callable as _Callable
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _client, \
     odm as _odm, lang as _lang, http as _http, html as _html
-from ._model import UIMixin
-from . import _functions
+from . import _api
+from ._model import UIMixin, UIModel
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -24,30 +25,30 @@ class Browser:
         self._default_sort_order = _odm.I_DESC
         self._finder_adjust = self._default_finder_adjust
 
-        # Checking permissions
-        if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model)\
+        # Checking current user's permissions
+        if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model) \
                 and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
             raise _http.error.Forbidden()
 
         # Mock entity
-        self._entity_mock = _odm.dispense(self._model)
+        self._model_class = _odm.get_model_class(self._model)
         """:type : _odm.models.ODMModel|UIMixin"""
 
         # Check if the mock implements UI interface
-        if not isinstance(self._entity_mock, UIMixin):
+        if not issubclass(self._model_class, UIMixin):
             raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
 
         # Browser title
-        self._title = self._entity_mock.t('odm_ui_browser_title_' + model)
+        self._title = self._model_class.t('odm_ui_browser_title_' + model)
         _metatag.t_set('title', self._title)
         _metatag.t_set('description', '')
 
-        # Call mock's hook to perform setup tasks
-        self._entity_mock.setup_browser(self)
+        # Call model's class hook to perform setup tasks
+        self._model_class.ui_setup_browser(self)
 
         # Head columns
         if not self.data_fields:
-            raise Exception("No head columns are defined.")
+            raise Exception("No data fields are defined.")
 
         _client.include('bootstrap-table')
         _client.include('font-awesome')
@@ -77,6 +78,7 @@ class Browser:
         """
         if not isinstance(value, tuple):
             raise TypeError('Tuple expected.')
+
         self._data_fields = value
 
     @property
@@ -84,7 +86,7 @@ class Browser:
         return self._default_sort_field
 
     @default_sort_field.setter
-    def default_sort_field(self, value):
+    def default_sort_field(self, value: str):
         self._default_sort_field = value
 
     @property
@@ -92,15 +94,15 @@ class Browser:
         return self._default_sort_order
 
     @default_sort_order.setter
-    def default_sort_order(self, value):
+    def default_sort_order(self, value: int):
         self._default_sort_order = value
 
     @property
-    def finder_adjust(self):
+    def finder_adjust(self) -> _Callable:
         return self._finder_adjust
 
     @finder_adjust.setter
-    def finder_adjust(self, func):
+    def finder_adjust(self, func: _Callable):
         self._finder_adjust = func
 
     def _default_finder_adjust(self, finder: _odm.Finder):
@@ -115,7 +117,7 @@ class Browser:
         toolbar = _html.Div(uid='odm-ui-browser-toolbar')
 
         # 'Create' toolbar button
-        if self._check_entity_permission('create'):
+        if self._model_class.ui_is_creation_allowed() and _api.check_permissions('create', self._model):
             create_form_url = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {'model': self._model, 'id': '0'})
             toolbar.append(
                 _html.A(href=create_form_url, cls='btn btn-default add-button').append(
@@ -125,7 +127,7 @@ class Browser:
             toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._check_entity_permission('delete'):
+        if self._model_class.ui_is_deletion_allowed() and _api.check_permissions('delete', self._model):
             delete_form_url = _router.ep_url('pytsite.odm_ui.ep.get_d_form', {'model': self._model})
             toolbar.append(
                 _html.A(href=delete_form_url, cls='btn btn-danger mass-delete-button').append(
@@ -163,10 +165,10 @@ class Browser:
         for col in self.data_fields:
             if isinstance(col, str):
                 data_field = col
-                title = self._entity_mock.t(col)
+                title = self._model_class.t(col)
             elif isinstance(col, tuple) and len(col) == 2:
                 data_field = col[0]
-                title = self._entity_mock.t(col[1])
+                title = self._model_class.t(col[1])
             else:
                 raise ValueError('Invalid format of data field definition.')
 
@@ -184,15 +186,18 @@ class Browser:
         """
         r = {'total': 0, 'rows': []}
 
+        # Setup finder
         finder = _odm.find(self._model)
-        self.finder_adjust(finder)
+        self._finder_adjust(finder)
+
+        # Counting total
         r['total'] = finder.count()
 
-        # Permissions
+        # Permissions based limitations if current user can browse only OWN entities
         if not self._current_user.has_permission('pytsite.odm_ui.browse.' + self._model):
             if finder.mock.has_field('author'):
                 finder.where('author', '=', self._current_user)
-            if finder.mock.has_field('owner'):
+            elif finder.mock.has_field('owner'):
                 finder.where('owner', '=', self._current_user)
 
         # Sort
@@ -204,26 +209,24 @@ class Browser:
 
         # Search
         if search:
-            mock = _functions.dispense_entity(self._model)
-            mock.browser_search(finder, search)
+            self._model_class.ui_browser_search(finder, search)
 
+        # Iterate over result and get content for table rows
         cursor = finder.skip(offset).get(limit)
-
         for entity in cursor:
-            # Getting contend for TDs
-            cells = entity.get_browser_data_row()
+            row = entity.ui_browser_data_row
 
-            if cells is None:
+            if row is None:
                 continue
 
-            if not cells:
-                raise Exception("'get_browser_data_row()' returns nothing.")
-            if len(cells) != len(self.data_fields):
-                raise Exception("'get_browser_data_row()' returns invalid number of cells.")
+            if not row:
+                raise Exception("'ui_browser_data_row()' returns nothing.")
+            if len(row) != len(self.data_fields):
+                raise Exception("'ui_browser_data_row()' returns invalid number of cells.")
 
             # Data TDs
             cell = {}
-            for f_name, cell_content in zip(self.data_fields, cells):
+            for f_name, cell_content in zip(self.data_fields, row):
                 cell[f_name] = cell_content
 
             # Action buttons
@@ -233,35 +236,18 @@ class Browser:
 
         return r
 
-    def _get_entity_action_buttons(self, entity) -> _html.Div:
+    def _get_entity_action_buttons(self, entity: UIModel) -> _html.Div:
         """Get action buttons for entity.
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if self._check_entity_permission('modify', entity):
+        if _api.check_permissions('modify', entity.model, entity.id) and entity.ui_is_modification_allowed():
             href = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {'model': entity.model, 'id': entity.id})
             group.append(_html.A(cls='btn btn-xs btn-default', href=href).append(_html.I(cls='fa fa-edit')))
 
-        if self._check_entity_permission('delete', entity):
+        if _api.check_permissions('delete', entity.model, entity.id) and entity.ui_is_deletion_allowed():
             group.append(_html.Span('&nbsp;'))
             href = _router.ep_url('pytsite.odm_ui.ep.get_d_form', {'model': entity.model, 'ids': entity.id})
             group.append(_html.A(cls='btn btn-xs btn-danger', href=href).append(_html.I(cls='fa fa-remove')))
 
         return group
-
-    def _check_entity_permission(self, permission_type: str, entity: _odm.Model=None) -> bool:
-        """Check current user's entity permissions.
-        """
-        if permission_type == 'create':
-            return self._current_user.has_permission('pytsite.odm_ui.create.' + self._model)
-
-        if permission_type in ('browse', 'modify', 'delete'):
-            if self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '.' + self._model):
-                return True
-            elif self._current_user.has_permission('pytsite.odm_ui.' + permission_type + '_own.' + self._model):
-                if entity and entity.has_field('author') and entity.f_get('author').id == self._current_user.id:
-                    return True
-                if entity and entity.has_field('owner') and entity.f_get('owner').id == self._current_user.id:
-                    return True
-
-        return False

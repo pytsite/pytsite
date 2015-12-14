@@ -2,7 +2,7 @@
 """
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
     validation as _validation, auth as _auth
-from . import _functions, _browser
+from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,6 +14,7 @@ def browse(args: dict, inp: dict) -> str:
     """
     browser = _browser.Browser(args.get('model'))
     table = browser.get_table_skeleton()
+
     return _tpl.render('pytsite.odm_ui@admin_browser', {'table': table})
 
 
@@ -36,7 +37,7 @@ def get_m_form(args: dict, inp: dict) -> str:
     """
     eid = args.get('id') if args.get('id') != '0' else None
     try:
-        form = _functions.get_m_form(args.get('model'), eid)
+        form = _api.get_m_form(args.get('model'), eid)
         return _tpl.render('pytsite.odm_ui@admin_modify_form', {'form': form})
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
@@ -51,7 +52,7 @@ def validate_m_form(args: dict, inp: dict) -> dict:
         return {'status': True}
 
     try:
-        _functions.get_m_form(model, entity_id, 'validate').fill(inp, validation_mode=True).validate()
+        _api.get_m_form(model, entity_id, 'validate').fill(inp, validation_mode=True).validate()
         return {'status': True}
     except _validation.error.ValidatorError as e:
         return {'status': False, 'messages': {'widgets': e.errors}}
@@ -64,7 +65,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     entity_id = args.get('id')
 
     # Create form
-    form = _functions.get_m_form(model, entity_id, 'submit')
+    form = _api.get_m_form(model, entity_id, 'submit')
 
     # Fill and validate form
     try:
@@ -74,13 +75,13 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
         raise _http.error.InternalServerError()
 
     # Dispense entity and populate its fields with form's values
-    entity = _functions.dispense_entity(model, entity_id)
+    entity = _api.dispense_entity(model, entity_id)
     for f_name, f_value in form.values.items():
         if entity.has_field(f_name):
             entity.f_set(f_name, f_value)
 
     try:
-        entity.submit_m_form(form)  # Entity hook
+        entity.ui_submit_m_form(form)  # Entity hook
         entity.save()
         _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except Exception as e:
@@ -102,7 +103,7 @@ def get_d_form(args: dict, inp: dict) -> str:
     if not model or not ids:
         return _http.error.NotFound()
 
-    form = _functions.get_d_form(model, ids, _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+    form = _api.get_d_form(model, ids, _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
 
     return _tpl.render('pytsite.odm_ui@admin_delete_form', {'form': form})
 
@@ -120,14 +121,14 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
         ids = [ids]
 
     try:
-        if not _functions.check_permissions('delete', model, ids):
+        if not _api.check_permissions('delete', model, ids):
             if json:
                 return _http.response.JSON({'status': False, 'error': 'Forbidden'}, 403)
             else:
                 raise _http.error.Forbidden()
 
         for eid in ids:
-            _functions.dispense_entity(model, eid).delete()
+            _api.dispense_entity(model, eid).delete()
 
         if json:
             return _http.response.JSON({'status': True})

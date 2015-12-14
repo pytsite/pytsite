@@ -1,18 +1,17 @@
 """ODM UI Model.
 """
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import odm as _odm, router as _router
+from pytsite import odm as _odm
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class UIMixin(_ABC):
+class UIMixin:
     """Base ODM UI Model.
     """
-    @_abstractmethod
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -20,64 +19,56 @@ class UIMixin(_ABC):
         """
         pass
 
-    @_abstractmethod
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        pass
+        return ()
 
     @staticmethod
-    def browser_search(finder: _odm.Finder, query: str):
+    def ui_is_creation_allowed() -> bool:
+        return True
+
+    @staticmethod
+    def ui_is_modification_allowed() -> bool:
+        return True
+
+    @staticmethod
+    def ui_is_deletion_allowed() -> bool:
+        return True
+
+    @staticmethod
+    def ui_browser_search(finder: _odm.Finder, query: str):
         """Adjust ODM browser finder in search operation.
         """
         for k, field in finder.mock.fields.items():
             if field.__class__ == _odm.field.String:
                 finder.or_where(k, 'regex_i', query)
 
-    def setup_m_form(self, form, stage: str):
+    def ui_setup_m_form(self, form, stage: str):
         """Modify form setup hook.
+
         :type form: pytsite.form.Base
         """
         pass
 
-    def submit_m_form(self, form):
+    def ui_submit_m_form(self, form):
         """Modify form submit hook.
+
         :type form: pytsite.form.Base
         """
         pass
 
-    @_abstractmethod
-    def get_d_form_description(self) -> str:
+    @property
+    def ui_d_form_description(self) -> str:
         """Get delete form description.
         """
-        pass
+        return ''
 
 
-class Model(_odm.Model, UIMixin):
-    def get_d_form_description(self) -> str:
+class UIModel(_odm.Model, UIMixin):
+    @property
+    def ui_d_form_description(self) -> str:
         """Get delete form description.
         """
         return str(self.id)
-
-    @property
-    def can_be_modified(self) -> bool:
-        from . import _functions
-        return _functions.check_permissions('modify', self.model, self.id)
-
-    @property
-    def can_be_deleted(self) -> bool:
-        from . import _functions
-        return _functions.check_permissions('delete', self.model, self.id)
-
-    def get_delete_url(self, redirect_url: str=None, json=False) -> str:
-        args = {
-            'model': self.model,
-            'ids': str(self.id),
-        }
-
-        if json:
-            args['json'] = 'true'
-        else:
-            args['__form_redirect'] = redirect_url if redirect_url else _router.current_url()
-
-        return _router.ep_url('pytsite.odm_ui.ep.post_d_form', args)

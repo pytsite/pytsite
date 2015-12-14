@@ -9,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
+def get_m_form(model: str, eid=None, stage: str='show') -> _form.Base:
     """Get entity modification _form.
     """
     eid = eid if eid != '0' else None
@@ -17,7 +17,15 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     # Checking permissions
     if not eid and not check_permissions('create', model):
         raise _http.error.Forbidden()
-    elif eid and not check_permissions('modify', model, [eid]):
+    if eid and not check_permissions('modify', model, eid):
+        raise _http.error.Forbidden()
+
+    # Checking model settings
+    model_class = _odm.get_model_class(model)
+    """:type: _model.UIModel"""
+    if not eid and not model_class.ui_is_creation_allowed():
+        raise _http.error.Forbidden()
+    if eid and not model_class.ui_is_modification_allowed():
         raise _http.error.Forbidden()
 
     # Creating form
@@ -58,7 +66,7 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
     _metatag.t_set('title', legend)
 
     # Setting up the form with entity hook
-    entity.setup_m_form(frm, stage)
+    entity.ui_setup_m_form(frm, stage)
 
     return frm
 
@@ -66,7 +74,10 @@ def get_m_form(model: str, eid: str=None, stage: str='show') -> _form.Base:
 def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
     """Get entities delete _form.
     """
-    if not check_permissions('delete', model, ids):
+    model_class = _odm.get_model_class(model)
+    """:type: _model.UIModel"""
+
+    if not check_permissions('delete', model, ids) or not model_class.ui_is_deletion_allowed():
         raise _http.error.Forbidden()
 
     # Form
@@ -75,15 +86,14 @@ def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
     if redirect:
         frm.redirect = redirect
 
-    mock = dispense_entity(model)
-    _metatag.t_set('title', mock.t('odm_ui_form_title_delete_' + model))
+    _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + model))
 
     # Building HTML list with entities to delete
     ol = _html.Ol()
     for eid in ids:
         entity = dispense_entity(model, eid)
         frm.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
-        ol.append(_html.Li(entity.get_d_form_description()))
+        ol.append(_html.Li(entity.ui_d_form_description))
     frm.add_widget(_widget.static.Text(uid='ids-text', title=str(ol)))
 
     # Action buttons
@@ -120,6 +130,7 @@ def check_permissions(perm_type: str, model: str, ids=None) -> bool:
     """
     current_user = _auth.get_current_user()
 
+    # Anonymous user cannot do anything
     if current_user.is_anonymous:
         return False
 
@@ -132,8 +143,9 @@ def check_permissions(perm_type: str, model: str, ids=None) -> bool:
         if user and user.id == current_user.id:
             return True
 
-    if perm_type == 'create' and current_user.has_permission('pytsite.odm_ui.create.' + model):
-        return True
+    if perm_type == 'create':
+        if current_user.has_permission('pytsite.odm_ui.create.' + model):
+            return True
     elif perm_type in ('browse', 'modify', 'delete'):
         # User can browse, modify or delete ANY entity of this model
         if current_user.has_permission('pytsite.odm_ui.' + perm_type + '.' + model):
