@@ -1,9 +1,9 @@
-"""Sitemap Builder.
+"""Sitemap Builder
 """
 import gzip as _gzip
 from datetime import datetime as _datetime
 from lxml import etree as _etree
-from pytsite import validation as _validation
+from pytsite import validation as _validation, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -51,7 +51,7 @@ class Sitemap(_FileWriterMixin):
     def __str__(self):
         """Generate sitemap's XML.
         """
-        root_em = _etree.Element('urlset', xmlsns='http://www.sitemaps.org/schemas/sitemap/0.9')
+        root_em = _etree.Element('urlset', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
 
         for url in self._urls:
             url_em = _etree.Element('url')
@@ -68,10 +68,9 @@ class Sitemap(_FileWriterMixin):
             priority_em.text = url['priority']
             url_em.append(priority_em)
 
-            if url['lastmod']:
-                lastmod_em = _etree.Element('lastmod')
-                lastmod_em.text = url['lastmod'].strftime('%Y-%m-%d')
-                url_em.append(lastmod_em)
+            lastmod_em = _etree.Element('lastmod')
+            lastmod_em.text = _util.w3c_datetime(url['lastmod'])
+            url_em.append(lastmod_em)
 
             root_em.append(url_em)
 
@@ -94,25 +93,31 @@ class Index(_FileWriterMixin):
     def add_url(self, url: str, lastmod: _datetime=None):
         """Add an URL to the sitemap index.
         """
-        _validation.rule.Url(url).validate()
-
         self._urls.append({
-            'loc': url,
+            'loc': _validation.rule.Url(url).validate(),
             'lastmod': lastmod,
         })
 
     def __str__(self):
         """Generate sitemap index's XML.
         """
-        root_em = _etree.Element('sitemapindex', xmlsns='http://www.sitemaps.org/schemas/sitemap/0.9')
+        root_em = _etree.Element('sitemapindex', xmlns='http://www.sitemaps.org/schemas/sitemap/0.9')
 
         for url in self._urls:
-            url_em = _etree.Element('url')
+            sitemap_em = _etree.Element('sitemap')
+
+            # Loc
             loc_em = _etree.Element('loc')
             loc_em.text = url['loc']
-            url_em.append(loc_em)
+            sitemap_em.append(loc_em)
 
-            root_em.append(url_em)
+            # Lastmod
+            lastmod_em = _etree.Element('lastmod')
+            lastmod_em.text = _util.w3c_datetime(url['lastmod'])
+            sitemap_em.append(lastmod_em)
+
+            # Add 'sitemap' to the 'sitemapindex' root
+            root_em.append(sitemap_em)
 
         return _etree.tostring(root_em, pretty_print=True, encoding='utf-8', xml_declaration=True).decode('utf-8')
 

@@ -390,7 +390,8 @@ class Content(_odm_ui.UIModel):
                 weight=400,
                 label=self.t('images'),
                 value=self.f_get('images'),
-                max_files=10
+                max_files=10,
+                max_file_size=5,
             ))
 
         # Video links

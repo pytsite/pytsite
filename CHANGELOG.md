@@ -13,6 +13,37 @@
 - `odm_ui` models refactored.
 
 
+## 0.40.4 (2015-12-14)
+### Changed
+- Default maximum image file size for `content.model.Content.images` field's upload widget increased to 5 MB.
+
+
+## 0.40.3 (2015-12-13)
+### Fixed
+- Input arguments processing in `util.w3c_datetime()` and `util.rfc822_datetime()`.
+
+
+## 0.40.2 (2015-12-13)
+### Fixed
+- Times format in `sitemap`.
+
+
+## 0.40.1 (2015-12-13)
+### Added
+- New function `util.w3c_datetime()`.
+
+
+## 0.40 (2015-12-13)
+### Added
+- Base functions in `wallet`.
+
+### Changed
+- Some refactoring of `currency`, `auth` and `odm`.
+
+### Fixed
+- Bugs in `sitemap`.
+
+
 ## 0.39.3 (2015-12-12)
 ### Fixed
 - Missing package in setup.py.
