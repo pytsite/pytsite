@@ -43,15 +43,16 @@ class Tag(_taxonomy.model.Term):
         super()._setup()
         self._define_field(_odm.field.RefsUniqueList('sections', model='section'))
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Hook.
         """
-        super().setup_browser(browser)
+        super().ui_setup_browser(browser)
         browser.default_sort_field = 'weight'
         browser.default_sort_order = _odm.I_DESC
 
 
-class Content(_odm_ui.Model):
+class Content(_odm_ui.UIModel):
     """Base Content Model.
     """
     def _setup(self):
@@ -308,7 +309,8 @@ class Content(_odm_ui.Model):
         for i in self.f_get('images'):
             i.delete()
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -321,7 +323,8 @@ class Content(_odm_ui.Model):
             finder.where('language', '=', _lang.get_current())
         browser.finder_adjust = finder_adjust
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         title = str(_html.A(self.f_get('title'), href=self.url))
@@ -344,7 +347,7 @@ class Content(_odm_ui.Model):
             self.f_get('author').full_name
         )
 
-    def setup_m_form(self, form, stage: str):
+    def ui_setup_m_form(self, form, stage: str):
         """Hook.
         :type form: pytsite.form.Base
         """
@@ -479,7 +482,8 @@ class Content(_odm_ui.Model):
                 required=True,
             ))
 
-    def get_d_form_description(self) -> str:
+    @property
+    def ui_d_form_description(self) -> str:
         """Get delete form description.
         """
         return self.title
@@ -581,28 +585,30 @@ class Article(Content):
     def location(self) -> dict:
         return self.f_get('location')
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
         :return: None
         """
-        super().setup_browser(browser)
+        super().ui_setup_browser(browser)
         browser.data_fields = 'title', 'section', 'status', 'images', 'publish_time', 'author'
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        r = list(super().get_browser_data_row())
+        r = list(super().ui_browser_data_row)
         r.insert(1, self.section.title)
 
-        return r
+        return tuple(r)
 
-    def setup_m_form(self, form, stage: str):
+    def ui_setup_m_form(self, form, stage: str):
         """Hook.
         :type form: pytsite.form.Base
         """
-        super().setup_m_form(form, stage)
+        super().ui_setup_m_form(form, stage)
 
         # At least one image required
         form.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))

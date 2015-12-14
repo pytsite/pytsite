@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Term(_odm_ui.Model):
+class Term(_odm_ui.UIModel):
     """Taxonomy Term Model.
     """
     def _setup(self):
@@ -69,7 +69,8 @@ class Term(_odm_ui.Model):
         if not self.f_get('alias'):
             self.f_set('alias', self.f_get('title'))
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -83,7 +84,8 @@ class Term(_odm_ui.Model):
             finder.where('language', '=', _lang.get_current())
         browser.finder_adjust = finder_adjust
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return (
@@ -93,7 +95,7 @@ class Term(_odm_ui.Model):
             self.f_get('order'),
         )
 
-    def setup_m_form(self, form, stage: str):
+    def ui_setup_m_form(self, form, stage: str):
         """Hook.
         :type form: pytsite.form.Base
         """
@@ -142,7 +144,8 @@ class Term(_odm_ui.Model):
             value=self.language if self.language else _lang.get_current(),
         ))
 
-    def get_d_form_description(self) -> str:
+    @property
+    def ui_d_form_description(self) -> str:
         """Hook.
         """
         return self.f_get('title')

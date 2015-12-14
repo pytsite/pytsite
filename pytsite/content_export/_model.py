@@ -83,7 +83,8 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         if not self.f_get('owner'):
             self.f_set('owner', _auth.get_current_user())
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Hook.
         :type browser: pytsite.odm_ui._browser.Browser
         """
@@ -100,7 +101,8 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             'owner'
         )
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Hook.
         """
         content_model = _content.get_model_title(self.content_model)
@@ -123,7 +125,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         return content_model, driver, self.driver_opts.get('title', ''), all_authors, w_images, max_age, enabled, \
                errors, paused_till, self.owner.full_name
 
-    def setup_m_form(self, form, stage: str):
+    def ui_setup_m_form(self, form, stage: str):
         """Hook.
         :type form: pytsite.form.Base
         """
@@ -234,7 +236,8 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=3,
             ))
 
-    def get_d_form_description(self) -> str:
+    @property
+    def ui_d_form_description(self) -> str:
         """Hook.
         """
         return '{} ({})'.format(self.driver, self.driver_opts['title'])
