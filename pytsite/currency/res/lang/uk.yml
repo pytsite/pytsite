@@ -1,3 +1,32 @@
 currency: 'Валюта'
 main_currency: 'Основна валюта'
 exchange_rate: 'Курс :code'
+rates: 'Курси'
+date: 'Дата'
+source: 'Джерело'
+destination: 'Одержувач'
+rate: 'Курс'
+
+currency_title_UAH: 'Українська гривня'
+currency_prefix_UAH: ''
+currency_suffix_UAH: '₴'
+
+currency_title_USD: 'Долар США'
+currency_prefix_USD: ''
+currency_suffix_USD: '$'
+
+currency_title_RUB: 'Російський рубль'
+currency_prefix_RUB: ''
+currency_suffix_RUB: 'Ꝑ'
+
+odm_ui_permission_group_description: 'Валюта'
+
+odm_ui_browser_title_currency_rate: 'Обмінні курси'
+odm_ui_form_title_create_currency_rate: 'Створення обмінного курсу'
+odm_ui_form_title_modify_currency_rate: 'Зміна обмінного курсу'
+odm_ui_form_title_delete_currency_rate: 'Видалення обмінних курсів'
+
+odm_ui_permission_create_currency_rate: 'Створення обмінних курсів'
+odm_ui_permission_browse_currency_rate: 'Огляд обмінних курсів'
+odm_ui_permission_modify_currency_rate: 'Зміна обмінних курсів'
+odm_ui_permission_delete_currency_rate: 'Видалення обмінних курсів'
