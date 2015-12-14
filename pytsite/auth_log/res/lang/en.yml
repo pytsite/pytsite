@@ -18,9 +18,6 @@ odm_ui_form_title_delete_auth_log: Delete auth log(s)
 
 odm_ui_permission_group_description: Auth Log
 odm_ui_permission_create_auth_log: Create auth logs
-odm_ui_permission_browse_own_auth_log: Browse auth logs
-odm_ui_permission_browse_auth_log: Browse ALL auth logs
-odm_ui_permission_modify_own_auth_log: Modify auth logs
-odm_ui_permission_modify_auth_log: Modify ANY auth logs
-odm_ui_permission_delete_own_auth_log: Delete auth logs
-odm_ui_permission_delete_auth_log: Delete ANY auth logs
+odm_ui_permission_browse_auth_log: Browse auth logs
+odm_ui_permission_modify_auth_log: Modify auth logs
+odm_ui_permission_delete_auth_log: Delete auth logs

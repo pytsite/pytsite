@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class AuthLog(_odm_ui.Model):
+class AuthLog(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
@@ -45,7 +45,8 @@ class AuthLog(_odm_ui.Model):
         except _geo_ip.error.ResolveError:
             pass
 
-    def setup_browser(self, browser):
+    @classmethod
+    def ui_setup_browser(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -53,7 +54,8 @@ class AuthLog(_odm_ui.Model):
         """
         browser.data_fields = ('user', 'ip', 'geo_data', 'description', 'severity', '_created')
 
-    def get_browser_data_row(self) -> tuple:
+    @property
+    def ui_browser_data_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         user = self.user.full_name if self.user else ''
@@ -76,9 +78,10 @@ class AuthLog(_odm_ui.Model):
 
         return user, ip, geo, description, severity, modified
 
-    def setup_m_form(self, form, stage: str):
-        """Modify form setup hook.
-        :type form: pytsite.form.Base
-        """
-        pass
+    @staticmethod
+    def ui_is_creation_allowed() -> bool:
+        return False
 
+    @staticmethod
+    def ui_is_modification_allowed() -> bool:
+        return False

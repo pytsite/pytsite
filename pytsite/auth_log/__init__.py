@@ -8,11 +8,11 @@ __license__ = 'MIT'
 
 def __init():
     from pytsite import events, odm, admin, lang, router
-    from . import _eh, _odm_model
+    from . import _eh, _model
 
     lang.register_package(__name__)
 
-    odm.register_model('auth_log', _odm_model.AuthLog)
+    odm.register_model('auth_log', _model.AuthLog)
     events.listen('pytsite.auth.login', _eh.auth_login)
     events.listen('pytsite.auth.logout', _eh.auth_logout)
     events.listen('pytsite.auth.login_error', _eh.auth_login_error)
