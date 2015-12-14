@@ -1,20 +1,20 @@
-validation_nonempty: Обязательное поле
-validation_number: Должно быть числом
-validation_integer: Должно быть целым значением
-validation_email: Некорректный email
-validation_datetime: Некорректная дата
-validation_odmentitieslist: :detail
-validation_odmfieldunique: Должно быть уникальным
-validation_url: Некорректный URL
-validation_url_row: Некорректный URL (строка :row)
-validation_float: Ожидается число с плавающей запятой
-validation_greater: Должно быть больше :than
-validation_greaterorequals: Должно быть больше или равно :than
-validation_less: Должно быть меньше :than
-validation_lessorequals: Дольжно быть меньше или равно :than
-validation_listlistitemnotempty: Обязательно для заполнения (строка :row, колонка :col)
-validation_listlistitemurl: Некорректный URL (строка :row, колонка :col)
-validation_videohostingurl: Некорректный URL видеохостинга
-validation_videohostingurl_row: Некорректный URL видеохостинга (строка :row)
-validation_regex: Не соответствует шаблону :pattern
-validation_regex_row: Не соответствует шаблону :pattern (строка :row)
+validation_nonempty: 'Обязательное поле'
+validation_number: 'Должно быть числом'
+validation_integer: 'Должно быть целым значением'
+validation_email: 'Некорректный email'
+validation_datetime: 'Некорректная дата'
+validation_odmentitieslist: ':detail'
+validation_odmfieldunique: 'Должно быть уникальным'
+validation_url: 'Некорректный URL'
+validation_url_row: 'Некорректный URL (строка :row)'
+validation_float: 'Ожидается число с плавающей запятой'
+validation_greater: 'Должно быть больше :than'
+validation_greaterorequal: 'Должно быть больше или равно :than'
+validation_less: 'Должно быть меньше :than'
+validation_lessorequals: 'Дольжно быть меньше или равно :than'
+validation_listlistitemnotempty: 'Обязательно для заполнения (строка :row, колонка :col)'
+validation_listlistitemurl: 'Некорректный URL (строка :row, колонка :col)'
+validation_videohostingurl: 'Некорректный URL видеохостинга'
+validation_videohostingurl_row: 'Некорректный URL видеохостинга (строка :row)'
+validation_regex: 'Не соответствует шаблону :pattern'
+validation_regex_row: 'Не соответствует шаблону :pattern (строка :row)'

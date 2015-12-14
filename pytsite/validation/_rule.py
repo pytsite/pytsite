@@ -45,6 +45,9 @@ class NonEmpty(Base):
     def validate(self):
         """Do actual validation of the rule.
         """
+        if type(self._value) in (int, float):
+            return self._value
+
         if isinstance(self._value, list):
             self._value = _util.list_cleanup(self._value)
         elif isinstance(self._value, dict):
@@ -54,8 +57,6 @@ class NonEmpty(Base):
 
         if not self._value:
             raise _error.RuleError(self._msg_id)
-
-        return self._value
 
 
 class DictPartsNonEmpty(Base):
@@ -172,7 +173,6 @@ class GreaterOrEqual(Greater):
     def validate(self):
         """Do actual validation of the rule.
         """
-        super().validate()
         if float(self.value) < float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
