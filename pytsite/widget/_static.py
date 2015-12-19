@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Wrapper(_base.Base):
+class HTMLWrap(_base.Base):
     """Wrapper widget for pytsite.html.Element instances.
     """
     def __init__(self, uid: str, **kwargs):
