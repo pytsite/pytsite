@@ -58,7 +58,7 @@ class Auth(_widget.Base):
             a = _html.A(href=_AuthSession().get_authorization_url(self._scope))
             a.append(_html.Img(src=_assetman.url('pytsite.fb@img/facebook-login-button.png')))
 
-        container = _widget.static.Container()
+        container = _widget.static.Container(uid='facebook-auth-widget')
         container.append(_widget.static.Text(label=_lang.t('pytsite.fb@user'), title=a.render()))
 
         # Page select
