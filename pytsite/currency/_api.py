@@ -81,7 +81,7 @@ def get_rate(source: str, destination: str, date: _datetime=None) -> _Decimal:
         f.where('source', '=', destination)
         f.where('destination', '=', source)
         if f.count():
-            return _Decimal(1) / f.first().f_get('rate')
+            return round(_Decimal(1) / f.first().f_get('rate'), 8)
 
     # No rate found
     return _Decimal(1)
@@ -101,7 +101,7 @@ def exchange(source: str, destination: str, amount, date: _datetime = None) -> _
     if not isinstance(amount, _Decimal):
         amount = _Decimal(amount)
 
-    return round(amount * get_rate(source, destination, date), 2)
+    return round(amount * get_rate(source, destination, date), 8)
 
 
 def fmt(currency: str, amount, decimal_places: int = 2, html=False):

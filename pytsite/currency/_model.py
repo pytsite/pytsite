@@ -19,7 +19,7 @@ class Rate(_odm_ui.UIModel):
         self._define_field(_odm.field.DateTime('date', nonempty=True))
         self._define_field(_odm.field.String('source', nonempty=True))
         self._define_field(_odm.field.String('destination', nonempty=True))
-        self._define_field(_odm.field.Decimal('rate', round=2))
+        self._define_field(_odm.field.Decimal('rate', round=8))
 
         self._define_index([('date', _odm.I_DESC), ('source', _odm.I_ASC), ('destination', _odm.I_ASC)])
 
@@ -40,29 +40,26 @@ class Rate(_odm_ui.UIModel):
         return self.f_get('rate')
 
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
         """
         browser.data_fields = ('date', 'source', 'destination', 'rate')
         browser.default_sort_field = 'date'
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
+    def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return str(self.date), self.source, self.destination, str(self.rate)
 
-    @property
-    def ui_d_form_description(self):
+    def ui_mass_action_get_entity_description(self):
         return '{}, {} -&gt; {}, {}'.format(str(self.date), self.source, self.destination, str(self.rate))
 
-    def ui_setup_m_form(self, form, stage: str):
+    def ui_m_form_setup(self, form, stage: str):
         """Modify form setup hook.
 
-        :type form: pytsite.form.Base
+        :type form: pytsite.form.Form
         """
         form.add_widget(_widget.select.DateTime(
             uid='date',
