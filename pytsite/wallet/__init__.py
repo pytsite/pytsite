@@ -27,4 +27,9 @@ def __init():
 
     events.listen('pytsite.cron.1min', _eh.cron_1_min)
 
+    router.add_rule('/admin/odm_ui/wallet_transaction/cancel', 'pytsite.wallet.ep.transactions_cancel',
+                    filters='pytsite.auth.ep.filter_authorize:permissions=pytsite.odm_ui.delete.wallet_transaction')
+    router.add_rule('/admin/odm_ui/wallet_transaction/cancel/submit', 'pytsite.wallet.ep.transactions_cancel_submit',
+                    filters='pytsite.auth.ep.filter_authorize:permissions=pytsite.odm_ui.delete.wallet_transaction')
+
 __init()

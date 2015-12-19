@@ -2,7 +2,8 @@
 """
 import pytest
 import decimal
-from pytsite import wallet, currency, auth, odm
+from datetime import datetime
+from pytsite import wallet, currency, auth, odm, db
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,25 +22,31 @@ class TestWalletModelTransaction:
 
     @classmethod
     def setup_class(cls):
+        db.get_collection('users').drop()
+        db.get_collection('wallet_accounts').drop()
+        db.get_collection('wallet_transactions').drop()
+
         cls.user = auth.create_user('test@test.com').save()
         cls.acc1 = wallet.create_account('acc1', currency.get_main(), cls.user)
         cls.acc2 = wallet.create_account('acc2', currency.get_main(), cls.user)
 
     @classmethod
     def teardown_class(cls):
-        cls.acc1.delete(force=True)
-        cls.acc2.delete(force=True)
-        cls.user.delete()
+        pass
 
     def test_init(self):
-        t = wallet.create_transaction(self.acc1, self.acc2, 12.34, 'Some description')
+        now = datetime.now()
+
+        t = wallet.create_transaction(self.acc1, self.acc2, 12.34, now, 'Some description')
 
         assert not t.is_new
+        assert t.time == now
         assert t.source == self.acc1
         assert t.destination == self.acc2
         assert t.state == 'new'
         assert t.amount == decimal.Decimal('12.34')
         assert t.description == 'Some description'
+        assert t.exchange_rate == decimal.Decimal(1)
         assert t.options == {}
 
         # Cleanup

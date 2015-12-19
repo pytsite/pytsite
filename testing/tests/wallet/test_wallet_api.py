@@ -2,7 +2,7 @@
 """
 import pytest
 import decimal as _decimal
-from pytsite import wallet, currency, auth, odm
+from pytsite import wallet, currency, auth, db
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,11 +15,15 @@ class TestApi:
 
     @classmethod
     def setup_class(cls):
+        db.get_collection('users').drop()
+        db.get_collection('wallet_accounts').drop()
+        db.get_collection('wallet_transactions').drop()
+
         cls.user = auth.create_user('test@test.com').save()
 
     @classmethod
     def teardown_class(cls):
-        cls.user.delete()
+        pass
 
     def test_create_account(self):
         # Normal
