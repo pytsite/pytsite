@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Contact(_form.Base):
+class Contact(_form.Form):
     """Contact Form.
     """
     def __init__(self, uid='pytsite-contact-form', **kwargs):

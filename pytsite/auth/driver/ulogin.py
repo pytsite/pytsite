@@ -30,7 +30,7 @@ class _LoginWidget(_widget.Base):
         return _html.TagLessElement(_tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self}))
 
 
-class _LoginForm(_form.Base):
+class _LoginForm(_form.Form):
     """ULogin Login Form.
     """
     def _setup(self):
@@ -53,7 +53,7 @@ class Driver(AbstractDriver):
         """
         return 'ulogin'
 
-    def get_login_form(self, uid: str, css: str, title: str) -> _form.Base:
+    def get_login_form(self, uid: str, css: str, title: str) -> _form.Form:
         """Get the login form.
         """
         return _LoginForm(uid=uid, css=css, title=title)

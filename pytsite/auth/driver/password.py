@@ -9,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class _LoginForm(_form.Base):
+class _LoginForm(_form.Form):
     """Password Login Form.
     """
     def _setup(self):
@@ -47,7 +47,7 @@ class Driver(AbstractDriver):
         """
         return 'password'
 
-    def get_login_form(self, uid, css, title) -> _form.Base:
+    def get_login_form(self, uid, css, title) -> _form.Form:
         """Get the login form.
         """
         return _LoginForm(uid=uid, css=css, title=title)

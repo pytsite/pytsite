@@ -132,7 +132,7 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(driver_name: str=None, uid=None, css='', title=None) -> _form.Base:
+def get_login_form(driver_name: str=None, uid=None, css='', title=None) -> _form.Form:
     """Get a login form.
     """
     driver = get_driver(driver_name)

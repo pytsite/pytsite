@@ -18,7 +18,7 @@ def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weigh
     if uid in __settings:
         raise KeyError("Setting '{}' already defined.".format(uid))
 
-    if not isinstance(form_cls, type) or not issubclass(form_cls, _form.Base):
+    if not isinstance(form_cls, type) or not issubclass(form_cls, _form.Form):
         raise TypeError("Subclass of base form expected.")
 
     __settings[uid] = {
@@ -45,7 +45,7 @@ def get_definition(uid: str) -> dict:
     return __settings[uid]
 
 
-def get_form(uid) -> _form.Base:
+def get_form(uid) -> _form.Form:
     """Get form for setting.
     """
     frm_class = get_definition(uid)['form_cls']

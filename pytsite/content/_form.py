@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Settings(_form.Base):
+class Settings(_form.Form):
     """Content Settings Form.
     """
     def _setup(self):

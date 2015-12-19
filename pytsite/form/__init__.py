@@ -14,7 +14,7 @@ _tpl.register_package(__name__)
 _browser.register_ep('pytsite.form.ep.validate')
 
 
-class Base:
+class Form:
     """Abstract form.
     """
     def __init__(self, uid: str=None, **kwargs):
@@ -243,6 +243,7 @@ class Base:
         """Validate the form.
         """
         errors = {}
+
         # Validate each widget
         for widget in self.get_widgets().values():
             try:

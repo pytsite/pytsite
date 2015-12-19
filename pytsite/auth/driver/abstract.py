@@ -20,7 +20,7 @@ class AbstractDriver(_ABC):
         return self.get_name()
 
     @_abstractmethod
-    def get_login_form(self, uid: str, css: str, title: str) -> _form.Base:
+    def get_login_form(self, uid: str, css: str, title: str) -> _form.Form:
         """Login form get handler.
         """
         pass
