@@ -46,16 +46,14 @@ class AuthLog(_odm_ui.UIModel):
             pass
 
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
         """
         browser.data_fields = ('user', 'ip', 'geo_data', 'description', 'severity', '_created')
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
+    def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         user = self.user.full_name if self.user else ''
@@ -78,10 +76,10 @@ class AuthLog(_odm_ui.UIModel):
 
         return user, ip, geo, description, severity, modified
 
-    @staticmethod
-    def ui_is_creation_allowed() -> bool:
+    @classmethod
+    def ui_is_creation_allowed(cls) -> bool:
         return False
 
-    @staticmethod
-    def ui_is_modification_allowed() -> bool:
+    @classmethod
+    def ui_is_modification_allowed(cls) -> bool:
         return False

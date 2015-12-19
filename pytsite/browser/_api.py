@@ -27,6 +27,8 @@ def include(lib: str, forever=False):
     elif lib == 'bootstrap-table':
         _assetman.add('pytsite.browser@bootstrap-table/bootstrap-table.min.css', forever=forever)
         _assetman.add('pytsite.browser@bootstrap-table/bootstrap-table.min.js', forever=forever)
+        _assetman.add('pytsite.browser@bootstrap-table/extensions/cookie/bootstrap-table-cookie.min.js',
+                      forever=forever)
         current_lang = _lang.get_current()
         if current_lang != 'en':
             locale = current_lang + '-' + current_lang.upper()

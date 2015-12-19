@@ -1,5 +1,6 @@
 """ODM UI Manager.
 """
+from typing import Iterable as _Iterable
 from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
     form as _form, widget as _widget, html as _html
 from . import _model
@@ -9,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid=None, stage: str='show') -> _form.Base:
+def get_m_form(model: str, eid=None, stage: str='show') -> _form.Form:
     """Get entity modification _form.
     """
     eid = eid if eid != '0' else None
@@ -29,7 +30,7 @@ def get_m_form(model: str, eid=None, stage: str='show') -> _form.Base:
         raise _http.error.Forbidden()
 
     # Creating form
-    frm = _form.Base('odm-ui-form')
+    frm = _form.Form('odm-ui-form')
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
     # Action, redirect and validation endpoints
@@ -66,12 +67,41 @@ def get_m_form(model: str, eid=None, stage: str='show') -> _form.Base:
     _metatag.t_set('title', legend)
 
     # Setting up the form with entity hook
-    entity.ui_setup_m_form(frm, stage)
+    entity.ui_m_form_setup(frm, stage)
 
     return frm
 
 
-def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
+def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str, redirect: str=None) -> _form.Form:
+    f = _form.Form(fid, action=action)
+
+    # List of items to process
+    ol = _html.Ol()
+    for eid in ids:
+        entity = dispense_entity(model, eid)
+        f.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
+        ol.append(_html.Li(entity.ui_mass_action_get_entity_description()))
+    f.add_widget(_widget.static.HTMLWrap(uid='ids-text', em=ol))
+
+    # Redirect
+    if redirect:
+        f.redirect = redirect
+    else:
+        f.redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
+
+    # Continue button
+    submit_button = _widget.button.Submit(uid='button-submit', weight=10, value=_lang.t('pytsite.odm_ui@continue'),
+                                          color='primary', icon='angle-double-right', form_area='footer')
+
+    # Cancel button
+    cancel_button = _widget.button.Link(uid='button-cancel', weight=20, value=_lang.t('pytsite.odm_ui@cancel'),
+                                        href=f.redirect, icon='ban', form_area='footer')
+    f.add_widget(submit_button).add_widget(cancel_button)
+
+    return f
+
+
+def get_d_form(model: str, ids: _Iterable, redirect: str=None) -> _form.Form:
     """Get entities delete _form.
     """
     model_class = _odm.get_model_class(model)
@@ -80,39 +110,23 @@ def get_d_form(model: str, ids: list, redirect: str=None) -> _form.Base:
     if not check_permissions('delete', model, ids) or not model_class.ui_is_deletion_allowed():
         raise _http.error.Forbidden()
 
-    # Form
-    frm = _form.Base('odm-ui-delete-form')
-    frm.action = _router.ep_url('pytsite.odm_ui.ep.post_d_form', {'model': model})
-    if redirect:
-        frm.redirect = redirect
+    # Setup form
+    f_action = _router.ep_url('pytsite.odm_ui.ep.post_d_form', {'model': model})
+    f = get_mass_action_form('odm-ui-delete-form', model, ids, f_action, redirect)
+
+    # Change submit button color
+    submit_btn = f.get_widget('button-submit')
+    submit_btn.color = 'danger'
 
     _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + model))
 
-    # Building HTML list with entities to delete
-    ol = _html.Ol()
-    for eid in ids:
-        entity = dispense_entity(model, eid)
-        frm.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
-        ol.append(_html.Li(entity.ui_d_form_description))
-    frm.add_widget(_widget.static.Text(uid='ids-text', title=str(ol)))
-
-    # Action buttons
-    submit_button = _widget.button.Submit(uid='button-submit', weight=10, value=_lang.t('pytsite.odm_ui@delete'),
-                                          color='danger', icon='fa fa-save')
-    cancel_button_url = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
-    cancel_button = _widget.button.Link(uid='button-cancel', weight=20, value=_lang.t('pytsite.odm_ui@cancel'),
-                                        href=cancel_button_url, icon='fa fa-ban')
-    actions_wrapper = _widget.static.Container(uid='container-actions', form_area='footer')
-    actions_wrapper.append(submit_button).append(cancel_button)
-    frm.add_widget(actions_wrapper)
-
-    return frm
+    return f
 
 
 def dispense_entity(model: str, entity_id: str=None):
     """Dispense entity.
 
-    :rtype: _model.UIMixin|odm.model.ODMModel
+    :rtype: _model.UIModel
     """
     if not entity_id or entity_id == '0':
         entity_id = None

@@ -44,7 +44,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         return super()._on_f_get(field_name, value, **kwargs)
 
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -54,8 +54,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                               'last_activity'
         browser.default_sort_field = 'last_activity'
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
+    def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         groups_cell = ''
@@ -79,9 +78,9 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('last_activity', fmt='pretty_date_time')
         )
 
-    def ui_setup_m_form(self, form, stage: str):
+    def ui_m_form_setup(self, form, stage: str):
         """Modify form setup hook.
-        :type form: pytsite.form.Base
+        :type form: pytsite.form.Form
         """
         current_user = _auth.get_current_user()
 
@@ -239,8 +238,10 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                     exclude_ids=self.id)
             ))
 
-    @property
-    def ui_d_form_description(self) -> str:
+    def ui_is_entity_deletion_allowed(self) -> bool:
+        return False if _auth.get_current_user().id == self.id else True
+
+    def ui_mass_action_get_entity_description(self) -> str:
         """Get delete form description.
         """
         return self.login
@@ -250,16 +251,14 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
     """Role UI.
     """
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
         """
         browser.data_fields = 'name', 'description', 'permissions'
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
+    def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         if self.f_get('name') == 'admin':
@@ -275,9 +274,9 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         return self.f_get('name'), _lang.t(self.f_get('description')), ' '.join(perms)
 
-    def ui_setup_m_form(self, form, stage: str):
+    def ui_m_form_setup(self, form, stage: str):
         """Modify form setup hook.
-        :type form: pytsite.form.Base
+        :type form: pytsite.form.Form
         """
         if self.f_get('name') == 'admin':
             raise _http.error.Forbidden()
@@ -320,8 +319,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
         form.add_widget(_widget.input.Hidden('permissions', value=''))
         form.add_widget(perms_tabs)
 
-    @property
-    def ui_d_form_description(self) -> str:
+    def ui_mass_action_get_entity_description(self) -> str:
         """Get delete form description.
         """
-        return _lang.t(self.f_get('description'))
+        return _lang.t(self.description)

@@ -11,64 +11,100 @@ class UIMixin:
     """Base ODM UI Model.
     """
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
-        :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
+        :type browser: pytsite.odm_ui.Browser
         """
         pass
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
-        """Get single UI browser row hook.
+    @classmethod
+    def ui_is_creation_allowed(cls) -> bool:
+        """If the model creation is allowed via UI.
+        """
+        return True
+
+    @classmethod
+    def ui_is_modification_allowed(cls) -> bool:
+        """If the model modification is allowed via UI.
+        """
+        return True
+
+    @classmethod
+    def ui_is_deletion_allowed(cls) -> bool:
+        """Is the model deletion allowed via UI.
+        """
+        return True
+
+    @classmethod
+    def ui_is_actions_allowed(cls) -> bool:
+        """If the 'actions' column should be enabled.
+        """
+        return True
+
+    @classmethod
+    def ui_browser_search(cls, finder: _odm.Finder, query: str):
+        """Adjust ODM browser finder while performing search.
+        """
+        if finder.mock.has_text_index:
+            finder.where_text(query)
+        else:
+            for name, field in finder.mock.fields.items():
+                if isinstance(field, _odm.field.String):
+                    finder.or_where(name, 'regex_i', query)
+
+    @classmethod
+    def ui_browser_get_mass_action_buttons(cls):
+        """Get toolbar mass actions buttons data.
+
+        :rtype: tuple[dict]
         """
         return ()
 
-    @staticmethod
-    def ui_is_creation_allowed() -> bool:
-        return True
-
-    @staticmethod
-    def ui_is_modification_allowed() -> bool:
-        return True
-
-    @staticmethod
-    def ui_is_deletion_allowed() -> bool:
-        return True
-
-    @staticmethod
-    def ui_browser_search(finder: _odm.Finder, query: str):
-        """Adjust ODM browser finder in search operation.
+    def ui_browser_get_row(self) -> tuple:
+        """Get single UI browser row.
         """
-        for k, field in finder.mock.fields.items():
-            if field.__class__ == _odm.field.String:
-                finder.or_where(k, 'regex_i', query)
+        return ()
 
-    def ui_setup_m_form(self, form, stage: str):
-        """Modify form setup hook.
-
-        :type form: pytsite.form.Base
+    def ui_is_entity_modification_allowed(self) -> bool:
+        """Is ENTITY modification allowed.
         """
-        pass
+        return self.ui_is_modification_allowed()
 
-    def ui_submit_m_form(self, form):
-        """Modify form submit hook.
-
-        :type form: pytsite.form.Base
+    def ui_is_entity_deletion_allowed(self):
+        """Is ENTITY deletion allowed.
         """
-        pass
+        return self.ui_is_deletion_allowed()
 
-    @property
-    def ui_d_form_description(self) -> str:
-        """Get delete form description.
+    def ui_browser_get_entity_actions(self):
+        """Get actions buttons data for single data row.
+
+        :rtype: tuple[dict]
+        """
+        return ()
+
+    def ui_mass_action_get_entity_description(self) -> str:
+        """Get description for mass action form.
         """
         return ''
 
+    def ui_m_form_setup(self, form, stage: str):
+        """Setup of a modification form.
+
+        :type form: pytsite.form.Form
+        """
+        pass
+
+    def ui_m_form_submit(self, form):
+        """Modify form submit hook.
+
+        :type form: pytsite.form.Form
+        """
+        pass
+
 
 class UIModel(_odm.Model, UIMixin):
-    @property
-    def ui_d_form_description(self) -> str:
+    def ui_mass_action_get_entity_description(self) -> str:
         """Get delete form description.
         """
         return str(self.id)

@@ -1,10 +1,11 @@
 """PytSite Threading.
 """
+import threading as _threading
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import threading as _threading
 
 __lock = _threading.Lock()
 __r_lock = _threading.RLock()

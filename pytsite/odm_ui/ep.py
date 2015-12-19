@@ -12,8 +12,7 @@ __license__ = 'MIT'
 def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
-    browser = _browser.Browser(args.get('model'))
-    table = browser.get_table_skeleton()
+    table = _browser.Browser(args.get('model')).get_table()
 
     return _tpl.render('pytsite.odm_ui@admin_browser', {'table': table})
 
@@ -81,7 +80,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
             entity.f_set(f_name, f_value)
 
     try:
-        entity.ui_submit_m_form(form)  # Entity hook
+        entity.ui_m_form_submit(form)  # Entity hook
         entity.save()
         _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except Exception as e:

@@ -70,11 +70,10 @@ class Term(_odm_ui.UIModel):
             self.f_set('alias', self.f_get('title'))
 
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
         """
         browser.data_fields = ('title', 'alias', 'weight', 'order')
         browser.default_sort_field = 'order'
@@ -84,8 +83,7 @@ class Term(_odm_ui.UIModel):
             finder.where('language', '=', _lang.get_current())
         browser.finder_adjust = finder_adjust
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
+    def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return (
@@ -95,9 +93,9 @@ class Term(_odm_ui.UIModel):
             self.f_get('order'),
         )
 
-    def ui_setup_m_form(self, form, stage: str):
+    def ui_m_form_setup(self, form, stage: str):
         """Hook.
-        :type form: pytsite.form.Base
+        :type form: pytsite.form.Form
         """
         form.add_widget(_widget.input.Text(
             weight=10,
@@ -144,8 +142,7 @@ class Term(_odm_ui.UIModel):
             value=self.language if self.language else _lang.get_current(),
         ))
 
-    @property
-    def ui_d_form_description(self) -> str:
+    def ui_mass_action_get_entity_description(self) -> str:
         """Hook.
         """
         return self.f_get('title')

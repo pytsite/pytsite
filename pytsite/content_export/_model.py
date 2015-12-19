@@ -84,7 +84,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             self.f_set('owner', _auth.get_current_user())
 
     @classmethod
-    def ui_setup_browser(cls, browser):
+    def ui_browser_setup(cls, browser):
         """Hook.
         :type browser: pytsite.odm_ui._browser.Browser
         """
@@ -101,8 +101,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             'owner'
         )
 
-    @property
-    def ui_browser_data_row(self) -> tuple:
+    def ui_browser_get_row(self) -> tuple:
         """Hook.
         """
         content_model = _content.get_model_title(self.content_model)
@@ -123,11 +122,11 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         paused_till = self.f_get('paused_till', fmt='pretty_date_time') if _datetime.now() < self.paused_till else ''
 
         return content_model, driver, self.driver_opts.get('title', ''), all_authors, w_images, max_age, enabled, \
-               errors, paused_till, self.owner.full_name
+            errors, paused_till, self.owner.full_name
 
-    def ui_setup_m_form(self, form, stage: str):
+    def ui_m_form_setup(self, form, stage: str):
         """Hook.
-        :type form: pytsite.form.Base
+        :type form: pytsite.form.Form
         """
         inp = _router.request.inp
         step = int(inp.get('step', 0))
@@ -144,7 +143,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             weight=20,
             uid='process_all_authors',
             label=self.t('process_all_authors'),
-            value=self.process_all_authors if not step else  inp.get('process_all_authors'),
+            value=self.process_all_authors if not step else inp.get('process_all_authors'),
             hidden=True if step else False,
         ))
 
@@ -236,8 +235,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
                 value=3,
             ))
 
-    @property
-    def ui_d_form_description(self) -> str:
+    def ui_mass_action_get_entity_description(self) -> str:
         """Hook.
         """
         return '{} ({})'.format(self.driver, self.driver_opts['title'])
