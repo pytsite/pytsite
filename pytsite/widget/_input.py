@@ -44,7 +44,7 @@ class Input(_base.Base):
 class Hidden(Input):
     """Hidden Input Widget
     """
-    def get_html_em(self) -> str:
+    def get_html_em(self) -> _html.Input:
         """Render the widget.
         """
         html_input = _html.Input(
@@ -208,6 +208,10 @@ class Integer(Number):
         """
         if value is None:
             value = 0
+        elif isinstance(value, str):
+            value = value.strip()
+            if not value:
+                value = 0
 
         return super().set_val(int(value), **kwargs)
 

@@ -59,7 +59,7 @@ class Auth(_widget.Base):
             a.append(_html.Img(src=_assetman.url('pytsite.fb@img/facebook-login-button.png')))
 
         container = _widget.static.Container(uid='facebook-auth-widget')
-        container.append(_widget.static.Text(label=_lang.t('pytsite.fb@user'), title=a.render()))
+        container.append(_widget.static.Text('user', label=_lang.t('pytsite.fb@user'), title=a.render()))
 
         # Page select
         if self._access_token:
@@ -67,21 +67,23 @@ class Auth(_widget.Base):
             for acc in _Session(self._access_token).accounts():
                 if 'CREATE_CONTENT' in acc['perms']:
                     items.append((acc['id'], acc['name']))
-            p_select = _widget.select.Select(name='{}[{}]'.format(self._uid, 'page_id'), value=self._page_id,
-                                             label=_lang.t('pytsite.fb@page'), items=items, h_size='col-sm-6')
+            p_select = _widget.select.Select('fb-page-id', name='{}[{}]'.format(self._uid, 'page_id'),
+                                             value=self._page_id, label=_lang.t('pytsite.fb@page'), items=items,
+                                             h_size='col-sm-6')
             container.append(p_select)
 
-        container.append(_widget.input.Hidden(name='{}[{}]'.format(self._uid, 'access_token'),
+        container.append(_widget.input.Hidden('access-token', name='{}[{}]'.format(self._uid, 'access_token'),
                                               value=self._access_token))
-        container.append(_widget.input.Hidden(name='{}[{}]'.format(self._uid, 'access_token_type'),
+        container.append(_widget.input.Hidden('access-token-type', name='{}[{}]'.format(self._uid, 'access_token_type'),
                                               value=self._access_token_type))
-        container.append(_widget.input.Hidden(name='{}[{}]'.format(self._uid, 'access_token_expires'),
+        container.append(_widget.input.Hidden('access-token-expires',
+                                              name='{}[{}]'.format(self._uid, 'access_token_expires'),
                                               value=self._access_token_expires))
-        container.append(_widget.input.Hidden(name='{}[{}]'.format(self._uid, 'user_id'),
+        container.append(_widget.input.Hidden('user-id', name='{}[{}]'.format(self._uid, 'user_id'),
                                               value=self._user_id))
-        container.append(_widget.input.Hidden(name='{}[{}]'.format(self._uid, 'screen_name'),
+        container.append(_widget.input.Hidden('screen-name', name='{}[{}]'.format(self._uid, 'screen_name'),
                                               value=self._screen_name))
-        container.append(_widget.input.Hidden(name='{}[{}]'.format(self._uid, 'title'),
+        container.append(_widget.input.Hidden('title', name='{}[{}]'.format(self._uid, 'title'),
                                               value=self._screen_name))
 
         return self._group_wrap(container.get_html_em())

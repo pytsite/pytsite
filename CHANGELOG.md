@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.41.1 (2015-12-19)
+### Fixed
+- Error in `fb.widget.Auth`.
+- Error in `widget.input.Integer`.
+
+
 ## 0.41 (2015-12-19)
 ### Added
 - New methods in `odm.Finder`: `remove_where()` as `remove_or_where()`.
