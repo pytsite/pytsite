@@ -232,10 +232,13 @@ class List(Abstract):
             raise TypeError("Subtracting values of type '{}' is not allowed.".format(type(value)))
 
         # Checking length
-        if self._min_len is not None and (len(self.get_val()) - 1) < self._min_len:
+        if self._min_len is not None and len(self.get_val()) == self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
         self._value = [v for v in self._value if v != value]
+
+        if update_state:
+            self._modified = True
 
         return self
 

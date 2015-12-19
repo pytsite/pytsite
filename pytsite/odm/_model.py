@@ -37,7 +37,8 @@ class Model(_ABC):
 
         self._is_new = True
         self._is_deleted = False
-        self._defined_indices = []
+        self._indexes = []
+        self._has_text_index = False
 
         self._fields = _OrderedDict()
         """:type: dict[str, _field.Abstract]"""
@@ -54,24 +55,12 @@ class Model(_ABC):
 
         # Automatically create indices on new collections
         if self._collection_name not in _db.get_collection_names():
-            self._create_indices()
+            self._create_indexes()
 
         # Loading fields data from collection
         if obj_id:
-            if isinstance(obj_id, str):
-                obj_id = _ObjectId(obj_id)
-
             # Load data from from DB
-            data = self.collection.find_one({'_id': obj_id})
-
-            # No data has been found
-            if not data:
-                raise _error.EntityNotFound("Entity '{}:{}' is not found in storage.".format(model, str(obj_id)))
-
-            # Filling fields with retrieved data
-            for field_name, value in data.items():
-                if self.has_field(field_name):
-                    self.get_field(field_name).set_val(value, False)
+            self._load_data(obj_id)
 
             # Of course, loaded entity cannot be 'new'
             self._is_new = False
@@ -79,6 +68,25 @@ class Model(_ABC):
             # Filling fields with initial values
             self.f_set('_created', _datetime.now())
             self.f_set('_modified', _datetime.now())
+
+    def _load_data(self, obj_id):
+        """Load data from database.
+
+        :type obj_id: _ObjectId | str
+        """
+        if isinstance(obj_id, str):
+            obj_id = _ObjectId(obj_id)
+
+        data = self.collection.find_one({'_id': obj_id})
+
+        # No data has been found
+        if not data:
+            raise _error.EntityNotFound("Entity '{}:{}' is not found in storage.".format(self.model, str(obj_id)))
+
+        # Filling fields with retrieved data
+        for field_name, value in data.items():
+            if self.has_field(field_name):
+                self.get_field(field_name).set_val(value, False)
 
     def _define_index(self, fields, unique=False):
         """Define an index.
@@ -105,9 +113,10 @@ class Model(_ABC):
             }
 
             if index_type == I_TEXT:
+                self._has_text_index = True
                 opts['language_override'] = 'language_db'
 
-            self._defined_indices.append((fields, opts))
+            self._indexes.append((fields, opts))
 
     def _define_field(self, field_obj: _field.Abstract):
         """Define a field.
@@ -125,11 +134,21 @@ class Model(_ABC):
             raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
         del self._fields[field_name]
 
-    def _create_indices(self):
+    def _create_indexes(self):
         """Create indices.
         """
-        for index_data in self._defined_indices:
+        for index_data in self._indexes:
             self.collection.create_index(index_data[0], **index_data[1])
+
+    @property
+    def indexes(self) -> dict:
+        """Get index information.
+        """
+        return self._indexes
+
+    @property
+    def has_text_index(self) -> bool:
+        return self._has_text_index
 
     def reindex(self):
         """Rebuild indices.
@@ -140,10 +159,18 @@ class Model(_ABC):
             for i_name, i_val in indices.items():
                 if i_name != '_id_':
                     self.collection.drop_index(i_name)
-        except _OperationFailure:  # Collection does not exist
+        except _OperationFailure:  # Collection does not exist in database
             pass
 
-        self._create_indices()
+        self._create_indexes()
+
+    def reload(self):
+        """Reload entity data from database.
+        """
+        if self.is_new:
+            return
+
+        self._load_data(self.id)
 
     @_abstractmethod
     def _setup(self):
