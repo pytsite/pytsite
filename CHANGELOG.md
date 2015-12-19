@@ -1,16 +1,24 @@
 # PytSite Changelog
 
-## 0.xx.x (unreleased)
+## 0.41 (2015-12-19)
 ### Added
 - New methods in `odm.Finder`: `remove_where()` as `remove_or_where()`.
 - `currency` is ready for work.
+- New method `odm.Model.reload()`
+- `wallet` is ready to work. 
+
+### Changed
+- `odm_ui` refactored a lot.
+- `browser.bootstrap-table` updated to version 1.9.1.
+- `form.Base` renamed to `form.Form`.
+- `currency` rates precision changed to 8 digits after floating point.
+- `widget.static.Wrapper` renamed to `widget.static.HTMLWrap`.
 
 ### Fixed
 - Little fixes of `auth_log`.
 - Incorrect check in `validation.rule.NonEmpty` rule.
-
-### Changed
-- `odm_ui` models refactored.
+- Error in `fb.widget.Auth`.
+- Missing entity state update in `odm.field.List.sub_val()`. 
 
 
 ## 0.40.4 (2015-12-14)
@@ -891,7 +899,7 @@
 
 ### Fixed
 - Error in `auth.logout_url`.
-- Field existence check in `content.model.Article.ui_setup_m_form()`.
+- Field existence check in `content.model.Article.ui_m_form_setup()`.
 - Error in template `flag@widget`.
 - Incorrect behaviour in `core.validation.rule.DictPartsNotEmpty`.
 - Error in `geo.rule.AddressNotEmpty`.
@@ -1137,7 +1145,7 @@
     - New ODM `file.model.File` properties: `url`, `path`, `abs_path`.
     - New field: `attached_to`.
 - `odm_ui`:
-    - New `stage` argument in `odm_ui.UIMixin.ui_setup_m_form()` hook.
+    - New `stage` argument in `odm_ui.UIMixin.ui_m_form_setup()` hook.
 - `route_alias`:
     - New `route_alias.model.RouteAlias` properties: `alias`, `target`, `language`.
 - `taxonomy`:
