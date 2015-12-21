@@ -148,7 +148,7 @@ def check_permissions(perm_type: str, model: str, ids=None) -> bool:
     if current_user.is_anonymous:
         return False
 
-    if type(ids) not in (list, tuple):
+    if ids and type(ids) not in (list, tuple):
         ids = (ids,)
 
     # Ability for users to modify themselves

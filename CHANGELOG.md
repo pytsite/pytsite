@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.41.2 (2015-12-21)
+### Fixed
+- Error in `odm_ui.check_permissions`
+
+
 ## 0.41.1 (2015-12-19)
 ### Fixed
 - Error in `fb.widget.Auth`.
