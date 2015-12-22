@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## x.x.x (unreleased)
+### Added
+- Text field for entering description in `wallet.model.Transaction`.
+
+### Changed
+- `wallet.model.Account.description` field is required now.
+
+### Fixed
+- Refactoring of `odm.field.Decimal`.
+
+
+## 0.41.3 (2015-12-22)
+### Changed
+- `router.url()` refactored.
+- `util.nav_link()` refactored.
+
+
 ## 0.41.2 (2015-12-21)
 ### Fixed
 - Error in `odm_ui.check_permissions`

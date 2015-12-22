@@ -359,8 +359,15 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
         parsed_url[5] if parsed_url[5] else '',  # 5, Fragment
     ]
 
-    # Attaching additional query arguments
-    if query:
+    if relative:
+        r[0] = ''
+        r[1] = ''
+
+    if strip_query:
+        # Stripping query
+        r[4] = ''
+    elif query:
+        # Attaching additional query arguments
         parsed_qs = _urlparse.parse_qs(parsed_url[4])
         parsed_qs.update(query)
         r[4] = _urlparse.urlencode(parsed_qs, doseq=True)
@@ -371,15 +378,7 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
         if not _re.search(lang_re, parsed_url[2]):
             r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
 
-    r = _urlparse.urlunparse(r)
-
-    if relative:
-        r = _re.sub(r'^https?://[\w\.\-]+/', '/', r)
-
-    if strip_query:
-        r = _re.sub('\?.+', '', r)
-
-    return r
+    return _urlparse.urlunparse(r)
 
 
 def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str=None) -> str:

@@ -212,19 +212,19 @@ def dict_cleanup(inp: dict) -> dict:
     return r
 
 
-def nav_link(href: str, anchor: str, **kwargs) -> str:
-    """Generate 'navigation' link.
+def nav_link(url: str, anchor: str, **kwargs) -> str:
+    """Generate Bootstrap compatible navigation item link.
     """
     from pytsite import html, router
 
-    if not href:
-        raise ValueError('href cannot be empty.')
-
     li = html.Li()
-    if href != '#' and router.url(href, strip_query=True) == router.current_url(strip_query=True):
+
+    if not url.startswith('#') and router.url(url, strip_query=True) == router.current_url(strip_query=True):
         li.set_attr('cls', 'active')
 
-    return str(li.append(html.A(anchor, href=router.url(href, strip_query=True), **kwargs)))
+    li.append(html.A(anchor, href=url, **kwargs))
+
+    return str(li)
 
 
 def rfc822_datetime(dt: _datetime=None) -> str:
