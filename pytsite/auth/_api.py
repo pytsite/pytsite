@@ -20,7 +20,8 @@ __anonymous_user = None
 
 
 user_login_rule = _validation.rule.Email()
-user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules', pattern='^[A-Za-z0-9\.\-]{3,24}$')
+user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
+                                            pattern='^[A-Za-z0-9][A-Za-z0-9\.\-_]{0,31}$')
 
 
 def password_hash(secret: str) -> str:
@@ -157,7 +158,7 @@ def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
     return get_driver(driver_name).post_login_form(inp)
 
 
-def create_user(login: str, password: str='') -> _model.User:
+def create_user(login: str, password: str=None) -> _model.User:
     """Create new user.
     """
     user_login_rule.value = login
@@ -167,6 +168,7 @@ def create_user(login: str, password: str='') -> _model.User:
         raise Exception("User with login '{}' already exists.".format(login))
 
     user = _odm.dispense('user')
+    """:type: _model.User"""
     user.f_set('login', login).f_set('email', login).f_set('password', password)
 
     # Automatic roles for new users
@@ -175,7 +177,9 @@ def create_user(login: str, password: str='') -> _model.User:
         if role:
             user.f_add('roles', role)
 
-    _events.fire('pytsite.auth.user.create', user=user)
+    if user.login != _model.ANONYMOUS_USER_LOGIN:
+        user.save()
+        _events.fire('pytsite.auth.user.create', user=user)
 
     return user
 

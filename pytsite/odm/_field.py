@@ -3,10 +3,11 @@
 from typing import Any as _Any
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
-from decimal import Decimal as _Decimal, getcontext as _decimal_getcontext, setcontext as _decimal_setcontext
+from decimal import Decimal as _Decimal
 from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
 from copy import deepcopy as _deepcopy
+from frozendict import frozendict as _frozendict
 from pytsite import lang as _lang, util as _util
 
 __author__ = 'Alexander Shepetko'
@@ -264,16 +265,33 @@ class Dict(Abstract):
         """
         self._keys = kwargs.get('keys', ())
         self._nonempty_keys = kwargs.get('nonempty_keys', ())
-        if kwargs.get('default') is None:
-            kwargs['default'] = {}
+
+        default = kwargs.get('default')
+        if default is None:
+            kwargs['default'] = _frozendict({})
+        elif not isinstance(default, _frozendict):
+            kwargs['default'] = _frozendict(default)
 
         super().__init__(name, **kwargs)
 
-    def set_val(self, value: dict, update_state: bool=True, **kwargs):
-        """Set value of the field.
+    def get_val(self, **kwargs) -> _frozendict:
+        """Get value of the field.
         """
-        if not isinstance(value, dict):
-            raise TypeError("Value of the field '{}' must be a dictionary.".format(self._name))
+        return super().get_val(**kwargs)
+
+    def set_val(self, value, update_state: bool=True, **kwargs):
+        """Set value of the field.
+
+        :type value: dict | _frozendict
+        """
+        if value is None:
+            return
+
+        if type(value) not in (dict, _frozendict):
+            raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
+
+        if isinstance(value, dict):
+            value = _frozendict(value)
 
         if self._keys:
             for k in self._keys:
@@ -579,6 +597,25 @@ class Decimal(Abstract):
 
         super().__init__(name, **kwargs)
 
+    def _sanitize_type(self, value) -> _Decimal:
+        """Convert input value to the decimal.Decimal.
+
+        :type value: _Decimal | float | int | str
+        """
+        allowed_types = (_Decimal, float, int, str)
+        if type(value) not in allowed_types:
+            raise TypeError("'{}' cannot be used as a value of the field '{}'.".format(repr(value), self.name))
+
+        if isinstance(value, float):
+            value = str(value)
+        if not isinstance(value, _Decimal):
+            value = _Decimal(value)
+
+        if self._round:
+            value = round(value, self._round)
+
+        return value
+
     def get_val(self, **kwargs) -> _Decimal:
         """Get value of the field.
         """
@@ -590,49 +627,23 @@ class Decimal(Abstract):
         return float(self.get_val())
 
     def set_val(self, value, update_state: bool=True, **kwargs):
-        """ Set value of the field.
+        """Set value of the field.
 
-        :type value: _Decimal | float | integer | str | tuple
+        :type value: _Decimal | float | int | str
         """
-        if isinstance(value, float):
-            value = str(value)
-        if not isinstance(value, _Decimal):
-            value = _Decimal(value)
-
-        if self._round:
-            value = round(value, self._round)
-
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(self._sanitize_type(value), update_state, **kwargs)
 
     def add_val(self, value, update_state: bool=True, **kwargs):
         """
-        :type value: _Decimal | float | integer | str | tuple
+        :type value: _Decimal | float | integer | str
         """
-        if isinstance(value, float):
-            value = str(value)
-
-        if not isinstance(value, _Decimal):
-            value = _Decimal(value)
-
-        if self._round:
-            value = round(value, self._round)
-
-        return super().add_val(value, update_state, **kwargs)
+        return super().add_val(self._sanitize_type(value), update_state, **kwargs)
 
     def sub_val(self, value, update_state: bool=True, **kwargs):
         """
-        :type value: _Decimal | float | integer | str | tuple
+        :type value: _Decimal | float | integer | str
         """
-        if isinstance(value, float):
-            value = str(value)
-
-        if not isinstance(value, _Decimal):
-            value = _Decimal(value)
-
-        if self._round:
-            value = round(value, self._round)
-
-        return super().sub_val(value, update_state, **kwargs)
+        return super().sub_val(self._sanitize_type(value), update_state, **kwargs)
 
 
 class Bool(Abstract):

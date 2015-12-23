@@ -215,6 +215,7 @@ class User(_odm.Model):
 
         if field_name == 'nickname':
             from ._api import user_nickname_rule
+            value = value[:24]
             user_nickname_rule.value = value
             user_nickname_rule.validate()
 
@@ -233,10 +234,9 @@ class User(_odm.Model):
             self.f_set('token', _util.random_str(32))
 
         if not self.nickname:
-            if self.full_name:
-                self.f_set('nickname', self.full_name.replace(' ', '.').lower())
-            else:
-                self.f_set('nickname', self.login.replace('@', '.').lower())
+            m = _hashlib.md5()
+            m.update(self.login.encode('UTF-8'))
+            self.f_set('nickname', m.hexdigest())
 
     def _pre_delete(self, **kwargs):
         """Hook.

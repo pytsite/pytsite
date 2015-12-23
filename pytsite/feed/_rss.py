@@ -94,6 +94,7 @@ class Item(_xml.Item):
 
         if not self._title:
             raise _error.ElementRequired('Title is required.')
+
         title = _etree.SubElement(root, 'title')
         title.text = self._title
 

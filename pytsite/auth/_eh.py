@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 
 def app_setup():
-    """'setup' Event Handler.
+    """'pytsite.setup' Event Handler
     """
     # Creating roles
     admin_role = ('admin', 'pytsite.auth@admin_role_description')
@@ -25,7 +25,6 @@ def app_setup():
             _console.print_success(_lang.t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
 
     # Creating administrator
-
     email = input(_lang.t('pytsite.auth@enter_admin_email') + ': ')
     try:
         _validation.rule.NonEmpty(email, 'pytsite.auth@email_cannot_be_empty').validate()

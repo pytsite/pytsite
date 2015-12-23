@@ -1,17 +1,17 @@
-"""PytSite Setup Console Commands.
+"""PytSite Setup Console Commands
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from pytsite import console as _console
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
 from pytsite import reg as _reg, events as _events, lang as _lang
 
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 
 class Setup(_console.command.Abstract):
-    """Setup Command.
+    """Setup Console Command
     """
     def get_name(self) -> str:
         """Get name of the command.

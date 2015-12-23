@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid=None, stage: str='show') -> _form.Form:
+def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') -> _form.Form:
     """Get entity modification _form.
     """
     eid = eid if eid != '0' else None
@@ -30,7 +30,7 @@ def get_m_form(model: str, eid=None, stage: str='show') -> _form.Form:
         raise _http.error.Forbidden()
 
     # Creating form
-    frm = _form.Form('odm-ui-form')
+    frm = _form.Form(form_uid)
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
     # Action, redirect and validation endpoints
@@ -53,8 +53,8 @@ def get_m_form(model: str, eid=None, stage: str='show') -> _form.Form:
     frm.add_widget(actions)
 
     # Metadata
-    frm.add_widget(_widget.input.Hidden(uid='__model', value=model, form_area='hidden'))
-    frm.add_widget(_widget.input.Hidden(uid='__entity_id', value=eid, form_area='hidden'))
+    frm.add_widget(_widget.input.Hidden(uid='__odm_ui_model', value=model, form_area='hidden'))
+    frm.add_widget(_widget.input.Hidden(uid='__odm_ui_entity_id', value=eid, form_area='hidden'))
 
     entity = dispense_entity(model, eid)
 

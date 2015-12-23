@@ -45,8 +45,8 @@ def get_m_form(args: dict, inp: dict) -> str:
 def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
-    model = inp.get('__model')
-    entity_id = inp.get('__entity_id')
+    model = inp.get('__odm_ui_model')
+    entity_id = inp.get('__odm_ui_entity_id')
     if not model:
         return {'status': True}
 

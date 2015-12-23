@@ -98,17 +98,6 @@ class Driver(AbstractDriver):
             if not user.last_name and 'last_name' in ulogin_data:
                 user.f_set('last_name', ulogin_data['last_name'])
 
-            # Nickname
-            if not user.nickname:
-                if 'nickname' in ulogin_data:
-                    user.f_set('nickname', _util.transform_str_2(ulogin_data['nickname']))
-                elif user.first_name and user.last_name:
-                    user.f_set('nickname', _util.transform_str_2(user.first_name + '.' + user.last_name))
-                elif user.first_name:
-                    user.f_set('nickname', _util.transform_str_2(user.first_name))
-                else:
-                    user.f_set('nickname', _util.transform_str_2(email))
-
             # Gender
             if not user.gender and 'sex' in ulogin_data:
                 user.f_set('gender', int(ulogin_data['sex']))
@@ -123,7 +112,9 @@ class Driver(AbstractDriver):
                 user.f_add('urls', ulogin_data['profile'])
 
             # Options
-            user.options['ulogin'] = ulogin_data
+            options = dict(user.options)
+            options['ulogin'] = ulogin_data
+            user.f_set('options', options)
 
             # Authorize
             _api.authorize(user.save())

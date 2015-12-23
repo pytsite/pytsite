@@ -1,0 +1,57 @@
+.widget-files-upload {
+  overflow: hidden;
+
+  .slot {
+    margin-bottom: 1em;
+
+    .inner {
+      position: relative;
+      margin: 0.5em;
+    }
+
+    .btn-remove, .number {
+      position: absolute;
+      top: 0;
+      display: none;
+    }
+
+    .btn-remove {
+      right: 0;
+    }
+
+    .number {
+      background: #fff;
+      padding: 5px 8px;
+      left: 0;
+    }
+
+    &:hover {
+      .btn-remove, .number {
+        display: block;
+      }
+    }
+  }
+
+  .add-button {
+    overflow: hidden;
+    cursor: pointer;
+    height: 100%;
+
+    .btn {
+      vertical-align: middle;
+    }
+  }
+
+  input[type=file] {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    height: 100%;
+  }
+
+  .processing {
+    font-size: 2em;
+  }
+}

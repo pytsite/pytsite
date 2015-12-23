@@ -3,7 +3,7 @@
 from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation, tpl as _tpl, browser as _browser
+    validation as _validation, tpl as _tpl, browser as _browser, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -261,6 +261,8 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
+        _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
+
         return _tpl.render(self._tpl, {'form': self})
 
     def __str__(self) -> str:

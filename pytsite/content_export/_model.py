@@ -216,7 +216,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             form.action = _router.current_url()
             form.remove_widget('__form_location')
             form.remove_widget('__form_redirect')
-            form.remove_widget('__entity_id')
+            form.remove_widget('__odm_ui_entity_id')
             submit_btn = form.get_widget('actions').get_child('action_submit')
             """:type: pytsite.widget._button.Submit"""
             submit_btn.set_val(self.t('next'))

@@ -20,9 +20,9 @@ def __init():
 
     # Routes
     base_path = reg.get('auth_ui.base_path', '/auth_ui')
-    router.add_rule(base_path + '/profile/<string:nickname>', __name__ + '.ep.profile_view')
-    router.add_rule(base_path + '/profile/<string:nickname>/edit', __name__ + '.ep.profile_edit')
-    router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', __name__ + '.ep.profile_edit_submit',
+    router.add_rule(base_path + '/profile/<string:nickname>', 'pytsite.auth_ui.ep.profile_view')
+    router.add_rule(base_path + '/profile/<string:nickname>/edit', 'pytsite.auth_ui.ep.profile_edit')
+    router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', 'pytsite.auth_ui.ep.profile_edit_submit',
                     methods='POST')
 
     # Replace 'user' and 'role' models with UI-compatible

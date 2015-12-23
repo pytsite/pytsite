@@ -80,6 +80,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
     def ui_m_form_setup(self, form, stage: str):
         """Modify form setup hook.
+
         :type form: pytsite.form.Form
         """
         current_user = _auth.get_current_user()

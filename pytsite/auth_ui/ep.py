@@ -37,7 +37,7 @@ def profile_edit(args: dict, inp: dict) -> str:
         raise _http.error.NotFound()
 
     tpl_name = _reg.get('auth_ui.tpl.profile_edit', 'pytsite.auth_ui@profile_edit')
-    form = _odm_ui.get_m_form('user', str(profile_owner.id))
+    form = _odm_ui.get_m_form('user', str(profile_owner.id), form_uid='auth-ui-profile')
 
     return _tpl.render(tpl_name, {'form': form})
 
