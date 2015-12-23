@@ -1,6 +1,6 @@
 # PytSite Changelog
 
-## x.x.x (unreleased)
+## 0.41.10 (2015-12-23)
 ### Added
 - Text field for entering description in `wallet.model.Transaction`.
 

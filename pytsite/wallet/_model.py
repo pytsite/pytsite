@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, auth_ui as _auth_ui, \
-    widget as _widget, html as _html
+    widget as _widget
 from . import _error, _widget as _wallet_widget
 
 __author__ = 'Alexander Shepetko'
@@ -22,7 +22,7 @@ class Account(_odm_ui.UIModel):
         """
         self._define_field(_odm.field.String('aid', nonempty=True))
         self._define_field(_odm.field.String('currency', nonempty=True))
-        self._define_field(_odm.field.String('description'))
+        self._define_field(_odm.field.String('description', nonempty=True))
         self._define_field(_odm.field.Decimal('balance', round=8))
         self._define_field(_odm.field.Ref('owner', model='user', nonempty=True))
         self._define_field(_odm.field.RefsUniqueList('pending_transactions', model='wallet_transaction'))
@@ -85,7 +85,6 @@ class Account(_odm_ui.UIModel):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
         """
         browser.data_fields = ('aid', 'description', 'currency', 'balance', 'owner')
 
@@ -96,7 +95,8 @@ class Account(_odm_ui.UIModel):
         return self.aid, self.description, self.currency, balance, self.owner.full_name
 
     def ui_mass_action_get_entity_description(self) -> str:
-        return '{} ({})'.format(self.aid, self.description)
+
+        return '{} ({}, {})'.format(self.description, self.aid, self.currency)
 
     def ui_m_form_setup(self, form, stage: str):
         """Modify form setup hook.
@@ -118,6 +118,7 @@ class Account(_odm_ui.UIModel):
                 weight=20,
                 label=self.t('description'),
                 value=self.description,
+                required=True,
         ))
 
         if self.is_new:
@@ -232,9 +233,8 @@ class Transaction(_odm_ui.UIModel):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
-        :return: None
         """
-        browser.data_fields = ('time', 'source', 'destination', 'amount', 'state')
+        browser.data_fields = ('time', 'description', 'source', 'destination', 'amount', 'state')
         browser.default_sort_field = 'time'
 
     @classmethod
@@ -250,7 +250,6 @@ class Transaction(_odm_ui.UIModel):
         time = self.f_get('time', fmt='pretty_date_time')
         source = '{} ({})'.format(self.source.description, self.source.aid)
         destination = '{} ({})'.format(self.destination.description, self.destination.aid)
-
         amount = _currency.fmt(self.source.currency, self.amount)
         if self.source.currency != self.destination.currency:
             amount += ' ({})'.format(_currency.fmt(self.destination.currency, self.amount * self.exchange_rate))
@@ -264,7 +263,7 @@ class Transaction(_odm_ui.UIModel):
             state_cls = 'default'
         state = '<span class="label label-{}">'.format(state_cls) + self.t('transaction_state_' + self.state) + '</div>'
 
-        return time, source, destination, amount, state
+        return time, self.description, source, destination, amount, state
 
     def ui_browser_get_entity_actions(self) -> tuple:
         if self.state == 'committed':
@@ -310,4 +309,11 @@ class Transaction(_odm_ui.UIModel):
                 required=True,
                 min=0.01,
                 h_size='col-sm-4 col-md-3 col-lg-2',
+        ))
+
+        form.add_widget(_widget.input.Text(
+                uid='description',
+                weight=40,
+                label=self.t('description'),
+                value=self.description,
         ))

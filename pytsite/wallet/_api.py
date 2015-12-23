@@ -6,13 +6,12 @@ from pytsite import odm as _odm, auth as _auth
 from . import _error
 from ._model import Account as _Account, Transaction as _Transaction
 
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def create_account(aid: str, currency: str, owner: _auth.model.User, description: str=None, balance=0.0) -> _Account:
+def create_account(aid: str, currency: str, owner: _auth.model.User, description: str, balance=0.0) -> _Account:
     """Create new account.
     :type balance: int | float | str | decimal.Decimal
     """

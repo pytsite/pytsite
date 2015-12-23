@@ -14,8 +14,8 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, tpl, lang, admin, router, odm
-    from . import _api, _model
+    from pytsite import reg, tpl, lang, admin, router, odm, events
+    from . import _api, _model, _eh
 
     # Language package
     lang.register_package(__name__)
@@ -35,6 +35,9 @@ def __init():
     admin.sidebar.add_menu('currency', 'rates', 'pytsite.currency@rates',
                            router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'currency_rate'}),
                            'fa fa-usd', weight=10, permissions='pytsite.odm_ui.browse.currency_rate')
+
+    # Event handlers
+    events.listen('pytsite.form.render.auth_ui_profile', _eh.auth_profile_form_render)
 
 
 # Package initialization

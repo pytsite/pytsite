@@ -1,6 +1,6 @@
 """PytSite Wallet Widgets
 """
-from pytsite import widget as _w, odm as _odm, auth as _auth
+from pytsite import widget as _w, odm as _odm, auth as _auth, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -23,6 +23,7 @@ class AccountSelect(_w.select.Select):
                 f.where('owner', '=', u)
 
             for acc in f.get():
-                items.append(('wallet_account:' + str(acc.id), '{} ({})'.format(acc.description, acc.aid)))
+                label = '{} ({}, {})'.format(acc.description, acc.aid, acc.currency)
+                items.append(('wallet_account:' + str(acc.id), label))
 
         super().__init__(uid, items=items, **kwargs)

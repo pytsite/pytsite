@@ -14,7 +14,16 @@ class Select(_widget.select.Select):
         """Init.
         """
         super().__init__(uid, **kwargs)
+
         all_c = sorted(_api.get_all())
+
+        exclude = kwargs.get('exclude', ())
+        if type(exclude) not in (list, tuple):
+            exclude = (exclude,)
+
+        if exclude:
+            all_c = [c for c in all_c if c not in exclude]
+
         self._items = zip(all_c, ['{} ({})'.format(c, _api.get_title(c)) for c in all_c])
 
 
