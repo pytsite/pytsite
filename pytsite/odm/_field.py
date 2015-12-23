@@ -1,6 +1,6 @@
 """ODM Fields.
 """
-from typing import Any as _Any
+from typing import Any as _Any, Iterable as _Iterable
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
@@ -165,8 +165,6 @@ class List(Abstract):
             raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, repr(value)))
 
         # In internals value is always a list
-        if value is None:
-            value = []
         if isinstance(value, tuple):
             value = list(value)
 
@@ -682,13 +680,40 @@ class IntegerList(List):
         super().__init__(name, allowed_types=(int,), **kwargs)
 
 
-class FloatList(List):
+class DecimalList(List):
     """List of Floats.
     """
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, allowed_types=(float,), **kwargs)
+        super().__init__(name, allowed_types=(float, _Decimal), **kwargs)
+
+    def set_val(self, value: _Iterable[_Decimal], update_state: bool=True, **kwargs):
+        if type(value) in (list, tuple):
+            clean_val = []
+            for item in value:
+                if not isinstance(value, _Decimal):
+                    if isinstance(item, float):
+                        item = str(item)
+                    item = _Decimal(item)
+
+                clean_val.append(item)
+
+            value = clean_val
+
+        return super().set_val(value, update_state, **kwargs)
+
+    def add_val(self, value: _Decimal, update_state: bool=True, **kwargs):
+        if not isinstance(value, _Decimal):
+            if isinstance(value, float):
+                value = str(value)
+
+            value = _Decimal(value)
+
+        return super().add_val(value, update_state, **kwargs)
+
+    def get_storable_val(self) -> _Iterable[float]:
+        return [float(i) for i in self.get_val()]
 
 
 class ListList(List):

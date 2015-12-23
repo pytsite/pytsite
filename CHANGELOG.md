@@ -7,8 +7,10 @@
 ### Changed
 - `wallet.model.Account.description` field is required now.
 
-### Fixed
-- Refactoring of `odm.field.Decimal`.
+
+## 0.41.9 (2015-12-23)
+### Changed
+- `odm.field.FloatList` refactored to `odm.field.DecimalList`.
 
 
 ## 0.41.8 (2015-12-23)

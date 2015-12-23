@@ -1,5 +1,6 @@
 """GeoIP Package ODM Models.
 """
+from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, geo as _geo
 
 __author__ = 'Alexander Shepetko'
@@ -33,11 +34,11 @@ class GeoIP(_odm.Model):
         return self.f_get('isp')
 
     @property
-    def latitude(self) -> float:
+    def latitude(self) -> _Decimal:
         return self.f_get('latitude')
 
     @property
-    def longitude(self) -> float:
+    def longitude(self) -> _Decimal:
         return self.f_get('longitude')
 
     @property

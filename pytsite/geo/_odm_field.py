@@ -7,14 +7,13 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class LngLat(_odm.field.FloatList):
+class LngLat(_odm.field.DecimalList):
     """Geo longitude and latitude field.
     """
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        default = kwargs.get('default', (0.0, 0.0))
-        super().__init__(name, default=default, min_len=2, max_len=2, **kwargs)
+        super().__init__(name, default=kwargs.get('default', (0.0, 0.0)), min_len=2, max_len=2, **kwargs)
 
     @property
     def is_empty(self) -> bool:
