@@ -131,10 +131,12 @@ class Generator(_xml.Generator):
         self._link = _validation.rule.Url(link).validate()
         self._description = _validation.rule.NonEmpty(description).validate()
         self._generator = 'PytSite-' + _pytsite_ver()
-        self._pub_date = _tz.localize(kwargs.get('pub_date', _datetime.now()))
-        self._last_build_date = _tz.localize(kwargs.get('build_date', _datetime.now()))
+        self._pub_date = kwargs.get('pub_date', _datetime.now())
+        self._last_build_date = kwargs.get('build_date', _datetime.now())
 
     def dispense_item(self, **kwargs) -> Item:
+        """Dispense empty feed's item.
+        """
         return Item(**kwargs)
 
     def get_xml_element(self) -> _etree.Element:
@@ -170,5 +172,8 @@ class Generator(_xml.Generator):
         return rss
 
     def generate(self) -> str:
+        """Generate feed's XML string.
+        """
         em = self.get_xml_element()
+
         return _etree.tostring(em, encoding='UTF-8', xml_declaration=True, pretty_print=True).decode()

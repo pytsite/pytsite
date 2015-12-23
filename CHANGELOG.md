@@ -11,6 +11,11 @@
 - Refactoring of `odm.field.Decimal`.
 
 
+## 0.41.4 (2015-12-23)
+### Fixed
+- Error in while `feed`'s RSS generation.
+
+
 ## 0.41.3 (2015-12-22)
 ### Changed
 - `router.url()` refactored.
