@@ -50,6 +50,7 @@ setup(
         'twython',
         'lxml',
         'pytz',
+        'frozendict',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

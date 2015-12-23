@@ -51,7 +51,7 @@ def cron_1min_eh():
 
                 # Saving information about entity was exported via current exporter
                 lock.acquire()
-                entity_opts = entity.options
+                entity_opts = dict(entity.options)
                 if 'content_export' not in entity_opts:
                     entity_opts['content_export'] = []
                 entity_opts['content_export'].append(str(exporter.id))

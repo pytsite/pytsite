@@ -11,6 +11,11 @@
 - Refactoring of `odm.field.Decimal`.
 
 
+## 0.41.7 (2015-12-23)
+### Fixed
+- Incorrect operations with `odm.field.Dict`. 
+
+
 ## 0.41.6 (2015-12-23)
 ### Changed
 - `odm.field.Dict.get_val()` returns immutable dictionary now.
