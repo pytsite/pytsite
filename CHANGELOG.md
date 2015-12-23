@@ -11,6 +11,12 @@
 - Refactoring of `odm.field.Decimal`.
 
 
+## 0.41.8 (2015-12-23)
+### Fixed
+- Date localization check in `util`'s time formatting functions.
+- Incorrect date format `sitemap`.
+
+
 ## 0.41.7 (2015-12-23)
 ### Fixed
 - Incorrect operations with `odm.field.Dict`. 

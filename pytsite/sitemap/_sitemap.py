@@ -69,7 +69,7 @@ class Sitemap(_FileWriterMixin):
             url_em.append(priority_em)
 
             lastmod_em = _etree.Element('lastmod')
-            lastmod_em.text = _util.w3c_datetime(url['lastmod'])
+            lastmod_em.text = _util.w3c_datetime(url['lastmod'], True)
             url_em.append(lastmod_em)
 
             root_em.append(url_em)

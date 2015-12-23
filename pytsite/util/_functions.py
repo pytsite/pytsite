@@ -228,18 +228,24 @@ def nav_link(url: str, anchor: str, **kwargs) -> str:
 
 
 def rfc822_datetime(dt: _datetime=None) -> str:
+    """Format date/time string according to RFC-822.
+    """
     if not dt:
         dt = _datetime.now()
 
-    dt = _pytz.timezone(tzname[0]).localize(dt)
+    if not dt.tzinfo:
+        dt = _pytz.timezone(tzname[0]).localize(dt)
 
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
 
 
-def w3c_datetime(dt: _datetime=None) -> str:
+def w3c_datetime(dt: _datetime=None, date_only: bool=False) -> str:
+    """Format date/time string according to W3C.
+    """
     if not dt:
         dt = _datetime.now()
 
-    dt = _pytz.timezone(tzname[0]).localize(dt)
+    if not dt.tzinfo:
+        dt = _pytz.timezone(tzname[0]).localize(dt)
 
-    return dt.strftime('%Y-%m-%dT%H:%M:%S%z')
+    return dt.strftime('%Y-%m-%d') if date_only else dt.strftime('%Y-%m-%dT%H:%M:%S%z')
