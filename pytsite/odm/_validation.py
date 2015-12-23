@@ -18,7 +18,7 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
         super().__init__(value, msg_id)
         self._model = model
 
-    def validate(self):
+    def _do_validate(self):
         """Do actual validation of the rule.
         """
         if self._value is None:
@@ -34,8 +34,6 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
             if self._model and v.model != self._model:
                 raise _pytsite_validation.error.RuleError(self._msg_id, {
                     'detail': "Instance of '{}' model expected, but '{}' given.".format(self._model, v.model)})
-
-        return self._value
 
 
 class FieldUnique(_pytsite_validation.rule.Base):
@@ -55,7 +53,7 @@ class FieldUnique(_pytsite_validation.rule.Base):
         if type(self._exclude_ids) in (str, _ObjectId):
             self._exclude_ids = (self._exclude_ids,)
 
-    def validate(self):
+    def _do_validate(self):
         """Do actual validation of the rule.
         """
         f = _api.find(self._model).where(self._field, '=', self._value)
@@ -65,5 +63,3 @@ class FieldUnique(_pytsite_validation.rule.Base):
 
         if f.count():
             raise _pytsite_validation.error.RuleError(self._msg_id, {'field': self._field})
-
-        return self._value

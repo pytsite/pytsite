@@ -11,6 +11,11 @@
 - Refactoring of `odm.field.Decimal`.
 
 
+## 0.41.5 (2015-12-23)
+### Changed
+- `validation`'s rules refactored.
+
+
 ## 0.41.4 (2015-12-23)
 ### Fixed
 - Error in while `feed`'s RSS generation.
