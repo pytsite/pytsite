@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.41.11 (2015-12-24)
+### Added
+- New function `router.is_ep_callable()`.
+- Support for custom exceptions handler in `router`.
+
+### Changed
+- `tpl`'s 'widget' global removed.
+
+
 ## 0.41.10 (2015-12-23)
 ### Added
 - Text field for entering description in `wallet.model.Transaction`.

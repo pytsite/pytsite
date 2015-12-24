@@ -10,12 +10,9 @@ __license__ = 'MIT'
 
 
 def __init():
-    import sys
     from pytsite import assetman, tpl, lang
     assetman.register_package(__name__)
     lang.register_package(__name__)
-
     tpl.register_package(__name__)
-    tpl.register_global('widget', sys.modules[__name__])
 
 __init()

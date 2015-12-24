@@ -1,2 +1,4 @@
-error: Error :code
-we_are_in_maintenance: We are in maintenance mode now. Please try again later.
+error: 'Error :code'
+http_error_403: 'Access Denied'
+http_error_404: 'Page Not Found'
+we_are_in_maintenance: 'We are in maintenance mode now. Please try again later.'

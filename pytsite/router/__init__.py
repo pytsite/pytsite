@@ -15,7 +15,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _routes = _Map()
 _map_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 _path_aliases = {}
@@ -46,6 +45,7 @@ session = None
 class Rule(_Rule):
     """Routing Rule.
     """
+
     def __init__(self, url_path: str, **kwargs):
         self.call = kwargs.pop('call')
         self.filters = kwargs.pop('filters', ())
@@ -61,7 +61,7 @@ class Rule(_Rule):
         return super().get_rules(rules_map)
 
 
-def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, methods=None, filters=None):
+def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None, methods=None, filters=None):
     """Add a rule to the router.
     :param methods: str|tuple|list
     """
@@ -75,7 +75,7 @@ def add_rule(pattern: str, name: str=None, call: str=None, args: dict=None, meth
         filters = [filters]
 
     if isinstance(methods, str):
-        methods = (methods, )
+        methods = (methods,)
 
     if not isinstance(filters, list) and not isinstance(filters, tuple):
         raise Exception('Filters must be a string, list or tuple. {} given.'.format(repr(filters)))
@@ -108,26 +108,34 @@ def add_path_alias(alias: str, target: str):
     _path_aliases[alias] = target
 
 
-def get_ep_callable(ep_name: str) -> callable:
+def is_ep_callable(ep_name: str) -> bool:
+    try:
+        resolve_ep_callable(ep_name)
+        return True
+    except ImportError:
+        return False
+
+
+def resolve_ep_callable(ep_name: str) -> callable:
     endpoint = ep_name.split('.')
     if not len(endpoint):
         raise TypeError("Invalid format of endpoint specification: '{}'".format(ep_name))
 
-    module_name = '.'.join(endpoint[0:len(endpoint)-1])
+    module_name = '.'.join(endpoint[0:len(endpoint) - 1])
     callable_name = endpoint[-1]
 
     module = _import_module(module_name)
     if callable_name not in dir(module):
-        raise Exception("'{}' is not callable".format(ep_name))
+        raise ImportError("'{}' is not callable".format(ep_name))
 
     callable_obj = getattr(module, callable_name)
     if not hasattr(callable_obj, '__call__'):
-        raise Exception("'{}' is not callable".format(ep_name))
+        raise ImportError("'{}' is not callable".format(ep_name))
 
     return callable_obj
 
 
-def call_ep(ep_name: str, args: dict=None, inp: dict=None):
+def call_ep(ep_name: str, args: dict = None, inp: dict = None):
     """Call a callable.
     """
     if '_call' in args:
@@ -138,7 +146,7 @@ def call_ep(ep_name: str, args: dict=None, inp: dict=None):
         args['_name_orig'] = args['_name']
     args['_name'] = ep_name
 
-    return get_ep_callable(ep_name)(args, inp)
+    return resolve_ep_callable(ep_name)(args, inp)
 
 
 def dispatch(env: dict, start_response: callable):
@@ -147,6 +155,7 @@ def dispatch(env: dict, start_response: callable):
     from pytsite import tpl, events
     global _map_adapter, request, session, no_cache
 
+    # Check maintenance mode status
     if _path.exists(_reg.get('paths.maintenance.lock')):
         wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
                                                 status=503, content_type='text/html')
@@ -254,34 +263,32 @@ def dispatch(env: dict, start_response: callable):
 
         return wsgi_response(env, start_response)
 
-    except _HTTPException as e:
-        title = _lang.t('http_error_' + str(e.code))
-        _metatag.t_set('title', title)
-
-        wsgi_response = tpl.render('exceptions/common', {
-            'title': title,
-            'exception': e,
-            'traceback': _format_exc()
-        })
-
-        return _http.response.Response(wsgi_response, e.code, content_type='text/html')(env, start_response)
-
     except Exception as e:
-        _logger.error(str(e), __name__)
+        if isinstance(e, _HTTPException):
+            code = e.code
+            title = _lang.t('pytsite.router@http_error_' + str(e.code))
+        else:
+            code = 500
+            title = _lang.t('pytsite.router@error', {'code': '500'})
+            _logger.error(str(e), __name__)
 
-        title = _lang.t('pytsite.router@error', {'code': '500'})
         _metatag.t_set('title', title)
 
-        wsgi_response = tpl.render('exceptions/common', {
+        args = {
             'title': title,
             'exception': e,
             'traceback': _format_exc()
-        })
+        }
 
-        return _http.response.Response(wsgi_response, 500, content_type='text/html')(env, start_response)
+        if is_ep_callable('app.ep.exception'):
+            wsgi_response = call_ep('app.ep.exception', args)
+        else:
+            wsgi_response = tpl.render('exceptions/common', args)
+
+        return _http.response.Response(wsgi_response, code, content_type='text/html')(env, start_response)
 
 
-def base_path(lang: str=None) -> str:
+def base_path(lang: str = None) -> str:
     """Get base path of application.
     """
     available_langs = _lang.langs()
@@ -322,7 +329,7 @@ def scheme():
     return r
 
 
-def base_url(lang: str=None, query: dict=None):
+def base_url(lang: str = None, query: dict = None):
     """Get base URL of the application.
     """
     r = scheme() + '://' + server_name() + base_path(lang)
@@ -332,7 +339,7 @@ def base_url(lang: str=None, query: dict=None):
     return r
 
 
-def is_base_url(compare: str=None) -> bool:
+def is_base_url(compare: str = None) -> bool:
     """Check if the given URL is base.
     """
     if not compare:
@@ -341,7 +348,7 @@ def is_base_url(compare: str=None) -> bool:
     return base_url() == compare
 
 
-def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relative: bool=False,
+def url(url_str: str, lang: str = None, strip_lang=False, query: dict = None, relative: bool = False,
         strip_query=False) -> str:
     """Generate an URL.
     """
@@ -381,7 +388,7 @@ def url(url_str: str, lang: str=None, strip_lang=False, query: dict=None, relati
     return _urlparse.urlunparse(r)
 
 
-def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str=None) -> str:
+def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str = None) -> str:
     """Get current path.
     """
     if not request:
@@ -407,17 +414,17 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: s
     return r
 
 
-def current_url(strip_query: bool=False, resolve_alias: bool=True, lang: str=None) -> str:
+def current_url(strip_query: bool = False, resolve_alias: bool = True, lang: str = None) -> str:
     """Get current URL.
     """
     return scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False, lang)
 
 
-def ep_path(endpoint: str, args: dict=None, strip_lang=False) -> str:
+def ep_path(endpoint: str, args: dict = None, strip_lang=False) -> str:
     return url(_map_adapter.build(endpoint, args), relative=True, strip_lang=strip_lang)
 
 
-def ep_url(ep_name: str, args: dict=None, strip_lang=False) -> str:
+def ep_url(ep_name: str, args: dict = None, strip_lang=False) -> str:
     """Get URL for endpoint.
     """
     r = _map_adapter.build(ep_name, args)

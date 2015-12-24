@@ -14,9 +14,6 @@ def __init():
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
-
-    assetman.add('pytsite.contact@js/common.js', forever=True)
-
     browser.register_ep('pytsite.contact.ep.submit')
 
 

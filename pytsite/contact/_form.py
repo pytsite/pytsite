@@ -1,6 +1,6 @@
 """PytSite Contact Form.
 """
-from pytsite import form as _form, widget as _widget, lang as _lang
+from pytsite import form as _form, widget as _widget, lang as _lang, assetman as _assetman
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,6 +15,7 @@ class Contact(_form.Form):
         """
         super().__init__(uid, **kwargs)
         self._tpl = 'pytsite.contact@form'
+        _assetman.add('pytsite.contact@js/common.js')
 
     def _setup(self):
         """Hook.
