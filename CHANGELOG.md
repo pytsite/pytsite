@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.41.13 (2015-12-24)
+### Fixed
+- Admin templates inheritance in `odm_ui`.
+
+
 ## 0.41.12 (2015-12-24)
 ### Added
 - New function `admin.render()`.
