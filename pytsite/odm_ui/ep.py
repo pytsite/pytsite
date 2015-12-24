@@ -1,7 +1,7 @@
 """ODM UI Endpoints.
 """
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
-    validation as _validation, auth as _auth
+    validation as _validation, admin as _admin
 from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -13,8 +13,7 @@ def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
     table = _browser.Browser(args.get('model')).get_table()
-
-    return _tpl.render('pytsite.odm_ui@admin_browser', {'table': table})
+    return _admin.render(_tpl.render('pytsite.odm_ui@browser', {'table': table}))
 
 
 def get_browser_rows(args: dict, inp: dict) -> _http.response.JSON:
@@ -37,7 +36,7 @@ def get_m_form(args: dict, inp: dict) -> str:
     eid = args.get('id') if args.get('id') != '0' else None
     try:
         form = _api.get_m_form(args.get('model'), eid)
-        return _tpl.render('pytsite.odm_ui@admin_modify_form', {'form': form})
+        return _admin.render(_tpl.render('pytsite.odm_ui@modify_form', {'form': form}))
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
 
@@ -104,7 +103,7 @@ def get_d_form(args: dict, inp: dict) -> str:
 
     form = _api.get_d_form(model, ids, _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
 
-    return _tpl.render('pytsite.odm_ui@admin_delete_form', {'form': form})
+    return _admin.render(_tpl.render('pytsite.odm_ui@delete_form', {'form': form}))
 
 
 def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:

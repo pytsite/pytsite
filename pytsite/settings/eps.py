@@ -2,7 +2,7 @@
 """
 import re as _re
 from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http, \
-    validation as _validation
+    validation as _validation, admin as _admin
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -28,7 +28,7 @@ def form(args: dict, inp: dict) -> str:
         if frm.has_widget(field_name):
             frm.get_widget(field_name).set_val(v)
 
-    return _tpl.render('pytsite.settings@form', {'form': frm})
+    return _admin.render(_tpl.render('pytsite.settings@form', {'form': frm}))
 
 
 def form_validate(args: dict, inp: dict) -> dict:

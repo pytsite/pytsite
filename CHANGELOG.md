@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.41.12 (2015-12-24)
+### Added
+- New function `admin.render()`.
+
+
 ## 0.41.11 (2015-12-24)
 ### Added
 - New function `router.is_ep_callable()`.

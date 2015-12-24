@@ -1,4 +1,4 @@
-from pytsite import metatag as _metatag, tpl as _tpl, lang as _lang
+from pytsite import metatag as _metatag, tpl as _tpl, lang as _lang, widget as _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -17,6 +17,7 @@ def dashboard(args: dict, inp: dict):
         app_name_short = app_name
 
     return _tpl.render('pytsite.admin@html', {
+        'language_nav': _widget.select.LanguageNav('language-nav', dropdown=True),
         'app_name': app_name,
         'app_name_short': app_name_short,
     })

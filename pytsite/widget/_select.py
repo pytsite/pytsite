@@ -166,7 +166,7 @@ class LanguageNav(_base.Base):
         if len(_lang.langs()) == 1:
             return _html.TagLessElement()
 
-        root_ul = _html.Ul(cls=self._css)
+        root_ul = _html.Ul(uid=self._uid, cls=self._css)
         cur_lang = _lang.get_current()
 
         if self._dropdown:

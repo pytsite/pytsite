@@ -17,6 +17,8 @@
         </a>
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
+            {{ language_nav }}
+
             <ul class="nav navbar-nav">
 {#                <!-- Messages: style can be found in dropdown.less-->#}
 {#                <li class="dropdown messages-menu">#}
@@ -116,8 +118,6 @@
 {#                        </li>#}
 {#                    </ul>#}
 {#                </li>#}
-
-                {{ widget.select.LanguageNav(uid='language-nav', dropdown=true) }}
 
                 <!-- User Account Menu -->
                 <li class="dropdown user user-menu">

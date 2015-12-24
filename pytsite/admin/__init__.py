@@ -2,6 +2,7 @@
 """
 # Public API
 from . import _sidebar as sidebar, _navbar as navbar
+from ._api import render
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
