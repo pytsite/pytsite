@@ -1,5 +1,17 @@
 # PytSite Changelog
 
+## 0.41.14 (2015-12-25)
+### Added
+- New function `tpl.is_global_registered()`.
+- New `router`'s event 'pytsite.router.exception'.
+- `call_once` argument in `events.listen()`.
+
+### Changed
+- `form`'s and `contact`'s JS assets made permanent. 
+
+### Removed
+- `url` global from `tpl`.
+
 ## 0.41.13 (2015-12-24)
 ### Fixed
 - Admin templates inheritance in `odm_ui`.

@@ -1,6 +1,6 @@
 """Auth UI Widgets.
 """
-from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, odm as _odm
+from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, odm as _odm, assetman as _assetman
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -24,6 +24,8 @@ class Profile(_widget.Base):
         self._css += ' widget-auth-ui-profile'
         self._col_image_css = kwargs.get('col_image_css', 'col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center')
         self._col_content_css = kwargs.get('col_content_css', 'col-xs-B-12 col-xs-8 col-sm-9 col-lg-10')
+
+        _assetman.add('pytsite.auth_ui@css/widget/profile.css')
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
@@ -70,6 +72,9 @@ class Follow(_widget.Base):
         self._follow_msg_id = kwargs.get('follow_msg_id', 'pytsite.auth_ui@follow')
         self._unfollow_msg_id = kwargs.get('unfollow_msg_id', 'pytsite.auth_ui@unfollow')
         self._following_msg_id = 'pytsite.auth_ui@following'
+
+        _assetman.add('pytsite.auth_ui@css/widget/follow.css')
+        _assetman.add('pytsite.auth_ui@js/widget/follow.js')
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.

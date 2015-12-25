@@ -3,6 +3,6 @@
 {% endif %}
 {% for term in widget.terms %}
     {% set path = widget.link_pattern | format(term.alias) %}
-    <a data-alias="{{ term.alias }}" data-path="{{ path }}" href="{{ url(path) }}"
+    <a data-alias="{{ term.alias }}" data-path="{{ path }}" href="{{ router.url(path) }}"
        class="term {{ widget.term_css }}">{{ widget.term_title_pattern | format(term.title) }}</a>
 {% endfor %}

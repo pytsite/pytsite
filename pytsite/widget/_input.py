@@ -103,11 +103,11 @@ class Text(Input):
         self._css = ' '.join((self._css, 'widget-input-text'))
         self._type = 'text'
 
+        _assetman.add('pytsite.widget@js/text.js')
+
     def get_html_em(self) -> _html.Element:
         """Render the widget
         """
-        _assetman.add('pytsite.widget@js/text.js')
-
         inp = _html.Input(
             type=self._type,
             uid=self._uid,

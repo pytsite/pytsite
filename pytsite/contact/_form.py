@@ -15,7 +15,6 @@ class Contact(_form.Form):
         """
         super().__init__(uid, **kwargs)
         self._tpl = 'pytsite.contact@form'
-        _assetman.add('pytsite.contact@js/common.js')
 
     def _setup(self):
         """Hook.

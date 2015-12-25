@@ -47,9 +47,6 @@ def __init():
 
     # Assets
     assetman.register_package(__name__)
-    assetman.add(__name__ + '@css/widget/profile.css', forever=True, weight=100)
-    assetman.add(__name__ + '@css/widget/follow.css', forever=True, weight=100)
-    assetman.add(__name__ + '@js/widget/follow.js', forever=True, weight=100)
 
     # robots.txt rules
     robots.disallow(base_path + '/')

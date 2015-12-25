@@ -108,6 +108,12 @@ def render(template: str, data: dict=None) -> str:
     return _env.get_template(template).render(data)
 
 
+def is_global_registered(name: str) -> bool:
+    """Check if the global registered.
+    """
+    return name in _env.globals
+
+
 def register_global(name: str, obj):
     """Register global.
     """

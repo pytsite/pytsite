@@ -215,10 +215,11 @@ def dispatch(env: dict, start_response: callable):
 
     # Processing
     try:
-        rule, rule_args = _map_adapter.match(return_rule=True)
-
         # Notify listeners
         events.fire('pytsite.router.dispatch')
+
+        # Search for rule
+        rule, rule_args = _map_adapter.match(return_rule=True)
 
         # Processing rule filters
         for flt in rule.filters:
@@ -279,6 +280,8 @@ def dispatch(env: dict, start_response: callable):
             'exception': e,
             'traceback': _format_exc()
         }
+
+        events.fire('pytsite.router.exception', args=args)
 
         if is_ep_callable('app.ep.exception'):
             wsgi_response = call_ep('app.ep.exception', args)

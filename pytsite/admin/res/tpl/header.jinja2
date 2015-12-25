@@ -2,7 +2,7 @@
 <header class="main-header">
 
     <!-- Logo -->
-    <a class="logo" href="{{ router.base_url() }}">
+    <a class="logo" href="{{ base_url() }}">
         <!-- mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini">{{ t('app_name_short') }}</span>
         <!-- logo for regular state and mobile devices -->
@@ -156,7 +156,7 @@
                                 <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('pytsite.admin@profile') }}</a>
                             </div>
                             <div class="pull-right">
-                                {% set sign_out_url = router.ep_url('pytsite.auth.ep.logout') %}
+                                {% set sign_out_url = ep_url('pytsite.auth.ep.logout') %}
                                 <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('pytsite.admin@sign_out') }}</a>
                             </div>
                         </li>

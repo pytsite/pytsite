@@ -9,7 +9,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 _assetman.register_package(__name__)
+_assetman.add('pytsite.form@js/form.js', forever=True)
 _tpl.register_package(__name__)
 _browser.register_ep('pytsite.form.ep.validate')
 
@@ -20,6 +22,7 @@ class Form:
     def __init__(self, uid: str=None, **kwargs):
         """Init.
         """
+        # Widgets
         self._widgets = {}
 
         # Form areas where widgets can be placed
@@ -48,36 +51,30 @@ class Form:
         self._title_css = kwargs.get('title_css', 'box-title')
         self._title_tag = kwargs.get('title_tag', 'h3')
 
-        redirect_url = _router.request.inp.get('__form_redirect')
-        if not redirect_url:
-            redirect_url = _router.current_url()
-        elif isinstance(redirect_url, list):
-            redirect_url = redirect_url[0]
-
+        # Form location
         self.add_widget(_widget.input.Hidden(
             uid='__form_location',
-            value=_router.current_url(),
             form_area='hidden')
         )
 
+        # Form redirect location
         self.add_widget(_widget.input.Hidden(
             uid='__form_redirect',
-            value=_url_unquote(redirect_url),
-            form_area='hidden')
-        )
+            form_area='hidden'
+        ))
 
+        # Form messages
         self.add_widget(_widget.static.Container(
             uid='__form_messages',
             css='form-messages',
         ))
 
+        # Name is required
         if not self._name:
             self._name = uid
 
+        # Setup hook
         self._setup()
-
-        # Initializing form JS API
-        _assetman.add('pytsite.form@js/form.js')
 
     def _setup(self):
         """_setup() hook.
@@ -197,13 +194,17 @@ class Form:
         return self.get_widgets().keys()
 
     @property
+    def location(self) -> str:
+        return self.get_widget('__form_location')
+
+    @property
     def redirect(self) -> str:
         """Get redirect URL after successful form submit.
         """
         return self.get_widget('__form_redirect').get_val()
 
     @redirect.setter
-    def redirect(self, value):
+    def redirect(self, value: str):
         """Set redirect URL after successful form submit.
         """
         self.get_widget('__form_redirect').set_val(_url_unquote(value))
@@ -261,6 +262,14 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
+        self.get_widget('__form_location').value = _router.current_url()
+
+        if not self.redirect:
+            redirect_url = _router.request.inp.get('__form_redirect', _router.current_url())
+            if isinstance(redirect_url, list):
+                redirect_url = redirect_url[0]
+            self.redirect = redirect_url
+
         _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
 
         return _tpl.render(self._tpl, {'form': self})

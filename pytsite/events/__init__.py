@@ -7,14 +7,14 @@ __license__ = 'MIT'
 __listeners = {}
 
 
-def listen(event: str, listener: callable):
+def listen(event: str, listener: callable, call_once: bool=False):
     """Add an event listener.
     """
     global __listeners
     if event not in __listeners:
         __listeners[event] = []
 
-    __listeners[event].append(listener)
+    __listeners[event].append((listener, call_once))
 
 
 def fire(event: str, stop_after: int=None, **kwargs):
@@ -24,11 +24,14 @@ def fire(event: str, stop_after: int=None, **kwargs):
         return
 
     count = 0
-    for handler in __listeners[event]:
+    for handler, call_once in __listeners[event]:
         handler(**kwargs)
         count += 1
         if stop_after and count >= stop_after:
-            return
+            break
+
+    # Remove handlers which should be called once
+    __listeners[event] = [item for item in __listeners[event] if not item[1]]
 
 
 def first(event: str, **kwargs):
