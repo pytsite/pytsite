@@ -160,7 +160,7 @@ class Browser:
     def get_table(self) -> str:
         """Get browser table skeleton.
         """
-        data_url = _router.ep_url('pytsite.odm_ui.ep.get_browser_rows', {'model': self._model})
+        data_url = _router.ep_url('pytsite.odm_ui.ep.ajax_get_browser_rows', {'model': self._model})
 
         # Table skeleton
         table = _html.Table(

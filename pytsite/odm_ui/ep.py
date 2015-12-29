@@ -16,7 +16,7 @@ def browse(args: dict, inp: dict) -> str:
     return _admin.render(_tpl.render('pytsite.odm_ui@browser', {'table': table}))
 
 
-def get_browser_rows(args: dict, inp: dict) -> _http.response.JSON:
+def ajax_get_browser_rows(args: dict, inp: dict) -> _http.response.JSON:
     """Get browser rows via AJAX request.
     """
     offset = int(inp.get('offset', 0))
@@ -41,7 +41,7 @@ def get_m_form(args: dict, inp: dict) -> str:
         raise _http.error.NotFound()
 
 
-def validate_m_form(args: dict, inp: dict) -> dict:
+def ajax_validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
     model = inp.get('__odm_ui_model')
@@ -62,7 +62,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     model = args.get('model')
     entity_id = args.get('id')
 
-    # Create form
+    # Re-constructing the form
     form = _api.get_m_form(model, entity_id, 'submit')
 
     # Fill and validate form
@@ -79,17 +79,23 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
             entity.f_set(f_name, f_value)
 
     try:
-        entity.ui_m_form_submit(form)  # Entity hook
+        # Save entity
+        entity.ui_m_form_submit(form)
         entity.save()
         _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except Exception as e:
         _router.session.add_error(str(e))
         _logger.error(str(e), __name__)
 
-    return _http.response.Redirect(form.redirect)
+    # Redirect location
+    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+
+    return _http.response.Redirect(redirect)
 
 
 def get_d_form(args: dict, inp: dict) -> str:
+    """Get entity deletion form.
+    """
     model = args.get('model')
 
     # Entities IDs to delete
@@ -101,9 +107,7 @@ def get_d_form(args: dict, inp: dict) -> str:
     if not model or not ids:
         return _http.error.NotFound()
 
-    form = _api.get_d_form(model, ids, _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
-
-    return _admin.render(_tpl.render('pytsite.odm_ui@delete_form', {'form': form}))
+    return _admin.render(_tpl.render('pytsite.odm_ui@delete_form', {'form': _api.get_d_form(model, ids)}))
 
 
 def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
@@ -119,12 +123,14 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
         ids = [ids]
 
     try:
+        # Check permissions
         if not _api.check_permissions('delete', model, ids):
             if json:
                 return _http.response.JSON({'status': False, 'error': 'Forbidden'}, 403)
             else:
                 raise _http.error.Forbidden()
 
+        # Delete entities
         for eid in ids:
             _api.dispense_entity(model, eid).delete()
 
@@ -132,12 +138,13 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
             return _http.response.JSON({'status': True})
         else:
             _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+
+    # Entity deletion was forbidden
     except _odm.error.ForbidEntityDelete as e:
         if json:
             return _http.response.JSON({'status': False, 'error': str(e)}, 403)
         else:
             _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
-    redirect = inp.get('__form_redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
-
+    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
     return _http.response.Redirect(redirect)

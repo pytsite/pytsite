@@ -213,6 +213,14 @@ class Base(_ABC):
     def form_area(self, area: str):
         self._form_area = area
 
+    @property
+    def h_size(self) -> str:
+        return self._h_size
+
+    @h_size.setter
+    def h_size(self, value: str):
+        self._h_size = value
+
     def validate(self):
         """Validate the widget.
         """

@@ -10,12 +10,12 @@ __license__ = 'MIT'
 
 class ModelOne(odm.Model):
     def _setup(self):
-        self._define_field(odm.field.RefsList('refs', model='model_two'))
+        self.define_field(odm.field.RefsList('refs', model='model_two'))
 
 
 class ModelTwo(odm.Model):
     def _setup(self):
-        self._define_field(odm.field.String('str'))
+        self.define_field(odm.field.String('str'))
 
 
 class TestFieldRefsList:

@@ -76,7 +76,10 @@
                                             class="fa fa-edit"></i>&nbsp;{{ t('pytsite.auth_ui@modify_profile') }}</a>
                                     &nbsp;
                                 {% endif %}
-                                {{ auth_ui.widget.Follow(uid='follow', user=user) }}
+
+                                {% if follow_widget %}
+                                    {{ follow_widget }}
+                                {% endif %}
                             </div>
                         {% endblock user_actions_inner %}
                     </div>

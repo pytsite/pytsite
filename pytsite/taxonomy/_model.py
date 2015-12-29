@@ -13,16 +13,16 @@ class Term(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('title', nonempty=True))
-        self._define_field(_odm.field.String('alias', nonempty=True))
-        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
-        self._define_field(_odm.field.Integer('weight'))
-        self._define_field(_odm.field.Integer('order'))
+        self.define_field(_odm.field.String('title', nonempty=True))
+        self.define_field(_odm.field.String('alias', nonempty=True))
+        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
+        self.define_field(_odm.field.Integer('weight'))
+        self.define_field(_odm.field.Integer('order'))
 
-        self._define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
-        self._define_index([('language', _odm.I_ASC), ('weight', _odm.I_DESC)])
-        self._define_index([('weight', _odm.I_ASC)])
-        self._define_index([('order', _odm.I_ASC)])
+        self.define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
+        self.define_index([('language', _odm.I_ASC), ('weight', _odm.I_DESC)])
+        self.define_index([('weight', _odm.I_ASC)])
+        self.define_index([('order', _odm.I_ASC)])
 
     @property
     def title(self) -> str:

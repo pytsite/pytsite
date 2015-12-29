@@ -161,6 +161,9 @@ class List(Abstract):
 
         :type value: list | tuple
         """
+        if not value:
+            value = ()
+
         if type(value) not in (list, tuple):
             raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, repr(value)))
 

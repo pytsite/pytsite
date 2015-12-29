@@ -1,9 +1,10 @@
 """Auth Models
 """
 import hashlib as _hashlib
+from frozendict import frozendict as _frozendict
 from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
-from pytsite import image as _image, odm as _odm, util as _util, router as _router
+from pytsite import image as _image, odm as _odm, util as _util, router as _router, geo_ip as _geo_ip
 
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
@@ -15,11 +16,11 @@ class Role(_odm.Model):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('name'))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.UniqueList('permissions', allowed_types=(str,)))
+        self.define_field(_odm.field.String('name'))
+        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.UniqueList('permissions', allowed_types=(str,)))
 
-        self._define_index([('name', _odm.I_ASC)], unique=True)
+        self.define_index([('name', _odm.I_ASC)], unique=True)
 
     @property
     def name(self) -> str:
@@ -51,35 +52,38 @@ class User(_odm.Model):
         """_setup() hook.
         """
         # Fields
-        self._define_field(_odm.field.String('login', nonempty=True))
-        self._define_field(_odm.field.String('email', nonempty=True))
-        self._define_field(_odm.field.String('password', nonempty=True))
-        self._define_field(_odm.field.String('nickname', nonempty=True))
-        self._define_field(_odm.field.String('token', nonempty=True))
-        self._define_field(_odm.field.String('first_name'))
-        self._define_field(_odm.field.String('last_name'))
-        self._define_field(_odm.field.Virtual('full_name'))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.DateTime('birth_date'))
-        self._define_field(_odm.field.DateTime('last_login'))
-        self._define_field(_odm.field.DateTime('last_activity'))
-        self._define_field(_odm.field.Integer('login_count'))
-        self._define_field(_odm.field.String('status', default='active'))
-        self._define_field(_odm.field.RefsList('roles', model='role'))
-        self._define_field(_odm.field.Integer('gender'))
-        self._define_field(_odm.field.String('phone'))
-        self._define_field(_odm.field.Dict('options'))
-        self._define_field(_odm.field.Ref('picture', model='image'))
-        self._define_field(_odm.field.Virtual('picture_url'))
-        self._define_field(_odm.field.StringList('urls', unique=True))
-        self._define_field(_odm.field.Virtual('is_online'))
-        self._define_field(_odm.field.RefsList('follows', model='user'))
-        self._define_field(_odm.field.RefsList('followers', model='user'))
+        self.define_field(_odm.field.String('login', nonempty=True))
+        self.define_field(_odm.field.String('email', nonempty=True))
+        self.define_field(_odm.field.String('password', nonempty=True))
+        self.define_field(_odm.field.String('nickname', nonempty=True))
+        self.define_field(_odm.field.String('token', nonempty=True))
+        self.define_field(_odm.field.String('first_name'))
+        self.define_field(_odm.field.String('last_name'))
+        self.define_field(_odm.field.Virtual('full_name'))
+        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.DateTime('birth_date'))
+        self.define_field(_odm.field.DateTime('last_login'))
+        self.define_field(_odm.field.DateTime('last_activity'))
+        self.define_field(_odm.field.Integer('login_count'))
+        self.define_field(_odm.field.String('status', default='active'))
+        self.define_field(_odm.field.RefsList('roles', model='role'))
+        self.define_field(_odm.field.Integer('gender'))
+        self.define_field(_odm.field.String('phone'))
+        self.define_field(_odm.field.Dict('options'))
+        self.define_field(_odm.field.Ref('picture', model='image'))
+        self.define_field(_odm.field.Virtual('picture_url'))
+        self.define_field(_odm.field.StringList('urls', unique=True))
+        self.define_field(_odm.field.Virtual('is_online'))
+        self.define_field(_odm.field.RefsList('follows', model='user'))
+        self.define_field(_odm.field.RefsList('followers', model='user'))
+        self.define_field(_odm.field.Ref('geo_ip', model='geo_ip'))
+        self.define_field(_odm.field.String('country'))
+        self.define_field(_odm.field.String('city'))
 
         # Indices
-        self._define_index([('login', _odm.I_ASC)], unique=True)
-        self._define_index([('nickname', _odm.I_ASC)], unique=True)
-        self._define_index([('token', _odm.I_ASC)], unique=True)
+        self.define_index([('login', _odm.I_ASC)], unique=True)
+        self.define_index([('nickname', _odm.I_ASC)], unique=True)
+        self.define_index([('token', _odm.I_ASC)], unique=True)
 
     @property
     def login(self) -> str:
@@ -174,7 +178,7 @@ class User(_odm.Model):
         return self.f_get('roles')
 
     @property
-    def options(self) -> dict:
+    def options(self) -> _frozendict:
         return self.f_get('options')
 
     @property
@@ -190,6 +194,18 @@ class User(_odm.Model):
         :return: _Iterable[User]
         """
         return self.f_get('followers')
+
+    @property
+    def geo_ip(self) -> _geo_ip.model.GeoIP:
+        return self.f_get('geo_ip')
+
+    @property
+    def country(self) -> str:
+        return self.f_get('country')
+
+    @property
+    def city(self) -> str:
+        return self.f_get('city')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """_on_f_set() hook.

@@ -15,9 +15,9 @@ class Image(_file.model.File):
         """Hook.
         """
         super()._setup()
-        self._define_field(_odm.field.Integer('width'))
-        self._define_field(_odm.field.Integer('height'))
-        self._define_field(_odm.field.Dict('exif'))
+        self.define_field(_odm.field.Integer('width'))
+        self.define_field(_odm.field.Integer('height'))
+        self.define_field(_odm.field.Dict('exif'))
 
     @property
     def width(self) -> int:

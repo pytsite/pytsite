@@ -32,6 +32,8 @@ this_token_already_used: 'This token is already taken, try to choose another'
 follow: 'Follow'
 following: 'Following'
 unfollow: 'Unfollow'
+country: 'Country'
+city: 'City'
 
 odm_ui_permission_group_description: 'Security'
 

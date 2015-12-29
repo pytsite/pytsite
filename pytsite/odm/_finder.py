@@ -1,5 +1,6 @@
 """Description.
 """
+from typing import Iterable as _Iterable
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from pytsite import lang as _lang
@@ -88,8 +89,8 @@ class Query:
 
             # Convert list of instances to list of DBRefs
             if isinstance(field, _field.RefsList):
-                if not isinstance(arg, list):
-                    raise ValueError('List expected.')
+                if not isinstance(arg, _Iterable):
+                    arg = (arg,)
 
                 clean_arg = []
                 for v in arg:

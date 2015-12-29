@@ -7,13 +7,17 @@ source: 'Джерело'
 destination: 'Одержувач'
 rate: 'Курс'
 
-currency_title_UAH: 'Українська гривня'
-currency_prefix_UAH: ''
-currency_suffix_UAH: '₴'
+currency_title_EUR: 'Евро'
+currency_prefix_EUR: ''
+currency_suffix_EUR: '€'
 
 currency_title_USD: 'Долар США'
 currency_prefix_USD: ''
 currency_suffix_USD: '$'
+
+currency_title_UAH: 'Українська гривня'
+currency_prefix_UAH: ''
+currency_suffix_UAH: '₴'
 
 currency_title_RUB: 'Російський рубль'
 currency_prefix_RUB: ''

@@ -11,40 +11,48 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def create_account(aid: str, currency: str, owner: _auth.model.User, description: str, balance=0.0) -> _Account:
+def create_account(title: str, currency: str, owner: _auth.model.User, balance=0.0) -> _Account:
     """Create new account.
     :type balance: int | float | str | decimal.Decimal
     """
     try:
-        get_account(aid)
-        raise _error.AccountExists("Account '{}' is already exists.".format(aid))
+        get_account(title)
+        raise _error.AccountExists("Account '{}' is already exists.".format(title))
     except _error.AccountNotExists:
         pass
 
     acc = _odm.dispense('wallet_account')
 
-    acc.f_set('aid', aid)
+    acc.f_set('title', title)
     acc.f_set('currency', currency)
     acc.f_set('owner', owner)
-    acc.f_set('description', description)
     acc.f_set('balance', balance)
     acc.save()
 
     return acc
 
 
-def get_account(aid: str) -> _Account:
-    """Find account by title.
+def get_account(title: str=None, acc_id: str=None) -> _Account:
+    """Find account by title or by ID.
     """
-    acc = _odm.find('wallet_account').where('aid', '=', aid).first()
+    f = _odm.find('wallet_account')
+
+    if acc_id:
+        f.where('_id', '=', acc_id)
+    elif title:
+        f.where('title', '=', title)
+    else:
+        raise ValueError('Either account ID or title should be specified.')
+
+    acc = f.first()
     if not acc:
-        raise _error.AccountNotExists("Account with id '{}' is not exists.".format(aid))
+        raise _error.AccountNotExists("Account with '{}' is not exists.".format((title, acc_id)))
 
     return acc
 
 
-def create_transaction(src: _Account, dst: _Account, amount, date_time: _datetime=None,
-                       description: str=None) -> _Transaction:
+def create_transaction(src: _Account, dst: _Account, amount, description: str,
+                       date_time: _datetime=None) -> _Transaction:
     """Create transaction.
 
     :type amount: int | float | str | decimal.Decimal

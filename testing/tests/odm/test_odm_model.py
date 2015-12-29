@@ -14,12 +14,12 @@ __license__ = 'MIT'
 
 class ModelOne(odm.Model):
     def _setup(self):
-        self._define_field(odm.field.String('str_f'))
+        self.define_field(odm.field.String('str_f'))
 
 
 class ModelTwo(odm.Model):
     def _setup(self):
-        self._define_field(odm.field.String('str_f'))
+        self.define_field(odm.field.String('str_f'))
 
 
 class TestModel:

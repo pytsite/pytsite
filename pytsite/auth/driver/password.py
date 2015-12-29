@@ -34,6 +34,7 @@ class _LoginForm(_form.Form):
         ))
 
         self.add_widget(_widget.button.Submit(
+            uid='button-submit',
             value=_lang.t('pytsite.auth@login'),
             form_area='footer',
         ))
@@ -76,15 +77,9 @@ class Driver(AbstractDriver):
             _api.authorize(user)
 
             # Redirect to the final destination
-            if 'redirect' in inp:
-                redirect = inp['redirect']
-                del inp['redirect']
-                if '__form_redirect' in inp:
-                    del inp['__form_redirect']
-                return _http.response.Redirect(_router.url(redirect, query=inp))
-            elif '__form_redirect' in inp:
-                redirect = inp['__form_redirect']
-                del inp['__form_redirect']
+            if '__redirect' in inp:
+                redirect = inp['__redirect']
+                del inp['__redirect']
                 return _http.response.Redirect(_router.url(redirect, query=inp))
             else:
                 return _http.response.Redirect(_router.base_url(query=inp))
@@ -92,11 +87,6 @@ class Driver(AbstractDriver):
         except _error.LoginError as e:
             _logger.warn('Login incorrect. {}'.format(e), __name__)
             _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
-
-            # Unneeded arguments
-            for i in ('__form_redirect',):
-                if i in inp:
-                    del inp[i]
 
             inp['driver'] = self.name
             return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.login', args=inp))

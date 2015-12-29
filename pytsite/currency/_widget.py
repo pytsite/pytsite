@@ -17,12 +17,12 @@ class Select(_widget.select.Select):
 
         all_c = sorted(_api.get_all())
 
-        exclude = kwargs.get('exclude', ())
-        if type(exclude) not in (list, tuple):
-            exclude = (exclude,)
+        # Exclude 'system' currencies
+        if kwargs.get('exclude_system', True):
+            all_c = [c for c in all_c if not c.startswith('_')]
 
-        if exclude:
-            all_c = [c for c in all_c if c not in exclude]
+        # Exclude additional currencies
+        all_c = [c for c in all_c if c not in kwargs.get('exclude', ())]
 
         self._items = zip(all_c, ['{} ({})'.format(c, _api.get_title(c)) for c in all_c])
 

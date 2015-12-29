@@ -20,28 +20,23 @@ class Account(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('aid', nonempty=True))
-        self._define_field(_odm.field.String('currency', nonempty=True))
-        self._define_field(_odm.field.String('description', nonempty=True))
-        self._define_field(_odm.field.Decimal('balance', round=8))
-        self._define_field(_odm.field.Ref('owner', model='user', nonempty=True))
-        self._define_field(_odm.field.RefsUniqueList('pending_transactions', model='wallet_transaction'))
-        self._define_field(_odm.field.RefsUniqueList('cancelling_transactions', model='wallet_transaction'))
-        self._define_field(_odm.field.Dict('options'))
+        self.define_field(_odm.field.String('currency', nonempty=True))
+        self.define_field(_odm.field.String('title', nonempty=True))
+        self.define_field(_odm.field.Decimal('balance', round=8))
+        self.define_field(_odm.field.Ref('owner', model='user', nonempty=True))
+        self.define_field(_odm.field.RefsUniqueList('pending_transactions', model='wallet_transaction'))
+        self.define_field(_odm.field.RefsUniqueList('cancelling_transactions', model='wallet_transaction'))
+        self.define_field(_odm.field.Dict('options'))
 
-        self._define_index([('aid', _odm.I_ASC)], True)
-
-    @property
-    def aid(self) -> str:
-        return self.f_get('aid')
+        self.define_index([('title', _odm.I_ASC)], True)
 
     @property
     def currency(self) -> str:
         return self.f_get('currency')
 
     @property
-    def description(self) -> str:
-        return self.f_get('description')
+    def title(self) -> str:
+        return self.f_get('title')
 
     @property
     def balance(self) -> _Decimal:
@@ -86,17 +81,17 @@ class Account(_odm_ui.UIModel):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = ('aid', 'description', 'currency', 'balance', 'owner')
+        browser.data_fields = ('_id', 'title', 'currency', 'balance', 'owner')
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         balance = _currency.fmt(self.currency, self.balance)
-        return self.aid, self.description, self.currency, balance, self.owner.full_name
+        return str(self.id), self.title, self.currency, balance, self.owner.full_name
 
     def ui_mass_action_get_entity_description(self) -> str:
 
-        return '{} ({}, {})'.format(self.description, self.aid, self.currency)
+        return '{} ({}, {})'.format(self.title, str(self.id), self.currency)
 
     def ui_m_form_setup(self, form, stage: str):
         """Modify form setup hook.
@@ -104,27 +99,22 @@ class Account(_odm_ui.UIModel):
         :type form: pytsite.form.Form
         """
         form.add_widget(_widget.input.Text(
-                uid='aid',
-                weight=10,
-                label=self.t('aid'),
-                required=True,
-                value=self.aid,
+            uid='title',
+            weight=10,
+            label=self.t('title'),
+            value=self.title,
+            required=True,
         ))
-        form.add_rule('aid', _odm.validation.FieldUnique(msg_id='pytsite.wallet@validation_account_id',
-                                                         model=self.model, field='aid', exclude_ids=self.id))
-
-        form.add_widget(_widget.input.Text(
-                uid='description',
-                weight=20,
-                label=self.t('description'),
-                value=self.description,
-                required=True,
+        form.add_rule('title', _odm.validation.FieldUnique(
+            model='wallet_account',
+            field='title',
+            exclude_ids=self.id if not self.is_new else None,
         ))
 
         if self.is_new:
             form.add_widget(_currency.widget.Select(
                     uid='currency',
-                    weight=30,
+                    weight=20,
                     label=self.t('currency'),
                     required=True,
                     value=self.currency,
@@ -133,7 +123,7 @@ class Account(_odm_ui.UIModel):
         else:
             form.add_widget(_widget.static.Text(
                     uid='currency',
-                    weight=30,
+                    weight=20,
                     label=self.t('currency'),
                     title=self.currency,
                     value=self.currency,
@@ -141,7 +131,7 @@ class Account(_odm_ui.UIModel):
 
         form.add_widget(_auth_ui.widget.UserSelect(
                 uid='owner',
-                weight=40,
+                weight=30,
                 label=self.t('owner'),
                 required=True,
                 value=self.owner,
@@ -156,16 +146,16 @@ class Transaction(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.DateTime('time', nonempty=True, default=_datetime.now()))
-        self._define_field(_odm.field.Ref('source', model='wallet_account', nonempty=True))
-        self._define_field(_odm.field.Ref('destination', model='wallet_account', nonempty=True))
-        self._define_field(_odm.field.String('state', default='new'))
-        self._define_field(_odm.field.Decimal('amount', round=8))
-        self._define_field(_odm.field.Decimal('exchange_rate', round=8, default=1))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.Dict('options'))
+        self.define_field(_odm.field.DateTime('time', nonempty=True, default=_datetime.now()))
+        self.define_field(_odm.field.Ref('source', model='wallet_account', nonempty=True))
+        self.define_field(_odm.field.Ref('destination', model='wallet_account', nonempty=True))
+        self.define_field(_odm.field.String('state', default='new'))
+        self.define_field(_odm.field.Decimal('amount', round=8))
+        self.define_field(_odm.field.Decimal('exchange_rate', round=8, default=1))
+        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.Dict('options'))
 
-        self._define_index([('time', _odm.I_DESC)])
+        self.define_index([('time', _odm.I_DESC)])
 
     @property
     def time(self) -> _datetime:
@@ -248,8 +238,8 @@ class Transaction(_odm_ui.UIModel):
         """Get single UI browser row hook.
         """
         time = self.f_get('time', fmt='pretty_date_time')
-        source = '{} ({})'.format(self.source.description, self.source.aid)
-        destination = '{} ({})'.format(self.destination.description, self.destination.aid)
+        source = self.source.title
+        destination = self.destination.title
         amount = _currency.fmt(self.source.currency, self.amount)
         if self.source.currency != self.destination.currency:
             amount += ' ({})'.format(_currency.fmt(self.destination.currency, self.amount * self.exchange_rate))
@@ -316,4 +306,5 @@ class Transaction(_odm_ui.UIModel):
                 weight=40,
                 label=self.t('description'),
                 value=self.description,
+                required=True,
         ))

@@ -13,7 +13,7 @@ class Flag(_odm.Model):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.Ref('entity', model='*', nonempty=True))
-        self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
+        self.define_field(_odm.field.Ref('entity', model='*', nonempty=True))
+        self.define_field(_odm.field.Ref('author', model='user', nonempty=True))
 
-        self._define_index([('entity', _odm.I_ASC), ('author', _odm.I_ASC)], unique=True)
+        self.define_index([('entity', _odm.I_ASC), ('author', _odm.I_ASC)], unique=True)

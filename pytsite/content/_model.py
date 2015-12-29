@@ -41,7 +41,7 @@ class Tag(_taxonomy.model.Term):
         """Hook.
         """
         super()._setup()
-        self._define_field(_odm.field.RefsUniqueList('sections', model='section'))
+        self.define_field(_odm.field.RefsUniqueList('sections', model='section'))
 
     @classmethod
     def ui_browser_setup(cls, browser):
@@ -60,28 +60,28 @@ class Content(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('title', nonempty=True))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.String('body'))
-        self._define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
-        self._define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), nonempty=True))
-        self._define_field(_odm.field.Integer('views_count'))
-        self._define_field(_odm.field.Integer('comments_count'))
-        self._define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self._define_field(_odm.field.String('status', nonempty=True))
-        self._define_field(_odm.field.Ref('author', model='user', nonempty=True))
-        self._define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
-        self._define_field(_odm.field.String('language_db', nonempty=True))
-        self._define_field(_odm.field.RefsUniqueList('tags', model='tag',))
-        self._define_field(_odm.field.Virtual('url'))
-        self._define_field(_odm.field.Virtual('edit_url'))
-        self._define_field(_odm.field.Dict('options'))
+        self.define_field(_odm.field.String('title', nonempty=True))
+        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.String('body'))
+        self.define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
+        self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), nonempty=True))
+        self.define_field(_odm.field.Integer('views_count'))
+        self.define_field(_odm.field.Integer('comments_count'))
+        self.define_field(_odm.field.RefsUniqueList('images', model='image'))
+        self.define_field(_odm.field.String('status', nonempty=True))
+        self.define_field(_odm.field.Ref('author', model='user', nonempty=True))
+        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
+        self.define_field(_odm.field.String('language_db', nonempty=True))
+        self.define_field(_odm.field.RefsUniqueList('tags', model='tag', ))
+        self.define_field(_odm.field.Virtual('url'))
+        self.define_field(_odm.field.Virtual('edit_url'))
+        self.define_field(_odm.field.Dict('options'))
 
         for lng in _lang.langs():
-            self._define_field(_odm.field.Ref('localization_' + lng, model=self.model))
+            self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
 
-        self._define_index([('publish_time', _odm.I_DESC)])
-        self._define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
+        self.define_index([('publish_time', _odm.I_DESC)])
+        self.define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
 
     @property
     def title(self) -> str:
@@ -561,13 +561,13 @@ class Article(Content):
     def _setup(self):
         super()._setup()
 
-        self._define_field(_odm.field.Ref('section', model='section'))
-        self._define_field(_odm.field.Bool('starred'))
-        self._define_field(_odm.field.StringList('video_links'))
-        self._define_field(_odm.field.StringList('ext_links'))
+        self.define_field(_odm.field.Ref('section', model='section'))
+        self.define_field(_odm.field.Bool('starred'))
+        self.define_field(_odm.field.StringList('video_links'))
+        self.define_field(_odm.field.StringList('ext_links'))
 
-        self._define_field(_geo.odm_field.Location('location'))
-        self._define_index([('location.lng_lat', _odm.I_GEO2D)])
+        self.define_field(_geo.odm_field.Location('location'))
+        self.define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     @property
     def section(self) -> Section:
@@ -680,8 +680,8 @@ class ContentSubscriber(_odm.Model):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('email', nonempty=True))
-        self._define_field(_odm.field.Bool('enabled', default=True))
-        self._define_field(_odm.field.String('language', nonempty=True))
+        self.define_field(_odm.field.String('email', nonempty=True))
+        self.define_field(_odm.field.Bool('enabled', default=True))
+        self.define_field(_odm.field.String('language', nonempty=True))
 
-        self._define_index([('email', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
+        self.define_index([('email', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)

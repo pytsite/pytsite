@@ -9,14 +9,12 @@ __license__ = 'MIT'
 
 
 def __init():
-    from sys import modules
     from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg, util, browser
     from . import _model
 
     # Resources
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    tpl.register_global('auth_ui', modules[__name__])
 
     # Routes
     base_path = reg.get('auth_ui.base_path', '/auth_ui')

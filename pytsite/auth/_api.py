@@ -3,7 +3,7 @@
 from collections import OrderedDict
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router, \
-    events as _events, validation as _validation
+    events as _events, validation as _validation, geo_ip as _geo_ip
 from .driver.abstract import AbstractDriver as _AbstractDriver
 from . import _error, _model
 
@@ -177,6 +177,11 @@ def create_user(login: str, password: str=None) -> _model.User:
         if role:
             user.f_add('roles', role)
 
+    # GeoIP data
+    if _router.request:
+        user.f_set('geo_ip', _geo_ip.resolve(_router.request.remote_addr))
+
+    # Issue event
     if user.login != _model.ANONYMOUS_USER_LOGIN:
         user.save()
         _events.fire('pytsite.auth.user.create', user=user)
@@ -214,7 +219,8 @@ def get_role(name: str=None, uid=None) -> _model.Role:
         return _odm.find('role').where('_id', '=', uid).first()
 
 
-def authorize(user: _model.User, count_login=True, issue_event=True) -> _model.User:
+def authorize(user: _model.User, count_login: bool=True, issue_event: bool=True,
+              update_geo_ip: bool=True) -> _model.User:
     """Authorize user.
     """
     if not user:
@@ -225,10 +231,21 @@ def authorize(user: _model.User, count_login=True, issue_event=True) -> _model.U
         logout_current_user(issue_event)
         raise _error.LoginError('pytsite.auth@authorization_error')
 
-    # Saving statistical information
+    # Update login counter
     if count_login:
-        user.f_add('login_count', 1).f_set('last_login', _datetime.now()).save()
+        user.f_inc('login_count').f_set('last_login', _datetime.now()).save()
 
+    # Update geo ip data
+    if update_geo_ip and _router.request:
+        user.f_set('geo_ip', _geo_ip.resolve(_router.request.remote_addr))
+        if not user.country and user.geo_ip.country:
+            user.f_set('country', user.geo_ip.country)
+        if not user.city and user.geo_ip.city:
+            user.f_set('city', user.geo_ip.city)
+
+        user.save()
+
+    # Login event
     if issue_event:
         _events.fire('pytsite.auth.login', user=user)
 
@@ -262,7 +279,7 @@ def get_current_user() -> _model.User:
         if not user:
             return get_anonymous_user()
 
-        return authorize(user, False, False)
+        return authorize(user, False, False, False)
 
     except _error.LoginError:
         return get_anonymous_user()
@@ -291,7 +308,7 @@ def get_user_statuses() -> tuple:
 def logout_url() -> str:
     """Get logout URL.
     """
-    return _router.ep_url('pytsite.auth.ep.logout', {'redirect': _router.current_url()})
+    return _router.ep_url('pytsite.auth.ep.logout', {'__redirect': _router.current_url()})
 
 
 def find_users(active_only: bool=True) -> _odm.Finder:

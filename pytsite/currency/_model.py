@@ -16,12 +16,12 @@ class Rate(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.DateTime('date', nonempty=True))
-        self._define_field(_odm.field.String('source', nonempty=True))
-        self._define_field(_odm.field.String('destination', nonempty=True))
-        self._define_field(_odm.field.Decimal('rate', round=8))
+        self.define_field(_odm.field.DateTime('date', nonempty=True))
+        self.define_field(_odm.field.String('source', nonempty=True))
+        self.define_field(_odm.field.String('destination', nonempty=True))
+        self.define_field(_odm.field.Decimal('rate', round=8))
 
-        self._define_index([('date', _odm.I_DESC), ('source', _odm.I_ASC), ('destination', _odm.I_ASC)])
+        self.define_index([('date', _odm.I_DESC), ('source', _odm.I_ASC), ('destination', _odm.I_ASC)])
 
     @property
     def date(self) -> _datetime:

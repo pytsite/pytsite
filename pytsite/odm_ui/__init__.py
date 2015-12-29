@@ -20,8 +20,8 @@ def __init():
     router.add_rule(admin.base_path() + '/odm_ui/<string:model>',
                     'pytsite.odm_ui.ep.browse',
                     filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm_ui/get_browser_rows/<string:model>',
-                    'pytsite.odm_ui.ep.get_browser_rows',
+    router.add_rule(admin.base_path() + '/odm_ui/ajax_get_browser_rows/<string:model>',
+                    'pytsite.odm_ui.ep.ajax_get_browser_rows',
                     filters='pytsite.auth.ep.filter_authorize')
 
     # Create/modify
@@ -44,6 +44,6 @@ def __init():
 
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)
 
-    browser.register_ep('pytsite.odm_ui.ep.validate_m_form')
+    browser.register_ep('pytsite.odm_ui.ep.ajax_validate_m_form')
 
 __init()

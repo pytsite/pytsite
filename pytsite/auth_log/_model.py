@@ -12,15 +12,15 @@ class AuthLog(_odm_ui.UIModel):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.Ref('user', model='user'))
-        self._define_field(_odm.field.String('ip', nonempty=True))
-        self._define_field(_odm.field.Integer('severity', default=_api.SEVERITY_INFO))
-        self._define_field(_odm.field.String('description'))
-        self._define_field(_odm.field.Virtual('geo_ip'))
+        self.define_field(_odm.field.Ref('user', model='user'))
+        self.define_field(_odm.field.String('ip', nonempty=True))
+        self.define_field(_odm.field.Integer('severity', default=_api.SEVERITY_INFO))
+        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.Virtual('geo_ip'))
 
-        self._define_index(('user', _odm.I_ASC))
-        self._define_index(('ip', _odm.I_ASC))
-        self._define_index(('severity', _odm.I_ASC))
+        self.define_index(('user', _odm.I_ASC))
+        self.define_index(('ip', _odm.I_ASC))
+        self.define_index(('severity', _odm.I_ASC))
 
     @property
     def user(self) -> _auth.model.User:

@@ -67,23 +67,23 @@ class GeoIP(_odm.Model):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('ip', nonempty=True))
-        self._define_field(_odm.field.String('asn'))
-        self._define_field(_odm.field.String('city'))
-        self._define_field(_odm.field.String('country'))
-        self._define_field(_odm.field.String('country_code'))
-        self._define_field(_odm.field.String('isp'))
-        self._define_field(_odm.field.Decimal('latitude'))
-        self._define_field(_odm.field.Decimal('longitude'))
-        self._define_field(_geo.odm_field.LngLat('lng_lat'))
-        self._define_field(_odm.field.String('organization'))
-        self._define_field(_odm.field.String('postal_code'))
-        self._define_field(_odm.field.String('region'))
-        self._define_field(_odm.field.String('region_name'))
-        self._define_field(_odm.field.String('timezone'))
+        self.define_field(_odm.field.String('ip', nonempty=True))
+        self.define_field(_odm.field.String('asn'))
+        self.define_field(_odm.field.String('city'))
+        self.define_field(_odm.field.String('country'))
+        self.define_field(_odm.field.String('country_code'))
+        self.define_field(_odm.field.String('isp'))
+        self.define_field(_odm.field.Decimal('latitude'))
+        self.define_field(_odm.field.Decimal('longitude'))
+        self.define_field(_geo.odm_field.LngLat('lng_lat'))
+        self.define_field(_odm.field.String('organization'))
+        self.define_field(_odm.field.String('postal_code'))
+        self.define_field(_odm.field.String('region'))
+        self.define_field(_odm.field.String('region_name'))
+        self.define_field(_odm.field.String('timezone'))
 
-        self._define_index(('ip', _odm.I_ASC), unique=True)
-        self._define_index(('lng_lat', _odm.I_GEO2D))
+        self.define_index(('ip', _odm.I_ASC), unique=True)
+        self.define_index(('lng_lat', _odm.I_GEO2D))
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.

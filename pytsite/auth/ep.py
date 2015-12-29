@@ -40,10 +40,8 @@ def logout(args: dict, inp: dict) -> _http.response.Redirect:
     """Logout endpoint.
     """
     _api.logout_current_user()
-    redirect_url = _router.base_url()
-    if 'redirect' in inp:
-        redirect_url = _router.url(inp['redirect'])
-    return _http.response.Redirect(redirect_url)
+
+    return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 
 
 def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
@@ -60,13 +58,10 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
         return  # All permissions has been checked successfully
 
     # Redirecting to the authorization endpoint
-    inp['redirect'] = _escape(_router.current_url(True))
+    inp['__redirect'] = _escape(_router.current_url(True))
+    inp['driver'] = _api.get_default_driver().name
 
     if '__form_location' in inp:
         del inp['__form_location']
-    if '__form_redirect' in inp:
-        del inp['__form_redirect']
-
-    inp['driver'] = _api.get_default_driver().name
 
     return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.login', inp))

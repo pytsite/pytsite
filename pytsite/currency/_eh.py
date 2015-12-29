@@ -1,16 +1,26 @@
 """Event Handlers
 """
-from pytsite import form as _form, auth as _auth
-from . import _widget
+from pytsite import form as _form, auth as _auth, auth_ui as _auth_ui, odm as _odm, lang as _lang
+from . import _widget as _currency_widget, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def auth_profile_form_render(frm: _form.Form):
-    user = _get_profile_form_user(frm)
-    print(user.options)
+def odm_ui_user_m_form_setup(frm: _form.Form, entity: _auth_ui.model.UserUI):
+    frm.add_widget(_currency_widget.Select(
+        uid='currency',
+        weight=105,
+        label=_lang.t('pytsite.currency@currency'),
+        value=entity.f_get('currency'),
+        h_size='col-xs-12 col-sm-5 col-md-4 col-lg-3',
+        required=True,
+    ))
+
+
+def odm_model_user_setup(entity: _auth.model.User):
+    entity.define_field(_odm.field.String('currency', default=_api.get_main()))
 
 
 def _get_profile_form_user(frm: _form.Form) -> _auth.model.User:

@@ -7,13 +7,17 @@ source: 'Source'
 destination: 'Recipient'
 rate: 'Rate'
 
-currency_title_UAH: 'Ukrainian hryvnia'
-currency_prefix_UAH: ''
-currency_suffix_UAH: '₴'
-
 currency_title_USD: 'US Dollar'
 currency_prefix_USD: ''
 currency_suffix_USD: '$'
+
+currency_title_EUR: 'Euro'
+currency_prefix_EUR: ''
+currency_suffix_EUR: '€'
+
+currency_title_UAH: 'Ukrainian hryvnia'
+currency_prefix_UAH: ''
+currency_suffix_UAH: '₴'
 
 currency_title_RUB: 'Russian rouble'
 currency_prefix_RUB: ''

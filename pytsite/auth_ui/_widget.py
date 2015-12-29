@@ -12,7 +12,7 @@ class Profile(_widget.Base):
     def __init__(self, uid: str, **kwargs):
         """Init.
 
-        :type user: pytsite.auth._model.User|pytsite.auth_ui._model.UserUI
+        :type user: pytsite.auth._model.User | pytsite.auth_ui._model.UserUI
         """
         super().__init__(uid, **kwargs)
 

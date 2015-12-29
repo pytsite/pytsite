@@ -25,7 +25,7 @@ def __init():
         _api.define(code)
 
     # Tpl globals
-    tpl.register_global('currency', _api)
+    tpl.register_global('currency_fmt', _api.fmt)
 
     # ODM models
     odm.register_model('currency_rate', model.Rate)
@@ -37,7 +37,8 @@ def __init():
                            'fa fa-usd', weight=10, permissions='pytsite.odm_ui.browse.currency_rate')
 
     # Event handlers
-    events.listen('pytsite.form.render.auth_ui_profile', _eh.auth_profile_form_render)
+    events.listen('pytsite.odm.model.user.setup', _eh.odm_model_user_setup)
+    events.listen('pytsite.odm_ui.user.m_form_setup', _eh.odm_ui_user_m_form_setup)
 
 
 # Package initialization

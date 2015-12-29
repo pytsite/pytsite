@@ -43,15 +43,16 @@ class Model(_ABC):
         self._fields = _OrderedDict()
         """:type: dict[str, _field.Abstract]"""
 
-        self._define_field(_field.ObjectId('_id'))
-        self._define_field(_field.String('_model', default=model))
-        self._define_field(_field.Ref('_parent', model=model))
-        self._define_field(_field.RefsList('_children', model=model))
-        self._define_field(_field.DateTime('_created'))
-        self._define_field(_field.DateTime('_modified'))
+        self.define_field(_field.ObjectId('_id'))
+        self.define_field(_field.String('_model', default=model))
+        self.define_field(_field.Ref('_parent', model=model))
+        self.define_field(_field.RefsList('_children', model=model))
+        self.define_field(_field.DateTime('_created'))
+        self.define_field(_field.DateTime('_modified'))
 
         # setup() hook
         self._setup()
+        _events.fire('pytsite.odm.model.{}.setup'.format(model), entity=self)
 
         # Automatically create indices on new collections
         if self._collection_name not in _db.get_collection_names():
@@ -88,7 +89,7 @@ class Model(_ABC):
             if self.has_field(field_name):
                 self.get_field(field_name).set_val(value, False)
 
-    def _define_index(self, fields, unique=False):
+    def define_index(self, fields, unique=False):
         """Define an index.
 
         :param fields: list|tuple
@@ -118,7 +119,7 @@ class Model(_ABC):
 
             self._indexes.append((fields, opts))
 
-    def _define_field(self, field_obj: _field.Abstract):
+    def define_field(self, field_obj: _field.Abstract):
         """Define a field.
         """
         if self.has_field(field_obj.name):
@@ -127,7 +128,7 @@ class Model(_ABC):
 
         return self
 
-    def _remove_field(self, field_name: str):
+    def remove_field(self, field_name: str):
         """Remove field definition.
         """
         if not self.has_field(field_name):

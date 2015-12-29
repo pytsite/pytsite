@@ -1,6 +1,7 @@
 """Currency API Functions
 """
 import re as _re
+from typing import Tuple as _Tuple
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from pytsite import lang as _lang, odm as _odm
@@ -26,7 +27,7 @@ def define(code: str):
         set_main(code)
 
 
-def get_all(include_main: bool = True) -> tuple:
+def get_all(include_main: bool = True) -> _Tuple[str]:
     """Get defined currencies.
     """
     if not __currencies:

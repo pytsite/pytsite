@@ -16,18 +16,18 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('driver', nonempty=True))
-        self._define_field(_odm.field.Dict('driver_opts'))
-        self._define_field(_odm.field.String('content_model', nonempty=True))
-        self._define_field(_odm.field.Bool('process_all_authors', default=True))
-        self._define_field(_odm.field.Bool('with_images_only', default=True))
-        self._define_field(_odm.field.Ref('owner', model='user', nonempty=True))
-        self._define_field(_odm.field.Bool('enabled', default=True))
-        self._define_field(_odm.field.Integer('errors'))
-        self._define_field(_odm.field.String('last_error'))
-        self._define_field(_odm.field.Integer('max_age', default=14))
-        self._define_field(_odm.field.DateTime('paused_till'))
-        self._define_field(_odm.field.List('add_tags'))
+        self.define_field(_odm.field.String('driver', nonempty=True))
+        self.define_field(_odm.field.Dict('driver_opts'))
+        self.define_field(_odm.field.String('content_model', nonempty=True))
+        self.define_field(_odm.field.Bool('process_all_authors', default=True))
+        self.define_field(_odm.field.Bool('with_images_only', default=True))
+        self.define_field(_odm.field.Ref('owner', model='user', nonempty=True))
+        self.define_field(_odm.field.Bool('enabled', default=True))
+        self.define_field(_odm.field.Integer('errors'))
+        self.define_field(_odm.field.String('last_error'))
+        self.define_field(_odm.field.Integer('max_age', default=14))
+        self.define_field(_odm.field.DateTime('paused_till'))
+        self.define_field(_odm.field.List('add_tags'))
 
     @property
     def driver(self) -> str:
@@ -215,7 +215,6 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             form.method = 'GET'
             form.action = _router.current_url()
             form.remove_widget('__form_location')
-            form.remove_widget('__form_redirect')
             form.remove_widget('__odm_ui_entity_id')
             submit_btn = form.get_widget('actions').get_child('action_submit')
             """:type: pytsite.widget._button.Submit"""

@@ -34,7 +34,7 @@ class Form:
         self._area_body_css = kwargs.get('area_body_css', 'form-area-body box-body')
         self._area_footer_css = kwargs.get('area_footer_css', 'form-area-footer box-footer')
 
-        self._uid = uid if uid else _util.random_str()
+        self._uid = uid or _util.random_str()
         self._name = kwargs.get('name', '')
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
@@ -56,12 +56,6 @@ class Form:
             uid='__form_location',
             form_area='hidden')
         )
-
-        # Form redirect location
-        self.add_widget(_widget.input.Hidden(
-            uid='__form_redirect',
-            form_area='hidden'
-        ))
 
         # Form messages
         self.add_widget(_widget.static.Container(
@@ -197,18 +191,6 @@ class Form:
     def location(self) -> str:
         return self.get_widget('__form_location')
 
-    @property
-    def redirect(self) -> str:
-        """Get redirect URL after successful form submit.
-        """
-        return self.get_widget('__form_redirect').get_val()
-
-    @redirect.setter
-    def redirect(self, value: str):
-        """Set redirect URL after successful form submit.
-        """
-        self.get_widget('__form_redirect').set_val(_url_unquote(value))
-
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
@@ -262,13 +244,8 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
+        # Form's location determined only at the rendering
         self.get_widget('__form_location').value = _router.current_url()
-
-        if not self.redirect:
-            redirect_url = _router.request.inp.get('__form_redirect', _router.current_url())
-            if isinstance(redirect_url, list):
-                redirect_url = redirect_url[0]
-            self.redirect = redirect_url
 
         _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
 

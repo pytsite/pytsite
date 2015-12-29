@@ -1,7 +1,7 @@
 """PytSite Wallet Endpoints
 """
-from pytsite import tpl as _tpl, form as _form, html as _html, http as _http, router as _router, odm as _odm, \
-    widget as _widget, lang as _lang, metatag as _metatag, odm_ui as _odm_ui
+from pytsite import tpl as _tpl, http as _http, router as _router, odm as _odm, lang as _lang, metatag as _metatag, \
+    odm_ui as _odm_ui, admin as _admin
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -24,13 +24,13 @@ def transactions_cancel(args: dict, inp: dict):
 
     _metatag.t_set('title', _lang.t('pytsite.wallet@odm_ui_form_title_delete_wallet_transaction'))
 
-    return _tpl.render('pytsite.odm_ui@admin_delete_form', {'form': f})
+    return _admin.render(_tpl.render('pytsite.odm_ui@delete_form', {'form': f}))
 
 
 def transactions_cancel_submit(args: dict, inp: dict):
     ids = inp.get('ids')
     if not ids:
-        return _http.response.Redirect(inp.get('__form_redirect'))
+        return _http.response.Redirect(inp.get('__redirect'))
 
     if isinstance(ids, str):
         ids = (ids,)
@@ -40,4 +40,5 @@ def transactions_cancel_submit(args: dict, inp: dict):
         """:type: pytsite.wallet._model.Transaction"""
         entity.cancel()
 
-    return _http.response.Redirect(inp.get('__form_redirect'))
+    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_transaction'}))
+    return _http.response.Redirect(redirect)

@@ -1,5 +1,24 @@
 # PytSite Changelog
 
+## 0.41.15 (2015-12-29)
+### Added
+- New fields in `auth.model.User`: `geo_ip`, `country`, `city`.
+- More convenient `auth_ui`'s endpoints overriding.
+- `currency_fmt` added to `tpl`'s globals.
+- 'currency' field for `auth.model.user` added by `currency`.
+- 'system' currencies in `currency`.
+
+### Changed
+- `odm.Model.define_field()`, `odm.Model.remove_field()` and `odm.Model.define_index()` are public.
+- `odm.field.Dict.get_val()` is returning `frozendict`.
+- `wallet` has been refactored.
+
+### Removed
+- `form.Form.redirect` property.
+- `auth_ui` global from `tpl`'s globals.
+- `currency` global from `tpl`'s globals.
+
+
 ## 0.41.14 (2015-12-25)
 ### Added
 - New function `tpl.is_global_registered()`.

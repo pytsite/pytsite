@@ -2,7 +2,7 @@
 """
 from typing import Iterable as _Iterable
 from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
-    form as _form, widget as _widget, html as _html
+    form as _form, widget as _widget, html as _html, events as _events
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 
 def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') -> _form.Form:
-    """Get entity modification _form.
+    """Get entity modification form.
     """
     eid = eid if eid != '0' else None
 
@@ -33,17 +33,27 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
     frm = _form.Form(form_uid)
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
-    # Action, redirect and validation endpoints
-    frm.validation_ep = 'pytsite.odm_ui.ep.validate_m_form'
-    frm.action = _router.ep_url('pytsite.odm_ui.ep.post_m_form', {'model': model, 'id': eid if eid else '0'})
-    if not _router.request.inp.get('__form_redirect'):
-        frm.redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
+    # Redirect after successful form submit
+    if _router.request and '__redirect' in _router.request.inp:
+        redirect = _router.request.inp.get('__redirect')
+    else:
+        redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 
-    # Action buttons
-    submit_button = _widget.button.Submit(weight=10, uid='action_submit', value=_lang.t('pytsite.odm_ui@save'),
+    # Action, redirect and validation endpoints
+    frm.validation_ep = 'pytsite.odm_ui.ep.ajax_validate_m_form'
+    frm.action = _router.ep_url('pytsite.odm_ui.ep.post_m_form', {
+        'model': model,
+        'id': eid or '0',
+        '__redirect': redirect,
+    })
+
+    # Submit button
+    submit_button = _widget.button.Submit(weight=10, uid='action-submit', value=_lang.t('pytsite.odm_ui@save'),
                                           color='primary', icon='fa fa-save')
-    cancel_button = _widget.button.Link(weight=20, uid='action_cancel', value=_lang.t('pytsite.odm_ui@cancel'),
-                                        href=frm.redirect, icon='fa fa-remove')
+
+    # Cancel button
+    cancel_button = _widget.button.Link(weight=20, uid='action-cancel', value=_lang.t('pytsite.odm_ui@cancel'),
+                                        href=redirect, icon='fa fa-remove')
     actions = _widget.static.Container(
         uid='actions',
         css='actions-wrapper text-xs-B-center text-sm-left',
@@ -64,16 +74,20 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
     else:
         legend = entity.t('odm_ui_form_title_modify_' + model)
 
+    # Page title
     _metatag.t_set('title', legend)
 
     # Setting up the form with entity hook
     entity.ui_m_form_setup(frm, stage)
+    _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(model), frm=frm, entity=entity)
 
     return frm
 
 
-def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str, redirect: str=None) -> _form.Form:
-    f = _form.Form(fid, action=action)
+def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str) -> _form.Form:
+    """Get entity mass action form.
+    """
+    f = _form.Form(fid)
 
     # List of items to process
     ol = _html.Ol()
@@ -83,11 +97,14 @@ def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str, redi
         ol.append(_html.Li(entity.ui_mass_action_get_entity_description()))
     f.add_widget(_widget.static.HTMLWrap(uid='ids-text', em=ol))
 
-    # Redirect
-    if redirect:
-        f.redirect = redirect
+    # Redirect after successful form submit
+    if _router.request and '__redirect' in _router.request.inp:
+        redirect = _router.request.inp.get('__redirect')
     else:
-        f.redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
+        redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
+
+    # Adding redirect information to the action URL
+    f.action = _router.url(action, query={'__redirect': redirect})
 
     # Continue button
     submit_button = _widget.button.Submit(uid='button-submit', weight=10, value=_lang.t('pytsite.odm_ui@continue'),
@@ -95,13 +112,13 @@ def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str, redi
 
     # Cancel button
     cancel_button = _widget.button.Link(uid='button-cancel', weight=20, value=_lang.t('pytsite.odm_ui@cancel'),
-                                        href=f.redirect, icon='ban', form_area='footer')
+                                        href=redirect, icon='ban', form_area='footer')
     f.add_widget(submit_button).add_widget(cancel_button)
 
     return f
 
 
-def get_d_form(model: str, ids: _Iterable, redirect: str=None) -> _form.Form:
+def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     """Get entities delete _form.
     """
     model_class = _odm.get_model_class(model)
@@ -112,7 +129,7 @@ def get_d_form(model: str, ids: _Iterable, redirect: str=None) -> _form.Form:
 
     # Setup form
     f_action = _router.ep_url('pytsite.odm_ui.ep.post_d_form', {'model': model})
-    f = get_mass_action_form('odm-ui-delete-form', model, ids, f_action, redirect)
+    f = get_mass_action_form('odm-ui-delete-form', model, ids, f_action)
 
     # Change submit button color
     submit_btn = f.get_widget('button-submit')

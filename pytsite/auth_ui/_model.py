@@ -13,9 +13,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """
     def _setup(self):
         super()._setup()
-        self._define_field(_odm.field.Bool('profile_is_public'))
-        self._define_field(_odm.field.Virtual('profile_view_url'))
-        self._define_field(_odm.field.Virtual('profile_edit_url'))
+        self.define_field(_odm.field.Bool('profile_is_public'))
 
     @property
     def profile_is_public(self) -> bool:
@@ -23,25 +21,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
     @property
     def profile_view_url(self) -> str:
-        return self.f_get('profile_view_url')
+        return _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
 
     @property
     def profile_edit_url(self) -> str:
-        return self.f_get('profile_edit_url')
-
-    def _on_f_get(self, field_name: str, value, **kwargs):
-        """Hook.
-        """
-        if field_name == 'profile_view_url':
-            value = _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
-
-        elif field_name == 'profile_edit_url':
-            value = _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
-                'nickname': self.nickname,
-                '__form_redirect': _router.current_url(),
-            })
-
-        return super()._on_f_get(field_name, value, **kwargs)
+        return _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
+            'nickname': self.nickname,
+            '__redirect': _router.current_url(),
+        })
 
     @classmethod
     def ui_browser_setup(cls, browser):
@@ -178,9 +165,25 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             label=self.t('password'),
         ))
 
+        # Country
+        form.add_widget(_widget.input.Password(
+            weight=90,
+            uid='country',
+            label=self.t('country'),
+            value=self.country,
+        ))
+
+        # City
+        form.add_widget(_widget.input.Password(
+            weight=100,
+            uid='city',
+            label=self.t('city'),
+            value=self.city,
+        ))
+
         # Description
         form.add_widget(_widget.input.TextArea(
-            weight=90,
+            weight=110,
             uid='description',
             value=self.f_get('description'),
             label=self.t('about_yourself'),
@@ -190,7 +193,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Status
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.select.Select(
-                weight=100,
+                weight=120,
                 uid='status',
                 value=self.f_get('status'),
                 label=self.t('status'),
@@ -201,7 +204,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # URLs
         form.add_widget(_widget.input.StringList(
-            weight=110,
+            weight=130,
             uid='urls',
             label=self.t('social_links'),
             value=self.urls,
@@ -213,7 +216,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Roles
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_odm_ui.widget.EntityCheckboxes(
-                weight=120,
+                weight=140,
                 uid='roles',
                 label=self.t('roles'),
                 model='role',
@@ -225,7 +228,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
             form.add_widget(_widget.input.Text(
-                weight=130,
+                weight=150,
                 uid='token',
                 value=self.f_get('token'),
                 label=self.t('token'),

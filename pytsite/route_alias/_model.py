@@ -13,11 +13,11 @@ class RouteAlias(_odm.Model):
     def _setup(self):
         """Hook.
         """
-        self._define_field(_odm.field.String('alias', nonempty=True))
-        self._define_field(_odm.field.String('target', nonempty=True))
-        self._define_field(_odm.field.String('language', nonempty=True))
+        self.define_field(_odm.field.String('alias', nonempty=True))
+        self.define_field(_odm.field.String('target', nonempty=True))
+        self.define_field(_odm.field.String('language', nonempty=True))
 
-        self._define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
+        self.define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
 
     @property
     def alias(self) -> str:
