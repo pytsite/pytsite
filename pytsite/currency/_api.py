@@ -88,10 +88,8 @@ def get_rate(source: str, destination: str, date: _datetime=None) -> _Decimal:
     return _Decimal(1)
 
 
-def exchange(source: str, destination: str, amount, date: _datetime = None) -> _Decimal:
+def exchange(source: str, destination: str, amount: _Decimal, date: _datetime = None) -> _Decimal:
     """Exchange one currency to another.
-
-    :type amount: float | str | _Decimal
     """
     if amount is None:
         raise ValueError('Exchange amount must be specified.')
@@ -121,8 +119,7 @@ def fmt(currency: str, amount, decimal_places: int = 2, html=False):
 
     amount = str(round(amount, decimal_places))
 
-    symbol_before = get_prefix_symbol(currency)
-    symbol_after = get_suffix_symbol(currency)
+    symbol = get_symbol(currency)
 
     if html:
         integer = _re.sub('^(\d+).+$', '<span class="amount-integer">\\1</span>', amount)
@@ -132,12 +129,10 @@ def fmt(currency: str, amount, decimal_places: int = 2, html=False):
                               '<span class="amount-point">.</span><span class="amount-decimal">\\1</span>', amount)
 
         amount = '{}{}'.format(integer, decimal)
-        if symbol_before:
-            symbol_before = '<span class="symbol-before">{}</span>'.format(symbol_before)
-        if symbol_after:
-            symbol_after = '<span class="symbol-after">{}</span>'.format(symbol_after)
+        if symbol:
+            symbol = '<span class="symbol">{}</span>'.format(symbol)
 
-    r = '{} {} {}'.format(symbol_before, amount, symbol_after).strip()
+    r = '{} {}'.format(amount, symbol).strip()
 
     return r
 
@@ -154,25 +149,13 @@ def get_title(code: str) -> str:
         return _lang.t('currency_title_' + code)
 
 
-def get_prefix_symbol(code: str) -> str:
-    """Get currency prefix symbol.
-    """
-    if code not in __currencies:
-        raise _error.CurrencyNotDefined("Currency '{}' is not defined.".format(code))
-
-    try:
-        return _lang.t('pytsite.currency@currency_prefix_' + code, exceptions=True)
-    except _lang.error.TranslationError:
-        return _lang.t('currency_prefix_' + code)
-
-
-def get_suffix_symbol(code: str) -> str:
+def get_symbol(code: str) -> str:
     """Get currency suffix symbol.
     """
     if code not in __currencies:
         raise _error.CurrencyNotDefined("Currency '{}' is not defined.".format(code))
 
     try:
-        return _lang.t('pytsite.currency@currency_suffix_' + code, exceptions=True)
+        return _lang.t('pytsite.currency@currency_symbol_' + code, exceptions=True)
     except _lang.error.TranslationError:
-        return _lang.t('currency_suffix_' + code)
+        return _lang.t('currency_symbol_' + code)

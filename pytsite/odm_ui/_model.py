@@ -1,6 +1,6 @@
 """ODM UI Model.
 """
-from pytsite import odm as _odm
+from pytsite import odm as _odm, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -108,3 +108,28 @@ class UIModel(_odm.Model, UIMixin):
         """Get delete form description.
         """
         return str(self.id)
+
+    def ui_m_form_get_url(self, args: dict=None):
+        """Get modification form URL.
+        """
+        if not args:
+            args = {}
+
+        args.update({'model': self.model, 'id': str(self.id)})
+
+        return _router.ep_url('pytsite.odm_ui.ep.get_m_form', args)
+
+    def ui_d_form_get_url(self, ajax: bool=False) -> str:
+        """Get deletion form URL.
+        """
+        if ajax:
+            return _router.ep_url('pytsite.odm_ui.ep.post_d_form', {
+                'model': self.model,
+                'ids': str(self.id),
+                'ajax': 'true'
+            })
+        else:
+            return _router.ep_url('pytsite.odm_ui.ep.get_d_form', {
+                'model': self.model,
+                'ids': str(self.id)
+            })

@@ -23,7 +23,6 @@ def __init():
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    tpl.register_global('content', sys.modules[__name__])
 
     # Assets
     assetman.register_package(__name__)

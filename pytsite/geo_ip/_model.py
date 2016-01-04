@@ -75,7 +75,7 @@ class GeoIP(_odm.Model):
         self.define_field(_odm.field.String('isp'))
         self.define_field(_odm.field.Decimal('latitude'))
         self.define_field(_odm.field.Decimal('longitude'))
-        self.define_field(_geo.odm_field.LngLat('lng_lat'))
+        self.define_field(_geo.field.LngLat('lng_lat'))
         self.define_field(_odm.field.String('organization'))
         self.define_field(_odm.field.String('postal_code'))
         self.define_field(_odm.field.String('region'))

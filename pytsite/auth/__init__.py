@@ -35,14 +35,15 @@ def __init():
     register_driver(password.Driver())
 
     # Routes
-    default_driver = get_default_driver().name
     base_path = reg.get('auth.base_path', '/auth')
     router.add_rule(base_path + '/login/<driver>', __name__ + '.ep.login')
     router.add_rule(base_path + '/login/<driver>/post', __name__ + '.ep.login_submit', methods='POST')
     router.add_rule(base_path + '/logout', __name__ + '.ep.logout')
 
     # Template engine globals
-    tpl.register_global('auth', _api)
+    tpl.register_global('auth_get_current_user', _api.get_current_user)
+    tpl.register_global('auth_get_login_form', _api.get_login_form)
+    tpl.register_global('auth_get_logout_url', _api.get_logout_url)
 
     # Event handlers
     events.listen('pytsite.setup', _eh.app_setup)

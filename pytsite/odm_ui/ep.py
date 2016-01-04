@@ -1,7 +1,7 @@
 """ODM UI Endpoints.
 """
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
-    validation as _validation, admin as _admin
+    admin as _admin, form as _form
 from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -50,9 +50,11 @@ def ajax_validate_m_form(args: dict, inp: dict) -> dict:
         return {'status': True}
 
     try:
-        _api.get_m_form(model, entity_id, 'validate').fill(inp, validation_mode=True).validate()
+        frm = _api.get_m_form(model, entity_id, 'validate')
+        frm.fill(inp, mode='validation')
+        frm.validate()
         return {'status': True}
-    except _validation.error.ValidatorError as e:
+    except _form.error.ValidationError as e:
         return {'status': False, 'messages': {'widgets': e.errors}}
 
 
@@ -68,7 +70,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     # Fill and validate form
     try:
         form.fill(inp).validate()
-    except _validation.error.ValidatorError as e:
+    except _form.error.ValidationError as e:
         _router.session.add_error(str(e.errors))
         raise _http.error.InternalServerError()
 

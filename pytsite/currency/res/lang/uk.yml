@@ -8,20 +8,16 @@ destination: 'Одержувач'
 rate: 'Курс'
 
 currency_title_EUR: 'Евро'
-currency_prefix_EUR: ''
-currency_suffix_EUR: '€'
+currency_symbol_EUR: '€'
 
 currency_title_USD: 'Долар США'
-currency_prefix_USD: ''
-currency_suffix_USD: '$'
+currency_symbol_USD: '$'
 
 currency_title_UAH: 'Українська гривня'
-currency_prefix_UAH: ''
-currency_suffix_UAH: '₴'
+currency_symbol_UAH: '₴'
 
 currency_title_RUB: 'Російський рубль'
-currency_prefix_RUB: ''
-currency_suffix_RUB: 'Ꝑ'
+currency_symbol_RUB: 'Ꝑ'
 
 odm_ui_permission_group_description: 'Валюта'
 

@@ -162,19 +162,22 @@ class Content(_odm_ui.UIModel):
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
-        if field_name == 'route_alias' and isinstance(value, str):
-            # Sanitizing path
-            route_alias_str = self._generate_route_alias_str(value)
+        if field_name == 'route_alias' and (isinstance(value, str) or value is None):
+            # Generate route alias string via hook method
+            if value is None:
+                value = ''
+            route_alias_str = self._alter_route_alias_str(value.strip())
 
             # No route alias is attached, so we need to create a new one
             if not self.route_alias:
                 value = _route_alias.create(route_alias_str, 'NONE', self.language).save()
 
-            # Existing route alias is attached and its value need to be changed
+            # Existing route alias is attached and its value needs to be changed
             elif self.route_alias and self.route_alias.alias != route_alias_str:
                 self.route_alias.delete()
                 value = _route_alias.create(route_alias_str, 'NONE', self.language).save()
 
+            # Keep old route alias
             else:
                 value = self.route_alias
 
@@ -239,7 +242,7 @@ class Content(_odm_ui.UIModel):
 
         # Route alias is required
         if not self.route_alias:
-            self.f_set('route_alias', self.title)
+            self.f_set('route_alias', None)
 
         # Extract inline images from the body
         body, images = self._extract_body_images()
@@ -538,15 +541,17 @@ class Content(_odm_ui.UIModel):
                 })
                 _mail.Message(m_to, m_subject, m_body).send()
 
-    def _generate_route_alias_str(self, s: str) -> str:
-        s = s.strip()
-        if not s:
+    def _alter_route_alias_str(self, orig_str: str) -> str:
+        """Alter route alias string.
+        """
+        # Checking original string
+        if not orig_str:
             if self.title:
-                s = self.title
+                return self.title
             else:
                 raise ValueError('Cannot generate route alias because title is empty.')
 
-        return s
+        return orig_str
 
 
 class Page(Content):
@@ -566,7 +571,7 @@ class Article(Content):
         self.define_field(_odm.field.StringList('video_links'))
         self.define_field(_odm.field.StringList('ext_links'))
 
-        self.define_field(_geo.odm_field.Location('location'))
+        self.define_field(_geo.field.Location('location'))
         self.define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     @property
@@ -598,7 +603,10 @@ class Article(Content):
         """Get single UI browser row hook.
         """
         r = list(super().ui_browser_get_row())
-        r.insert(1, self.section.title)
+        if self.section:
+            r.insert(1, self.section.title)
+        else:
+            r.insert(1, '')
 
         return tuple(r)
 
@@ -657,21 +665,23 @@ class Article(Content):
         """Hook.
         """
         if self.is_new and self.has_field('section') and self.section and self.tags:
+            # Attach section to tags
             for tag in self.tags:
                 tag.f_add('sections', self.section).save()
 
         super()._pre_save()
 
-    def _generate_route_alias_str(self, s: str) -> str:
-        if not s:
-            if not self.title:
-                raise ValueError('Cannot generate route alias string due to empty title.')
-            s = self.title
+    def _alter_route_alias_str(self, orig_str: str) -> str:
+        """Alter route alias string.
+        """
+        orig_str = super()._alter_route_alias_str(orig_str)
 
-        if self.section and not _re.search('^/?[a-z0-9\-]+/[a-z0-9\-]+', s, _re.IGNORECASE):
-            return '/{}/{}'.format(self.section.alias, s)
-        else:
-            return '/{}'.format(s)
+        # Prefix given article title with section title if it exists.
+        # Do this work ONLY if title doesn't look like correct path alias string.
+        if self.section and not _re.search('^/?[a-z0-9\-]+/[a-z0-9\-]+', orig_str, _re.IGNORECASE):
+            return '{}/{}'.format(self.section.alias, orig_str)
+
+        return orig_str
 
 
 class ContentSubscriber(_odm.Model):

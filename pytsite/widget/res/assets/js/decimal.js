@@ -1,5 +1,5 @@
 $(function () {
-    $('.widget-input-float').each(function () {
+    $('.widget-input-decimal').each(function () {
         var widget = $(this);
         var options = {
             allowMinus: false

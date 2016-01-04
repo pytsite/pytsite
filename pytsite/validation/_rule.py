@@ -2,6 +2,7 @@
 """
 import re as _re
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from decimal import Decimal as _Decimal
 from pytsite import util as _util
 from . import _error
 
@@ -12,7 +13,7 @@ __license__ = 'MIT'
 
 _re_num = _re.compile('\-?\d+(\.\d+)?')
 _re_int_num = _re.compile('\-?\d+')
-_re_float_num = _re.compile('\-?\d+\.\d+')
+_re_decimal_num = _re.compile('\-?\d+\.\d+')
 
 
 class Base(_ABC):
@@ -97,7 +98,7 @@ class Number(Base):
     def _do_validate(self):
         if isinstance(self._value, str) and not _re_num.match(self._value):
             raise _error.RuleError(self._msg_id)
-        elif type(self._value) not in (None, float, int):
+        elif type(self._value) not in (float, int, _Decimal):
             raise _error.RuleError(self._msg_id)
 
 
@@ -109,23 +110,23 @@ class Integer(Base):
         """
         if isinstance(self._value, str) and not _re_int_num.match(self._value):
             raise _error.RuleError(self._msg_id)
-        if type(self._value) not in (None, int):
+        if type(self._value) not in (int,):
             raise _error.RuleError(self._msg_id)
 
 
-class Float(Base):
+class Decimal(Base):
     """Float Validation Rule.
     """
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        if isinstance(self._value, str) and not _re_float_num.match(self._value):
+        if isinstance(self._value, str) and not _re_decimal_num.match(self._value):
             raise _error.RuleError(self._msg_id)
-        elif type(self._value) not in (None, float):
+        elif type(self._value) not in (float, _Decimal):
             raise _error.RuleError(self._msg_id)
 
 
-class Less(Number):
+class Less(Base):
     def __init__(self, value: float=None, msg_id: str=None, **kwargs):
         """Init.
         """
@@ -135,6 +136,7 @@ class Less(Number):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        Number().validate(self._value)
         if float(self._value) >= float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
@@ -143,11 +145,12 @@ class LessOrEqual(Less):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        Number().validate(self._value)
         if float(self.value) > float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
 
-class Greater(Number):
+class Greater(Base):
     def __init__(self, value: float=None, msg_id: str=None, **kwargs):
         """Init.
         """
@@ -157,8 +160,7 @@ class Greater(Number):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        super()._do_validate()
-
+        Number().validate(self._value)
         if float(self.value) <= float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 
@@ -167,6 +169,7 @@ class GreaterOrEqual(Greater):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        Number().validate(self._value)
         if float(self.value) < float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
 

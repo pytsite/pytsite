@@ -105,10 +105,21 @@ def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None
 
 
 def add_path_alias(alias: str, target: str):
+    """Add an alias for a path.
+    """
     _path_aliases[alias] = target
 
 
+def remove_path_alias(alias: str):
+    """Remove an alias for a path.
+    """
+    if alias in _path_aliases:
+        del _path_aliases[alias]
+
+
 def is_ep_callable(ep_name: str) -> bool:
+    """Check whether endpoint is callable.
+    """
     try:
         resolve_ep_callable(ep_name)
         return True

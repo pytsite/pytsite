@@ -2,8 +2,7 @@
 """
 # Public API
 from . import _model as model
-from ._api import define, get_all, get_main, set_main, get_rate, exchange, fmt, get_title, get_prefix_symbol, \
-    get_suffix_symbol
+from ._api import define, get_all, get_main, set_main, get_rate, exchange, fmt, get_title, get_symbol
 from . import _widget as widget, _error as error
 
 __author__ = 'Alexander Shepetko'

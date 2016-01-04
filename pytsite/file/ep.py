@@ -1,12 +1,12 @@
 """File Plugin Endpoints.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 from os import path, unlink
 from pytsite import reg as _reg, util as _util, http as _http, router as _router
 from . import _functions
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 def upload(args: dict, inp: dict) -> _http.response.JSON:
@@ -30,7 +30,7 @@ def upload(args: dict, inp: dict) -> _http.response.JSON:
 
     # Request was from CKEditor
     if inp.get('CKEditor') and inp.get('CKEditorFuncNum'):
-        r = r[0]  # From CKEditor only one file can be
+        r = r[0]  # From CKEditor only one file can be uploaded
         script = 'window.parent.CKEDITOR.tools.callFunction("{}", "{}", "");'\
             .format(inp.get('CKEditorFuncNum'), r['url'])
         return '<script type="text/javascript">{}</script>'.format(script)  # CKEditor requires such answer format

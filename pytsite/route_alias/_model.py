@@ -1,6 +1,6 @@
 """Route Alias Model.
 """
-from pytsite import odm as _odm
+from pytsite import odm as _odm, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -39,3 +39,8 @@ class RouteAlias(_odm.Model):
             value = _api.sanitize_alias_string(value, self.language)
 
         return super()._on_f_set(field_name, value, **kwargs)
+
+    def _after_delete(self):
+        """Hook.
+        """
+        _router.remove_path_alias(self.alias)

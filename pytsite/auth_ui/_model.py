@@ -166,7 +166,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Country
-        form.add_widget(_widget.input.Password(
+        form.add_widget(_widget.input.Text(
             weight=90,
             uid='country',
             label=self.t('country'),
@@ -174,7 +174,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # City
-        form.add_widget(_widget.input.Password(
+        form.add_widget(_widget.input.Text(
             weight=100,
             uid='city',
             label=self.t('city'),

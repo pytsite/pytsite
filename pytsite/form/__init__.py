@@ -1,9 +1,9 @@
 """Pytsite Form Package.
 """
-from urllib.parse import unquote as _url_unquote
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
     validation as _validation, tpl as _tpl, browser as _browser, events as _events
+from . import _error as error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -218,7 +218,7 @@ class Form:
     def remove_rules(self, widget_uid: str):
         """Remove validation's rules from the widget.
         """
-        self.get_widget(widget_uid).remove_rules()
+        self.get_widget(widget_uid).clear_rules()
 
         return self
 
@@ -228,18 +228,16 @@ class Form:
         errors = {}
 
         # Validate each widget
-        for widget in self.get_widgets().values():
+        for f_name, widget in self.get_widgets().items():
             try:
                 widget.validate()
-            except _validation.error.ValidatorError as e:
-                for field_name, exception_errors in e.errors.items():
-                    if field_name not in errors:
-                        errors[field_name] = []
-                    for error_msg in exception_errors:
-                        errors[field_name].append(error_msg)
+            except _validation.error.RuleError as e:
+                if f_name not in errors:
+                    errors[f_name] = []
+                errors[f_name].append(str(e))
 
         if errors:
-            raise _validation.error.ValidatorError(errors)
+            raise error.ValidationError(errors)
 
     def render(self) -> str:
         """Render the form.

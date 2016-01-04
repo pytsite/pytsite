@@ -38,7 +38,7 @@ class Input(_base.Base):
 
     def _clear_non_empty_rule(self):
         rules = [r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)]
-        self.remove_rules().add_rules(rules)
+        self.clear_rules().add_rules(rules)
 
 
 class Hidden(Input):
@@ -216,17 +216,17 @@ class Integer(Number):
         return super().set_val(int(value), **kwargs)
 
 
-class Float(Number):
-    """Float Input Widget
+class Decimal(Number):
+    """Decimal Input Widget
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
 
-        self._css = ' '.join((self._css, 'widget-input-float'))
-        self.add_rule(_validation.rule.Float())
-        _assetman.add('pytsite.widget@js/float.js')
+        self._css = ' '.join((self._css, 'widget-input-decimal'))
+        self.add_rule(_validation.rule.Decimal())
+        _assetman.add('pytsite.widget@js/decimal.js')
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.

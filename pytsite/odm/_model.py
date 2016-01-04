@@ -310,10 +310,14 @@ class Model(_ABC):
         """Get field's value.
         """
         with _threading.get_r_lock():
-            self._check_deletion()
+            # Yes, here we shouldn't call self._check_deletion(),
+            # because entity might want to have access to its fields after deletion.
+
+            # Get value
             field_val = self.get_field(field_name).get_val(**kwargs)
-            field_val = self._on_f_get(field_name, field_val, **kwargs)
-            return field_val
+
+            # Pass value through hook method
+            return self._on_f_get(field_name, field_val, **kwargs)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.
@@ -444,10 +448,15 @@ class Model(_ABC):
             # Getting storable data from each field
             data = {}
             for f_name, field in self._fields.items():
+                # Virtual fields should not be saved
                 if isinstance(field, _field.Virtual):
                     continue
+
+                # Required fields should be filled
                 if field.nonempty and field.is_empty:
                     raise _error.FieldEmpty("Value of the field '{}' cannot be empty.".format(f_name))
+
+                # Get serializable value of the field
                 data[f_name] = field.get_storable_val()
 
             # Let DB to calculate object's ID

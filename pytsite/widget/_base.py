@@ -1,6 +1,6 @@
 """Abstract Base Widget.
 """
-from typing import Iterable as _Iterable
+from typing import Iterable as _Iterable, Tuple as _Tuple
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util, html as _html, validation as _validation
 
@@ -32,11 +32,18 @@ class Base(_ABC):
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
         self._form_area = kwargs.get('form_area', 'body')
-        self._validator = _validation.Validator()
+        self._rules = kwargs.get('rules', [])
+
+        if not isinstance(self._rules, list):
+            self._rules = [self._rules]
+
+        for rule in self._rules:
+            if not isinstance(rule, _validation.rule.Base):
+                raise TypeError('instance of pytsite.validation.rule.Base expected.')
 
         # It is important to filter value through the setter-method
         if 'value' in kwargs:
-            self.set_val(kwargs.get('value'))
+            self.set_val(kwargs.get('value'), mode='init')
 
     def append(self, widget):
         """Append a child widget.
@@ -76,8 +83,6 @@ class Base(_ABC):
         """Set value of the widget.
         """
         self._value = value
-        if self._validator.has_field(self.uid):
-            self._validator.set_val(self.uid, value)
 
         return self
 
@@ -97,7 +102,7 @@ class Base(_ABC):
     def show(self):
         """Shows the widget.
         """
-        self._hidden = True
+        self._hidden = False
 
         return self
 
@@ -105,7 +110,7 @@ class Base(_ABC):
     def children(self):
         """Get children widgets.
 
-        :rtype: list[Base]
+        :rtype: _Tuple[Base]
         """
         sort = []
         for w in self._children:
@@ -115,7 +120,7 @@ class Base(_ABC):
         for w in _util.weight_sort(sort):
             r.append(w['widget'])
 
-        return r
+        return tuple(r)
 
     def get_child(self, uid: str):
         """Get child widget by uid.
@@ -221,15 +226,10 @@ class Base(_ABC):
     def h_size(self, value: str):
         self._h_size = value
 
-    def validate(self):
-        """Validate the widget.
-        """
-        self._validator.validate()
-
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.
         """
-        self._validator.add_rule(self._uid, rule)
+        self._rules.append(rule)
 
         return self
 
@@ -237,21 +237,27 @@ class Base(_ABC):
         """Add multiple validation rules.
         """
         for rule in rules:
-            self.add_rules(rule)
+            self.add_rule(rule)
 
         return self
 
-    def get_rules(self) -> list:
+    def get_rules(self) -> _Tuple[_validation.rule.Base]:
         """Get validation rules.
         """
-        return self._validator.get_rules(self.uid)
+        return tuple(self._rules)
 
-    def remove_rules(self):
-        """Add validation rules.
+    def clear_rules(self):
+        """Clear validation rules.
         """
-        self._validator.remove_rules(self.uid)
+        self._rules = []
 
         return self
+
+    def validate(self):
+        """Validate the widget's rules.
+        """
+        for rule in self.get_rules():
+            rule.validate(self.get_val(mode='validation'))
 
     def _group_wrap(self, content) -> _html.Element:
         """Wrap input string into 'form-group' container.

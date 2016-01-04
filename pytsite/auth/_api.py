@@ -305,7 +305,7 @@ def get_user_statuses() -> tuple:
     )
 
 
-def logout_url() -> str:
+def get_logout_url() -> str:
     """Get logout URL.
     """
     return _router.ep_url('pytsite.auth.ep.logout', {'__redirect': _router.current_url()})

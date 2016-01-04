@@ -74,6 +74,7 @@ _env.globals['router'] = _router
 _env.globals['url'] = _router.url
 _env.globals['ep_url'] = _router.ep_url
 _env.globals['current_url'] = _router.current_url
+_env.globals['current_path'] = _router.current_path
 _env.globals['base_url'] = _router.base_url
 _env.globals['is_base_url'] = _router.is_base_url
 _env.globals['nav_link'] = _util.nav_link

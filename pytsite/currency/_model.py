@@ -88,7 +88,7 @@ class Rate(_odm_ui.UIModel):
             required=True,
         ))
 
-        form.add_widget(_widget.input.Float(
+        form.add_widget(_widget.input.Decimal(
             uid='rate',
             weight=40,
             label=self.t('rate'),

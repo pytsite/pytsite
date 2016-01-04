@@ -1,5 +1,30 @@
 # PytSite Changelog
 
+## 0.41.16 (2016-01-04)
+### Added
+- New `tpl`'s globals: `auth_get_current_user()`, `auth_get_login_form()`, `auth_get_logout_url()`, `current_path()`.
+- 'mode' keyword argument in widgets' `set_val()` calls.
+- New methods in `odm_ui.model.UIModel`: `ui_m_form_get_url()` and `ui_d_form_get_url()`.
+- New method `router.remove_path_alias()`.
+- New ODM field: `wallet.field.Money`.
+- New widget: `wallet.widget.MoneyInput`.
+
+### Changed
+- 'prefix_symbol' and 'suffix_symbol' replaced with 'symbol' in `currency`.
+- `widget.input.Float` is `widget.input.Decimal` now.
+- `validation.rule.Float` is `validation.rule.Decimal` now.
+- Widgets validation logic.
+- `widget.Base.remove_rules()` reamed to `widget.Base.clear_rules()`.
+
+### Fixed
+- Invalid widget types in `auth_ui.model.UserUI`.
+- Route alias string sanitization in `content.model.Content`.
+- Errors in `Number`-based validation rules.
+
+### Removed
+- 'auth', 'content', 'disqus', 'flag' from `tpl`'s globals.
+
+
 ## 0.41.15 (2015-12-29)
 ### Added
 - New fields in `auth.model.User`: `geo_ip`, `country`, `city`.
@@ -1005,7 +1030,7 @@
 - `core.widget.static.Text` now separates value and title.
 
 ### Fixed
-- Error in `auth.logout_url`.
+- Error in `auth.logout_url()`.
 - Field existence check in `content.model.Article.ui_m_form_setup()`.
 - Error in template `flag@widget`.
 - Incorrect behaviour in `core.validation.rule.DictPartsNotEmpty`.

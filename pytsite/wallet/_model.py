@@ -291,7 +291,7 @@ class Transaction(_odm_ui.UIModel):
                 value=self.destination,
         ))
 
-        form.add_widget(_widget.input.Float(
+        form.add_widget(_widget.input.Decimal(
                 uid='amount',
                 weight=30,
                 label=self.t('amount'),

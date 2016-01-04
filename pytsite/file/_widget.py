@@ -1,5 +1,6 @@
 """File Widgets.
 """
+from typing import Iterable as _Iterable
 from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _client, html as _html, \
     router as _router
 from . import _functions
@@ -22,9 +23,6 @@ class FilesUpload(_widget.Base):
             raise ValueError('Model is not specified.')
 
         self._css = ' '.join((self._css, 'widget-files-upload'))
-
-        # Processing setter filtering
-        self.set_val(self._value)
 
         self._max_file_size = int(kwargs.get('max_file_size', 2))
         self._max_files = int(kwargs.get('max_files', 1))
@@ -110,7 +108,7 @@ class FilesUpload(_widget.Base):
 
     def get_html_em(self) -> str:
         self._data = {
-            'url': _router.ep_url('pytsite.file.eps.upload', {'model': self._model}),
+            'url': _router.ep_url('pytsite.file.ep.upload', {'model': self._model}),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,
@@ -124,12 +122,13 @@ class FilesUpload(_widget.Base):
 
         return self._group_wrap(widget_em)
 
-    def set_val(self, value: list, **kwargs):
+    def set_val(self, value: _Iterable, **kwargs):
         """Set value of the widget.
         """
         if value is None:
             return
 
+        # Value
         if type(value) not in (list, tuple):
             value = (value,)
 
@@ -141,9 +140,10 @@ class FilesUpload(_widget.Base):
             if entity:
                 clean_val.append(entity)
 
-        # Delete files which are has been removed from the widget on the browser's side
+        # Delete files which are has been removed from the widget on the browser's side,
+        # ONLY if the form is not in validation mode
         to_delete = _router.request.inp.get(self._uid + '_to_delete')
-        if to_delete and not kwargs.get('validation_mode'):  # IMPORTANT: not in form validation mode
+        if to_delete and kwargs.get('mode') not in ('init', 'validation'):
             if isinstance(to_delete, str):
                 to_delete = [to_delete]
             for ref in to_delete:

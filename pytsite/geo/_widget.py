@@ -1,6 +1,7 @@
 """Geo Widgets.
 """
 from json import dumps as _json_dumps, loads as _json_loads
+from decimal import Decimal as _Decimal
 from pytsite import assetman as _assetman, widget as _widget, html as _html, lang as _lang
 from . import _functions
 
@@ -10,7 +11,7 @@ __license__ = 'MIT'
 
 
 class LngLat(_widget.Base):
-    """Get Latitude and Longitude Input Widget.
+    """Latitude/longitude widget.
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
@@ -26,7 +27,7 @@ class LngLat(_widget.Base):
         :param val: list | tuple | str
         """
         if val is None:
-            val = [0.0, 0.0]
+            val = (_Decimal('0.0'), _Decimal('0.0'))
         elif isinstance(val, str):
             val = _json_loads(val)
 
@@ -37,15 +38,23 @@ class LngLat(_widget.Base):
         if len(val) != 2:
             raise ValueError("Widget '{}': value must contain exact 2 items.".format(self.name))
 
-        if not isinstance(val[0], float) or not isinstance(val[0], float):
-            raise ValueError("Widget '{}': value must contain only float items.".format(self.name))
+        valid_types = (float, _Decimal)
+        if type(val[0]) not in valid_types or type(val[1]) not in valid_types:
+            raise TypeError("Widget '{}': value must contain only float or decimal items.".format(self.name))
+
+        val = (round(_Decimal(val[0]), 6), round(_Decimal(val[1]), 6))
 
         return super().set_val(val, **kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        return self._group_wrap(_html.Input(type='hidden', name=self._uid, value=_json_dumps(self.get_val())))
+        v = (float(self.get_val()[0]), float(self.get_val()[1]))
+        w = _html.TagLessElement()
+        w.append(_html.P('Longitude: {}, latitude: {}'.format(v[0], v[1]), cls='form-control-static'))
+        w.append(_html.Input(type='hidden', uid=self._uid, name=self._uid, value=_json_dumps(v)))
+
+        return self._group_wrap(w)
 
 
 class Location(_widget.Base):
@@ -177,10 +186,10 @@ class StaticMap(_widget.Base):
         self._lng = kwargs.get('lng', 50.45)
         self._lat = kwargs.get('lat', 30.523333)
         self._query = kwargs.get('query')
-        self._zoom = kwargs.get('zoom', 13)
+        self._zoom = kwargs.get('zoom', 15)
         self._center = '%f,%f' % (self._lat, self._lng)
-        self._width = kwargs.get('width', 320)
-        self._height = kwargs.get('height', 240)
+        self._width = kwargs.get('width', 640)
+        self._height = kwargs.get('height', 320)
         self._link = kwargs.get('link', True)
 
         self._css += ' widget-geo-static-map'

@@ -2,8 +2,10 @@
 """
 # Public API
 from . import _error as error, _model as model
+from . import _field as field, _widget as widget
 from ._api import create_account, get_account, create_transaction, commit_transactions_1, commit_transactions_2, \
     cancel_transactions_1, cancel_transactions_2
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

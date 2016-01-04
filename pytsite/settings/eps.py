@@ -2,7 +2,7 @@
 """
 import re as _re
 from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http, \
-    validation as _validation, admin as _admin
+    form as _form, admin as _admin
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -40,9 +40,9 @@ def form_validate(args: dict, inp: dict) -> dict:
         raise _http.error.Forbidden()
 
     try:
-        _functions.get_form(uid).fill(inp, validation_mode=True).validate()
+        _functions.get_form(uid).fill(inp, mode='validation').validate()
         return {'status': True}
-    except _validation.error.ValidatorError as e:
+    except _form.error.ValidationError as e:
         return {'status': False, 'messages': {'widgets': e.errors}}
 
 

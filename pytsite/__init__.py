@@ -141,6 +141,10 @@ def __init():
     # Initializing Cleanup package
     __import__('pytsite.cleanup')
 
+    # Autoloading required modules
+    for module in reg.get('app.autoload', ()):
+        __import__(module)
+
     # Initializing 'app' package parts
     lang.register_package('app', 'lang')
     theme = reg.get('output.theme')
@@ -149,10 +153,6 @@ def __init():
 
     # Settings favicon href
     reg.set_val('metatag.favicon.href', assetman.url('img/favicon.png'))
-
-    # Autoloading required modules
-    for module in reg.get('app.autoload', ()):
-        __import__(module)
 
     # Initializing the 'app' package
     __import__('app')

@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __router_pre_dispatch_handler(path_info: str):
+def _router_pre_dispatch_handler(path_info: str):
     """Router pre-dispatch event handler.
     """
     p = _odm.find('route_alias') \
@@ -25,7 +25,7 @@ def __router_pre_dispatch_handler(path_info: str):
 
 def __init():
     from ._model import RouteAlias
-    _events.listen('pytsite.router.pre_dispatch', __router_pre_dispatch_handler)
+    _events.listen('pytsite.router.pre_dispatch', _router_pre_dispatch_handler)
     _odm.register_model('route_alias', RouteAlias)
 
 

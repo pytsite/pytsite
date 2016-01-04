@@ -1,6 +1,6 @@
 """Flag Package Widgets.
 """
-from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl
+from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, assetman as _assetman
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -21,6 +21,8 @@ class Flag(_widget.Base):
         self._entity = kwargs.get('entity')
         if not self._entity:
             raise ValueError('Entity is not specified.')
+
+        _assetman.add('pytsite.flag@css/common.css')
 
         self._icon = kwargs.get('icon', 'fa fa-star')
 

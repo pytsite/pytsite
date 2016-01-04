@@ -1,5 +1,6 @@
-"""Geo ODM Fields.
+"""Geo ODM Fields
 """
+from decimal import Decimal as _Decimal
 from pytsite import odm as _odm
 
 __author__ = 'Alexander Shepetko'
@@ -8,7 +9,7 @@ __license__ = 'MIT'
 
 
 class LngLat(_odm.field.DecimalList):
-    """Geo longitude and latitude field.
+    """Geo Longitude/Latitude field.
     """
     def __init__(self, name: str, **kwargs):
         """Init.
@@ -19,7 +20,10 @@ class LngLat(_odm.field.DecimalList):
     def is_empty(self) -> bool:
         """Checks if the field is empty.
         """
-        return self._value != (0.0, 0.0)
+        return self._value == (_Decimal('0.0'), _Decimal('0.0'))
+
+    def get_storable_val(self) -> tuple:
+        return float(self._value[0]), float(self._value[1])
 
 
 class Location(_odm.field.Abstract):
