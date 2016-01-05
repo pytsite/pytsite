@@ -3,7 +3,7 @@ from importlib import import_module as _import_module
 from os import path as _path
 import jinja2 as _jinja
 from pytsite import metatag as _metatag, reg as _reg, assetman as _assetman, lang as _lang, browser as _browser, \
-    util as _util
+    util as _util, events as _events
 from pytsite import router as _router
 
 __author__ = 'Alexander Shepetko'
@@ -66,10 +66,10 @@ def _nl2br_filter(value: str) -> str:
 
 
 # Additional functions and filters
-_env.globals['lang'] = _lang
 _env.globals['t'] = _lang.t
 _env.globals['t_plural'] = _lang.t_plural
-_env.globals['reg'] = _reg
+_env.globals['current_lang'] = _lang.get_current
+_env.globals['reg_get'] = _reg.get
 _env.globals['router'] = _router
 _env.globals['url'] = _router.url
 _env.globals['ep_url'] = _router.ep_url
@@ -79,9 +79,13 @@ _env.globals['base_url'] = _router.base_url
 _env.globals['is_base_url'] = _router.is_base_url
 _env.globals['nav_link'] = _util.nav_link
 _env.globals['asset_url'] = _assetman.url
-_env.globals['metatag'] = _metatag
-_env.globals['assetman'] = _assetman
-_env.globals['browser'] = _browser
+_env.globals['metatag'] = _metatag.dump
+_env.globals['metatag_all'] = _metatag.dump_all
+_env.globals['assetman_add'] = _assetman.add
+_env.globals['assetman_css'] = _assetman.dump_css
+_env.globals['assetman_js'] = _assetman.dump_js
+_env.globals['assetman_inline'] = _assetman.dump_inline
+_env.globals['browser_include'] = _browser.include
 _env.filters['date'] = _date_filter
 _env.filters['nl2br'] = _nl2br_filter
 
@@ -100,13 +104,15 @@ def register_package(package_name: str, templates_dir: str='res/tpl'):
     _packages[package_name] = {'templates_dir': templates_dir}
 
 
-def render(template: str, data: dict=None) -> str:
+def render(template: str, args: dict=None) -> str:
     """Render a template.
     """
-    if not data:
-        data = {}
+    if not args:
+        args = {}
 
-    return _env.get_template(template).render(data)
+    _events.fire('pytsite.tpl.render', args=args)
+
+    return _env.get_template(template).render(args)
 
 
 def is_global_registered(name: str) -> bool:

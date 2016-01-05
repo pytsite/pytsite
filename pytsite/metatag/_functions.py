@@ -84,6 +84,12 @@ def get(tag: str) -> str:
 def dump(tag: str) -> str:
     """ Dump single tag.
     """
+    if tag not in __allowed_tags:
+        raise Exception("Unknown tag '{0}'".format(tag))
+
+    if tag not in __tags:
+        return ''
+
     if tag == 'charset':
         r = '<meta charset="{}">\n'.format(__tags[tag])
     elif tag == 'title':

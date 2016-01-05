@@ -20,7 +20,6 @@ def __init():
 
     # Resources
     tpl.register_package(__name__)
-    tpl.register_global('auth', sys.modules[__name__])
     lang.register_package(__name__)
     assetman.register_package(__name__)
 
@@ -41,9 +40,9 @@ def __init():
     router.add_rule(base_path + '/logout', __name__ + '.ep.logout')
 
     # Template engine globals
-    tpl.register_global('auth_get_current_user', _api.get_current_user)
-    tpl.register_global('auth_get_login_form', _api.get_login_form)
-    tpl.register_global('auth_get_logout_url', _api.get_logout_url)
+    tpl.register_global('get_current_user', _api.get_current_user)
+    tpl.register_global('get_login_form', _api.get_login_form)
+    tpl.register_global('get_logout_url', _api.get_logout_url)
 
     # Event handlers
     events.listen('pytsite.setup', _eh.app_setup)

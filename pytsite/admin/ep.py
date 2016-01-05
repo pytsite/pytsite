@@ -17,7 +17,7 @@ def dashboard(args: dict, inp: dict):
         app_name_short = app_name
 
     return _tpl.render('pytsite.admin@html', {
-        'language_nav': _widget.select.LanguageNav('language-nav', dropdown=True),
+        'admin_language_nav': _widget.select.LanguageNav('admin-language-nav', dropdown=True),
         'app_name': app_name,
         'app_name_short': app_name_short,
     })

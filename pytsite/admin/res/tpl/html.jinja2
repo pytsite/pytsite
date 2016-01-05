@@ -1,14 +1,14 @@
-{% do browser.include('bootstrap') %}
-{% do browser.include('font-awesome') %}
-{% do assetman.add('pytsite.admin@AdminLTE/css/AdminLTE.min.css') %}
-{% do assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css') %}
-{% do assetman.add('pytsite.admin@css/custom.css') %}
-{% do assetman.add('pytsite.admin@AdminLTE/js/app.js') %}
+{% do browser_include('bootstrap') %}
+{% do browser_include('font-awesome') %}
+{% do assetman_add('pytsite.admin@AdminLTE/css/AdminLTE.min.css') %}
+{% do assetman_add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css') %}
+{% do assetman_add('pytsite.admin@css/custom.css') %}
+{% do assetman_add('pytsite.admin@AdminLTE/js/app.js') %}
 <!DOCTYPE html>
-<html lang="{{ lang.get_current() }}">
+<html lang="{{ current_lang() }}">
 <head>
-    {{ metatag.dump_all() }}
-    {{ assetman.dump_css() }}
+    {{ metatag_all() }}
+    {{ assetman_css() }}
 </head>
 <body class="skin-blue sidebar-mini">
 
@@ -19,8 +19,8 @@
     <div class="content-wrapper">
         <section class="content-header">
             <h1>
-                {{ metatag.get('title') }}
-                <small>{{ metatag.get('description') }}</small>
+                {{ metatag('title') }}
+                <small>{{ metatag('description') }}</small>
             </h1>
 {#            <ol class="breadcrumb">#}
 {#                <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>#}
@@ -40,6 +40,6 @@
     <div class="control-sidebar-bg"></div>
 </div>
 
-{{ assetman.dump_js() }}
+{{ assetman_js() }}
 </body>
 </html>

@@ -1,10 +1,10 @@
-{% extends reg.get('output.base_tpl') %}
+{% extends reg_get('output.base_tpl') %}
 
 {% block content %}
     <div class="auth-ui profile-edit">
         <div class="row">
             <div class="col-xs-12">
-                <h1>{{ metatag.get('title') }}</h1>
+                <h1>{{ metatag('title') }}</h1>
                 {{ frm }}
             </div>
         </div>

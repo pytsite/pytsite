@@ -1,4 +1,4 @@
-{% set user = auth.get_current_user() %}
+{% set user = get_current_user() %}
 <header class="main-header">
 
     <!-- Logo -->
@@ -17,7 +17,7 @@
         </a>
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
-            {{ language_nav }}
+            {{ admin_language_nav }}
 
             <ul class="nav navbar-nav">
 {#                <!-- Messages: style can be found in dropdown.less-->#}

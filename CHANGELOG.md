@@ -1,5 +1,20 @@
 # PytSite Changelog
 
+## 0.41.17 (2016-01-05)
+### Added
+- New `tpl`'s globals: `browser_include()`, `assetman_add()`, `assetman_css()`, `assetman_js()`, `assetman_inline()`, 
+  `metatag()`, `metatag_all()`, `reg_get()`, `get_current_lang()`.
+- New event 'pytsite.tpl.render';
+
+### Changed
+- `auth_get_current_user()` tpl global renamed to `get_current_user()`. 
+- `auth_get_login_form()` tpl global renamed to `get_login_form()`.
+- `auth_get_logout_url()` tpl global renamed to `get_logout_url()`.
+
+### Removed
+- `tpl`'s globals: `browser`, `assetman`, `metatag`, `reg`, `lang`.
+
+
 ## 0.41.16 (2016-01-04)
 ### Added
 - New `tpl`'s globals: `auth_get_current_user()`, `auth_get_login_form()`, `auth_get_logout_url()`, `current_path()`.
@@ -22,7 +37,7 @@
 - Errors in `Number`-based validation rules.
 
 ### Removed
-- 'auth', 'content', 'disqus', 'flag' from `tpl`'s globals.
+- `tpl`'s globals: `auth`, `content`, `disqus`, `flag`.
 
 
 ## 0.41.15 (2015-12-29)
