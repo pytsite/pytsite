@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.41.18 (2016-01-05)
+### Added
+- New `tpl`'s global: `metatag_get`
+
+### Fixed
+- Improper metatag usages in `admin`'s and `auth_ui`'s templates.
+
+
 ## 0.41.17 (2016-01-05)
 ### Added
 - New `tpl`'s globals: `browser_include()`, `assetman_add()`, `assetman_css()`, `assetman_js()`, `assetman_inline()`, 

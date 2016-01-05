@@ -81,6 +81,7 @@ _env.globals['nav_link'] = _util.nav_link
 _env.globals['asset_url'] = _assetman.url
 _env.globals['metatag'] = _metatag.dump
 _env.globals['metatag_all'] = _metatag.dump_all
+_env.globals['metatag_get'] = _metatag.get
 _env.globals['assetman_add'] = _assetman.add
 _env.globals['assetman_css'] = _assetman.dump_css
 _env.globals['assetman_js'] = _assetman.dump_js
