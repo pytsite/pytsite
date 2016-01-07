@@ -16,6 +16,8 @@ class Driver(_content_export.AbstractDriver):
     def __init__(self, **kwargs):
         """Init.
         """
+        super().__init__(**kwargs)
+
         self._client_key = _reg.get('twitter.app_key')
         self._client_secret = _reg.get('twitter.app_secret')
         if not self._client_key or not self._client_secret:

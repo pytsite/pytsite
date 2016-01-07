@@ -74,7 +74,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('paused_till')
 
     @property
-    def add_tags(self) -> list:
+    def add_tags(self) -> tuple:
         return self.f_get('add_tags')
 
     def _pre_save(self):

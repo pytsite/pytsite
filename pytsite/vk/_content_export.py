@@ -16,6 +16,8 @@ class Driver(_content_export.AbstractDriver):
     def __init__(self, **kwargs):
         """Init.
         """
+        super().__init__(**kwargs)
+
         self._app_id = _reg.get('vk.app_id')
         if not self._app_id:
             raise Exception("'vk.app_id' must be defined.")

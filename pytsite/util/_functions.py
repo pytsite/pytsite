@@ -3,10 +3,11 @@
 import random as _random
 import re as _re
 import pytz as _pytz
-from time import tzname
+from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
 from datetime import datetime as _datetime
 from html import parser as _html_parser
+from hashlib import md5 as _md5
 from werkzeug.utils import escape as _escape_html
 
 
@@ -262,7 +263,7 @@ def rfc822_datetime(dt: _datetime=None) -> str:
         dt = _datetime.now()
 
     if not dt.tzinfo:
-        dt = _pytz.timezone(tzname[0]).localize(dt)
+        dt = _pytz.timezone(_tzname[0]).localize(dt)
 
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
 
@@ -274,6 +275,21 @@ def w3c_datetime(dt: _datetime=None, date_only: bool=False) -> str:
         dt = _datetime.now()
 
     if not dt.tzinfo:
-        dt = _pytz.timezone(tzname[0]).localize(dt)
+        dt = _pytz.timezone(_tzname[0]).localize(dt)
 
     return dt.strftime('%Y-%m-%d') if date_only else dt.strftime('%Y-%m-%dT%H:%M:%S%z')
+
+
+def md5_hex_digest(inp, encoding='utf8') -> str:
+    """Generates MD5 hex digest for string or bytes.
+
+    :type inp: bytes | str
+    """
+
+    if isinstance(inp, str):
+        inp = bytes(inp, encoding)
+
+    m = _md5()
+    m.update(inp)
+
+    return m.hexdigest()

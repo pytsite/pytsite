@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.43 (2016-01-07)
+### Added
+- New package: `lj`.
+- New function: `util.md5_hex_digest()`.
+
+
 ## 0.42 (2016-01-07)
 ### Added
 - New function: `util.strip_html_tags()`.

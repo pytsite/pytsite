@@ -15,6 +15,8 @@ class Driver(_content_export.AbstractDriver):
     def __init__(self, **kwargs):
         """Init.
         """
+        super().__init__(**kwargs)
+
         self._oauth_token = kwargs.get('oauth_token')
         self._oauth_token_secret = kwargs.get('oauth_token_secret')
 

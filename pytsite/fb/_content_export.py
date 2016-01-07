@@ -17,6 +17,8 @@ class Driver(_content_export.AbstractDriver):
     def __init__(self, **kwargs):
         """Init.
         """
+        super().__init__(**kwargs)
+
         self._access_token = kwargs.get('access_token')
 
     def get_settings_widget(self, uid: str, **kwargs):

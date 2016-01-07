@@ -9,15 +9,22 @@ __license__ = 'MIT'
 
 
 class Abstract(_ABC):
+    def __init__(self, **kwargs):
+        """Init.
+        """
+        pass
+
     @_abstractmethod
     def get_settings_widget(self, uid: str, **kwargs) -> _widget.Base:
+        """Returns settings widget.
+        """
         pass
 
     @_abstractmethod
     def export(self, entity, exporter):
-        """
-        :param entity: pytsite.content._model.Content
-        :param exporter: pytsite.content_export._model.ContentExport
-        :return:
+        """ Performs export.
+
+        :type entity: pytsite.content._model.Content
+        :type exporter: pytsite.content_export._model.ContentExport
         """
         pass
