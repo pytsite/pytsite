@@ -12,8 +12,12 @@ _API_REQUEST_URL = 'https://graph.facebook.com/v2.5/'
 _states = {}
 
 
-class AuthSession():
+class AuthSession:
+    """Facebook Authorization Session.
+    """
     def __init__(self, state: str=None, final_redirect_uri: str=None):
+        """Init.
+        """
         self._app_id = _reg.get('fb.app_id')
         self._app_secret = _reg.get('fb.app_secret')
 
@@ -48,7 +52,7 @@ class AuthSession():
         return _requests.get(url).json()
 
 
-class Session():
+class Session:
     """Facebook Session.
     """
     def __init__(self, access_token: str):
@@ -71,15 +75,15 @@ class Session():
     def paginated_request(self, endpoint, **kwargs) -> _Generator:
         """Perform paginated request.
         """
-        r = self.request(endpoint, 'GET', **kwargs)
+        r = self.request(endpoint, **kwargs)
         if 'data' not in r:
-            raise Exception("Endpoint '{}' didn't return paginated response.")
+            raise Exception("Endpoint '{}' didn't return paginated response. Details: {}".format(endpoint, r))
 
         while True:
             for item in r['data']:
                 yield item
             if 'next' in r:
-                r = self.request(endpoint, 'GET', )
+                r = self.request(endpoint)
             else:
                 break
 

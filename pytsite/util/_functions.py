@@ -6,12 +6,40 @@ import pytz as _pytz
 from time import tzname
 from copy import deepcopy as _deepcopy
 from datetime import datetime as _datetime
+from html import parser as _html_parser
 from werkzeug.utils import escape as _escape_html
 
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+class _HTMLStripTagsParser(_html_parser.HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self._data = []
+
+    def error(self, message):
+        raise Exception(message)
+
+    def handle_data(self, data: str):
+        data = _re.sub(r'\n', ' ', data, flags=_re.MULTILINE)
+        data = _re.sub(r'\s{2,}', ' ', data)
+
+        self._data.append(data)
+
+    def __str__(self) -> str:
+        return ' '.join(self._data)
+
+
+def strip_html_tags(s: str) -> str:
+    """Strips HTML tags from a string.
+    """
+    parser = _HTMLStripTagsParser()
+    parser.feed(s)
+
+    return str(parser)
 
 
 def escape_html(s: str) -> str:

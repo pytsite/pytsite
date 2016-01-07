@@ -126,6 +126,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
 
     def ui_m_form_setup(self, form, stage: str):
         """Hook.
+
         :type form: pytsite.form.Form
         """
         inp = _router.request.inp
@@ -216,7 +217,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
             form.action = _router.current_url()
             form.remove_widget('__form_location')
             form.remove_widget('__odm_ui_entity_id')
-            submit_btn = form.get_widget('actions').get_child('action_submit')
+            submit_btn = form.get_widget('actions').get_child('action-submit')
             """:type: pytsite.widget._button.Submit"""
             submit_btn.set_val(self.t('next'))
             submit_btn.icon = 'fa fa-angle-double-right'

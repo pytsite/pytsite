@@ -242,8 +242,9 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
-        # Form's location determined only at the rendering
-        self.get_widget('__form_location').value = _router.current_url()
+        # Form's location determined only at the rendering stage
+        if self.has_widget('__form_location'):
+            self.get_widget('__form_location').value = _router.current_url()
 
         _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
 

@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.42 (2016-01-07)
+### Added
+- New function: `util.strip_html_tags()`.
+- More detailed error output in `fb.Session.paginated_request()`.
+
+### Changed
+- `fb`'s content_export driver now uses entity body instead of description as export message body and trims it to 600 
+  characters. 
+
+### Fixed
+- Error in `content_export`'s form rendering.
+- Checking for '__form_location' widget existence in `form.Form.render()`.
+
+
 ## 0.41.18 (2016-01-05)
 ### Added
 - New `tpl`'s global: `metatag_get`

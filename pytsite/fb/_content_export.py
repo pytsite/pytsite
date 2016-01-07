@@ -1,7 +1,7 @@
 """Facebook Content Export Driver.
 """
 import re as _re
-from pytsite import content_export as _content_export, logger as _logger, content as _content
+from pytsite import content_export as _content_export, logger as _logger, content as _content, util as _util
 from ._widget import Auth as _FacebookAuthWidget
 from ._session import Session as _Session
 
@@ -35,7 +35,7 @@ class Driver(_content_export.AbstractDriver):
         try:
             tags = ['#' + _tag_cleanup_re.sub('', t) for t in exporter.add_tags]
             tags += ['#' + _tag_cleanup_re.sub('', t.title) for t in entity.tags]
-            message = entity.description + ' ' + ' '.join(tags) + ' ' + entity.url
+            message = _util.strip_html_tags(entity.body)[:600] + ' ' + ' '.join(tags) + ' ' + entity.url
 
             if opts['page_id']:
                 page_session = _Session(self._get_page_access_token(opts['page_id'], user_session))
