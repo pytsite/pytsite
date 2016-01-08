@@ -66,6 +66,7 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
             self._str += '</{}>'.format(self._tags_stack.pop())
 
     def handle_data(self, data: str):
+        data = _re.sub(r'(\r\n|\n)', '', data, flags=_re.MULTILINE)
         for char in data:
             char_len = len(char.encode()) if self._count_bytes else len(char)
             if self._get_available_len() >= char_len:

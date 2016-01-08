@@ -1,8 +1,13 @@
 # PytSite Changelog
 
+## 0.44.1 (2016-01-09)
+### Added
+- Carriage returns stripping in `util.trim_str()`.
+
+
 ## 0.44 (2016-01-09)
 ### Added
-- New function: `util.trim_str()`;
+- New function: `util.trim_str()`.
 - Improvements in `lj` `content_export`'s driver.
 
 ### Changed
