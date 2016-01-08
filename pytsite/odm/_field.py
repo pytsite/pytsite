@@ -194,7 +194,7 @@ class List(Abstract):
 
         # Cleaning up empty string values
         if self._cleanup:
-            value = _util.list_cleanup(value)
+            value = _util.cleanup_list(value)
 
         return super().set_val(value, update_state, **kwargs)
 

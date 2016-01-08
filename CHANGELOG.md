@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.44 (2016-01-09)
+### Added
+- New function: `util.trim_str()`;
+- Improvements in `lj` `content_export`'s driver.
+
+### Changed
+- `util.list_cleanup()` renamed to `util.cleanup_list()`.
+- `util.dict_cleanup()` renamed to `util.cleanup_dict()`.
+- `image.model.Image.get_html()` renamed to `image.model.Image.get_responsive_html()`.
+
+
 ## 0.43 (2016-01-07)
 ### Added
 - New package: `lj`.

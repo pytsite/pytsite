@@ -31,13 +31,79 @@ class _HTMLStripTagsParser(_html_parser.HTMLParser):
         self._data.append(data)
 
     def __str__(self) -> str:
+        self.close()
+
         return ' '.join(self._data)
+
+
+class _HTMLTrimParser(_html_parser.HTMLParser):
+    def __init__(self, limit: int, count_bytes: bool=False):
+        super().__init__()
+
+        self._limit = limit
+        self._count_bytes = count_bytes
+        self._str = ''
+        self._tags_stack = []
+
+    def error(self, message):
+        raise Exception(message)
+
+    def handle_starttag(self, tag: str, attrs: list):
+        tag_str = '<{}'.format(tag)
+        attrs_str = ' '.join(['{}="{}"'.format(a[0], a[1]) for a in attrs])
+        if attrs_str:
+            tag_str += ' {}'.format(attrs_str)
+        tag_str += '>'
+
+        tag_str_len = len(tag_str.encode()) if self._count_bytes else len(tag_str)
+        if self._get_available_len() >= tag_str_len:
+            self._str += tag_str
+            if tag not in ('img', 'input'):
+                self._tags_stack.append(tag)
+
+    def handle_endtag(self, tag: str):
+        if self._tags_stack:
+            self._str += '</{}>'.format(self._tags_stack.pop())
+
+    def handle_data(self, data: str):
+        for char in data:
+            char_len = len(char.encode()) if self._count_bytes else len(char)
+            if self._get_available_len() >= char_len:
+                self._str += char
+
+    def _get_available_len(self) -> int:
+        closing_tags_len = 0
+        for tag in self._tags_stack:
+            tag_str = '</{}>'.format(tag)
+            closing_tags_len += len(tag_str.encode()) if self._count_bytes else len(tag_str)
+
+        self_str_len = len(self._str.encode()) if self._count_bytes else len(self._str)
+
+        return self._limit - self_str_len - closing_tags_len
+
+    def __str__(self) -> str:
+        self.close()
+
+        # Closing all non-closed tags
+        while self._tags_stack:
+            self._str += '</{}>'.format(self._tags_stack.pop())
+
+        return self._str
 
 
 def strip_html_tags(s: str) -> str:
     """Strips HTML tags from a string.
     """
     parser = _HTMLStripTagsParser()
+    parser.feed(s)
+
+    return str(parser)
+
+
+def trim_str(s: str, limit: int=140, count_bytes: bool=False) -> str:
+    """Trims ordinary or HTML string to the specified length.
+    """
+    parser = _HTMLTrimParser(limit, count_bytes)
     parser.feed(s)
 
     return str(parser)
@@ -200,7 +266,7 @@ def get_class(s: str) -> type:
     if not isinstance(s, str):
         raise ValueError('String expected.')
 
-    class_fqn = list_cleanup(s.split('.'))
+    class_fqn = cleanup_list(s.split('.'))
     if len(class_fqn) < 2:
         raise NameError("Cannot determine class name from string '{}'.".format(s))
 
@@ -211,7 +277,7 @@ def get_class(s: str) -> type:
     return getattr(module, class_name)
 
 
-def list_cleanup(inp: list) -> list:
+def cleanup_list(inp: list) -> list:
     """Remove empty strings from a list.
     """
     r = []
@@ -226,7 +292,7 @@ def list_cleanup(inp: list) -> list:
     return r
 
 
-def dict_cleanup(inp: dict) -> dict:
+def cleanup_dict(inp: dict) -> dict:
     """Remove empty strings from dict.
     """
     r = {}

@@ -81,8 +81,14 @@ class Driver(_content_export.AbstractDriver):
                 img_url = entity.images[0].get_url(1024)
                 msg += '<p><a href="{}"><img src="{}" title="{}"></a></p>'.format(entity.url, img_url, entity.title)
 
-            read_more = '<a href="{}">{}</a>'.format(entity.url, _lang.t('pytsite.lj@read_more'))
-            msg += '<p>{} {}</p>'.format(_util.strip_html_tags(entity.body)[:600], read_more)
+            msg += '<p>{}: <a href="{}">{}</a></p>'.format(
+                    _lang.t('pytsite.lj@source', language=entity.language), entity.url, entity.url)
+            if entity.description:
+                msg += '<p>{}</p>'.format(entity.description)
+            msg += '<lj-cut>'
+            msg += entity.f_get('body', process_tags=True, responsive=False, width=1024)
+            msg += '</lj-cut>'
+            msg = _util.trim_str(msg, 65535, True)
 
             opts = exporter.driver_opts
             s = _Session(opts['username'], opts['password'])

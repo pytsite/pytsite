@@ -58,9 +58,9 @@ class NonEmpty(Base):
             return self._value
 
         if isinstance(self._value, list):
-            self._value = _util.list_cleanup(self._value)
+            self._value = _util.cleanup_list(self._value)
         elif isinstance(self._value, dict):
-            self._value = _util.dict_cleanup(self._value)
+            self._value = _util.cleanup_dict(self._value)
         elif isinstance(self._value, str):
             self._value = self._value.strip()
 
@@ -193,13 +193,13 @@ class Regex(Base):
 
         if isinstance(self.value, list):
             self._msg_id += '_row'
-            self.value = _util.list_cleanup(self.value)
+            self.value = _util.cleanup_list(self.value)
             for k, v in enumerate(self.value):
                 if not self._regex.match(v):
                     raise _error.RuleError(self._msg_id, {'row': k + 1, 'pattern': self._pattern})
         elif isinstance(self.value, dict):
             self._msg_id += '_row'
-            self.value = _util.dict_cleanup(self.value)
+            self.value = _util.cleanup_dict(self.value)
             for k, v in self.value.items():
                 if not self._regex.match(v):
                     raise _error.RuleError(self._msg_id, {'row': k + 1, 'pattern': self._pattern})

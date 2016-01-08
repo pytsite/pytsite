@@ -217,7 +217,7 @@ class Content(_odm_ui.UIModel):
             })
 
         if field_name == 'body' and kwargs.get('process_tags'):
-            value = self._process_body_tags(value)
+            value = self._process_body_tags(value, kwargs.get('responsive', True), kwargs.get('width'))
 
         if field_name == 'tags':
             if kwargs.get('as_string'):
@@ -491,13 +491,15 @@ class Content(_odm_ui.UIModel):
         """
         return self.title
 
-    def _process_body_tags(self, inp: str) -> str:
+    def _process_body_tags(self, inp: str, responsive: bool, width: int=None) -> str:
         def process_img_tag(match):
+            nonlocal responsive
+
             img_index = int(match.group(1))
             if len(self.images) < img_index:
                 return ''
             img = self.images[img_index - 1]
-            r = img.get_html(self.title)
+            r = img.get_responsive_html(self.title) if responsive else img.get_html(self.title, width=width)
             if match.group(2):
                 r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _html.escape(self.title), r)
             return r

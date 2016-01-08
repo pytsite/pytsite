@@ -92,8 +92,13 @@ class Image(_file.model.File):
         """
         return self.f_get('url', width=width or 0, height=height or 0)
 
-    def get_html(self, alt: str='', css: str='', aspect_ratio: float=None) -> str:
+    def get_html(self, alt: str= '', css: str= '', width: int=None, height: int=None):
         """Get HTML code to embed the image.
+        """
+        return '<img src="{}" alt="{}">'.format(self.get_url(width, height), _util.escape_html(alt))
+
+    def get_responsive_html(self, alt: str= '', css: str= '', aspect_ratio: float=None) -> str:
+        """Get HTML code to embed the image (responsive way).
         """
         alt = _util.escape_html(alt)
         path = self.path.replace('image/', '')

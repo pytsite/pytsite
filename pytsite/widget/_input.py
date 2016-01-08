@@ -275,7 +275,7 @@ class StringList(_base.Base):
         if type(value) not in (list, tuple):
             raise ValueError('List or tuple expected.')
 
-        return super().set_val(_util.list_cleanup(value), **kwargs)
+        return super().set_val(_util.cleanup_list(value), **kwargs)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
@@ -338,7 +338,7 @@ class ListList(StringList):
         step = len(self.col_format)
         for i in range(0, len(value), step):
             value_to_append = value[i:i+step]
-            if _util.list_cleanup(value_to_append):
+            if _util.cleanup_list(value_to_append):
                 new_value.append(value_to_append)
 
         return super().set_val(new_value, **kwargs)
