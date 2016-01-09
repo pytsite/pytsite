@@ -18,7 +18,7 @@ __license__ = 'MIT'
 
 class _HTMLStripTagsParser(_html_parser.HTMLParser):
     def __init__(self):
-        super().__init__()
+        super().__init__(convert_charrefs=False)
         self._data = []
 
     def error(self, message):
@@ -37,20 +37,21 @@ class _HTMLStripTagsParser(_html_parser.HTMLParser):
 
 
 class _HTMLTrimParser(_html_parser.HTMLParser):
-    def __init__(self, limit: int, count_bytes: bool=False):
-        super().__init__()
+    def __init__(self, limit: int, count_bytes: bool=False, single_tags: tuple=()):
+        super().__init__(convert_charrefs=False)
 
         self._limit = limit
         self._count_bytes = count_bytes
         self._str = ''
         self._tags_stack = []
+        self._single_tags = ('img', 'input') + single_tags
 
     def error(self, message):
         raise Exception(message)
 
     def handle_starttag(self, tag: str, attrs: list):
         tag_str = '<{}'.format(tag)
-        attrs_str = ' '.join(['{}="{}"'.format(a[0], a[1]) for a in attrs])
+        attrs_str = ' '.join(['{}="{}"'.format(a[0], escape_html(a[1])) for a in attrs])
         if attrs_str:
             tag_str += ' {}'.format(attrs_str)
         tag_str += '>'
@@ -58,7 +59,7 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
         tag_str_len = len(tag_str.encode()) if self._count_bytes else len(tag_str)
         if self._get_available_len() >= tag_str_len:
             self._str += tag_str
-            if tag not in ('img', 'input'):
+            if tag not in self._single_tags:
                 self._tags_stack.append(tag)
 
     def handle_endtag(self, tag: str):
@@ -101,10 +102,10 @@ def strip_html_tags(s: str) -> str:
     return str(parser)
 
 
-def trim_str(s: str, limit: int=140, count_bytes: bool=False) -> str:
+def trim_str(s: str, limit: int=140, count_bytes: bool=False, single_tags: tuple=()) -> str:
     """Trims ordinary or HTML string to the specified length.
     """
-    parser = _HTMLTrimParser(limit, count_bytes)
+    parser = _HTMLTrimParser(limit, count_bytes, single_tags)
     parser.feed(s)
 
     return str(parser)

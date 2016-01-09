@@ -20,6 +20,7 @@ class _SettingsWidget(_widget.Base):
         self._css += ' widget-content-export-lj-settings'
         self._username = kwargs.get('username', '')
         self._password = kwargs.get('password', '')
+        self._lj_like = kwargs.get('lj_like', 'fb,tw,go,vk,lj')
 
         _assetman.add('pytsite.lj@js/content-export-settings.js')
 
@@ -46,8 +47,17 @@ class _SettingsWidget(_widget.Base):
             value=self._password,
         ).get_html_em())
 
+        wrapper.append(_widget.input.Text(
+            weight=30,
+            uid='lj-like',
+            name='{}[lj_like]'.format(self._uid),
+            label=_lang.t('pytsite.lj@lj_like_buttons'),
+            help=_lang.t('pytsite.lj@lj_like_buttons_help'),
+            value=self._lj_like,
+        ).get_html_em())
+
         wrapper.append(_widget.input.Hidden(
-            weight=20,
+            weight=40,
             uid='title',
             name='{}[title]'.format(self._uid),
             required=True,
@@ -75,6 +85,7 @@ class Driver(_content_export.AbstractDriver):
             _logger.info("Export started. '{}'".format(entity.title), __name__)
 
             tags = exporter.add_tags + tuple([tag.title for tag in entity.tags])
+            opts = exporter.driver_opts
 
             msg = ''
             if entity.has_field('images') and entity.images:
@@ -88,9 +99,10 @@ class Driver(_content_export.AbstractDriver):
             msg += '<lj-cut>'
             msg += entity.f_get('body', process_tags=True, responsive=False, width=1024)
             msg += '</lj-cut>'
-            msg = _util.trim_str(msg, 65535, True)
+            if opts['lj_like']:
+                msg += '<lj-like buttons="{}">'.format(opts['lj_like'])
+            msg = _util.trim_str(msg, 65535, True, ('lj-like',))
 
-            opts = exporter.driver_opts
             s = _Session(opts['username'], opts['password'])
 
             r = s.post_event(entity.title[:255], msg, tags, entity.publish_time)

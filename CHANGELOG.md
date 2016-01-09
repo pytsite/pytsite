@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.44.2 (2016-01-09)
+### Added
+- New argument 'single_tags' in `util.trim_str()`.
+- Support for <lj-like> tag by `lj` `content_export`'s driver.
+
+### Fixed
+- Incorrect HTML tags attribute values escaping in `util.trim_str()`.
+
+
 ## 0.44.1 (2016-01-09)
 ### Added
 - Carriage returns stripping in `util.trim_str()`.

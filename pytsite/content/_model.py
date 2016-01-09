@@ -5,7 +5,7 @@ from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, reg as _reg
+    tpl as _tpl, auth_ui as _auth_ui, reg as _reg, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -501,7 +501,7 @@ class Content(_odm_ui.UIModel):
             img = self.images[img_index - 1]
             r = img.get_responsive_html(self.title) if responsive else img.get_html(self.title, width=width)
             if match.group(2):
-                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _html.escape(self.title), r)
+                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(self.title), r)
             return r
 
         def process_vid_tag(match):
