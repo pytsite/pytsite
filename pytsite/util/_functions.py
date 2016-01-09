@@ -50,6 +50,9 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
         raise Exception(message)
 
     def handle_starttag(self, tag: str, attrs: list):
+        if not self._get_available_len():
+            return
+
         tag_str = '<{}'.format(tag)
         attrs_str = ' '.join(['{}="{}"'.format(a[0], escape_html(a[1])) for a in attrs])
         if attrs_str:
@@ -67,11 +70,28 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
             self._str += '</{}>'.format(self._tags_stack.pop())
 
     def handle_data(self, data: str):
+        if not self._get_available_len():
+            return
+
         data = _re.sub(r'(\r\n|\n)', '', data, flags=_re.MULTILINE)
         for char in data:
             char_len = len(char.encode()) if self._count_bytes else len(char)
             if self._get_available_len() >= char_len:
                 self._str += char
+
+    def handle_entityref(self, name: str):
+        if not self._get_available_len():
+            return
+
+        if len(name) + 2 <= self._get_available_len():
+            self._str += '&{};'.format(name)
+
+    def handle_charref(self, name: str):
+        if not self._get_available_len():
+            return
+
+        if len(name) + 2 <= self._get_available_len():
+            self._str += '&{};'.format(name)
 
     def _get_available_len(self) -> int:
         closing_tags_len = 0

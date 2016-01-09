@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.44.3 (2016-01-10)
+### Fixed
+- Incorrect HTML references processing in `util.trim_str()`. 
+
+
 ## 0.44.2 (2016-01-09)
 ### Added
 - New argument 'single_tags' in `util.trim_str()`.
