@@ -26,7 +26,7 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
     """:type: _model.UIModel"""
     if not eid and not model_class.ui_is_creation_allowed():
         raise _http.error.Forbidden()
-    if eid and not model_class.ui_is_modification_allowed():
+    if eid and not model_class.ui_is_model_modification_allowed():
         raise _http.error.Forbidden()
 
     # Creating form
@@ -124,7 +124,7 @@ def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     model_class = _odm.get_model_class(model)
     """:type: _model.UIModel"""
 
-    if not check_permissions('delete', model, ids) or not model_class.ui_is_deletion_allowed():
+    if not check_permissions('delete', model, ids) or not model_class.ui_is_model_deletion_allowed():
         raise _http.error.Forbidden()
 
     # Setup form

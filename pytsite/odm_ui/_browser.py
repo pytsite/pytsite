@@ -55,7 +55,7 @@ class Browser:
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._model_class.ui_is_deletion_allowed() and _api.check_permissions('delete', self._model):
+        if self._model_class.ui_is_model_deletion_allowed() and _api.check_permissions('delete', self._model):
             delete_form_url = _router.ep_url('pytsite.odm_ui.ep.get_d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='btn btn-danger mass-action-button', title=title)

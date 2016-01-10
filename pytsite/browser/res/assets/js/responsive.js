@@ -1,13 +1,15 @@
 pytsite.responsive = {
     init: function () {
-        $('span.pytsite-img').each(function () {
+        var image_containers = $('span.pytsite-img');
+
+        image_containers.each(function () {
             var cont = $(this);
             var img_path = cont.data('path');
             var img_alt = cont.data('alt').replace(/"/g, '&quot;');
             var aspect_ratio = null;
 
-            if (cont.data('aspect-ratio') != 'None')
-                aspect_ratio = parseFloat(cont.data('aspect-ratio'));
+            if (cont.data('aspectRatio') != 'None')
+                aspect_ratio = parseFloat(cont.data('aspectRatio'));
 
             if (typeof img_path == 'undefined')
                 return null;
@@ -17,6 +19,7 @@ pytsite.responsive = {
 
             var parent_cont = $(cont).parent();
             while (true) {
+                // Search for container with non-zero width
                 if (parent_cont.width() > 0) {
                     var width = parent_cont.width();
                     var height = 0;

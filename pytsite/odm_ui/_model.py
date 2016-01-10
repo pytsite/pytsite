@@ -25,13 +25,13 @@ class UIMixin:
         return True
 
     @classmethod
-    def ui_is_modification_allowed(cls) -> bool:
+    def ui_is_model_modification_allowed(cls) -> bool:
         """If the model modification is allowed via UI.
         """
         return True
 
     @classmethod
-    def ui_is_deletion_allowed(cls) -> bool:
+    def ui_is_model_deletion_allowed(cls) -> bool:
         """Is the model deletion allowed via UI.
         """
         return True
@@ -69,12 +69,12 @@ class UIMixin:
     def ui_is_entity_modification_allowed(self) -> bool:
         """Is ENTITY modification allowed.
         """
-        return self.ui_is_modification_allowed()
+        return self.ui_is_model_modification_allowed()
 
     def ui_is_entity_deletion_allowed(self):
         """Is ENTITY deletion allowed.
         """
-        return self.ui_is_deletion_allowed()
+        return self.ui_is_model_deletion_allowed()
 
     def ui_browser_get_entity_actions(self):
         """Get actions buttons data for single data row.
@@ -108,6 +108,24 @@ class UIModel(_odm.Model, UIMixin):
         """Get delete form description.
         """
         return str(self.id)
+
+    def ui_is_entity_modification_allowed(self) -> bool:
+        """Is ENTITY modification allowed.
+        """
+        if not self.ui_is_model_modification_allowed():
+            return False
+
+        from ._api import check_permissions
+        return check_permissions('modify', self.model, self.id)
+
+    def ui_is_entity_deletion_allowed(self):
+        """Is ENTITY deletion allowed.
+        """
+        if not self.ui_is_model_deletion_allowed():
+            return False
+
+        from ._api import check_permissions
+        return check_permissions('delete', self.model, self.id)
 
     def ui_m_form_get_url(self, args: dict=None):
         """Get modification form URL.

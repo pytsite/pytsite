@@ -81,5 +81,5 @@ class AuthLog(_odm_ui.UIModel):
         return False
 
     @classmethod
-    def ui_is_modification_allowed(cls) -> bool:
+    def ui_is_model_modification_allowed(cls) -> bool:
         return False

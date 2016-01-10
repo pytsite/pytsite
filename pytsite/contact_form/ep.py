@@ -21,9 +21,9 @@ def submit(args: dict, inp: dict) -> dict:
     for rcp in recipients:
         _mail.Message(
             rcp,
-            _lang.t('pytsite.contact@message_from_site', {'name': _lang.t('app_name')}),
-            _tpl.render('pytsite.contact@mail', inp),
+            _lang.t('pytsite.contact_form@message_from_site', {'name': _lang.t('app_name')}),
+            _tpl.render('pytsite.contact_form@mail', inp),
             reply_to=inp.get('contact_email'),
         ).send()
 
-    return _lang.t('pytsite.contact@message_successfully_sent')
+    return _lang.t('pytsite.contact_form@message_successfully_sent')

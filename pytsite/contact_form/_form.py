@@ -7,14 +7,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Contact(_form.Form):
+class Form(_form.Form):
     """Contact Form.
     """
     def __init__(self, uid='pytsite-contact-form', **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._tpl = 'pytsite.contact@form'
+        self._tpl = 'pytsite.contact_form@form'
+        _assetman.add('pytsite.contact_form@js/common.js', forever=True)
 
     def _setup(self):
         """Hook.
@@ -22,7 +23,7 @@ class Contact(_form.Form):
         self.add_widget(_widget.input.Text(
             weight=10,
             uid='contact_name',
-            placeholder=_lang.t('pytsite.contact@your_name'),
+            placeholder=_lang.t('pytsite.contact_form@your_name'),
             label_hidden=True,
             required=True,
         ))
@@ -30,7 +31,7 @@ class Contact(_form.Form):
         self.add_widget(_widget.input.Email(
             weight=20,
             uid='contact_email',
-            placeholder=_lang.t('pytsite.contact@your_email'),
+            placeholder=_lang.t('pytsite.contact_form@your_email'),
             label_hidden=True,
             required=True,
         ))
@@ -38,7 +39,7 @@ class Contact(_form.Form):
         self.add_widget(_widget.input.TextArea(
             weight=30,
             uid='contact_message',
-            placeholder=_lang.t('pytsite.contact@message'),
+            placeholder=_lang.t('pytsite.contact_form@message'),
             label_hidden=True,
             required=True,
         ))
@@ -47,5 +48,5 @@ class Contact(_form.Form):
             form_area='footer',
             weight=10,
             uid='contact_submit',
-            value=_lang.t('pytsite.contact@send_message'),
+            value=_lang.t('pytsite.contact_form@send_message'),
         ))

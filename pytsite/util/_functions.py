@@ -54,7 +54,7 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
             return
 
         tag_str = '<{}'.format(tag)
-        attrs_str = ' '.join(['{}="{}"'.format(a[0], escape_html(a[1])) for a in attrs])
+        attrs_str = ' '.join(['{}="{}"'.format(a[0], escape_html(a[1].replace('"', "'"))) for a in attrs])
         if attrs_str:
             tag_str += ' {}'.format(attrs_str)
         tag_str += '>'

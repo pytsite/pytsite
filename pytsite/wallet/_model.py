@@ -263,11 +263,11 @@ class Transaction(_odm_ui.UIModel):
         return ()
 
     @classmethod
-    def ui_is_modification_allowed(cls) -> bool:
+    def ui_is_model_modification_allowed(cls) -> bool:
         return False
 
     @classmethod
-    def ui_is_deletion_allowed(cls) -> bool:
+    def ui_is_model_deletion_allowed(cls) -> bool:
         return False
 
     def ui_m_form_setup(self, form, stage: str):

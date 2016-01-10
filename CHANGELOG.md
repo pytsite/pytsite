@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.45 (2016-01-11)
+### Changed
+- `contact` renamed to `contact_form`.
+- `odm_ui.UIMixin.ui_is_modification_allowed()` renamed to `odm_ui.UIMixin.ui_is_model_modification_allowed()`.
+- `odm_ui.UIMixin.ui_is_deletion_allowed()` renamed to `odm_ui.UIMixin.ui_is_model_deletion_allowed()`.
+- `browser`'s 'imagesLoaded' plugin updated from 3.1.8 to 4.0.0.
+
+### Fixed
+- Processing double quotes in HTML tag arguments in `util.trim_str()`. 
+
+### Removed
+- `add_this` from `tpl`'s globals.
+
+
 ## 0.44.3 (2016-01-10)
 ### Fixed
 - Incorrect HTML references processing in `util.trim_str()`. 
