@@ -1,7 +1,12 @@
 # PytSite Changelog
 
+## 0.46.1 (2016-01-11)
+### Fixed
+- Language selector in `admin`'s template header.
+
+
 ## 0.46 (2016-01-11)
-## Added
+### Added
 - New widget: `fb.widget.Comments`.
 - New function: `lang.ietf_tag()`.
 - Inline JavaScript code minification.

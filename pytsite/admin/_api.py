@@ -8,7 +8,9 @@ __license__ = 'MIT'
 
 
 def render(content: str) -> str:
+    """Render admin page with content.
+    """
     return _tpl.render('pytsite.admin@html', {
-        'language_nav': _widget.select.LanguageNav('language-nav', dropdown=True),
+        'admin_language_nav': _widget.select.LanguageNav('admin-language-nav', dropdown=True),
         'content': content,
     })
