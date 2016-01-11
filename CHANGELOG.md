@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.46.2 (2016-01-11)
+### Changed
+- Configuration parameter 'contact.recipients' changed to 'contact_form.recipients'.
+
+
 ## 0.46.1 (2016-01-11)
 ### Fixed
 - Language selector in `admin`'s template header.

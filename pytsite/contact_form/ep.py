@@ -14,7 +14,7 @@ def submit(args: dict, inp: dict) -> dict:
         if field not in inp:
             raise ValueError("'{}' is not in input parameters".format(field))
 
-    recipients = _reg.get('contact.recipients', 'info@{}'.format(_reg.get('server.name')))
+    recipients = _reg.get('contact_form.recipients', 'info@{}'.format(_reg.get('server.name')))
     if isinstance(recipients, str):
         recipients = (recipients,)
 
