@@ -50,6 +50,8 @@ def add(location: str, collection: str=None, weight=0, forever=False):
 
 
 def add_inline(s: str, weight=0, forever=False):
+    """Add a code which intended to output in the document.
+    """
     _inline.append((s, weight, forever))
 
 

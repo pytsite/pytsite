@@ -16,6 +16,12 @@ __current = None
 __fallback = None
 __packages = {}
 
+__default_regions = {
+    'en': 'US',
+    'ru': 'RU',
+    'uk': 'UA',
+}
+
 
 def define(languages: list):
     """Define available languages.
@@ -265,6 +271,21 @@ def pretty_date_time(time: _datetime) -> str:
     """Format date/time as pretty string.
     """
     return '{}, {}'.format(pretty_date(time), time.strftime('%H:%M'))
+
+
+def ietf_tag(language: str=None, region: str=None, sep: str='-') -> str:
+    global __default_regions
+
+    if not language:
+        language = get_current()
+
+    if not region:
+        if language not in __default_regions:
+            raise ValueError("Cannot determine default region for language '{}'.".format(language))
+        else:
+            region = __default_regions[language]
+
+    return language.lower() + sep + region.upper()
 
 
 def _split_msg_id(msg_id: str) -> tuple:

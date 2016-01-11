@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.46 (2016-01-11)
+## Added
+- New widget: `fb.widget.Comments`.
+- New function: `lang.ietf_tag()`.
+- Inline JavaScript code minification.
+
+
 ## 0.45 (2016-01-11)
 ### Changed
 - `contact` renamed to `contact_form`.

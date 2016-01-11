@@ -2,7 +2,7 @@
 """
 from datetime import datetime as _datetime
 from pytsite import widget as _widget, html as _html, reg as _reg, router as _router, assetman as _assetman, \
-    lang as _lang
+    lang as _lang, tpl as _tpl
 from ._session import AuthSession as _AuthSession, Session as _Session
 
 __author__ = 'Alexander Shepetko'
@@ -87,3 +87,28 @@ class Auth(_widget.Base):
                                               value=self._screen_name))
 
         return self._group_wrap(container.get_html_em())
+
+
+class Comments(_widget.Base):
+    """Facebook Comments Widget.
+    """
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, **kwargs)
+
+        js_sdk_args = {
+            'app_id': _reg.get('fb.app_id'),
+            'language': _lang.ietf_tag(sep='_')
+        }
+        _assetman.add_inline(_tpl.render('pytsite.fb@fb-js-sdk', js_sdk_args))
+
+    def get_html_em(self) -> _html.Element:
+        """Get an HTML element representation of the widget.
+        """
+        return _html.Div(
+                uid=self.uid,
+                cls='fb-comments',
+                data_href=_router.current_url(),
+                data_width='100%'
+        )

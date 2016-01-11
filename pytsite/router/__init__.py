@@ -9,6 +9,7 @@ from werkzeug.routing import Map as _Map, Rule as _Rule
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from htmlmin import minify as _minify
+from jsmin import jsmin as _jsmin
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag
 
 __author__ = 'Alexander Shepetko'
@@ -18,6 +19,8 @@ __license__ = 'MIT'
 _routes = _Map()
 _map_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
 _path_aliases = {}
+
+_html_script_re = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
 
 # Registering module's language package
 _lang.register_package(__name__)
@@ -253,8 +256,16 @@ def dispatch(env: dict, start_response: callable):
         # Processing response from handler
         response_from_callable = call_ep(rule.call, rule_args, request.inp)
         if isinstance(response_from_callable, str):
+            # Minifying output
             if _reg.get('output.minify'):
-                response_from_callable = _minify(response_from_callable, True, True)
+                def sub_f(m):
+                    g = m.groups()
+                    return ''.join((g[0], _jsmin(g[1]), g[2])).replace('\n', '')
+
+                response_from_callable = _minify(response_from_callable, True, True,
+                                                 remove_optional_attribute_quotes=False)
+                response_from_callable = _html_script_re.sub(sub_f, response_from_callable)
+
             wsgi_response.data = response_from_callable
         elif isinstance(response_from_callable, _http.response.Response):
             wsgi_response = response_from_callable
