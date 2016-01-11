@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.46.3 (2016-01-11)
+### Fixed
+- Single tag's attributes processing in `util.trim_str()`.
+- Incorrect favicon metatag href via HTTPS requests.
+
+
 ## 0.46.2 (2016-01-11)
 ### Changed
 - Configuration parameter 'contact.recipients' changed to 'contact_form.recipients'.

@@ -1,6 +1,6 @@
 """PytSite Meta Tags Support.
 """
-from pytsite import lang as _lang, util as _util, reg as _reg, events as _events
+from pytsite import lang as _lang, util as _util, reg as _reg, events as _events, assetman as _assetman
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -44,7 +44,7 @@ def reset():
     t_set('charset', 'UTF-8')
     t_set('title', _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-    t_set('link', rel='icon', type='image/png', href=_reg.get('metatag.favicon.href'))
+    t_set('link', rel='icon', type='image/png', href=_assetman.url(_reg.get('metatag.favicon.href')))
 
 
 def t_set(tag: str, value: str=None, **kwargs):
