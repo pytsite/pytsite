@@ -2,7 +2,6 @@
 """
 # Public API
 from ._session import AuthSession, Session
-from . import _widget as widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -10,8 +9,9 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import reg, lang, assetman, content_export, router, tpl
+    from pytsite import reg, lang, assetman, content_export, router, tpl, comments
     from ._content_export import Driver as ContentExportDriver
+    from ._comments import Driver
 
     # App ID is mandatory configuration parameter
     app_id = reg.get('fb.app_id')
@@ -34,5 +34,7 @@ def __init():
     # Routes
     router.add_rule('/fb/authorize', 'pytsite.fb.ep.authorize')
 
+    # Comments driver
+    comments.register_driver(Driver())
 
 __init()

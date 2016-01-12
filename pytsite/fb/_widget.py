@@ -97,6 +97,8 @@ class Comments(_widget.Base):
         """
         super().__init__(uid, **kwargs)
 
+        self._href = kwargs.get('href', _router.current_url())
+
         js_sdk_args = {
             'app_id': _reg.get('fb.app_id'),
             'language': _lang.ietf_tag(sep='_')
@@ -109,6 +111,6 @@ class Comments(_widget.Base):
         return _html.Div(
                 uid=self.uid,
                 cls='fb-comments',
-                data_href=_router.current_url(),
+                data_href=self._href,
                 data_width='100%'
         )

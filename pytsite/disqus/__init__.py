@@ -1,8 +1,5 @@
 """Pytsite Disqus Package Init.
 """
-# Public API
-from . import _widget as widget, _functions as functions
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -11,10 +8,19 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import odm, tpl
+    from pytsite import comments, tpl, reg, events
+    from . import _eh
+    from ._comments import Driver
 
-    odm.register_model('disqus_comment_count', 'pytsite.disqus._model.CommentCount')
+    if not reg.get('disqus.short_name'):
+        raise ValueError("Configuration parameter 'disqus.short_name' is not defined.")
+
+    if not reg.get('disqus.api_secret'):
+        raise ValueError("Configuration parameter 'disqus.api_secret' is not defined.")
+
     tpl.register_package(__name__)
+    comments.register_driver(Driver())
 
+    events.listen('pytsite.update', _eh.pytsite_update)
 
 __init()

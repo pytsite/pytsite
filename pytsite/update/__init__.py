@@ -1,4 +1,4 @@
-"""PytSite Update Module.
+"""PytSite Update Package.
 """
 from pytsite import console as _console, lang as _lang
 from . import _command

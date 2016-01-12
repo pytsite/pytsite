@@ -8,19 +8,19 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-__drivers = {}
+_drivers = {}
 
 
 def register_driver(name: str, title: str, driver_cls: type):
     """Register export driver.
     """
-    if name in __drivers:
+    if name in _drivers:
         raise KeyError("Driver with name '{}' already registered.")
 
     if not issubclass(driver_cls, _driver.Abstract):
         raise ValueError("Invalid driver's class.")
 
-    __drivers[name] = (title, driver_cls)
+    _drivers[name] = (title, driver_cls)
 
 
 def load_driver(name: str, **kwargs) -> _driver.Abstract:
@@ -30,16 +30,16 @@ def load_driver(name: str, **kwargs) -> _driver.Abstract:
 
 
 def get_driver_info(name: str) -> tuple:
-    if name not in __drivers:
+    if name not in _drivers:
         raise KeyError("Driver with name '{}' is not registered.")
 
-    return __drivers[name]
+    return _drivers[name]
 
 
 def get_drivers() -> dict:
     """Get registered drivers.
     """
-    return __drivers
+    return _drivers
 
 
 def get_driver_title(name) -> str:

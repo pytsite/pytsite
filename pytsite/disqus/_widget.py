@@ -7,19 +7,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Disqus(_widget.Base):
-    """Disqus Widget.
+class Comments(_widget.Base):
+    """Disqus Comments Widget.
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
 
-        short_name = _reg.get('disqus.short_name')
-        if not short_name:
-            raise ValueError("Configuration parameter 'disqus.short_name' is not defined.")
-
-        self._short_name = short_name
+        self._short_name = _reg.get('disqus.short_name')
 
     @property
     def short_name(self) -> str:

@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.47 (2016-01-12)
+### Added
+- New package: `comments`.
+- Support for comments count by `fb` comments driver.
+
+
 ## 0.46.3 (2016-01-11)
 ### Fixed
 - Single tag's attributes processing in `util.trim_str()`.

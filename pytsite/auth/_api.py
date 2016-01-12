@@ -11,7 +11,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__drivers = OrderedDict()
+_drivers = OrderedDict()
 """:type: dict[_AbstractDriver]"""
 
 __permission_groups = []
@@ -45,25 +45,25 @@ def register_driver(driver: _AbstractDriver):
         raise TypeError('Instance of AbstractDriver expected.')
 
     name = driver.get_name()
-    if name in __drivers:
+    if name in _drivers:
         raise ValueError("Driver '{}' is already registered.".format(name))
 
-    __drivers[name] = driver
+    _drivers[name] = driver
 
 
 def get_driver(name: str=None) -> _AbstractDriver:
     """Get current driver.
     """
     if not name:
-        if __drivers:
-            name = next(iter(__drivers.values())).get_name()
+        if _drivers:
+            name = next(iter(_drivers.values())).get_name()
         else:
             raise Exception('No driver registered.')
 
-    if name not in __drivers:
+    if name not in _drivers:
         raise ValueError("Driver '{}' is not registered.".format(name))
 
-    return __drivers[name]
+    return _drivers[name]
 
 
 def get_default_driver() -> _AbstractDriver:

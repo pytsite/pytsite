@@ -5,7 +5,7 @@ from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, reg as _reg, util as _util
+    tpl as _tpl, auth_ui as _auth_ui, reg as _reg, util as _util, comments as _comments
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -66,7 +66,7 @@ class Content(_odm_ui.UIModel):
         self.define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
         self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), nonempty=True))
         self.define_field(_odm.field.Integer('views_count'))
-        self.define_field(_odm.field.Integer('comments_count'))
+        self.define_field(_odm.field.Virtual('comments_count'))
         self.define_field(_odm.field.RefsUniqueList('images', model='image'))
         self.define_field(_odm.field.String('status', nonempty=True))
         self.define_field(_odm.field.Ref('author', model='user', nonempty=True))
@@ -222,6 +222,9 @@ class Content(_odm_ui.UIModel):
         if field_name == 'tags':
             if kwargs.get('as_string'):
                 value = ','.join([tag.title for tag in self.f_get('tags')])
+
+        if field_name == 'comments_count':
+            value = _comments.get_all_comments_count(self.url)
 
         return value
 

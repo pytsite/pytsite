@@ -92,15 +92,6 @@ def view(args: dict, inp: dict):
         if not _auth.get_current_user().has_permission('pytsite.odm_ui.modify.' + entity.model):
             raise _http.error.Forbidden()
 
-    # Recalculate comments count
-    try:
-        current_cc = entity.f_get('comments_count')
-        actual_cc = _disqus.functions.get_comments_count(_router.current_url(True))
-        if actual_cc != current_cc:
-            entity.f_set('comments_count', actual_cc).save()
-    except ValueError:
-        pass
-
     # Meta title
     title = entity.title
     _metatag.t_set('title', title)
