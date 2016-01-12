@@ -1,6 +1,5 @@
 """Facebook Comments Driver.
 """
-import json as _json
 import requests as _requests
 from pytsite import comments as _comments, logger as _logger
 from ._widget import Comments as _CommentsWidget
@@ -36,8 +35,10 @@ class Driver(_comments.Driver):
             r = _requests.get('https://graph.facebook.com/v2.4', {
                 'fields': 'share{comment_count}',
                 'id':  thread_id,
-            })
-            count = int(r.json()['share']['comment_count'])
+            }).json()
+
+            if 'share' in r:
+                count = int(r['share']['comment_count'])
 
         except Exception as e:
             _logger.error(str(e), __name__)
