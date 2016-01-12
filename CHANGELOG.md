@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.47.3 (2016-01-12)
+### Changed
+- Entity's comments count update logic in `content`.
+
+
 ## 0.47.2 (2016-01-12)
 ### Fixed
 - Comments counting issue in `fb`.

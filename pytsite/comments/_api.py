@@ -61,7 +61,7 @@ def get_comments_count(driver_name: str, thread_id: str) -> int:
 
     if entity:
         time_diff = _datetime.now() - entity.modified
-        if time_diff.seconds <= 900:  # 15 min
+        if time_diff.seconds <= 1800:  # 30 min
             return entity.count
     else:
         entity = _odm.dispense('comments_count')
