@@ -79,8 +79,7 @@ def get_all_comments_count(thread_id: str):
     """Get comments count for particular thread, all drivers.
     """
     count = 0
-
-    for driver in _drivers.values():
-        count += driver.get_comments_count(thread_id)
+    for driver_name in _drivers:
+        count += get_comments_count(driver_name, thread_id)
 
     return count

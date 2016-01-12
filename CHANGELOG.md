@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.47.2 (2016-01-12)
+### Fixed
+- Comments counting issue in `fb`.
+
+
 ## 0.47.1 (2016-01-12)
 ### Fixed
 - Comments counting issue in `fb`.
