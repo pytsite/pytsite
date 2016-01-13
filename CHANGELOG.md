@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.47.4 (2016-01-13)
+### Added
+- Support for tags 'fb:app_id' and 'fb:admins' by `metatag`. 
+
+
 ## 0.47.3 (2016-01-12)
 ### Changed
 - Entity's comments count update logic in `content`.

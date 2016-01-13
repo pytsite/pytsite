@@ -20,7 +20,7 @@ def index(args: dict, inp: dict):
     # Checking if the model is registered
     model = args.get('model')
     if not model or not _api.is_model_registered(model):
-        _logger.error("Content model '{}' is not found. Redirecting to home.".format(model), __name__)
+        _logger.warn("Content model '{}' is not found. Redirecting to home.".format(model), __name__)
         return _http.response.Redirect(_router.base_url())
 
     # Getting finder

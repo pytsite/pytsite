@@ -31,6 +31,8 @@ __allowed_tags = (
     'twitter:description',
     'twitter:image',
     'twitter:site',
+    'fb:app_id',
+    'fb:admins',
 )
 
 
@@ -94,7 +96,7 @@ def dump(tag: str) -> str:
         r = '<meta charset="{}">\n'.format(__tags[tag])
     elif tag == 'title':
         r = '<title>{} | {}</title>\n'.format(__tags[tag], _lang.t('app_name'))
-    elif tag.startswith('og:') or tag.startswith('author:'):
+    elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):
         r = '<meta property="{}" content="{}">'.format(tag, __tags[tag])
     elif tag == 'link':
         r = ''

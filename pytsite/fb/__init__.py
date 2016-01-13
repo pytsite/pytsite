@@ -9,7 +9,8 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import reg, lang, assetman, content_export, router, tpl, comments
+    from pytsite import reg, lang, assetman, content_export, router, tpl, comments, events
+    from . import _eh
     from ._content_export import Driver as ContentExportDriver
     from ._comments import Driver
 
@@ -28,13 +29,17 @@ def __init():
     assetman.register_package(__name__)
     tpl.register_package(__name__)
 
-    # Content export driver
-    content_export.register_driver('fb', 'pytsite.fb@facebook', ContentExportDriver)
-
     # Routes
     router.add_rule('/fb/authorize', 'pytsite.fb.ep.authorize')
 
+    # Content export driver
+    content_export.register_driver('fb', 'pytsite.fb@facebook', ContentExportDriver)
+
     # Comments driver
     comments.register_driver(Driver())
+
+    # Event handlers
+    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+
 
 __init()
