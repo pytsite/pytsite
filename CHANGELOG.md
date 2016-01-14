@@ -1,10 +1,9 @@
 # PytSite Changelog
 
-## 0.48 (unreleased)
+## 0.48 (2016-01-14)
 ### Added
 - New `browser`'s library: 'throttle'.
-
-### Changed
+- Preliminary thumb image generation in `fb` content export driver.
 - Improved behaviour of 'responsive' `browser`'s library.
 
 
