@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.48 (unreleased)
+### Added
+- New `browser`'s library: 'throttle'.
+
+### Changed
+- Improved behaviour of 'responsive' `browser`'s library.
+
+
 ## 0.47.4 (2016-01-13)
 ### Added
 - Support for tags 'fb:app_id' and 'fb:admins' by `metatag`. 

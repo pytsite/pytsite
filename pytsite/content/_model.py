@@ -493,8 +493,6 @@ class Content(_odm_ui.UIModel):
 
     def _process_body_tags(self, inp: str, responsive: bool, width: int=None) -> str:
         def process_img_tag(match):
-            nonlocal responsive
-
             img_index = int(match.group(1))
             if len(self.images) < img_index:
                 return ''

@@ -53,7 +53,10 @@ def include(lib: str, forever=False):
     elif lib == 'datetimepicker':
         _assetman.add('pytsite.browser@datetimepicker/jquery.datetimepicker.js', forever=forever)
         _assetman.add('pytsite.browser@datetimepicker/jquery.datetimepicker.css', forever=forever)
+    elif lib == 'throttle':
+        _assetman.add('pytsite.browser@js/jquery.ba-throttle-debounce.min.js', forever=forever)
     elif lib == 'responsive':
+        include('throttle', forever=forever)
         _assetman.add('pytsite.browser@js/responsive.js', forever=forever)
     elif lib == 'animate':
         _assetman.add('pytsite.browser@css/animate.css', forever=forever)
