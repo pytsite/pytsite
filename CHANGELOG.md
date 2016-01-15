@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.48.1 (2016-01-14)
+### Added
+- New `content`'s model 'img' body tag argument: 'alt'. 
+
+### Changed
+- Improved resizing logic in `image`. 
+
+
 ## 0.48 (2016-01-14)
 ### Added
 - New `browser`'s library: 'throttle'.
