@@ -22,7 +22,7 @@ def include(lib: str, forever=False):
         include('font-awesome', forever=forever)
         _assetman.add('pytsite.browser@bootstrap/css/bootstrap.min.css', forever=forever)
         _assetman.add('pytsite.browser@bootstrap/css/add-columns.css', forever=forever)
-        _assetman.add('pytsite.browser@bootstrap/css/add-texts.css', forever=forever)
+        _assetman.add('pytsite.browser@bootstrap/css/add-ons.css', forever=forever)
         _assetman.add('pytsite.browser@bootstrap/js/bootstrap.min.js', forever=forever)
     elif lib == 'bootstrap-table':
         _assetman.add('pytsite.browser@bootstrap-table/bootstrap-table.min.css', forever=forever)

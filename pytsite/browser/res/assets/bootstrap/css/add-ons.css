@@ -1,3 +1,7 @@
+.img-responsive {
+    display: inline-block;
+}
+
 @media (min-width: 0) {
     .text-xs-B-left {
         text-align: left;

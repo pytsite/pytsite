@@ -497,9 +497,10 @@ class Content(_odm_ui.Model):
             if len(self.images) < img_index:
                 return ''
             img = self.images[img_index - 1]
-            r = img.get_responsive_html(self.title) if responsive else img.get_html(self.title, width=width)
+            alt = match.group(3).split('=')[1] if match.group(3) else self.title
+            r = img.get_responsive_html(alt) if responsive else img.get_html(alt, width=width)
             if match.group(2):
-                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(self.title), r)
+                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(alt), r)
             return r
 
         def process_vid_tag(match):
@@ -509,7 +510,7 @@ class Content(_odm_ui.Model):
             return str(_widget.static.VideoPlayer('content-video-' + str(vid_index),
                                                   value=self.video_links[vid_index - 1]))
 
-        inp = _re.sub('\[img:(\d+)(:link_orig)?\]', process_img_tag, inp)
+        inp = _re.sub('\[img:(\d+)(:link_orig)?(:alt=[^:]+)?\]', process_img_tag, inp)
         inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
 
         return inp
