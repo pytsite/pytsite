@@ -23,7 +23,7 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
     # Aligning side lengths
     aligned_width = _align_length(requested_width, int(_reg.get('image.resize_limit_width', 1200)))
     aligned_height = _align_length(requested_height, int(_reg.get('image.resize_limit_height', 1200)))
-    if aligned_width != requested_width or aligned_height != aligned_height:
+    if aligned_width != requested_width or aligned_height != requested_height:
         redirect = _router.ep_url('pytsite.image.ep.resize', {
             'width': aligned_width,
             'height': aligned_height,

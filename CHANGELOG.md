@@ -1,6 +1,11 @@
 # PytSite Changelog
 
-## 0.48.1 (2016-01-14)
+## 0.48.2 (2016-01-16)
+### Fixed
+- Responsive image heights aligning.
+
+
+## 0.48.1 (2016-01-15)
 ### Added
 - New `content`'s model 'img' body tag argument: 'alt'. 
 

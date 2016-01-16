@@ -39,7 +39,7 @@ pytsite.responsive = function () {
 
         var aspect_ratio = cont.data('aspectRatio');
         if (aspect_ratio != 'None')
-            new_height = parseInt(new_width / parseFloat(aspect_ratio));
+            new_height = align_length(parseInt(new_width / parseFloat(aspect_ratio)));
 
         var src = '/image/resize/0/' + new_height + '/' + img_path;
         if (new_width <= orig_width)
