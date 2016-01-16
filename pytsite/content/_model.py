@@ -54,7 +54,7 @@ class Tag(_taxonomy.model.Term):
         browser.default_sort_order = _odm.I_DESC
 
 
-class Content(_odm_ui.UIModel):
+class Content(_odm_ui.Model):
     """Base Content Model.
     """
     def _setup(self):

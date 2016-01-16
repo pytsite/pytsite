@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class AuthLog(_odm_ui.UIModel):
+class AuthLog(_odm_ui.Model):
     def _setup(self):
         """Hook.
         """

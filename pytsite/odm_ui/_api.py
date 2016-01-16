@@ -143,7 +143,7 @@ def get_d_form(model: str, ids: _Iterable) -> _form.Form:
 def dispense_entity(model: str, entity_id: str=None):
     """Dispense entity.
 
-    :rtype: _model.UIModel
+    :rtype: _model.Model
     """
     if not entity_id or entity_id == '0':
         entity_id = None

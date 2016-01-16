@@ -4,7 +4,7 @@
 from . import _widget as widget
 from ._browser import Browser
 from ._api import get_m_form, get_mass_action_form, get_d_form, check_permissions
-from ._model import UIMixin, UIModel
+from ._model import UIMixin, Model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
