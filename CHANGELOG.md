@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.48.3 (2016-01-18)
+### Changed
+- Step of responsive images resizing lowered to 100px.  
+
+
 ## 0.48.2 (2016-01-16)
 ### Fixed
 - Responsive image heights aligning.

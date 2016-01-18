@@ -5,7 +5,7 @@ pytsite.responsive = function () {
             return l;
 
         var max = 1200;
-        var step = 200;
+        var step = 100;
         for(var i = 0; i <= max; i += step) {
             if (l <= i)
                 return i;

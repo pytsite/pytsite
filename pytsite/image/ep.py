@@ -105,7 +105,7 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
     return _http.response.Redirect(image_entity.f_get('url', width=requested_width, height=requested_height))
 
 
-def _align_length(l: int, max_length: int=1200, step: int=200):
+def _align_length(l: int, max_length: int=1200, step: int=100):
     if l <= 0:
         return 0
 
