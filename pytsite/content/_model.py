@@ -5,7 +5,7 @@ from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, reg as _reg, util as _util, comments as _comments
+    tpl as _tpl, auth_ui as _auth_ui, reg as _reg, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -182,8 +182,8 @@ class Content(_odm_ui.Model):
                 value = self.route_alias
 
         elif field_name == 'status':
-            from ._api import get_publish_statuses
-            if value not in [v[0] for v in get_publish_statuses()]:
+            from ._api import get_statuses
+            if value not in [v[0] for v in get_statuses()]:
                 raise Exception("Invalid publish status: '{}'.".format(value))
 
         elif field_name == 'language':
@@ -350,9 +350,9 @@ class Content(_odm_ui.Model):
             self.f_get('author').full_name
         )
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm, stage: str):
         """Hook.
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
         from . import _api
         _assetman.add('pytsite.content@js/content.js')
@@ -360,7 +360,7 @@ class Content(_odm_ui.Model):
         current_user = _auth.get_current_user()
 
         # Title
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             uid='title',
             weight=100,
             label=self.t('title'),
@@ -369,7 +369,7 @@ class Content(_odm_ui.Model):
         ))
 
         # Description
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             uid='description',
             weight=200,
             label=self.t('description'),
@@ -377,7 +377,7 @@ class Content(_odm_ui.Model):
         ))
 
         # Tags
-        form.add_widget(_taxonomy.widget.TokensInput(
+        frm.add_widget(_taxonomy.widget.TokensInput(
             uid='tags',
             weight=300,
             model='tag',
@@ -388,7 +388,7 @@ class Content(_odm_ui.Model):
         # Images
         if self.has_field('images'):
             from pytsite import image
-            form.add_widget(image.widget.ImagesUpload(
+            frm.add_widget(image.widget.ImagesUpload(
                 uid='images',
                 weight=400,
                 label=self.t('images'),
@@ -399,39 +399,39 @@ class Content(_odm_ui.Model):
 
         # Video links
         if self.has_field('video_links'):
-            form.add_widget(_widget.input.StringList(
+            frm.add_widget(_widget.input.StringList(
                 uid='video_links',
                 weight=500,
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
                 value=self.video_links
             ))
-            form.add_rule('video_links', _validation.rule.VideoHostingUrl())
+            frm.add_rule('video_links', _validation.rule.VideoHostingUrl())
 
         # Body
-        form.add_widget(_ckeditor.widget.CKEditor(
+        frm.add_widget(_ckeditor.widget.CKEditor(
             uid='body',
             weight=600,
             label=self.t('body'),
             value=self.f_get('body', process_tags=False),
         ))
-        form.add_rule('body', _validation.rule.NonEmpty())
+        frm.add_rule('body', _validation.rule.NonEmpty())
 
         # Status
         if current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
-            form.add_widget(_widget.select.Select(
+            from . import _widget as content_widget
+            frm.add_widget(content_widget.StatusSelect(
                 uid='status',
                 weight=700,
                 label=self.t('status'),
                 value=self.status if self.status else 'published',
                 h_size='col-sm-4 col-md-3 col-lg-2',
-                items=_api.get_publish_statuses(),
                 required=True,
             ))
 
         # Publish time
         if current_user.has_permission('pytsite.content.set_publish_time.' + self.model):
-            form.add_widget(_widget.select.DateTime(
+            frm.add_widget(_widget.select.DateTime(
                 uid='publish_time',
                 weight=800,
                 label=self.t('publish_time'),
@@ -447,7 +447,7 @@ class Content(_odm_ui.Model):
                 lang_title = _lang.t('lang_title_' + _lang.get_current())
             else:
                 lang_title = _lang.t('lang_title_' + self.language)
-            form.add_widget(_widget.static.Text(
+            frm.add_widget(_widget.static.Text(
                 uid='language',
                 weight=900,
                 label=self.t('language'),
@@ -459,7 +459,7 @@ class Content(_odm_ui.Model):
             # Localization selects
             from ._widget import EntitySelect
             for i, lng in enumerate(_lang.langs(False)):
-                form.add_widget(EntitySelect(
+                frm.add_widget(EntitySelect(
                     uid='localization_' + lng,
                     weight=1000 + i,
                     label=self.t('localization', {'lang': _lang.lang_title(lng)}),
@@ -470,14 +470,14 @@ class Content(_odm_ui.Model):
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
-            form.add_widget(_widget.input.Text(
+            frm.add_widget(_widget.input.Text(
                 uid='route_alias',
                 weight=1100,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-            form.add_widget(_auth_ui.widget.UserSelect(
+            frm.add_widget(_auth_ui.widget.UserSelect(
                 uid='author',
                 weight=1200,
                 label=self.t('author'),
@@ -611,18 +611,18 @@ class Article(Content):
 
         return tuple(r)
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm, stage: str):
         """Hook.
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
-        super().ui_m_form_setup(form, stage)
+        super().ui_m_form_setup(frm, stage)
 
         # At least one image required
-        form.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))
+        frm.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))
 
         # Starred
         if self.has_field('starred') and _auth.get_current_user().is_admin:
-            form.add_widget(_widget.select.Checkbox(
+            frm.add_widget(_widget.select.Checkbox(
                 uid='starred',
                 weight=30,
                 label=self.t('starred'),
@@ -630,12 +630,11 @@ class Article(Content):
             ))
 
         # Section
+        from . import _widget as content_widget
         if self.has_field('section'):
-            form.add_widget(_taxonomy.widget.TermSelect(
+            frm.add_widget(content_widget.SectionSelect(
                 uid='section',
                 weight=60,
-                model='section',
-                caption_field='title',
                 label=self.t('section'),
                 value=self.section,
                 h_size='col-sm-6',
@@ -644,18 +643,18 @@ class Article(Content):
 
         # External links
         if self.has_field('ext_links'):
-            form.add_widget(_widget.input.StringList(
+            frm.add_widget(_widget.input.StringList(
                 uid='ext_links',
                 weight=630,
                 label=self.t('external_links'),
                 add_btn_label=self.t('add_link'),
                 value=self.ext_links
             ))
-            form.add_rule('ext_links', _validation.rule.Url())
+            frm.add_rule('ext_links', _validation.rule.Url())
 
         # Location
         if self.has_field('location'):
-            form.add_widget(_geo.widget.SearchAddress(
+            frm.add_widget(_geo.widget.SearchAddress(
                 uid='location',
                 weight=660,
                 label=self.t('location'),
