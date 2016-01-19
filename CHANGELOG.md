@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.48.5 (2016-01-19)
+### Added
+- New content's body 'img' tag option: 'skip_enlarge'.
+
+
 ## 0.48.4 (2016-01-19)
 ### Fixed
 - Image sizes for OpenGraph stories.

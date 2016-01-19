@@ -12,6 +12,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+_body_img_tag_re = _re.compile('\[img:(\d+)(.*)\]')
+_body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
+
+
 class Section(_taxonomy.model.Term):
     """Section Model.
     """
@@ -493,14 +497,36 @@ class Content(_odm_ui.Model):
 
     def _process_body_tags(self, inp: str, responsive: bool, width: int=None) -> str:
         def process_img_tag(match):
+            # Image index
             img_index = int(match.group(1))
             if len(self.images) < img_index:
                 return ''
             img = self.images[img_index - 1]
-            alt = match.group(3).split('=')[1] if match.group(3) else self.title
-            r = img.get_responsive_html(alt) if responsive else img.get_html(alt, width=width)
-            if match.group(2):
+
+            # Additional parameters
+            link_orig = False
+            enlarge = True
+            alt = self.title
+
+            for arg in match.group(2).split(':'):  # type: str
+                arg = arg.strip()
+                if arg == 'link_orig':
+                    link_orig = True
+                if arg == 'skip_enlarge':
+                    enlarge = False
+                if arg.startswith('alt='):
+                    alt = arg.split('=')[1]
+
+            # HTML code
+            if responsive:
+                r = img.get_responsive_html(alt, enlarge=enlarge)
+            else:
+                r = img.get_html(alt, width=width)
+
+            # Link to original
+            if link_orig:
                 r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(alt), r)
+
             return r
 
         def process_vid_tag(match):
@@ -510,8 +536,8 @@ class Content(_odm_ui.Model):
             return str(_widget.static.VideoPlayer('content-video-' + str(vid_index),
                                                   value=self.video_links[vid_index - 1]))
 
-        inp = _re.sub('\[img:(\d+)(:link_orig)?(:alt=[^:]+)?\]', process_img_tag, inp)
-        inp = _re.sub('\[vid:(\d+)\]', process_vid_tag, inp)
+        inp = _body_img_tag_re.sub(process_img_tag, inp)
+        inp = _body_vid_tag_re.sub(process_vid_tag, inp)
 
         return inp
 

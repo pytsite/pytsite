@@ -31,6 +31,7 @@ pytsite.responsive = function () {
             return cont;
 
         var alt = cont.data('alt');
+        var enlarge = cont.data('enlarge');
         var css = cont.attr('class');
         var orig_width = parseInt(cont.data('width'));
         var orig_height = parseInt(cont.data('height'));
@@ -42,11 +43,11 @@ pytsite.responsive = function () {
             new_height = align_length(parseInt(new_width / parseFloat(aspect_ratio)));
 
         var src = '/image/resize/0/' + new_height + '/' + img_path;
-        if (new_width <= orig_width)
+        if (enlarge == 'True' || new_width <= orig_width)
             src = '/image/resize/' + new_width + '/' + new_height + '/' + img_path;
 
         return '<img class="' + css + '" src="' + src + '" alt="' + alt + '" data-path="' + img_path + '"' +
-            'data-alt="' + alt + '" data-aspect-ratio="' + aspect_ratio + '"' +
+            'data-alt="' + alt + '" data-aspect-ratio="' + aspect_ratio + '"' + 'data-enlarge="' + enlarge + '"' +
             'data-width="' + orig_width + '"' + 'data-height="' + orig_height + '"' + '>';
     }
 
