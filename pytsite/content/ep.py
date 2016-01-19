@@ -114,7 +114,7 @@ def view(args: dict, inp: dict):
     if entity.images:
         _metatag.t_set('twitter:card', 'summary_large_image')
         image_w = 900
-        image_h = 470
+        image_h = 500
         image_url = entity.images[0].f_get('url', width=image_w, height=image_h)
         _metatag.t_set('og:image', image_url)
         _metatag.t_set('og:image:width', str(image_w))

@@ -42,7 +42,7 @@ class Driver(_content_export.AbstractDriver):
 
             # Pre-generating image for OpenGraph
             if entity.has_field('images') and entity.images:
-                _requests.get(entity.images[0].get_url(900, 470))
+                _requests.get(entity.images[0].get_url(900, 500))
 
             if opts['page_id']:
                 page_session = _Session(self._get_page_access_token(opts['page_id'], user_session))
