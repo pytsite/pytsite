@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.48.5 (2016-01-19)
+### Added
+- New content's body 'img' tag option: 'skip_enlarge'.
+
+
+## 0.48.4 (2016-01-19)
+### Fixed
+- Image sizes for OpenGraph stories.
+
+
 ## 0.48.3 (2016-01-18)
 ### Changed
 - Step of responsive images resizing lowered to 100px.  

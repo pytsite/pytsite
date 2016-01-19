@@ -97,7 +97,7 @@ class Image(_file.model.File):
         """
         return '<img src="{}" alt="{}">'.format(self.get_url(width, height), _util.escape_html(alt))
 
-    def get_responsive_html(self, alt: str='', css: str='', aspect_ratio: float=None) -> str:
+    def get_responsive_html(self, alt: str='', css: str='', aspect_ratio: float=None, enlarge: bool=True) -> str:
         """Get HTML code to embed the image (responsive way).
         """
         alt = _util.escape_html(alt)
@@ -105,5 +105,5 @@ class Image(_file.model.File):
         css += ' img-responsive pytsite-img'
 
         return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}" ' \
-               'data-width="{}" data-height="{}"></span>'\
-            .format(css.strip(), path, alt, aspect_ratio, self.width, self.height)
+               'data-width="{}" data-height="{}" data-enlarge="{}"></span>'\
+            .format(css.strip(), path, alt, aspect_ratio, self.width, self.height, enlarge)
