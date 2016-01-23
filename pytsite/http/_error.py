@@ -1,8 +1,8 @@
+from werkzeug import exceptions as _e
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from werkzeug import exceptions as _e
 
 
 class NotFound(_e.NotFound):
@@ -14,4 +14,8 @@ class Forbidden(_e.Forbidden):
 
 
 class InternalServerError(_e.InternalServerError):
+    pass
+
+
+class MethodNotAllowed(_e.MethodNotAllowed):
     pass

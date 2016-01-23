@@ -7,3 +7,7 @@ __license__ = 'MIT'
 
 class Error(Exception):
     pass
+
+
+class CommandNotFound(Error):
+    pass

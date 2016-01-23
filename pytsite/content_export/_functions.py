@@ -1,5 +1,6 @@
 """Poster Functions.
 """
+from frozendict import frozendict as _frozendict
 from pytsite import lang as _lang
 from . import _driver
 
@@ -36,10 +37,10 @@ def get_driver_info(name: str) -> tuple:
     return _drivers[name]
 
 
-def get_drivers() -> dict:
+def get_drivers() -> _frozendict:
     """Get registered drivers.
     """
-    return _drivers
+    return _frozendict(_drivers)
 
 
 def get_driver_title(name) -> str:

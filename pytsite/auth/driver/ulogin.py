@@ -44,6 +44,8 @@ class _LoginForm(_form.Form):
 
         self.add_widget(_LoginWidget(self.uid + '-widget-ulogin'))
 
+        self.remove_widget('form-actions')
+
 
 class Driver(AbstractDriver):
     """ULogin Driver.

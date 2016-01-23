@@ -354,11 +354,10 @@ class Content(_odm_ui.Model):
             self.f_get('author').full_name
         )
 
-    def ui_m_form_setup(self, frm, stage: str):
+    def ui_m_form_setup(self, frm):
         """Hook.
         :type frm: pytsite.form.Form
         """
-        from . import _api
         _assetman.add('pytsite.content@js/content.js')
 
         current_user = _auth.get_current_user()
@@ -637,11 +636,11 @@ class Article(Content):
 
         return tuple(r)
 
-    def ui_m_form_setup(self, frm, stage: str):
+    def ui_m_form_setup(self, frm):
         """Hook.
         :type frm: pytsite.form.Form
         """
-        super().ui_m_form_setup(frm, stage)
+        super().ui_m_form_setup(frm)
 
         # At least one image required
         frm.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))

@@ -11,27 +11,30 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class DbDump(_console.command.Abstract):
+class Db(_console.command.Abstract):
     """Database Dump Command.
     """
     def get_name(self) -> str:
         """Get name of the command.
         """
-        return 'db:dump'
+        return 'db'
 
     def get_description(self) -> str:
         """Get description of the command.
         """
         from pytsite.lang import t
-        return t('pytsite.db@db_dump_console_command_description')
+        return t('pytsite.db@db_console_command_description')
 
-    def execute(self, **kwargs):
-        """Execute the command.
+    def get_help(self) -> str:
+        """Get help for the command.
         """
+        return '{} <dump | restore>'.format(self.get_name())
+
+    def _dump(self):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
             raise Exception('Cannot find mongodump executable.')
 
-        _console.run_command('maintenance', enable=True)
+        _console.run_command('maint', args=('enable',))
 
         db_name = _reg.get('db.database')
         target_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump')
@@ -54,32 +57,15 @@ class DbDump(_console.command.Abstract):
 
         r = _subprocess.call(command, shell=True)
 
-        _console.run_command('maintenance', disable=True)
+        _console.run_command('maint', args=('disable',))
 
         return r
 
-
-class DbRestore(_console.command.Abstract):
-    """Database Dump Command.
-    """
-    def get_name(self) -> str:
-        """Get name of the command.
-        """
-        return 'db:restore'
-
-    def get_description(self) -> str:
-        """Get description of the command.
-        """
-        from pytsite.lang import t
-        return t('pytsite.db@db_restore_console_command_description')
-
-    def execute(self, **kwargs):
-        """Execute the command.
-        """
+    def _restore(self):
         if _subprocess.call('which mongorestore', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True):
             raise Exception('Cannot find mongorestore executable.')
 
-        _console.run_command('maintenance', enable=True)
+        _console.run_command('maint', args=('enable',))
 
         db_name = _reg.get('db.database')
         source_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump', db_name)
@@ -97,6 +83,21 @@ class DbRestore(_console.command.Abstract):
 
         r = _subprocess.call(command, shell=True)
 
-        _console.run_command('maintenance', disable=True)
+        _console.run_command('maint', args=('disable',))
 
         return r
+
+    def execute(self, args: tuple=(), **kwargs):
+        """Execute the command.
+        """
+        if len(args) != 1:
+            _console.print_info(self.get_help())
+            return 1
+
+        if 'dump' in args:
+            self._dump()
+        elif 'restore' in args:
+            self._restore()
+        else:
+            _console.print_info(self.get_help())
+            return 1

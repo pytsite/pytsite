@@ -1,7 +1,7 @@
 """Pytsite Database Module.
 """
 from pytsite import console as _console, lang as _lang
-from ._console_commands import DbDump, DbRestore
+from ._console_commands import Db
 
 # Public API
 from ._function import get_client, get_collection, get_collection_names, get_config, get_database
@@ -12,5 +12,4 @@ __license__ = 'MIT'
 
 
 _lang.register_package(__name__)
-_console.register_command(DbDump())
-_console.register_command(DbRestore())
+_console.register_command(Db())

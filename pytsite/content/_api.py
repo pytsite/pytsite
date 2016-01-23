@@ -121,7 +121,7 @@ def find(model: str, status='published', check_publish_time=True, language: str=
     return f
 
 
-def get_publish_statuses() -> list:
+def get_statuses() -> list:
     """Get allowed content publication statuses.
     """
     r = []
@@ -185,18 +185,18 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
         item.author = '{} ({})'.format(entity.author.email, entity.author.full_name)
 
         if entity.has_field('section'):
-            item.add_child(_feed.rss.Category(entity.section.title))
+            item.append_child(_feed.rss.Category(entity.section.title))
         elif entity.has_field('tags'):
-            item.add_child(_feed.rss.Category(entity.tags[0].title))
+            item.append_child(_feed.rss.Category(entity.tags[0].title))
 
         if entity.has_field('images'):
             for img in entity.images:
-                item.add_child(_feed.rss.Enclosure(img.url, img.length, img.mime))
+                item.append_child(_feed.rss.Enclosure(img.url, img.length, img.mime))
 
         if item_setup:
             item_setup(item, entity)
 
-        generator.add_item(item)
+        generator.append_item(item)
 
     # Write feed content
     out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, lng))

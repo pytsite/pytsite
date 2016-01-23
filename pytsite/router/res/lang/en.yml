@@ -1,4 +1,5 @@
 error: 'Error :code'
 http_error_403: 'Access Denied'
 http_error_404: 'Page Not Found'
+http_error_405: 'Method Is Not Allowed'
 we_are_in_maintenance: 'We are in maintenance mode now. Please try again later.'

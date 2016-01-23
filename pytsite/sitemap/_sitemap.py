@@ -113,7 +113,7 @@ class Index(_FileWriterMixin):
 
             # Lastmod
             lastmod_em = _etree.Element('lastmod')
-            lastmod_em.text = _util.w3c_datetime(url['lastmod'])
+            lastmod_em.text = _util.w3c_datetime(url['lastmod'], True)
             sitemap_em.append(lastmod_em)
 
             # Add 'sitemap' to the 'sitemapindex' root

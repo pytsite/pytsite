@@ -16,12 +16,12 @@ def __init():
 
     def app_update_event():
         from pytsite import console
-        console.run_command('assetman:build')
+        console.run_command('assetman', args=('build',))
 
     lang.register_package(__name__)
 
     # Console commands
-    console.register_command(_commands.CompileAssets())
+    console.register_command(_commands.Assetman())
 
     # Events
     events.listen('pytsite.router.dispatch', _functions.reset)

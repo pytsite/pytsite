@@ -61,7 +61,7 @@ def get_driver(name: str=None) -> _AbstractDriver:
             raise Exception('No driver registered.')
 
     if name not in _drivers:
-        raise ValueError("Driver '{}' is not registered.".format(name))
+        raise _error.DriverNotRegistered("Driver '{}' is not registered.".format(name))
 
     return _drivers[name]
 

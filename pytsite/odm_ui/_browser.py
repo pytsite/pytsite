@@ -46,7 +46,7 @@ class Browser:
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._model_class.ui_is_creation_allowed() and _api.check_permissions('create', self._model):
+        if self._model_class.ui_is_model_creation_allowed() and _api.check_permissions('create', self._model):
             create_form_url = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {'model': self._model, 'id': '0'})
             title = _lang.t('pytsite.odm_ui@create')
             btn = _html.A(href=create_form_url, cls='btn btn-default add-button', title=title)

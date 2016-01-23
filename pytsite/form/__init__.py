@@ -1,8 +1,9 @@
 """Pytsite Form Package.
 """
+from typing import Dict as _Dict
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation, tpl as _tpl, browser as _browser, events as _events
+    validation as _validation, tpl as _tpl, browser as _browser, events as _events, lang as _lang, http as _http
 from . import _error as error
 
 __author__ = 'Alexander Shepetko'
@@ -10,6 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+_lang.register_package(__name__)
 _assetman.register_package(__name__)
 _assetman.add('pytsite.form@js/form.js', forever=True)
 _tpl.register_package(__name__)
@@ -22,8 +24,14 @@ class Form:
     def __init__(self, uid: str=None, **kwargs):
         """Init.
         """
+        if not _router.request:
+            raise Exception('Form cannot be created without HTTP request context.')
+
+        if self.step > 1 and _router.request.method != 'POST':
+            raise _http.error.MethodNotAllowed()
+
         # Widgets
-        self._widgets = {}
+        self._widgets = {}  # type: _Dict[str, _widget.Base]
 
         # Form areas where widgets can be placed
         self._areas = ('hidden', 'header', 'body', 'footer')
@@ -38,6 +46,7 @@ class Form:
         self._name = kwargs.get('name', '')
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
+        self._steps = kwargs.get('steps', 1)
 
         self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ep.validate')
         self._tpl = kwargs.get('tpl', 'pytsite.form@form')
@@ -54,8 +63,23 @@ class Form:
         # Form location
         self.add_widget(_widget.input.Hidden(
             uid='__form_location',
-            form_area='hidden')
-        )
+            form_area='hidden',
+            value=_router.current_url(),
+        ))
+
+        # Form step
+        self.add_widget(_widget.input.Hidden(
+            uid='__form_steps',
+            form_area='hidden',
+            value=self.steps,
+        ))
+
+        # Form step
+        self.add_widget(_widget.input.Hidden(
+            uid='__form_step',
+            form_area='hidden',
+            value=self.step,
+        ))
 
         # Form messages
         self.add_widget(_widget.static.Container(
@@ -66,6 +90,19 @@ class Form:
         # Name is required
         if not self._name:
             self._name = uid
+
+        # 'Actions' area and submit button
+        self.add_widget(_widget.static.Container(
+            uid='form-actions',
+            css='actions-wrapper text-xs-B-center text-sm-left',
+            form_area='footer',
+        ))
+        self.get_widget('form-actions').append(_widget.button.Submit(
+            weight=10,
+            uid='action-submit',
+            value=_lang.t('pytsite.form@save'),
+            color='primary', icon='fa fa-save'
+        ))
 
         # Setup hook
         self._setup()
@@ -188,8 +225,24 @@ class Form:
         return self.get_widgets().keys()
 
     @property
-    def location(self) -> str:
-        return self.get_widget('__form_location')
+    def steps(self) -> int:
+        return self._steps
+
+    @steps.setter
+    def steps(self, value: int):
+        self.get_widget('__form_steps').set_val(value)
+        self._steps = value
+
+    @property
+    def step(self) -> int:
+        try:
+            return int(_router.request.inp.get('__form_step', 1))
+        except ValueError:
+            return 1
+
+    @property
+    def is_last_step(self) -> bool:
+        return self.step == self.steps
 
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
@@ -242,11 +295,12 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
-        # Form's location determined only at the rendering stage
-        if self.has_widget('__form_location'):
-            self.get_widget('__form_location').value = _router.current_url()
-
         _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
+
+        # Action adjust
+        if not self.is_last_step:
+            self._action = _router.current_url()
+            self.get_widget('form-actions').get_child('action-submit').value = _lang.t('pytsite.form@next')
 
         return _tpl.render(self._tpl, {'form': self})
 
@@ -300,24 +354,34 @@ class Form:
         self.get_widget(uid).hide()
         return self
 
-    def get_widgets(self, area: str=None):
+    def get_widgets(self, area: str=None) -> _Dict[str, _widget.Base]:
         """Get widgets.
-
-        :rtype: dict[str, _widget.Base]
         """
         widgets = []
 
-        # Get widgets from area(s) and preparing it for sorting
+        # First, filter widgets by area
         areas = (area,) if area else self._areas
-        for a in areas:
+        for area in areas:
             for w in self._widgets.values():
-                if w.form_area == a:
+                if w.form_area == area:
                     widgets.append(w)
+
+        # Processing form step information
+        for w in widgets:
+            if w.form_steps == '*' or (isinstance(w.form_steps, tuple) and self.step in w.form_steps):
+                continue
+
+            w.hide()
+
+            # If it isn't first step, try to set hidden widget's value
+            # with data received from previous step
+            if self.step > 1 and w.uid in _router.request.inp:
+                w.value = _router.request.inp[w.uid]
 
         # Sort by weight
         return _OrderedDict([(w.uid, w) for w in _util.weight_sort(widgets)])
 
-    def remove_widget(self, widget_uid):
+    def remove_widget(self, widget_uid: str):
         """Remove widget from the form.
         """
         if widget_uid in self._widgets:

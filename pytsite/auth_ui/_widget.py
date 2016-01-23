@@ -100,7 +100,13 @@ class UserSelect(_widget.select.Select):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
-        for user in _auth.find_users().sort([('first_name', _odm.I_ASC)]).get():
+        f = _auth.find_users().sort([('first_name', _odm.I_ASC)])
+
+        current_user = _auth.get_current_user()
+        if not current_user.has_permission('pytsite.odm_ui.browse.user'):
+            f.where('login', '=', current_user.login)
+
+        for user in f.get():
             self._items.append(('user:' + str(user.id), '{} ({})'.format(user.full_name, user.login)))
 
     def set_val(self, value, **kwargs):

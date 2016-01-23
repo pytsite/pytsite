@@ -1,6 +1,6 @@
 """ODM UI Model.
 """
-from pytsite import odm as _odm, router as _router
+from pytsite import odm as _odm, router as _router, form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -19,7 +19,7 @@ class UIMixin:
         pass
 
     @classmethod
-    def ui_is_creation_allowed(cls) -> bool:
+    def ui_is_model_creation_allowed(cls) -> bool:
         """If the model creation is allowed via UI.
         """
         return True
@@ -88,17 +88,13 @@ class UIMixin:
         """
         return ''
 
-    def ui_m_form_setup(self, form, stage: str):
-        """Setup of a modification form.
-
-        :type form: pytsite.form.Form
+    def ui_m_form_setup(self, frm: _form.Form):
+        """Modify form setup hook.
         """
         pass
 
-    def ui_m_form_submit(self, form):
+    def ui_m_form_submit(self, frm: _form.Form):
         """Modify form submit hook.
-
-        :type form: pytsite.form.Form
         """
         pass
 

@@ -1,6 +1,6 @@
 """Abstract Base Widget.
 """
-from typing import Iterable as _Iterable, Tuple as _Tuple
+from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util, html as _html, validation as _validation
 
@@ -31,11 +31,14 @@ class Base(_ABC):
         self._children = []
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
-        self._form_area = kwargs.get('form_area', 'body')
         self._rules = kwargs.get('rules', [])
+        self._form_area = kwargs.get('form_area', 'body')
+        self._form_steps = kwargs.get('form_steps', '*')
 
-        if not isinstance(self._rules, list):
+        if type(self._rules) not in (list, tuple):
             self._rules = [self._rules]
+        if isinstance(self._rules, tuple):
+            self._rules = list(self._rules)
 
         for rule in self._rules:
             if not isinstance(rule, _validation.rule.Base):
@@ -219,6 +222,14 @@ class Base(_ABC):
         self._form_area = area
 
     @property
+    def form_steps(self) -> _Union[str, tuple]:
+        return self._form_steps
+
+    @form_steps.setter
+    def form_steps(self, value: _Union[str, tuple]):
+        self._form_steps = value
+
+    @property
     def h_size(self) -> str:
         return self._h_size
 
@@ -260,7 +271,7 @@ class Base(_ABC):
             rule.validate(self.get_val(mode='validation'))
 
     def _group_wrap(self, content) -> _html.Element:
-        """Wrap input string into 'form-group' container.
+        """Wraps a widget, an HTML element or a string into 'form-group' container.
 
         :type content: pytsite.widget._base.Base | pytsite.html.Element | str
         """

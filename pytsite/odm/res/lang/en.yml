@@ -1,3 +1,3 @@
-reindex_console_command_description: 'Rebuild indices'
+console_command_description: 'ODM operations'
 reindex_model: "Indexing model ':model'"
 validation_field_unique: "Value of the field ':field' must be unique"

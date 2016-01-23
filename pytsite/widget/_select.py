@@ -232,8 +232,12 @@ class DateTime(_input.Text):
     def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if value and isinstance(value, str):
-            value = _datetime.strptime(value, '%d.%m.%Y %H:%M')
+        if isinstance(value, str):
+            value = value.strip()
+            if value:
+                value = _datetime.strptime(value, '%d.%m.%Y %H:%M')
+            else:
+                value = _datetime.now()
 
         return super().set_val(value, **kwargs)
 

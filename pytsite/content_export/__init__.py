@@ -27,9 +27,10 @@ def __init():
 
     # Sidebar menu
     m = 'content_export'
-    admin.sidebar.add_menu('misc', m, __name__ + '@export',
+    admin.sidebar.add_menu(sid='content', mid=m, title=__name__ + '@export',
                            href=router.ep_url('pytsite.odm_ui.ep.browse', {'model': m}),
                            icon='fa fa-bullhorn',
-                           permissions=('pytsite.odm_ui.browse.' + m, 'pytsite.odm_ui.browse_own.' + m))
+                           permissions=('pytsite.odm_ui.browse.' + m, 'pytsite.odm_ui.browse_own.' + m),
+                           weight=100)
 
 __init()

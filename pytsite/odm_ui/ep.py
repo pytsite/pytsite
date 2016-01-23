@@ -1,7 +1,7 @@
 """ODM UI Endpoints.
 """
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
-    admin as _admin, form as _form
+    admin as _admin, form as _form, events as _events
 from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -33,10 +33,11 @@ def ajax_get_browser_rows(args: dict, inp: dict) -> _http.response.JSON:
 def get_m_form(args: dict, inp: dict) -> str:
     """Get entity create/modify form.
     """
-    eid = args.get('id') if args.get('id') != '0' else None
     try:
+        eid = args.get('id') if args.get('id') != '0' else None
         form = _api.get_m_form(args.get('model'), eid)
         return _admin.render(_tpl.render('pytsite.odm_ui@modify_form', {'form': form}))
+
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
 
@@ -50,10 +51,15 @@ def ajax_validate_m_form(args: dict, inp: dict) -> dict:
         return {'status': True}
 
     try:
-        frm = _api.get_m_form(model, entity_id, 'validate')
+        # Get form and fill it in 'validation' mode
+        frm = _api.get_m_form(model, entity_id)
         frm.fill(inp, mode='validation')
+
+        # Validating form itself
         frm.validate()
+
         return {'status': True}
+
     except _form.error.ValidationError as e:
         return {'status': False, 'messages': {'widgets': e.errors}}
 
@@ -65,24 +71,31 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     entity_id = args.get('id')
 
     # Re-constructing the form
-    form = _api.get_m_form(model, entity_id, 'submit')
+    frm = _api.get_m_form(model, entity_id)
 
-    # Fill and validate form
+    # Validate form
     try:
-        form.fill(inp).validate()
+        frm.fill(inp, mode='validation').validate()
     except _form.error.ValidationError as e:
         _router.session.add_error(str(e.errors))
         raise _http.error.InternalServerError()
 
-    # Dispense entity and populate its fields with form's values
+    # Re-fill form in 'normal' mode
+    frm.fill(inp)
+
+    # Dispense entity
     entity = _api.dispense_entity(model, entity_id)
-    for f_name, f_value in form.values.items():
+
+    # Let entity know about form submission
+    entity.ui_m_form_submit(frm)
+
+    # Populate form values to entity
+    for f_name, f_value in frm.values.items():
         if entity.has_field(f_name):
             entity.f_set(f_name, f_value)
 
     try:
         # Save entity
-        entity.ui_m_form_submit(form)
         entity.save()
         _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except Exception as e:

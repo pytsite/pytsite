@@ -14,13 +14,13 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class CompileAssets(_console.command.Abstract):
+class Assetman(_console.command.Abstract):
     """assetman:build Console Command.
     """
     def get_name(self) -> str:
         """Get name of the command.
         """
-        return 'assetman:build'
+        return 'assetman'
 
     def get_description(self) -> str:
         """Get description of the command.
@@ -28,15 +28,20 @@ class CompileAssets(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.assetman@assetman_console_command_description')
 
-    def execute(self, **kwargs):
-        """Execute The Command.
+    def get_help(self) -> str:
+        """Get help for the command.
         """
+        return '{} <build>'.format(self.get_name())
+
+    def _build(self):
         static_dir = _reg.get('paths.static')
         debug = _reg.get('debug.enabled')
 
         assets_dir = _path.join(static_dir, 'assets')
         if _path.exists(assets_dir):
             _rmtree(assets_dir)
+
+        _console.run_command('maint', args=('enable',))
 
         _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
         for pkg_name, package_assets_dir in _functions.get_packages().items():
@@ -100,3 +105,15 @@ class CompileAssets(_console.command.Abstract):
         with open(output_file, 'wt') as f:
             _logger.info("Writing translations into '{}'".format(output_file), __name__)
             f.write(str_output)
+
+        _console.run_command('maint', args=('disable',))
+
+    def execute(self, args: tuple=(), **kwargs):
+        """Execute The Command.
+        """
+        if len(args) != 1 or 'build' not in args:
+            _console.print_info(self.get_help())
+            return 1
+
+        if 'build' in args:
+            self._build()

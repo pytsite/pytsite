@@ -1,30 +1,30 @@
-export: Експорт
-driver: Драйвер
-driver_opts: Параметри
-source: Джерело
-owner: Власник
-content_model: Тип контенту
-next: Далі
-word_yes: Так
-word_no: Ні
-process_all_authors: Всі матеріали
-enabled: Увімкнений
-errors: Помилки
-max_age: Вік контенту
-with_images_only: Тільки з зображеннями
-paused_till: Пауза до
-additional_tags: Додаткові теги
+export: 'Експорт'
+driver: 'Драйвер'
+driver_opts: 'Параметри'
+source: 'Джерело'
+owner: 'Власник'
+content_model: 'Тип контенту'
+next: 'Далі'
+word_yes: 'Так'
+word_no: 'Ні'
+process_all_authors: 'Всі матеріали'
+enabled: 'Увімкнений'
+errors: 'Помилки'
+max_age: 'Вік контенту'
+with_images_only: 'Тільки з зображеннями'
+paused_till: 'Пауза до'
+additional_tags: 'Додаткові теги'
 
-odm_ui_browser_title_content_export: Експорт контенту
-odm_ui_form_title_create_content_export: Новий експорт контенту
-odm_ui_form_title_modify_content_export: Зміна експорту контенту
-odm_ui_form_title_delete_content_export: Видалення експорту контенту
+odm_ui_browser_title_content_export: 'Експорт контенту'
+odm_ui_form_title_create_content_export: 'Новий експорт контенту'
+odm_ui_form_title_modify_content_export: 'Зміна експорту контенту'
+odm_ui_form_title_delete_content_export: 'Видалення експорту контенту'
 
-odm_ui_permission_group_description: Експорт контенту
-odm_ui_permission_create_content_export: Створення експорту контенту
-odm_ui_permission_browse_content_export: Огляд ВСЬОГО експорту контенту
-odm_ui_permission_browse_own_content_export: Огляд експорту контенту
-odm_ui_permission_modify_content_export: Зміна БУДЬ-ЯКОГО експорту контенту
-odm_ui_permission_modify_own_content_export: Зміна експорту контенту
-odm_ui_permission_delete_content_export: Видалення БУДЬ-ЯКОГО експорту контенту
-odm_ui_permission_delete_own_content_export: Видалення експорту контенту
+odm_ui_permission_group_description: 'Експорт контенту'
+odm_ui_permission_create_content_export: 'Створення експорту контенту'
+odm_ui_permission_browse_content_export: 'Огляд ВСЬОГО експорту контенту'
+odm_ui_permission_browse_own_content_export: 'Огляд експорту контенту'
+odm_ui_permission_modify_content_export: 'Зміна БУДЬ-ЯКОГО експорту контенту'
+odm_ui_permission_modify_own_content_export: 'Зміна експорту контенту'
+odm_ui_permission_delete_content_export: 'Видалення БУДЬ-ЯКОГО експорту контенту'
+odm_ui_permission_delete_own_content_export: 'Видалення експорту контенту'

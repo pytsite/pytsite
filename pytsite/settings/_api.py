@@ -49,37 +49,27 @@ def get_form(uid) -> _form.Form:
     """Get form for setting.
     """
     frm_class = get_definition(uid)['form_cls']
-    form = frm_class('settings-' + uid)
-    """:type : _form.Base """
+    frm = frm_class('settings-' + uid)
+    """:type : _form.Form """
 
-    form.action = _router.ep_url('pytsite.settings.eps.form_submit', {'uid': uid})
-    form.validation_ep = 'pytsite.settings.eps.form_validate'
+    frm.action = _router.ep_url('pytsite.settings.eps.form_submit', {'uid': uid})
+    frm.validation_ep = 'pytsite.settings.eps.form_validate'
 
-    form.add_widget(_widget.input.Hidden(
+    frm.add_widget(_widget.input.Hidden(
         uid='__setting_uid',
         value=uid,
         form_area='hidden',
     ))
 
-    form.add_widget(_widget.button.Submit(
-        uid='button-save',
-        form_area='footer',
-        weight=10,
-        value=_lang.t('pytsite.settings@save'),
-        icon='fa fa-save',
-        color='primary',
-    ))
-
-    form.add_widget(_widget.button.Link(
-        uid='button-cancel',
-        form_area='footer',
+    frm.get_widget('form-actions').append(_widget.button.Link(
+        uid='action-cancel',
         weight=20,
         value=_lang.t('pytsite.settings@cancel'),
         icon='fa fa-ban',
         href=_router.ep_url('pytsite.admin.ep.dashboard')
     ))
 
-    return form
+    return frm
 
 
 def get_setting(uid) -> dict:

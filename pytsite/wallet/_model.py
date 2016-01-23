@@ -93,26 +93,26 @@ class Account(_odm_ui.Model):
 
         return '{} ({}, {})'.format(self.title, str(self.id), self.currency)
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm):
         """Modify form setup hook.
 
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             uid='title',
             weight=10,
             label=self.t('title'),
             value=self.title,
             required=True,
         ))
-        form.add_rule('title', _odm.validation.FieldUnique(
+        frm.add_rule('title', _odm.validation.FieldUnique(
             model='wallet_account',
             field='title',
             exclude_ids=self.id if not self.is_new else None,
         ))
 
         if self.is_new:
-            form.add_widget(_currency.widget.Select(
+            frm.add_widget(_currency.widget.Select(
                     uid='currency',
                     weight=20,
                     label=self.t('currency'),
@@ -121,7 +121,7 @@ class Account(_odm_ui.Model):
                     h_size='col-sm-4 col-md-3 col-lg-2',
             ))
         else:
-            form.add_widget(_widget.static.Text(
+            frm.add_widget(_widget.static.Text(
                     uid='currency',
                     weight=20,
                     label=self.t('currency'),
@@ -129,7 +129,7 @@ class Account(_odm_ui.Model):
                     value=self.currency,
             ))
 
-        form.add_widget(_auth_ui.widget.UserSelect(
+        frm.add_widget(_auth_ui.widget.UserSelect(
                 uid='owner',
                 weight=30,
                 label=self.t('owner'),
@@ -270,12 +270,12 @@ class Transaction(_odm_ui.Model):
     def ui_is_model_deletion_allowed(cls) -> bool:
         return False
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm):
         """Modify form setup hook.
 
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
-        form.add_widget(_wallet_widget.AccountSelect(
+        frm.add_widget(_wallet_widget.AccountSelect(
                 uid='source',
                 weight=10,
                 label=self.t('source'),
@@ -283,7 +283,7 @@ class Transaction(_odm_ui.Model):
                 value=self.source,
         ))
 
-        form.add_widget(_wallet_widget.AccountSelect(
+        frm.add_widget(_wallet_widget.AccountSelect(
                 uid='destination',
                 weight=20,
                 label=self.t('destination'),
@@ -291,7 +291,7 @@ class Transaction(_odm_ui.Model):
                 value=self.destination,
         ))
 
-        form.add_widget(_widget.input.Decimal(
+        frm.add_widget(_widget.input.Decimal(
                 uid='amount',
                 weight=30,
                 label=self.t('amount'),
@@ -301,7 +301,7 @@ class Transaction(_odm_ui.Model):
                 h_size='col-sm-4 col-md-3 col-lg-2',
         ))
 
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
                 uid='description',
                 weight=40,
                 label=self.t('description'),

@@ -1,1 +1,2 @@
 unknown_command: "Невідома команда: ':name'"
+help_command_description: 'Показує довідку по роботі з командою'

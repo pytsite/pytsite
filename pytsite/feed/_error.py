@@ -7,3 +7,7 @@ __license__ = 'MIT'
 
 class ElementRequired(Exception):
     pass
+
+
+class ReadError(Exception):
+    pass

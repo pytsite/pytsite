@@ -3,7 +3,7 @@
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
     router as _router
-from . import _api
+from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,12 +22,16 @@ def login(args: dict, inp: dict) -> str:
     _assetman.add('pytsite.auth@css/common.css')
     _metatag.t_set('title', _lang.t('pytsite.auth@authorization'))
 
-    form = _api.get_login_form(args['driver'])
+    try:
+        form = _api.get_login_form(args['driver'])
 
-    return _tpl.render('pytsite.auth@views/login', {
-        'driver': args['driver'],
-        'form': form,
-    })
+        return _tpl.render('pytsite.auth@views/login', {
+            'driver': args['driver'],
+            'form': form,
+        })
+
+    except _error.DriverNotRegistered:
+        raise _http.error.NotFound()
 
 
 def login_submit(args: dict, inp: dict) -> _http.response.Redirect:

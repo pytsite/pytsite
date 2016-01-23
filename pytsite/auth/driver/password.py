@@ -33,11 +33,7 @@ class _LoginForm(_form.Form):
             required=True,
         ))
 
-        self.add_widget(_widget.button.Submit(
-            uid='button-submit',
-            value=_lang.t('pytsite.auth@login'),
-            form_area='footer',
-        ))
+        self.get_widget('form-actions').get_child('action-submit').value = _lang.t('pytsite.auth@login')
 
 
 class Driver(AbstractDriver):

@@ -93,11 +93,11 @@ class Term(_odm_ui.Model):
             self.f_get('order'),
         )
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm):
         """Hook.
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=10,
             uid='title',
             label=self.t('title'),
@@ -105,14 +105,14 @@ class Term(_odm_ui.Model):
             required=True,
         ))
 
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=20,
             uid='alias',
             label=self.t('alias'),
             value=self.f_get('alias'),
         ))
 
-        form.add_widget(_widget.input.Integer(
+        frm.add_widget(_widget.input.Integer(
             weight=30,
             uid='weight',
             label=self.t('weight'),
@@ -120,7 +120,7 @@ class Term(_odm_ui.Model):
             h_size='col-sm-3 col-md-2 col-lg-1'
         ))
 
-        form.add_widget(_widget.input.Integer(
+        frm.add_widget(_widget.input.Integer(
             weight=40,
             uid='order',
             label=self.t('order'),
@@ -134,7 +134,7 @@ class Term(_odm_ui.Model):
             lang_title = _lang.t('lang_title_' + _lang.get_current())
         else:
             lang_title = _lang.t('lang_title_' + self.language)
-        form.add_widget(_widget.static.Text(
+        frm.add_widget(_widget.static.Text(
             uid='language',
             weight=900,
             label=self.t('language'),

@@ -27,6 +27,13 @@ class ModelSelect(_widget.select.Select):
         super().__init__(uid, items=sorted(items, key=lambda x: x[1]), **kwargs)
 
 
+class StatusSelect(_widget.select.Select):
+    """Content Status Select Widget.
+    """
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, items=_api.get_statuses(), **kwargs)
+
+
 class EntitySelect(_widget.select.Select2):
     def __init__(self, uid: str, **kwargs):
         kwargs['ajax_url'] = _router.ep_url('pytsite.content.ep.ajax_search', {
@@ -51,6 +58,15 @@ class EntitySelect(_widget.select.Select2):
             self._items.append((self._value, _odm.get_by_ref(self._value).f_get('title')))
 
         return super().get_html_em()
+
+
+class SectionSelect(_taxonomy.widget.TermSelect):
+    """Content Section Select Widget.
+    """
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, model='section', caption_field='title', **kwargs)
 
 
 class TagCloud(_taxonomy.widget.Cloud):

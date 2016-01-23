@@ -3,7 +3,7 @@
 # Public API
 from . import _model as model, _widget as widget
 from ._api import register_model, get_models, find, get_model, get_model_title, dispense, get_sections, \
-    create_section, create_tag, get_tags, get_tag, get_publish_statuses, get_section, is_model_registered, \
+    create_section, create_tag, get_tags, get_tag, get_statuses, get_section, is_model_registered, \
     generate_rss
 
 __author__ = 'Alexander Shepetko'
@@ -19,7 +19,7 @@ def __init():
     from . import _eh
     from ._model import Tag, Section, ContentSubscriber
     from ._form import Settings
-    from ._console_commands import Generate as GenerateConsoleCommand
+    from ._console_commands import Content as GenerateConsoleCommand
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
@@ -51,7 +51,7 @@ def __init():
 
     # Taxonomy models
     taxonomy.register_model('section', Section, __name__ + '@sections')
-    taxonomy.register_model('tag', _model.Tag, __name__ + '@tags')
+    taxonomy.register_model('tag', Tag, __name__ + '@tags')
 
     # ODM models
     odm.register_model('content_subscriber', ContentSubscriber)

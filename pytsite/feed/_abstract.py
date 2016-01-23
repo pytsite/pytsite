@@ -1,9 +1,7 @@
 """Feed Writer.
 """
-from typing import Iterable as _Iterable, Any as _Any
-from abc import abstractmethod as _abstractmethod
-from lxml import etree as _etree
-from pytsite import validation as _validation
+from typing import List as _List, Any as _Any, Tuple as _Tuple
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
 
 
 __author__ = 'Alexander Shepetko'
@@ -13,18 +11,31 @@ __license__ = 'MIT'
 
 class Serializable:
     def __init__(self):
-        self._children = []
+        """Init.
+        """
+        self._children = []  # type: _List[Serializable]
 
-    def add_child(self, child):
-        """:type child: Serializable"""
+    def append_child(self, child):
+        """
+        :type child: Serializable
+        """
         self._children.append(child)
+
+    @property
+    def children(self):
+        """Get children.
+        :rtype _Tuple[Serializable]
+        """
+        return tuple(self._children)
 
     @_abstractmethod
     def get_content(self) -> _Any:
+        """Get object's content ready to serilization.
+        """
         pass
 
 
-class Generator:
+class Generator(_ABC):
     """Feed Writer.
     """
     def __init__(self):
@@ -37,10 +48,10 @@ class Generator:
         pass
 
     @property
-    def items(self) -> _Iterable[Serializable]:
-        return self._items
+    def items(self) -> _Tuple[Serializable]:
+        return tuple(self._items)
 
-    def add_item(self, item: Serializable):
+    def append_item(self, item: Serializable):
         """Add a feed entry.
         """
         self._items.append(item)
@@ -53,3 +64,19 @@ class Generator:
 
     def __str__(self) -> str:
         return self.generate()
+
+
+class Reader(_ABC):
+    """Abstract Feed Reader.
+    """
+    @_abstractmethod
+    def __init__(self, source: _Any):
+        """Init.
+        """
+        self._source = source
+
+    @_abstractmethod
+    def load(self):
+        """Loads data from source.
+        """
+        pass

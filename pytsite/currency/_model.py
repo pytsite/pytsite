@@ -56,12 +56,12 @@ class Rate(_odm_ui.Model):
     def ui_mass_action_get_entity_description(self):
         return '{}, {} -&gt; {}, {}'.format(str(self.date), self.source, self.destination, str(self.rate))
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm):
         """Modify form setup hook.
 
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
-        form.add_widget(_widget.select.DateTime(
+        frm.add_widget(_widget.select.DateTime(
             uid='date',
             weight=10,
             label=self.t('date'),
@@ -70,7 +70,7 @@ class Rate(_odm_ui.Model):
             required=True,
         ))
 
-        form.add_widget(_currency_widget.Select(
+        frm.add_widget(_currency_widget.Select(
             uid='source',
             weight=20,
             label=self.t('source'),
@@ -79,7 +79,7 @@ class Rate(_odm_ui.Model):
             required=True,
         ))
 
-        form.add_widget(_currency_widget.Select(
+        frm.add_widget(_currency_widget.Select(
             uid='destination',
             weight=30,
             label=self.t('destination'),
@@ -88,7 +88,7 @@ class Rate(_odm_ui.Model):
             required=True,
         ))
 
-        form.add_widget(_widget.input.Decimal(
+        frm.add_widget(_widget.input.Decimal(
             uid='rate',
             weight=40,
             label=self.t('rate'),

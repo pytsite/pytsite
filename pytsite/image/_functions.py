@@ -9,18 +9,17 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def create(source_path: str, name: str=None, description: str=None, remove_source: bool=False,
+def create(source: str, name: str=None, description: str=None, remove_source: bool=False,
            propose_store_path: str=None) -> _model.Image:
     """Create an image from URL or local file.
     """
-    img_entity = _file.functions.create(source_path, name, description, 'image', remove_source, propose_store_path)
+    img_entity = _file.functions.create(source, name, description, 'image', remove_source, propose_store_path)
 
-    mime = str(img_entity.f_get('mime'))
-    if not mime.endswith(('png', 'jpeg', 'gif')):
+    if not img_entity.mime.startswith('image'):
         img_entity.delete()
-        raise ValueError("'{}' is not a acceptable type for image.".format(mime))
+        raise ValueError("'{}' is not a acceptable type for image.".format(img_entity.mime))
 
-    img_obj = Image.open(img_entity.f_get('abs_path'))
+    img_obj = Image.open(img_entity.abs_path)
     size = img_obj.size
     img_obj.close()
 

@@ -1,2 +1,1 @@
-db_dump_console_command_description: 'Dump database'
-db_restore_console_command_description: 'Restore database'
+db_console_command_description: 'Dump or restore database'

@@ -24,12 +24,17 @@ class Setup(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.setup@setup_console_command_description')
 
-    def execute(self, **kwargs):
+    def get_help(self) -> str:
+        """Get help for the command.
+        """
+        return '{}'.format(self.get_name())
+
+    def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
         lock_path = _reg.get('paths.setup.lock')
         if _path.exists(lock_path):
-            raise _console.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
+            raise _console.error.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
         _events.fire('pytsite.setup')
 

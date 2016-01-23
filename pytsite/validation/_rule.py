@@ -280,9 +280,13 @@ class DateTime(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         from datetime import datetime
         if isinstance(self._value, str):
-            if not _re.match(r'\d{2}\.\d{2}\.\d{4}\s\d{2}\.\d{2}', self._value):
+            self._value = self._value.strip()
+            if self._value and not _re.match(r'\d{2}\.\d{2}\.\d{4}\s\d{2}\.\d{2}', self._value):
                 raise _error.RuleError(self._msg_id)
         elif not isinstance(self._value, datetime):
             raise _error.RuleError(self._msg_id)

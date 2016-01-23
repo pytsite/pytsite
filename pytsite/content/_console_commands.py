@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Generate(_console.command.Abstract):
+class Content(_console.command.Abstract):
     """Abstract command.
     """
     li_url = 'http://loripsum.net/api/prude/'
@@ -19,27 +19,40 @@ class Generate(_console.command.Abstract):
     def get_name(self) -> str:
         """Get command's name.
         """
-        return 'content:generate'
+        return 'content'
 
     def get_description(self) -> str:
         """Get command's description.
         """
-        return _lang.t('pytsite.content@console_command_description_generate')
+        return _lang.t('pytsite.content@console_command_description')
 
-    @staticmethod
-    def usage():
-        """Print usage info.
+    def get_help(self) -> str:
+        """Get help for the command.
         """
-        _console.print_info('Usage: content:generate [--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] [--short] '
-                            '[--author=LOGIN] --model=MODEL ')
+        return '{} <generate>'.format(self.get_name())
 
-    def execute(self, **kwargs):
-        """Execute teh command.
-        """
+    def _get_generate_help(self) -> str:
+        return '{} generate {}'.format(self.get_name(), '[--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] '
+                                                        '[--short] [--author=LOGIN] --model=MODEL')
+
+    def _generate_title(self, max_words=7) -> str:
+        title = str(_requests.get(self.li_url + '/1/plaintext/verylong').content.decode('utf-8')).strip()
+
+        for s in [',', '.', ':', ';', '?', '-']:
+            title = title.replace(s, '')
+
+        title = title.split(' ')
+        _shuffle(title)
+        title[0] = title[0].title()
+        title = ' '.join(title[0:max_words])
+
+        return title
+
+    def _generate(self, **kwargs):
         model = kwargs.get('model')
         if not model:
-            self.usage()
-            return -1
+            _console.print_info(self._get_generate_help())
+            return 1
 
         # Author
         author = None
@@ -47,11 +60,11 @@ class Generate(_console.command.Abstract):
         if author_login:
             author = _auth.get_user(author_login)
             if not author:
-                raise _console.Error("'{}' is not a registered user.".format(author_login))
+                raise _console.error.Error("'{}' is not a registered user.".format(author_login))
 
         # Checking if the content model registered
         if not _api.is_model_registered(model):
-            raise _console.Error("'{}' is not a registered content model.".format(model))
+            raise _console.error.Error("'{}' is not a registered content model.".format(model))
 
         num = int(kwargs.get('num', 10))
         language = kwargs.get('lang', _lang.get_current())
@@ -131,15 +144,12 @@ class Generate(_console.command.Abstract):
 
             _console.print_info(_lang.t('pytsite.content@new_content_created', {'title': title}))
 
-    def _generate_title(self, max_words=7) -> str:
-        title = str(_requests.get(self.li_url + '/1/plaintext/verylong').content.decode('utf-8')).strip()
+    def execute(self, args: tuple=(), **kwargs):
+        """Execute teh command.
+        """
+        if len(args) != 1 or 'generate' not in args:
+            _console.print_info(self.get_help())
+            return 1
 
-        for s in [',', '.', ':', ';', '?', '-']:
-            title = title.replace(s, '')
-
-        title = title.split(' ')
-        _shuffle(title)
-        title[0] = title[0].title()
-        title = ' '.join(title[0:max_words])
-
-        return title
+        if 'generate' in args:
+            self._generate(**kwargs)

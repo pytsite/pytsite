@@ -32,15 +32,15 @@ def get_command(name: str) -> _command.Abstract:
     """
     global __commands
     if name not in __commands:
-        raise _error.Error(_lang.t('pytsite.console@unknown_command', {'name': name}))
+        raise _error.CommandNotFound(_lang.t('pytsite.console@unknown_command', {'name': name}))
 
     return __commands[name]
 
 
-def run_command(name: str, **kwargs):
+def run_command(name: str, args: tuple=(), **kwargs):
     """Run a console command.
     """
-    return get_command(name).execute(**kwargs)
+    return get_command(name).execute(args, **kwargs)
 
 
 def usage():
@@ -59,21 +59,29 @@ def run():
     """
     from sys import argv, exit
 
+    # Print usage
     if len(argv) < 2:
         print(usage())
         exit(-1)
 
-    cmd_args = {}
+    # Command name
+    cmd_name = argv[1]
+
+    # Parse arguments
+    cmd_opts = {}
+    cmd_args = []
     for arg in argv[2:]:
         if arg.startswith('--'):
             from re import sub
             arg = sub(r'^--', '', arg)
             arg_split = arg.split('=')
             if len(arg_split) == 1:
-                cmd_args[arg_split[0]] = True
+                cmd_opts[arg_split[0]] = True
             else:
                 arg_val = arg_split[1]
-                cmd_args[arg_split[0]] = arg_val
+                cmd_opts[arg_split[0]] = arg_val
+        else:
+            cmd_args.append(arg)
 
     try:
         # Check if the setup completed
@@ -82,7 +90,7 @@ def run():
             from pytsite.lang import t
             raise _error.Error(t('pytsite.setup@setup_is_not_completed'))
 
-        return run_command(argv[1], **cmd_args)
+        return run_command(cmd_name, args=cmd_args, **cmd_opts)
 
     except _error.Error as e:
         print_error(str(e))

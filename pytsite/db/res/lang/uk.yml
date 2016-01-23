@@ -1,2 +1,1 @@
-db_dump_console_command_description: 'Дамп БД'
-db_restore_console_command_description: 'Відновлення БД'
+db_console_command_description: 'Дамп або відновлення БД'

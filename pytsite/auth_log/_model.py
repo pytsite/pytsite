@@ -77,7 +77,7 @@ class AuthLog(_odm_ui.Model):
         return user, ip, geo, description, severity, modified
 
     @classmethod
-    def ui_is_creation_allowed(cls) -> bool:
+    def ui_is_model_creation_allowed(cls) -> bool:
         return False
 
     @classmethod

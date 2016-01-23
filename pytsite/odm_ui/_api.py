@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') -> _form.Form:
+def get_m_form(model: str, eid=None, form_uid='odm-ui-form') -> _form.Form:
     """Get entity modification form.
     """
     eid = eid if eid != '0' else None
@@ -23,8 +23,8 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
 
     # Checking model settings
     model_class = _odm.get_model_class(model)
-    """:type: _model.UIModel"""
-    if not eid and not model_class.ui_is_creation_allowed():
+    """:type: _model.Model"""
+    if not eid and not model_class.ui_is_model_creation_allowed():
         raise _http.error.Forbidden()
     if eid and not model_class.ui_is_model_modification_allowed():
         raise _http.error.Forbidden()
@@ -33,7 +33,7 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
     frm = _form.Form(form_uid)
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
-    # Redirect after successful form submit
+    # Redirect location after successful form submit
     if _router.request and '__redirect' in _router.request.inp:
         redirect = _router.request.inp.get('__redirect')
     else:
@@ -47,20 +47,13 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
         '__redirect': redirect,
     })
 
-    # Submit button
-    submit_button = _widget.button.Submit(weight=10, uid='action-submit', value=_lang.t('pytsite.odm_ui@save'),
-                                          color='primary', icon='fa fa-save')
-
     # Cancel button
-    cancel_button = _widget.button.Link(weight=20, uid='action-cancel', value=_lang.t('pytsite.odm_ui@cancel'),
-                                        href=redirect, icon='fa fa-remove')
-    actions = _widget.static.Container(
-        uid='actions',
-        css='actions-wrapper text-xs-B-center text-sm-left',
-        form_area='footer',
-    )
-    actions.append(submit_button).append(cancel_button)
-    frm.add_widget(actions)
+    frm.get_widget('form-actions').append(_widget.button.Link(
+        weight=20,
+        uid='action-cancel',
+        value=_lang.t('pytsite.odm_ui@cancel'),
+        href=redirect, icon='fa fa-remove'
+    ))
 
     # Metadata
     frm.add_widget(_widget.input.Hidden(uid='__odm_ui_model', value=model, form_area='hidden'))
@@ -78,7 +71,7 @@ def get_m_form(model: str, eid=None, stage: str='show', form_uid='odm-ui-form') 
     _metatag.t_set('title', legend)
 
     # Setting up the form with entity hook
-    entity.ui_m_form_setup(frm, stage)
+    entity.ui_m_form_setup(frm)
     _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(model), frm=frm, entity=entity)
 
     return frm
@@ -95,7 +88,7 @@ def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str) -> _
         entity = dispense_entity(model, eid)
         f.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
         ol.append(_html.Li(entity.ui_mass_action_get_entity_description()))
-    f.add_widget(_widget.static.HTMLWrap(uid='ids-text', em=ol))
+    f.add_widget(_widget.static.HTML(uid='ids-text', em=ol))
 
     # Redirect after successful form submit
     if _router.request and '__redirect' in _router.request.inp:
@@ -107,13 +100,14 @@ def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str) -> _
     f.action = _router.url(action, query={'__redirect': redirect})
 
     # Continue button
-    submit_button = _widget.button.Submit(uid='button-submit', weight=10, value=_lang.t('pytsite.odm_ui@continue'),
-                                          color='primary', icon='angle-double-right', form_area='footer')
+    submit_button = f.get_widget('form-actions').get_child('action-submit')  # type: _widget.button.Submit
+    submit_button.value = _lang.t('pytsite.odm_ui@continue')
+    submit_button.icon = 'angle-double-right'
 
     # Cancel button
     cancel_button = _widget.button.Link(uid='button-cancel', weight=20, value=_lang.t('pytsite.odm_ui@cancel'),
                                         href=redirect, icon='ban', form_area='footer')
-    f.add_widget(submit_button).add_widget(cancel_button)
+    f.get_widget('form-actions').append(cancel_button)
 
     return f
 
@@ -122,7 +116,7 @@ def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     """Get entities delete _form.
     """
     model_class = _odm.get_model_class(model)
-    """:type: _model.UIModel"""
+    """:type: _model.Model"""
 
     if not check_permissions('delete', model, ids) or not model_class.ui_is_model_deletion_allowed():
         raise _http.error.Forbidden()
@@ -132,8 +126,7 @@ def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     f = get_mass_action_form('odm-ui-delete-form', model, ids, f_action)
 
     # Change submit button color
-    submit_btn = f.get_widget('button-submit')
-    submit_btn.color = 'danger'
+    f.get_widget('form-actions').get_child('action-submit').color = 'danger'
 
     _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + model))
 

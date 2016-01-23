@@ -1,35 +1,36 @@
-"""Console Commands
+"""Help Command.
 """
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from . import _command, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Abstract(_ABC):
-    """Abstract command.
+class Help(_command.Abstract):
+    """Help Command.
     """
-    @_abstractmethod
     def get_name(self) -> str:
         """Get name of the command.
         """
-        pass
+        return 'help'
 
-    @_abstractmethod
     def get_description(self) -> str:
         """Get description of the command.
         """
-        pass
+        from pytsite import lang
+        return lang.t('pytsite.console@help_command_description')
 
-    @_abstractmethod
     def get_help(self) -> str:
         """Get help for the command.
         """
-        pass
+        return '{} <command>'.format(self.get_name())
 
-    @_abstractmethod
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
+        :param args:
         """
-        pass
+        if not args:
+            _api.print_info(self.get_help())
+
+        _api.print_info(_api.get_command(args[0]).get_help())

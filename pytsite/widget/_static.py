@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class HTMLWrap(_base.Base):
+class HTML(_base.Base):
     """Wrapper widget for pytsite.html.Element instances.
     """
     def __init__(self, uid: str, **kwargs):
@@ -25,6 +25,17 @@ class HTMLWrap(_base.Base):
 
     def get_html_em(self) -> _html.Element:
         return self._em
+
+
+class Container(_base.Base):
+    """Div Container Widget.
+    """
+    def get_html_em(self) -> _html.Element:
+        html_container = _html.Div(uid=self.uid, cls=self.css, child_sep=self._child_sep)
+        for child in self.children:
+            html_container.append(child.get_html_em())
+
+        return html_container
 
 
 class Text(_base.Base):
@@ -82,19 +93,6 @@ class Tabs(_base.Base):
             i += 1
 
         return self._group_wrap(wrapper)
-
-
-class Container(_base.Base):
-    """Container Widget.
-
-    Can contain only child widgets.
-    """
-    def get_html_em(self) -> _html.Element:
-        html_container = _html.Div(cls=self.css, child_sep=self._child_sep)
-        for child in self.children:
-            html_container.append(child.get_html_em())
-
-        return html_container
 
 
 class VideoPlayer(_base.Base):

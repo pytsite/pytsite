@@ -38,7 +38,18 @@ $(function () {
                 form.trigger('pytsite_form_submit', [form]);
 
                 // Submit form only if it STILL has classes 'validated' and 'ready-to-submit'
-                return form.hasClass('validated') && form.hasClass('ready-to-submit');
+                if (form.hasClass('validated') && form.hasClass('ready-to-submit')) {
+                    // Increment form step
+                    var form_steps = parseInt(form.find('#__form_steps').first().val());
+                    var form_step_em = form.find('#__form_step').first();
+                    var current_step = parseInt(form_step_em.val());
+                    if (form_steps > 1 && current_step != form_steps)
+                        form_step_em.val(current_step + 1);
+
+                    return true;
+                }
+                else
+                    return false;
             }
 
             // Cleaning up error messages

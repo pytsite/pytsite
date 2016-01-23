@@ -13,11 +13,13 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, lang
+    from pytsite import console, lang, events
     from . import _command
 
     lang.register_package(__name__)
-    console.register_command(_command.RebuildIndices())
+    console.register_command(_command.ODM())
+
+    events.listen('pytsite.update.after', lambda: console.run_command('odm', args=('reindex',)))
 
 
 _init()

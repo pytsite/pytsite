@@ -24,7 +24,12 @@ class Update(_console.command.Abstract):
         """
         return _lang.t('pytsite.update@update_console_command_description')
 
-    def execute(self, **kwargs):
+    def get_help(self) -> str:
+        """Get help for the command.
+        """
+        return '{}'.format(self.get_name())
+
+    def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
         state = self._get_state()
@@ -63,11 +68,11 @@ class Update(_console.command.Abstract):
                     # Saving number as applied update
                     state.add(major_minor_rev)
 
-        _logger.info('pytsite.update.after event', __name__)
-        _events.fire('pytsite.update.after')
-
         self._save_state(state)
         _maintenance.disable()
+
+        _logger.info('pytsite.update.after event', __name__)
+        _events.fire('pytsite.update.after')
 
     def _get_state(self) -> set:
         data = set()

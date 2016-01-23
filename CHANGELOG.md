@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.49 (2016-01-23)
+### Changed
+- Refactoring of `console`, `form`, `content`, `feed`.
+
+### Fixed
+- Invalid date format in `sitemap` while generating index files.
+
+
 ## 0.48.5 (2016-01-19)
 ### Added
 - New content's body 'img' tag option: 'skip_enlarge'.

@@ -1,7 +1,7 @@
 """Settings Plugin Init.
 """
 # Public API
-from ._functions import define, get_setting
+from ._api import define, get_setting
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

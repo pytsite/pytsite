@@ -65,17 +65,17 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('last_activity', fmt='pretty_date_time')
         )
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm):
         """Modify form setup hook.
 
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
         current_user = _auth.get_current_user()
 
         _metatag.t_set('title', self.t('profile_edit'))
 
         # Profile is public
-        form.add_widget(_widget.select.Checkbox(
+        frm.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='profile_is_public',
             value=self.f_get('profile_is_public'),
@@ -84,7 +84,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Image
         from pytsite import image
-        form.add_widget(image.widget.ImagesUpload(
+        frm.add_widget(image.widget.ImagesUpload(
             weight=20,
             uid='picture',
             label=self.t('picture'),
@@ -94,14 +94,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Login
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            form.add_widget(_widget.input.Email(
+            frm.add_widget(_widget.input.Email(
                 weight=30,
                 uid='login',
                 value=self.f_get('login'),
                 label=self.t('login'),
                 required=True,
             ))
-            form.add_rule('login', _odm.validation.FieldUnique(
+            frm.add_rule('login', _odm.validation.FieldUnique(
                 'pytsite.auth_ui@this_login_already_used',
                 model='user',
                 field='login',
@@ -109,14 +109,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             ))
 
         # Nickname
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=40,
             uid='nickname',
             value=self.f_get('nickname'),
             label=self.t('nickname'),
             required=True,
         ))
-        form.add_rules('nickname', (
+        frm.add_rules('nickname', (
             _auth.user_nickname_rule,
             _odm.validation.FieldUnique(
                 msg_id='pytsite.auth_ui@this_nickname_already_used',
@@ -127,7 +127,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # First name
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=50,
             uid='first_name',
             value=self.first_name,
@@ -136,7 +136,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Last name
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=60,
             uid='last_name',
             value=self.last_name,
@@ -144,14 +144,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Email
-        form.add_widget(_widget.input.Email(
+        frm.add_widget(_widget.input.Email(
             weight=70,
             uid='email',
             value=self.f_get('email'),
             label=self.t('email'),
             required=True,
         ))
-        form.add_rule('email', _odm.validation.FieldUnique(
+        frm.add_rule('email', _odm.validation.FieldUnique(
             msg_id='pytsite.auth_ui@this_email_already_used',
             model=self.model,
             field='email',
@@ -159,14 +159,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Password
-        form.add_widget(_widget.input.Password(
+        frm.add_widget(_widget.input.Password(
             weight=80,
             uid='password',
             label=self.t('password'),
         ))
 
         # Country
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=90,
             uid='country',
             label=self.t('country'),
@@ -174,7 +174,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # City
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=100,
             uid='city',
             label=self.t('city'),
@@ -182,7 +182,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Description
-        form.add_widget(_widget.input.TextArea(
+        frm.add_widget(_widget.input.TextArea(
             weight=110,
             uid='description',
             value=self.f_get('description'),
@@ -192,7 +192,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Status
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            form.add_widget(_widget.select.Select(
+            frm.add_widget(_widget.select.Select(
                 weight=120,
                 uid='status',
                 value=self.f_get('status'),
@@ -203,7 +203,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             ))
 
         # URLs
-        form.add_widget(_widget.input.StringList(
+        frm.add_widget(_widget.input.StringList(
             weight=130,
             uid='urls',
             label=self.t('social_links'),
@@ -211,11 +211,11 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             max_values=5,
             add_btn_label=self.t('add_link'),
         ))
-        form.add_rule('urls', _validation.rule.Url())
+        frm.add_rule('urls', _validation.rule.Url())
 
         # Roles
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            form.add_widget(_odm_ui.widget.EntityCheckboxes(
+            frm.add_widget(_odm_ui.widget.EntityCheckboxes(
                 weight=140,
                 uid='roles',
                 label=self.t('roles'),
@@ -223,17 +223,17 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                 caption_field='description',
                 value=self.f_get('roles'),
             ))
-            form.add_rule('roles', _odm.validation.ODMEntitiesList(model='role'))
+            frm.add_rule('roles', _odm.validation.ODMEntitiesList(model='role'))
 
         # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
-            form.add_widget(_widget.input.Text(
+            frm.add_widget(_widget.input.Text(
                 weight=150,
                 uid='token',
                 value=self.f_get('token'),
                 label=self.t('token'),
             ))
-            form.add_rules('token', (
+            frm.add_rules('token', (
                 _validation.rule.Regex(pattern='^[a-f0-9]{32}$'),
                 _odm.validation.FieldUnique(
                     msg_id='pytsite.auth_ui@this_token_already_used',
@@ -278,14 +278,14 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         return self.f_get('name'), _lang.t(self.f_get('description')), ' '.join(perms)
 
-    def ui_m_form_setup(self, form, stage: str):
+    def ui_m_form_setup(self, frm):
         """Modify form setup hook.
-        :type form: pytsite.form.Form
+        :type frm: pytsite.form.Form
         """
         if self.f_get('name') == 'admin':
             raise _http.error.Forbidden()
 
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=10,
             uid='name',
             value=self.f_get('name'),
@@ -293,7 +293,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
             required=True,
         ))
 
-        form.add_widget(_widget.input.Text(
+        frm.add_widget(_widget.input.Text(
             weight=20,
             uid='description',
             value=self.f_get('description'),
@@ -320,8 +320,8 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
                 )
             perms_tabs.add_tab('permissions-' + group[0], _lang.t(group[1]), tab_content.render())
 
-        form.add_widget(_widget.input.Hidden('permissions', value=''))
-        form.add_widget(perms_tabs)
+        frm.add_widget(_widget.input.Hidden('permissions', value=''))
+        frm.add_widget(perms_tabs)
 
     def ui_mass_action_get_entity_description(self) -> str:
         """Get delete form description.
