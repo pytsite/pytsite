@@ -97,7 +97,7 @@ class Driver(_content_export.AbstractDriver):
             if entity.description:
                 msg += '<p>{}</p>'.format(entity.description)
             msg += '<lj-cut>'
-            msg += entity.f_get('body', process_tags=True, responsive=False, width=1024)
+            msg += entity.f_get('body', process_tags=True, responsive=False)
             msg += '</lj-cut>'
             if opts['lj_like']:
                 msg += '<lj-like buttons="{}">'.format(opts['lj_like'])

@@ -9,8 +9,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def cron_1min_eh():
-    """'pytsite.cron.5m' event handler.
+def cron_1min():
+    """'pytsite.cron.1min' event handler.
     """
     lock = _threading.get_r_lock()
     limit = _reg.get('content_export.limit', 2)

@@ -138,11 +138,12 @@ def _generate_sitemap():
 def _generate_feeds():
     content_settings = _settings.get_setting('content')
 
+    # For each language we have separate feed
     for lang in _lang.langs():
         title = content_settings.get('home_title_' + lang)
         description = content_settings.get('home_description_' + lang)
 
-        # Generate RSS feed
+        # Generate RSS feed for each model
         for model in _reg.get('content.feed.models', []):
             generator = _feed.rss.Generator(title, _router.base_url(lang), description)
             filename = 'rss-{}'.format(model)

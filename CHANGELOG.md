@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.50 (2016-01-26)
+### Added
+- New package: `content_import`.
+- `content`'s functions: `dispense_tag()`, `dispense_section()`.
+- `odm`'s functions: `explain()`, `explain_winning_plan()`, `explain_parsed_query()` and `explain_execution_stats()`.
+
+### Changed
+- ODM fields 'section' and 'ext_links' moved from `content.model.Article` to `content.model.Content`.
+
+### Removed
+- `content`'s functions: `get_tag()`, `get_section()`.
+
+
 ## 0.49 (2016-01-23)
 ### Changed
 - Refactoring of `console`, `form`, `content`, `feed`.

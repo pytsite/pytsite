@@ -482,6 +482,9 @@ class DateTime(Abstract):
         if not isinstance(value, _datetime):
             raise TypeError("DateTime expected, while got {}".format(value))
 
+        if value.tzinfo:
+            value = value.replace(tzinfo=None)
+
         return super().set_val(value, update_state, **kwargs)
 
     def get_val(self, fmt: str=None, **kwargs):

@@ -23,7 +23,7 @@ def __init():
     odm.register_model('content_export', _model.ContentExport)
 
     # Event handlers
-    events.listen('pytsite.cron.1min', _eh.cron_1min_eh)
+    events.listen('pytsite.cron.1min', _eh.cron_1min)
 
     # Sidebar menu
     m = 'content_export'

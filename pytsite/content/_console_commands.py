@@ -79,7 +79,7 @@ class Content(_console.command.Abstract):
         if not len(sections):
             for m in range(0, 3):
                 title = self._generate_title(1)
-                section = _api.create_section(title, language=language)
+                section = _api.dispense_section(title, language=language)
                 sections.append(section)
                 _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
 
@@ -87,7 +87,7 @@ class Content(_console.command.Abstract):
         tags = list(_api.get_tags(language=language))
         if len(tags) < 10:
             for n in range(0, 10):
-                tag = _api.create_tag(self._generate_title(1), language=language)
+                tag = _api.dispense_tag(self._generate_title(1), language=language)
                 tags.append(tag)
 
         # Generate content entities

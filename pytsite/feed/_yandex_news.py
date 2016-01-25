@@ -34,16 +34,7 @@ class Logo(_abstract.Serializable):
 class Item(_rss.Item):
     def __init__(self,  **kwargs):
         super().__init__(**kwargs)
-        self._full_text = kwargs.get('full_text')
         self._pdalink = kwargs.get('pdalink')
-
-    @property
-    def full_text(self) -> str:
-        return self._full_text
-
-    @full_text.setter
-    def full_text(self, value: str):
-        self._full_text = value
 
     @property
     def pdalink(self) -> str:

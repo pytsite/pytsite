@@ -69,7 +69,6 @@ class Generator(_ABC):
 class Reader(_ABC):
     """Abstract Feed Reader.
     """
-    @_abstractmethod
     def __init__(self, source: _Any):
         """Init.
         """

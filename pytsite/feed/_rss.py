@@ -6,7 +6,7 @@ from typing import List as _List, Tuple as _Tuple
 from time import tzname as _tzname
 from datetime import datetime as _datetime
 from lxml import etree as _etree
-from pytsite import validation as _validation, version_str as _pytsite_ver, util as _util
+from pytsite import validation as _validation, version_str as _pytsite_ver, util as _util, lang as _lang
 from . import _xml, _abstract, _error
 
 __author__ = 'Alexander Shepetko'
@@ -43,8 +43,19 @@ class Enclosure(_abstract.Serializable):
 class Category(_abstract.Serializable):
     def __init__(self, title: str, domain: str=None):
         super().__init__()
-        self._title = _validation.rule.NonEmpty(title).validate()
-        self._domain = _validation.rule.Url(domain).validate()
+        try:
+            self._title = _validation.rule.NonEmpty(title).validate()
+        except _validation.error.RuleError:
+            raise ValueError('Category title cannot be empty.')
+
+        try:
+            self._domain = _validation.rule.Url(domain).validate()
+        except _validation.error.RuleError:
+            raise ValueError('Category domain must be an URL.')
+
+    @property
+    def title(self) -> str:
+        return self._title
 
     @property
     def domain(self) -> str:
@@ -57,12 +68,32 @@ class Category(_abstract.Serializable):
         return em
 
 
+class Tag(_abstract.Serializable):
+    def __init__(self, title: str):
+        super().__init__()
+        try:
+            self._title = _validation.rule.NonEmpty(title).validate()
+        except _validation.error.RuleError:
+            raise ValueError('Category title cannot be empty.')
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    def get_content(self):
+        em = _etree.Element('{https://pytsite.shepetko.com}tag')
+        em.text = self._title
+
+        return em
+
+
 class Item(_xml.Item):
     def __init__(self, **kwargs):
         super().__init__()
-        self._title = kwargs.get('title')
-        self._link = kwargs.get('link')
-        self._description = kwargs.get('description')
+        self._title = kwargs.get('title', '')
+        self._link = kwargs.get('link', '')
+        self._description = kwargs.get('description', '')
+        self._full_text = kwargs.get('full_text', '')
         self._pub_date = _tz.localize(kwargs.get('pub_date', _datetime.now()))
         self._author = kwargs.get('author')
 
@@ -92,6 +123,14 @@ class Item(_xml.Item):
         self._description = _validation.rule.NonEmpty(value).validate()
 
     @property
+    def full_text(self) -> str:
+        return self._full_text
+
+    @full_text.setter
+    def full_text(self, value: str):
+        self._full_text = _validation.rule.NonEmpty(value).validate()
+
+    @property
     def pub_date(self) -> _datetime:
         return self._pub_date
 
@@ -113,6 +152,10 @@ class Item(_xml.Item):
     @property
     def categories(self) -> _List[Category]:
         return [i for i in self.children if i.get_content().tag == 'category']
+
+    @property
+    def tags(self) -> _List[Tag]:
+        return [i for i in self.children if i.get_content().tag == '{https://pytsite.shepetko.com}tag']
 
     @property
     def enclosures(self) -> _List[Enclosure]:
@@ -139,6 +182,10 @@ class Item(_xml.Item):
             description = _etree.SubElement(root, 'description')
             description.text = self._description
 
+        if self._full_text:
+            full_text = _etree.SubElement(root, '{https://pytsite.shepetko.com}full_text')
+            full_text.text = self._full_text
+
         if self._author:
             author = _etree.SubElement(root, 'author')
             author.text = self._author
@@ -155,7 +202,13 @@ class Generator(_xml.Generator):
     def __init__(self, title: str, link: str, description: str, nsmap: dict=None, **kwargs):
         """Init.
         """
+        if not nsmap:
+            nsmap = {'pytsite': 'https://pytsite.shepetko.com'}
+        else:
+            nsmap.update({'pytsite': 'https://pytsite.shepetko.com'})
+
         super().__init__(nsmap)
+
         if not title:
             raise ValueError('RSS title cannot be empty.')
         if not link:
@@ -174,6 +227,7 @@ class Generator(_xml.Generator):
         self._generator = 'PytSite-' + _pytsite_ver()
         self._pub_date = kwargs.get('pub_date', _datetime.now())
         self._last_build_date = kwargs.get('build_date', _datetime.now())
+        self._language = kwargs.get('language', _lang.get_current())
 
     def dispense_item(self, **kwargs) -> Item:
         """Dispense empty feed's item.
@@ -199,6 +253,10 @@ class Generator(_xml.Generator):
         # Channel description
         channel_description = _etree.SubElement(channel, 'description')
         channel_description.text = self._description
+
+        # Channel language
+        channel_description = _etree.SubElement(channel, 'language')
+        channel_description.text = self._language
 
         # Timestamps
         pub_date = _etree.SubElement(channel, 'pubDate')
@@ -230,11 +288,12 @@ class Reader(_xml.Reader):
 
         self._xml = None  # type: _etree.Element
 
-        self._title = None  # type: str
-        self._link = None  # type: str
-        self._description = None  # type: str
-        self._pub_date = None  # type: _datetime
-        self._last_build_date = None  # type: _datetime
+        self._title = ''
+        self._link = ''
+        self._description = ''
+        self._language = ''
+        self._pub_date = _datetime.now()
+        self._last_build_date = _datetime.now()
         self._items = []  # type: _List[Item]
 
         if autoload:
@@ -251,6 +310,10 @@ class Reader(_xml.Reader):
     @property
     def description(self) -> str:
         return self._description
+
+    @property
+    def language(self) -> str:
+        return self._language
 
     @property
     def pub_date(self) -> _datetime:
@@ -283,6 +346,8 @@ class Reader(_xml.Reader):
                 self._link = i.text
             elif i.tag == 'description':
                 self._description = i.text
+            elif i.tag == 'language':
+                self._language = i.text
             elif i.tag == 'pubDate':
                 self._pub_date = self._parse_date(i.text)
             elif i.tag == 'lastBuildDate':
@@ -302,12 +367,16 @@ class Reader(_xml.Reader):
                 item.link = i.text
             elif i.tag == 'description':
                 item.description = i.text
+            elif i.tag == '{https://pytsite.shepetko.com}full_text':
+                item.full_text = i.text
             elif i.tag == 'author':
                 item.author = i.text
             elif i.tag == 'pubDate':
                 item.pub_date = self._parse_date(i.text)
             elif i.tag == 'category':
                 item.append_child(Category(i.text, i.get('domain')))
+            elif i.tag == '{https://pytsite.shepetko.com}tag':
+                item.append_child(Tag(i.text))
             elif i.tag == 'enclosure':
                 item.append_child(Enclosure(i.get('url'), i.get('length'), i.get('mime')))
 

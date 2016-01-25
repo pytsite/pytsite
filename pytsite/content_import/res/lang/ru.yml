@@ -1,0 +1,16 @@
+import: 'Импорт'
+rss: 'RSS'
+
+odm_ui_browser_title_content_import: 'Импорт контента'
+odm_ui_form_title_create_content_import: 'Новый импорт контента'
+odm_ui_form_title_modify_content_import: 'Изменение импорта контента'
+odm_ui_form_title_delete_content_import: 'Удаление импорта контента'
+
+odm_ui_permission_group_description: 'Импорт контента'
+odm_ui_permission_create_content_import: 'Создание импорта контента'
+odm_ui_permission_browse_content_import: 'Обзор ВСЕГО импорта контента'
+odm_ui_permission_browse_own_content_import: 'Обзор импорта контента'
+odm_ui_permission_modify_content_import: 'Изменение ЛЮБОГО импорта контента'
+odm_ui_permission_modify_own_content_import: 'Изменение импорта контента'
+odm_ui_permission_delete_content_import: 'Удаление ЛЮБОГО импорта контента'
+odm_ui_permission_delete_own_content_import: 'Удаление импорта контента'

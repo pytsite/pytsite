@@ -141,6 +141,8 @@ class Query:
 
 
 class Result:
+    """DB Query Result.
+    """
     def __init__(self, model_name: str, cursor: _Cursor):
         self._model_name = model_name
         self._cursor = cursor
@@ -153,6 +155,18 @@ class Result:
         doc = next(self._cursor)
 
         return dispense(self._model_name, doc['_id'])
+
+    def explain(self) -> dict:
+        return self._cursor.explain()
+
+    def explain_winning_plan(self) -> dict:
+        return self.explain()['queryPlanner']['winningPlan']
+
+    def explain_parsed_query(self) -> dict:
+        return self.explain()['queryPlanner']['parsedQuery']
+
+    def explain_execution_stats(self) -> dict:
+        return self.explain()['executionStats']
 
 
 class Finder:

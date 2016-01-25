@@ -81,18 +81,22 @@ def dispense(model: str, title: str, alias: str=None, language: str=None) -> Ter
     return term
 
 
-def sanitize_alias_string(model: str, string: str) -> str:
+def build_alias_str(s: str) -> str:
+    return _util.transform_str_2(s)
+
+
+def sanitize_alias_string(model: str, s: str) -> str:
     """Sanitize a path string.
     """
-    string = _util.transform_str_2(string)
+    s = build_alias_str(s)
 
     itr = 0
     while True:
-        if not find(model).where('alias', '=', string).first():
-            return string
+        if not find(model).where('alias', '=', s).first():
+            return s
 
         itr += 1
         if itr == 1:
-            string += '-1'
+            s += '-1'
         else:
-            string = re.sub(r'-\d+$', '-' + str(itr), string)
+            s = re.sub(r'-\d+$', '-' + str(itr), s)

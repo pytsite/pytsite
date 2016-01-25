@@ -132,14 +132,10 @@ def get_statuses() -> list:
 
 
 def get_sections(language: str=None) -> _odm.FinderResult:
-    return list(_taxonomy.find('section', language).sort([('order', _odm.I_ASC)]).get())
+    return _taxonomy.find('section', language).sort([('order', _odm.I_ASC)]).get()
 
 
-def get_section(alias: str, language: str=None) -> _model.Section:
-    return _taxonomy.find('section', language).where('alias', '=', alias).first()
-
-
-def create_section(title: str, alias: str=None, language: str=None) -> _model.Section:
+def dispense_section(title: str, alias: str=None, language: str=None) -> _model.Section:
     return _taxonomy.dispense('section', title, alias, language).save()
 
 
@@ -147,11 +143,7 @@ def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
     return _taxonomy.find('tag', language).get(limit)
 
 
-def get_tag(alias: str, language: str=None) -> _model.Tag:
-    return _taxonomy.find('tag', language).where('alias', '=', alias).first()
-
-
-def create_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
+def dispense_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
     return _taxonomy.dispense('tag', title, alias, language).save()
 
 
@@ -176,20 +168,28 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
     if not _path.exists(output_dir):
         _makedirs(output_dir, 0o755, True)
 
-    for entity in finder.get(length):
+    for entity in finder.get(length):  # type: _model.Content
         item = generator.dispense_item()
         item.title = entity.title
         item.link = entity.url
         item.description = entity.description if entity.description else entity.title
+        item.full_text = entity.f_get('body', process_tags=False)
         item.pub_date = entity.publish_time
         item.author = '{} ({})'.format(entity.author.email, entity.author.full_name)
 
+        # Category
         if entity.has_field('section'):
             item.append_child(_feed.rss.Category(entity.section.title))
         elif entity.has_field('tags'):
             item.append_child(_feed.rss.Category(entity.tags[0].title))
 
-        if entity.has_field('images'):
+        # Tags
+        if entity.has_field('tags'):
+            for tag in entity.tags:
+                item.append_child(_feed.rss.Tag(tag.title))
+
+        if entity.has_field('images') and entity.images:
+            # Attaching all the images as enclosures
             for img in entity.images:
                 item.append_child(_feed.rss.Enclosure(img.url, img.length, img.mime))
 
