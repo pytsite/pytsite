@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.50.1 (2016-01-26)
+### Added
+- Translations in `content_import`.
+
+
 ## 0.50 (2016-01-26)
 ### Added
 - New package: `content_import`.

@@ -1,5 +1,5 @@
 import: 'Import'
-content_model: 'Model'
+content_model: 'Content type'
 content_language: 'Language'
 driver: 'Driver'
 driver_options: 'Options'

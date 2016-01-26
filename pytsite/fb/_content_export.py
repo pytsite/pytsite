@@ -24,6 +24,7 @@ class Driver(_content_export.AbstractDriver):
 
     def get_settings_widget(self, uid: str, **kwargs):
         scope = 'public_profile,email,user_friends,publish_actions,manage_pages,publish_pages'
+
         return _FacebookAuthWidget(uid=uid, scope=scope, **kwargs)
 
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):

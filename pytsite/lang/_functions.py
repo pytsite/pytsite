@@ -134,8 +134,8 @@ def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, use_fa
     # Loading language file data
     lang_file_content = load_lang_file(package_name, language)
 
-    # Searching for fallback translation
     if msg_id not in lang_file_content:
+        # Searching for fallback translation
         fallback = get_fallback()
         if use_fallback and fallback != language:
             return t(package_name + '@' + msg_id, args, fallback, exceptions, False)
