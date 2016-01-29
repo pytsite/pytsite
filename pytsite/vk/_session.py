@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Session():
+class Session:
     _method_base_url = 'https://api.vk.com/method/'
 
     def __init__(self, access_token: str, app_id: str=None, app_secret: str=None):
@@ -55,7 +55,7 @@ class Session():
         """
         return self.request('photos.getWallUploadServer', group_id=group_id)['upload_url']
 
-    def wall_upload_photo(self, photo, user_id: int=None, group_id: int=None, name: str=None) -> dict:
+    def wall_upload_photo(self, photo, user_id: int=None, group_id: int=0, name: str=None) -> dict:
         """Upload a photo to the user's or community's wall wall.
 
         :type photo: image.model.Image | str

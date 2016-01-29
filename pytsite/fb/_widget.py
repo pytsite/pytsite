@@ -3,6 +3,7 @@
 from datetime import datetime as _datetime
 from pytsite import widget as _widget, html as _html, reg as _reg, router as _router, assetman as _assetman, \
     lang as _lang, tpl as _tpl
+from . import _error
 from ._session import AuthSession as _AuthSession, Session as _Session
 
 __author__ = 'Alexander Shepetko'
@@ -18,26 +19,25 @@ class Auth(_widget.Base):
         """
         super().__init__(uid, **kwargs)
 
+        inp = _router.request().inp
+
         self._app_id = _reg.get('fb.app_id')
         self._app_secret = _reg.get('fb.app_secret')
         self._scope = kwargs.get('scope', 'public_profile,email,user_friends')
-        self._access_token = kwargs.get('access_token')
-        self._access_token_type = kwargs.get('access_token_type')
-        self._access_token_expires = kwargs.get('access_token_expires')
-        self._user_id = kwargs.get('user_id')
-        self._page_id = kwargs.get('page_id')
-        self._screen_name = kwargs.get('screen_name')
+        self._access_token = kwargs.get('access_token', '')
+        self._access_token_type = kwargs.get('access_token_type', '')
+        self._access_token_expires = kwargs.get('access_token_expires', 0)
+        self._user_id = kwargs.get('user_id', '')
+        self._pages = []
+        self._page_id = kwargs.get('page_id', '')
+        self._screen_name = kwargs.get('screen_name', '')
+        self._redirect_url = kwargs.get('redirect_url', _router.current_url())
 
         self._css += ' widget-fb-oauth'
 
-        _assetman.add('pytsite.fb@js/widget.js')
-
-    def get_html_em(self) -> _html.Element:
-        """Get HTML element representation of the widget.
-        """
         # 'state' and 'code' typically received after successful Facebook authorization redirect
-        state = _router.request.inp.get('state')
-        auth_code = _router.request.inp.get('code')
+        state = inp.get('state')
+        auth_code = inp.get('code')
         if state and auth_code:
             t_info = _AuthSession(state).get_access_token(auth_code)
             self._access_token = t_info['access_token']
@@ -51,40 +51,73 @@ class Auth(_widget.Base):
             self._user_id = me['id']
             self._screen_name = me['name']
 
+        # Pages
+        if self._access_token:
+            for acc in _Session(self._access_token).accounts():
+                if 'CREATE_CONTENT' in acc['perms']:
+                    self._pages.append((acc['id'], acc['name']))
+
+    @property
+    def access_token(self) -> str:
+        return self._access_token
+
+    @property
+    def access_token_type(self) -> str:
+        return self._access_token_type
+
+    @property
+    def access_token_expires(self) -> str:
+        return self._access_token_expires
+
+    @property
+    def user_id(self) -> str:
+        return self._user_id
+
+    @property
+    def pages(self) -> tuple:
+        return tuple(self._pages)
+
+    @property
+    def page_id(self) -> str:
+        return self._page_id
+
+    @property
+    def screen_name(self) -> str:
+        return self._screen_name
+
+    def get_html_em(self) -> _html.Element:
+        """Get HTML element representation of the widget.
+        """
         if self._user_id and self._screen_name:
             a = _html.A(self._screen_name, href='https://facebook.com/' + self._user_id, target='_blank')
             a.append(_html.I(cls='fa fa-facebook-square'))
         else:
-            a = _html.A(href=_AuthSession().get_authorization_url(self._scope))
+            a = _html.A(href=_AuthSession(redirect_uri=self._redirect_url).get_authorization_url(self._scope))
             a.append(_html.Img(src=_assetman.url('pytsite.fb@img/facebook-login-button.png')))
 
-        container = _widget.static.Container(uid='facebook-auth-widget')
-        container.append(_widget.static.Text('user', label=_lang.t('pytsite.fb@user'), title=a.render()))
+        container = _widget.static.Container(self.uid)
+        container.append(_widget.static.Text(
+            self.uid + 'auth_url',
+            weight=10,
+            label=_lang.t('pytsite.fb@user'), title=a.render()
+        ))
 
         # Page select
-        if self._access_token:
-            items = []
-            for acc in _Session(self._access_token).accounts():
-                if 'CREATE_CONTENT' in acc['perms']:
-                    items.append((acc['id'], acc['name']))
-            p_select = _widget.select.Select('fb-page-id', name='{}[{}]'.format(self._uid, 'page_id'),
-                                             value=self._page_id, label=_lang.t('pytsite.fb@page'), items=items,
-                                             h_size='col-sm-6')
-            container.append(p_select)
+        if self.pages:
+            container.append(_widget.select.Select(
+                self.uid + '_page_id',
+                weight=20,
+                value=self._page_id,
+                label=_lang.t('pytsite.fb@page'),
+                items=self.pages,
+                h_size='col-sm-6'
+            ))
 
-        container.append(_widget.input.Hidden('access-token', name='{}[{}]'.format(self._uid, 'access_token'),
-                                              value=self._access_token))
-        container.append(_widget.input.Hidden('access-token-type', name='{}[{}]'.format(self._uid, 'access_token_type'),
-                                              value=self._access_token_type))
-        container.append(_widget.input.Hidden('access-token-expires',
-                                              name='{}[{}]'.format(self._uid, 'access_token_expires'),
-                                              value=self._access_token_expires))
-        container.append(_widget.input.Hidden('user-id', name='{}[{}]'.format(self._uid, 'user_id'),
-                                              value=self._user_id))
-        container.append(_widget.input.Hidden('screen-name', name='{}[{}]'.format(self._uid, 'screen_name'),
-                                              value=self._screen_name))
-        container.append(_widget.input.Hidden('title', name='{}[{}]'.format(self._uid, 'title'),
-                                              value=self._screen_name))
+        container.append(_widget.input.Hidden(self.uid + '_access_token', value=self.access_token))
+        container.append(_widget.input.Hidden(self.uid + '_access_token_type', value=self.access_token_type))
+        container.append(_widget.input.Hidden(self.uid + '_access_token_expires', value=self.access_token_expires))
+        container.append(_widget.input.Hidden(self.uid + '_user_id', value=self.user_id))
+        container.append(_widget.input.Hidden(self.uid + '_screen_name', value=self.screen_name))
 
         return self._group_wrap(container.get_html_em())
 

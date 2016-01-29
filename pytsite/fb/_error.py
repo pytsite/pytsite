@@ -1,13 +1,13 @@
-"""PytSite Content Import Errors.
+"""PytSite Facebook Errors.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class DriverNotRegistered(Exception):
+class AuthSessionError(Exception):
     pass
 
 
-class ContentImportError(Exception):
+class SessionError(Exception):
     pass

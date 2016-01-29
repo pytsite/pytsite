@@ -14,7 +14,7 @@ def upload(args: dict, inp: dict) -> _http.response.JSON:
     """
     r = []
     model = args.get('model')
-    files = _router.request.files
+    files = _router.request().files
     for field_name, f in files.items():
         tmp_path = path.join(_reg.get('paths.tmp'), _util.random_str())
         f.save(tmp_path)

@@ -155,6 +155,10 @@ def get_login_form(driver_name: str=None, uid=None, css='', title=None) -> _form
 def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
     """Post a login form.
     """
+    for i in ('__form_steps', '__form_step'):
+        if i in inp:
+            del inp[i]
+
     return get_driver(driver_name).post_login_form(inp)
 
 
@@ -178,8 +182,8 @@ def create_user(login: str, password: str=None) -> _model.User:
             user.f_add('roles', role)
 
     # GeoIP data
-    if _router.request:
-        user.f_set('geo_ip', _geo_ip.resolve(_router.request.remote_addr))
+    if _router.request():
+        user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
 
     # Issue event
     if user.login != _model.ANONYMOUS_USER_LOGIN:
@@ -236,8 +240,8 @@ def authorize(user: _model.User, count_login: bool=True, issue_event: bool=True,
         user.f_inc('login_count').f_set('last_login', _datetime.now()).save()
 
     # Update geo ip data
-    if update_geo_ip and _router.request:
-        user.f_set('geo_ip', _geo_ip.resolve(_router.request.remote_addr))
+    if update_geo_ip and _router.request():
+        user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
         if not user.country and user.geo_ip.country:
             user.f_set('country', user.geo_ip.country)
         if not user.city and user.geo_ip.city:
@@ -249,7 +253,7 @@ def authorize(user: _model.User, count_login: bool=True, issue_event: bool=True,
     if issue_event:
         _events.fire('pytsite.auth.login', user=user)
 
-    _router.session['pytsite.auth.login'] = user.login
+    _router.session()['pytsite.auth.login'] = user.login
 
     return user
 
@@ -267,10 +271,10 @@ def get_anonymous_user() -> _model.User:
 def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
-    if _router.session is None:
+    if _router.session() is None:
         return get_anonymous_user()
 
-    login = _router.session.get('pytsite.auth.login')
+    login = _router.session().get('pytsite.auth.login')
     if not login:
         return get_anonymous_user()
 
@@ -292,7 +296,7 @@ def logout_current_user(issue_event=True):
     if not user.is_anonymous:
         if issue_event:
             _events.fire('pytsite.auth.logout', user=user)
-        del _router.session['pytsite.auth.login']
+        del _router.session()['pytsite.auth.login']
 
 
 def get_user_statuses() -> tuple:

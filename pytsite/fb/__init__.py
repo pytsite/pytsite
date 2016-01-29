@@ -33,7 +33,7 @@ def __init():
     router.add_rule('/fb/authorize', 'pytsite.fb.ep.authorize')
 
     # Content export driver
-    content_export.register_driver('fb', 'pytsite.fb@facebook', ContentExportDriver)
+    content_export.register_driver(ContentExportDriver())
 
     # Comments driver
     comments.register_driver(Driver())

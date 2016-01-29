@@ -34,8 +34,8 @@ def get_m_form(model: str, eid=None, form_uid='odm-ui-form') -> _form.Form:
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
     # Redirect location after successful form submit
-    if _router.request and '__redirect' in _router.request.inp:
-        redirect = _router.request.inp.get('__redirect')
+    if _router.request() and '__redirect' in _router.request().inp:
+        redirect = _router.request().inp.get('__redirect')
     else:
         redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 
@@ -91,8 +91,8 @@ def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str) -> _
     f.add_widget(_widget.static.HTML(uid='ids-text', em=ol))
 
     # Redirect after successful form submit
-    if _router.request and '__redirect' in _router.request.inp:
-        redirect = _router.request.inp.get('__redirect')
+    if _router.request() and '__redirect' in _router.request().inp:
+        redirect = _router.request().inp.get('__redirect')
     else:
         redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 

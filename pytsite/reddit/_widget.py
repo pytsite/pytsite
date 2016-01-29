@@ -32,9 +32,9 @@ class Auth(_widget.Base):
         """Render widget.
         """
         # If 'code' is here, we need to exchange it to an access token
-        auth_state = _router.request.inp.get('state')
-        auth_code = _router.request.inp.get('code')
-        error = _router.request.inp.get('error')
+        auth_state = _router.request().inp.get('state')
+        auth_code = _router.request().inp.get('code')
+        error = _router.request().inp.get('error')
         if auth_code and auth_state and not error:
             access_data = RedditAuthSession(auth_state).get_access_token(auth_code)
             self._access_token = access_data['access_token']

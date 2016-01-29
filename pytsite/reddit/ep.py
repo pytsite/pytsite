@@ -12,6 +12,6 @@ def authorize(args: dict, inp: dict):
     session = _AuthSession(inp.get('state'))
     error = inp.get('error')
     if error:
-        _router.session.add_error(error)
+        _router.session().add_error(error)
 
     return _http.response.Redirect(_router.url(session.redirect_uri, query=inp))

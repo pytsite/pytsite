@@ -3,6 +3,7 @@
 from collections import Generator as _Generator
 import requests as _requests
 from pytsite import router as _router, util as _util, reg as _reg
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,7 +16,7 @@ _states = {}
 class AuthSession:
     """Facebook Authorization Session.
     """
-    def __init__(self, state: str=None, final_redirect_uri: str=None):
+    def __init__(self, state: str=None, redirect_uri: str=None):
         """Init.
         """
         self._app_id = _reg.get('fb.app_id')
@@ -26,14 +27,16 @@ class AuthSession:
             self._final_redirect_uri = _states.get(state, _router.current_url())
         else:
             self._state = _util.random_str(64)
-            self._final_redirect_uri = final_redirect_uri if final_redirect_uri else _router.current_url()
+            self._final_redirect_uri = redirect_uri if redirect_uri else _router.current_url()
             _states[self._state] = self._final_redirect_uri
 
     @property
-    def final_redirect_uri(self) -> str:
+    def redirect_uri(self) -> str:
         return self._final_redirect_uri
 
     def get_authorization_url(self, scope='public_profile,email,user_friends') -> str:
+        """Get authorization URL which used to point user for authorization.
+        """
         return _router.url('https://www.facebook.com/dialog/oauth', query={
             'client_id': self._app_id,
             'state': self._state,
@@ -42,6 +45,8 @@ class AuthSession:
         })
 
     def get_access_token(self, auth_code: str) -> dict:
+        """Get access token from Facebook.
+        """
         url = _router.url(_API_REQUEST_URL + 'oauth/access_token', query={
             'client_id': self._app_id,
             'client_secret': self._app_secret,
@@ -49,7 +54,11 @@ class AuthSession:
             'code': auth_code,
         })
 
-        return _requests.get(url).json()
+        r = _requests.get(url).json()
+        if 'error' in r:
+            raise _error.AuthSessionError(r['error']['message'])
+
+        return r
 
 
 class Session:

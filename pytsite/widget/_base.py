@@ -44,6 +44,9 @@ class Base(_ABC):
             if not isinstance(rule, _validation.rule.Base):
                 raise TypeError('instance of pytsite.validation.rule.Base expected.')
 
+        if type(self._form_steps) not in (list, tuple) and self._form_steps != '*':
+            self._form_steps = (self._form_steps,)
+
         # It is important to filter value through the setter-method
         if 'value' in kwargs:
             self.set_val(kwargs.get('value'), mode='init')

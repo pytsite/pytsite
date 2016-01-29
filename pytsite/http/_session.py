@@ -1,8 +1,8 @@
+from werkzeug.contrib.sessions import Session as _BaseSession
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from werkzeug.contrib.sessions import Session as _BaseSession
 
 
 class Session(_BaseSession):

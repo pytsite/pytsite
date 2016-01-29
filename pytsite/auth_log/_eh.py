@@ -29,7 +29,7 @@ def auth_login_error(exception, user: _auth.model.User):
 def _create_odm_entity(user: _auth.model.User, description: str, severity=_api.SEVERITY_INFO):
     e = _odm.dispense('auth_log')
     e.f_set('user', user)
-    e.f_set('ip', _router.request.remote_addr)
+    e.f_set('ip', _router.request().remote_addr)
     e.f_set('severity', severity)
     e.f_set('description', description)
     e.save()

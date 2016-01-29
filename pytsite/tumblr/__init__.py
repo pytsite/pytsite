@@ -23,6 +23,6 @@ def __init():
     assetman.register_package(__name__)
 
     # Register Content Export driver
-    content_export.register_driver('tumblr', __name__ + '@tumblr', ContentExportDriver)
+    content_export.register_driver(ContentExportDriver())
 
 __init()

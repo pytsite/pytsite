@@ -3,7 +3,7 @@
 # Public API
 from . import _model as model, _error as error
 from ._driver import Abstract as AbstractDriver
-from ._functions import register_driver
+from ._api import register_driver
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

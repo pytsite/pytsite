@@ -28,7 +28,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict) -> _widget.Base:
+    def build_settings_form(self, frm: _form.Form, driver_opts: _frozendict):
         """Add widgets to the settings form of the driver.
         """
         pass
@@ -51,13 +51,13 @@ class RSS(Abstract):
         """
         return _lang.t('pytsite.content_import@rss')
 
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+    def build_settings_form(self, frm: _form.Form, driver_opts: _frozendict):
         """Add widgets to the settings form of the driver.
         """
         frm.add_widget(_widget.input.Text(
-            uid='driver_options_url',
+            uid='driver_opts_url',
             label=_lang.t('pytsite.content_import@url'),
-            value=driver_options.get('url', ''),
+            value=driver_opts.get('url', ''),
             rules=_validation.rule.Url(),
             required=True,
         ))

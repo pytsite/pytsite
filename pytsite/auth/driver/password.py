@@ -15,7 +15,7 @@ class _LoginForm(_form.Form):
     def _setup(self):
         """_setup() hook.
         """
-        for k, v in _router.request.inp.items():
+        for k, v in _router.request().inp.items():
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
 
         self.add_widget(_widget.input.Email(
@@ -23,7 +23,7 @@ class _LoginForm(_form.Form):
             label=_lang.t('pytsite.auth@email'),
             weight=10,
             required=True,
-            value=_router.request.inp.get('email', ''),
+            value=_router.request().inp.get('email', ''),
         ))
 
         self.add_widget(_widget.input.Password(
@@ -82,7 +82,7 @@ class Driver(AbstractDriver):
 
         except _error.LoginError as e:
             _logger.warn('Login incorrect. {}'.format(e), __name__)
-            _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
+            _router.session().add_error(_lang.t('pytsite.auth@authorization_error'))
 
             inp['driver'] = self.name
             return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.login', args=inp))

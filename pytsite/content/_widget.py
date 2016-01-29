@@ -105,7 +105,7 @@ class Search(_widget.Base):
         if not self._model:
             raise ValueError('Model is not specified.')
 
-        self._value = _router.request.inp.get('search', '')
+        self._value = _router.request().inp.get('search', '')
         self._title_tag = kwargs.get('title_tag', 'h3')
 
         self._form = _html.Form(cls='wrapper form-inline', method='GET')

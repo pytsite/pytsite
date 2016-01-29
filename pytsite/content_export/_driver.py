@@ -1,7 +1,8 @@
-"""Poster Abstract Driver.
+"""PytSite Content Export Abstract Driver.
 """
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import widget as _widget
+from frozendict import frozendict as _frozendict
+from pytsite import form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -9,14 +10,27 @@ __license__ = 'MIT'
 
 
 class Abstract(_ABC):
-    def __init__(self, **kwargs):
-        """Init.
+    @_abstractmethod
+    def get_name(self) -> str:
+        """Get system name of the driver.
         """
         pass
 
     @_abstractmethod
-    def get_settings_widget(self, uid: str, **kwargs) -> _widget.Base:
-        """Returns settings widget.
+    def get_description(self) -> str:
+        """Get human readable description of the driver.
+        """
+        pass
+
+    @_abstractmethod
+    def get_options_description(self, driver_options: _frozendict) -> str:
+        """Get human readable driver options.
+        """
+        pass
+
+    @_abstractmethod
+    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+        """Add widgets to the settings form of the driver.
         """
         pass
 
@@ -24,7 +38,7 @@ class Abstract(_ABC):
     def export(self, entity, exporter):
         """ Performs export.
 
-        :type entity: pytsite.content._model.Content
-        :type exporter: pytsite.content_export._model.ContentExport
+        :type entity: pytsite.content.model.Content
+        :type exporter: pytsite.content_export.model.ContentExport
         """
         pass

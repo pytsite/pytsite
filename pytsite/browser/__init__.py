@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, router
+    from pytsite import assetman, router, tpl
 
     router.add_rule('/pytsite/browser/<string:ep>', 'pytsite.browser.ep.request', methods=('GET', 'POST'))
 
@@ -19,5 +19,8 @@ def __init():
     assetman.add(__name__ + '@js/common.js', forever=True)
     assetman.add(__name__ + '@js/lang.js', forever=True)
     assetman.add('app@js/translations.js', forever=True)
+
+    tpl.register_global('browser_include', include)
+
 
 __init()

@@ -18,7 +18,7 @@ class ContentImport(_odm_ui.Model):
         """Hook.
         """
         self.define_field(_odm.field.String('driver', nonempty=True))
-        self.define_field(_odm.field.Dict('driver_options'))
+        self.define_field(_odm.field.Dict('driver_opts'))
         self.define_field(_odm.field.String('content_model', nonempty=True))
         self.define_field(_odm.field.Ref('owner', model='user', nonempty=True))
         self.define_field(_odm.field.Ref('content_author', model='user', nonempty=True))
@@ -37,8 +37,8 @@ class ContentImport(_odm_ui.Model):
         return self.f_get('driver')
 
     @property
-    def driver_options(self) -> _frozendict:
-        return self.f_get('driver_options')
+    def driver_opts(self) -> _frozendict:
+        return self.f_get('driver_opts')
 
     @property
     def content_model(self) -> str:
@@ -102,7 +102,7 @@ class ContentImport(_odm_ui.Model):
         browser.data_fields = (
             'content_model',
             'driver',
-            'driver_options',
+            'driver_opts',
             'content_author',
             'with_images_only',
             'enabled',
@@ -114,7 +114,7 @@ class ContentImport(_odm_ui.Model):
     def ui_browser_get_row(self) -> tuple:
         model = _content.get_model_title(self.content_model)
         driver = _api.get_driver(self.driver).get_description()
-        driver_options = str(dict(self.driver_options))
+        driver_options = str(dict(self.driver_opts))
         content_author = self.content_author.full_name
         w_images = '<span class="label label-success">' + self.t('word_yes') + '</span>' \
             if self.with_images_only else ''
@@ -242,18 +242,18 @@ class ContentImport(_odm_ui.Model):
         ))
 
         if frm.step == 2:
-            driver = _api.get_driver(_router.request.inp.get('driver'))
-            driver.build_settings_form(frm, self.driver_options)
+            driver = _api.get_driver(_router.request().inp.get('driver'))
+            driver.build_settings_form(frm, self.driver_opts)
 
     def ui_m_form_submit(self, frm: _form.Form):
         """Modify form submit hook.
         """
         options = {}
         for uid, widget in frm.get_widgets().items():
-            if uid.startswith('driver_options_'):
-                options[uid.replace('driver_options_', '')] = widget.value
+            if uid.startswith('driver_opts_'):
+                options[uid.replace('driver_opts_', '')] = widget.value
 
         frm.add_widget(_widget.input.Hidden(
-            uid='driver_options',
+            uid='driver_opts',
             value=options,
         ))

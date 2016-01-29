@@ -1,9 +1,10 @@
 """Poster Model.
 """
 from datetime import datetime as _datetime
+from frozendict import frozendict as _frozendict
 from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, router as _router, \
-    widget as _widget, util as _util
-from . import _widget as _content_export_widget, _functions
+    widget as _widget, util as _util, form as _form, lang as _lang
+from . import _widget as _content_export_widget, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -34,7 +35,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         return self.f_get('driver')
 
     @property
-    def driver_opts(self) -> dict:
+    def driver_opts(self) -> _frozendict:
         return self.f_get('driver_opts')
 
     @property
@@ -104,8 +105,10 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
     def ui_browser_get_row(self) -> tuple:
         """Hook.
         """
+        driver = _api.get_driver(self.driver)
         content_model = _content.get_model_title(self.content_model)
-        driver = _functions.get_driver_title(self.driver)
+        driver_desc = _lang.t(driver.get_description())
+        opts_desc = driver.get_options_description(self.driver_opts)
         all_authors = '<span class="label label-success">' + self.t('word_yes') + '</span>' \
             if self.process_all_authors else ''
         w_images = '<span class="label label-success">' + self.t('word_yes') + '</span>' \
@@ -121,7 +124,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
 
         paused_till = self.f_get('paused_till', fmt='pretty_date_time') if _datetime.now() < self.paused_till else ''
 
-        return content_model, driver, self.driver_opts.get('title', ''), all_authors, w_images, max_age, enabled, \
+        return content_model, driver_desc, opts_desc, all_authors, w_images, max_age, enabled, \
             errors, paused_till, self.owner.full_name
 
     def ui_m_form_setup(self, frm):
@@ -129,112 +132,108 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
 
         :type frm: pytsite.form.Form
         """
-        inp = _router.request.inp
-        step = int(inp.get('step', 0))
+        frm.steps = 2
+        inp = _router.request().inp
 
         frm.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='enabled',
             label=self.t('enabled'),
-            value=self.enabled if not step else inp.get('enabled'),
-            hidden=True if step else False,
+            value=self.enabled,
+            form_steps=1,
         ))
 
         frm.add_widget(_widget.select.Checkbox(
             weight=20,
             uid='process_all_authors',
             label=self.t('process_all_authors'),
-            value=self.process_all_authors if not step else inp.get('process_all_authors'),
-            hidden=True if step else False,
+            value=self.process_all_authors,
+            form_steps=1,
         ))
 
         frm.add_widget(_widget.select.Checkbox(
             weight=30,
             uid='with_images_only',
             label=self.t('with_images_only'),
-            value=self.with_images_only if not step else inp.get('with_images_only'),
-            hidden=True if step else False,
+            value=self.with_images_only,
+            form_steps=1,
         ))
 
         frm.add_widget(_content.widget.ModelSelect(
             weight=40,
             uid='content_model',
             label=self.t('content_model'),
-            value=self.content_model if not step else inp.get('content_model'),
+            value=self.content_model,
             h_size='col-sm-4',
             required=True,
-            hidden=True if step else False,
+            form_steps=1,
         ))
 
         frm.add_widget(_content_export_widget.DriverSelect(
             weight=50,
             uid='driver',
             label=self.t('driver'),
-            value=self.driver if not step else inp.get('driver'),
+            value=self.driver,
             h_size='col-sm-4',
             required=True,
-            hidden=True if step else False,
+            form_steps=1,
         ))
 
         frm.add_widget(_widget.input.Integer(
             weight=60,
             uid='max_age',
             label=self.t('max_age'),
-            value=self.max_age if not step else inp.get('max_age'),
+            value=self.max_age,
             h_size='col-sm-1',
-            hidden=True if step else False,
+            form_steps=1,
         ))
 
         frm.add_widget(_widget.input.Tokens(
             weight=60,
             uid='add_tags',
             label=self.t('additional_tags'),
-            value=self.add_tags if not step else inp.get('add_tags'),
-            hidden=True if step else False,
+            value=self.add_tags,
+            form_steps=1,
         ))
 
         frm.add_widget(_widget.select.DateTime(
             weight=80,
             uid='paused_till',
             label=self.t('paused_till'),
-            value=self.paused_till if not step else inp.get('paused_till'),
+            value=self.paused_till,
             h_size='col-sm-5 col-md-4 col-lg-3',
-            hidden=True if step else False,
+            form_steps=1,
         ))
 
         frm.add_widget(_widget.input.Integer(
             weight=90,
             uid='errors',
             label=self.t('errors'),
-            value=self.errors if not step else inp.get('errors'),
+            value=self.errors,
             h_size='col-sm-1',
-            hidden=True if step else False,
+            form_steps=1,
         ))
 
-        if not step:
-            frm.method = 'GET'
-            frm.action = _router.current_url()
-            frm.remove_widget('__form_location')
-            frm.remove_widget('__odm_ui_entity_id')
-            submit_btn = frm.get_widget('form-actions').get_child('action-submit')
-            """:type: pytsite.widget._button.Submit"""
-            submit_btn.set_val(self.t('next'))
-            submit_btn.icon = 'fa fa-angle-double-right'
+        if frm.step == 2:
+            _api.get_driver(inp.get('driver')).build_settings_form(frm, self.driver_opts)
 
-            frm.add_widget(_widget.input.Hidden(
-                uid='step',
-                value=1,
-            ))
-        # Second step
-        else:
-            driver = inp.get('driver')
-            frm.add_widget(_functions.load_driver(driver).get_settings_widget('driver_opts', **self.driver_opts))
-            frm.add_widget(_widget.input.Hidden(
-                uid='step',
-                value=3,
-            ))
+    def ui_m_form_submit(self, frm: _form.Form):
+        """Modify form submit hook.
+        """
+        options = {}
+        for k, v in _router.request().inp.items():
+            if k.startswith('driver_opts_'):
+                options[k.replace('driver_opts_', '')] = v
+
+        if frm.has_widget('driver_opts'):
+            frm.remove_widget('driver_opts')
+
+        frm.add_widget(_widget.input.Hidden(
+            uid='driver_opts',
+            value=options,
+        ))
 
     def ui_mass_action_get_entity_description(self) -> str:
-        """Hook.
+        """Get description for mass action form.
         """
-        return '{} ({})'.format(self.driver, self.driver_opts['title'])
+        return _api.get_driver(self.driver).get_options_description(self.driver_opts)

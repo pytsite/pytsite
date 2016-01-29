@@ -142,7 +142,7 @@ class FilesUpload(_widget.Base):
 
         # Delete files which are has been removed from the widget on the browser's side,
         # ONLY if the form is not in validation mode
-        to_delete = _router.request.inp.get(self._uid + '_to_delete')
+        to_delete = _router.request().inp.get(self._uid + '_to_delete')
         if to_delete and kwargs.get('mode') not in ('init', 'validation'):
             if isinstance(to_delete, str):
                 to_delete = [to_delete]

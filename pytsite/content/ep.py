@@ -200,7 +200,7 @@ def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
     s = _odm.dispense('content_subscriber', args.get('id'))
     if s:
         s.f_set('enabled', False).save()
-        _router.session.add_success(_lang.t('pytsite.content@unsubscription_successful'))
+        _router.session().add_success(_lang.t('pytsite.content@unsubscription_successful'))
 
     return _http.response.Redirect(_router.base_url())
 

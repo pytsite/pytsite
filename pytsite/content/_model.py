@@ -293,7 +293,7 @@ class Content(_odm_ui.Model):
             if self.is_new and self.status == 'waiting':
                 self._send_waiting_status_notification()
                 if _router.session:
-                    _router.session.add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
+                    _router.session().add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
 
         # Recalculate tags weights
         from . import _api

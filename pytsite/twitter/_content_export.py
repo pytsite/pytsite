@@ -1,9 +1,10 @@
 """Content Export Twitter Driver.
 """
+from frozendict import frozendict as _frozendict
 from twython import Twython as _Twython, TwythonError as _TwythonError
-from pytsite import content as _content, content_export as _content_export, widget as _widget, logger as _logger, \
-    reg as _reg
-from ._widget import Auth as TwitterAuthWidget
+from pytsite import content as _content, content_export as _content_export, logger as _logger, reg as _reg, \
+    form as _form, router as _router
+from ._widget import Auth as _TwitterAuthWidget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,31 +14,53 @@ __license__ = 'MIT'
 class Driver(_content_export.AbstractDriver):
     """Content Export Driver.
     """
-    def __init__(self, **kwargs):
-        """Init.
+    def get_name(self) -> str:
+        """Get system name of the driver.
         """
-        super().__init__(**kwargs)
+        return 'twitter'
 
-        self._client_key = _reg.get('twitter.app_key')
-        self._client_secret = _reg.get('twitter.app_secret')
-        if not self._client_key or not self._client_secret:
-            raise Exception("Both 'twitter.app_key' and 'twitter.app_secret' must be defined.")
-
-        self._oauth_token = kwargs.get('oauth_token')
-        self._oauth_token_secret = kwargs.get('oauth_token_secret')
-
-    def get_settings_widget(self, uid: str, **kwargs) -> _widget.Base:
-        """Get widget for content export edit form.
+    def get_description(self) -> str:
+        """Get human readable description of the driver.
         """
-        return TwitterAuthWidget(uid=uid, **kwargs)
+        return 'pytsite.twitter@twitter'
+
+    def get_options_description(self, driver_options: _frozendict) -> str:
+        """Get human readable driver options.
+        """
+        return driver_options.get('screen_name')
+
+    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+        """Add widgets to the settings form of the driver.
+        """
+        inp = _router.request().inp
+        callback_uri_q = {}
+        for k, v in inp.items():
+            if not k.startswith('__'):
+                callback_uri_q[k] = v
+
+        if '__form_step' in inp:
+            callback_uri_q['__form_step'] = inp['__form_step']
+
+        frm.add_widget(_TwitterAuthWidget(
+            uid='driver_opts',
+            oauth_token=driver_options.get('oauth_token'),
+            oauth_token_secret=driver_options.get('oauth_token_secret'),
+            user_id=driver_options.get('user_id'),
+            screen_name=driver_options.get('screen_name'),
+            callback_uri=_router.current_url(add_query=callback_uri_q)
+        ))
 
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
         """
         _logger.info("Export started. '{}'".format(entity.title), __name__)
 
+        opts = exporter.driver_opts  # type: _frozendict
+
         try:
-            tw = _Twython(self._client_key, self._client_secret, self._oauth_token, self._oauth_token_secret)
+            app_key = _reg.get('twitter.app_key')
+            app_sec = _reg.get('twitter.app_secret')
+            tw = _Twython(app_key, app_sec, opts['oauth_token'], opts['oauth_token_secret'])
             media_ids = []
             if entity.images:
                 img = entity.images[0]

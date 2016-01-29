@@ -1,7 +1,7 @@
 """Content Export Widgets.
 """
 from pytsite import widget as _widget, lang as _lang
-from ._functions import get_drivers as _get_drivers
+from ._api import get_drivers as _get_drivers
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,4 +15,4 @@ class DriverSelect(_widget.select.Select):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._items = sorted([(k, _lang.t(v[0])) for k, v in _get_drivers().items()])
+        self._items = sorted([(k, _lang.t(v.get_description())) for k, v in _get_drivers().items()])

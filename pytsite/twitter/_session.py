@@ -12,21 +12,18 @@ __license__ = 'MIT'
 class Session:
     """Twitter oAuth Driver.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, oauth_token: str, oauth_token_secret: str):
         """Init.
         """
         self._client_key = _reg.get('twitter.app_key')
         self._client_secret = _reg.get('twitter.app_secret')
-        if not self._client_key or not self._client_secret:
-            raise Exception("Both 'twitter.app_key' and 'twitter.app_secret' must be defined.")
+        self._oauth_token = oauth_token
+        self._oauth_token_secret = oauth_token_secret
 
-        self._oauth_token = kwargs.get('oauth_token')
-        self._oauth_token_secret = kwargs.get('oauth_token_secret')
-
-    def _init_session(self):
+    def _init_session(self, callback_uri: str=_router.current_url()):
         if self._get_state()['stage'] == 'new':
             # Need to fetch request token
-            oauth = OAuth1Session(self._client_key, self._client_secret, callback_uri=_router.current_url())
+            oauth = OAuth1Session(self._client_key, self._client_secret, callback_uri=callback_uri)
             r_token_resp = oauth.fetch_request_token('https://api.twitter.com/oauth/request_token')
             self._set_state({
                 'stage': 'request_token',
@@ -47,7 +44,7 @@ class Session:
             'oauth_token': None,
             'oauth_token_secret': None
         }
-        state = _router.session.get('oauth.twitter.session')
+        state = _router.session().get('oauth.twitter.session')
 
         if not state or (_dt.now() - state['time']).seconds > 60:
             state = default
@@ -57,28 +54,29 @@ class Session:
     def _set_state(self, state: dict):
         """Set state.
         """
-        _router.session['oauth.twitter.session'] = state
+        _router.session()['oauth.twitter.session'] = state
+
         return self
 
     def _clear_state(self):
         """Clear state.
         """
-        if 'oauth.twitter.session' in _router.session:
-            del _router.session['oauth.twitter.session']
+        if 'oauth.twitter.session' in _router.session():
+            del _router.session()['oauth.twitter.session']
+
         return self
 
-    def get_authorization_url(self) -> str:
+    def get_authorization_url(self, callback_uri: str=_router.current_url()) -> str:
         """Get authorization URL.
         """
-        self._init_session()
+        self._init_session(callback_uri)
 
         state = self._get_state()
         if state['stage'] != 'request_token':
             raise Exception("Cannot generate authorization URL.")
 
-        oauth = OAuth1Session(self._client_key, self._client_secret,
-                              state['oauth_token'], state['oauth_token_secret'],
-                              callback_uri=_router.current_url())
+        oauth = OAuth1Session(self._client_key, self._client_secret, state['oauth_token'], state['oauth_token_secret'],
+                              callback_uri=callback_uri)
 
         return oauth.authorization_url('https://api.twitter.com/oauth/authorize')
 

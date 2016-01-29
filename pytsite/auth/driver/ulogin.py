@@ -6,7 +6,7 @@ from datetime import datetime as _datetime
 from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, http as _http, \
-    logger as _logger, router as _router, util as _util, html as _html
+    logger as _logger, router as _router, html as _html
 from .. import _api, _error
 from .abstract import AbstractDriver
 
@@ -36,7 +36,7 @@ class _LoginForm(_form.Form):
     def _setup(self):
         """_setup() hook.
         """
-        for k, v in _router.request.inp.items():
+        for k, v in _router.request().inp.items():
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
 
         if not self.has_widget(self.uid + '-token'):
@@ -137,7 +137,7 @@ class Driver(AbstractDriver):
 
         except _error.LoginError as e:
             _logger.warn('Login incorrect. {}'.format(e), __name__)
-            _router.session.add_error(_lang.t('pytsite.auth@authorization_error'))
+            _router.session().add_error(_lang.t('pytsite.auth@authorization_error'))
             if '__redirect' in inp:
                 del inp['__redirect']
             if '__form_location' in inp:

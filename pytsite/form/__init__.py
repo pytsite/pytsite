@@ -3,7 +3,7 @@
 from typing import Dict as _Dict
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation, tpl as _tpl, browser as _browser, events as _events, lang as _lang, http as _http
+    validation as _validation, tpl as _tpl, browser as _browser, events as _events, lang as _lang
 from . import _error as error
 
 __author__ = 'Alexander Shepetko'
@@ -24,11 +24,8 @@ class Form:
     def __init__(self, uid: str=None, **kwargs):
         """Init.
         """
-        if not _router.request:
+        if not _router.request():
             raise Exception('Form cannot be created without HTTP request context.')
-
-        if self.step > 1 and _router.request.method != 'POST':
-            raise _http.error.MethodNotAllowed()
 
         # Widgets
         self._widgets = {}  # type: _Dict[str, _widget.Base]
@@ -236,7 +233,7 @@ class Form:
     @property
     def step(self) -> int:
         try:
-            return int(_router.request.inp.get('__form_step', 1))
+            return int(_router.request().inp.get('__form_step', 1))
         except ValueError:
             return 1
 
@@ -375,8 +372,8 @@ class Form:
 
             # If it isn't first step, try to set hidden widget's value
             # with data received from previous step
-            if self.step > 1 and w.uid in _router.request.inp:
-                w.value = _router.request.inp[w.uid]
+            if self.step > 1 and w.uid in _router.request().inp:
+                w.value = _router.request().inp[w.uid]
 
         # Sort by weight
         return _OrderedDict([(w.uid, w) for w in _util.weight_sort(widgets)])

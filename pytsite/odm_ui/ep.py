@@ -77,7 +77,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     try:
         frm.fill(inp, mode='validation').validate()
     except _form.error.ValidationError as e:
-        _router.session.add_error(str(e.errors))
+        _router.session().add_error(str(e.errors))
         raise _http.error.InternalServerError()
 
     # Re-fill form in 'normal' mode
@@ -97,9 +97,9 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     try:
         # Save entity
         entity.save()
-        _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+        _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
     except Exception as e:
-        _router.session.add_error(str(e))
+        _router.session().add_error(str(e))
         _logger.error(str(e), __name__)
 
     # Redirect location
@@ -152,14 +152,14 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
         if json:
             return _http.response.JSON({'status': True})
         else:
-            _router.session.add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+            _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
 
     # Entity deletion was forbidden
     except _odm.error.ForbidEntityDelete as e:
         if json:
             return _http.response.JSON({'status': False, 'error': str(e)}, 403)
         else:
-            _router.session.add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
+            _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
     redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
     return _http.response.Redirect(redirect)

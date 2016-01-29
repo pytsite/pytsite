@@ -2,7 +2,7 @@
 """
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import threading as _threading, reg as _reg, odm as _odm, content as _content, logger as _logger
-from . import _error, _functions
+from . import _error, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,12 +41,14 @@ def cron_1min():
                 return
 
             try:
-                msg = "Entity '{}', title='{}'. Exporter '{}', title='{}'" \
-                    .format(entity.model, entity.title, exporter.driver, exporter.driver_opts['title'])
+                driver = _api.get_driver(exporter.driver)
+
+                msg = "Model: '{}', title: '{}', driver: '{}', options: '{}'" \
+                    .format(entity.model, entity.title, exporter.driver,
+                            driver.get_options_description(exporter.driver_opts))
                 _logger.info(msg, __name__)
 
                 # Ask driver to perform export
-                driver = _functions.load_driver(exporter.driver, **exporter.driver_opts)
                 driver.export(entity=entity, exporter=exporter)
 
                 # Saving information about entity was exported via current exporter
@@ -68,7 +70,7 @@ def cron_1min():
 
                 # Write info about error
                 exporter.f_set('last_error', str(e))
-                _logger.error(str(e), __name__, False)
+                _logger.error(str(e), __name__)
 
                 if exporter.errors >= max_errors:
                     # Disable if maximum errors count reached

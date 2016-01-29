@@ -89,7 +89,7 @@ def __init():
 
     # Initializing language subsystem
     from . import lang
-    lang.define(reg.get('lang.languages', ['ru']))
+    lang.define(reg.get('lang.languages', ['en']))
 
     # Initializing template subsystem
     from . import tpl
@@ -126,22 +126,14 @@ def __init():
 
         router.add_rule(url_path, name=name, call=call, args=args, methods=methods, filters=filters)
 
-    # Initializing Browser module
+    # Initializing required packages
     __import__('pytsite.browser')
-
-    # Initializing Form module
     __import__('pytsite.form')
-
-    # Initializing Setup module
     __import__('pytsite.setup')
-
-    # Initializing Cron
     __import__('pytsite.cron')
-
-    # Initializing Cleanup package
     __import__('pytsite.cleanup')
 
-    # Autoloading required modules
+    # Initializing automatically loaded required packages
     for module in reg.get('app.autoload', ()):
         __import__(module)
 

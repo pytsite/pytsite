@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.50.2 (2016-01-29)
+### Changed
+- Huge refactoring of `content_export`.
+
+
 ## 0.50.1 (2016-01-26)
 ### Added
 - Translations in `content_import`.

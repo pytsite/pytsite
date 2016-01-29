@@ -1,7 +1,7 @@
 {% for type in ['error', 'warning', 'info', 'success'] %}
-    {% set messages = router.session.get_messages(type) %}
+    {% set messages = session_messages(type) %}
     {% if type == 'error' %}{% set type = 'danger' %}{% endif %}
-    {% if messages|length %}
+    {% if messages %}
         <div class="row">
             <div class="col-xs-12">
                 {% for msg in messages %}

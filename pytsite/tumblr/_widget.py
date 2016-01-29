@@ -19,18 +19,15 @@ class Auth(_widget.Base):
         self._oauth_token = kwargs.get('oauth_token', '')
         self._oauth_token_secret = kwargs.get('oauth_token_secret', '')
         self._screen_name = kwargs.get('screen_name', '')
+        self._user_blogs = []
         self._user_blog = kwargs.get('user_blog', '')
-
-        _assetman.add('pytsite.tumblr@js/widget.js')
+        self._callback_uri = kwargs.get('callback_uri', _router.current_url())
 
         self._css += ' widget-tumblr-oauth'
 
-    def get_html_em(self) -> _html.Element:
-        """Render widget.
-        """
         # If 'verifier' is here, we need to exchange it to an access token
-        inp_oauth_token = _router.request.inp.get('oauth_token')
-        inp_oauth_verifier = _router.request.inp.get('oauth_verifier')
+        inp_oauth_token = _router.request().inp.get('oauth_token')
+        inp_oauth_verifier = _router.request().inp.get('oauth_verifier')
         if inp_oauth_token and inp_oauth_verifier:
             access_data = TumblrAuthSession(inp_oauth_token).get_access_token(_router.current_url())
             self._oauth_token = access_data['oauth_token']
@@ -38,32 +35,68 @@ class Auth(_widget.Base):
             user_info = TumblrSession(self._oauth_token, self._oauth_token_secret).user_info()
             self._screen_name = user_info['name']
 
-        wrapper = _html.TagLessElement()
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'oauth_token'),
-                                   value=self._oauth_token))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'oauth_token_secret'),
-                                   value=self._oauth_token_secret))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'screen_name'),
-                                   value=self._screen_name))
-        wrapper.append(_html.Input(type='hidden', name='{}[{}]'.format(self._uid, 'title'),
-                                   value=self._screen_name))
-
         if self._oauth_token and self._oauth_token_secret and self._screen_name:
-            a = '<a href="http://{}.tumblr.com" target="_blank"><i class="fa fa-fw fa-tumblr"></i>&nbsp;{}</a>'.\
-                format(self._screen_name, self._screen_name)
-            wrapper.append(_widget.static.Text('widget-link', title=a).get_html_em())
-
             user_info = TumblrSession(self._oauth_token, self._oauth_token_secret).user_info()
-            blogs = [(i['name'], i['title']) for i in user_info['blogs']]
-            blog_select = _widget.select.Select('blog-select', name='{}[{}]'.format(self._uid, 'user_blog'),
-                                                h_size='col-sm-6', items=blogs, value=self._user_blog, required=True,
-                                                label=_lang.t('pytsite.tumblr@blog'))
-            wrapper.append(blog_select.get_html_em())
+            self._user_blogs = [(i['name'], i['title']) for i in user_info['blogs']]
+
+    @property
+    def oauth_token(self) -> str:
+        return self._oauth_token
+
+    @property
+    def oauth_token_secret(self) -> str:
+        return self._oauth_token_secret
+
+    @property
+    def screen_name(self) -> str:
+        return self._screen_name
+
+    @property
+    def user_blogs(self) -> str:
+        return self._user_blogs
+
+    @property
+    def user_blog(self) -> str:
+        return self._user_blog
+
+    def get_html_em(self) -> _html.Element:
+        """Render widget.
+        """
+        wrapper = _widget.static.Container(self.uid)
+
+        wrapper.append(_widget.input.Hidden(
+            uid=self.uid + '_oauth_token',
+            value=self.oauth_token,
+        ))
+
+        wrapper.append(_widget.input.Hidden(
+            uid=self.uid + '_oauth_token_secret',
+            value=self.oauth_token_secret,
+        ))
+
+        wrapper.append(_widget.input.Hidden(
+            uid=self.uid + '_screen_name',
+            value=self.screen_name,
+        ))
+
+        if self.user_blogs:
+            a = _html.A('&nbsp;{}'.format(self.screen_name), href='http://{}.tumblr.com'.format(self.screen_name),
+                        target='_blank')
+            a.append(_html.I(cls='fa fa-fw fa-tumblr'))
+
+            wrapper.append(_widget.static.HTML(self.uid + '_user', em=a))
+            wrapper.append(_widget.select.Select(
+                uid=self.uid + '_user_blog',
+                h_size='col-sm-6',
+                items=self.user_blogs,
+                value=self.user_blog,
+                required=True,
+                label=_lang.t('pytsite.tumblr@blog')
+            ))
         else:
-            auth_s = TumblrAuthSession(callback_uri=_router.current_url()).fetch_request_token()
-            wrapper.append(
-                _html.A(_lang.t('pytsite.tumblr@authorization'), href=auth_s.get_authorization_url()).
-                    append(_html.I(cls='fa fa-fw fa-tumblr'))
-            )
+            auth_s = TumblrAuthSession(callback_uri=self._callback_uri).fetch_request_token()
+            a = _html.A(_lang.t('pytsite.tumblr@authorization'), href=auth_s.get_authorization_url())
+            a.append(_html.I(cls='fa fa-fw fa-tumblr'))
+            wrapper.append(_widget.static.HTML(self.uid + '_user', em=a))
 
         return self._group_wrap(wrapper)

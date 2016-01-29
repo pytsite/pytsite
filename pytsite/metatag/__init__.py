@@ -8,10 +8,14 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import lang, events
+    from pytsite import lang, events, tpl
 
     lang.register_package(__name__)
     events.listen('pytsite.router.dispatch', reset)
+
+    tpl.register_global('metatag', dump)
+    tpl.register_global('metatag_all', dump_all)
+    tpl.register_global('metatag_get', get)
 
 
 __init()

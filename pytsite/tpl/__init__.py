@@ -1,10 +1,11 @@
+# Public API
+from . import _error as error
+
+import jinja2 as _jinja
 from datetime import datetime as _datetime
 from importlib import import_module as _import_module
 from os import path as _path
-import jinja2 as _jinja
-from pytsite import metatag as _metatag, reg as _reg, assetman as _assetman, lang as _lang, browser as _browser, \
-    util as _util, events as _events
-from pytsite import router as _router
+from pytsite import reg as _reg, lang as _lang, util as _util, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -35,11 +36,10 @@ class _TemplateLoader(_jinja.BaseLoader):
 
         template_abs_path = _path.join(_packages[package_name]['templates_dir'], template)
         if not _path.exists(template_abs_path):
-            raise _jinja.TemplateNotFound("Template is not found at '{}'.".format(template_abs_path))
+            raise error.TemplateNotFound("Template is not found at '{}'.".format(template_abs_path))
 
-        file = open(template_abs_path)
-        source = file.read()
-        file.close()
+        with open(template_abs_path) as f:
+            source = f.read()
 
         mtime = _path.getmtime(template_abs_path)
 
@@ -63,32 +63,6 @@ def _date_filter(value: _datetime, fmt: str='pretty_date') -> str:
 
 def _nl2br_filter(value: str) -> str:
     return value.replace('\n', _jinja.Markup('<br>'))
-
-
-# Additional functions and filters
-_env.globals['t'] = _lang.t
-_env.globals['t_plural'] = _lang.t_plural
-_env.globals['current_lang'] = _lang.get_current
-_env.globals['reg_get'] = _reg.get
-_env.globals['router'] = _router
-_env.globals['url'] = _router.url
-_env.globals['ep_url'] = _router.ep_url
-_env.globals['current_url'] = _router.current_url
-_env.globals['current_path'] = _router.current_path
-_env.globals['base_url'] = _router.base_url
-_env.globals['is_base_url'] = _router.is_base_url
-_env.globals['nav_link'] = _util.nav_link
-_env.globals['asset_url'] = _assetman.url
-_env.globals['metatag'] = _metatag.dump
-_env.globals['metatag_all'] = _metatag.dump_all
-_env.globals['metatag_get'] = _metatag.get
-_env.globals['assetman_add'] = _assetman.add
-_env.globals['assetman_css'] = _assetman.dump_css
-_env.globals['assetman_js'] = _assetman.dump_js
-_env.globals['assetman_inline'] = _assetman.dump_inline
-_env.globals['browser_include'] = _browser.include
-_env.filters['date'] = _date_filter
-_env.filters['nl2br'] = _nl2br_filter
 
 
 def register_package(package_name: str, templates_dir: str='res/tpl'):
@@ -126,3 +100,13 @@ def register_global(name: str, obj):
     """Register global.
     """
     _env.globals[name] = obj
+
+
+# Additional functions and filters
+_env.globals['t'] = _lang.t
+_env.globals['t_plural'] = _lang.t_plural
+_env.globals['current_lang'] = _lang.get_current
+_env.globals['reg_get'] = _reg.get
+_env.globals['nav_link'] = _util.nav_link
+_env.filters['date'] = _date_filter
+_env.filters['nl2br'] = _nl2br_filter

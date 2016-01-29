@@ -14,7 +14,7 @@ def cron_1min():
     """
     f = _odm.find('content_import').where('enabled', '=', True)
     for ci in f.get():  # type: _model.ContentImport
-        options = dict(ci.driver_options)
+        options = dict(ci.driver_opts)
         options.update({
             'content_author': ci.content_author,
             'content_model': ci.content_model,
