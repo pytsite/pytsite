@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.50.3 (2016-01-29)
+### Added
+- New functions: `content.find_section_by_title()`, `taxonomy.find_by_title()`
+
+### Fixed
+- Suppress output of empty `taxonomy.widget.Cloud`.
+
+
 ## 0.50.2 (2016-01-29)
 ### Changed
 - Huge refactoring of `content_export`.

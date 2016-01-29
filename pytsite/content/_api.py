@@ -139,6 +139,10 @@ def dispense_section(title: str, alias: str=None, language: str=None) -> _model.
     return _taxonomy.dispense('section', title, alias, language).save()
 
 
+def find_section_by_title(title: str, language: str=None) -> _model.Section:
+    return _taxonomy.find_by_title('section', title, language)
+
+
 def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
     return _taxonomy.find('tag', language).get(limit)
 

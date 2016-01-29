@@ -79,6 +79,7 @@ class Content(_odm_ui.Model):
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
         self.define_field(_odm.field.RefsUniqueList('tags', model='tag', ))
+        self.define_field(_geo.field.Location('location'))
         self.define_field(_odm.field.Virtual('url'))
         self.define_field(_odm.field.Virtual('edit_url'))
         self.define_field(_odm.field.Dict('options'))
@@ -90,6 +91,7 @@ class Content(_odm_ui.Model):
         self.define_index([('title', _odm.I_ASC)])
         self.define_index([('ext_links', _odm.I_ASC)])
         self.define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
+        self.define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     @property
     def section(self) -> Section:
@@ -106,6 +108,10 @@ class Content(_odm_ui.Model):
     @property
     def body(self) -> str:
         return self.f_get('body', process_tags=True)
+
+    @property
+    def location(self) -> dict:
+        return self.f_get('location')
 
     @property
     def tags(self):
@@ -455,12 +461,21 @@ class Content(_odm_ui.Model):
             ))
             frm.add_rule('ext_links', _validation.rule.Url())
 
+        # Location
+        if self.has_field('location'):
+            frm.add_widget(_geo.widget.SearchAddress(
+                uid='location',
+                weight=900,
+                label=self.t('location'),
+                value=self.location
+            ))
+
         # Status
         if current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
             from . import _widget as content_widget
             frm.add_widget(content_widget.StatusSelect(
                 uid='status',
-                weight=900,
+                weight=1000,
                 label=self.t('status'),
                 value=self.status if self.status else 'published',
                 h_size='col-sm-4 col-md-3 col-lg-2',
@@ -471,7 +486,7 @@ class Content(_odm_ui.Model):
         if current_user.has_permission('pytsite.content.set_publish_time.' + self.model):
             frm.add_widget(_widget.select.DateTime(
                 uid='publish_time',
-                weight=1000,
+                weight=1100,
                 label=self.t('publish_time'),
                 value=_datetime.now() if self.is_new else self.publish_time,
                 h_size='col-sm-4 col-md-3 col-lg-2',
@@ -487,7 +502,7 @@ class Content(_odm_ui.Model):
                 lang_title = _lang.t('lang_title_' + self.language)
             frm.add_widget(_widget.static.Text(
                 uid='language',
-                weight=1100,
+                weight=1200,
                 label=self.t('language'),
                 title=lang_title,
                 value=_lang.get_current() if self.is_new else self.language,
@@ -499,7 +514,7 @@ class Content(_odm_ui.Model):
             for i, lng in enumerate(_lang.langs(False)):
                 frm.add_widget(EntitySelect(
                     uid='localization_' + lng,
-                    weight=1200 + i,
+                    weight=1300 + i,
                     label=self.t('localization', {'lang': _lang.lang_title(lng)}),
                     model=self.model,
                     language=lng,
@@ -510,14 +525,14 @@ class Content(_odm_ui.Model):
         if _auth.get_current_user().is_admin:
             frm.add_widget(_widget.input.Text(
                 uid='route_alias',
-                weight=1300,
+                weight=1400,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
             frm.add_widget(_auth_ui.widget.UserSelect(
                 uid='author',
-                weight=1400,
+                weight=1500,
                 label=self.t('author'),
                 value=_auth.get_current_user() if self.is_new else self.author,
                 h_size='col-sm-4',
@@ -632,16 +647,9 @@ class Article(Content):
         self.define_field(_odm.field.Bool('starred'))
         self.define_field(_odm.field.StringList('video_links'))
 
-        self.define_field(_geo.field.Location('location'))
-        self.define_index([('location.lng_lat', _odm.I_GEO2D)])
-
     @property
     def starred(self) -> bool:
         return self.f_get('starred')
-
-    @property
-    def location(self) -> dict:
-        return self.f_get('location')
 
     @classmethod
     def ui_browser_setup(cls, browser):
@@ -680,15 +688,6 @@ class Article(Content):
                 weight=30,
                 label=self.t('starred'),
                 value=self.starred,
-            ))
-
-        # Location
-        if self.has_field('location'):
-            frm.add_widget(_geo.widget.SearchAddress(
-                uid='location',
-                weight=660,
-                label=self.t('location'),
-                value=self.location
             ))
 
     def _pre_save(self):

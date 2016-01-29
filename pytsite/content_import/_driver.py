@@ -95,7 +95,7 @@ class RSS(Abstract):
             if entity.has_field('section'):
                 # Trying to find appropriate section
                 for rss_category in rss_item.categories:
-                    s = _content.dispense_section(rss_category.title, language=o['content_language'])
+                    s = _content.find_section_by_title(rss_category.title, language=o['content_language'])
                     if s:
                         entity.f_set('section', s)
                         break

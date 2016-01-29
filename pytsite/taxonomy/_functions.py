@@ -2,7 +2,7 @@
 """
 import re
 from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm
-from ._model import Term
+from ._model import Term as _Term
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,7 +21,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     if isinstance(cls, str):
         cls = _util.get_class(cls)
 
-    if not issubclass(cls, Term):
+    if not issubclass(cls, _Term):
         raise TypeError('Subclass of AbstractTerm expected.')
 
     _odm.register_model(model, cls)
@@ -50,7 +50,11 @@ def find(model: str, language: str=None):
     return _odm.find(model).where('language', '=', language).sort([('weight', _odm.I_DESC)])
 
 
-def dispense(model: str, title: str, alias: str=None, language: str=None) -> Term:
+def find_by_title(model: str, title: str, language: str=None) -> _Term:
+    return find(model, language).where('alias', '=', build_alias_str(title)).first()
+
+
+def dispense(model: str, title: str, alias: str=None, language: str=None) -> _Term:
     """Create new term or dispense existing.
     """
     if not is_model_registered(model):
