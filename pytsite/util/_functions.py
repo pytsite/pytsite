@@ -335,7 +335,7 @@ def cleanup_dict(inp: dict) -> dict:
     return r
 
 
-def nav_link(url: str, anchor: str, **kwargs) -> str:
+def nav_link(url: str, anchor: str, icon: str=None, **kwargs) -> str:
     """Generate Bootstrap compatible navigation item link.
     """
     from pytsite import html, router
@@ -345,7 +345,11 @@ def nav_link(url: str, anchor: str, **kwargs) -> str:
     if not url.startswith('#') and router.url(url, strip_query=True) == router.current_url(strip_query=True):
         li.set_attr('cls', 'active')
 
-    li.append(html.A(anchor, href=url, **kwargs))
+    a = html.A(anchor, href=url, **kwargs)
+    if icon:
+        a.append(html.I(cls=icon))
+
+    li.append(a)
 
     return str(li)
 

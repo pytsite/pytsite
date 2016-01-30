@@ -1,5 +1,17 @@
 # PytSite Changelog
 
+## 0.51 (2016-01-30)
+### Added
+- 'icon' argument in `util.nav_link()`.
+- Tpl's global: `auth_login_url()`.
+- Sorting by weight in `content.get_tags()`.
+
+### Changed
+- Tpl's global `get_current_user()` renamed to `auth_current_user()`.
+- Tpl's global `get_login_form()` renamed to `auth_login_form()`.
+- Tpl's global `get_logout_url()` renamed to `auth_logout_url()`.
+
+
 ## 0.50.3 (2016-01-29)
 ### Added
 - New functions: `content.find_section_by_title()`, `taxonomy.find_by_title()`

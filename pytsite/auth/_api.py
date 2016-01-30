@@ -309,6 +309,12 @@ def get_user_statuses() -> tuple:
     )
 
 
+def get_login_url(driver: str='ulogin') -> str:
+    """Get login URL.
+    """
+    return _router.ep_url('pytsite.auth.ep.login', {'driver': driver})
+
+
 def get_logout_url() -> str:
     """Get logout URL.
     """

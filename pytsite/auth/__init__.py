@@ -14,7 +14,6 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    import sys
     from pytsite import reg, assetman, odm, events, tpl, lang, router, robots
     from . import _eh
 
@@ -35,14 +34,15 @@ def __init():
 
     # Routes
     base_path = reg.get('auth.base_path', '/auth')
-    router.add_rule(base_path + '/login/<driver>', __name__ + '.ep.login')
-    router.add_rule(base_path + '/login/<driver>/post', __name__ + '.ep.login_submit', methods='POST')
-    router.add_rule(base_path + '/logout', __name__ + '.ep.logout')
+    router.add_rule(base_path + '/login/<driver>', 'pytsite.auth.ep.login')
+    router.add_rule(base_path + '/login/<driver>/post', 'pytsite.auth.ep.login_submit', methods='POST')
+    router.add_rule(base_path + '/logout', 'pytsite.auth.ep.logout')
 
     # Template engine globals
-    tpl.register_global('get_current_user', _api.get_current_user)
-    tpl.register_global('get_login_form', _api.get_login_form)
-    tpl.register_global('get_logout_url', _api.get_logout_url)
+    tpl.register_global('auth_current_user', _api.get_current_user)
+    tpl.register_global('auth_login_form', _api.get_login_form)
+    tpl.register_global('auth_login_url', _api.get_login_url)
+    tpl.register_global('auth_logout_url', _api.get_logout_url)
 
     # Event handlers
     events.listen('pytsite.setup', _eh.app_setup)

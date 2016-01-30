@@ -1,4 +1,4 @@
-{% set user = get_current_user() %}
+{% set user = auth_current_user() %}
 <header class="main-header">
 
     <!-- Logo -->
@@ -155,8 +155,7 @@
                                 <a class="btn btn-default btn-flat" href="{{ user.profile_view_url }}">{{ t('pytsite.admin@profile') }}</a>
                             </div>
                             <div class="pull-right">
-                                {% set sign_out_url = ep_url('pytsite.auth.ep.logout') %}
-                                <a class="btn btn-default btn-flat" href="{{ sign_out_url }}">{{ t('pytsite.admin@sign_out') }}</a>
+                                <a class="btn btn-default btn-flat" href="{{ auth_logout_url() }}">{{ t('pytsite.admin@sign_out') }}</a>
                             </div>
                         </li>
                     </ul>

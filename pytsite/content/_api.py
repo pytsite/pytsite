@@ -132,19 +132,27 @@ def get_statuses() -> list:
 
 
 def get_sections(language: str=None) -> _odm.FinderResult:
+    """Get sections.
+    """
     return _taxonomy.find('section', language).sort([('order', _odm.I_ASC)]).get()
 
 
 def dispense_section(title: str, alias: str=None, language: str=None) -> _model.Section:
+    """Get or create section.
+    """
     return _taxonomy.dispense('section', title, alias, language).save()
 
 
 def find_section_by_title(title: str, language: str=None) -> _model.Section:
+    """Get section by title.
+    """
     return _taxonomy.find_by_title('section', title, language)
 
 
 def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
-    return _taxonomy.find('tag', language).get(limit)
+    """Get tags.
+    """
+    return _taxonomy.find('tag', language).sort([('weight', _odm.I_DESC)]).get(limit)
 
 
 def dispense_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
