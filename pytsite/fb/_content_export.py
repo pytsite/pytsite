@@ -17,11 +17,6 @@ _tag_cleanup_re = _re.compile('[\-_\s]+')
 
 
 class Driver(_content_export.AbstractDriver):
-    def __init__(self, **kwargs):
-        """Init.
-        """
-        self._access_token = kwargs.get('access_token')
-
     def get_name(self) -> str:
         """Get system name of the driver.
         """
@@ -73,8 +68,8 @@ class Driver(_content_export.AbstractDriver):
         _logger.info("Export started. '{}'".format(entity.title), __name__)
 
         try:
-            user_session = _Session(self._access_token)
             opts = exporter.driver_opts  # type: _frozendict
+            user_session = _Session(opts.get('access_token'))
 
             tags = ['#' + _tag_cleanup_re.sub('', t) for t in exporter.add_tags]
             tags += ['#' + _tag_cleanup_re.sub('', t.title) for t in entity.tags]

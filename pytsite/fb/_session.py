@@ -71,6 +71,9 @@ class Session:
         self._app_secret = _reg.get('fb.app_secret')
         self._access_token = access_token
 
+        if not self._access_token:
+            raise _error.SessionError('access_token is empty.')
+
     def request(self, endpoint, method='GET', **kwargs) -> dict:
         """Perform request.
         """

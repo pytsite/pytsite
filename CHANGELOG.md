@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.52.1 (2016-02-01)
+### Fixed
+- Error in `fb` `content_export`'s driver.
+
+
 ## 0.52 (2016-02-01)
 ### Added
 - New `browser`'s library: 'slippry'.
