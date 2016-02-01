@@ -25,6 +25,7 @@ def cron_1min():
     for exporter in exporters_f.get():
         content_f = _content.find(exporter.content_model)
         content_f.where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age))
+        content_f.where('publish_time', '<=', _datetime.now() - _timedelta(hours=1))
         content_f.where('options.content_export', 'nin', [str(exporter.id)])
         content_f.sort([('publish_time', _odm.I_ASC)])
 

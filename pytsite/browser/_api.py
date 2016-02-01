@@ -76,8 +76,12 @@ def include(lib: str, forever=False):
     elif lib == 'waypoints':
         _assetman.add('pytsite.browser@js/jquery.waypoints.min.js', forever=forever)
     elif lib == 'slippry':
-        _assetman.add('pytsite.browser@js/slippry.min.js', forever=forever)
-        _assetman.add('pytsite.browser@css/slippry.css', forever=forever)
+        _assetman.add('pytsite.browser@slippry/slippry.min.js', forever=forever)
+        _assetman.add('pytsite.browser@slippry/slippry.css', forever=forever)
+    elif lib == 'slick':
+        _assetman.add('pytsite.browser@slick/slick.min.js', forever=forever)
+        _assetman.add('pytsite.browser@slick/slick.css', forever=forever)
+        _assetman.add('pytsite.browser@slick/slick-theme.css', forever=forever)
     elif lib == 'select2':
         include('mousewheel', forever=forever)
         _assetman.add('pytsite.browser@select2/js/select2.full.min.js', forever=forever)

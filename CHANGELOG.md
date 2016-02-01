@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.52 (2016-02-01)
+### Added
+- New `browser`'s library: 'slippry'.
+
+### Changed
+- `content_export`'s publish time delay is 1 hour now.
+
+
 ## 0.51 (2016-01-30)
 ### Added
 - 'icon' argument in `util.nav_link()`.
