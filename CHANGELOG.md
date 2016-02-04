@@ -1,6 +1,12 @@
 # PytSite Changelog
 
-## 0.52.2 (2016-01-30)
+## 0.52.3 (2016-02-04)
+### Added
+- New argument in `content.widget.Search`: 'title_css'. 
+- Anchor HTML escaping in `util.nav_link()`.
+
+
+## 0.52.2 (2016-02-04)
 ### Added
 - New functions: `taxonomy.find_by_alias()`, `content.find_section_by_alias()`.
 

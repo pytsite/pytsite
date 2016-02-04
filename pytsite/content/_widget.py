@@ -107,6 +107,7 @@ class Search(_widget.Base):
 
         self._value = _router.request().inp.get('search', '')
         self._title_tag = kwargs.get('title_tag', 'h3')
+        self._title_css = kwargs.get('title_css', 'title')
 
         self._form = _html.Form(cls='wrapper form-inline', method='GET')
         self._form.append(_html.Input(type='text', cls='form-control', name='search',  required=True, value=self.value,
@@ -116,9 +117,15 @@ class Search(_widget.Base):
         btn = _html.Button(type='submit', cls='btn btn-default')
         self._form.append(btn.append(_html.I(cls='fa fa-search')))
 
+        self._css += ' widget-content-search search-{}'.format(self._model)
+
     @property
     def title_tag(self) -> str:
         return self._title_tag
+
+    @property
+    def title_css(self) -> str:
+        return self._title_css
 
     @property
     def model(self) -> str:

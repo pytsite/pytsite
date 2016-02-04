@@ -1,4 +1,4 @@
 {% if widget.title %}
-    {{ '<' ~ widget.title_tag ~ '>' ~ widget.title | e ~ '</' ~ widget.title_tag ~ '>' }}
+    {{ '<' ~ widget.title_tag ~ ' class="' ~ widget.title_css ~ '">' ~ widget.title | e ~ '</' ~ widget.title_tag ~ '>' }}
 {% endif %}
 {{ widget.form }}
