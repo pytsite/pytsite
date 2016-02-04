@@ -51,7 +51,15 @@ def find(model: str, language: str=None):
 
 
 def find_by_title(model: str, title: str, language: str=None) -> _Term:
+    """Find term by title.
+    """
     return find(model, language).where('alias', '=', build_alias_str(title)).first()
+
+
+def find_by_alias(model: str, alias: str, language: str=None) -> _Term:
+    """Find term by alias.
+    """
+    return find(model, language).where('alias', '=', alias).first()
 
 
 def dispense(model: str, title: str, alias: str=None, language: str=None) -> _Term:

@@ -149,6 +149,12 @@ def find_section_by_title(title: str, language: str=None) -> _model.Section:
     return _taxonomy.find_by_title('section', title, language)
 
 
+def find_section_by_alias(alias: str, language: str=None) -> _model.Section:
+    """Get section by title.
+    """
+    return _taxonomy.find_by_alias('section', alias, language)
+
+
 def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
     """Get tags.
     """

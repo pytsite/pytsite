@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.52.2 (2016-01-30)
+### Added
+- New functions: `taxonomy.find_by_alias()`, `content.find_section_by_alias()`.
+
+
 ## 0.52.1 (2016-02-01)
 ### Fixed
 - Error in `fb` `content_export`'s driver.
