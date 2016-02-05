@@ -16,15 +16,18 @@ def upload(args: dict, inp: dict) -> _http.response.JSON:
     model = args.get('model')
     files = _router.request().files
     for field_name, f in files.items():
+        # Save temporary file
         tmp_path = path.join(_reg.get('paths.tmp'), _util.random_str())
         f.save(tmp_path)
         f.close()
+
+        # Create file entity from temporary file
         file_entity = _functions.create(tmp_path, f.filename, 'Uploaded via {}.'.format(__name__), model)
 
         r.append({
             'fid': file_entity.model + ':' + str(file_entity.id),
-            'url': file_entity.f_get('url'),
-            'thumb_url': file_entity.f_get('thumb_url'),
+            'url': file_entity.url,
+            'thumb_url': file_entity.thumb_url,
         })
         unlink(tmp_path)
 

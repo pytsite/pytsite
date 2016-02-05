@@ -1,6 +1,7 @@
 """Image Models.
 """
 import exifread as _exifread
+import os as _os
 from pytsite import file as _file, odm as _odm, router as _router, util as _util
 
 __author__ = 'Alexander Shepetko'
@@ -34,6 +35,7 @@ class Image(_file.model.File):
     def _pre_save(self):
         """Hook.
         """
+        # Read EXIF from file
         with open(self.f_get('abs_path'), 'rb') as f:
             exif = _exifread.process_file(f, details=False)
             entity_exif = {}
@@ -42,8 +44,9 @@ class Image(_file.model.File):
                     entity_exif[k] = str(v)
             self.f_set('exif', entity_exif)
 
+        # Open image for processing
         from PIL import Image as PILImage
-        image = PILImage.open(self.f_get('abs_path'))
+        image = PILImage.open(self.abs_path)
         """:type: PIL.Image.Image"""
 
         # Rotate image
@@ -58,9 +61,22 @@ class Image(_file.model.File):
                 rotated = image.rotate(180, PILImage.BICUBIC, True)
 
             if rotated:
-                image.close()
                 rotated.save(self.f_get('abs_path'))
                 image = rotated
+
+        # Convert BMP to JPEG
+        if image.format == 'BMP':
+            current_abs_path = self.abs_path
+
+            # Change path and MIME info
+            new_path = self.path.replace('.bmp', '.jpg')
+            if not new_path.endswith('.jpg'):
+                new_path += '.jpg'
+            self.f_set('path', new_path)
+            self.f_set('mime', 'image/jpeg')
+
+            image.save(self.abs_path)
+            _os.remove(current_abs_path)
 
         self.f_set('width', image.size[0])
         self.f_set('height', image.size[1])
@@ -72,7 +88,7 @@ class Image(_file.model.File):
         """
         if field_name == 'url':
             from os import path
-            p = str(self.f_get('path')).split(path.sep)
+            p = str(self.path).split(path.sep)
 
             return _router.ep_url('pytsite.image.ep.resize', {
                 'width': int(kwargs.get('width', 0)),
@@ -87,10 +103,10 @@ class Image(_file.model.File):
 
         return super()._on_f_get(field_name, value, **kwargs)
 
-    def get_url(self, width: int=None, height: int=None) -> str:
+    def get_url(self, width: int=0, height: int=0) -> str:
         """Shortcut to use in Jinja templates.
         """
-        return self.f_get('url', width=width or 0, height=height or 0)
+        return self.f_get('url', width=width, height=height)
 
     def get_html(self, alt: str= '', css: str= '', width: int=None, height: int=None, enlarge: bool=True):
         """Get HTML code to embed the image.

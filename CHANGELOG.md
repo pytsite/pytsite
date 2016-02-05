@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.52.4 (2016-02-05)
+### Added
+- Automatic conversion of BMP to JPEG in `image` while uploading.
+
+### Fixed
+- Invalid search algorithm in `taxonomy.find_by_title()`. 
+
+
 ## 0.52.3 (2016-02-04)
 ### Added
 - New argument in `content.widget.Search`: 'title_css'. 

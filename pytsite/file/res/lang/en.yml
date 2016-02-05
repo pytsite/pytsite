@@ -1,0 +1,6 @@
+drop_files_here_to_upload: 'Drop files here to upload'
+file_too_big: 'Size of the file :file_name exceeds :max_size МБ'
+remove_file: 'Delete'
+file_has_invalid_type: 'Invalid file type'
+max_files_exceeded: 'Maximum files count reached'
+really_delete: 'Confirm file deletion'

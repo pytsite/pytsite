@@ -38,6 +38,10 @@ class File(_odm.Model):
         return self.f_get('url')
 
     @property
+    def thumb_url(self) -> str:
+        return self.f_get('thumb_url')
+
+    @property
     def name(self) -> str:
         return self.f_get('name')
 
@@ -62,10 +66,10 @@ class File(_odm.Model):
         """
 
         if field_name == 'abs_path':
-            return _path.join(_reg.get('paths.storage'), self.f_get('path'))
+            return _path.join(_reg.get('paths.storage'), self.path)
 
         if field_name == 'url':
-            p = str(self.f_get('path')).split('/')
+            p = str(self.path).split('/')
             return _router.ep_url('pytsite.file.ep.download', {
                 'model': p[0],
                 'p1': p[1],
