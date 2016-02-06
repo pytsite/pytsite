@@ -82,8 +82,8 @@ class GeoIP(_odm.Model):
         self.define_field(_odm.field.String('region_name'))
         self.define_field(_odm.field.String('timezone'))
 
-        self.define_index(('ip', _odm.I_ASC), unique=True)
-        self.define_index(('lng_lat', _odm.I_GEO2D))
+        self.define_index([('ip', _odm.I_ASC)], unique=True)
+        self.define_index([('lng_lat', _odm.I_GEO2D)])
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.

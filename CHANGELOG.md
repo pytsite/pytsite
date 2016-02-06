@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.52.5 (2016-02-06)
+### Fixed
+- Index definition parsing in `odm.Model.define_index()`.
+
+
 ## 0.52.4 (2016-02-05)
 ### Added
 - Automatic conversion of BMP to JPEG in `image` while uploading.

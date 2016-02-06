@@ -19,6 +19,4 @@ def authorize(args: dict, inp: dict):
     # Initializing authorization session
     auth_session = _AuthSession(inp.get('state'))
 
-    print('---' + auth_session.redirect_uri)
-
     return _http.response.Redirect(_router.url(auth_session.redirect_uri, query=inp))

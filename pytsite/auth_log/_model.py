@@ -18,9 +18,9 @@ class AuthLog(_odm_ui.Model):
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.Virtual('geo_ip'))
 
-        self.define_index(('user', _odm.I_ASC))
-        self.define_index(('ip', _odm.I_ASC))
-        self.define_index(('severity', _odm.I_ASC))
+        self.define_index([('user', _odm.I_ASC)])
+        self.define_index([('ip', _odm.I_ASC)])
+        self.define_index([('severity', _odm.I_ASC)])
 
     @property
     def user(self) -> _auth.model.User:

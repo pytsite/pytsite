@@ -90,7 +90,7 @@ class Content(_odm_ui.Model):
         self.define_index([('publish_time', _odm.I_DESC)])
         self.define_index([('title', _odm.I_ASC)])
         self.define_index([('ext_links', _odm.I_ASC)])
-        self.define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
+        self.define_index([('title', _odm.I_TEXT), ('description', _odm.I_TEXT), ('body', _odm.I_TEXT)])
         self.define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     @property
@@ -609,7 +609,7 @@ class Content(_odm_ui.Model):
     def _send_waiting_status_notification(self):
         for u in _auth.find_users().get():
             if u.has_permission('pytsite.odm_ui.modify.' + self.model):
-                m_to = '{} <{}>'.format(u.full_name, u.email)
+                m_to = u.email
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
                 m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current(), {
                     'user': u,

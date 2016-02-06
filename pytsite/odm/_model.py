@@ -1,12 +1,13 @@
 """ODM models.
 """
-from typing import Any as _Any
+from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
+from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, threading as _threading, lang as _lang
@@ -40,8 +41,7 @@ class Model(_ABC):
         self._indexes = []
         self._has_text_index = False
 
-        self._fields = _OrderedDict()
-        """:type: dict[str, _field.Abstract]"""
+        self._fields = _OrderedDict()  # type: _Dict[str, _field.Abstract]
 
         self.define_field(_field.ObjectId('_id'))
         self.define_field(_field.String('_model', default=model))
@@ -89,35 +89,36 @@ class Model(_ABC):
             if self.has_field(field_name):
                 self.get_field(field_name).set_val(value, False)
 
-    def define_index(self, fields, unique=False):
+    def define_index(self, definition: _List[_Tuple], unique=False):
         """Define an index.
-
-        :param fields: list|tuple
         """
-        if isinstance(fields, tuple):
-            fields = [fields]
+        opts = {
+            'unique': unique
+        }
 
-        for item in fields:
+        for item in definition:
             if not isinstance(item, tuple):
-                raise TypeError("'fields' argument must be a list of tuples.")
+                raise TypeError("Model '{}'. List of tuples expected as index definition, got: '{}'".
+                                format(self.model, definition))
             if len(item) != 2:
-                raise ValueError("Field definition tuple must have exactly 2 members.")
+                raise ValueError("Index definition single item must have exactly 2 members.")
 
             field_name, index_type = item
+
+            # Check for field existence
             if not self.has_field(field_name.split('.')[0]):
                 raise Exception("Entity {} doesn't have field {}.".format(self.model, field_name))
-            if index_type not in [I_ASC, I_DESC, I_GEO2D, I_TEXT]:
+
+            # Check index type
+            if index_type not in (I_ASC, I_DESC, I_GEO2D, I_TEXT):
                 raise ValueError("Invalid index type.")
 
-            opts = {
-                'unique': unique
-            }
-
+            # Language field for text indexes
             if index_type == I_TEXT:
                 self._has_text_index = True
                 opts['language_override'] = 'language_db'
 
-            self._indexes.append((fields, opts))
+        self._indexes.append((definition, opts))
 
     def define_field(self, field_obj: _field.Abstract):
         """Define a field.
@@ -138,11 +139,11 @@ class Model(_ABC):
     def _create_indexes(self):
         """Create indices.
         """
-        for index_data in self._indexes:
+        for index_data in self.indexes:
             self.collection.create_index(index_data[0], **index_data[1])
 
     @property
-    def indexes(self) -> dict:
+    def indexes(self) -> _frozendict:
         """Get index information.
         """
         return self._indexes
