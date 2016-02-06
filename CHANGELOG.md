@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.52.6 (2016-02-07)
+### Fixed
+- Widgets placement in `content_export`'s ODM form. 
+
+
 ## 0.52.5 (2016-02-06)
 ### Fixed
 - Index definition parsing in `odm.Model.define_index()`.

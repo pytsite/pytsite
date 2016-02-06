@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, widget as _widget, content as _content, \
-    auth_ui as _auth_ui, util as _util, router as _router, form as _form
+    auth_ui as _auth_ui, util as _util, router as _router, form as _form, lang as _lang
 from . import _widget as _content_import_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -167,14 +167,14 @@ class ContentImport(_odm_ui.Model):
             weight=40,
             uid='content_language',
             label=self.t('content_language'),
-            value=self.content_language,
+            value=self.content_language or _lang.get_current(),
             h_size='col-sm-4',
             required=True,
             form_steps=(1,)
         ))
 
         frm.add_widget(_content.widget.SectionSelect(
-            weight=40,
+            weight=50,
             uid='content_section',
             label=self.t('content_section'),
             value=self.content_section,
@@ -184,7 +184,7 @@ class ContentImport(_odm_ui.Model):
         ))
 
         frm.add_widget(_content.widget.StatusSelect(
-            weight=50,
+            weight=60,
             uid='content_status',
             label=self.t('content_status'),
             value='waiting' if self.is_new else self.content_status,
@@ -194,7 +194,7 @@ class ContentImport(_odm_ui.Model):
         ))
 
         frm.add_widget(_auth_ui.widget.UserSelect(
-            weight=60,
+            weight=70,
             uid='content_author',
             label=self.t('content_author'),
             value=self.content_author if not self.is_new else _auth.get_current_user(),
@@ -204,7 +204,7 @@ class ContentImport(_odm_ui.Model):
         ))
 
         frm.add_widget(_content_import_widget.DriverSelect(
-            weight=70,
+            weight=80,
             uid='driver',
             label=self.t('driver'),
             value=self.driver,
@@ -214,7 +214,7 @@ class ContentImport(_odm_ui.Model):
         ))
 
         frm.add_widget(_widget.input.Tokens(
-            weight=80,
+            weight=90,
             uid='add_tags',
             label=self.t('additional_tags'),
             value=self.add_tags,
@@ -222,7 +222,7 @@ class ContentImport(_odm_ui.Model):
         ))
 
         frm.add_widget(_widget.select.DateTime(
-            weight=90,
+            weight=100,
             uid='paused_till',
             label=self.t('paused_till'),
             value=self.paused_till,
@@ -232,7 +232,7 @@ class ContentImport(_odm_ui.Model):
         ))
 
         frm.add_widget(_widget.input.Integer(
-            weight=100,
+            weight=110,
             uid='errors',
             label=self.t('errors'),
             value=self.errors,
