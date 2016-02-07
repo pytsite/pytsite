@@ -1,6 +1,6 @@
 """ODM Fields.
 """
-from typing import Any as _Any, Iterable as _Iterable
+from typing import Any as _Any, Iterable as _Iterable, Union as _Union
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
@@ -280,11 +280,10 @@ class Dict(Abstract):
         """
         return super().get_val(**kwargs)
 
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value: _Union[dict, _frozendict], update_state: bool=True, **kwargs):
         """Set value of the field.
-
-        :type value: dict | _frozendict
         """
+        # FIXME: workaround, I don't remember for what
         if value is None:
             return
 
@@ -305,6 +304,20 @@ class Dict(Abstract):
                     raise ValueError("Value of the field '{}' must contain nonempty key '{}'.".format(self._name, k))
 
         return super().set_val(value, update_state, **kwargs)
+
+    def add_val(self, value: _Union[dict, _frozendict], update_state: bool=True, **kwargs):
+        """Add a value to the field.
+        """
+        if type(value) not in (dict, _frozendict):
+            raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
+
+        if isinstance(value, dict):
+            value = _frozendict(value)
+
+        v = dict(self.get_val())
+        v.update(value)
+
+        return self.set_val(v, update_state, **kwargs)
 
 
 class Ref(Abstract):

@@ -144,10 +144,10 @@ def _generate_feeds():
         description = content_settings.get('home_description_' + lang)
 
         # Generate RSS feed for each model
-        for model in _reg.get('content.feed.models', []):
+        for model in _reg.get('content.feed.models', ()):
             generator = _feed.rss.Generator(title, _router.base_url(lang), description)
             filename = 'rss-{}'.format(model)
-            _api.generate_rss(generator, model, filename, lang)
+            _api.generate_rss(generator, model, filename, lang, length=_reg.get('content.feed.length', 20))
 
 
 def _update_0_7_0():

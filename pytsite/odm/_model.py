@@ -52,6 +52,7 @@ class Model(_ABC):
 
         # setup() hook
         self._setup()
+        _events.fire('pytsite.odm.model.setup', entity=self)
         _events.fire('pytsite.odm.model.{}.setup'.format(model), entity=self)
 
         # Automatically create indices on new collections

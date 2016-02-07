@@ -168,11 +168,9 @@ def dispense_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
 def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str=None,
                  finder_setup: _Callable[[_odm.Finder], None]=None,
                  item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
-                 **kwargs):
+                 length: int=20):
     """
     """
-    length = kwargs.get('length', 20)
-
     if not lng:
         lng = _lang.get_current()
 

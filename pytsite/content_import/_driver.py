@@ -3,9 +3,10 @@
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Iterable as _Iterable
 from frozendict import frozendict as _frozendict
+from urllib.parse import urlparse
 from pytsite import lang as _lang, widget as _widget, validation as _validation, form as _form, feed as _feed, \
     content as _content, image as _image
-from . import _error
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -106,10 +107,6 @@ class RSS(Abstract):
 
             # Tags
             if entity.has_field('tags'):
-                # Additional tags
-                for tag_title in o['add_tags']:
-                    entity.f_add('tags', _content.dispense_tag(tag_title))
-
                 # Tags from RSS item
                 for tag_title in rss_item.tags:
                     entity.f_add('tags', _content.dispense_tag(tag_title.title))
@@ -120,6 +117,11 @@ class RSS(Abstract):
                     if enc.mime.startswith('image'):
                         entity.f_add('images', _image.create(enc.url))
 
+            # Store information about content source
+            entity.f_add('content_import', {
+                'source_link': rss_item.link,
+                'source_domain': urlparse(rss_item.link)[1]
+            })
             if entity.has_field('ext_links'):
                 entity.f_add('ext_links', rss_item.link)
 

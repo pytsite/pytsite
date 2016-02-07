@@ -18,7 +18,7 @@ def cron_1min():
     delay_errors = _reg.get('content_export.delay_errors', 120)
     cnt = 0
     exporters_f = _odm.find('content_export') \
-        .where('enabled', '!=', False) \
+        .where('enabled', '=', True) \
         .where('paused_till', '<', _datetime.now()) \
         .sort([('errors', _odm.I_ASC)])
 
@@ -69,7 +69,7 @@ def cron_1min():
                 # Increment errors counter
                 exporter.f_inc('errors')
 
-                # Write info about error
+                # Store info about error
                 exporter.f_set('last_error', str(e))
                 _logger.error(str(e), __name__)
 

@@ -5,6 +5,7 @@ import jinja2 as _jinja
 from datetime import datetime as _datetime
 from importlib import import_module as _import_module
 from os import path as _path
+from urllib.parse import urlparse as _urlparse
 from pytsite import reg as _reg, lang as _lang, util as _util, events as _events
 
 __author__ = 'Alexander Shepetko'
@@ -108,5 +109,6 @@ _env.globals['t_plural'] = _lang.t_plural
 _env.globals['current_lang'] = _lang.get_current
 _env.globals['reg_get'] = _reg.get
 _env.globals['nav_link'] = _util.nav_link
+_env.globals['url_parse'] = _urlparse
 _env.filters['date'] = _date_filter
 _env.filters['nl2br'] = _nl2br_filter

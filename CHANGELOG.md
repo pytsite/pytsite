@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.53 (2016-02-07)
+### Added
+- New event: 'pytsite.odm.model.setup'.
+- New configuration option: 'content.feed.length'.
+- Support for `add_val()` method in `odm.field.Dict`.
+- New `tpl`'s global: `url_parse()`.
+
+
 ## 0.52.6 (2016-02-07)
 ### Fixed
 - Widgets placement in `content_export`'s ODM form. 

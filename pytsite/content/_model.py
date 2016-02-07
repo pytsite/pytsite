@@ -298,8 +298,6 @@ class Content(_odm_ui.Model):
             # Notify content moderators about waiting content
             if self.is_new and self.status == 'waiting':
                 self._send_waiting_status_notification()
-                if _router.session:
-                    _router.session().add_info(_lang.t('pytsite.content@content_will_be_published_after_moderation'))
 
         # Recalculate tags weights
         from . import _api
@@ -609,13 +607,12 @@ class Content(_odm_ui.Model):
     def _send_waiting_status_notification(self):
         for u in _auth.find_users().get():
             if u.has_permission('pytsite.odm_ui.modify.' + self.model):
-                m_to = u.email
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
                 m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current(), {
                     'user': u,
                     'entity': self,
                 })
-                _mail.Message(m_to, m_subject, m_body).send()
+                _mail.Message(u.email, m_subject, m_body).send()
 
     def _alter_route_alias_str(self, orig_str: str) -> str:
         """Alter route alias string.
@@ -658,16 +655,29 @@ class Article(Content):
         :type browser: pytsite.odm_ui._browser.Browser
         """
         super().ui_browser_setup(browser)
-        browser.data_fields = 'title', 'section', 'status', 'images', 'publish_time', 'author'
+
+        df = list(browser.data_fields)
+        df.insert(1, 'section')
+        df.insert(3, 'starred')
+
+        browser.data_fields = tuple(df)
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         r = list(super().ui_browser_get_row())
+
+        # Section title
         if self.section:
             r.insert(1, self.section.title)
         else:
             r.insert(1, '')
+
+        # 'Starred' flag
+        if self.starred:
+            r.insert(3, '<span class="label label-primary">{}</span>'.format(_lang.t('pytsite.content@word_yes')))
+        else:
+            r.insert(3, '&nbsp;')
 
         return tuple(r)
 
