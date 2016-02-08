@@ -19,8 +19,15 @@ follows: 'Подписан'
 followers: 'Подписчики'
 you_cannot_delete_yourself: 'Вы не можете удалить собственную учётную запись, являясь администратором'
 account_owns_entity: "Учётная запись является владельцем сущности ':entity'"
-role_user_by_user: "Роль используется учётной записью ':user'"
+role_used_by_user: "Роль используется учётной записью ':user'"
 email_cannot_be_empty: 'Email не может быть пустым'
 signup_is_disabled: 'Регистрация новых пользователей отключена'
 email: 'Email'
 password: 'Пароль'
+console_command_description: 'Управление пользователями и группами'
+user_is_not_exist: "Пользователь ':login' не найден"
+enter_new_password: 'Введите новый пароль'
+retype_password: 'Повторите пароль'
+password_cannot_be_empty: 'Пароль не может быть пустым'
+passwords_dont_match: 'Пароли не совпадают'
+password_successfully_changed: 'Пароль успешно изменён'

@@ -42,7 +42,7 @@ class Role(_odm.Model):
         # Check if the role is used by users
         for user in _api.find_users(False).get():
             if user.has_role(self.name):
-                raise _odm.error.ForbidEntityDelete(self.t('role_user_by_user', {'user': user.login}))
+                raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.login}))
 
 
 class User(_odm.Model):

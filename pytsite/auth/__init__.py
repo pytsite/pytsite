@@ -14,7 +14,8 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots
+    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console
+    from ._console_command import Auth as AuthConsoleCommand
     from . import _eh
 
     # Resources
@@ -56,5 +57,7 @@ def __init():
     # robots.txt rules
     robots.disallow(base_path + '/')
 
+    # Console commands
+    console.register_command(AuthConsoleCommand())
 
 __init()

@@ -19,8 +19,15 @@ follows: 'Follows'
 followers: 'Followers'
 you_cannot_delete_yourself: 'You can not delete your own account as an administrator'
 account_owns_entity: "this account is the owner of the entity ':entity'"
-role_user_by_user: "Role is used by user ':user'"
+role_used_by_user: "Role is used by user ':user'"
 email_cannot_be_empty: 'Email cannot be empty'
 signup_is_disabled: 'Signup is disabled'
-email: Email
-password: Password
+email: 'Email'
+password: 'Password'
+console_command_description: 'Users and groups management'
+user_is_not_exist: "User ':login' is not exist"
+enter_new_password: 'Enter a new password'
+retype_password: 'Retype entered password'
+password_cannot_be_empty: 'Password cannot be empty'
+passwords_dont_match: 'Passwords does not match'
+password_successfully_changed: 'Password successfully changed'

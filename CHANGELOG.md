@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.53.3 (2016-02-08)
+### Added
+- New console command: `auth passwd`.
+
+
 ## 0.53.2 (2016-02-08)
 ### Fixed
 - Incorrect default argument types in `image.model.Image.get_html()`.
