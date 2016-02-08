@@ -24,6 +24,7 @@ __allowed_tags = (
     'og:image:width',
     'og:image:height',
     'og:url',
+    'og:type',
     'article:author',
     'article:publisher',
     'twitter:card',

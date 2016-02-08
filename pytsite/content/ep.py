@@ -123,7 +123,8 @@ def view(args: dict, inp: dict):
     else:
         _metatag.t_set('twitter:card', 'summary')
 
-    # Meta author and URL
+    # Other metatags
+    _metatag.t_set('og:type', 'article')
     _metatag.t_set('author', entity.author.full_name)
     _metatag.t_set('article:author', entity.author.full_name)
     _metatag.t_set('og:url', entity.url)

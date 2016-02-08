@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.53.1 (2016-02-08)
+### Added
+- New `metatag`'s property support: 'og:url'. 
+
+
 ## 0.53 (2016-02-07)
 ### Added
 - New event: 'pytsite.odm.model.setup'.
