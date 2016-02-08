@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.53.2 (2016-02-08)
+### Fixed
+- Incorrect default argument types in `image.model.Image.get_html()`.
+
+
 ## 0.53.1 (2016-02-08)
 ### Added
 - New `metatag`'s property support: 'og:url'. 

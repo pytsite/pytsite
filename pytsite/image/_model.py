@@ -108,7 +108,7 @@ class Image(_file.model.File):
         """
         return self.f_get('url', width=width, height=height)
 
-    def get_html(self, alt: str= '', css: str= '', width: int=None, height: int=None, enlarge: bool=True):
+    def get_html(self, alt: str= '', css: str= '', width: int=0, height: int=0, enlarge: bool=True):
         """Get HTML code to embed the image.
         """
         if not enlarge:
