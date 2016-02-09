@@ -6,7 +6,8 @@ from os import path as _path, walk as _walk, makedirs as _makedirs
 from shutil import rmtree as _rmtree, copy as _copy
 from webassets import Environment as _Environment, Bundle as _Bundle
 from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
-from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang, validation as _validation
+from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang, validation as _validation, \
+    maintenance as _maintenance
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -48,7 +49,7 @@ class Assetman(_console.command.Abstract):
         if _path.exists(assets_dir):
             _rmtree(assets_dir)
 
-        _console.run_command('maint', args=('enable',))
+        _maintenance.enable()
 
         _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
         for pkg_name, package_assets_dir in _functions.get_packages().items():
@@ -113,7 +114,7 @@ class Assetman(_console.command.Abstract):
             _logger.info("Writing translations into '{}'".format(output_file), __name__)
             f.write(str_output)
 
-        _console.run_command('maint', args=('disable',))
+        _maintenance.disable()
 
     def execute(self, args: tuple=(), **kwargs):
         """Execute The Command.

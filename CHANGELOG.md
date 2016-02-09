@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.54.1 (2016-02-00)
+### Fixed
+- Error in 'update' `console`'s command while compiling assets by `assetman`. 
+
+
 ## 0.54 (2016-02-09)
 ### Added
 - Declaring command options and processing errors improvements in `console`.
