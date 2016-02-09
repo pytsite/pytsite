@@ -6,7 +6,7 @@ from os import path as _path, walk as _walk, makedirs as _makedirs
 from shutil import rmtree as _rmtree, copy as _copy
 from webassets import Environment as _Environment, Bundle as _Bundle
 from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
-from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang
+from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang, validation as _validation
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -28,10 +28,17 @@ class Assetman(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.assetman@assetman_console_command_description')
 
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '{} <build>'.format(self.get_name())
+        return '--build'
+
+    def get_options(self) -> tuple:
+        """Get command options.
+        """
+        return (
+            ('build', _validation.rule.Dummy()),
+        )
 
     def _build(self):
         static_dir = _reg.get('paths.static')
@@ -111,9 +118,8 @@ class Assetman(_console.command.Abstract):
     def execute(self, args: tuple=(), **kwargs):
         """Execute The Command.
         """
-        if len(args) != 1 or 'build' not in args:
-            _console.print_info(self.get_help())
-            return 1
+        if not kwargs:
+            raise _console.error.InsufficientArguments()
 
-        if 'build' in args:
+        if 'build' in kwargs:
             self._build()

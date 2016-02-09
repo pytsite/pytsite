@@ -1,6 +1,6 @@
 """PytSite Console.
 """
-from pytsite import reg as _reg, lang as _lang
+from pytsite import reg as _reg, lang as _lang, validation as _validation
 from . import _error, _command
 
 __author__ = 'Alexander Shepetko'
@@ -30,7 +30,6 @@ def register_command(obj: _command.Abstract):
 def get_command(name: str) -> _command.Abstract:
     """Get a console command.
     """
-    global __commands
     if name not in __commands:
         raise _error.CommandNotFound(_lang.t('pytsite.console@unknown_command', {'name': name}))
 
@@ -40,7 +39,25 @@ def get_command(name: str) -> _command.Abstract:
 def run_command(name: str, args: tuple=(), **kwargs):
     """Run a console command.
     """
-    return get_command(name).execute(args, **kwargs)
+    cmd = get_command(name)
+    valid_options = []
+
+    for opts in cmd.get_options():
+        opt_name = opts[0]
+        valid_options.append(opt_name)
+        opt_rule = opts[1] if len(opts) >= 2 else None  # type: _validation.rule.Base
+
+        if opt_rule:
+            try:
+                opt_rule.validate(kwargs.get(opt_name))
+            except _validation.error.RuleError as e:
+                raise _error.Error('--{}: {}'.format(opt_name, e))
+
+    for k in kwargs.keys():
+        if k not in valid_options:
+            raise _error.InvalidOption('Invalid option: --{}'.format(k))
+
+    return cmd.execute(args, **kwargs)
 
 
 def usage():
@@ -90,7 +107,7 @@ def run():
             from pytsite.lang import t
             raise _error.Error(t('pytsite.setup@setup_is_not_completed'))
 
-        return run_command(cmd_name, args=cmd_args, **cmd_opts)
+        return run_command(cmd_name, args=tuple(cmd_args), **cmd_opts)
 
     except _error.Error as e:
         print_error(str(e))

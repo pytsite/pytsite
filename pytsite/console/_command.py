@@ -22,11 +22,13 @@ class Abstract(_ABC):
         """
         pass
 
-    @_abstractmethod
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        pass
+        return ''
+
+    def get_options(self) -> tuple:
+        return ()
 
     @_abstractmethod
     def execute(self, args: tuple=(), **kwargs):

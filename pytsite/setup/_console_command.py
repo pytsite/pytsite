@@ -1,4 +1,4 @@
-"""PytSite Setup Console Commands
+"""PytSite Setup Console Command
 """
 from pytsite import console as _console
 from datetime import datetime as _datetime
@@ -24,11 +24,6 @@ class Setup(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.setup@setup_console_command_description')
 
-    def get_help(self) -> str:
-        """Get help for the command.
-        """
-        return '{}'.format(self.get_name())
-
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
@@ -46,5 +41,3 @@ class Setup(_console.command.Abstract):
             f.write(_datetime.now().isoformat())
 
         _console.print_info(_lang.t('pytsite.setup@setup_has_been_completed'))
-
-        _console.run_command('update')

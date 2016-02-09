@@ -24,11 +24,6 @@ class Update(_console.command.Abstract):
         """
         return _lang.t('pytsite.update@update_console_command_description')
 
-    def get_help(self) -> str:
-        """Get help for the command.
-        """
-        return '{}'.format(self.get_name())
-
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
@@ -38,6 +33,7 @@ class Update(_console.command.Abstract):
 
         _maintenance.enable()
 
+        _subprocess.call(['pip', 'install', '-U', 'pip'])
         _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
         stop = False

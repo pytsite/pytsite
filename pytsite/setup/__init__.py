@@ -1,7 +1,7 @@
 """PytSite Setup Package.
 """
 from pytsite import console as _console, lang as _lang
-from . import _command
+from . import _console_command
 
 # Public API
 from ._api import is_setup_completed
@@ -15,4 +15,4 @@ __license__ = 'MIT'
 __import__('pytsite.update')
 
 _lang.register_package(__name__)
-_console.register_command(_command.Setup())
+_console.register_command(_console_command.Setup())

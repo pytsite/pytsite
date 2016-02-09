@@ -1,6 +1,6 @@
 """PytSite Maintenance Console Commands.
 """
-from pytsite import console as _console
+from pytsite import console as _console, validation as _validation
 from . import _function
 
 __author__ = 'Alexander Shepetko'
@@ -22,22 +22,27 @@ class Maintenance(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.maintenance@maintenance_console_command_description')
 
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '{} <enable | disable>'.format(self.get_name())
+        return '--enable | --disable>'
+
+    def get_options(self) -> tuple:
+        """Get command options.
+        """
+        return (
+            ('enable', _validation.rule.Dummy()),
+            ('disable', _validation.rule.Dummy())
+        )
 
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
-        if len(args) != 1:
-            _console.print_info(self.get_help())
-            return 1
+        if not kwargs:
+            raise _console.error.InsufficientArguments()
 
-        if 'enable' in args:
-            _function.enable()
-        elif 'disable' in args:
-            _function.disable()
-        else:
-            _console.print_info(self.get_help())
-            return 1
+        for arg in kwargs:
+            if arg == 'enable':
+                _function.enable()
+            if arg == 'disable':
+                _function.disable()

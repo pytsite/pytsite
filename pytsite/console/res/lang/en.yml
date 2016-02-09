@@ -1,2 +1,3 @@
 unknown_command: "Unknown command: ':name'"
 help_command_description: 'Shows help for command usage'
+insufficient_arguments: 'Insufficient arguments'

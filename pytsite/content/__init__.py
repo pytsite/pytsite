@@ -18,7 +18,7 @@ def __init():
     from . import _eh
     from ._model import Tag, Section, ContentSubscriber
     from ._form import Settings
-    from ._console_commands import Content as GenerateConsoleCommand
+    from ._console_command import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)
     tpl.register_package(__name__)

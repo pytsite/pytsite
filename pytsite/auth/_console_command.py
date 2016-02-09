@@ -1,7 +1,7 @@
 """Auth Console Commands.
 """
 from getpass import getpass as _getpass
-from pytsite import console as _console, lang as _lang
+from pytsite import console as _console, lang as _lang, validation as _validation
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -9,39 +9,34 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Auth(_console.command.Abstract):
+class Passwd(_console.command.Abstract):
     """Abstract command.
     """
     def get_name(self) -> str:
         """Get command's name.
         """
-        return 'auth'
+        return 'auth:passwd'
 
     def get_description(self) -> str:
         """Get command's description.
         """
-        return _lang.t('pytsite.auth@console_command_description')
+        return _lang.t('pytsite.auth@passwd_console_command_description')
 
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '{} <passwd>'.format(self.get_name())
+        return '--login=<login>'
+
+    def get_options(self) -> tuple:
+        """Get command options.
+        """
+        return (
+            ('login', _validation.rule.NonEmpty(msg_id='pytsite.auth@login_required')),
+        )
 
     def execute(self, args: tuple=(), **kwargs):
         """Execute teh command.
         """
-        if len(args) != 1 or 'passwd' not in args:
-            _console.print_info(self.get_help())
-            return 1
-
-        if 'passwd' in args:
-            self._passwd(**kwargs)
-
-    def _passwd(self, **kwargs):
-        if 'login' not in kwargs:
-            _console.print_info('{} passwd --login=<login>')
-            return 1
-
         user = _api.get_user(kwargs['login'])
         if not user:
             raise _console.error.Error(_lang.t('pytsite.auth@user_is_not_exist', {'login': kwargs['login']}))

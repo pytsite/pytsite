@@ -12,20 +12,16 @@ def __init():
     """Package init wrapper.
     """
     from pytsite import console, events, lang, tpl
-    from . import _commands, _functions
-
-    def app_update_event():
-        from pytsite import console
-        console.run_command('assetman', args=('build',))
+    from . import _console_command, _functions
 
     lang.register_package(__name__)
 
     # Console commands
-    console.register_command(_commands.Assetman())
+    console.register_command(_console_command.Assetman())
 
     # Events
     events.listen('pytsite.router.dispatch', _functions.reset)
-    events.listen('pytsite.update.after', app_update_event)
+    events.listen('pytsite.update.after', lambda: console.run_command('assetman', build=True))
 
     tpl.register_global('asset_url', url)
     tpl.register_global('assetman_add', add)

@@ -21,16 +21,15 @@ class Help(_command.Abstract):
         from pytsite import lang
         return lang.t('pytsite.console@help_command_description')
 
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '{} <command>'.format(self.get_name())
+        return '<command>'
 
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         :param args:
         """
-        if not args:
-            _api.print_info(self.get_help())
-
-        _api.print_info(_api.get_command(args[0]).get_help())
+        for arg in args:
+            cmd = _api.get_command(arg)
+            _api.print_info('./console {} {}'.format(cmd.get_name(), cmd.get_options_help()))

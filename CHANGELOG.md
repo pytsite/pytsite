@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.54 (2016-02-09)
+### Added
+- Declaring command options and processing errors improvements in `console`.
+
+
 ## 0.53.3 (2016-02-08)
 ### Added
 - New console command: `auth passwd`.

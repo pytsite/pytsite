@@ -2,7 +2,8 @@
 """
 from random import shuffle as _shuffle, random as _random, randint as _randint
 import requests as _requests
-from pytsite import image as _image, auth as _auth, console as _console, lang as _lang, events as _events
+from pytsite import image as _image, auth as _auth, console as _console, lang as _lang, events as _events, \
+    validation as _validation
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -10,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Content(_console.command.Abstract):
+class Generate(_console.command.Abstract):
     """Abstract command.
     """
     li_url = 'http://loripsum.net/api/prude/'
@@ -19,40 +20,35 @@ class Content(_console.command.Abstract):
     def get_name(self) -> str:
         """Get command's name.
         """
-        return 'content'
+        return 'content:generate'
 
     def get_description(self) -> str:
         """Get command's description.
         """
-        return _lang.t('pytsite.content@console_command_description')
+        return _lang.t('pytsite.content@console_generate_command_description')
 
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '{} <generate>'.format(self.get_name())
+        return '[--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] [--short] [--author=LOGIN] --model=MODEL'
 
-    def _get_generate_help(self) -> str:
-        return '{} generate {}'.format(self.get_name(), '[--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] '
-                                                        '[--short] [--author=LOGIN] --model=MODEL')
+    def get_options(self) -> tuple:
+        """Get command options.
+        """
+        return (
+            ('model', _validation.rule.NonEmpty(msg_id='pytsite.content@model_is_required')),
+            ('num', _validation.rule.Integer()),
+            ('title-len', _validation.rule.Integer()),
+            ('lang', _validation.rule.Regex(pattern='^[a-z]{2}$')),
+            ('no-html', _validation.rule.Dummy()),
+            ('short', _validation.rule.Dummy()),
+            ('author', _validation.rule.Dummy()),
+        )
 
-    def _generate_title(self, max_words=7) -> str:
-        title = str(_requests.get(self.li_url + '/1/plaintext/verylong').content.decode('utf-8')).strip()
-
-        for s in [',', '.', ':', ';', '?', '-']:
-            title = title.replace(s, '')
-
-        title = title.split(' ')
-        _shuffle(title)
-        title[0] = title[0].title()
-        title = ' '.join(title[0:max_words])
-
-        return title
-
-    def _generate(self, **kwargs):
-        model = kwargs.get('model')
-        if not model:
-            _console.print_info(self._get_generate_help())
-            return 1
+    def execute(self, args: tuple=(), **kwargs):
+        """Execute teh command.
+        """
+        model = kwargs['model']
 
         # Author
         author = None
@@ -144,12 +140,15 @@ class Content(_console.command.Abstract):
 
             _console.print_info(_lang.t('pytsite.content@new_content_created', {'title': title}))
 
-    def execute(self, args: tuple=(), **kwargs):
-        """Execute teh command.
-        """
-        if len(args) != 1 or 'generate' not in args:
-            _console.print_info(self.get_help())
-            return 1
+    def _generate_title(self, max_words=7) -> str:
+        title = str(_requests.get(self.li_url + '/1/plaintext/verylong').content.decode('utf-8')).strip()
 
-        if 'generate' in args:
-            self._generate(**kwargs)
+        for s in [',', '.', ':', ';', '?', '-']:
+            title = title.replace(s, '')
+
+        title = title.split(' ')
+        _shuffle(title)
+        title[0] = title[0].title()
+        title = ' '.join(title[0:max_words])
+
+        return title

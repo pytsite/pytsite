@@ -11,9 +11,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_re_num = _re.compile('\-?\d+(\.\d+)?')
-_re_int_num = _re.compile('\-?\d+')
-_re_decimal_num = _re.compile('\-?\d+\.\d+')
+_re_num = _re.compile('^\-?\d+(\.\d+)?$')
+_re_int_num = _re.compile('^\-?\d+$')
+_re_decimal_num = _re.compile('^\-?\d+\.\d+$')
 
 
 class Base(_ABC):
@@ -45,6 +45,15 @@ class Base(_ABC):
 
     @_abstractmethod
     def _do_validate(self):
+        pass
+
+
+class Dummy(Base):
+    """Rule which always pass.
+    """
+    def _do_validate(self):
+        """Do actual validation of the rule.
+        """
         pass
 
 
@@ -80,6 +89,9 @@ class DictPartsNonEmpty(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         if not isinstance(self._value, dict):
             raise ValueError('Dict expected.')
 
@@ -96,8 +108,12 @@ class Number(Base):
     """Number validation rule.
     """
     def _do_validate(self):
-        if isinstance(self._value, str) and not _re_num.match(self._value):
-            raise _error.RuleError(self._msg_id)
+        if self._value is None:
+            return
+
+        if isinstance(self._value, str):
+            if not _re_num.match(self._value):
+                raise _error.RuleError(self._msg_id)
         elif type(self._value) not in (float, int, _Decimal):
             raise _error.RuleError(self._msg_id)
 
@@ -108,9 +124,13 @@ class Integer(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        if isinstance(self._value, str) and not _re_int_num.match(self._value):
-            raise _error.RuleError(self._msg_id)
-        if type(self._value) not in (int,):
+        if self._value is None:
+            return
+
+        if isinstance(self._value, str):
+            if not _re_int_num.match(self._value):
+                raise _error.RuleError(self._msg_id)
+        elif type(self._value) not in (int,):
             raise _error.RuleError(self._msg_id)
 
 
@@ -120,8 +140,12 @@ class Decimal(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        if isinstance(self._value, str) and not _re_decimal_num.match(self._value):
-            raise _error.RuleError(self._msg_id)
+        if self._value is None:
+            return
+
+        if isinstance(self._value, str):
+            if not _re_decimal_num.match(self._value):
+                raise _error.RuleError(self._msg_id)
         elif type(self._value) not in (float, _Decimal):
             raise _error.RuleError(self._msg_id)
 
@@ -136,6 +160,9 @@ class Less(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         Number().validate(self._value)
         if float(self._value) >= float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
@@ -145,6 +172,9 @@ class LessOrEqual(Less):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         Number().validate(self._value)
         if float(self.value) > float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
@@ -160,6 +190,9 @@ class Greater(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         Number().validate(self._value)
         if float(self.value) <= float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
@@ -169,6 +202,9 @@ class GreaterOrEqual(Greater):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         Number().validate(self._value)
         if float(self.value) < float(self._than):
             raise _error.RuleError(self._msg_id, {'than': str(self._than)})
@@ -188,7 +224,7 @@ class Regex(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        if not self.value:
+        if self._value is None:
             return
 
         if isinstance(self.value, list):
@@ -230,6 +266,9 @@ class VideoHostingUrl(Url):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         super()._do_validate()
 
         if isinstance(self.value, list):
@@ -302,6 +341,9 @@ class ListListItemNotEmpty(Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         if not isinstance(self.value, list):
             raise ValueError('List expected.')
 
@@ -320,6 +362,9 @@ class ListListItemUrl(ListListItemNotEmpty):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
+        if self._value is None:
+            return
+
         if not isinstance(self.value, list):
             raise ValueError('List expected.')
 

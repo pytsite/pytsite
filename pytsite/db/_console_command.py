@@ -4,7 +4,7 @@ import subprocess as _subprocess
 import shutil as _shutil
 from os import path as _path
 from datetime import datetime as _datetime
-from pytsite import console as _console, reg as _reg
+from pytsite import console as _console, reg as _reg, validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -25,10 +25,18 @@ class Db(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.db@db_console_command_description')
 
-    def get_help(self) -> str:
+    def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '{} <dump | restore>'.format(self.get_name())
+        return '--dump | --restore'
+
+    def get_options(self) -> tuple:
+        """Get command options.
+        """
+        return (
+            ('dump', _validation.rule.Dummy()),
+            ('restore', _validation.rule.Dummy())
+        )
 
     def _dump(self):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
@@ -90,14 +98,11 @@ class Db(_console.command.Abstract):
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
-        if len(args) != 1:
-            _console.print_info(self.get_help())
-            return 1
+        if not kwargs:
+            raise _console.error.InsufficientArguments()
 
-        if 'dump' in args:
-            self._dump()
-        elif 'restore' in args:
-            self._restore()
-        else:
-            _console.print_info(self.get_help())
-            return 1
+        for k in kwargs:
+            if k == 'dump':
+                self._dump()
+            if k == 'restore':
+                self._restore()
