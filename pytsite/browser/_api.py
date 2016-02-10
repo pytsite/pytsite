@@ -88,6 +88,8 @@ def include(lib: str, forever=False):
         _assetman.add('pytsite.browser@select2/js/i18n/{}.js'.format(_lang.get_current()), forever=forever)
         _assetman.add('pytsite.browser@select2/css/select2.min.css', forever=forever)
         _assetman.add('pytsite.browser@select2/css/select2-bootstrap.min.css', forever=forever)
+    elif lib == 'gotop':
+        _assetman.add('pytsite.browser@js/jquery.gotop.min.js', forever=forever)
     else:
         raise Exception("Unknown library: '{}'.".format(lib))
 

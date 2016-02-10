@@ -5,7 +5,7 @@ from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, reg as _reg, util as _util
+    tpl as _tpl, auth_ui as _auth_ui, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -146,7 +146,7 @@ class Content(_odm_ui.Model):
         return self.f_get('publish_time')
 
     @property
-    def publish_time_pretty(self) -> str:
+    def publish_date_time_pretty(self) -> str:
         return self.f_get('publish_time', fmt='pretty_date_time')
 
     @property
@@ -271,11 +271,9 @@ class Content(_odm_ui.Model):
         self.f_set('body', body).f_set('images', images)
 
         # Changing status if necessary
-        if self.is_new and _reg.get('env.type') != 'console':
-            if not current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+        if self.is_new:
+            if not self.status:
                 self.f_set('status', 'waiting')
-            elif not self.status:
-                self.f_set('status', 'published')
 
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)

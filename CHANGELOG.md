@@ -1,6 +1,14 @@
 # PytSite Changelog
 
-## 0.54.1 (2016-02-00)
+## 0.54.2 (2016-02-10)
+### Added
+- New `browser`'s library: 'gotop.
+
+### Changed
+- `content.model.Content.publish_time_pretty` renamed to `content.model.Content.publish_date_time_pretty`.
+
+
+## 0.54.1 (2016-02-09)
 ### Fixed
 - Error in 'update' `console`'s command while compiling assets by `assetman`. 
 

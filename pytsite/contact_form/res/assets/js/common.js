@@ -1,5 +1,5 @@
 $(function () {
-    $('#pytsite-contact-form').on('pytsite_form_submit', function (e, form) {
+    $('.pytsite-contact-form').on('pytsite_form_submit', function (e, form) {
         form.removeClass('ready-to-submit');
 
         pytsite.browser.post('pytsite.contact_form.ep.submit', form.serializeForm(), function(response) {
