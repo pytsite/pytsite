@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.54.3 (2016-02-11)
+### Added
+- New function: `util.parse_rfc822_datetime_str()`.
+
+### Changed
+- `util.rfc822_datetime()` renamed to `util.rfc822_datetime_str()`.
+- `util._util.w3c_datetime()` renamed to `util._util.w3c_datetime_str()`.
+
+### Fixed
+- Improvements in `feed.rss.Reader`.
+
 ## 0.54.2 (2016-02-10)
 ### Added
 - New `browser`'s library: 'gotop.

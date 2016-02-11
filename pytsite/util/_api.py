@@ -354,7 +354,16 @@ def nav_link(url: str, anchor: str, icon: str=None, **kwargs) -> str:
     return str(li)
 
 
-def rfc822_datetime(dt: _datetime=None) -> str:
+def parse_rfc822_datetime_str(s: str) -> _datetime:
+    try:
+        # Year with century
+        return _datetime.strptime(s, '%a, %d %b %Y %H:%M:%S %z')
+    except ValueError:
+        # Year without century
+        return _datetime.strptime(s, '%a, %d %b %y %H:%M:%S %z')
+
+
+def rfc822_datetime_str(dt: _datetime=None) -> str:
     """Format date/time string according to RFC-822.
     """
     if not dt:
@@ -366,7 +375,7 @@ def rfc822_datetime(dt: _datetime=None) -> str:
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
 
 
-def w3c_datetime(dt: _datetime=None, date_only: bool=False) -> str:
+def w3c_datetime_str(dt: _datetime=None, date_only: bool=False) -> str:
     """Format date/time string according to W3C.
     """
     if not dt:

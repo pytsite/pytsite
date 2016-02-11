@@ -42,7 +42,7 @@ def cron_1min():
         max_items = 1
         items_imported = 0
         try:
-            _logger.info('Content import started.', __name__)
+            _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options), __name__)
 
             for e in driver.get_entities(_frozendict(options)):
                 if items_imported == max_items:

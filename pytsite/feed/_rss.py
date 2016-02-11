@@ -120,7 +120,7 @@ class Item(_xml.Item):
 
     @description.setter
     def description(self, value: str):
-        self._description = _validation.rule.NonEmpty(value).validate()
+        self._description = value
 
     @property
     def full_text(self) -> str:
@@ -128,7 +128,7 @@ class Item(_xml.Item):
 
     @full_text.setter
     def full_text(self, value: str):
-        self._full_text = _validation.rule.NonEmpty(value).validate()
+        self._full_text = value
 
     @property
     def pub_date(self) -> _datetime:
@@ -176,7 +176,7 @@ class Item(_xml.Item):
         link.text = self._link
 
         pub_date = _etree.SubElement(root, 'pubDate')
-        pub_date.text = _util.rfc822_datetime(self._pub_date)
+        pub_date.text = _util.rfc822_datetime_str(self._pub_date)
 
         if self._description:
             description = _etree.SubElement(root, 'description')
@@ -260,9 +260,9 @@ class Generator(_xml.Generator):
 
         # Timestamps
         pub_date = _etree.SubElement(channel, 'pubDate')
-        pub_date.text = _util.rfc822_datetime(self._pub_date)
+        pub_date.text = _util.rfc822_datetime_str(self._pub_date)
         last_build_date = _etree.SubElement(channel, 'lastBuildDate')
-        last_build_date.text = _util.rfc822_datetime(self._last_build_date)
+        last_build_date.text = _util.rfc822_datetime_str(self._last_build_date)
 
         # Items
         for item in self.items:
@@ -356,7 +356,7 @@ class Reader(_xml.Reader):
                 self._items.append(self._parse_item(i))
 
     def _parse_date(self, date_str: str) -> _datetime:
-        return _datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z')
+        return _util.parse_rfc822_datetime_str(date_str)
 
     def _parse_item(self, item_xml: _etree.Element) -> Item:
         item = Item()
@@ -367,7 +367,7 @@ class Reader(_xml.Reader):
                 item.link = i.text
             elif i.tag == 'description':
                 item.description = i.text
-            elif i.tag == '{https://pytsite.shepetko.com}full_text':
+            elif i.tag.endswith('full_text') or i.tag.endswith('full-text'):
                 item.full_text = i.text
             elif i.tag == 'author':
                 item.author = i.text
@@ -378,6 +378,7 @@ class Reader(_xml.Reader):
             elif i.tag == '{https://pytsite.shepetko.com}tag':
                 item.append_child(Tag(i.text))
             elif i.tag == 'enclosure':
-                item.append_child(Enclosure(i.get('url'), i.get('length'), i.get('mime')))
+                mime = i.get('mime') or i.get('type') or ''
+                item.append_child(Enclosure(i.get('url'), i.get('length', 0), mime))
 
         return item
