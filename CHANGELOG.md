@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.4 (2016-02-14)
+### Added
+- 'codesnippet' plugin to `ckeditor`.
+
+
 ## 0.55.3 (2016-02-14)
 ### Fixed
 - Enabled native browser's spellchecker in `ckeditor`.
