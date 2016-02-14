@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.2 (2016-02-14)
+### Added
+- Support for 'code' and 'pre' tags in `ckeditor`. 
+
+
 ## 0.55.1 (2016-02-14)
 ### Added
 - New `browser`'s library: 'highlight'.
