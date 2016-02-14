@@ -76,7 +76,7 @@ class Assetman(_console.command.Abstract):
                         ext = '.css'
 
                     if _reg.get('output.minify'):
-                        if ext == '.js' and not src.endswith('.min.js'):
+                        if ext == '.js' and not src.endswith('.min.js') and not src.endswith('.pack.js'):
                             filters.append('jsmin')
                         if ext == '.css' and not src.endswith('.min.css'):
                             filters.append('cssmin')

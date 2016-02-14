@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.1 (2016-02-14)
+### Added
+- New `browser`'s library: 'highlight'.
+
+
 ## 0.55 (2016-02-14)
 ### Added
 - `odm`'s queries caching.
@@ -17,9 +22,10 @@
 ### Fixed
 - Improvements in `feed.rss.Reader`.
 
+
 ## 0.54.2 (2016-02-10)
 ### Added
-- New `browser`'s library: 'gotop.
+- New `browser`'s library: 'gotop'.
 
 ### Changed
 - `content.model.Content.publish_time_pretty` renamed to `content.model.Content.publish_date_time_pretty`.

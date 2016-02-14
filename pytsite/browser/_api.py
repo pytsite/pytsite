@@ -10,7 +10,7 @@ __license__ = 'MIT'
 __eps = {}
 
 
-def include(lib: str, forever=False):
+def include(lib: str, forever=False, **kwargs):
     """Add a browser library to the assetman.
     """
     if lib == 'jquery-ui':
@@ -90,8 +90,11 @@ def include(lib: str, forever=False):
         _assetman.add('pytsite.browser@select2/css/select2-bootstrap.min.css', forever=forever)
     elif lib == 'gotop':
         _assetman.add('pytsite.browser@js/jquery.gotop.min.js', forever=forever)
+    elif lib == 'highlight':
+        _assetman.add('pytsite.browser@highlight/styles/' + kwargs.get('style', 'default') + '.css')
+        _assetman.add('pytsite.browser@highlight/highlight.pack.js', forever=forever)
     else:
-        raise Exception("Unknown library: '{}'.".format(lib))
+        raise ValueError("Unknown library: '{}'.".format(lib))
 
 
 def is_ep_registered(ep_name: str) -> bool:
