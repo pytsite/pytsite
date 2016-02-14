@@ -197,6 +197,8 @@ def get_user(login: str=None, uid: str=None, nickname: str=None) -> _model.User:
     """Get user by login or by uid.
     """
     if login:
+        if login == _model.ANONYMOUS_USER_LOGIN:
+            return None
         return _odm.find('user').where('login', '=', login).first()
     elif uid:
         return _odm.find('user').where('_id', '=', uid).first()

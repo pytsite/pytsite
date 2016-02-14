@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.55 (2016-02-14)
+### Added
+- `odm`'s queries caching.
+- New functions: `content.find_tag_by_alias()`, `content.find_tag_by_title()`.
+
+
 ## 0.54.3 (2016-02-11)
 ### Added
 - New function: `util.parse_rfc822_datetime_str()`.

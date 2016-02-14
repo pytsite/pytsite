@@ -115,8 +115,9 @@ def find(model: str, status='published', check_publish_time=True, language: str=
 
     if status:
         f.where('status', '=', status)
+
     if check_publish_time:
-        f.where('publish_time', '<=', _datetime.now())
+        f.where('publish_time', '<=', _datetime.now()).cache_ttl(0)
 
     return f
 
@@ -163,6 +164,18 @@ def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
 
 def dispense_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
     return _taxonomy.dispense('tag', title, alias, language).save()
+
+
+def find_tag_by_title(title: str, language: str=None) -> _model.Section:
+    """Get tag by title.
+    """
+    return _taxonomy.find_by_title('tag', title, language)
+
+
+def find_tag_by_alias(alias: str, language: str=None) -> _model.Section:
+    """Get tag by title.
+    """
+    return _taxonomy.find_by_alias('tag', alias, language)
 
 
 def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str=None,

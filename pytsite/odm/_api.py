@@ -7,7 +7,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 __registered_models = {}
 __dispensed_entities = {}
 
@@ -149,8 +148,9 @@ def cache_delete(entity: _model.Model):
             del __dispensed_entities[cache_key]
 
 
-def find(model: str):
+def find(model: str, cache_ttl: int=60):
     """Get ODM finder.
     """
     from ._finder import Finder
-    return Finder(model)
+
+    return Finder(model, cache_ttl)

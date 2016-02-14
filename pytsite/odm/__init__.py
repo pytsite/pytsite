@@ -12,12 +12,18 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _init():
+def __init():
     from pytsite import console, lang, events
-    from . import _console_command
+    from . import _console_command, _finder_cache
 
+    # Resources
     lang.register_package(__name__)
+
+    # Console commands
     console.register_command(_console_command.ODM())
 
+    # Run finder cache garbage collector every minute
+    events.listen('pytsite.cron.1min', lambda: _finder_cache.collect_garbage())
 
-_init()
+
+__init()

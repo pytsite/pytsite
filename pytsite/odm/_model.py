@@ -11,7 +11,7 @@ from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, threading as _threading, lang as _lang
-from . import _error, _field
+from . import _error, _field, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -489,9 +489,12 @@ class Model(_ABC):
 
             # Entity is not new anymore
             if self._is_new:
-                from ._api import cache_put
                 self._is_new = False
-                cache_put(self)
+                _api.cache_put(self)
+
+                # Delete all entities from finder cache
+                from . import _finder_cache
+                _finder_cache.delete_model(self.model)
 
             # Save children with updated '_parent' field
             for child in self.children:
@@ -542,6 +545,10 @@ class Model(_ABC):
             self._after_delete()
             _events.fire('pytsite.odm.entity.delete', entity=self)
             _events.fire('pytsite.odm.entity.{}.delete'.format(self.model), entity=self)
+
+            # Delete all entities from finder cache
+            from . import _finder_cache
+            _finder_cache.delete_model(self.model)
 
             self._is_deleted = True
 
