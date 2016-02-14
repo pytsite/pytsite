@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.3 (2016-02-14)
+### Fixed
+- Enabled native browser's spellchecker in `ckeditor`.
+
+
 ## 0.55.2 (2016-02-14)
 ### Added
 - Support for 'code' and 'pre' tags in `ckeditor`. 
