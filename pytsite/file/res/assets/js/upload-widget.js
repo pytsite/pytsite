@@ -1,7 +1,7 @@
 $.fn.extend({
     widgetFilesUpload: function () {
         var widget = this;
-        if(!widget.length)
+        if (!widget.length)
             return;
 
         var slots = widget.find('.slots');
@@ -18,8 +18,26 @@ $.fn.extend({
         var progressBar = progressSlot.find('.progress-bar');
         var slotCss = widget.data('slotCss');
 
-        if(acceptedFileTypes != '*/*')
+        if (acceptedFileTypes != '*/*')
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
+
+        var sortableInit = function () {
+            if (slots.hasClass('ui-sortable')) {
+                slots.sortable('refresh');
+            }
+            else {
+                slots.sortable({
+                    containment: 'parent',
+                    cursor: 'move',
+                    revert: true,
+                    tolerance: 'pointer',
+                    items: '> .slot.sortable',
+                    forcePlaceholderSize: true,
+                    placeholder: 'slot placeholder ' + slotCss,
+                    update: renumberSlots
+                });
+            }
+        };
 
         var setupSlot = function (slot) {
             // Remove button click event handler
@@ -31,7 +49,7 @@ $.fn.extend({
         };
 
         var createSlot = function (fid, thumb_url) {
-            var slot = $('<div class="slot ' + slotCss + '" data-fid="' + fid + '">');
+            var slot = $('<div class="slot sortable ' + slotCss + '" data-fid="' + fid + '">');
             var inner = $('<div class="inner">');
 
             slot.append(inner);
@@ -66,6 +84,7 @@ $.fn.extend({
             progressSlot.insertAfter(slots.find('.slot:last-child'));
             addBtn.insertAfter(slots.find('.slot:last-child'));
             renumberSlots();
+            sortableInit();
         };
 
         var removeSlot = function (slot) {
@@ -79,6 +98,8 @@ $.fn.extend({
                 --filesCount;
                 addBtn.show();
                 widget.removeClass('max-files-reached');
+
+                sortableInit();
             }
         };
 
@@ -192,17 +213,7 @@ $.fn.extend({
             setupSlot(this);
         });
         renumberSlots();
-
-        slots.sortable({
-            containment: 'parent',
-            cursor: 'move',
-            revert: true,
-            tolerance: 'pointer',
-            items: '> .slot.sortable',
-            forcePlaceholderSize: true,
-            placeholder: 'slot placeholder ' + slotCss,
-            update: renumberSlots
-        });
+        sortableInit();
     }
 });
 

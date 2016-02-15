@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.6 (2016-02-15)
+### Fixed
+- Sortable refreshing in `file.widget.FilesUpload`.
+
+
 ## 0.55.5 (2016-02-15)
 ### Added
 - Sortable thumbs in `file.widget.FilesUpload`.
