@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.55.5 (2016-02-15)
+### Added
+- Sortable thumbs in `file.widget.FilesUpload`.
+
+### Fixed
+- Processing img body tags in `content`'s model.
+
+
 ## 0.55.4 (2016-02-14)
 ### Added
 - 'codesnippet' plugin to `ckeditor`.

@@ -1,7 +1,9 @@
 """Content Models
 """
 import re as _re
+from typing import Tuple as _Tuple
 from datetime import datetime as _datetime, timedelta as _timedelta
+from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     geo as _geo, image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
@@ -12,7 +14,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_body_img_tag_re = _re.compile('\[img:(\d+)(.*)\]')
+_body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 
 
@@ -64,7 +66,7 @@ class Content(_odm_ui.Model):
     def _setup(self):
         """Hook.
         """
-        self.define_field(_odm.field.Ref('section', model='section'))
+        # Common fields
         self.define_field(_odm.field.String('title', nonempty=True))
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.String('body'))
@@ -72,30 +74,34 @@ class Content(_odm_ui.Model):
         self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now(), nonempty=True))
         self.define_field(_odm.field.Integer('views_count'))
         self.define_field(_odm.field.Integer('comments_count'))
-        self.define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self.define_field(_odm.field.StringList('ext_links'))
         self.define_field(_odm.field.String('status', nonempty=True))
         self.define_field(_odm.field.Ref('author', model='user', nonempty=True))
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
-        self.define_field(_odm.field.RefsUniqueList('tags', model='tag', ))
+        self.define_field(_odm.field.RefsUniqueList('tags', model='tag'))
+        self.define_field(_odm.field.Dict('options'))
+
+        # Not always necessary fields
+        self.define_field(_odm.field.RefsUniqueList('images', model='image'))
+        self.define_field(_odm.field.Ref('section', model='section'))
+        self.define_field(_odm.field.Bool('starred'))
         self.define_field(_geo.field.Location('location'))
+        self.define_field(_odm.field.StringList('ext_links'))
+        self.define_field(_odm.field.StringList('video_links'))
+
+        # Virtual
         self.define_field(_odm.field.Virtual('url'))
         self.define_field(_odm.field.Virtual('edit_url'))
-        self.define_field(_odm.field.Dict('options'))
 
         for lng in _lang.langs():
             self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
 
+        # Indexes
         self.define_index([('publish_time', _odm.I_DESC)])
         self.define_index([('title', _odm.I_ASC)])
         self.define_index([('ext_links', _odm.I_ASC)])
         self.define_index([('title', _odm.I_TEXT), ('description', _odm.I_TEXT), ('body', _odm.I_TEXT)])
         self.define_index([('location.lng_lat', _odm.I_GEO2D)])
-
-    @property
-    def section(self) -> Section:
-        return self.f_get('section')
 
     @property
     def title(self) -> str:
@@ -110,24 +116,8 @@ class Content(_odm_ui.Model):
         return self.f_get('body', process_tags=True)
 
     @property
-    def location(self) -> dict:
-        return self.f_get('location')
-
-    @property
-    def tags(self):
-        """:rtype: list[pytsite.content._model.Tag]
-        """
+    def tags(self) -> _Tuple[Tag]:
         return self.f_get('tags', sort_by='weight', sort_reverse=True)
-
-    @property
-    def images(self):
-        """:rtype: list[pytsite.image._model.Image]
-        """
-        return self.f_get('images')
-
-    @property
-    def ext_links(self) -> tuple:
-        return self.f_get('ext_links')
 
     @property
     def url(self) -> str:
@@ -166,20 +156,40 @@ class Content(_odm_ui.Model):
         return self.f_get('comments_count')
 
     @property
-    def video_links(self) -> list:
-        return self.f_get('video_links')
-
-    @property
     def status(self) -> str:
         return self.f_get('status')
 
     @property
-    def options(self) -> dict:
+    def options(self) -> _frozendict:
         return self.f_get('options')
 
     @property
     def language(self) -> str:
         return self.f_get('language')
+
+    @property
+    def images(self) -> _Tuple[_image.model.Image]:
+        return self.f_get('images') if self.has_field('images') else ()
+
+    @property
+    def starred(self) -> bool:
+        return self.f_get('starred') if self.has_field('starred') else False
+
+    @property
+    def section(self) -> Section:
+        return self.f_get('section') if self.has_field('section') else None
+
+    @property
+    def ext_links(self) -> _Tuple[str]:
+        return self.f_get('ext_links') if self.has_field('ext_links') else ()
+
+    @property
+    def video_links(self) -> _Tuple[str]:
+        return self.f_get('video_links') if self.has_field('video_links') else ()
+
+    @property
+    def location(self) -> _frozendict:
+        return self.f_get('location') if self.has_field('location') else None
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -250,8 +260,6 @@ class Content(_odm_ui.Model):
     def _pre_save(self):
         """Hook.
         """
-        super()._pre_save()
-
         current_user = _auth.get_current_user()
 
         # Language is required
@@ -270,10 +278,15 @@ class Content(_odm_ui.Model):
         body, images = self._extract_body_images()
         self.f_set('body', body).f_set('images', images)
 
-        # Changing status if necessary
         if self.is_new:
+            # Setting status if necessary
             if not self.status:
                 self.f_set('status', 'waiting')
+
+            # Attach section to tags
+            if self.has_field('section') and self.section and self.tags:
+                for tag in self.tags:
+                    tag.f_add('sections', self.section).save()
 
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
@@ -294,7 +307,7 @@ class Content(_odm_ui.Model):
                 ra.delete()
 
             # Notify content moderators about waiting content
-            if self.is_new and self.status == 'waiting':
+            if self.status == 'waiting':
                 self._send_waiting_status_notification()
 
         # Recalculate tags weights
@@ -338,35 +351,68 @@ class Content(_odm_ui.Model):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = 'title', 'status', 'images', 'publish_time', 'author'
         browser.default_sort_field = 'publish_time'
+        data_fields = ['title', 'status', 'images', 'publish_time', 'author']
 
+        # Filter by language
         def finder_adjust(finder: _odm.Finder):
             finder.where('language', '=', _lang.get_current())
         browser.finder_adjust = finder_adjust
 
+        mock = _odm.dispense(browser.model)
+
+        # Section
+        if mock.has_field('section'):
+            data_fields.insert(1, 'section')
+
+        # Starred
+        if mock.has_field('starred'):
+            data_fields.insert(2, 'starred')
+
+        browser.data_fields = tuple(data_fields)
+
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        title = str(_html.A(self.f_get('title'), href=self.url))
+        # Title
+        title = str(_html.A(self.title, href=self.url))
 
-        status = self.f_get('status')
+        # Status
+        status = self.status
         status_str = self.t('status_' + status)
         status_cls = 'primary'
         if status == 'waiting':
             status_cls = 'warning'
         elif status == 'unpublished':
             status_cls = 'default'
+        status = str(_html.Span(status_str, cls='label label-' + status_cls)),
 
+        # Images counter
         images_cls = 'default' if not len(self.images) else 'primary'
+        images_count = '<span class="label label-{}">{}</span>'.format(images_cls, len(self.images))
 
-        return (
-            title,
-            str(_html.Span(status_str, cls='label label-' + status_cls)),
-            '<span class="label label-{}">{}</span>'.format(images_cls, len(self.images)),
-            self.f_get('publish_time', fmt='%d.%m.%Y %H:%M'),
-            self.f_get('author').full_name
-        )
+        # Publish time
+        publish_time = self.f_get('publish_time', fmt='%d.%m.%Y %H:%M')
+
+        # Author
+        author = self.author.full_name
+
+        r = [title, status, images_count, publish_time, author]
+
+        # Section
+        if self.has_field('section'):
+            r.insert(1, self.section.title if self.section else '&nbsp;')
+
+        # Starred
+        if self.has_field('starred'):
+            # 'Starred' flag
+            if self.starred:
+                starred = '<span class="label label-primary">{}</span>'.format(_lang.t('pytsite.content@word_yes'))
+            else:
+                starred = '&nbsp;'
+            r.insert(2, starred)
+
+        return tuple(r)
 
     def ui_m_form_setup(self, frm):
         """Hook.
@@ -376,12 +422,21 @@ class Content(_odm_ui.Model):
 
         current_user = _auth.get_current_user()
 
-        # Section
-        from . import _widget as content_widget
-        if self.has_field('section'):
-            frm.add_widget(content_widget.SectionSelect(
-                uid='section',
+        # Starred
+        if self.has_field('starred') and _auth.get_current_user().is_admin:
+            frm.add_widget(_widget.select.Checkbox(
+                uid='starred',
                 weight=100,
+                label=self.t('starred'),
+                value=self.starred,
+            ))
+
+        # Section
+        if self.has_field('section'):
+            from ._widget import SectionSelect
+            frm.add_widget(SectionSelect(
+                uid='section',
+                weight=200,
                 label=self.t('section'),
                 value=self.section,
                 h_size='col-sm-6',
@@ -391,7 +446,7 @@ class Content(_odm_ui.Model):
         # Title
         frm.add_widget(_widget.input.Text(
             uid='title',
-            weight=200,
+            weight=300,
             label=self.t('title'),
             value=self.title,
             required=True,
@@ -400,7 +455,7 @@ class Content(_odm_ui.Model):
         # Description
         frm.add_widget(_widget.input.Text(
             uid='description',
-            weight=300,
+            weight=400,
             label=self.t('description'),
             value=self.description,
         ))
@@ -408,7 +463,7 @@ class Content(_odm_ui.Model):
         # Tags
         frm.add_widget(_taxonomy.widget.TokensInput(
             uid='tags',
-            weight=400,
+            weight=500,
             model='tag',
             label=self.t('tags'),
             value=self.tags,
@@ -419,7 +474,7 @@ class Content(_odm_ui.Model):
             from pytsite import image
             frm.add_widget(image.widget.ImagesUpload(
                 uid='images',
-                weight=500,
+                weight=600,
                 label=self.t('images'),
                 value=self.f_get('images'),
                 max_files=10,
@@ -430,7 +485,7 @@ class Content(_odm_ui.Model):
         if self.has_field('video_links'):
             frm.add_widget(_widget.input.StringList(
                 uid='video_links',
-                weight=600,
+                weight=700,
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
                 value=self.video_links
@@ -440,7 +495,7 @@ class Content(_odm_ui.Model):
         # Body
         frm.add_widget(_ckeditor.widget.CKEditor(
             uid='body',
-            weight=700,
+            weight=800,
             label=self.t('body'),
             value=self.f_get('body', process_tags=False),
         ))
@@ -450,7 +505,7 @@ class Content(_odm_ui.Model):
         if self.has_field('ext_links'):
             frm.add_widget(_widget.input.StringList(
                 uid='ext_links',
-                weight=800,
+                weight=900,
                 label=self.t('external_links'),
                 add_btn_label=self.t('add_link'),
                 value=self.ext_links
@@ -461,17 +516,17 @@ class Content(_odm_ui.Model):
         if self.has_field('location'):
             frm.add_widget(_geo.widget.SearchAddress(
                 uid='location',
-                weight=900,
+                weight=1000,
                 label=self.t('location'),
                 value=self.location
             ))
 
         # Status
         if current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
-            from . import _widget as content_widget
-            frm.add_widget(content_widget.StatusSelect(
+            from ._widget import StatusSelect
+            frm.add_widget(StatusSelect(
                 uid='status',
-                weight=1000,
+                weight=1100,
                 label=self.t('status'),
                 value=self.status if self.status else 'published',
                 h_size='col-sm-4 col-md-3 col-lg-2',
@@ -482,7 +537,7 @@ class Content(_odm_ui.Model):
         if current_user.has_permission('pytsite.content.set_publish_time.' + self.model):
             frm.add_widget(_widget.select.DateTime(
                 uid='publish_time',
-                weight=1100,
+                weight=1200,
                 label=self.t('publish_time'),
                 value=_datetime.now() if self.is_new else self.publish_time,
                 h_size='col-sm-4 col-md-3 col-lg-2',
@@ -498,7 +553,7 @@ class Content(_odm_ui.Model):
                 lang_title = _lang.t('lang_title_' + self.language)
             frm.add_widget(_widget.static.Text(
                 uid='language',
-                weight=1200,
+                weight=1300,
                 label=self.t('language'),
                 title=lang_title,
                 value=_lang.get_current() if self.is_new else self.language,
@@ -510,7 +565,7 @@ class Content(_odm_ui.Model):
             for i, lng in enumerate(_lang.langs(False)):
                 frm.add_widget(EntitySelect(
                     uid='localization_' + lng,
-                    weight=1300 + i,
+                    weight=1400 + i,
                     label=self.t('localization', {'lang': _lang.lang_title(lng)}),
                     model=self.model,
                     language=lng,
@@ -519,16 +574,18 @@ class Content(_odm_ui.Model):
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
+            # Route alias
             frm.add_widget(_widget.input.Text(
                 uid='route_alias',
-                weight=1400,
+                weight=1500,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
+            # Author
             frm.add_widget(_auth_ui.widget.UserSelect(
                 uid='author',
-                weight=1500,
+                weight=1600,
                 label=self.t('author'),
                 value=_auth.get_current_user() if self.is_new else self.author,
                 h_size='col-sm-4',
@@ -541,14 +598,21 @@ class Content(_odm_ui.Model):
         return self.title
 
     def _process_body_tags(self, inp: str, responsive: bool, img_width: int=None) -> str:
+        """Converts body tags like [img] into HTML tags.
+        """
         def process_img_tag(match):
+            """Converts single body [img] tag into HTML <img> tag.
+            """
             # Image index
             img_index = int(match.group(1))
+
+            # Does image exist?
             if len(self.images) < img_index:
                 return ''
+
             img = self.images[img_index - 1]
 
-            # Additional parameters
+            # Additional parameters defaults
             link_orig = False
             enlarge = True
             alt = self.title
@@ -575,6 +639,8 @@ class Content(_odm_ui.Model):
             return r
 
         def process_vid_tag(match):
+            """Converts single body [vid] tag into video player HTML code.
+            """
             vid_index = int(match.group(1))
             if len(self.video_links) < vid_index:
                 return ''
@@ -587,7 +653,7 @@ class Content(_odm_ui.Model):
         return inp
 
     def _extract_body_images(self) -> tuple:
-        """Transforms inline <img> tags into [img] tags
+        """Transforms inline HTML <img> tags into [img] tags.
         """
         images = list(self.images)
         img_index = len(images)
@@ -622,6 +688,12 @@ class Content(_odm_ui.Model):
             else:
                 raise ValueError('Cannot generate route alias because title is empty.')
 
+        # Prefix content title with section title if it exists.
+        # Do this work ONLY if title doesn't look like 'correct' path alias string.
+        if self.has_field('section') and self.section \
+                and not _re.search('^/?[a-z0-9\-]+/[a-z0-9\-]+', orig_str, _re.IGNORECASE):
+            return '{}/{}'.format(self.section.alias, orig_str)
+
         return orig_str
 
 
@@ -631,54 +703,12 @@ class Page(Content):
     def _setup(self):
         super()._setup()
         self.remove_field('section')
+        self.remove_field('starred')
 
 
 class Article(Content):
     """Article Model.
     """
-    def _setup(self):
-        super()._setup()
-
-        self.define_field(_odm.field.Bool('starred'))
-        self.define_field(_odm.field.StringList('video_links'))
-
-    @property
-    def starred(self) -> bool:
-        return self.f_get('starred')
-
-    @classmethod
-    def ui_browser_setup(cls, browser):
-        """Setup ODM UI browser hook.
-
-        :type browser: pytsite.odm_ui._browser.Browser
-        """
-        super().ui_browser_setup(browser)
-
-        df = list(browser.data_fields)
-        df.insert(1, 'section')
-        df.insert(3, 'starred')
-
-        browser.data_fields = tuple(df)
-
-    def ui_browser_get_row(self) -> tuple:
-        """Get single UI browser row hook.
-        """
-        r = list(super().ui_browser_get_row())
-
-        # Section title
-        if self.section:
-            r.insert(1, self.section.title)
-        else:
-            r.insert(1, '')
-
-        # 'Starred' flag
-        if self.starred:
-            r.insert(3, '<span class="label label-primary">{}</span>'.format(_lang.t('pytsite.content@word_yes')))
-        else:
-            r.insert(3, '&nbsp;')
-
-        return tuple(r)
-
     def ui_m_form_setup(self, frm):
         """Hook.
 
@@ -686,39 +716,8 @@ class Article(Content):
         """
         super().ui_m_form_setup(frm)
 
-        # At least one image required
+        # At least one image required for article
         frm.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))
-
-        # Starred
-        if self.has_field('starred') and _auth.get_current_user().is_admin:
-            frm.add_widget(_widget.select.Checkbox(
-                uid='starred',
-                weight=30,
-                label=self.t('starred'),
-                value=self.starred,
-            ))
-
-    def _pre_save(self):
-        """Hook.
-        """
-        if self.is_new and self.has_field('section') and self.section and self.tags:
-            # Attach section to tags
-            for tag in self.tags:
-                tag.f_add('sections', self.section).save()
-
-        super()._pre_save()
-
-    def _alter_route_alias_str(self, orig_str: str) -> str:
-        """Alter route alias string.
-        """
-        orig_str = super()._alter_route_alias_str(orig_str)
-
-        # Prefix given article title with section title if it exists.
-        # Do this work ONLY if title doesn't look like correct path alias string.
-        if self.section and not _re.search('^/?[a-z0-9\-]+/[a-z0-9\-]+', orig_str, _re.IGNORECASE):
-            return '{}/{}'.format(self.section.alias, orig_str)
-
-        return orig_str
 
 
 class ContentSubscriber(_odm.Model):

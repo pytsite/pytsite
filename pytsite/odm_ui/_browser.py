@@ -99,6 +99,12 @@ class Browser:
         self._title = value
 
     @property
+    def model(self) -> str:
+        """Get browser entities model.
+        """
+        return self._model
+
+    @property
     def toolbar(self) -> _html.Div:
         return self._toolbar
 

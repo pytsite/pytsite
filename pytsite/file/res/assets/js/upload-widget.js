@@ -22,6 +22,7 @@ $.fn.extend({
             acceptedFileTypes = acceptedFileTypes.split('/')[0];
 
         var setupSlot = function (slot) {
+            // Remove button click event handler
             $(slot).find('.btn-remove').click(function () {
                 removeSlot(slot)
             });
@@ -32,11 +33,13 @@ $.fn.extend({
         var createSlot = function (fid, thumb_url) {
             var slot = $('<div class="slot ' + slotCss + '" data-fid="' + fid + '">');
             var inner = $('<div class="inner">');
+
             slot.append(inner);
             inner.append($('<div class="thumb"><img class="img-responsive" src="{u}"></div>'.replace('{u}', thumb_url)));
-            inner.append($('<button type="button" class="btn btn-danger btn-sm btn-remove"><i class="fa fa-remove"></i></button>'));
+            inner.append($('<button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>'));
             inner.append($('<span class="number">'));
             widget.append('<input type="hidden" name="' + widgetUid + '" value="' + fid + '">');
+
             return setupSlot(slot);
         };
 
@@ -189,6 +192,17 @@ $.fn.extend({
             setupSlot(this);
         });
         renumberSlots();
+
+        slots.sortable({
+            containment: 'parent',
+            cursor: 'move',
+            revert: true,
+            tolerance: 'pointer',
+            items: '> .slot.sortable',
+            forcePlaceholderSize: true,
+            placeholder: 'slot placeholder ' + slotCss,
+            update: renumberSlots
+        });
     }
 });
 

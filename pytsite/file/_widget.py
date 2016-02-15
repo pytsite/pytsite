@@ -1,7 +1,7 @@
 """File Widgets.
 """
 from typing import Iterable as _Iterable
-from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _client, html as _html, \
+from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _browser, html as _html, \
     router as _router
 from . import _functions
 
@@ -31,12 +31,13 @@ class FilesUpload(_widget.Base):
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
-        self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-4 col-lg-3')
+        self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
 
         if self._max_files:
             self._data['max_files'] = self._max_files
 
-        _client.include('imagesloaded')
+        _browser.include('jquery-ui')
+        _browser.include('imagesloaded')
         _assetman.add('pytsite.file@css/upload-widget.css')
         _assetman.add('pytsite.file@js/load-image.all.min.js')
         _assetman.add('pytsite.file@js/canvas-to-blob.min.js')
