@@ -198,6 +198,8 @@ class Content(_odm_ui.Model):
             # Generate route alias string via hook method
             if value is None:
                 value = ''
+
+            # Delegate string generation to dedicated hook
             route_alias_str = self._alter_route_alias_str(value.strip())
 
             # No route alias is attached, so we need to create a new one
@@ -272,6 +274,7 @@ class Content(_odm_ui.Model):
 
         # Route alias is required
         if not self.route_alias:
+            # Setting none leads to route alias auto-generation
             self.f_set('route_alias', None)
 
         # Extract inline images from the body
@@ -684,15 +687,11 @@ class Content(_odm_ui.Model):
         # Checking original string
         if not orig_str:
             if self.title:
-                return self.title
+                orig_str = self.title
+                if self.section:
+                    orig_str = '{}/{}'.format(self.section.alias, orig_str)
             else:
                 raise ValueError('Cannot generate route alias because title is empty.')
-
-        # Prefix content title with section title if it exists.
-        # Do this work ONLY if title doesn't look like 'correct' path alias string.
-        if self.has_field('section') and self.section \
-                and not _re.search('^/?[a-z0-9\-]+/[a-z0-9\-]+', orig_str, _re.IGNORECASE):
-            return '{}/{}'.format(self.section.alias, orig_str)
 
         return orig_str
 
@@ -701,7 +700,10 @@ class Page(Content):
     """Page Model.
     """
     def _setup(self):
+        """Hook.
+        """
         super()._setup()
+
         self.remove_field('section')
         self.remove_field('starred')
 

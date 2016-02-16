@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.7 (2016-02-16)
+### Fixed
+- Route alias generation in `content.model.Content`.
+
+
 ## 0.55.6 (2016-02-15)
 ### Fixed
 - Sortable refreshing in `file.widget.FilesUpload`.
