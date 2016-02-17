@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.9 (2016-02-17)
+### Fixed
+- Errors in `fb` and `vk` `content_export`'s drivers.
+
+
 ## 0.55.8 (2016-02-17)
 ### Fixed
 - OpenGraph issue in `fb._content_export.Driver`.

@@ -189,7 +189,7 @@ class ContentExport(_odm.Model, _odm_ui.UIMixin):
         ))
 
         frm.add_widget(_widget.input.Tokens(
-            weight=60,
+            weight=70,
             uid='add_tags',
             label=self.t('additional_tags'),
             value=self.add_tags,

@@ -43,6 +43,7 @@ class Driver(_content_export.AbstractDriver):
         frm.add_widget(_VKAuthWidget(
             uid='driver_opts',
             access_url=driver_options.get('access_url'),
+            group_id=driver_options.get('group_id'),
         ))
 
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
@@ -66,6 +67,7 @@ class Driver(_content_export.AbstractDriver):
                 r = s.wall_post(owner_id, message)
 
             _logger.info("Export finished. '{}'. VK response: {}".format(entity.title, r), __name__)
+
         except Exception as e:
             raise _content_export.error.ExportError(e)
 
