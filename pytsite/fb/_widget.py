@@ -97,7 +97,7 @@ class Auth(_widget.Base):
 
         container = _widget.static.Container(self.uid)
         container.append(_widget.static.Text(
-            self.uid + 'auth_url',
+            self.uid + '_auth_url',
             weight=10,
             label=_lang.t('pytsite.fb@user'), title=a.render()
         ))
