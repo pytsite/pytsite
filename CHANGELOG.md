@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.55.8 (2016-02-17)
+### Fixed
+- OpenGraph issue in `fb._content_export.Driver`.
+
+
 ## 0.55.7 (2016-02-16)
 ### Fixed
 - Route alias generation in `content.model.Content`.

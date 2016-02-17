@@ -7,6 +7,7 @@ from pytsite import content_export as _content_export, logger as _logger, conten
     form as _form, router as _router
 from ._widget import Auth as _FacebookAuthWidget
 from ._session import Session as _Session
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -71,13 +72,19 @@ class Driver(_content_export.AbstractDriver):
             opts = exporter.driver_opts  # type: _frozendict
             user_session = _Session(opts.get('access_token'))
 
+            # Tags
             tags = ['#' + _tag_cleanup_re.sub('', t) for t in exporter.add_tags]
             tags += ['#' + _tag_cleanup_re.sub('', t.title) for t in entity.tags]
             message = _util.strip_html_tags(entity.body)[:600] + ' ' + ' '.join(tags) + ' ' + entity.url
 
-            # Pre-generating image for OpenGraph
+            # Pre-generating image for OpenGraph story
             if entity.has_field('images') and entity.images:
                 _requests.get(entity.images[0].get_url(900, 500))
+
+            # Notify OpenGraph about sharing
+            scrape_r = user_session.request('', 'POST', id=entity.url, scrape='true')
+            if 'updated_time' not in scrape_r:
+                raise _error.OpenGraphError("Error while updating OG story '{}'.".format(entity.title))
 
             if opts['page_id']:
                 page_session = _Session(self._get_page_access_token(opts['page_id'], user_session))

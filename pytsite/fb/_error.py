@@ -11,3 +11,7 @@ class AuthSessionError(Exception):
 
 class SessionError(Exception):
     pass
+
+
+class OpenGraphError(Exception):
+    pass
