@@ -12,12 +12,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ModelOne(odm.Model):
+class ModelOne(odm.Entity):
     def _setup(self):
         self.define_field(odm.field.String('str_f'))
 
 
-class ModelTwo(odm.Model):
+class ModelTwo(odm.Entity):
     def _setup(self):
         self.define_field(odm.field.String('str_f'))
 

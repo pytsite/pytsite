@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.56 (2016-02-20)
+### Fixed
+- Dictionary checking in `util.dict_merge()`. 
+
+### Changed
+- `cache` totally reworked.
+- `odm`'s finder caching reworked.
+- `cron` is now starting more precisely.
+- Configuration parameter 'debug.enabled' renamed to 'debug'.
+- Class `odm.Model` renamed to `odm.Entity`. 
+- Class `odm_ui.Model` renamed to `odm_ui.Entity`. 
+- 1 hour delay removed from `content_export`.
+
+
 ## 0.55.9 (2016-02-17)
 ### Fixed
 - Errors in `fb` and `vk` `content_export`'s drivers.

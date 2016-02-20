@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Term(_odm_ui.Model):
+class Term(_odm_ui.UIEntity):
     """Taxonomy Term Model.
     """
     def _setup(self):

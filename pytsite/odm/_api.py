@@ -1,7 +1,7 @@
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, threading as _threading, events as _events
-from . import _model, _error
+from . import _entity, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -19,7 +19,7 @@ def register_model(model: str, cls, replace: bool=False):
     if isinstance(cls, str):
         cls = _util.get_class(cls)
 
-    if not issubclass(cls, _model.Model):
+    if not issubclass(cls, _entity.Entity):
         raise ValueError("Subclass of Model is expected.")
 
     if is_model_registered(model) and not replace:
@@ -63,13 +63,13 @@ def get_registered_models() -> tuple:
 def resolve_ref(something):
     """Resolve DB object reference.
 
-    :type something: str | _model.Model | _DBRef | None
+    :type something: str | _entity.Entity | _DBRef | None
     :rtype: _DBRef | None
     """
     if isinstance(something, _DBRef) or something is None:
         return something
 
-    if isinstance(something, _model.Model):
+    if isinstance(something, _entity.Entity):
         return something.ref
 
     if isinstance(something, str):
@@ -90,14 +90,14 @@ def get_by_ref(ref: _DBRef):
     """Dispense entity by DBRef.
 
     :type ref: str | _DBRef
-    :rtype: _model.Model | None
+    :rtype: _entity.Entity | None
     """
     doc = _db.get_database().dereference(resolve_ref(ref))
 
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def dispense(model: str, entity_id=None) -> _model.Model:
+def dispense(model: str, entity_id=None) -> _entity.Entity:
     """Dispense an entity.
     """
     with _threading.get_r_lock():
@@ -116,7 +116,7 @@ def dispense(model: str, entity_id=None) -> _model.Model:
         return cache_put(entity)
 
 
-def cache_get(model_name: str, entity_id) -> _model.Model:
+def cache_get(model_name: str, entity_id) -> _entity.Entity:
     """Get entity from the cache.
     """
     if not entity_id:
@@ -128,7 +128,7 @@ def cache_get(model_name: str, entity_id) -> _model.Model:
         return __dispensed_entities[cache_key]
 
 
-def cache_put(entity: _model.Model) -> _model.Model:
+def cache_put(entity: _entity.Entity) -> _entity.Entity:
     """Put entity to the cache.
     """
     if not entity.is_new:
@@ -139,7 +139,7 @@ def cache_put(entity: _model.Model) -> _model.Model:
     return entity
 
 
-def cache_delete(entity: _model.Model):
+def cache_delete(entity: _entity.Entity):
     """Delete entity from the cache.
     """
     if not entity.is_new:
@@ -148,9 +148,9 @@ def cache_delete(entity: _model.Model):
             del __dispensed_entities[cache_key]
 
 
-def find(model: str, cache_ttl: int=60):
+def find(model: str):
     """Get ODM finder.
     """
     from ._finder import Finder
 
-    return Finder(model, cache_ttl)
+    return Finder(model)

@@ -1,4 +1,4 @@
-"""ODM UI Model.
+"""PytSite ODM UI Entity.
 """
 from pytsite import odm as _odm, router as _router, form as _form
 
@@ -99,7 +99,7 @@ class UIMixin:
         pass
 
 
-class Model(_odm.Model, UIMixin):
+class UIEntity(_odm.Entity, UIMixin):
     def ui_mass_action_get_entity_description(self) -> str:
         """Get delete form description.
         """

@@ -8,5 +8,5 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def odm_entity_delete(entity: _odm=_odm.Model):
+def odm_entity_delete(entity: _odm=_odm.Entity):
     _api.delete(entity)

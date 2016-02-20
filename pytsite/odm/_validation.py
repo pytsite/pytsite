@@ -2,7 +2,7 @@
 """
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import validation as _pytsite_validation
-from . import _api, _model
+from . import _api, _entity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -28,7 +28,7 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
             raise ValueError('List expected.')
 
         for v in self._value:
-            if not isinstance(v, _model.Model):
+            if not isinstance(v, _entity.Entity):
                 raise _pytsite_validation.error.RuleError(self._msg_id, {
                     'detail': 'Instance of ODMModel expected.'})
             if self._model and v.model != self._model:

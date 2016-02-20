@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class CommentsCount(_odm.Model):
+class CommentsCount(_odm.Entity):
     """Comments Count Model.
     """
     def _setup(self):

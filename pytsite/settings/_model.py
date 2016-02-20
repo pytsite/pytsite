@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Setting(_odm.Model):
+class Setting(_odm.Entity):
     def _setup(self):
         """Hook.
         """

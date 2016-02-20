@@ -2,7 +2,7 @@
 
 {% block content %}
     <h1>{{ title | e }}</h1>
-    {% if traceback and reg_get('debug.enabled') %}
+    {% if traceback and reg_get('debug') %}
         <pre>{{ traceback }}</pre>
     {% endif %}
 {% endblock %}

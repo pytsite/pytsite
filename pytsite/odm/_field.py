@@ -336,9 +336,9 @@ class Ref(Abstract):
     def set_val(self, value, update_state: bool=True, **kwargs):
         """Set value of the field.
 
-        :type value: pytsite.odm._model.Model | _bson_DBRef | str | None
+        :type value: pytsite.odm._entity.Entity | _bson_DBRef | str | None
         """
-        from ._model import Model
+        from ._entity import Entity
 
         if value is None:
             return super().set_val(value, update_state, **kwargs)
@@ -352,7 +352,7 @@ class Ref(Abstract):
         elif isinstance(value, str):
             from ._api import resolve_ref
             value = resolve_ref(value)
-        elif isinstance(value, Model):
+        elif isinstance(value, Entity):
             # Checking if this model is allowed
             if self._model != '*' and value.model != self._model:
                 raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
@@ -362,7 +362,7 @@ class Ref(Abstract):
 
     def get_val(self, **kwargs):
         """Get value of the field.
-        :rtype: pytsite.odm._model.Model | None
+        :rtype: pytsite.odm._entity.Entity | None
         """
         if isinstance(self._value, _bson_DBRef):
             from ._api import get_by_ref
@@ -381,9 +381,9 @@ class RefsList(List):
     def __init__(self, name: str, model: str, **kwargs):
         """Init.
         """
-        from ._model import Model
+        from ._entity import Entity
         self._model = model
-        super().__init__(name, allowed_types=(_bson_DBRef, Model), **kwargs)
+        super().__init__(name, allowed_types=(_bson_DBRef, Entity), **kwargs)
 
     @property
     def model(self) -> str:
@@ -397,9 +397,9 @@ class RefsList(List):
 
         # Cleaning up value
         clean_value = []
-        from ._model import Model
+        from ._entity import Entity
         for item in value:
-            if isinstance(item, Model):
+            if isinstance(item, Entity):
                 if self._model != '*' and item.model != self._model:
                     raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
                 clean_value.append(item.ref)
@@ -430,9 +430,9 @@ class RefsList(List):
     def add_val(self, value, update_state: bool=True, **kwargs):
         """Add a value to the field.
         """
-        from ._model import Model
+        from ._entity import Entity
 
-        if isinstance(value, Model):
+        if isinstance(value, Entity):
             if self._model != '*' and value.model != self._model:
                 raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
@@ -448,9 +448,9 @@ class RefsList(List):
     def sub_val(self, value, update_state: bool=True, **kwargs):
         """Subtract value fom the field.
         """
-        from ._model import Model
+        from ._entity import Entity
 
-        if isinstance(value, Model):
+        if isinstance(value, Entity):
             if self._model != '*' and value.model != self._model:
                 raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref

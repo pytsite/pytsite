@@ -1,12 +1,13 @@
 """Description.
 """
+import yaml as _yaml
+from os import path as _path
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from pytsite import util as _util
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-import yaml as _yaml
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import util as _util
 
 
 class Abstract(_ABC):
@@ -92,11 +93,10 @@ class File(Memory):
         self.root_dir = root_dir
         self.env_name = env_name
 
-        from os import path
         for name in ('default.yml', env_name + '.yml'):
-            file_path = root_dir + path.sep + name
-            if path.isfile(file_path):
-                with open(file_path, 'r') as f:
+            file_path = _path.join(root_dir, name)
+            if _path.isfile(file_path):
+                with open(file_path) as f:
                     f_data = _yaml.load(f)
                     if isinstance(f_data, dict):
                         self.merge(f_data)

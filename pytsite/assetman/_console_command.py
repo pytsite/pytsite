@@ -43,7 +43,7 @@ class Assetman(_console.command.Abstract):
 
     def _build(self):
         static_dir = _reg.get('paths.static')
-        debug = _reg.get('debug.enabled')
+        debug = _reg.get('debug')
 
         assets_dir = _path.join(static_dir, 'assets')
         if _path.exists(assets_dir):

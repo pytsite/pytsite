@@ -18,6 +18,7 @@ def cron_1min():
     delay_errors = _reg.get('content_export.delay_errors', 120)
     cnt = 0
     exporters_f = _odm.find('content_export') \
+        .cache(0) \
         .where('enabled', '=', True) \
         .where('paused_till', '<', _datetime.now()) \
         .sort([('errors', _odm.I_ASC)])
@@ -25,7 +26,7 @@ def cron_1min():
     for exporter in exporters_f.get():
         content_f = _content.find(exporter.content_model)
         content_f.where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age))
-        content_f.where('publish_time', '<=', _datetime.now() - _timedelta(hours=1))
+        content_f.where('publish_time', '<=', _datetime.now())
         content_f.where('options.content_export', 'nin', [str(exporter.id)])
         content_f.sort([('publish_time', _odm.I_ASC)])
 

@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class FixtureModel(odm.Model):
+class FixtureModel(odm.Entity):
     def _setup(self):
         pass
 

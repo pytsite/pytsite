@@ -17,7 +17,7 @@ __models = {}
 
 def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='fa fa-file-text-o', replace=False):
     """Register content model.
-    :type cls: str | _odm.Model
+    :type cls: str | _odm.Entity
     """
     # Resolve class
     if isinstance(cls, str):
@@ -117,7 +117,7 @@ def find(model: str, status='published', check_publish_time=True, language: str=
         f.where('status', '=', status)
 
     if check_publish_time:
-        f.where('publish_time', '<=', _datetime.now()).cache_ttl(0)
+        f.where('publish_time', '<=', _datetime.now()).cache(0)
 
     return f
 

@@ -3,8 +3,8 @@
 from typing import Iterable as _Iterable
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
-from pytsite import lang as _lang, util as _util, threading as _threading, reg as _reg, logger as _logger
-from . import _model, _field, _api, _finder_cache
+from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger
+from . import _entity, _field, _api, _finder_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,7 +14,7 @@ __license__ = 'MIT'
 class Query:
     """Query Representation.
     """
-    def __init__(self, model: _model.Model):
+    def __init__(self, model: _entity.Entity):
         """Init.
         """
         self._model = model
@@ -84,7 +84,7 @@ class Query:
                 arg = _ObjectId(arg)
 
             # Convert instance to DBRef
-            if isinstance(field, _field.Ref) and isinstance(arg, _model.Model):
+            if isinstance(field, _field.Ref) and isinstance(arg, _entity.Entity):
                 arg = arg.ref
 
             # Convert list of instances to list of DBRefs
@@ -94,7 +94,7 @@ class Query:
 
                 clean_arg = []
                 for v in arg:
-                    if isinstance(v, _model.Model):
+                    if isinstance(v, _entity.Entity):
                         v = v.ref
                     clean_arg.append(v)
                 arg = clean_arg
@@ -143,16 +143,11 @@ class Query:
 class Result:
     """DB Query Result.
     """
-    def __init__(self, model: str, cursor: _Cursor, cache_uid: str, cache_ttl: int=3600):
+    def __init__(self, model: str, cursor: _Cursor):
         """Init.
         """
         self._model = model
         self._cursor = cursor
-        self._cache_ttl = cache_ttl
-        self._cache_uid = cache_uid
-
-        if self._cache_ttl > 0:
-            _finder_cache.create_pool(model, cache_uid, cache_ttl)
 
     def __iter__(self):
         """Get iterator.
@@ -162,19 +157,8 @@ class Result:
     def __next__(self):
         """Get next item.
         """
-        try:
-            doc = next(self._cursor)
-            entity = _api.dispense(self._model, doc['_id'])
-
-            if self._cache_ttl > 0:
-                _finder_cache.add_entity(self._model, self._cache_uid, entity)
-
-            return entity
-
-        except StopIteration as e:
-            if self._cache_ttl > 0:
-                _finder_cache.freeze_pool(self._model, self._cache_uid)
-            raise e
+        doc = next(self._cursor)
+        return _api.dispense(self._model, doc['_id'])
 
     def explain(self) -> dict:
         """Explain the cursor.
@@ -198,45 +182,62 @@ class Result:
 
 
 class CachedResult:
-    def __init__(self, model: str, query_sig: str):
-        self._entities = _finder_cache.get_entities(model, query_sig)
+    def __init__(self, entities: tuple):
+        self._entities = entities
         self._total = len(self._entities)
-        self._index = 0
+        self._current = 0
 
     def __iter__(self):
         return self
 
-    def __next__(self) -> _model.Model:
-        if self._index >= self._total:
+    def __next__(self) -> _entity.Entity:
+        if self._current >= self._total:
             raise StopIteration
 
-        entity = self._entities[self._index]
-        self._index += 1
+        entity = self._entities[self._current]
+        self._current += 1
 
         return entity
 
 
 class Finder:
-    def __init__(self, model_name: str, cache_ttl: int=60):
+    def __init__(self, model: str):
         """Init.
         """
-        self._model = model_name
-        self._mock = _api.dispense(model_name)
+        self._model = model
+        self._mock = _api.dispense(model)
         self._query = Query(self._mock)
         self._skip = 0
+        self._limit = 0
         self._sort = None
-        self._cache_ttl = cache_ttl
+        self._cache_ttl = _reg.get('odm.cache.ttl', 3600)
 
     @property
-    def mock(self) -> _model.Model:
+    def model(self) -> str:
+        """Get entity mock.
+        """
+        return self._model
+
+    @property
+    def mock(self) -> _entity.Entity:
         """Get entity mock.
         """
         return self._mock
 
-    def cache_ttl(self, ttl: int):
-        """Set finder cache TTL.
+    @property
+    def query(self) -> Query:
+        return self._query
+
+    @property
+    def id(self) -> str:
+        return _util.md5_hex_digest(str((self._query.compile(), self._skip, self._limit, self._sort)))
+
+    def cache(self, ttl: int):
+        """Set query cache TTL.
         """
         self._cache_ttl = ttl
+
+        return self
 
     def where(self, field_name: str, comparison_op: str, arg):
         """Add '$and' criteria.
@@ -308,33 +309,31 @@ class Finder:
     def get(self, limit: int=0) -> Result:
         """Execute the query and return a cursor.
         """
+        self._limit = limit
         query = self._query.compile()
 
-        with _threading.get_r_lock():
-            cache_pool_uid = _util.md5_hex_digest(str((query, self._skip, limit, self._sort)))
-            if self._cache_ttl > 0 and _finder_cache.pool_exists(self._model, cache_pool_uid):
-                if _reg.get('odm.debug.enabled'):
-                    msg = "Query found in cache '{}, {}', pool '{}'.".format(self._model, query, cache_pool_uid)
-                    _logger.debug(msg, __name__)
-                return CachedResult(self._model, cache_pool_uid)
-
-        if _reg.get('odm.debug.enabled'):
-            msg = "Query not found in cache: '{}, {}'.".format(self._model, query)
-            _logger.debug(msg, __name__)
+        # Search for previous result in cache
+        if _reg.get('odm.cache.enabled', True) and self._cache_ttl and _finder_cache.has(self):
+            return CachedResult(_finder_cache.get(self))
 
         collection = self._mock.collection
         cursor = collection.find(
             filter=query,
             projection={'_id': True},
             skip=self._skip,
-            limit=limit,
+            limit=self._limit,
             cursor_type=_CursorType.NON_TAILABLE,
             sort=self._sort,
         )
 
-        return Result(self._model, cursor, cache_pool_uid, self._cache_ttl)
+        result = Result(self._model, cursor)
 
-    def first(self) -> _model.Model:
+        if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
+            result = CachedResult(_finder_cache.put(self, result, self._cache_ttl))
+
+        return result
+
+    def first(self) -> _entity.Entity:
         """Execute the query and return a first result.
         """
         result = list(self.get(1))

@@ -13,7 +13,7 @@ __license__ = 'MIT'
 _main_currency = _currency.get_main()
 
 
-class Account(_odm_ui.Model):
+class Account(_odm_ui.UIEntity):
     """Wallet ODM Model.
     """
 
@@ -139,7 +139,7 @@ class Account(_odm_ui.Model):
         ))
 
 
-class Transaction(_odm_ui.Model):
+class Transaction(_odm_ui.UIEntity):
     """Transaction ODM Model.
     """
 

@@ -4,7 +4,7 @@ from typing import Callable as _Callable
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _client, \
     odm as _odm, lang as _lang, http as _http, html as _html
 from . import _api
-from ._model import UIMixin, Model
+from ._model import UIMixin, UIEntity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -279,7 +279,7 @@ class Browser:
         return r
 
     @staticmethod
-    def _get_entity_action_buttons(entity: Model) -> _html.Div:
+    def _get_entity_action_buttons(entity: UIEntity) -> _html.Div:
         """Get action buttons for entity.
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))

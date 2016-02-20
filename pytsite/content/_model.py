@@ -60,7 +60,7 @@ class Tag(_taxonomy.model.Term):
         browser.default_sort_order = _odm.I_DESC
 
 
-class Content(_odm_ui.Model):
+class Content(_odm_ui.UIEntity):
     """Base Content Model.
     """
     def _setup(self):
@@ -722,7 +722,7 @@ class Article(Content):
         frm.get_widget('images').add_rule(_validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))
 
 
-class ContentSubscriber(_odm.Model):
+class ContentSubscriber(_odm.Entity):
     """content_subscriber ODM Model.
     """
     def _setup(self):

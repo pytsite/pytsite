@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ContentImport(_odm_ui.Model):
+class ContentImport(_odm_ui.UIEntity):
     """PytSite Content Import ODM Model.
     """
     def _setup(self):

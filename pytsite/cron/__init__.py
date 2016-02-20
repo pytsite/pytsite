@@ -2,6 +2,7 @@
 """
 import pickle as _pickle
 from os import path as _path
+from time import sleep as _sleep
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import events as _events, reg as _reg, threading as _threading, logger as _logger
 
@@ -10,27 +11,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_period = _reg.get('cron.period', 60)
-_last_start = _datetime.now() - _timedelta(seconds=_period)
 _stats = None
 _working = False
 
 
-def _thread_start():
-    delta = _datetime.now() - _last_start
-    if delta.seconds >= _period:
-        if not _working:
-            _threading.create_thread(_thread_payload).start()
-        else:
-            _logger.warn('Cron is still working.', __name__)
-
-
-def _thread_payload():
+def _cron_task():
     """Start the cron.
     """
-    global _last_start, _working, _period
+    global _working
 
-    _last_start = _datetime.now()
     _working = True
     _events.fire('pytsite.cron.tick')
 
@@ -48,7 +37,7 @@ def _thread_payload():
                     or (evt == 'weekly' and delta.total_seconds() >= 604800) \
                     or (evt == 'monthly' and delta.total_seconds() >= 2592000):
 
-                _logger.info('Event: pytsite.cron.' + evt, __name__)
+                _logger.info('Cron event: pytsite.cron.' + evt, __name__)
 
                 try:
                     _events.fire('pytsite.cron.' + evt)
@@ -109,5 +98,17 @@ def _update_stats(part: str) -> dict:
 
     return _stats
 
+
+def _cron_main_thread():
+    _logger.info('Cron main thread started.', __name__)
+
+    while True:
+        if not _working:
+            _cron_task()
+        else:
+            _logger.warn('Cron is still working.', __name__)
+
+        _sleep(60)
+
 if _reg.get('cron.enabled', True):
-    _events.listen('pytsite.router.dispatch', _thread_start)
+    _threading.create_thread(_cron_main_thread).start()

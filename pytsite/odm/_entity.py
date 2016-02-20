@@ -18,7 +18,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Model(_ABC):
+class Entity(_ABC):
     """ODM Model.
     """
     def __init__(self, model: str, obj_id=None):
@@ -251,7 +251,7 @@ class Model(_ABC):
     def children(self):
         """Get children entities.
 
-        :rtype: typing.Tuple[Model]
+        :rtype: typing.Tuple[Entity]
         """
         return self.f_get('_children')
 
@@ -406,7 +406,7 @@ class Model(_ABC):
     def append_child(self, child):
         """Append child to the entity
 
-        :type child: Model
+        :type child: Entity
         """
         with _threading.get_r_lock():
             self._check_deletion()
@@ -418,7 +418,7 @@ class Model(_ABC):
     def remove_child(self, child):
         """Remove child from the entity.
 
-        :type child: Model
+        :type child: Entity
         """
         with _threading.get_r_lock():
             self._check_deletion()
@@ -494,7 +494,7 @@ class Model(_ABC):
 
                 # Delete all entities from finder cache
                 from . import _finder_cache
-                _finder_cache.delete_model(self.model)
+                _finder_cache.clear(self.model)
 
             # Save children with updated '_parent' field
             for child in self.children:
@@ -548,7 +548,7 @@ class Model(_ABC):
 
             # Delete all entities from finder cache
             from . import _finder_cache
-            _finder_cache.delete_model(self.model)
+            _finder_cache.clear(self.model)
 
             self._is_deleted = True
 
@@ -586,7 +586,7 @@ class Model(_ABC):
     def resolve_partly_msg_id(cls, partly_msg_id: str) -> str:
         # Searching for translation up in hierarchy
         for super_cls in cls.__mro__:
-            if issubclass(super_cls, Model):
+            if issubclass(super_cls, Entity):
                 full_msg_id = super_cls.package_name() + '@' + partly_msg_id
                 if _lang.is_translation_defined(full_msg_id):
                     return full_msg_id

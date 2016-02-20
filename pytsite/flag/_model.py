@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Flag(_odm.Model):
+class Flag(_odm.Entity):
     """Flag ODM Model.
     """
     def _setup(self):

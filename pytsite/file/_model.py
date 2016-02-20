@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class File(_odm.Model):
+class File(_odm.Entity):
     """File Model.
     """
     def _setup(self):

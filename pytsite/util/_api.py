@@ -157,8 +157,8 @@ def dict_merge(a: dict, b: dict) -> dict:
     result = _deepcopy(a)
 
     for k, v in b.items():
-        if k in result and isinstance(result[k], dict):
-                result[k] = dict_merge(result[k], v)
+        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+            result[k] = dict_merge(result[k], v)
         else:
             result[k] = _deepcopy(v)
 

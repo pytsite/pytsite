@@ -54,7 +54,7 @@ class TokensInput(_widget.input.Tokens):
 
         clean_value = []
         for v in value:
-            if isinstance(v, _odm.Model):
+            if isinstance(v, _odm.Entity):
                 clean_value.append(v)
             elif isinstance(v, str):
                 clean_value.append(_functions.dispense(self._model, v).save())

@@ -37,7 +37,7 @@ class EntitySelect(_widget.select.Select):
         """
         if isinstance(value, str) and not value:
             value = None
-        elif isinstance(value, _odm.Model):
+        elif isinstance(value, _odm.Entity):
             value = value.model + ':' + str(value.id)
         elif isinstance(value, _DBRef):
             value = _odm.get_by_ref(value)

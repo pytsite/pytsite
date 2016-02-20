@@ -10,7 +10,7 @@ from pytsite import image as _image, odm as _odm, util as _util, router as _rout
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 
 
-class Role(_odm.Model):
+class Role(_odm.Entity):
     """Role.
     """
     def _setup(self):
@@ -45,7 +45,7 @@ class Role(_odm.Model):
                 raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.login}))
 
 
-class User(_odm.Model):
+class User(_odm.Entity):
     """User ODM Model.
     """
     def _setup(self):
