@@ -43,8 +43,6 @@ class Assetman(_console.command.Abstract):
 
     def _build(self):
         static_dir = _reg.get('paths.static')
-        debug = _reg.get('debug')
-
         assets_dir = _path.join(static_dir, 'assets')
         if _path.exists(assets_dir):
             _rmtree(assets_dir)
@@ -82,7 +80,7 @@ class Assetman(_console.command.Abstract):
                             filters.append('cssmin')
 
                     bundle = _Bundle(src, filters=filters)
-                    env = _Environment(directory=package_assets_dir, debug=debug, versions=False,
+                    env = _Environment(directory=package_assets_dir, debug=_reg.get('debug'), versions=False,
                                        manifest=False, cache=False)
                     env.register('bundle', bundle, output=dst)
 

@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.56.1 (2016-02-20)
+### Fixed
+- Invalid 'debug' configuration default value while init.
+- Disabled cron starting in console mode.
+
+
 ## 0.56 (2016-02-20)
 ### Fixed
 - Dictionary checking in `util.dict_merge()`. 

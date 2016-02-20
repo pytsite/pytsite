@@ -1,11 +1,11 @@
 """PytSite Registry Functions.
 """
+from .driver import Abstract as _RegistryDriver, Memory as _MemoryDriver
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
-from .driver import Abstract as _RegistryDriver, Memory as _MemoryDriver
 
 # Default driver
 __current_driver = _MemoryDriver()

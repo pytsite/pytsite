@@ -110,5 +110,5 @@ def _cron_main_thread():
 
         _sleep(60)
 
-if _reg.get('cron.enabled', True):
+if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
     _threading.create_thread(_cron_main_thread).start()

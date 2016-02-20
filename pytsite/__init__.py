@@ -80,8 +80,8 @@ def __init():
         'base_tpl': 'app@html',
     })
 
-    # Debug parameters
-    reg.set_val('debug', {'enabled': False})
+    # Debug is disabled by default
+    reg.set_val('debug', False)
 
     # Switching registry to the file driver
     file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'))
