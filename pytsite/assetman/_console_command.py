@@ -108,7 +108,7 @@ class Assetman(_console.command.Abstract):
         output_dir = _path.dirname(output_file)
         if not _path.exists(output_dir):
             _makedirs(output_dir, 0o755, True)
-        with open(output_file, 'wt') as f:
+        with open(output_file, 'wt', encoding='utf-8') as f:
             _logger.info("Writing translations into '{}'".format(output_file), __name__)
             f.write(str_output)
 

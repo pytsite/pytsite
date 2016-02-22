@@ -229,6 +229,6 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
 
     # Write feed content
     out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, lng))
-    with open(out_path, 'wt') as f:
+    with open(out_path, 'wt', encoding='utf-8') as f:
         f.write(generator.generate())
     _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)

@@ -214,7 +214,7 @@ def load_lang_file(pkg_name: str, language: str=None):
     if not _path.exists(file_path):
         return content
 
-    with open(file_path) as f:
+    with open(file_path, encoding='utf-8') as f:
         content = _yaml.load(f)
 
     if content is None:

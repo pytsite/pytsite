@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.56.2 (2016-02-22)
+### Fixed
+- UTF-8 issue while working with some files on MacOS.
+
+
 ## 0.56.1 (2016-02-20)
 ### Fixed
 - Invalid 'debug' configuration default value while init.
