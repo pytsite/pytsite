@@ -36,9 +36,7 @@ def has(finder) -> bool:
     if not _cache.has_pool(pool_name):
         return False
 
-    item = _cache.get_pool(pool_name).get(finder.id)
-
-    return True if item is not None else False
+    return _cache.get_pool(pool_name).has(finder.id)
 
 
 def get(finder) -> tuple:
@@ -51,7 +49,6 @@ def get(finder) -> tuple:
         return
 
     r = _cache.get_pool(pool_name).get(finder.id)
-
     if _reg.get('odm.debug'):
         _logger.debug("GET query results: query: {}, {}, id: {}, entities: {}.".
                       format(finder.model, finder.query.compile(), finder.id, len(r)), __name__)

@@ -44,7 +44,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def put(self, key: str, value: _Any, ttl: int=None):
+    def put(self, key: str, value: _Any, ttl: int=None) -> _Any:
         """Put an item into the pool.
         """
         pass
@@ -92,7 +92,7 @@ class Memory(Abstract):
 
                 return item[0]
 
-    def put(self, key: str, value: _Any, ttl: int=None):
+    def put(self, key: str, value: _Any, ttl: int=None) -> _Any:
         """Put an item into the pool.
         """
         with _threading.get_r_lock():
@@ -103,6 +103,8 @@ class Memory(Abstract):
 
             if _reg.get('cache.debug'):
                 _logger.debug("PUT item '{}' into the pool '{}' with TTL {}.".format(key, self.name, ttl), __name__)
+
+            return value
 
     def rm(self, key: str):
         """Remove a single item from the pool.

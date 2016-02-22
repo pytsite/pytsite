@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.56.3 (2016-02-22)
+### Fixed
+- Some rework of ODM caching.
+
+
 ## 0.56.2 (2016-02-22)
 ### Fixed
 - UTF-8 issue while working with some files on MacOS.
@@ -13,15 +18,15 @@
 
 ## 0.56 (2016-02-20)
 ### Fixed
-- Dictionary checking in `util.dict_merge()`. 
+- Dictionary checking in `util.dict_merge()`.
 
 ### Changed
 - `cache` totally reworked.
 - `odm`'s finder caching reworked.
 - `cron` is now starting more precisely.
 - Configuration parameter 'debug.enabled' renamed to 'debug'.
-- Class `odm.Model` renamed to `odm.Entity`. 
-- Class `odm_ui.Model` renamed to `odm_ui.Entity`. 
+- Class `odm.Model` renamed to `odm.Entity`.
+- Class `odm_ui.Model` renamed to `odm_ui.Entity`.
 - 1 hour delay removed from `content_export`.
 
 
@@ -65,7 +70,7 @@
 
 ## 0.55.2 (2016-02-14)
 ### Added
-- Support for 'code' and 'pre' tags in `ckeditor`. 
+- Support for 'code' and 'pre' tags in `ckeditor`.
 
 
 ## 0.55.1 (2016-02-14)
@@ -101,7 +106,7 @@
 
 ## 0.54.1 (2016-02-09)
 ### Fixed
-- Error in 'update' `console`'s command while compiling assets by `assetman`. 
+- Error in 'update' `console`'s command while compiling assets by `assetman`.
 
 
 ## 0.54 (2016-02-09)
@@ -121,7 +126,7 @@
 
 ## 0.53.1 (2016-02-08)
 ### Added
-- New `metatag`'s property support: 'og:url'. 
+- New `metatag`'s property support: 'og:url'.
 
 
 ## 0.53 (2016-02-07)
@@ -134,7 +139,7 @@
 
 ## 0.52.6 (2016-02-07)
 ### Fixed
-- Widgets placement in `content_export`'s ODM form. 
+- Widgets placement in `content_export`'s ODM form.
 
 
 ## 0.52.5 (2016-02-06)
@@ -147,12 +152,12 @@
 - Automatic conversion of BMP to JPEG in `image` while uploading.
 
 ### Fixed
-- Invalid search algorithm in `taxonomy.find_by_title()`. 
+- Invalid search algorithm in `taxonomy.find_by_title()`.
 
 
 ## 0.52.3 (2016-02-04)
 ### Added
-- New argument in `content.widget.Search`: 'title_css'. 
+- New argument in `content.widget.Search`: 'title_css'.
 - Anchor HTML escaping in `util.nav_link()`.
 
 
@@ -237,7 +242,7 @@
 
 ## 0.48.3 (2016-01-18)
 ### Changed
-- Step of responsive images resizing lowered to 100px.  
+- Step of responsive images resizing lowered to 100px.
 
 
 ## 0.48.2 (2016-01-16)
@@ -247,10 +252,10 @@
 
 ## 0.48.1 (2016-01-15)
 ### Added
-- New `content`'s model 'img' body tag argument: 'alt'. 
+- New `content`'s model 'img' body tag argument: 'alt'.
 
 ### Changed
-- Improved resizing logic in `image`. 
+- Improved resizing logic in `image`.
 
 
 ## 0.48 (2016-01-14)
@@ -262,7 +267,7 @@
 
 ## 0.47.4 (2016-01-13)
 ### Added
-- Support for tags 'fb:app_id' and 'fb:admins' by `metatag`. 
+- Support for tags 'fb:app_id' and 'fb:admins' by `metatag`.
 
 
 ## 0.47.3 (2016-01-12)
@@ -317,7 +322,7 @@
 - `browser`'s 'imagesLoaded' plugin updated from 3.1.8 to 4.0.0.
 
 ### Fixed
-- Processing double quotes in HTML tag arguments in `util.trim_str()`. 
+- Processing double quotes in HTML tag arguments in `util.trim_str()`.
 
 ### Removed
 - `add_this` from `tpl`'s globals.
@@ -325,7 +330,7 @@
 
 ## 0.44.3 (2016-01-10)
 ### Fixed
-- Incorrect HTML references processing in `util.trim_str()`. 
+- Incorrect HTML references processing in `util.trim_str()`.
 
 
 ## 0.44.2 (2016-01-09)
@@ -365,8 +370,8 @@
 - More detailed error output in `fb.Session.paginated_request()`.
 
 ### Changed
-- `fb`'s content_export driver now uses entity body instead of description as export message body and trims it to 600 
-  characters. 
+- `fb`'s content_export driver now uses entity body instead of description as export message body and trims it to 600
+  characters.
 
 ### Fixed
 - Error in `content_export`'s form rendering.
@@ -383,12 +388,12 @@
 
 ## 0.41.17 (2016-01-05)
 ### Added
-- New `tpl`'s globals: `browser_include()`, `assetman_add()`, `assetman_css()`, `assetman_js()`, `assetman_inline()`, 
+- New `tpl`'s globals: `browser_include()`, `assetman_add()`, `assetman_css()`, `assetman_js()`, `assetman_inline()`,
   `metatag()`, `metatag_all()`, `reg_get()`, `get_current_lang()`.
 - New event 'pytsite.tpl.render';
 
 ### Changed
-- `auth_get_current_user()` tpl global renamed to `get_current_user()`. 
+- `auth_get_current_user()` tpl global renamed to `get_current_user()`.
 - `auth_get_login_form()` tpl global renamed to `get_login_form()`.
 - `auth_get_logout_url()` tpl global renamed to `get_logout_url()`.
 
@@ -447,7 +452,7 @@
 - `call_once` argument in `events.listen()`.
 
 ### Changed
-- `form`'s and `contact`'s JS assets made permanent. 
+- `form`'s and `contact`'s JS assets made permanent.
 
 ### Removed
 - `url` global from `tpl`.
@@ -492,7 +497,7 @@
 
 ## 0.41.7 (2015-12-23)
 ### Fixed
-- Incorrect operations with `odm.field.Dict`. 
+- Incorrect operations with `odm.field.Dict`.
 
 
 ## 0.41.6 (2015-12-23)
@@ -533,7 +538,7 @@
 - New methods in `odm.Finder`: `remove_where()` as `remove_or_where()`.
 - `currency` is ready for work.
 - New method `odm.Model.reload()`
-- `wallet` is ready to work. 
+- `wallet` is ready to work.
 
 ### Changed
 - `odm_ui` refactored a lot.
@@ -546,7 +551,7 @@
 - Little fixes of `auth_log`.
 - Incorrect check in `validation.rule.NonEmpty` rule.
 - Error in `fb.widget.Auth`.
-- Missing entity state update in `odm.field.List.sub_val()`. 
+- Missing entity state update in `odm.field.List.sub_val()`.
 
 
 ## 0.40.4 (2015-12-14)
@@ -601,13 +606,13 @@
 ## 0.39 (2015-12-08)
 ### Added
 - New ODM field: `odm.field.Decimal`.
-- New permission definitions in `content`: 'pytsite.content.set_publish_time.*' and 
+- New permission definitions in `content`: 'pytsite.content.set_publish_time.*' and
   'pytsite.content.set_localization.*'.
 
 
 ## 0.38.4 (2015-12-02)
 ### Fixed
-- 'yandex:full-text' iframes incomplete cleanup. 
+- 'yandex:full-text' iframes incomplete cleanup.
 
 
 ## 0.38.3 (2015-12-02)
@@ -750,7 +755,7 @@
 
 ## 0.34.1 (2015-11-12)
 ### Fixed
-- Improper email validation in `content.ep.subscribe()` endpoint. 
+- Improper email validation in `content.ep.subscribe()` endpoint.
 - Support for fallback language in JS `lang`.
 
 
@@ -764,7 +769,7 @@
 
 ## 0.33.6 (2015-11-11)
 ### Added
-- `cleanup` argument in `odm.field.List` constructor. 
+- `cleanup` argument in `odm.field.List` constructor.
 
 
 ## 0.33.5 (2015-11-11)
@@ -783,7 +788,7 @@
 - `fb`: export from behalf of a page.
 
 ### Fixed
-- Incorrect building of the redirect URL in the `ulogin` auth driver. 
+- Incorrect building of the redirect URL in the `ulogin` auth driver.
 
 
 ## 0.33.2 (2015-11-06)
@@ -826,7 +831,7 @@
 - `pytsite.auth.error.LoginIncorrect` renamed to `pytsite.auth.error.LoginError`.
 
 ### Fixed
-- Error while resolving non-private IP addresses in `geo_ip.resolve()`. 
+- Error while resolving non-private IP addresses in `geo_ip.resolve()`.
 
 
 ## 0.32.1 (2015-10-26)
@@ -837,7 +842,7 @@
 ## 0.32 (2015-10-26)
 ### Added
 - ODM UI implementation for `auth_log`.
-- Timed pausing `content_export`'s exporters in case of errors. 
+- Timed pausing `content_export`'s exporters in case of errors.
 - New fields `paused_till` and `last_error` in `content_export.model.ContentExport`.
 
 ### Fixed
@@ -948,7 +953,7 @@
 
 ### Fixed
 - Error in arguments order while constructing `Url()` in `validation.rule.ListListItemUrl()'.
-- Error in setting validator's value in `file.widget.FilesUpload`. 
+- Error in setting validator's value in `file.widget.FilesUpload`.
 
 ## 0.23.3 (2015-10-08)
 ### Added
@@ -956,7 +961,7 @@
 
 ### Fixed
 - Changing content path's aliases error.
-- Showing empty header area in forms. 
+- Showing empty header area in forms.
 
 ## 0.23.2 (2015-10-07)
 ### Added
@@ -1009,7 +1014,7 @@
 
 ## 0.21.4 (2015-09-28)
 ### Added
-- `images` column in admin content view browser. 
+- `images` column in admin content view browser.
 
 
 ## 0.21.3 (2015-09-28)
@@ -1072,7 +1077,7 @@
 - `route_alias.find_one_by_target()` renamed to `route_alias.find_by_target()`.
 
 ### Fixed
-- Erroneous options overwriting of `auth.model.model.User` in `auth.driver.ulogin`. 
+- Erroneous options overwriting of `auth.model.model.User` in `auth.driver.ulogin`.
 - Little rewrite of `odm.field`
 
 
@@ -1185,7 +1190,7 @@
 
 ## 0.14 (2015-09-12)
 ### Added
-- Set `nickname` field's value of the `auth.model.User` in `auth.driver.ulogin` 
+- Set `nickname` field's value of the `auth.model.User` in `auth.driver.ulogin`
 
 ### Fixed
 - Errors in `db`'s console commands.
@@ -1218,10 +1223,10 @@
 
 ## 0.12.1 (2015-09-09)
 ### Added
-- `flag.widget` initialization via JS API. 
+- `flag.widget` initialization via JS API.
 
 ### Changed
-- Bilinear algorithm is now the default while resizing images in `image.ep.resize()`. 
+- Bilinear algorithm is now the default while resizing images in `image.ep.resize()`.
 
 ## 0.12 (2015-09-09)
 ### Added
@@ -1277,7 +1282,7 @@
 ## 0.11.1 (2015-09-04)
 ### Added
 - Now is possible to specify allowed members types, min and max lengths in `odm.field.List`.
-- New ODM field `odm.field.FloatList`. 
+- New ODM field `odm.field.FloatList`.
 - New event `pytsite.content.console.generate`.
 - New function `content.get_tags()`.
 - `--no-html` argument  in `content:generate` console command.
@@ -1313,7 +1318,7 @@
 - ODM field `Position` in `geo` package.
 
 ### Changed
-- Automatic type conversion in setters of `odm.field.Integer` and `odm.field.Float`. 
+- Automatic type conversion in setters of `odm.field.Integer` and `odm.field.Float`.
 
 
 ## 0.9 (2015-09-02)
@@ -1357,7 +1362,7 @@
 ## 0.8.3 (2015-08-29)
 ### Fixed
 - Removed forgotten debug messages.
-- Incorrect language ODM UI form field setup in `taxonomy.model.Term`.  
+- Incorrect language ODM UI form field setup in `taxonomy.model.Term`.
 
 
 ## 0.8.2 (2015-08-28)
@@ -1373,7 +1378,7 @@
 ## 0.8 (2015-08-28)
 ### Changed
 - `core` refactored into separate modules.
-- `update` module rewritten. 
+- `update` module rewritten.
 
 ### Fixed
 - Value set error in `currency.odm.CurrencyField`.
@@ -1450,7 +1455,7 @@
 
 ## 0.5.2 (2015-08-11)
 ### Changed
-- RSS and Atom feeds store path in `content`. 
+- RSS and Atom feeds store path in `content`.
 
 
 ## 0.5.1 (2015-08-11)
@@ -1461,7 +1466,7 @@
 ## 0.5 (2015-08-11)
 ### Added
 - `feed` plugin.
-- RSS and Atom feeds generation in `content`. 
+- RSS and Atom feeds generation in `content`.
 
 ### Changed
 - More informative users browser layout in `auth_ui`.
@@ -1500,7 +1505,7 @@
 ## 0.3.1 (2015-08-04)
 ### Added
 - `auth`:
-    - New fields in `model.User`:  `last_activity` and `is_online`. 
+    - New fields in `model.User`:  `last_activity` and `is_online`.
 
 
 ## 0.3 (2015-08-03)
@@ -1534,7 +1539,7 @@
 - Arguments cleanup while processing login form in `auth`.
 - Strings strip in `core.validation.rule.NonEmpty`.
 - Improved regexp in `core.validation.rule.Email`.
-- Input arguments pass-through to called endpoint in `core.eps.index()`.  
+- Input arguments pass-through to called endpoint in `core.eps.index()`.
 
 
 ## 0.2.13 (2015-07-27)
@@ -1546,7 +1551,7 @@
 ### Fixed
 - Exception handling in `cron:start` console command.
 - Unnecessary user login count in `auth.get_current_user()`.
-- YouTube links detection in `core.widget.static.VideoPlayer`. 
+- YouTube links detection in `core.widget.static.VideoPlayer`.
 
 
 ## 0.2.12 (2015-07-25)
@@ -1566,7 +1571,7 @@
 
 ## 0.2.9 (2015-07-24)
 ### Added
-- Twitter content cross posting. 
+- Twitter content cross posting.
 
 ### Changed
 - `poster` moved to `export` and refactored.
@@ -1579,7 +1584,7 @@
 
 ## 0.2.8 (2015-07-22)
 ### Fixed
-- YouTube links validation in `core.validation.rule.VideoHostingUrl` 
+- YouTube links validation in `core.validation.rule.VideoHostingUrl`
 
 
 ## 0.2.7 (2015-07-22)
@@ -1596,12 +1601,12 @@
 - `core.assetman` refactored.
 - `core.client` improved and renamed to `core.browser`.
 - `content.model.Content` publish time widget is now visible for non admins.
-- `core.mail`: asynchronous messages delivery. 
+- `core.mail`: asynchronous messages delivery.
 
 
 ## 0.2.4 (2015-07-21)
 ### Fixed
-- Incorrect value of `og:url` in `content.eps.view`. 
+- Incorrect value of `og:url` in `content.eps.view`.
 
 
 ## 0.2.3 (2015-07-21)
@@ -1640,7 +1645,7 @@
         - `core.validation.rule.ListListItemUrl`;
         - `core.validation.rule.VideoHostingUrl`.
     - New `args` argument in `core.odm.Model.t()`.
-    - New widgets: 
+    - New widgets:
         - `core.widget.static.Pager`;
         - `core.widget.input.StringList`;
         - `core.widget.static.VideoPlayer`.
@@ -1681,7 +1686,7 @@
 
 ### Changed
 - `core.widget` plugin:
-    - New argument in `geo.widget.SearchAddress`: `autodetect`. 
+    - New argument in `geo.widget.SearchAddress`: `autodetect`.
 - `geo` plugin:
     - New `autodetect` argument in `geo.widget.SearchAddress`.
 - `auth`

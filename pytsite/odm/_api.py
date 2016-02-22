@@ -1,14 +1,13 @@
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
-from pytsite import db as _db, util as _util, threading as _threading, events as _events
-from . import _entity, _error
+from pytsite import db as _db, util as _util, threading as _threading, events as _events, cache as _cache
+from . import _entity, _error, _entities_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 __registered_models = {}
-__dispensed_entities = {}
 
 
 def register_model(model: str, cls, replace: bool=False):
@@ -105,47 +104,13 @@ def dispense(model: str, entity_id=None) -> _entity.Entity:
             raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
         # Try to get entity from cache
-        if entity_id:
-            entity = cache_get(model, entity_id)
-            if entity:
-                return entity
+        if entity_id and _entities_cache.has(model, entity_id):
+            return _entities_cache.get(model, entity_id)
 
         # Instantiate entity
         entity = get_model_class(model)(model, entity_id)
 
-        return cache_put(entity)
-
-
-def cache_get(model_name: str, entity_id) -> _entity.Entity:
-    """Get entity from the cache.
-    """
-    if not entity_id:
-        return
-
-    cache_key = model_name + ':' + str(entity_id)
-    if cache_key in __dispensed_entities:
-        cache_key = model_name + ':' + str(entity_id)
-        return __dispensed_entities[cache_key]
-
-
-def cache_put(entity: _entity.Entity) -> _entity.Entity:
-    """Put entity to the cache.
-    """
-    if not entity.is_new:
-        cache_key = entity.model + ':' + str(entity.id)
-        if cache_key not in __dispensed_entities:
-            __dispensed_entities[cache_key] = entity
-
-    return entity
-
-
-def cache_delete(entity: _entity.Entity):
-    """Delete entity from the cache.
-    """
-    if not entity.is_new:
-        cache_key = entity.model + ':' + str(entity.id)
-        if cache_key in __dispensed_entities:
-            del __dispensed_entities[cache_key]
+        return _entities_cache.put(entity)
 
 
 def find(model: str):
