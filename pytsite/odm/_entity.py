@@ -489,10 +489,13 @@ class Entity(_ABC):
 
             # Entity is not new anymore
             if self._is_new:
-                from . import _entities_cache, _finder_cache
+                from . import _entities_cache
                 self._is_new = False
                 _entities_cache.put(self)
-                _finder_cache.clear(self.model)
+
+            # Clear entire finder cache for this model
+            from . import _finder_cache
+            _finder_cache.clear(self.model)
 
             # Save children with updated '_parent' field
             for child in self.children:

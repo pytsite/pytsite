@@ -3,7 +3,7 @@
 from typing import Iterable as _Iterable
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
-from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger
+from pytsite import lang as _lang, util as _util, reg as _reg
 from . import _entity, _field, _api, _finder_cache
 
 __author__ = 'Alexander Shepetko'
