@@ -129,9 +129,6 @@ class Memory(Abstract):
         """Cleanup outdated items from the cache.
         """
         with _threading.get_r_lock():
-            if _reg.get('cache.debug'):
-                _logger.debug("Cache cleanup started for pool '{}'.".format(self.name), __name__)
-
             now = _datetime.now()
             keys_to_rm = []
             for key, item in self._storage.items():
@@ -140,6 +137,3 @@ class Memory(Abstract):
 
             for k in keys_to_rm:
                 self.rm(k)
-
-            if _reg.get('cache.debug'):
-                _logger.debug("Cache cleanup finished for pool '{}'.".format(self.name), __name__)

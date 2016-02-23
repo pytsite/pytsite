@@ -1,7 +1,7 @@
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, threading as _threading, events as _events, cache as _cache
-from . import _entity, _error, _entities_cache
+from . import _entity, _error, _entity_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -104,13 +104,13 @@ def dispense(model: str, entity_id=None) -> _entity.Entity:
             raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
         # Try to get entity from cache
-        if entity_id and _entities_cache.has(model, entity_id):
-            return _entities_cache.get(model, entity_id)
+        if entity_id and _entity_cache.has(model, entity_id):
+            return _entity_cache.get(model, entity_id)
 
         # Instantiate entity
         entity = get_model_class(model)(model, entity_id)
 
-        return _entities_cache.put(entity)
+        return _entity_cache.put(entity)
 
 
 def find(model: str):

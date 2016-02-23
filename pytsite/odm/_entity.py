@@ -489,9 +489,9 @@ class Entity(_ABC):
 
             # Entity is not new anymore
             if self._is_new:
-                from . import _entities_cache
+                from . import _entity_cache
                 self._is_new = False
-                _entities_cache.put(self)
+                _entity_cache.put(self)
 
             # Clear entire finder cache for this model
             from . import _finder_cache
@@ -534,9 +534,9 @@ class Entity(_ABC):
 
             # Actual deletion from storage
             if not self._is_new:
-                from . import _entities_cache
+                from . import _entity_cache
                 self.collection.delete_one({'_id': self.id})
-                _entities_cache.rm(self)
+                _entity_cache.rm(self)
 
             # Clearing parent reference from orphaned children
             for child in children:

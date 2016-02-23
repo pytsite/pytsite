@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.56.5 (2016-02-23)
+### Fixed
+- Some ODM caching rework.
+
+
 ## 0.56.4 (2016-02-22)
 ### Fixed
 - Incorrect ODM requests cache clearing.

@@ -1,6 +1,6 @@
 """PytSite ODM Finder Cache.
 """
-from pytsite import cache as _cache, logger as _logger, reg as _reg
+from pytsite import cache as _cache, logger as _logger, reg as _reg, threading as _threading
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,54 +12,57 @@ def put(finder, result, ttl: int) -> tuple:
     :param finder: pytsite.odm._finder.Finder
     :param result: pytsite.odm._finder.Result
     """
-    pool_name = 'pytsite.odm.finder.' + finder.model
+    with _threading.get_r_lock():
+        pool_name = 'pytsite.odm.finder.' + finder.model
 
-    if not _cache.has_pool(pool_name):
-        _cache.create_pool(pool_name, default_ttl=ttl)
+        if not _cache.has_pool(pool_name):
+            _cache.create_pool(pool_name, default_ttl=ttl)
 
-    r = tuple(result)
-    _cache.get_pool(pool_name).put(finder.id, r, ttl)
+        r = tuple(result)
+        _cache.get_pool(pool_name).put(finder.id, r, ttl)
 
-    if _reg.get('odm.debug'):
-        _logger.debug("PUT query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".
-                      format(finder.model, finder.query.compile(), finder.id, len(r), ttl), __name__)
+        if _reg.get('odm.debug'):
+            _logger.debug("PUT query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".
+                          format(finder.model, finder.query.compile(), finder.id, len(r), ttl), __name__)
 
-    return r
+        return r
 
 
 def has(finder) -> bool:
     """
     :param finder: pytsite.odm._finder.Finder
     """
-    pool_name = 'pytsite.odm.finder.' + finder.model
+    with _threading.get_r_lock():
+        pool_name = 'pytsite.odm.finder.' + finder.model
 
-    if not _cache.has_pool(pool_name):
-        return False
+        if not _cache.has_pool(pool_name):
+            return False
 
-    return _cache.get_pool(pool_name).has(finder.id)
+        return _cache.get_pool(pool_name).has(finder.id)
 
 
 def get(finder) -> tuple:
     """
     :param finder: pytsite.odm._finder.Finder
     """
-    pool_name = 'pytsite.odm.finder.' + finder.model
+    with _threading.get_r_lock():
+        pool_name = 'pytsite.odm.finder.' + finder.model
 
-    if not has(finder):
-        return
+        if not has(finder):
+            return
 
-    r = _cache.get_pool(pool_name).get(finder.id)
-    if _reg.get('odm.debug'):
-        _logger.debug("GET query results: query: {}, {}, id: {}, entities: {}.".
-                      format(finder.model, finder.query.compile(), finder.id, len(r)), __name__)
+        r = _cache.get_pool(pool_name).get(finder.id)
+        if _reg.get('odm.debug'):
+            _logger.debug("GET query results: query: {}, {}, id: {}, entities: {}.".
+                          format(finder.model, finder.query.compile(), finder.id, len(r)), __name__)
 
-    return r
+        return r
 
 
 def clear(model: str):
-    pool_name = 'pytsite.odm.finder.' + model
-
-    if _cache.has_pool(pool_name):
-        _cache.delete_pool(pool_name)
-        if _reg.get('odm.debug'):
-            _logger.debug("CLEAR pool: '{}'.".format(pool_name))
+    with _threading.get_r_lock():
+        pool_name = 'pytsite.odm.finder.' + model
+        if _cache.has_pool(pool_name):
+            _cache.delete_pool(pool_name)
+            if _reg.get('odm.debug'):
+                _logger.debug("CLEAR pool: '{}'.".format(pool_name))

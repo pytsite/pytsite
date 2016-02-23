@@ -1,7 +1,7 @@
 """PytSite Cache API.
 """
 from typing import Dict as _Dict
-from pytsite import threading as _threading
+from pytsite import threading as _threading, logger as _logger, reg as _reg
 from . import _driver
 
 __author__ = 'Alexander Shepetko'
@@ -29,6 +29,9 @@ def create_pool(name: str, driver: str='memory', default_ttl: int=3600) -> _driv
 
         __pools[name] = drv
 
+        if _reg.get('cache.debug'):
+            _logger.debug("New POOL CREATED: '{}', driver: '{}'.".format(name, driver), __name__)
+
         return drv
 
 
@@ -47,10 +50,19 @@ def delete_pool(name: str):
 
         del __pools[name]
 
+        if _reg.get('cache.debug'):
+            _logger.debug("POOL DELETED: '{}'.".format(name), __name__)
+
 
 def cleanup_pool(name: str):
     with _threading.get_r_lock():
+        if _reg.get('cache.debug'):
+            _logger.debug("Cache cleanup started for pool '{}'.".format(name), __name__)
+
         get_pool(name).cleanup()
+
+        if _reg.get('cache.debug'):
+            _logger.debug("Cache cleanup finished for pool '{}'.".format(name), __name__)
 
 
 def cleanup_pools():
