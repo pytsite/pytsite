@@ -136,14 +136,12 @@ class Driver(_content_export.AbstractDriver):
             if entity.description:
                 msg += '<p>{}</p>'.format(entity.description)
             msg += '<lj-cut>'
-            msg += entity.f_get('body', process_tags=True, responsive=False)
+            msg += _util.trim_str(entity.f_get('body', process_tags=True, responsive=False), 64535, True)
             msg += '</lj-cut>'
             if opts['lj_like']:
                 msg += '<lj-like buttons="{}">'.format(opts['lj_like'])
-            msg = _util.trim_str(msg, 65535, True, ('lj-like',))
 
             s = _Session(opts['username'], opts['password'])
-
             r = s.post_event(entity.title[:255], msg, tags, entity.publish_time)
 
             _logger.info("Export finished. '{}'. LJ response: {}".format(entity.title, r), __name__)

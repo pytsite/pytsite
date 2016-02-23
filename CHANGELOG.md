@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.57.1 (2016-02-24)
+### Fixed
+- Post trimming in `lj`'s content_export driver.
+
+
 ## 0.57 (2016-02-23)
 ### Added
 - Support for uWSGI auto-reloading via file touch.
