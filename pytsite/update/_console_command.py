@@ -2,9 +2,9 @@
 """
 import pickle as _pickle
 import subprocess as _subprocess
-from os import path as _path
+from os import path as _path, utime as _utime
 from pytsite import console as _console, events as _events, lang as _lang, version as _pytsite_ver, reg as _reg, \
-    logger as _logger, maintenance as _maintenance
+    logger as _logger, maintenance as _maintenance, validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -24,53 +24,80 @@ class Update(_console.command.Abstract):
         """
         return _lang.t('pytsite.update@update_console_command_description')
 
+    def get_options(self) -> tuple:
+        """Get command's options.
+        """
+        return (
+            ('stage', _validation.rule.Integer()),
+        )
+
+    def get_options_help(self) -> str:
+        """Get command options help.
+        """
+        return '[--stage=num]'
+
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
-        state = self._get_state()
-        cur_ver = _pytsite_ver()
-        cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
-
         _maintenance.enable()
 
-        _subprocess.call(['pip', 'install', '-U', 'pip'])
-        _subprocess.call(['pip', 'install', '-U', 'pytsite'])
+        if kwargs.get('stage', '1') == '1':
+            _console.print_info(_lang.t('pytsite.update@updating_environment'))
+            _subprocess.call(['pip', 'install', '-U', 'pip'])
+            _subprocess.call(['pip', 'install', '-U', 'pytsite'])
+            _subprocess.call(['./console', 'update', '--stage=2'])
+        elif kwargs.get('stage') == '2':
+            _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
-        stop = False
-        for major in range(0, 1):
-            if stop:
-                break
-            for minor in range(0, 100):
+            state = self._get_state()
+            cur_ver = _pytsite_ver()
+            cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
+            stop = False
+            for major in range(0, 1):
                 if stop:
                     break
-                for rev in range(0, 20):
+                for minor in range(0, 100):
                     if stop:
                         break
+                    for rev in range(0, 20):
+                        if stop:
+                            break
 
-                    major_minor_rev = '{}.{}.{}'.format(major, minor, rev)
+                        major_minor_rev = '{}.{}.{}'.format(major, minor, rev)
 
-                    # Current version reached
-                    if major_minor_rev == cur_ver_str:
-                        stop = True
+                        # Current version reached
+                        if major_minor_rev == cur_ver_str:
+                            stop = True
 
-                    # Update is already applied
-                    if major_minor_rev in state:
-                        continue
+                        # Update is already applied
+                        if major_minor_rev in state:
+                            continue
 
-                    # Notify listeners
-                    _logger.info('pytsite.update event, version={}'.format(major_minor_rev), __name__)
-                    _events.fire('pytsite.update', version=major_minor_rev)
+                        # Notify listeners
+                        _logger.info('pytsite.update event, version={}'.format(major_minor_rev), __name__)
+                        _events.fire('pytsite.update', version=major_minor_rev)
 
-                    # Saving number as applied update
-                    state.add(major_minor_rev)
+                        # Saving number as applied update
+                        state.add(major_minor_rev)
 
-        self._save_state(state)
-        _maintenance.disable()
+            self._save_state(state)
 
-        _logger.info('pytsite.update.after event', __name__)
-        _events.fire('pytsite.update.after')
+            _logger.info('pytsite.update.after event', __name__)
+            _events.fire('pytsite.update.after')
+
+            _maintenance.disable()
+
+            # Updating touch-reload file
+            touch_reload_path = _path.join(_reg.get('paths.storage'), 'touch.reload')
+            if not _path.exists(touch_reload_path):
+                with open(touch_reload_path, 'w'):
+                    pass
+            else:
+                _utime(touch_reload_path, None)
 
     def _get_state(self) -> set:
+        """Get current update state.
+        """
         data = set()
 
         data_path = self._get_data_path()
@@ -83,6 +110,8 @@ class Update(_console.command.Abstract):
         return data
 
     def _save_state(self, state: set):
+        """Save current update state.
+        """
         with open(self._get_data_path(), 'wb') as f:
             _pickle.dump(state, f)
 

@@ -53,6 +53,7 @@ def run_command(name: str, args: tuple=(), **kwargs):
             except _validation.error.RuleError as e:
                 raise _error.Error('--{}: {}'.format(opt_name, e))
 
+    kwargs = {k.replace('_', '-'): v for k, v in kwargs.items()}
     for k in kwargs.keys():
         if k not in valid_options:
             raise _error.InvalidOption('Invalid option: --{}'.format(k))

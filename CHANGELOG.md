@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.57 (2016-02-23)
+### Added
+- Support for uWSGI auto-reloading via file touch.
+- Two-step application update process.
+
+
 ## 0.56.6 (2016-02-23)
 ### Fixed
 - Cron start in uWSGI request context.

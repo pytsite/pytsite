@@ -32,22 +32,24 @@ class Assetman(_console.command.Abstract):
     def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '--build'
+        return '--build [--no-maintenance]'
 
     def get_options(self) -> tuple:
         """Get command options.
         """
         return (
             ('build', _validation.rule.Dummy()),
+            ('no-maintenance', _validation.rule.Dummy()),
         )
 
-    def _build(self):
+    def _build(self, maintenance=True):
         static_dir = _reg.get('paths.static')
         assets_dir = _path.join(static_dir, 'assets')
         if _path.exists(assets_dir):
             _rmtree(assets_dir)
 
-        _maintenance.enable()
+        if maintenance:
+            _maintenance.enable()
 
         _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
         for pkg_name, package_assets_dir in _functions.get_packages().items():
@@ -112,7 +114,8 @@ class Assetman(_console.command.Abstract):
             _logger.info("Writing translations into '{}'".format(output_file), __name__)
             f.write(str_output)
 
-        _maintenance.disable()
+        if maintenance:
+            _maintenance.disable()
 
     def execute(self, args: tuple=(), **kwargs):
         """Execute The Command.
@@ -121,4 +124,4 @@ class Assetman(_console.command.Abstract):
             raise _console.error.InsufficientArguments()
 
         if 'build' in kwargs:
-            self._build()
+            self._build(not kwargs.get('no-maintenance', False))

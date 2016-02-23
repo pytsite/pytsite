@@ -21,7 +21,7 @@ def __init():
 
     # Events
     events.listen('pytsite.router.dispatch', _functions.reset)
-    events.listen('pytsite.update.after', lambda: console.run_command('assetman', build=True))
+    events.listen('pytsite.update.after', lambda: console.run_command('assetman', build=True, no_maintenance=True))
 
     tpl.register_global('asset_url', url)
     tpl.register_global('assetman_add', add)
