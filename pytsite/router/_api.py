@@ -11,7 +11,7 @@ from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessi
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag, \
-    tpl as _tpl
+    tpl as _tpl, cron as _cron
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -182,6 +182,10 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
+
+    # Cron must be started in request context because uWSGI makes request in  separate process
+    if not _cron.is_started():
+        _cron.start()
 
     # Remove trailing slash
     _map_adapter = _routes.bind_to_environ(env)

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.56.6 (2016-02-23)
+### Fixed
+- Cron start in uWSGI request context.
+
+
 ## 0.56.5 (2016-02-23)
 ### Fixed
 - Some ODM caching rework.

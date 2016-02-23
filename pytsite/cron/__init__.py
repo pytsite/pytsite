@@ -12,6 +12,7 @@ __license__ = 'MIT'
 
 
 _stats = None
+_started = False
 _working = False
 
 
@@ -110,5 +111,14 @@ def _cron_main_thread():
 
         _sleep(60)
 
-if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    _threading.create_thread(_cron_main_thread).start()
+
+def is_started() -> bool:
+    return _started
+
+
+def start():
+    if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True) and not _started:
+        _threading.create_thread(_cron_main_thread).start()
+
+        global _started
+        _started = True
