@@ -30,7 +30,8 @@ class Generate(_console.command.Abstract):
     def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '[--num=NUM] [--title-len=LEN] [--lang=LANG] [--no-html] [--short] [--author=LOGIN] --model=MODEL'
+        return '[--num=NUM] [--title-len=LEN] [--description-len=LEN] [--lang=LANG] [--no-html] [--short] ' \
+               '[--author=LOGIN] --model=MODEL'
 
     def get_options(self) -> tuple:
         """Get command options.
@@ -39,6 +40,7 @@ class Generate(_console.command.Abstract):
             ('model', _validation.rule.NonEmpty(msg_id='pytsite.content@model_is_required')),
             ('num', _validation.rule.Integer()),
             ('title-len', _validation.rule.Integer()),
+            ('description-len', _validation.rule.Integer()),
             ('lang', _validation.rule.Regex(pattern='^[a-z]{2}$')),
             ('no-html', _validation.rule.Dummy()),
             ('short', _validation.rule.Dummy()),
@@ -101,7 +103,7 @@ class Generate(_console.command.Abstract):
             title = self._generate_title(int(kwargs.get('title-len', 7)))
 
             # Description
-            description = self._generate_title()
+            description = self._generate_title(int(kwargs.get('description-len', 28)))
 
             # Preparing sections and tags
             _shuffle(sections)

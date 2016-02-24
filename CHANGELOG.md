@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.57.2 (2016-02-24)
+### Added
+- New 'content:generate' console command argument: '--description-len'.
+
+
 ## 0.57.1 (2016-02-24)
 ### Fixed
 - Post trimming in `lj`'s content_export driver.
