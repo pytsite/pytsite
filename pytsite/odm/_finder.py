@@ -1,6 +1,6 @@
 """Description.
 """
-from typing import Iterable as _Iterable
+from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from pytsite import lang as _lang, util as _util, reg as _reg
@@ -55,6 +55,8 @@ class Query:
             return '$regex'
         elif op in ('regex_i', '$regex_i'):
             return '$regex_i'
+        elif op in ('near', '$near'):
+            return '$near'
         else:
             raise TypeError("Invalid comparison operator: '{0}'.".format(op))
 
@@ -76,6 +78,7 @@ class Query:
         logical_op = self._resolve_logical_op(logical_op)
         comparison_op = self._resolve_comparison_op(comparison_op)
 
+        # If not sub document
         if field_name.find('.') < 0:
             field = self._model.get_field(field_name)
 
@@ -98,6 +101,11 @@ class Query:
                         v = v.ref
                     clean_arg.append(v)
                 arg = clean_arg
+
+        # Checking for argument type
+        if comparison_op == '$near':
+            if type(arg) not in (list, tuple):
+                raise TypeError('Geo coordinates should be specified as a list or a tuple.')
 
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:
@@ -291,10 +299,13 @@ class Finder:
     def sort(self, fields=None):
         """Set sort criteria.
         """
-        for f in fields:
-            if not self._mock.has_field(f[0]):
-                raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model))
-        self._sort = fields
+        if fields:
+            for f in fields:
+                if not self._mock.has_field(f[0]):
+                    raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model))
+            self._sort = fields
+        else:
+            self._sort = None
 
         return self
 
@@ -306,7 +317,7 @@ class Finder:
 
         return collection.count(filter=flt, skip=self._skip)
 
-    def get(self, limit: int=0) -> Result:
+    def get(self, limit: int=0) -> _Union[_Iterable[_entity.Entity], Result]:
         """Execute the query and return a cursor.
         """
         self._limit = limit

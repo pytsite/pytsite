@@ -76,7 +76,7 @@ def create_transaction(src: _Account, dst: _Account, amount, description: str,
 def get_transactions(state: str=None, from_dt: _datetime=None, to_dt: _datetime=None) -> _Iterable[_Transaction]:
     """Find transactions.
     """
-    f = _odm.find('wallet_transaction', 60).sort([('time', _odm.I_DESC)])
+    f = _odm.find('wallet_transaction').cache(60).sort([('time', _odm.I_DESC)])
 
     if state:
         f.where('state', '=', state)

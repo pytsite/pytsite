@@ -7,10 +7,11 @@ from datetime import datetime as _datetime
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
+from bson import errors as _bson_errors
 from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, threading as _threading, lang as _lang
+from pytsite import db as _db, events as _events, threading as _threading, lang as _lang, logger as _logger
 from . import _error, _field
 
 __author__ = 'Alexander Shepetko'
@@ -211,7 +212,7 @@ class Entity(_ABC):
         return _db.get_collection(self._collection_name)
 
     @property
-    def fields(self) -> _OrderedDict:
+    def fields(self) -> _Dict[str, _field.Abstract]:
         """Get all field objects.
         """
         self._check_deletion()
@@ -466,10 +467,14 @@ class Entity(_ABC):
                 del data['_id']
 
             # Saving data into collection
-            if self._is_new:
-                self.collection.insert_one(data)
-            else:
-                self.collection.replace_one({'_id': data['_id']}, data)
+            try:
+                if self._is_new:
+                    self.collection.insert_one(data)
+                else:
+                    self.collection.replace_one({'_id': data['_id']}, data)
+            except _bson_errors.BSONError as e:
+                _logger.error('BSON error: {}. Document dump: {}'.format(e, data), __name__)
+                raise e
 
             if not skip_hooks:
                 _events.fire('pytsite.odm.entity.save', entity=self)
@@ -564,6 +569,19 @@ class Entity(_ABC):
         """After delete hook.
         """
         pass
+
+    def serialize(self, include_fields: tuple=(), exclude_fields: tuple=()) -> _Dict:
+        """Get serializable representation of the entity.
+        """
+        r = {n: f.get_serializable_val() for n, f in self.fields.items() if not isinstance(f, _field.Virtual)}
+
+        if include_fields:
+            r = {n: f.get_serializable_val() for n, f in self.fields.items() if n in include_fields}
+
+        if exclude_fields:
+            r = {n: f.get_serializable_val() for n, f in self.fields.items() if n not in exclude_fields}
+
+        return r
 
     @classmethod
     def package_name(cls) -> str:

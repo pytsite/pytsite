@@ -11,8 +11,9 @@ __license__ = 'MIT'
 
 
 def login(args: dict, inp: dict) -> str:
-    """Render login page.
+    """Page with login form.
     """
+    # Redirect user if it already authorized
     if not _api.get_current_user().is_anonymous:
         redirect_url = _router.base_url()
         if 'redirect' in inp:
@@ -23,13 +24,10 @@ def login(args: dict, inp: dict) -> str:
     _metatag.t_set('title', _lang.t('pytsite.auth@authorization'))
 
     try:
-        form = _api.get_login_form(args['driver'])
-
         return _tpl.render('pytsite.auth@views/login', {
             'driver': args['driver'],
-            'form': form,
+            'form': _api.get_login_form(args.get('driver')),
         })
-
     except _error.DriverNotRegistered:
         raise _http.error.NotFound()
 

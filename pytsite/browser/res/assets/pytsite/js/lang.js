@@ -1,6 +1,8 @@
 pytsite.lang = {
-    // Will be set later by translations.js
+    // Available languages, will be overwritten later by translations.js
     langs: [],
+
+    // Translations, will be overwritten later by translations.js
     translations: {},
 
     current: function () {
@@ -59,7 +61,7 @@ pytsite.lang = {
     }
 };
 
-// Shortcut
+// Convenience shortcut
 var t = function (msg_id, args, language) {
     return pytsite.lang.t(msg_id, args, language);
 };

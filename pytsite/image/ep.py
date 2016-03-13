@@ -4,7 +4,7 @@ from os import path as _path, makedirs as _makedirs
 from math import floor as _floor
 from PIL import Image as _Image
 from pytsite import reg as _reg, http as _http, router as _router
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -16,7 +16,7 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
     requested_height = int(args['height'])
     file_path = _path.join('image', args['p1'], args['p2'], args['filename'])
 
-    image_entity = _functions.get(rel_path=file_path)
+    image_entity = _api.get(rel_path=file_path)
     if not image_entity:
         raise _http.error.NotFound()
 
@@ -105,7 +105,7 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
     return _http.response.Redirect(image_entity.f_get('url', width=requested_width, height=requested_height))
 
 
-def _align_length(l: int, max_length: int=1200, step: int=100):
+def _align_length(l: int, max_length: int=2000, step: int=50):
     if l <= 0:
         return 0
 

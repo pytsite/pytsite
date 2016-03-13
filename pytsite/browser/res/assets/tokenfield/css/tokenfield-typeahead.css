@@ -1,0 +1,30 @@
+/*!
+ * bootstrap-tokenfield
+ * https://github.com/sliptree/bootstrap-tokenfield
+ * Copyright 2013-2014 Sliptree and other contributors; Licensed MIT
+ */
+.tokenfield .twitter-typeahead {
+    width: 20px;
+    overflow: visible;
+}
+
+.tokenfield .twitter-typeahead .tt-hint {
+    padding: 0;
+    height: 20px
+}
+
+.tokenfield.input-sm .twitter-typeahead .tt-input, .tokenfield.input-sm .twitter-typeahead .tt-hint {
+    height: 18px;
+    font-size: 12px;
+    line-height: 1.5
+}
+
+.tokenfield.input-lg .twitter-typeahead .tt-input, .tokenfield.input-lg .twitter-typeahead .tt-hint {
+    height: 23px;
+    font-size: 18px;
+    line-height: 1.33
+}
+
+.tokenfield .twitter-typeahead .tt-suggestions {
+    font-size: 14px
+}

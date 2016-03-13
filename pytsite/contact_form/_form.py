@@ -16,7 +16,7 @@ class Form(_form.Form):
         super().__init__(uid, **kwargs)
         self._tpl = 'pytsite.contact_form@form'
         self._css += ' pytsite-contact-form'
-        _assetman.add('pytsite.contact_form@js/common.js', forever=True)
+        _assetman.add('pytsite.contact_form@js/common.js', permanent=True)
 
     def _setup(self):
         """Hook.

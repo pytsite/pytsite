@@ -32,7 +32,7 @@ class AccountSelect(_w.select.Select):
 
 
 class MoneyInput(_w.input.Decimal):
-    """Money input widget.
+    """Money Input Widget
     """
     def __init__(self, uid: str, **kwargs):
         """Init.

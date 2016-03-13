@@ -3,7 +3,7 @@
 from typing import Iterable as _Iterable
 from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _browser, html as _html, \
     router as _router
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -137,7 +137,7 @@ class FilesUpload(_widget.Base):
         for val in value:
             if not val:
                 continue
-            entity = _functions.get_by_ref(val)
+            entity = _api.get_by_ref(val)
             if entity:
                 clean_val.append(entity)
 
@@ -148,7 +148,7 @@ class FilesUpload(_widget.Base):
             if isinstance(to_delete, str):
                 to_delete = [to_delete]
             for ref in to_delete:
-                file = _functions.get_by_ref(ref)
+                file = _api.get_by_ref(ref)
                 if file:
                     file.delete()
 

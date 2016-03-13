@@ -61,7 +61,7 @@ $(function () {
 
             // Validation form through AJAX call
             form.trigger('pytsite_form_validation');
-            pytsite.browser.post(validation_ep, form.serializeForm())
+            pytsite.ajax.post(validation_ep, form.serializeForm())
                 .done(function (data, textStatus, jqXHR) {
                     if (!data.status) {
                         var w_messages = data.messages.widgets;

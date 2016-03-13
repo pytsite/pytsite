@@ -3,7 +3,7 @@
 import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, utime as _utime
-from pytsite import console as _console, events as _events, lang as _lang, version as _pytsite_ver, reg as _reg, \
+from pytsite import console as _console, events as _events, lang as _lang, core_version as _pytsite_ver, reg as _reg, \
     logger as _logger, maintenance as _maintenance, validation as _validation
 
 __author__ = 'Alexander Shepetko'

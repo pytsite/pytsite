@@ -19,8 +19,12 @@ class Button(_base.Base):
         self._css += ' btn btn-'
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
+        self._dismiss = kwargs.get('dismiss', None)
 
         self._html_em = _html.Button(uid=self._uid, type='button')
+
+        if self._dismiss:
+            self._html_em.set_attr('data_dismiss', self._dismiss)
 
     @property
     def icon(self) -> str:
@@ -57,7 +61,11 @@ class Submit(Button):
         """Init.
         """
         super().__init__(uid, **kwargs)
+
         self._html_em = _html.Button(uid=self._uid, type='submit')
+
+        if self._dismiss:
+            self._html_em.set_attr('data_dismiss', self._dismiss)
 
 
 class Link(Button):
@@ -67,7 +75,11 @@ class Link(Button):
         """Init.
         """
         super().__init__(uid, **kwargs)
+
         self._html_em = _html.A(uid=self._uid, href=kwargs.get('href', '#'))
+
+        if self._dismiss:
+            self._html_em.set_attr('data_dismiss', self._dismiss)
 
     @property
     def href(self) -> str:

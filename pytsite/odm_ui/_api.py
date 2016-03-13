@@ -3,14 +3,14 @@
 from typing import Iterable as _Iterable
 from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
     form as _form, widget as _widget, html as _html, events as _events
-from . import _model
+from . import _entity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid=None, form_uid='odm-ui-form') -> _form.Form:
+def get_m_form(model: str, eid=None, redirect: str=None, update_meta_title: bool=True, **kwargs) -> _form.Form:
     """Get entity modification form.
     """
     eid = eid if eid != '0' else None
@@ -23,28 +23,30 @@ def get_m_form(model: str, eid=None, form_uid='odm-ui-form') -> _form.Form:
 
     # Checking model settings
     model_class = _odm.get_model_class(model)
-    """:type: _model.Model"""
+    """:type: _entity.UIEntity"""
     if not eid and not model_class.ui_is_model_creation_allowed():
         raise _http.error.Forbidden()
     if eid and not model_class.ui_is_model_modification_allowed():
         raise _http.error.Forbidden()
 
     # Creating form
-    frm = _form.Form(form_uid)
+    frm = _form.Form('odm-ui-form-' + model, **kwargs)
     frm.css += ' odm-ui-form odm-ui-form-' + model
 
     # Redirect location after successful form submit
     if _router.request() and '__redirect' in _router.request().inp:
-        redirect = _router.request().inp.get('__redirect')
+        f_redirect = _router.request().inp.get('__redirect')
+    elif redirect:
+        f_redirect = redirect
     else:
-        redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
+        f_redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 
     # Action, redirect and validation endpoints
-    frm.validation_ep = 'pytsite.odm_ui.ep.ajax_validate_m_form'
+    frm.validation_ep = 'pytsite.odm_ui.ep.validate_m_form'
     frm.action = _router.ep_url('pytsite.odm_ui.ep.post_m_form', {
         'model': model,
         'id': eid or '0',
-        '__redirect': redirect,
+        '__redirect': f_redirect,
     })
 
     # Cancel button
@@ -52,7 +54,9 @@ def get_m_form(model: str, eid=None, form_uid='odm-ui-form') -> _form.Form:
         weight=20,
         uid='action-cancel',
         value=_lang.t('pytsite.odm_ui@cancel'),
-        href=redirect, icon='fa fa-remove'
+        icon='fa fa-remove',
+        href=redirect if not frm.modal else '#',
+        dismiss='modal'
     ))
 
     # Metadata
@@ -61,14 +65,14 @@ def get_m_form(model: str, eid=None, form_uid='odm-ui-form') -> _form.Form:
 
     entity = dispense_entity(model, eid)
 
-    # Legend
+    # Form title
     if entity.is_new:
-        legend = entity.t('odm_ui_form_title_create_' + model)
+        frm.title = entity.t('odm_ui_form_title_create_' + model)
     else:
-        legend = entity.t('odm_ui_form_title_modify_' + model)
+        frm.title = entity.t('odm_ui_form_title_modify_' + model)
 
-    # Page title
-    _metatag.t_set('title', legend)
+    if update_meta_title:
+        _metatag.t_set('title', frm.title)
 
     # Setting up the form with entity hook
     entity.ui_m_form_setup(frm)
@@ -116,7 +120,7 @@ def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     """Get entities delete _form.
     """
     model_class = _odm.get_model_class(model)
-    """:type: _model.Model"""
+    """:type: _entity.UIEntity"""
 
     if not check_permissions('delete', model, ids) or not model_class.ui_is_model_deletion_allowed():
         raise _http.error.Forbidden()
@@ -136,12 +140,12 @@ def get_d_form(model: str, ids: _Iterable) -> _form.Form:
 def dispense_entity(model: str, entity_id: str=None):
     """Dispense entity.
 
-    :rtype: _model.UIEntity
+    :rtype: _entity.UIEntity
     """
     if not entity_id or entity_id == '0':
         entity_id = None
     entity = _odm.dispense(model, entity_id)
-    if not isinstance(entity, _model.UIMixin):
+    if not isinstance(entity, _entity.UIMixin):
         raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(model))
 
     return entity

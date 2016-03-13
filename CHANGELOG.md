@@ -1,5 +1,26 @@
 # PytSite Changelog
 
+## 0.58
+### Added
+- `assetman`: TypeScript support.
+- `browser`: new JS functions: `addJS()`, `addCSS()`, `getLocationHash()`.
+- `auth`: JS functions: `getLoginForm()`, `isAnonymous()`.
+- `odm`: serialization of entities, support for `$near` operator in finder.
+- `form`: support of modal forms.
+- `util`: new function `minify_html()`.
+
+### Changed
+- `admin`: AdminLTE theme updated from 2.1.0 to 2.3.2.
+- `browser`: part of API moved to new `ajax` package.
+
+### Removed
+- `assetman`: `assetman_add()` `tpl`'s global.
+- `auth`: `auth_login_form()` `tpl`'s global.
+
+### Fixed
+- `cache`: error while cleaning up pools.
+
+
 ## 0.57.2 (2016-02-24)
 ### Added
 - New 'content:generate' console command argument: '--description-len'.
@@ -8,7 +29,6 @@
 ## 0.57.1 (2016-02-24)
 ### Fixed
 - Post trimming in `lj`'s content_export driver.
-
 
 ## 0.57 (2016-02-23)
 ### Added

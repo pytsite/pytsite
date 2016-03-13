@@ -4,7 +4,7 @@ from typing import Callable as _Callable
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _client, \
     odm as _odm, lang as _lang, http as _http, html as _html
 from . import _api
-from ._model import UIMixin, UIEntity
+from ._entity import UIMixin, UIEntity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -166,7 +166,7 @@ class Browser:
     def get_table(self) -> str:
         """Get browser table skeleton.
         """
-        data_url = _router.ep_url('pytsite.odm_ui.ep.ajax_get_browser_rows', {'model': self._model})
+        data_url = _router.ep_url('pytsite.odm_ui.ep.browse_get_rows', {'model': self._model})
 
         # Table skeleton
         table = _html.Table(

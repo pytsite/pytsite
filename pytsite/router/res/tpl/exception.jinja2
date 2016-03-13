@@ -3,6 +3,6 @@
 {% block content %}
     <h1>{{ title | e }}</h1>
     {% if traceback and reg_get('debug') %}
-        <pre>{{ traceback }}</pre>
+        <pre>{{ traceback | e }}</pre>
     {% endif %}
 {% endblock %}

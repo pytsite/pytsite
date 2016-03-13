@@ -1,7 +1,8 @@
 """Reddit Session.
 """
 import requests as _requests
-from pytsite import reg as _reg, router as _router, validation as _validation, util as _util, version as _pytsite_ver
+from pytsite import reg as _reg, router as _router, validation as _validation, util as _util, \
+    core_version as _pytsite_ver
 from . import _error
 
 __author__ = 'Alexander Shepetko'

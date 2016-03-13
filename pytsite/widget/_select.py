@@ -80,7 +80,7 @@ class Select2(Select):
         self._ajax_data_type = kwargs.get('ajax_data_type', 'json')
         self._css += ' widget-select-select2'
 
-    def get_html_em(self):
+    def get_html_em(self) -> _html.Element:
         select = self._get_select_html_em()
 
         if self._ajax_url:

@@ -32,7 +32,7 @@ def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weigh
     if perm_name != '*' and perm_description:
         _auth.define_permission(perm_name, perm_description, 'admin')
 
-    url = _router.ep_url('pytsite.settings.eps.form', {'uid': uid})
+    url = _router.ep_url('pytsite.settings.ep.form', {'uid': uid})
     _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, permissions=perm_name)
 
 
@@ -52,8 +52,8 @@ def get_form(uid) -> _form.Form:
     frm = frm_class('settings-' + uid)
     """:type : _form.Form """
 
-    frm.action = _router.ep_url('pytsite.settings.eps.form_submit', {'uid': uid})
-    frm.validation_ep = 'pytsite.settings.eps.form_validate'
+    frm.action = _router.ep_url('pytsite.settings.ep.form_submit', {'uid': uid})
+    frm.validation_ep = 'pytsite.settings.ep.form_validate'
 
     frm.add_widget(_widget.input.Hidden(
         uid='__setting_uid',

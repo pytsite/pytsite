@@ -29,6 +29,7 @@ class Money(_odm.field.Abstract):
         # Reset value to default
         if value is None:
             self.clr_val(update_state, **kwargs)
+            return
 
         # Check value type
         if type(value) not in (dict, _frozendict):
@@ -65,7 +66,12 @@ class Money(_odm.field.Abstract):
         return super().get_val(**kwargs)
 
     def get_storable_val(self):
-        """Get serializable value of the feld.
+        """Get storable value of the feld.
         """
         v = self.get_val()
-        return {'currency': v['currency'], 'amount': float(v['amount'])}
+        return {
+            'currency': v['currency'],
+            'currency_symbol': _currency.get_symbol(v['currency']),
+            'currency_title': _currency.get_title(v['currency']),
+            'amount': float(v['amount'])
+        }

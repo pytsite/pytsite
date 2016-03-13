@@ -13,10 +13,11 @@ def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
     table = _browser.Browser(args.get('model')).get_table()
+
     return _admin.render(_tpl.render('pytsite.odm_ui@browser', {'table': table}))
 
 
-def ajax_get_browser_rows(args: dict, inp: dict) -> _http.response.JSON:
+def browse_get_rows(args: dict, inp: dict) -> _http.response.JSON:
     """Get browser rows via AJAX request.
     """
     offset = int(inp.get('offset', 0))
@@ -35,14 +36,18 @@ def get_m_form(args: dict, inp: dict) -> str:
     """
     try:
         eid = args.get('id') if args.get('id') != '0' else None
-        form = _api.get_m_form(args.get('model'), eid)
-        return _admin.render(_tpl.render('pytsite.odm_ui@modify_form', {'form': form}))
+        frm = _api.get_m_form(args.get('model'), eid)
+
+        # Form title is not necessary on admin pages
+        frm.title = None
+
+        return _admin.render(_tpl.render('pytsite.odm_ui@modify_form', {'form': frm}))
 
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
 
 
-def ajax_validate_m_form(args: dict, inp: dict) -> dict:
+def validate_m_form(args: dict, inp: dict) -> dict:
     """Validate entity create/modify form.
     """
     model = inp.get('__odm_ui_model')

@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, odm, tpl, lang, events, browser
+    from pytsite import assetman, odm, tpl, lang, events, ajax
     from . import _model, _eh
 
     odm.register_model('flag', _model.Flag)
@@ -18,10 +18,10 @@ def __init():
     tpl.register_package(__name__)
 
     assetman.register_package(__name__)
-    assetman.add('pytsite.flag@js/common.js', forever=True)
+    assetman.add('pytsite.flag@js/common.js', permanent=True)
 
     events.listen('pytsite.odm.entity.delete', _eh.odm_entity_delete)
 
-    browser.register_ep('pytsite.flag.ep.toggle')
+    ajax.register_ep('pytsite.flag.ep.toggle')
 
 __init()

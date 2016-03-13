@@ -9,11 +9,16 @@ from datetime import datetime as _datetime
 from html import parser as _html_parser
 from hashlib import md5 as _md5
 from werkzeug.utils import escape as _escape_html
+from htmlmin import minify as _minify
+from jsmin import jsmin as _jsmin
 
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_html_script_re = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
 
 
 class _HTMLStripTagsParser(_html_parser.HTMLParser):
@@ -141,6 +146,16 @@ def escape_html(s: str) -> str:
     """Escape an HTML string.
     """
     return _escape_html(s)
+
+
+def minify_html(s: str) -> str:
+    """Minify an HTML string.
+    """
+    def sub_f(m):
+        g = m.groups()
+        return ''.join((g[0], _jsmin(g[1]), g[2])).replace('\n', '')
+
+    return _html_script_re.sub(sub_f, _minify(s, True, True, remove_optional_attribute_quotes=False))
 
 
 def dict_merge(a: dict, b: dict) -> dict:

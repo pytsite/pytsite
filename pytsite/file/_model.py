@@ -81,3 +81,11 @@ class File(_odm.Entity):
             raise NotImplementedError()
 
         return super()._on_f_get(field_name, value)
+
+    def serialize(self, include_fields: tuple=(), exclude_fields: tuple=()):
+        r = super().serialize(include_fields, exclude_fields)
+
+        if 'url' in include_fields or 'url' not in exclude_fields:
+            r['url'] = self.url
+
+        return r

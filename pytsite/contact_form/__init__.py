@@ -9,12 +9,12 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, lang, tpl, browser
+    from pytsite import assetman, lang, tpl, ajax
 
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    browser.register_ep('pytsite.contact_form.ep.submit')
+    ajax.register_ep('pytsite.contact_form.ep.submit')
 
 
 __init()

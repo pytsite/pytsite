@@ -13,7 +13,7 @@ def create(source: str, name: str=None, description: str=None, remove_source: bo
            propose_store_path: str=None) -> _model.Image:
     """Create an image from URL or local file.
     """
-    img_entity = _file.functions.create(source, name, description, 'image', remove_source, propose_store_path)
+    img_entity = _file.create(source, name, description, 'image', remove_source, propose_store_path)
 
     if not img_entity.mime.startswith('image'):
         img_entity.delete()
@@ -29,4 +29,4 @@ def create(source: str, name: str=None, description: str=None, remove_source: bo
 def get(uid: str=None, rel_path: str=None) -> _model.Image:
     """Get image.
     """
-    return _file.functions.get(uid, rel_path, 'image')
+    return _file.get(uid, rel_path, 'image')

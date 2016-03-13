@@ -14,7 +14,8 @@ __license__ = 'MIT'
 def __init():
     """Module Init Wrapper.
     """
-    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser
+    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
+        ajax
     from . import _eh
     from ._model import Tag, Section, ContentSubscriber
     from ._form import Settings
@@ -28,7 +29,7 @@ def __init():
     browser.include('responsive', True)
 
     # Browser API endpoints
-    browser.register_ep('pytsite.content.ep.view_count')
+    ajax.register_ep('pytsite.content.ep.view_count')
 
     # Common routes
     router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')
@@ -44,7 +45,7 @@ def __init():
                     filters='pytsite.auth.ep.filter_authorize')
 
     # Content subscription routes
-    browser.register_ep('pytsite.content.ep.subscribe')
+    ajax.register_ep('pytsite.content.ep.subscribe')
     router.add_rule('/content/subscribe', 'pytsite.content.ep.subscribe', methods='POST')
     router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.ep.unsubscribe')
 

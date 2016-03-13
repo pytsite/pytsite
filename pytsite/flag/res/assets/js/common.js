@@ -7,7 +7,7 @@ pytsite.flag = {
             widget.find('a').click(function (e) {
                 e.preventDefault();
 
-                pytsite.browser.post('pytsite.flag.ep.toggle', {
+                pytsite.ajax.post('pytsite.flag.ep.toggle', {
                     entity: entity
                 }, function (data) {
                     if (data['status'])

@@ -1,7 +1,7 @@
 """ODM UI Manager.
 """
 from pytsite import lang as _lang, odm as _odm, auth as _auth
-from ._model import UIMixin
+from ._entity import UIMixin
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,7 +12,7 @@ __models = {}
 
 
 def odm_register_model(model: str, cls, replace: bool):
-    """Register UI model.
+    """'pytsite.odm.register_model' event handler.
     """
     if model in __models and not replace:
         raise KeyError("Model '{}' is already registered os odm_ui model.".format(model))
@@ -21,14 +21,14 @@ def odm_register_model(model: str, cls, replace: bool):
     if not issubclass(cls, UIMixin):
         return
 
-    # Detecting model's package name
+    # Determining model's package name
     pkg_name = cls.package_name()
 
-    # Registering package's language container
+    # Registering package's language resources
     if not _lang.is_package_registered(pkg_name):
         _lang.register_package(pkg_name)
 
-    # Registering permission group if doesn't already registered
+    # Registering permission group if it doesn't already registered
     if not _auth.get_permission_group(pkg_name):
         _auth.define_permission_group(pkg_name, pkg_name + '@odm_ui_permission_group_description')
 

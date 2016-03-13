@@ -1,4 +1,4 @@
-"""PytSite Currency Models.
+"""PytSite Currency Models
 """
 from decimal import Decimal as _Decimal
 from datetime import datetime as _datetime
@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 
 class Rate(_odm_ui.UIEntity):
-    """Currency Exchange Rate Model.
+    """Currency Exchange Rate Model
     """
     def _setup(self):
         """Hook.

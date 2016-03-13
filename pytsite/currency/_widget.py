@@ -1,7 +1,6 @@
 """Currency Widgets
 """
-import decimal as _decimal
-from pytsite import html as _html, widget as _widget
+from pytsite import widget as _widget
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -10,6 +9,8 @@ __license__ = 'MIT'
 
 
 class Select(_widget.select.Select):
+    """Currency Select Widget
+    """
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

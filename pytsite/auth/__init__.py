@@ -14,7 +14,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console
+    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console, ajax
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh
 
@@ -22,6 +22,7 @@ def __init():
     tpl.register_package(__name__)
     lang.register_package(__name__)
     assetman.register_package(__name__)
+    assetman.add('pytsite.auth@js/auth.js', permanent=True)
 
     # ODM models
     from . import _model
@@ -39,9 +40,12 @@ def __init():
     router.add_rule(base_path + '/login/<driver>/post', 'pytsite.auth.ep.login_submit', methods='POST')
     router.add_rule(base_path + '/logout', 'pytsite.auth.ep.logout')
 
+    # AJAX endpoints
+    ajax.register_ep('pytsite.auth.ajax.get_login_form')
+    ajax.register_ep('pytsite.auth.ajax.is_anonymous')
+
     # Template engine globals
     tpl.register_global('auth_current_user', _api.get_current_user)
-    tpl.register_global('auth_login_form', _api.get_login_form)
     tpl.register_global('auth_login_url', _api.get_login_url)
     tpl.register_global('auth_logout_url', _api.get_logout_url)
 

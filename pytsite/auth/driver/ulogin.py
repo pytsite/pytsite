@@ -22,7 +22,6 @@ class _LoginWidget(_widget.Base):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._redirect_url = kwargs.get('redirect_url', '')
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.
@@ -36,14 +35,18 @@ class _LoginForm(_form.Form):
     def _setup(self):
         """_setup() hook.
         """
+        # Transform all input into hidden fields
         for k, v in _router.request().inp.items():
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
 
+        # Hidden widget for storing token is necessary
         if not self.has_widget(self.uid + '-token'):
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token', form_area='hidden'))
 
+        # uLogin widget
         self.add_widget(_LoginWidget(self.uid + '-widget-ulogin'))
 
+        # Action buttons is not necessary, form submitting initiates via JS code
         self.remove_widget('form-actions')
 
 
@@ -55,10 +58,10 @@ class Driver(AbstractDriver):
         """
         return 'ulogin'
 
-    def get_login_form(self, uid: str, css: str, title: str) -> _form.Form:
+    def get_login_form(self, uid: str, css: str, title: str, modal=False) -> _form.Form:
         """Get the login form.
         """
-        return _LoginForm(uid=uid, css=css, title=title)
+        return _LoginForm(uid=uid, css=css, title=title, modal=modal)
 
     def post_login_form(self, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.

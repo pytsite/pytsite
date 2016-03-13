@@ -44,10 +44,10 @@ class Driver(AbstractDriver):
         """
         return 'password'
 
-    def get_login_form(self, uid, css, title) -> _form.Form:
+    def get_login_form(self, uid: str, css: str, title: str, modal=False) -> _form.Form:
         """Get the login form.
         """
-        return _LoginForm(uid=uid, css=css, title=title)
+        return _LoginForm(uid=uid, css=css, title=title, modal=modal)
 
     def post_login_form(self, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.

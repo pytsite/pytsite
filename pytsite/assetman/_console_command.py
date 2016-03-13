@@ -8,7 +8,7 @@ from webassets import Environment as _Environment, Bundle as _Bundle
 from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
 from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang, validation as _validation, \
     maintenance as _maintenance
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -52,7 +52,7 @@ class Assetman(_console.command.Abstract):
             _maintenance.enable()
 
         _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
-        for pkg_name, package_assets_dir in _functions.get_packages().items():
+        for pkg_name, package_assets_dir in _api.get_packages().items():
             # Building package's assets absolute paths list
             files_list = []
             for root, dirs, files in _walk(package_assets_dir):
@@ -67,14 +67,21 @@ class Assetman(_console.command.Abstract):
                 dst = _path.join(assets_dir, pkg_name, dst)
 
                 ext = _path.splitext(src)[1]
-                if ext in ['.js', '.css', '.less']:
+                if ext in ['.js', '.css', '.ts', '.less']:
                     filters = []
 
+                    # LESS compiler
                     if ext == '.less':
                         filters.append('less')
                         dst = _re.sub(r'\.less$', '.css', dst)
                         ext = '.css'
+                    # TypeScript compiler
+                    elif ext == '.ts':
+                        filters.append('typescript')
+                        dst = _re.sub(r'\.ts$', '.js', dst)
+                        ext = '.js'
 
+                    # Minifying JS/CSS
                     if _reg.get('output.minify'):
                         if ext == '.js' and not src.endswith('.min.js') and not src.endswith('.pack.js'):
                             filters.append('jsmin')

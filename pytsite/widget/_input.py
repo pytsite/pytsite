@@ -1,7 +1,7 @@
 """Input Widgets.
 """
 from pytsite import assetman as _assetman, browser as _client, html as _html, util as _util, tpl as _tpl, \
-    validation as _validation
+    validation as _validation, router as _router
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -146,13 +146,20 @@ class TypeaheadText(Text):
         """
         super().__init__(uid, **kwargs)
 
-        source_url = kwargs.get('source_url')
-        if not source_url:
-            raise ValueError('Source URL is not specified.')
+        ajax_ep = kwargs.get('ajax_ep')
+        if not ajax_ep:
+            raise ValueError('AJAX endpoint is not specified.')
 
         _client.include('typeahead')
         _assetman.add('pytsite.widget@js/typeahead.js')
+
         self._css = ' '.join((self._css, 'widget-typeahead-text-input'))
+
+        source_url_q = kwargs.get('ajax_ep_args', {})
+        source_url_q.update({self.uid: '__QUERY'})
+        source_url = _router.ep_url('pytsite.ajax.ep.request', {'ep': ajax_ep})
+        source_url = _router.url(source_url, query=source_url_q)
+
         self._data['source_url'] = source_url
 
 

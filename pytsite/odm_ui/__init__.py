@@ -1,10 +1,10 @@
-"""Pytsite ODM UI.
+"""PytSite ODM UI.
 """
 # Public API
 from . import _widget as widget
 from ._browser import Browser
 from ._api import get_m_form, get_mass_action_form, get_d_form, check_permissions
-from ._model import UIMixin, UIEntity
+from ._entity import UIMixin, UIEntity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,38 +12,43 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, events, tpl, lang, router, admin, browser
+    from pytsite import assetman, events, tpl, lang, router, admin, ajax
     from . import _eh
-    from ._model import UIMixin
+    from ._entity import UIMixin
 
-    # Browse
-    router.add_rule(admin.base_path() + '/odm_ui/<string:model>',
-                    'pytsite.odm_ui.ep.browse',
-                    filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm_ui/ajax_get_browser_rows/<string:model>',
-                    'pytsite.odm_ui.ep.ajax_get_browser_rows',
-                    filters='pytsite.auth.ep.filter_authorize')
+    abp = admin.base_path()
+    auth_filter = 'pytsite.auth.ep.filter_authorize'
 
-    # Create/modify
-    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/modify/<string:id>',
-                    'pytsite.odm_ui.ep.get_m_form',
-                    filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/modify/<string:id>/submit',
-                    'pytsite.odm_ui.ep.post_m_form', methods='POST',
-                    filters='pytsite.auth.ep.filter_authorize')
+    # Route: ODM browser page
+    router.add_rule(abp + '/odm_ui/<string:model>', 'pytsite.odm_ui.ep.browse', filters=auth_filter)
 
-    # Delete
-    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.get_d_form',
-                    filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(admin.base_path() + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.post_d_form',
-                    filters='pytsite.auth.ep.filter_authorize')
+    # Route: get ODM browser table rows
+    router.add_rule(abp + '/odm_ui/browse_get_rows/<string:model>', 'pytsite.odm_ui.ep.browse_get_rows',
+                    filters=auth_filter)
 
+    # Route: 'create/modify' ODM entity form show
+    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>', 'pytsite.odm_ui.ep.get_m_form',
+                    filters=auth_filter)
+
+    # Route: 'create/modify' ODM entity form submit
+    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>/submit', 'pytsite.odm_ui.ep.post_m_form',
+                    methods='POST', filters=auth_filter)
+
+    # Route: 'delete' form show
+    router.add_rule(abp + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.get_d_form', filters=auth_filter)
+
+    # Route: 'delete' form submit
+    router.add_rule(abp + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.post_d_form', filters=auth_filter)
+
+    # Resources
     lang.register_package(__name__)
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
+    # Event listeners
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)
 
-    browser.register_ep('pytsite.odm_ui.ep.ajax_validate_m_form')
+    # AJAX form validator
+    ajax.register_ep('pytsite.odm_ui.ep.validate_m_form')
 
 __init()

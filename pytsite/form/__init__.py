@@ -3,7 +3,7 @@
 from typing import Dict as _Dict
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, assetman as _assetman, \
-    validation as _validation, tpl as _tpl, browser as _browser, events as _events, lang as _lang
+    validation as _validation, tpl as _tpl, events as _events, lang as _lang, ajax as _ajax
 from . import _error as error
 
 __author__ = 'Alexander Shepetko'
@@ -13,9 +13,9 @@ __license__ = 'MIT'
 
 _lang.register_package(__name__)
 _assetman.register_package(__name__)
-_assetman.add('pytsite.form@js/form.js', forever=True)
+_assetman.add('pytsite.form@js/form.js', permanent=True)
 _tpl.register_package(__name__)
-_browser.register_ep('pytsite.form.ep.validate')
+_ajax.register_ep('pytsite.form.ajax.validate')
 
 
 class Form:
@@ -44,9 +44,10 @@ class Form:
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
         self._steps = kwargs.get('steps', 1)
+        self._modal = kwargs.get('modal', False)
 
-        self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ep.validate')
-        self._tpl = kwargs.get('tpl', 'pytsite.form@form')
+        self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ajax.validate')
+        self._tpl = kwargs.get('tpl', 'pytsite.form@form' if not self._modal else 'pytsite.form@modal-form')
 
         # <form>'s tag CSS class
         self._css = kwargs.get('css', '') + ' pytsite-form'
@@ -55,7 +56,7 @@ class Form:
         # Form title
         self._title = kwargs.get('title')
         self._title_css = kwargs.get('title_css', 'box-title')
-        self._title_tag = kwargs.get('title_tag', 'h3')
+        self._title_tag = kwargs.get('title_tag', 'h4')
 
         # Form location
         self.add_widget(_widget.input.Hidden(
@@ -229,6 +230,14 @@ class Form:
     def steps(self, value: int):
         self.get_widget('__form_steps').set_val(value)
         self._steps = value
+
+    @property
+    def modal(self) -> bool:
+        return self._modal
+
+    @modal.setter
+    def modal(self, value: bool):
+        self._modal = value
 
     @property
     def step(self) -> int:

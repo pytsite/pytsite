@@ -31,9 +31,6 @@ _path_aliases = {}
 _session_store = _FilesystemSessionStore(path=_reg.get('paths.session'), session_class=_http.session.Session)
 _current_session = None  # type: _http.session.Session
 
-# Misc
-_html_script_re = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
-
 # Current cache status
 no_cache = False
 
@@ -270,13 +267,7 @@ def dispatch(env: dict, start_response: callable):
         if isinstance(response_from_callable, str):
             # Minifying output
             if _reg.get('output.minify'):
-                def sub_f(m):
-                    g = m.groups()
-                    return ''.join((g[0], _jsmin(g[1]), g[2])).replace('\n', '')
-
-                response_from_callable = _minify(response_from_callable, True, True,
-                                                 remove_optional_attribute_quotes=False)
-                response_from_callable = _html_script_re.sub(sub_f, response_from_callable)
+                response_from_callable = _util.minify_html(response_from_callable)
 
             wsgi_response.data = response_from_callable
         elif isinstance(response_from_callable, _http.response.Response):
@@ -392,15 +383,22 @@ def is_base_url(compare: str = None) -> bool:
     return base_url() == compare
 
 
-def url(url_str: str, lang: str = None, strip_lang=False, query: dict = None, relative: bool = False,
-        strip_query=False) -> str:
+def url(s: str, **kwargs) -> str:
     """Generate an URL.
     """
-    if not url_str:
+    if not s:
         raise ValueError('url_str cannot be empty.')
 
+    lang = kwargs.get('lang')  # type: str
+    strip_lang = kwargs.get('strip_lang', False)  # type: bool
+    strip_query = kwargs.get('strip_query')  # type: bool
+    query = kwargs.get('query')  # type: dict
+    relative = kwargs.get('relative', False)  # type: bool
+    strip_fragment = kwargs.get('strip_fragment')  # type: bool
+    fragment = kwargs.get('fragment')  # type: str
+
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
-    parsed_url = _urlparse.urlparse(url_str)
+    parsed_url = _urlparse.urlparse(s)
     r = [
         parsed_url[0] if parsed_url[0] else scheme(),  # 0, Scheme
         parsed_url[1] if parsed_url[1] else server_name(),  # 1, Netloc
@@ -422,6 +420,13 @@ def url(url_str: str, lang: str = None, strip_lang=False, query: dict = None, re
         parsed_qs = _urlparse.parse_qs(parsed_url[4])
         parsed_qs.update(query)
         r[4] = _urlparse.urlencode(parsed_qs, doseq=True)
+
+    if strip_fragment:
+        # Stripping fragment
+        r[5] = ''
+    elif fragment:
+        # Attaching additional fragment
+        r[5] = fragment
 
     # Adding language suffix
     if not strip_lang:
@@ -472,8 +477,7 @@ def ep_path(endpoint: str, args: dict = None, strip_lang=False) -> str:
     return url(_map_adapter.build(endpoint, args), relative=True, strip_lang=strip_lang)
 
 
-def ep_url(ep_name: str, args: dict = None, strip_lang=False) -> str:
+def ep_url(ep_name: str, args: dict = None, **kwargs) -> str:
     """Get URL for endpoint.
     """
-    r = _map_adapter.build(ep_name, args)
-    return url(r, strip_lang=strip_lang, relative=False)
+    return url(_map_adapter.build(ep_name, args), relative=False, **kwargs)

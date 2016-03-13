@@ -34,7 +34,7 @@ def get_packages() -> dict:
     return _packages
 
 
-def add(location: str, collection: str=None, weight=0, forever=False):
+def add(location: str, collection: str=None, weight=0, permanent=False):
     """Add an asset.
     """
     if not collection:
@@ -46,7 +46,7 @@ def add(location: str, collection: str=None, weight=0, forever=False):
             raise ValueError("Cannot detect collection for location '{}'.".format(location))
 
     if not [i for i in _locations[collection] if i[0] == location]:
-        _locations[collection].append((location, weight, forever))
+        _locations[collection].append((location, weight, permanent))
 
 
 def add_inline(s: str, weight=0, forever=False):
@@ -126,6 +126,12 @@ def url(location: str) -> str:
     package_name, asset_path = _split_asset_location_info(location)
 
     return _router.url('/assets/{}/{}'.format(package_name, asset_path), strip_lang=True)
+
+
+def get_urls(collection: str) -> list:
+    """Get URLs of all locations in the collection.
+    """
+    return [url(l) for l in get_locations(collection)]
 
 
 def _split_asset_location_info(location: str) -> dict:

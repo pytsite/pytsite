@@ -25,7 +25,7 @@ $(function () {
     widget.click(function() {
         var btn = $(this).find('.btn');
         if (btn.hasClass('following')) {
-            pytsite.browser.post('pytsite.auth_ui.ep.follow', {op: 'unfollow', uid: widget.data('uid')}, function(data) {
+            pytsite.ajax.post('pytsite.auth_ui.ep.follow', {op: 'unfollow', uid: widget.data('uid')}, function(data) {
                 if (typeof data.status != 'undefined' && data.status === true) {
                     btn.removeClass('btn-danger').addClass('btn-default').removeClass('following').addClass('non-following');
                     btn.find('.icon').addClass('fa-plus');
@@ -34,7 +34,7 @@ $(function () {
             });
         }
         else if (btn.hasClass('non-following')) {
-            pytsite.browser.post('pytsite.auth_ui.ep.follow', {op: 'follow', uid: widget.data('uid')}, function(data) {
+            pytsite.ajax.post('pytsite.auth_ui.ep.follow', {op: 'follow', uid: widget.data('uid')}, function(data) {
                 if (typeof data.status != 'undefined' && data.status === true) {
                     btn.removeClass('btn-default').addClass('btn-danger').removeClass('non-following').addClass('following');
                     btn.find('.icon').removeClass('fa-plus').addClass('fa-remove');

@@ -66,5 +66,5 @@ def cleanup_pool(name: str):
 
 
 def cleanup_pools():
-    for name in __pools:
+    for name in __pools.keys():
         cleanup_pool(name)

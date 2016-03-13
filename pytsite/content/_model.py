@@ -600,6 +600,21 @@ class Content(_odm_ui.UIEntity):
         """
         return self.title
 
+    def serialize(self, include_fields: tuple=(), exclude_fields: tuple=()):
+        """Get serializable representation of a product.
+        """
+        r = super().serialize(include_fields, exclude_fields)
+
+        # Override default serialization of 'images' field
+        if 'images' in include_fields or 'images' not in exclude_fields:
+            r['images'] = []
+            for img in self.images:
+                r['images'].append(img.serialize(
+                    ('path', 'width', 'height', 'mime', 'length', 'name', 'description', 'url')
+                ))
+
+        return r
+
     def _process_body_tags(self, inp: str, responsive: bool, img_width: int=None) -> str:
         """Converts body tags like [img] into HTML tags.
         """

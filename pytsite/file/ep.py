@@ -2,7 +2,7 @@
 """
 from os import path, unlink
 from pytsite import reg as _reg, util as _util, http as _http, router as _router
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,7 +22,7 @@ def upload(args: dict, inp: dict) -> _http.response.JSON:
         f.close()
 
         # Create file entity from temporary file
-        file_entity = _functions.create(tmp_path, f.filename, 'Uploaded via {}.'.format(__name__), model)
+        file_entity = _api.create(tmp_path, f.filename, 'Uploaded via {}.'.format(__name__), model)
 
         r.append({
             'fid': file_entity.model + ':' + str(file_entity.id),

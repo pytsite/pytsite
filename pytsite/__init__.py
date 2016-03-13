@@ -4,11 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__version = None
-""":type: tuple"""
+core_name = 'PytSite'
+core_url = 'https://github.com/pytsite/'
+__version = None  # type: tuple
 
 
-def version():
+def core_version():
     from os import path
 
     global __version
@@ -29,8 +30,8 @@ def version():
     return __version
 
 
-def version_str() -> str:
-    v = version()
+def core_version_str() -> str:
+    v = core_version()
     return '{}.{}.{}'.format(v[0], v[1], v[2])
 
 

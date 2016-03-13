@@ -1,6 +1,6 @@
 """ODM Fields.
 """
-from typing import Any as _Any, Iterable as _Iterable, Union as _Union
+from typing import Any as _Any, Iterable as _Iterable, Union as _Union, Tuple as _Tuple
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
@@ -65,7 +65,12 @@ class Abstract(_ABC):
     def get_storable_val(self):
         """Get value suitable to store in the database.
         """
-        return self._value
+        return self.get_val()
+
+    def get_serializable_val(self) -> _Union[int, str, float, bool, dict, tuple, list]:
+        """Get serializable representation of field's value.
+        """
+        return self.get_storable_val()
 
     def set_val(self, value, update_state: bool=True, **kwargs):
         """Set value of the field.
@@ -133,6 +138,8 @@ class ObjectId(Abstract):
 
         return super().set_val(value, update_state, **kwargs)
 
+    def get_serializable_val(self):
+        return str(self.get_val())
 
 class List(Abstract):
     """List field.
@@ -280,6 +287,9 @@ class Dict(Abstract):
         """
         return super().get_val(**kwargs)
 
+    def get_storable_val(self):
+        return dict(self.get_val())
+
     def set_val(self, value: _Union[dict, _frozendict], update_state: bool=True, **kwargs):
         """Set value of the field.
         """
@@ -374,6 +384,15 @@ class Ref(Abstract):
 
             return referenced_entity
 
+    def get_storable_val(self):
+        return self._value
+
+    def get_serializable_val(self):
+        """Get serializable representation of the field's value.
+        """
+        v = self.get_val()
+        return '_ref:{}:{}'.format(v.ref.collection, v.ref.id) if v else None
+
 
 class RefsList(List):
     """List of DBRefs field.
@@ -410,8 +429,10 @@ class RefsList(List):
 
         return super().set_val(clean_value, update_state, **kwargs)
 
-    def get_val(self, **kwargs) -> tuple:
+    def get_val(self, **kwargs):
         """Get value of the field.
+
+        :rtype: _Tuple[pytsite.odm._entity.Entity]
         """
         from ._api import get_by_ref
 
@@ -463,6 +484,12 @@ class RefsList(List):
 
         return self
 
+    def get_storable_val(self):
+        return self._value
+
+    def get_serializable_val(self) -> list:
+        return [e.serialize() for e in self.get_val()]
+
 
 class RefsUniqueList(RefsList):
     """Unique list of DBRefs field.
@@ -503,8 +530,7 @@ class DateTime(Abstract):
     def get_val(self, fmt: str=None, **kwargs):
         """Get field's value.
         """
-        value = super().get_val()
-        """:type : _datetime"""
+        value = super().get_val()  # type: _datetime
 
         if fmt:
             if fmt == 'ago':
@@ -517,6 +543,9 @@ class DateTime(Abstract):
                 value = value.strftime(fmt)
 
         return value
+
+    def get_serializable_val(self) -> str:
+        return _util.w3c_datetime_str(self.get_val())
 
 
 class String(Abstract):

@@ -6,7 +6,7 @@ from typing import List as _List, Tuple as _Tuple
 from time import tzname as _tzname
 from datetime import datetime as _datetime
 from lxml import etree as _etree
-from pytsite import validation as _validation, version_str as _pytsite_ver, util as _util, lang as _lang
+from pytsite import validation as _validation, core_version_str as _pytsite_ver, util as _util, lang as _lang
 from . import _xml, _abstract, _error
 
 __author__ = 'Alexander Shepetko'

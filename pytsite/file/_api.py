@@ -23,17 +23,22 @@ def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
     store_path = ''
     rnd_str = _util.random_str
 
+    # Determine extension for the file in the storage
     extension = _guess_extension(mime)
     if extension == '.jpe':
         extension = '.jpg'
 
-    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
+    # Possible (but not final) path
+    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str(16)) + extension
+
+    # Check if the proposed path suits the requirements
     if propose:
         m = _re.match('(\w{2})/(\w{2})/(\w{16})(\.\w+)$', propose)
         if m:
             extension = m.group(4)
             possible_target_path = _os.path.join(storage_dir, m.group(1), m.group(2), m.group(3)) + extension
 
+    # Finding path which doesn't exist on the filesystem
     while True:
         if not _os.path.exists(possible_target_path):
             store_path = possible_target_path
@@ -48,6 +53,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
            propose_store_path: str=None) -> _model.File:
     """Create a file from path or URL.
     """
+
     # Store remote file to the local if URL was specified
     try:
         _validation.rule.Url(source_path).validate()
@@ -70,9 +76,13 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     except _validation.error.RuleError:
         pass
 
+    # Determining file's MIME type
     mime = _magic.from_file(source_path, True).decode()
+
+    # Generating unique file path in storage
     abs_target_path = _build_store_path(mime, model, propose_store_path)
 
+    # Make sure that directory in storage exists
     target_dir = _os.path.dirname(abs_target_path)
     if not _os.path.exists(target_dir):
         _os.makedirs(target_dir, 0o755, True)
@@ -80,16 +90,19 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     # Copy file to the storage
     _shutil.copy(source_path, abs_target_path)
 
+    # Setting file's ODM entity name
     if not name:
         name = _os.path.basename(source_path)
 
+    # Setting file's ODM entity description
     if not description:
         description = 'Created from local file ' + source_path
 
+    # Remove source file
     if remove_source:
         _os.unlink(source_path)
 
-    # Create File entity
+    # Create File ODM entity
     storage_dir = _reg.get('paths.storage')
     file_entity = _odm.dispense(model)
     if not isinstance(file_entity, _model.File):
@@ -100,6 +113,7 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     file_entity.f_set('mime', mime)
     file_entity.f_set('length', _os.stat(abs_target_path).st_size)
 
+    # Setting entity's owner
     from pytsite import auth
     user = auth.get_current_user()
     if user and not user.is_anonymous:

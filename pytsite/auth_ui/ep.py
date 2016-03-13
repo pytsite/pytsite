@@ -21,7 +21,7 @@ def profile_view(args: dict, inp: dict) -> str:
     if not profile_owner:
         raise _http.error.NotFound()
 
-    # Non public profiles cannot be viewed by anonymous users
+    # Non-public profiles cannot be viewed by anonymous users
     if current_user.is_anonymous and not profile_owner.profile_is_public:
         raise _http.error.NotFound()
 

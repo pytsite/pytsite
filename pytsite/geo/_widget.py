@@ -1,5 +1,6 @@
 """Geo Widgets.
 """
+from typing import Union as _Union
 from json import dumps as _json_dumps, loads as _json_loads
 from decimal import Decimal as _Decimal
 from pytsite import assetman as _assetman, widget as _widget, html as _html, lang as _lang
@@ -12,6 +13,8 @@ __license__ = 'MIT'
 
 class LngLat(_widget.Base):
     """Latitude/longitude widget.
+
+    This widget intended to use in cases where you need to fetch/store pair of geo coordinates.
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
@@ -21,10 +24,8 @@ class LngLat(_widget.Base):
         _assetman.add('pytsite.geo@js/widget/lng-lat.js')
         self._css += ' widget-geo-lng-lat'
 
-    def set_val(self, val, **kwargs):
+    def set_val(self, val: _Union[None, list, tuple, str], **kwargs):
         """Set value of the widget.
-
-        :param val: list | tuple | str
         """
         if val is None:
             val = (_Decimal('0.0'), _Decimal('0.0'))
@@ -32,7 +33,7 @@ class LngLat(_widget.Base):
             val = _json_loads(val)
 
         if type(val) not in (list, tuple):
-            raise ValueError("Widget '{}': dict, tuple or None expected, while '{}' given.".
+            raise ValueError("Widget '{}': list, tuple, str or None expected, but '{}' given.".
                              format(self.name, repr(val)))
 
         if len(val) != 2:

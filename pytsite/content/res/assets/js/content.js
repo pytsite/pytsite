@@ -13,7 +13,7 @@ $(function () {
         var model = $(this).data('model');
         var id = $(this).data('entityId');
         if (model && id) {
-            pytsite.browser.post('pytsite.content.ep.view_count', {
+            pytsite.ajax.post('pytsite.content.ep.view_count', {
                 model: model,
                 id: id
             });
