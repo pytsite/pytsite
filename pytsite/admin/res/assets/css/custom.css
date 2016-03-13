@@ -1,3 +1,7 @@
 .odm-ui-browser .entity-actions {
     white-space: nowrap;
 }
+
+.main-footer {
+    overflow: hidden;
+}
