@@ -11,6 +11,8 @@ __license__ = 'MIT'
 
 _packages = {}
 _locations = {'css': [], 'js': []}
+_last_weight = {'css': 0, 'js': 0}
+_permanent_last_weight = {'css': 0, 'js': 0}
 _inline = []
 
 
@@ -45,6 +47,14 @@ def add(location: str, collection: str=None, weight=0, permanent=False):
         else:
             raise ValueError("Cannot detect collection for location '{}'.".format(location))
 
+    if not weight:
+        if permanent:
+            _permanent_last_weight[collection] += 1
+            weight = _permanent_last_weight[collection]
+        else:
+            _last_weight[collection] += 1
+            weight = _last_weight[collection]
+
     if not [i for i in _locations[collection] if i[0] == location]:
         _locations[collection].append((location, weight, permanent))
 
@@ -55,18 +65,27 @@ def add_inline(s: str, weight=0, forever=False):
     _inline.append((s, weight, forever))
 
 
-def remove(location: str, collection: str=None):
+def remove(location, collection: str=None):
     """Remove an asset location.
     """
     if not collection:
-        if location.endswith('.js'):
-            collection = 'js'
-        elif location.endswith('.css'):
-            collection = 'css'
+        if isinstance(location, str):
+            if location.endswith('.js'):
+                collection = 'js'
+            elif location.endswith('.css'):
+                collection = 'css'
+            else:
+                raise ValueError("Cannot detect collection of '{}'.".format(location))
         else:
             raise ValueError("Cannot detect collection of '{}'.".format(location))
 
-    _locations[collection] = [l for l in _locations[collection] if l[0] != location]
+    if isinstance(location, str):
+        _locations[collection] = [l for l in _locations[collection] if l[0] != location]
+    elif not isinstance(location, str) and location.__class__.__name__ == 'SRE_Pattern':
+        # Compiled regular expression
+        _locations[collection] = [l for l in _locations[collection] if not location.match(l[0])]
+    else:
+        raise TypeError('String or compiled regular expression expected.')
 
 
 def reset():
@@ -75,15 +94,19 @@ def reset():
     global _inline
 
     for location in ('css', 'js'):
-        # Filter out all except 'forever' items
+        # Filter out all except 'permanent' items
         _locations[location] = [l for l in _locations[location] if l[2]]
 
-    # Filter out all except 'forever' items
+    # Filter out all except 'permanent' items
     _inline = [item for item in _inline if item[2]]
+
+    # Reset last weight counter
+    global _last_weight
+    _last_weight = {'css': 0, 'js': 0}
 
 
 def get_locations(collection: str) -> list:
-    return [l[0] for l in sorted(_locations[collection], key=lambda x: x[1])]
+    return [l for l in sorted(_locations[collection], key=lambda x: x[1])]
 
 
 def get_inline() -> list:
@@ -94,8 +117,8 @@ def dump_js() -> str:
     """Dump JS links.
     """
     r = ''
-    for location in get_locations('js'):
-        r += '<script type="text/javascript" src="{}"></script>\n'.format(url(location))
+    for loc_url in get_urls('js'):
+        r += '<script type="text/javascript" src="{}"></script>\n'.format(loc_url)
 
     return r
 
@@ -104,8 +127,8 @@ def dump_css() -> str:
     """Dump CSS links.
     """
     r = ''
-    for location in get_locations('css'):
-        r += '<link rel="stylesheet" href="{}">\n'.format(url(location))
+    for loc_url in get_urls('css'):
+        r += '<link rel="stylesheet" href="{}">\n'.format(loc_url)
 
     return r
 
@@ -131,7 +154,7 @@ def url(location: str) -> str:
 def get_urls(collection: str) -> list:
     """Get URLs of all locations in the collection.
     """
-    return [url(l) for l in get_locations(collection)]
+    return [url(l[0]) for l in get_locations(collection)]
 
 
 def _split_asset_location_info(location: str) -> dict:
