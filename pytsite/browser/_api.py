@@ -1,5 +1,6 @@
 """pytsite.browser API Functions.
 """
+from typing import Callable as _Callable
 from pytsite import assetman as _assetman, lang as _lang
 
 __author__ = 'Alexander Shepetko'
@@ -7,8 +8,20 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+__libraries = {}
+
+
+def register(lib: str, callback: _Callable):
+    """Register a library.
+    """
+    if lib in __libraries:
+        raise KeyError("Browser library '{}' is already registered.".format(lib))
+
+    __libraries[lib] = callback
+
+
 def include(lib: str, permanent=False, **kwargs):
-    """Include a browser's library.
+    """Include a library.
     """
     if lib == 'jquery':
         _assetman.add('pytsite.browser@js/jquery-2.1.4.min.js', permanent=permanent)
@@ -19,6 +32,10 @@ def include(lib: str, permanent=False, **kwargs):
         if _lang.get_current() != 'en':
             _assetman.add('pytsite.browser@jquery-ui/i18n/datepicker-{}.js'.format(_lang.get_current()),
                           permanent=permanent)
+    elif lib == 'jquery-mobile':
+        include('jquery')
+        _assetman.add('pytsite.browser@jquery-mobile/jquery.mobile-1.4.5.min.css')
+        _assetman.add('pytsite.browser@jquery-mobile/jquery.mobile-1.4.5.min.js')
     elif lib == 'font-awesome':
         _assetman.add('pytsite.browser@font-awesome/css/font-awesome.min.css', permanent=permanent)
     elif lib == 'bootstrap':
@@ -95,5 +112,8 @@ def include(lib: str, permanent=False, **kwargs):
     elif lib == 'highlight':
         _assetman.add('pytsite.browser@highlight/styles/' + kwargs.get('style', 'default') + '.css')
         _assetman.add('pytsite.browser@highlight/highlight.pack.js', permanent=permanent)
+    elif lib in __libraries:
+        # Call external callback
+        __libraries[lib](permanent, **kwargs)
     else:
         raise ValueError("Unknown library: '{}'.".format(lib))

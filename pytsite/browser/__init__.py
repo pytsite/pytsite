@@ -1,7 +1,7 @@
 """PytSite JS API.
 """
 # Public API
-from ._api import include
+from ._api import register, include
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
