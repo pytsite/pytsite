@@ -2,6 +2,7 @@
 """
 from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from copy import deepcopy as _deepcopy
 from pytsite import util as _util, html as _html, validation as _validation
 
 __author__ = 'Alexander Shepetko'
@@ -18,7 +19,8 @@ class Base(_ABC):
         self._uid = uid
         self._name = kwargs.get('name', uid)
         self._weight = kwargs.get('weight', 0)
-        self._value = None
+        self._default = kwargs.get('default')
+        self._value = None  # Wil be set later
         self._label = kwargs.get('label')
         self._title = kwargs.get('title')
         self._label_hidden = kwargs.get('label_hidden', False)
@@ -47,9 +49,11 @@ class Base(_ABC):
         if type(self._form_steps) not in (list, tuple) and self._form_steps != '*':
             self._form_steps = (self._form_steps,)
 
-        # It is important to filter value through the setter-method
         if 'value' in kwargs:
+            # It is important to filter value through the setter-method
             self.set_val(kwargs.get('value'), mode='init')
+        else:
+            self._value = _deepcopy(self._default)
 
     def append(self, widget):
         """Append a child widget.
@@ -80,6 +84,10 @@ class Base(_ABC):
         return self._value
 
     @property
+    def default(self):
+        return self._default
+
+    @property
     def value(self):
         """Shortcut for get_value().
         """
@@ -97,6 +105,9 @@ class Base(_ABC):
         """Shortcut for set_value().
         """
         self.set_val(val)
+
+    def clr_val(self):
+        self._value = _deepcopy(self._default)
 
     def hide(self):
         """Hides the widget.
@@ -260,7 +271,7 @@ class Base(_ABC):
         """
         return tuple(self._rules)
 
-    def clear_rules(self):
+    def clr_rules(self):
         """Clear validation rules.
         """
         self._rules = []

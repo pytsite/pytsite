@@ -1,6 +1,6 @@
 """Auth Log ODM Models.
 """
-from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang
+from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang, router as _router
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 class AuthLog(_odm_ui.UIEntity):
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.Ref('user', model='user'))
@@ -18,6 +18,9 @@ class AuthLog(_odm_ui.UIEntity):
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.Virtual('geo_ip'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('user', _odm.I_ASC)])
         self.define_index([('ip', _odm.I_ASC)])
         self.define_index([('severity', _odm.I_ASC)])
@@ -56,7 +59,14 @@ class AuthLog(_odm_ui.UIEntity):
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        user = self.user.full_name if self.user else ''
+        user = ''
+        if self.user:
+            user_edit_url = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {
+                'model': 'user',
+                'id': str(self.user.id),
+            })
+            user = '<a href="{}">{}</a>'.format(user_edit_url, self.user.full_name)
+
         ip = self.ip
         g_ip = self.geo_ip
         geo = '{}, {}'.format(g_ip.country, g_ip.city) if g_ip.country else ''

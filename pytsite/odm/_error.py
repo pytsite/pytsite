@@ -35,3 +35,7 @@ class EntityDeleted(Exception):
 
 class FieldEmpty(Exception):
     pass
+
+
+class NoCachedData(Exception):
+    pass

@@ -1,6 +1,7 @@
 """Geo ODM Fields
 """
-from decimal import Decimal as _Decimal
+from typing import Union as _Union
+from frozendict import frozendict as _frozendict
 from pytsite import odm as _odm
 
 __author__ = 'Alexander Shepetko'
@@ -8,33 +9,37 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class LngLat(_odm.field.DecimalList):
-    """Geo Longitude/Latitude field.
+class Location(_odm.field.Dict):
+    """Geo Location Field.
     """
     def __init__(self, name: str, **kwargs):
-        """Init.
-        """
-        super().__init__(name, default=kwargs.get('default', (0.0, 0.0)), min_len=2, max_len=2, **kwargs)
+        default = kwargs.get('default', {
+            'lng': 0.0,
+            'lat': 0.0,
+            'lng_lat': (0.0, 0.0),
+            'accuracy': 0.0,
+            'alt': 0.0,
+            'alt_accuracy': 0.0,
+            'heading': 0.0,
+            'speed': 0.0,
+        })
+
+        super().__init__(name, default=default, keys=('lng', 'lat'), **kwargs)
 
     @property
     def is_empty(self) -> bool:
-        """Checks if the field is empty.
-        """
-        return self._value == (_Decimal('0.0'), _Decimal('0.0'))
+        v = self.get_val()
 
-    def get_storable_val(self) -> tuple:
-        return float(self._value[0]), float(self._value[1])
+        return not v['lng'] or not v['lat']
 
-
-class Location(_odm.field.Abstract):
-    """Geo Location Field.
-    """
-    def set_val(self, value, change_modified: bool=True, **kwargs):
+    def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Hook.
-        :param value: dict | list | tuple
         """
-        if isinstance(value, dict):
-            # Checking all necessary keys
+        if isinstance(value, _frozendict):
+            value = dict(value)
+
+        if isinstance(value, (dict, _frozendict)):
+            # Checking and setting up all necessary keys
             for k in ('lng', 'lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
                 if k in value:
                     try:
@@ -44,39 +49,66 @@ class Location(_odm.field.Abstract):
                 else:
                     value[k] = 0.0
 
-            # Settings 'lat_lng' value
-            value['lng_lat'] = [value['lng'], value['lat']]
-
-            # Checking address
-            if 'address' in value:
-                if not isinstance(value['address'], str):
-                    raise ValueError("'address' must be string.")
-            else:
-                value['address'] = ''
-
-            # Checking address components
-            if 'address_components' in value:
-                if not isinstance(value['address_components'], list):
-                    raise ValueError("'address_components' must be list.")
-            else:
-                value['address_components'] = []
-
-        elif type(value) in (tuple, list):
-            if len(value) == 2:
-                value = {
-                    'lng': value[0],
-                    'lat': value[1],
-                    'lng_lat': [value[0], value[1]],
-                    'accuracy': 0.0,
-                    'alt': 0.0,
-                    'alt_accuracy': 0.0,
-                    'heading': 0.0,
-                    'speed': 0.0,
-                    'address': '',
-                    'address_components': [],
-                }
+            # Setting up 'lat_lng' value
+            value['lng_lat'] = (value['lng'], value['lat'])
 
         elif value is not None:
-            raise ValueError("Field '{}': dict, list or tuple expected.".format(self.name))
+            raise ValueError("Field '{}': dict or None expected.".format(self.name))
 
-        return super().set_val(value, change_modified, **kwargs)
+        return super().set_val(value, **kwargs)
+
+
+class Address(_odm.field.Dict):
+    """Geo Address Field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        default = kwargs.get('default', {
+            'lng': 0.0,
+            'lat': 0.0,
+            'lng_lat': [0.0, 0.0],
+            'address': '',
+            'address_components': [],
+        })
+
+        super().__init__(name, default=default, keys=('lng', 'lat', 'address'), **kwargs)
+
+    @property
+    def is_empty(self) -> bool:
+        v = self.get_val()
+
+        return not v['lng'] or not v['lat'] or not v['address']
+
+    def set_val(self, value: _Union[dict, _frozendict], **kwargs):
+        """Hook.
+        """
+        if isinstance(value, _frozendict):
+            value = dict(value)
+
+        if isinstance(value, (dict, _frozendict)):
+            # Checking lat and lng
+            for k in ('lng', 'lat'):
+                if k in value:
+                    try:
+                        value[k] = float(value[k])
+                    except ValueError:
+                        value[k] = 0.0
+                else:
+                    value[k] = 0.0
+
+            # Checking address
+            if 'address' in value and not isinstance(value['address'], str):
+                raise ValueError("Field '{}.address': str expected.".format(self.name))
+
+            # Checking address components
+            if 'address_components' in value and not isinstance(value['address_components'], (list, tuple)):
+                raise ValueError("Field '{}.address_components': list or tuple expected.".format(self.name))
+
+            # Setting up 'lat_lng' value
+            value['lng_lat'] = (value['lng'], value['lat'])
+
+        elif value is not None:
+            raise ValueError("Field '{}': dict or None expected.".format(self.name))
+
+        return super().set_val(value, **kwargs)

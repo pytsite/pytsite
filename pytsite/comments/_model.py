@@ -10,13 +10,16 @@ __license__ = 'MIT'
 class CommentsCount(_odm.Entity):
     """Comments Count Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('driver', nonempty=True))
         self.define_field(_odm.field.String('thread_id', nonempty=True))
         self.define_field(_odm.field.Integer('count'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('driver', _odm.I_ASC), ('thread_id', _odm.I_ASC)], unique=True)
 
     @property

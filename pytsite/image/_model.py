@@ -12,10 +12,10 @@ __license__ = 'MIT'
 class Image(_file.model.File):
     """Image Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
-        super()._setup()
+        super()._setup_fields()
         self.define_field(_odm.field.Integer('width'))
         self.define_field(_odm.field.Integer('height'))
         self.define_field(_odm.field.Dict('exif'))

@@ -1,6 +1,6 @@
 """ODM models.
 """
-from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple
+from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
@@ -11,22 +11,25 @@ from bson import errors as _bson_errors
 from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, threading as _threading, lang as _lang, logger as _logger
+from pytsite import db as _db, events as _events, mp as _mp, lang as _lang, logger as _logger, cache as _cache, \
+    reg as _reg
 from . import _error, _field
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_cache_driver = _reg.get('odm.cache.driver', 'redis')
+_cache_pool = _cache.create_pool('pytsite.odm.entities', _cache_driver)
+_dbg = _reg.get('odm.debug')
+
 
 class Entity(_ABC):
     """ODM Model.
     """
-    def __init__(self, model: str, obj_id=None):
-        """Init.
 
-        :type model: str
-        :type obj_id: str | _ObjectId
+    def __init__(self, model: str, obj_id=_Union[str, _ObjectId]):
+        """Init.
         """
         if not hasattr(self, 'collection_name'):
             self._collection_name = None
@@ -37,59 +40,99 @@ class Entity(_ABC):
             else:
                 self._collection_name = model + 's'
 
+        self._model = model
+        self._id = None  # type: _ObjectId
         self._is_new = True
+        self._is_modified = False
         self._is_deleted = False
         self._indexes = []
         self._has_text_index = False
 
         self._fields = _OrderedDict()  # type: _Dict[str, _field.Abstract]
 
-        self.define_field(_field.ObjectId('_id'))
-        self.define_field(_field.String('_model', default=model))
+        # Define 'system' fields
         self.define_field(_field.Ref('_parent', model=model))
         self.define_field(_field.RefsList('_children', model=model))
         self.define_field(_field.DateTime('_created'))
         self.define_field(_field.DateTime('_modified'))
 
-        # setup() hook
-        self._setup()
-        _events.fire('pytsite.odm.model.setup', entity=self)
-        _events.fire('pytsite.odm.model.{}.setup'.format(model), entity=self)
+        # Setup fields hook
+        self._setup_fields()
+        _events.fire('pytsite.odm.model.setup_fields', entity=self)
+        _events.fire('pytsite.odm.model.{}.setup_fields'.format(model), entity=self)
 
-        # Automatically create indices on new collections
-        if self._collection_name not in _db.get_collection_names():
-            self._create_indexes()
+        # Setup indexes hook
+        self._setup_indexes()
+        _events.fire('pytsite.odm.model.setup_indexes', entity=self)
+        _events.fire('pytsite.odm.model.{}.setup_indexes'.format(model), entity=self)
 
         # Loading fields data from collection
         if obj_id:
             # Load data from from DB
-            self._load_data(obj_id)
-
-            # Of course, loaded entity cannot be 'new'
-            self._is_new = False
+            self._load_fields_data(obj_id)
         else:
             # Filling fields with initial values
             self.f_set('_created', _datetime.now())
             self.f_set('_modified', _datetime.now())
 
-    def _load_data(self, obj_id):
-        """Load data from database.
+    def _get_lock(self):
+        if self._is_new:
+            raise RuntimeError('New entities cannot be locked.')
 
-        :type obj_id: _ObjectId | str
+        if not self._id:
+            raise RuntimeError('Entity does not have an ID.')
+
+        return _mp.get_lock('pytsite.odm.{}.{}'.format(self.model, self.id), True)
+
+    def lock(self, ttl: int = 10):
+        self._get_lock().lock(ttl)
+
+    def unlock(self):
+        self._get_lock().unlock()
+
+    def _load_fields_data(self, eid: _Union[str, _ObjectId], skip_cache=False):
+        """Load fields data from the cache or the database.
         """
-        if isinstance(obj_id, str):
-            obj_id = _ObjectId(obj_id)
+        if isinstance(eid, str):
+            eid = _ObjectId(eid)
 
-        data = self.collection.find_one({'_id': obj_id})
+        data_from_cache = False
+        try:
+            if not skip_cache:
+                # Try to load data from cache:
+                data = _cache_get(self._model, str(eid))
+                data_from_cache = True
+                if _dbg:
+                    _logger.debug('Entity data LOADED from cache: {}:{}'.format(self._model, eid), __name__)
+            else:
+                raise _error.NoCachedData()
 
-        # No data has been found
-        if not data:
-            raise _error.EntityNotFound("Entity '{}:{}' is not found in storage.".format(self.model, str(obj_id)))
+        except _error.NoCachedData:
+            # Try to load fields data directly from DB
+            data = self.collection.find_one({'_id': eid})
+            if not data:
+                raise _error.EntityNotFound("Entity '{}:{}' not found in the database.".format(self._model, str(eid)))
 
         # Filling fields with retrieved data
-        for field_name, value in data.items():
-            if self.has_field(field_name):
-                self.get_field(field_name).set_val(value, False)
+        self._fill_fields_data(data)
+
+        # Of course, loaded entity cannot be 'new'
+        self._is_new = False
+
+        # Put fields data to cache
+        if not data_from_cache:
+            self._cache_push()
+            if _dbg:
+                _logger.debug('Entity data SAVED into cache: {}:{}'.format(self._model, eid), __name__)
+
+    def _fill_fields_data(self, data: dict):
+        """Fill fields with data.
+        """
+        for f_name, value in data.items():
+            if f_name == '_id':
+                self._id = value
+            elif self.has_field(f_name):
+                self.get_field(f_name).set_val(value)
 
     def define_index(self, definition: _List[_Tuple], unique=False):
         """Define an index.
@@ -136,9 +179,10 @@ class Entity(_ABC):
         """
         if not self.has_field(field_name):
             raise Exception("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
+
         del self._fields[field_name]
 
-    def _create_indexes(self):
+    def create_indexes(self):
         """Create indices.
         """
         for index_data in self.indexes:
@@ -166,28 +210,51 @@ class Entity(_ABC):
         except _OperationFailure:  # Collection does not exist in database
             pass
 
-        self._create_indexes()
+        self.create_indexes()
 
     def reload(self):
         """Reload entity data from database.
         """
-        if self.is_new:
+        if self._is_new:
             return
 
-        self._load_data(self.id)
+        self._load_fields_data(self.id, skip_cache=True)
+
+    def _cache_push(self, check_empty_fields: bool = False):
+        """Push fields data into cache.
+        """
+        if self._is_new:
+            raise RuntimeError('New entities cannot be cached.')
+
+        _cache_put(self._model, self._id, self.as_storable(check_empty_fields))
+
+    def _cache_pull(self):
+        """Pull fields data from cache.
+        """
+        if self._is_new:
+            raise RuntimeError('New entities cannot be cached.')
+
+        self._fill_fields_data(_cache_get(self._model, self._id))
 
     @_abstractmethod
-    def _setup(self):
-        """setup() hook.
+    def _setup_fields(self):
+        """Hook.
+        """
+        pass
+
+    def _setup_indexes(self):
+        """Hook.
         """
         pass
 
     def _check_deletion(self):
-        if self.is_deleted:
+        """Raise an exception if the has 'deleted' state.
+        """
+        if self._is_deleted:
             raise _error.EntityDeleted('Entity has been deleted.')
 
     def has_field(self, field_name: str) -> bool:
-        """Check if the entity has field.
+        """Check if the entity has a field.
         """
         self._check_deletion()
 
@@ -220,10 +287,10 @@ class Entity(_ABC):
         return self._fields
 
     @property
-    def id(self) -> _ObjectId:
+    def id(self) -> _Union[_ObjectId, None]:
         """Get entity ID.
         """
-        return self.f_get('_id')
+        return self._id
 
     @property
     def ref(self) -> _DBRef:
@@ -231,7 +298,7 @@ class Entity(_ABC):
         """
         self._check_deletion()
 
-        if not self.id:
+        if self._is_new:
             raise _error.EntityNotStored('Entity must be stored before you can get its ref.')
 
         return _DBRef(self.collection.name, self.id)
@@ -240,7 +307,7 @@ class Entity(_ABC):
     def model(self) -> str:
         """Get model name.
         """
-        return self.f_get('_model')
+        return self._model
 
     @property
     def parent(self):
@@ -272,35 +339,45 @@ class Entity(_ABC):
     def is_new(self) -> bool:
         """Is the entity new or already stored in a database?
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
-            return self._is_new
+        return self._is_new
 
     @property
     def is_modified(self) -> bool:
         """Is the entity has been modified?
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
-            for field_name, field in self._fields.items():
-                if field.is_modified:
-                    return True
-            return False
+        self._check_deletion()
+
+        return self._is_modified
 
     @property
     def is_deleted(self) -> bool:
         """Is the entity has been deleted?
         """
-        with _threading.get_r_lock():
-            return self._is_deleted
+        return self._is_deleted
 
     def f_set(self, field_name: str, value, update_state=True, **kwargs):
         """Set field's value.
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
+        if _dbg:
+            _logger.debug("{}.f_set('{}'): {}".format(self.model, field_name, value), __name__)
+
+        try:
+            if not self._is_new:
+                self._check_deletion()
+                self.lock()
+
             value = self._on_f_set(field_name, value, **kwargs)
-            self.get_field(field_name).set_val(value, update_state, **kwargs)
+            self.get_field(field_name).set_val(value, **kwargs)
+
+            if update_state:
+                self._is_modified = True
+
+            if not self._is_new and self._is_modified:
+                self._cache_push()
+
+        finally:
+            if not self._is_new:
+                self.unlock()
 
         return self
 
@@ -312,15 +389,26 @@ class Entity(_ABC):
     def f_get(self, field_name: str, **kwargs):
         """Get field's value.
         """
-        with _threading.get_r_lock():
-            # Yes, here we shouldn't call self._check_deletion(),
-            # because entity might want to have access to its fields after deletion.
+        if _dbg:
+            _logger.debug("{}.f_get('{}')".format(self.model, field_name), __name__)
+
+        try:
+            if not self._is_new:
+                self.lock()
+                self._cache_pull()
+
+            # Yes, here we SHOULD NOT call self._check_deletion(),
+            # because entity itself might want to have access to its fields AFTER deletion.
 
             # Get value
             field_val = self.get_field(field_name).get_val(**kwargs)
 
             # Pass value through hook method
             return self._on_f_get(field_name, field_val, **kwargs)
+
+        finally:
+            if not self._is_new:
+                self.unlock()
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """On get field's value hook.
@@ -330,11 +418,28 @@ class Entity(_ABC):
     def f_add(self, field_name: str, value, update_state=True, **kwargs):
         """Add a value to the field.
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
+        if _dbg:
+            _logger.debug("{}.f_add('{}'): {}".format(self.model, field_name, value), __name__)
+
+        try:
+            if not self._is_new:
+                self._check_deletion()
+                self.lock()
+
             value = self._on_f_add(field_name, value, **kwargs)
-            self.get_field(field_name).add_val(value, update_state, **kwargs)
-            return self
+            self.get_field(field_name).add_val(value, **kwargs)
+
+            if update_state:
+                self._is_modified = True
+
+            if not self._is_new and self._is_modified:
+                self._cache_push()
+
+        finally:
+            if not self._is_new:
+                self.unlock()
+
+        return self
 
     def _on_f_add(self, field_name: str, value, **kwargs):
         """On field's add value hook.
@@ -344,11 +449,28 @@ class Entity(_ABC):
     def f_sub(self, field_name: str, value, update_state=True, **kwargs):
         """Subtract value from the field.
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
+        if _dbg:
+            _logger.debug("{}.f_sub('{}'): {}".format(self.model, field_name, value), __name__)
+
+        try:
+            if not self._is_new:
+                self._check_deletion()
+                self.lock()
+
             value = self._on_f_sub(field_name, value, **kwargs)
-            self.get_field(field_name).sub_val(value, update_state, **kwargs)
-            return self
+            self.get_field(field_name).sub_val(value, **kwargs)
+
+            if update_state:
+                self._is_modified = True
+
+            if not self._is_new and self._is_modified:
+                self._cache_push()
+
+        finally:
+            if not self._is_new:
+                self.unlock()
+
+        return self
 
     def _on_f_sub(self, field_name: str, value, **kwargs) -> _Any:
         """On field's subtract value hook.
@@ -358,11 +480,28 @@ class Entity(_ABC):
     def f_inc(self, field_name: str, update_state=True, **kwargs):
         """Increment value of the field.
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
+        if _dbg:
+            _logger.debug("{}.f_inc('{}')".format(self.model, field_name), __name__)
+
+        try:
+            if not self._is_new:
+                self._check_deletion()
+                self.lock()
+
             self._on_f_inc(field_name, **kwargs)
-            self.get_field(field_name).inc_val(update_state, **kwargs)
-            return self
+            self.get_field(field_name).inc_val(**kwargs)
+
+            if update_state:
+                self._is_modified = True
+
+            if not self._is_new and self._is_modified:
+                self._cache_push()
+
+        finally:
+            if not self._is_new:
+                self.unlock()
+
+        return self
 
     def _on_f_inc(self, field_name: str, **kwargs):
         """On field's increment value hook.
@@ -372,11 +511,28 @@ class Entity(_ABC):
     def f_dec(self, field_name: str, update_state=True, **kwargs):
         """Decrement value of the field
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
+        if _dbg:
+            _logger.debug("{}.f_dec('{}')".format(self.model, field_name), __name__)
+
+        try:
+            if not self._is_new:
+                self._check_deletion()
+                self.lock()
+
             self._on_f_dec(field_name, **kwargs)
-            self.get_field(field_name).dec_val(update_state, **kwargs)
-            return self
+            self.get_field(field_name).dec_val(**kwargs)
+
+            if update_state:
+                self._is_modified = True
+
+            if not self._is_new and self._is_modified:
+                self._cache_push()
+
+        finally:
+            if not self._is_new:
+                self.unlock()
+
+        return self
 
     def _on_f_dec(self, field_name: str, **kwargs):
         """On field's decrement value hook.
@@ -384,13 +540,30 @@ class Entity(_ABC):
         pass
 
     def f_clr(self, field_name: str, update_state=True, **kwargs):
-        """Creal field.
+        """Clear field.
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
+        if _dbg:
+            _logger.debug("{}.f_clr('{}')".format(self.model, field_name), __name__)
+
+        try:
+            if not self._is_new:
+                self._check_deletion()
+                self.lock()
+
             self._on_f_clr(field_name, **kwargs)
-            self.get_field(field_name).clr_val(update_state, **kwargs)
-            return self
+            self.get_field(field_name).clr_val(**kwargs)
+
+            if update_state:
+                self._is_modified = True
+
+            if not self._is_new and self._is_modified:
+                self._cache_push()
+
+        finally:
+            if not self._is_new:
+                self.unlock()
+
+        return self
 
     def _on_f_clr(self, field_name: str, **kwargs):
         """On field's clear value hook.
@@ -400,19 +573,26 @@ class Entity(_ABC):
     def f_is_empty(self, field_name: str) -> bool:
         """Checks if the field is empty.
         """
-        with _threading.get_r_lock():
+        if not self._is_new:
             self._check_deletion()
+            self.lock()
+
+        try:
             return self.get_field(field_name).is_empty
+        finally:
+            if not self._is_new:
+                self.unlock()
 
     def append_child(self, child):
         """Append child to the entity
 
         :type child: Entity
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
-            child.f_set('_parent', self)
-            self.f_add('_children', child)
+        if _dbg:
+            _logger.debug('{}.append_child(): {}'.format(self.model, child), __name__)
+
+        child.f_set('_parent', self)
+        self.f_add('_children', child)
 
         return self
 
@@ -421,23 +601,29 @@ class Entity(_ABC):
 
         :type child: Entity
         """
-        with _threading.get_r_lock():
-            self._check_deletion()
-            self.f_sub('_children', child)
-            child.f_clr('_parent')
+        if _dbg:
+            _logger.debug('{}.remove_child(): {}'.format(self.model, child), __name__)
+
+        self.f_sub('_children', child)
+        child.f_clr('_parent')
 
         return self
 
-    def save(self, skip_hooks: bool=False, update_timestamp: bool=True):
+    def save(self, skip_hooks: bool = False, update_timestamp: bool = True):
         """Save the entity.
         """
-        self._check_deletion()
-
         # Don't save entity if it wasn't changed
-        if not self.is_modified:
+        if not self._is_modified:
             return self
 
-        with _threading.get_r_lock():
+        if _dbg:
+            _logger.debug('{}.save()'.format(self.model), __name__)
+
+        if not self._is_new:
+            self._check_deletion()
+            self.lock()
+
+        try:
             # Pre-save hook
             if not skip_hooks:
                 self._pre_save()
@@ -449,18 +635,7 @@ class Entity(_ABC):
                 self.f_set('_modified', _datetime.now())
 
             # Getting storable data from each field
-            data = {}
-            for f_name, field in self._fields.items():
-                # Virtual fields should not be saved
-                if isinstance(field, _field.Virtual):
-                    continue
-
-                # Required fields should be filled
-                if field.nonempty and field.is_empty:
-                    raise _error.FieldEmpty("Value of the field '{}' cannot be empty.".format(f_name))
-
-                # Get serializable value of the field
-                data[f_name] = field.get_storable_val()
+            data = self.as_storable()
 
             # Let DB to calculate object's ID
             if self._is_new:
@@ -482,30 +657,32 @@ class Entity(_ABC):
 
             # Getting assigned ID from MongoDB
             if self._is_new:
-                self.f_set('_id', data['_id'])
+                self._id = data['_id']
 
             # After save hook
             if not skip_hooks:
                 self._after_save()
 
-            # Notifying fields about entity saving
-            for f_name, field in self._fields.items():
-                field.reset_modified()
+            # Update modified state
+            self._is_modified = False
 
             # Entity is not new anymore
             if self._is_new:
-                from . import _entity_cache
                 self._is_new = False
-                _entity_cache.put(self)
+                self._cache_push(True)
 
             # Clear entire finder cache for this model
-            from . import _finder_cache
-            _finder_cache.clear(self.model)
+            from . import _finder
+            _finder.cache_clear(self.model)
 
             # Save children with updated '_parent' field
             for child in self.children:
                 if child.is_modified:
                     child.save(True, False)
+
+        finally:
+            if not self._is_new:
+                self.unlock()
 
         return self
 
@@ -522,9 +699,16 @@ class Entity(_ABC):
     def delete(self, **kwargs):
         """Delete the entity.
         """
-        self._check_deletion()
+        if self._is_new:
+            raise RuntimeError('New entities cannot be deleted.')
 
-        with _threading.get_r_lock():
+        if _dbg:
+            _logger.debug('{}.delete()'.format(self.model), __name__)
+
+        try:
+            self._check_deletion()
+            self.lock()
+
             # Pre delete hook
             _events.fire('pytsite.odm.entity.pre_delete', entity=self)
             _events.fire('pytsite.odm.entity.{}.pre_delete'.format(self.model), entity=self)
@@ -534,14 +718,12 @@ class Entity(_ABC):
             for f_name, field in self._fields.items():
                 field.on_entity_delete()
 
-            # Get children to notify them abou parent deletion
+            # Get children to notify them about parent deletion
             children = self.children
 
-            # Actual deletion from storage
+            # Actual deletion from the database
             if not self._is_new:
-                from . import _entity_cache
                 self.collection.delete_one({'_id': self.id})
-                _entity_cache.rm(self)
 
             # Clearing parent reference from orphaned children
             for child in children:
@@ -552,11 +734,18 @@ class Entity(_ABC):
             _events.fire('pytsite.odm.entity.delete', entity=self)
             _events.fire('pytsite.odm.entity.{}.delete'.format(self.model), entity=self)
 
+            # Delete entity from cache
+            _cache_rm(self._model, self.id)
+
             # Delete all entities of that model from finder cache
-            from . import _finder_cache
-            _finder_cache.clear(self.model)
+            from . import _finder
+            _finder.cache_clear(self.model)
 
             self._is_deleted = True
+
+        finally:
+            if not self._is_new:
+                self.unlock()
 
         return self
 
@@ -570,7 +759,27 @@ class Entity(_ABC):
         """
         pass
 
-    def serialize(self, include_fields: tuple=(), exclude_fields: tuple=()) -> _Dict:
+    def as_storable(self, check_empty: bool = True) -> dict:
+        """Get pickled representation of the entity.
+        """
+        r = {
+            '_id': self._id,
+            '_model': self._model,
+        }
+
+        for f_name, f in self.fields.items():
+            if isinstance(f, _field.Virtual):
+                continue
+
+            # Required fields should be filled
+            if check_empty and f.nonempty and f.is_empty:
+                raise _error.FieldEmpty("Value of the field '{}' cannot be empty.".format(f_name))
+
+            r[f_name] = f.get_storable_val()
+
+        return r
+
+    def as_dict(self, include_fields: tuple = (), exclude_fields: tuple = ()) -> _Dict:
         """Get serializable representation of the entity.
         """
         r = {n: f.get_serializable_val() for n, f in self.fields.items() if not isinstance(f, _field.Virtual)}
@@ -590,13 +799,13 @@ class Entity(_ABC):
         return '.'.join(cls.__module__.split('.')[:-1])
 
     @classmethod
-    def t(cls, partly_msg_id: str, args: dict=None) -> str:
+    def t(cls, partly_msg_id: str, args: dict = None) -> str:
         """Translate a string in model context.
         """
         return _lang.t(cls.resolve_partly_msg_id(partly_msg_id), args)
 
     @classmethod
-    def t_plural(cls, partly_msg_id: str, num: int=2) -> str:
+    def t_plural(cls, partly_msg_id: str, num: int = 2) -> str:
         """Translate a string into plural form.
         """
         return _lang.t_plural(cls.resolve_partly_msg_id(partly_msg_id), num)
@@ -611,3 +820,39 @@ class Entity(_ABC):
                     return full_msg_id
 
         return cls.package_name() + '@' + partly_msg_id
+
+
+def _cache_has(model: str, eid: _Union[str, _ObjectId]) -> bool:
+    if isinstance(eid, _ObjectId):
+        eid = str(eid)
+
+    return _cache_pool.has('{}:{}'.format(model, eid))
+
+
+def _cache_get(model: str, eid: _Union[str, _ObjectId]) -> dict:
+    """Build entity from cached data.
+    """
+    if isinstance(eid, _ObjectId):
+        eid = str(eid)
+
+    if not _cache_has(model, eid):
+        raise _error.NoCachedData("No cached data for {}.{}".format(model, eid))
+
+    return _cache_pool.get('{}:{}'.format(model, eid))
+
+
+def _cache_put(model: str, eid: _Union[str, _ObjectId], data: dict):
+    """Put entity data into the cache.
+    """
+    if isinstance(eid, _ObjectId):
+        eid = str(eid)
+
+    _cache_pool.put('{}:{}'.format(model, eid, data), data)
+
+
+def _cache_rm(model: str, eid: _Union[str, _ObjectId]):
+    """Remove item from the cache.
+    """
+    if isinstance(eid, _ObjectId):
+        eid = str(eid)
+    _cache_pool.rm('{}:{}'.format(model, eid))

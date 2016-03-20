@@ -10,13 +10,16 @@ __license__ = 'MIT'
 class RouteAlias(_odm.Entity):
     """Taxonomy Term Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('alias', nonempty=True))
         self.define_field(_odm.field.String('target', nonempty=True))
         self.define_field(_odm.field.String('language', nonempty=True))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
 
     @property

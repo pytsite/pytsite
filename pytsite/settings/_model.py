@@ -8,10 +8,13 @@ __license__ = 'MIT'
 
 
 class Setting(_odm.Entity):
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('uid', nonempty=True))
         self.define_field(_odm.field.Dict('value'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('uid', _odm.I_ASC)])

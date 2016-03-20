@@ -50,6 +50,11 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     perm_description = cls.resolve_partly_msg_id('content_permission_set_publish_time_' + model)
     _auth.define_permission(perm_name, perm_description, cls.package_name())
 
+    # Define 'set_starred' permission
+    perm_name = 'pytsite.content.set_starred.' + model
+    perm_description = cls.resolve_partly_msg_id('content_permission_set_starred_' + model)
+    _auth.define_permission(perm_name, perm_description, cls.package_name())
+
     _admin.sidebar.add_menu(
         sid='content',
         mid=model,
@@ -107,7 +112,15 @@ def find(model: str, status='published', check_publish_time=True, language: str=
     if not is_model_registered(model):
         raise KeyError("Model '{}' is not registered as content model.".format(model))
 
-    f = _odm.find(model).sort([('publish_time', _odm.I_DESC)])
+    mock = dispense(model)
+    f = _odm.find(model)
+
+    if mock.has_field('publish_time'):
+        f.sort([('publish_time', _odm.I_DESC)])
+        if check_publish_time:
+            f.where('publish_time', '<=', _datetime.now()).cache(0)
+    else:
+        f.sort([('_modified', _odm.I_DESC)])
 
     if not language:
         language = _lang.get_current()
@@ -115,9 +128,6 @@ def find(model: str, status='published', check_publish_time=True, language: str=
 
     if status:
         f.where('status', '=', status)
-
-    if check_publish_time:
-        f.where('publish_time', '<=', _datetime.now()).cache(0)
 
     return f
 

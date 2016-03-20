@@ -10,7 +10,7 @@ __license__ = 'MIT'
 class Term(_odm_ui.UIEntity):
     """Taxonomy Term Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('title', nonempty=True))
@@ -19,6 +19,9 @@ class Term(_odm_ui.UIEntity):
         self.define_field(_odm.field.Integer('weight'))
         self.define_field(_odm.field.Integer('order'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('alias', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)
         self.define_index([('language', _odm.I_ASC), ('weight', _odm.I_DESC)])
         self.define_index([('weight', _odm.I_ASC)])

@@ -17,7 +17,7 @@ class Account(_odm_ui.UIEntity):
     """Wallet ODM Model.
     """
 
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('currency', nonempty=True))
@@ -28,6 +28,9 @@ class Account(_odm_ui.UIEntity):
         self.define_field(_odm.field.RefsUniqueList('cancelling_transactions', model='wallet_transaction'))
         self.define_field(_odm.field.Dict('options'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('title', _odm.I_ASC)], True)
 
     @property
@@ -143,7 +146,7 @@ class Transaction(_odm_ui.UIEntity):
     """Transaction ODM Model.
     """
 
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.DateTime('time', nonempty=True, default=_datetime.now()))
@@ -155,6 +158,9 @@ class Transaction(_odm_ui.UIEntity):
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.Dict('options'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('time', _odm.I_DESC)])
 
     @property

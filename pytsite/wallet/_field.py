@@ -23,21 +23,21 @@ class Money(_odm.field.Abstract):
 
         super().__init__(name, **kwargs)
 
-    def set_val(self, value: dict, update_state: bool=True, **kwargs):
+    def set_val(self, value: dict, **kwargs):
         """Set value fo the field.
         """
         # Reset value to default
         if value is None:
-            self.clr_val(update_state, **kwargs)
+            self.clr_val(**kwargs)
             return
-
-        # Check value type
-        if type(value) not in (dict, _frozendict):
-            raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
 
         # Convert to mutable dict if necessary
         if isinstance(value, _frozendict):
             value = dict(value)
+
+        # Check value type
+        if not isinstance(value, dict):
+            raise TypeError("Value of the field '{}' should be a dict.".format(self._name))
 
         # Check for required dict keys
         if 'currency' not in value or not value['currency']:
@@ -58,7 +58,7 @@ class Money(_odm.field.Abstract):
             value['amount'] = _Decimal(value['amount'])
 
         # Convert to immutable dict and set
-        super().set_val(_frozendict(value), update_state, **kwargs)
+        super().set_val(_frozendict(value), **kwargs)
 
     def get_val(self, **kwargs) -> _frozendict:
         """Get value of the field.

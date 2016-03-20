@@ -50,9 +50,9 @@ def __init():
     tpl.register_global('auth_logout_url', _api.get_logout_url)
 
     # Event handlers
-    events.listen('pytsite.setup', _eh.app_setup)
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
-    events.listen('pytsite.update', _eh.update)
+    events.listen('pytsite.setup', _eh.pytsite_setup)
+    events.listen('pytsite.router.dispatch', _eh.pytsite_router_dispatch)
+    events.listen('pytsite.update', _eh.pytsite_update)
 
     # Permissions
     define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')

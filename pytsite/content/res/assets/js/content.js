@@ -1,5 +1,5 @@
 $(function () {
-    var form = $('#odm-ui-form');
+    var form = $('.odm-ui-form');
     form.find('.widget-uid-description input').focus(function () {
         var descriptionInput = $(this);
         var titleInput = form.find('.widget-uid-title input');

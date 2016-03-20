@@ -277,7 +277,7 @@ class Form:
     def remove_rules(self, widget_uid: str):
         """Remove validation's rules from the widget.
         """
-        self.get_widget(widget_uid).clear_rules()
+        self.get_widget(widget_uid).clr_rules()
 
         return self
 

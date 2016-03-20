@@ -14,7 +14,7 @@ __license__ = 'MIT'
 class ContentImport(_odm_ui.UIEntity):
     """PytSite Content Import ODM Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('driver', nonempty=True))

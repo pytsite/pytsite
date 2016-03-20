@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 class FixtureModel(odm.Entity):
-    def _setup(self):
+    def _setup_fields(self):
         pass
 
 

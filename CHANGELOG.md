@@ -1,5 +1,24 @@
 # PytSite Changelog
 
+## 0.59
+### Added
+- New packages: `mp`, `google`.
+- `odm`: new hook: `_setup_indexes()`.
+- `ckeditor`: new 'stylescombo' plugin.
+- `browser`:
+    - new API method: `register()`;
+    - new library: 'jquery-mobile'.
+- `assetman`: support for regular expressions in `remove()`.
+- `cache`:
+    - total rework;
+    - support for Redis and Database storage.
+- `util`: new argument in `random_str()`: 'exclude'.
+
+### Changed
+- `odm`: `_setup()` hook renamed to `_setup_fields()`.
+- `cron`: now works without storing data on filesystem.
+
+
 ## 0.58
 ### Added
 - `assetman`: TypeScript support.

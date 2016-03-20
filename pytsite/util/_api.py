@@ -3,6 +3,7 @@
 import random as _random
 import re as _re
 import pytz as _pytz
+from typing import Iterable as _Iterable
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
 from datetime import datetime as _datetime
@@ -197,17 +198,20 @@ def mk_tmp_file() -> tuple:
     return mkstemp(dir=tmp_dir)
 
 
-def random_str(size=16, chars='0123456789abcdef'):
+def random_str(size=16, alphabet='0123456789abcdef', exclude: _Iterable=None):
     """Generate random string.
     """
-    return ''.join(_random.choice(chars) for _ in range(size))
+    while True:
+        s = ''.join(_random.choice(alphabet) for _ in range(size))
+        if not exclude or s not in exclude:
+            return s
 
 
 def random_password(size=16):
     """Generate random password.
     """
-    chars = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
-    return random_str(size, chars)
+    alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
+    return random_str(size, alphabet)
 
 
 def weight_sort(inp: list, key: str='weight') -> list:

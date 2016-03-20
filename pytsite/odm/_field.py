@@ -25,18 +25,21 @@ class Abstract(_ABC):
         :param nonempty: bool
         """
         self._name = name
+        self._uid = None  # type: str
         self._nonempty = kwargs.get('nonempty', False)
-        self._modified = False
         self._default = kwargs.get('default')
         self._value = None
-        """:type: _Any"""
 
-        # Pass initial value through the setter
+        # Set default valuer
         self.set_val(_deepcopy(self._default))
 
     @property
     def nonempty(self) -> bool:
         return self._nonempty
+
+    @nonempty.setter
+    def nonempty(self, value: bool):
+        self._nonempty = value
 
     @property
     def name(self) -> str:
@@ -45,17 +48,8 @@ class Abstract(_ABC):
         return self._name
 
     @property
-    def is_modified(self) -> bool:
-        """Is the field has been modified?
-        """
-        return self._modified
-
-    def reset_modified(self):
-        """Reset the 'modified' status of the field.
-        """
-        self._modified = False
-
-        return self
+    def default(self) -> _Any:
+        return self._default
 
     def get_val(self, **kwargs) -> _Any:
         """Get value of the field.
@@ -65,49 +59,41 @@ class Abstract(_ABC):
     def get_storable_val(self):
         """Get value suitable to store in the database.
         """
-        return self.get_val()
+        return self._value
 
     def get_serializable_val(self) -> _Union[int, str, float, bool, dict, tuple, list]:
         """Get serializable representation of field's value.
         """
         return self.get_storable_val()
 
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the field.
         """
         self._value = value
-        if update_state and not self._modified:
-            self._modified = True
 
         return self
 
-    def clr_val(self, update_state: bool=True, **kwargs):
+    def clr_val(self, **kwargs):
         """Clear the field.
         """
-        self._value = _deepcopy(self._default)
-        if update_state and not self._modified:
-            self._modified = True
+        self.set_val(_deepcopy(self._default), **kwargs)
 
-    def add_val(self, value, update_state: bool=True, **kwargs):
+    def add_val(self, value, **kwargs):
         """Add a value to the field.
         """
-        self._value += value
-        if update_state and not self._modified:
-            self._modified = True
+        self.set_val(self.get_val() + value, **kwargs)
 
-    def sub_val(self, value, update_state: bool=True, **kwargs):
+    def sub_val(self, value, **kwargs):
         """Remove a value from the field.
         """
-        self._value -= value
-        if update_state and not self._modified:
-            self._modified = True
+        self.set_val(self.get_val() - value, **kwargs)
 
-    def inc_val(self, update_state: bool=True, **kwargs):
+    def inc_val(self, **kwargs):
         """Increment a value of the field.
         """
         raise ArithmeticError('Value of this field cannot be incremented')
 
-    def dec_val(self, update_state: bool=True, **kwargs):
+    def dec_val(self, **kwargs):
         """Increment a value of the field.
         """
         raise ArithmeticError('Value of this field cannot be decremented')
@@ -120,7 +106,7 @@ class Abstract(_ABC):
     def __str__(self) -> str:
         """Stringify field's value.
         """
-        return str(self._value)
+        return str(self.get_val())
 
     @property
     def is_empty(self) -> bool:
@@ -130,16 +116,17 @@ class Abstract(_ABC):
 class ObjectId(Abstract):
     """ObjectId field.
     """
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the field.
         """
         if value is not None and not isinstance(value, _bson_ObjectID):
             raise TypeError("ObjectId expected")
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
     def get_serializable_val(self):
         return str(self.get_val())
+
 
 class List(Abstract):
     """List field.
@@ -163,7 +150,7 @@ class List(Abstract):
         """
         return tuple(super().get_val(**kwargs))
 
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the field.
 
         :type value: list | tuple
@@ -203,9 +190,9 @@ class List(Abstract):
         if self._cleanup:
             value = _util.cleanup_list(value)
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
-    def add_val(self, value, update_state: bool=True, **kwargs):
+    def add_val(self, value, **kwargs):
         """Add a value to the field.
         """
         if type(value) not in self._allowed_types:
@@ -216,25 +203,23 @@ class List(Abstract):
             raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
         # Checking for unique value
+        v = list(self.get_val())
         if self._unique:
-            if value not in self._value:
-                self._value.append(value)
+            if value not in v:
+                v.append(value)
         else:
             if self._cleanup:
                 # Cleaning up empty string values
                 if isinstance(value, str):
                     value = value.strip()
                 if value:
-                    self._value.append(value)
+                    v.append(value)
             else:
-                self._value.append(value)
+                v.append(value)
 
-        if update_state:
-            self._modified = True
+        return self.set_val(v)
 
-        return self
-
-    def sub_val(self, value, update_state: bool=True, **kwargs):
+    def sub_val(self, value, **kwargs):
         """Subtract value from list.
         """
         if type(value) not in self._allowed_types:
@@ -244,10 +229,7 @@ class List(Abstract):
         if self._min_len is not None and len(self.get_val()) == self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
-        self._value = [v for v in self._value if v != value]
-
-        if update_state:
-            self._modified = True
+        self.set_val([v for v in self.get_val() if v != value])
 
         return self
 
@@ -290,12 +272,11 @@ class Dict(Abstract):
     def get_storable_val(self):
         return dict(self.get_val())
 
-    def set_val(self, value: _Union[dict, _frozendict], update_state: bool=True, **kwargs):
+    def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Set value of the field.
         """
-        # FIXME: workaround, I don't remember for what
         if value is None:
-            return
+            value = self._default
 
         if type(value) not in (dict, _frozendict):
             raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
@@ -313,9 +294,9 @@ class Dict(Abstract):
                 if k not in value or value[k] is None:
                     raise ValueError("Value of the field '{}' must contain nonempty key '{}'.".format(self._name, k))
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
-    def add_val(self, value: _Union[dict, _frozendict], update_state: bool=True, **kwargs):
+    def add_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Add a value to the field.
         """
         if type(value) not in (dict, _frozendict):
@@ -327,7 +308,7 @@ class Dict(Abstract):
         v = dict(self.get_val())
         v.update(value)
 
-        return self.set_val(v, update_state, **kwargs)
+        return self.set_val(v, **kwargs)
 
 
 class Ref(Abstract):
@@ -343,7 +324,7 @@ class Ref(Abstract):
     def model(self) -> str:
         return self._model
 
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the field.
 
         :type value: pytsite.odm._entity.Entity | _bson_DBRef | str | None
@@ -351,7 +332,7 @@ class Ref(Abstract):
         from ._entity import Entity
 
         if value is None:
-            return super().set_val(value, update_state, **kwargs)
+            return super().set_val(value, **kwargs)
 
         # Get first item from the iterable value
         if type(value) in (list, tuple):
@@ -368,24 +349,22 @@ class Ref(Abstract):
                 raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
             value = value.ref
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
     def get_val(self, **kwargs):
         """Get value of the field.
         :rtype: pytsite.odm._entity.Entity | None
         """
-        if isinstance(self._value, _bson_DBRef):
+        v = super().get_val()
+        if isinstance(v, _bson_DBRef):
             from ._api import get_by_ref
 
             # noinspection PyTypeChecker
-            referenced_entity = get_by_ref(self._value)
+            referenced_entity = get_by_ref(v)
             if not referenced_entity:
                 self.set_val(None)  # Updating field's value about missing entity
 
             return referenced_entity
-
-    def get_storable_val(self):
-        return self._value
 
     def get_serializable_val(self):
         """Get serializable representation of the field's value.
@@ -408,7 +387,7 @@ class RefsList(List):
     def model(self) -> str:
         return self._model
 
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the field.
         """
         if type(value) not in (list, tuple):
@@ -427,7 +406,7 @@ class RefsList(List):
             else:
                 raise TypeError("Field '{}': list of DBRefs or entities expected.".format(self.name))
 
-        return super().set_val(clean_value, update_state, **kwargs)
+        return super().set_val(clean_value, **kwargs)
 
     def get_val(self, **kwargs):
         """Get value of the field.
@@ -437,7 +416,7 @@ class RefsList(List):
         from ._api import get_by_ref
 
         r = []
-        for ref in self._value:
+        for ref in super().get_val(**kwargs):
             entity = get_by_ref(ref)
             if entity:
                 r.append(entity)
@@ -448,7 +427,7 @@ class RefsList(List):
 
         return tuple(r)
 
-    def add_val(self, value, update_state: bool=True, **kwargs):
+    def add_val(self, value, **kwargs):
         """Add a value to the field.
         """
         from ._entity import Entity
@@ -462,11 +441,11 @@ class RefsList(List):
         else:
             raise TypeError("DBRef of entity expected.")
 
-        super().add_val(value, update_state, **kwargs)
+        super().add_val(value, **kwargs)
 
         return self
 
-    def sub_val(self, value, update_state: bool=True, **kwargs):
+    def sub_val(self, value, **kwargs):
         """Subtract value fom the field.
         """
         from ._entity import Entity
@@ -480,15 +459,12 @@ class RefsList(List):
         else:
             raise TypeError("DBRef of entity expected.")
 
-        super().sub_val(value, update_state, **kwargs)
+        super().sub_val(value, **kwargs)
 
         return self
 
-    def get_storable_val(self):
-        return self._value
-
     def get_serializable_val(self) -> list:
-        return [e.serialize() for e in self.get_val()]
+        return [e.as_dict() for e in self.get_val()]
 
 
 class RefsUniqueList(RefsList):
@@ -513,7 +489,7 @@ class DateTime(Abstract):
 
         super().__init__(name, **kwargs)
 
-    def set_val(self, value: _datetime, update_state: bool=True, **kwargs):
+    def set_val(self, value: _datetime, **kwargs):
         """Set field's value.
         """
         if value is None:
@@ -525,7 +501,7 @@ class DateTime(Abstract):
         if value.tzinfo:
             value = value.replace(tzinfo=None)
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
     def get_val(self, fmt: str=None, **kwargs):
         """Get field's value.
@@ -567,7 +543,7 @@ class String(Abstract):
     def max_len(self, val: int):
         self._max_len = val
 
-    def set_val(self, value: str, update_state: bool=True, **kwargs):
+    def set_val(self, value: str, **kwargs):
         """Set value of the field.
         """
         value = '' if value is None else str(value).strip()
@@ -575,7 +551,7 @@ class String(Abstract):
         if self._max_len is not None:
             value = value[:self._max_len]
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
 
 class Integer(Abstract):
@@ -592,30 +568,30 @@ class Integer(Abstract):
     def get_val(self, **kwargs) -> int:
         return super().get_val(**kwargs)
 
-    def set_val(self, value: int, update_state: bool=True, **kwargs):
+    def set_val(self, value: int, **kwargs):
         """Set value of the field.
         """
         if not isinstance(value, int):
             value = int(value)
 
-        return super().set_val(int(value), update_state, **kwargs)
+        return super().set_val(int(value), **kwargs)
 
-    def add_val(self, value: int, update_state: bool=True, **kwargs):
+    def add_val(self, value: int, **kwargs):
         """Add a value to the value of the field.
         """
         if not isinstance(value, int):
             raise ValueError('Integer expected.')
-        return self.set_val(self.get_val(**kwargs) + value, update_state, **kwargs)
+        return self.set_val(self.get_val(**kwargs) + value, **kwargs)
 
-    def inc_val(self, update_state: bool=True, **kwargs):
+    def inc_val(self, **kwargs):
         """Increment field's value.
         """
-        return self.set_val(self.get_val(**kwargs) + 1, update_state, **kwargs)
+        return self.set_val(self.get_val(**kwargs) + 1, **kwargs)
 
-    def dec_val(self, update_state: bool=True, **kwargs):
+    def dec_val(self, **kwargs):
         """Increment field's value.
         """
-        return self.set_val(self.get_val(**kwargs) - 1, update_state, **kwargs)
+        return self.set_val(self.get_val(**kwargs) - 1, **kwargs)
 
 
 class Decimal(Abstract):
@@ -672,24 +648,24 @@ class Decimal(Abstract):
         """
         return float(self.get_val())
 
-    def set_val(self, value, update_state: bool=True, **kwargs):
+    def set_val(self, value, **kwargs):
         """Set value of the field.
 
         :type value: _Decimal | float | int | str
         """
-        return super().set_val(self._sanitize_type(value), update_state, **kwargs)
+        return super().set_val(self._sanitize_type(value), **kwargs)
 
-    def add_val(self, value, update_state: bool=True, **kwargs):
+    def add_val(self, value, **kwargs):
         """
         :type value: _Decimal | float | integer | str
         """
-        return super().add_val(self._sanitize_type(value), update_state, **kwargs)
+        return super().add_val(self._sanitize_type(value), **kwargs)
 
-    def sub_val(self, value, update_state: bool=True, **kwargs):
+    def sub_val(self, value, **kwargs):
         """
         :type value: _Decimal | float | integer | str
         """
-        return super().sub_val(self._sanitize_type(value), update_state, **kwargs)
+        return super().sub_val(self._sanitize_type(value), **kwargs)
 
 
 class Bool(Abstract):
@@ -704,10 +680,10 @@ class Bool(Abstract):
 
         super().__init__(name, **kwargs)
 
-    def set_val(self, value: bool, update_state: bool=True, **kwargs):
+    def set_val(self, value: bool, **kwargs):
         """Set value of the field.
         """
-        return super().set_val(bool(value), update_state, **kwargs)
+        return super().set_val(bool(value), **kwargs)
 
 
 class StringList(List):
@@ -736,7 +712,7 @@ class DecimalList(List):
         """
         super().__init__(name, allowed_types=(float, _Decimal), **kwargs)
 
-    def set_val(self, value: _Iterable[_Decimal], update_state: bool=True, **kwargs):
+    def set_val(self, value: _Iterable[_Decimal], **kwargs):
         if type(value) in (list, tuple):
             clean_val = []
             for item in value:
@@ -749,16 +725,16 @@ class DecimalList(List):
 
             value = clean_val
 
-        return super().set_val(value, update_state, **kwargs)
+        return super().set_val(value, **kwargs)
 
-    def add_val(self, value: _Decimal, update_state: bool=True, **kwargs):
+    def add_val(self, value: _Decimal, **kwargs):
         if not isinstance(value, _Decimal):
             if isinstance(value, float):
                 value = str(value)
 
             value = _Decimal(value)
 
-        return super().add_val(value, update_state, **kwargs)
+        return super().add_val(value, **kwargs)
 
     def get_storable_val(self) -> _Iterable[float]:
         return [float(i) for i in self.get_val()]

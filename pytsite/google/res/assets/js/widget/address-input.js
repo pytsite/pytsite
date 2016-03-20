@@ -1,6 +1,6 @@
 $(function () {
     function setBounds(autcomplete) {
-        if (navigator.geolocation) {
+        if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
                 var geolocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 var circle = new google.maps.Circle({center: geolocation, radius: position.coords.accuracy});
@@ -10,7 +10,7 @@ $(function () {
         }
     }
 
-    $('.widget-geo-search-address').each(function () {
+    $('.widget-google-address-input').each(function () {
         var widget = $(this);
         var uid = widget.data('widget-uid');
         var searchInput = widget.find('input[name="' + uid + '[search]"]');
@@ -49,6 +49,7 @@ $(function () {
             }, 50);
         });
 
+        // Update our hidden fields with data provided by Google
         google.maps.event.addListener(autocomplete, 'place_changed', function () {
             var place = autocomplete.getPlace();
             if (place.hasOwnProperty('geometry')) {
@@ -61,27 +62,24 @@ $(function () {
         });
 
         // Automatic location detection
-        var autodetect = parseInt(widget.data('autodetect'));
-        if (autodetect) {
+        if (widget.data('autodetect') == 'True' && !addressInput.val() && 'geolocation' in navigator) {
             setBounds(autocomplete);
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var geoCoder = new google.maps.Geocoder();
+                var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                geoCoder.geocode({'latLng': latLng}, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK && results.length) {
+                        var place = results[0];
+                        var loc = place.geometry.location;
 
-            if (autodetect && !searchInput.val() && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    var geoCoder = new google.maps.Geocoder();
-                    var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                    geoCoder.geocode({'latLng': latLng}, function (results, status) {
-                        if (status == google.maps.GeocoderStatus.OK && results.length) {
-                            var place = results[0];
-                            var loc = place.geometry.location;
-                            searchInput.val(place.formatted_address);
-                            addressInput.val(place.formatted_address);
-                            lngInput.val(loc.lng());
-                            latInput.val(loc.lat());
-                            componentsInput.val(JSON.stringify(place.address_components));
-                        }
-                    });
+                        searchInput.val(place.formatted_address);
+                        addressInput.val(place.formatted_address);
+                        lngInput.val(loc.lng());
+                        latInput.val(loc.lat());
+                        componentsInput.val(JSON.stringify(place.address_components));
+                    }
                 });
-            }
+            });
         }
     });
 });

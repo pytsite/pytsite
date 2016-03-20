@@ -1,27 +1,21 @@
 """PytSite Cron.
 """
-import pickle as _pickle
-from os import path as _path
 from time import sleep as _sleep
-from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import events as _events, reg as _reg, threading as _threading, logger as _logger
+from datetime import datetime as _datetime
+from pytsite import events as _events, reg as _reg, threading as _threading, logger as _logger, cache as _cache, \
+    mp as _mp
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_stats = None
-_started = False
-_working = False
+_cache_pool = _cache.create_pool('pytsite.cron', _reg.get('cron.cache.driver', 'redis'))
 
 
-def _cron_task():
+def _cron_worker():
     """Start the cron.
     """
-    global _working
-
-    _working = True
     _events.fire('pytsite.cron.tick')
 
     stats = _get_stats()
@@ -49,41 +43,25 @@ def _cron_task():
         else:
             _update_stats(evt)
 
-    _working = False
-
-
-def _get_stats_file_path():
-    """Get descriptor file path.
-    """
-    return _path.join(_reg.get('paths.storage'), 'cron.data')
-
 
 def _get_stats() -> dict:
-    """Get descriptor info.
+    """Get stats.
     """
-    global _stats
+    stats = _cache_pool.get('stats')
 
-    if not _stats:
-        file_path = _get_stats_file_path()
-        if not _path.exists(file_path):
-            data = {
-                '1min': _datetime.fromtimestamp(0),
-                '5min': _datetime.fromtimestamp(0),
-                '15min': _datetime.fromtimestamp(0),
-                'hourly': _datetime.fromtimestamp(0),
-                'daily': _datetime.fromtimestamp(0),
-                'weekly': _datetime.fromtimestamp(0),
-                'monthly': _datetime.fromtimestamp(0),
-            }
-            with open(file_path, 'wb') as f:
-                _pickle.dump(data, f)
-        else:
-            with open(file_path, 'rb') as f:
-                data = _pickle.load(f)
+    if not stats:
+        zero = _datetime.fromtimestamp(0)
+        stats = {
+            '1min': zero,
+            '5min': zero,
+            '15min': zero,
+            'hourly': zero,
+            'daily': zero,
+            'weekly': zero,
+            'monthly': zero,
+        }
 
-        _stats = data
-
-    return _stats
+    return stats
 
 
 def _update_stats(part: str) -> dict:
@@ -91,21 +69,29 @@ def _update_stats(part: str) -> dict:
     """
     data = _get_stats()
     data[part] = _datetime.now()
-    with open(_get_stats_file_path(), 'wb') as f:
-        _pickle.dump(data, f)
 
-    global _stats
-    _stats = data
+    _cache_pool.put('stats', data)
 
-    return _stats
+    return data
 
 
-def _cron_main_thread():
+def _get_lock() -> _mp.Lock:
+    return _mp.get_lock('pytsite.cron')
+
+
+def _cron_thread():
     _logger.info('Cron main thread started.', __name__)
 
     while True:
-        if not _working:
-            _cron_task()
+        lock = _get_lock()
+
+        # Check if cron is still works
+        if not lock.locked():
+            try:
+                lock.lock(600)
+                _cron_worker()
+            finally:
+                lock.unlock()
         else:
             _logger.warn('Cron is still working.', __name__)
 
@@ -113,12 +99,9 @@ def _cron_main_thread():
 
 
 def is_started() -> bool:
-    return _started
+    return _get_lock().locked()
 
 
-def start():
-    if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True) and not _started:
-        _threading.create_thread(_cron_main_thread).start()
-
-        global _started
-        _started = True
+# Start cron right after module initialization
+if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
+    _threading.create_thread(_cron_thread).start()

@@ -1,7 +1,7 @@
 """PytSite Content Export Event Handlers.
 """
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import threading as _threading, reg as _reg, odm as _odm, content as _content, logger as _logger
+from pytsite import reg as _reg, odm as _odm, content as _content, logger as _logger
 from . import _error, _api
 
 __author__ = 'Alexander Shepetko'
@@ -12,11 +12,9 @@ __license__ = 'MIT'
 def cron_1min():
     """'pytsite.cron.1min' event handler.
     """
-    lock = _threading.get_r_lock()
-    limit = _reg.get('content_export.limit', 2)
     max_errors = _reg.get('content_export.max_errors', 13)
     delay_errors = _reg.get('content_export.delay_errors', 120)
-    cnt = 0
+
     exporters_f = _odm.find('content_export') \
         .cache(0) \
         .where('enabled', '=', True) \
@@ -39,9 +37,6 @@ def cron_1min():
             content_f.where('author', '=', exporter.owner)
 
         for entity in content_f.get():
-            if cnt == limit:
-                return
-
             try:
                 driver = _api.get_driver(exporter.driver)
 
@@ -54,7 +49,7 @@ def cron_1min():
                 driver.export(entity=entity, exporter=exporter)
 
                 # Saving information about entity was exported via current exporter
-                lock.acquire()
+                entity.lock()
                 entity_opts = dict(entity.options)
                 if 'content_export' not in entity_opts:
                     entity_opts['content_export'] = []
@@ -86,8 +81,4 @@ def cron_1min():
 
             finally:
                 exporter.save()
-                cnt += 1
-                try:
-                    lock.release()
-                except RuntimeError:
-                    pass
+                entity.unlock()

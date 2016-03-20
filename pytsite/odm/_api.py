@@ -1,13 +1,14 @@
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
-from pytsite import db as _db, util as _util, threading as _threading, events as _events, cache as _cache
-from . import _entity, _error, _entity_cache
+from pytsite import db as _db, util as _util, events as _events
+from . import _entity, _error, _finder
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__registered_models = {}
+
+_registered_models = {}
 
 
 def register_model(model: str, cls, replace: bool=False):
@@ -24,9 +25,17 @@ def register_model(model: str, cls, replace: bool=False):
     if is_model_registered(model) and not replace:
         raise _error.ModelAlreadyRegistered("Model '{}' already registered.".format(model))
 
-    __registered_models[model] = cls
+    _registered_models[model] = cls
+
+    if not replace:
+        _finder.cache_create_pool(model)
 
     _events.fire('pytsite.odm.register_model', model=model, cls=cls, replace=replace)
+
+    # Automatically create indices on new collections
+    mock = dispense(model)
+    if mock.collection.name not in _db.get_collection_names():
+        mock.create_indexes()
 
 
 def unregister_model(model: str):
@@ -35,13 +44,13 @@ def unregister_model(model: str):
     if not is_model_registered(model):
         raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
-    del __registered_models[model]
+    del _registered_models[model]
 
 
 def is_model_registered(model_name: str) -> bool:
     """Checks if the model already registered.
     """
-    return model_name in __registered_models
+    return model_name in _registered_models
 
 
 def get_model_class(model: str) -> type:
@@ -50,13 +59,13 @@ def get_model_class(model: str) -> type:
     if not is_model_registered(model):
         raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
-    return __registered_models[model]
+    return _registered_models[model]
 
 
 def get_registered_models() -> tuple:
     """Get registered models names.
     """
-    return tuple(__registered_models.keys())
+    return tuple(_registered_models.keys())
 
 
 def resolve_ref(something):
@@ -96,21 +105,16 @@ def get_by_ref(ref: _DBRef):
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def dispense(model: str, entity_id=None) -> _entity.Entity:
+def dispense(model: str, eid=None) -> _entity.Entity:
     """Dispense an entity.
     """
-    with _threading.get_r_lock():
-        if not is_model_registered(model):
-            raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
+    if not is_model_registered(model):
+        raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
-        # Try to get entity from cache
-        if entity_id and _entity_cache.has(model, entity_id):
-            return _entity_cache.get(model, entity_id)
+    # Instantiate entity
+    entity = get_model_class(model)(model, eid)
 
-        # Instantiate entity
-        entity = get_model_class(model)(model, entity_id)
-
-        return _entity_cache.put(entity)
+    return entity
 
 
 def find(model: str):

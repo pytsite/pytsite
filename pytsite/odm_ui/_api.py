@@ -154,7 +154,7 @@ def dispense_entity(model: str, entity_id: str=None):
 def check_permissions(perm_type: str, model: str, ids=None) -> bool:
     """Check current user's permissions to operate with entity(es).
 
-    :param perm_type: Valid types: 'create', 'browse', 'modify', 'delete'
+    :param perm_type: Valid types are: 'create', 'browse', 'modify', 'delete'
     """
     current_user = _auth.get_current_user()
 

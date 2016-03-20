@@ -34,16 +34,8 @@ class GeoIP(_odm.Entity):
         return self.f_get('isp')
 
     @property
-    def latitude(self) -> _Decimal:
-        return self.f_get('latitude')
-
-    @property
-    def longitude(self) -> _Decimal:
-        return self.f_get('longitude')
-
-    @property
-    def lng_lat(self) -> list:
-        return self.f_get('lng_lat')
+    def location(self) -> dict:
+        return self.f_get('location')
 
     def organization(self) -> str:
         return self.f_get('organization')
@@ -64,7 +56,7 @@ class GeoIP(_odm.Entity):
     def timezone(self) -> str:
         return self.f_get('timezone')
 
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('ip', nonempty=True))
@@ -73,25 +65,27 @@ class GeoIP(_odm.Entity):
         self.define_field(_odm.field.String('country'))
         self.define_field(_odm.field.String('country_code'))
         self.define_field(_odm.field.String('isp'))
-        self.define_field(_odm.field.Decimal('latitude'))
-        self.define_field(_odm.field.Decimal('longitude'))
-        self.define_field(_geo.field.LngLat('lng_lat'))
+        self.define_field(_odm.field.Virtual('longitude'))
+        self.define_field(_odm.field.Virtual('latitude'))
+        self.define_field(_geo.field.Location('location'))
         self.define_field(_odm.field.String('organization'))
         self.define_field(_odm.field.String('postal_code'))
         self.define_field(_odm.field.String('region'))
         self.define_field(_odm.field.String('region_name'))
         self.define_field(_odm.field.String('timezone'))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('ip', _odm.I_ASC)], unique=True)
-        self.define_index([('lng_lat', _odm.I_GEO2D)])
+        self.define_index([('location.lng_lat', _odm.I_GEO2D)])
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
         if field_name == 'longitude':
-            self.f_set('lng_lat', [value, self.latitude])
+            self.f_set('location', {'lng': value, 'lat': self.location['lat']})
+        elif field_name == 'latitude':
+            self.f_set('location', {'lng': self.location['lng'], 'lat': value})
 
-        if field_name == 'latitude':
-            self.f_set('lng_lat', [self.longitude, value])
-
-        return value
+        return super()._on_f_set(field_name, value, **kwargs)

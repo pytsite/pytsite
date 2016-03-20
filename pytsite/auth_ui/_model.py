@@ -11,8 +11,8 @@ __license__ = 'MIT'
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """User UI.
     """
-    def _setup(self):
-        super()._setup()
+    def _setup_fields(self):
+        super()._setup_fields()
         self.define_field(_odm.field.Bool('profile_is_public'))
 
     @property

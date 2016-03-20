@@ -8,7 +8,7 @@ __license__ = 'MIT'
 
 
 def get_map_link(lng: float=None, lat: float=None, query: str=None, zoom: int=15) -> str:
-    """Get link to map.
+    """Get link to th Google map.
     """
     if lat and lng and query:
         return 'https://www.google.com/maps/search/{}/@{},{},{}z'.format(_urlquote(query), lat, lng, zoom)

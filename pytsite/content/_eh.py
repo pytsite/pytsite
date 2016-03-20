@@ -36,9 +36,11 @@ def router_dispatch():
     """
     settings = _settings.get_setting('content')
 
+    # Add inline JS code
     if 'add_js' in settings:
         _assetman.add_inline(settings['add_js'])
 
+    # Add meta tags for home page
     if _router.is_base_url():
         lng = _lang.get_current()
         for s_key in ['title', 'description', 'keywords']:
@@ -54,13 +56,8 @@ def router_dispatch():
                     _metatag.t_set('twitter:' + s_key, s_val)
 
 
-def update(version: str):
-    if version == '0.7.0':
-        _update_0_7_0()
-
-
 def _mail_digest():
-    """Mail weekly mail digest.
+    """Send weekly mail digest.
     """
     model = _reg.get('content.digest.model')
     if not model:
@@ -148,18 +145,3 @@ def _generate_feeds():
             generator = _feed.rss.Generator(title, _router.base_url(lang), description)
             filename = 'rss-{}'.format(model)
             _api.generate_rss(generator, model, filename, lang, length=_reg.get('content.feed.length', 20))
-
-
-def _update_0_7_0():
-    for lang_code in _lang.langs():
-        for model in _api.get_models().keys():
-            for entity in _api.find(model, None, False, lang_code).get():
-                # Updating only entities without 'language_db' field
-                if entity.f_get('language_db'):
-                    continue
-
-                msg = "Updating content entity: model='{}', language='{}', id='{}'".\
-                    format(model, lang_code, entity.id)
-                _logger.info(msg, __name__)
-                _console.print_info(msg)
-                entity.save()

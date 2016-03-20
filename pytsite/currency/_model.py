@@ -13,7 +13,7 @@ __license__ = 'MIT'
 class Rate(_odm_ui.UIEntity):
     """Currency Exchange Rate Model
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.DateTime('date', nonempty=True))
@@ -21,6 +21,9 @@ class Rate(_odm_ui.UIEntity):
         self.define_field(_odm.field.String('destination', nonempty=True))
         self.define_field(_odm.field.Decimal('rate', round=8))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('date', _odm.I_DESC), ('source', _odm.I_ASC), ('destination', _odm.I_ASC)])
 
     @property

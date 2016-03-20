@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def odm_model_setup(entity: _odm.Entity):
+def odm_model_setup_indexes(entity: _odm.Entity):
     if isinstance(entity, _content.model.Content):
         entity.define_field(_odm.field.Dict('content_import'))
         entity.define_index([('content_import.source_domain', _odm.I_ASC)])

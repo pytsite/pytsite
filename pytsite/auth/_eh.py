@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def app_setup():
+def pytsite_setup():
     """'pytsite.setup' Event Handler
     """
     # Creating roles
@@ -30,7 +30,7 @@ def app_setup():
         _validation.rule.NonEmpty(email, 'pytsite.auth@email_cannot_be_empty').validate()
         _validation.rule.Email(email).validate()
     except _validation.error.RuleError as e:
-        raise _console.Error(e)
+        raise _console.error.Error(e)
 
     admin_user = _api.create_user(email)
     admin_user.f_set('first_name', _lang.t('pytsite.auth@administrator'))
@@ -40,7 +40,7 @@ def app_setup():
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.f_get('login')}))
 
 
-def router_dispatch():
+def pytsite_router_dispatch():
     """pytsite.router.dispatch Event Handler.
     """
     # Update user activity timestamp
@@ -56,15 +56,13 @@ def router_dispatch():
             _hreflang.add(lng, _router.url(base_path, lang=lng))
 
 
-def update(version: str):
+def pytsite_update(version: str):
+    """'pytsite.update' event handler.
+    """
     if version == '0.13.0':
-        _update_0_13()
-
-
-def _update_0_13():
-    for user in _api.find_users(False).get():
-        if not user.nickname:
-            if not user.full_name:
-                user.f_set('first_name', _util.random_str())
-            user.f_set('nickname', _util.transform_str_2(user.full_name)).save()
-            _console.print_info('User updated: {}'.format(user.login))
+        for user in _api.find_users(False).get():
+            if not user.nickname:
+                if not user.full_name:
+                    user.f_set('first_name', _util.random_str())
+                user.f_set('nickname', _util.transform_str_2(user.full_name)).save()
+                _console.print_info('User updated: {}'.format(user.login))

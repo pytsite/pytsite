@@ -17,6 +17,7 @@ language: 'Язык'
 images: 'Изображения'
 video: 'Видео'
 location: 'Местоположение'
+address: 'Адрес'
 external_links: 'Ссылки'
 add_link: 'Добавить ссылку'
 title: 'Заголовок'
@@ -84,9 +85,11 @@ odm_ui_permission_modify_own_article: 'Изменение статей'
 odm_ui_permission_modify_article: 'Изменение ЛЮБЫХ статей'
 odm_ui_permission_delete_own_article: 'Удаление статей'
 odm_ui_permission_delete_article: 'Удаление ЛЮБЫХ статей'
+
 content_permission_bypass_moderation_article: 'Публикация СТАТЕЙ без модерации'
 content_permission_set_localization_article: 'Управление локализацией СТАТЕЙ'
 content_permission_set_publish_time_article: 'Управление временем публикации СТАТЕЙ'
+content_permission_set_starred_article: "Устанавливать флаг 'Закрепелно' для СТАТЕЙ"
 
 odm_ui_browser_title_page: 'Страницы'
 odm_ui_form_title_create_page: 'Создание страницы'
@@ -100,6 +103,8 @@ odm_ui_permission_modify_own_page: 'Изменение страниц'
 odm_ui_permission_modify_page: 'Изменение ЛЮБЫХ страниц'
 odm_ui_permission_delete_own_page: 'Удаление страниц'
 odm_ui_permission_delete_page: 'Удаление ЛЮБЫХ страниц'
+
 content_permission_bypass_moderation_page: 'Публикация СТРАНИЦ без модерации'
 content_permission_set_localization_page: 'Управление локализацией СТРАНИЦ'
 content_permission_set_publish_time_page: 'Управление временем публикации СТРАНИЦ'
+content_permission_set_starred_page: "Устанавливать флаг 'Закрепелно' для СТРАНИЦ"

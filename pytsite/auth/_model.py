@@ -13,13 +13,16 @@ ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 class Role(_odm.Entity):
     """Role.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """Hook.
         """
         self.define_field(_odm.field.String('name'))
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.UniqueList('permissions', allowed_types=(str,)))
 
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('name', _odm.I_ASC)], unique=True)
 
     @property
@@ -48,7 +51,7 @@ class Role(_odm.Entity):
 class User(_odm.Entity):
     """User ODM Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """_setup() hook.
         """
         # Fields
@@ -80,7 +83,9 @@ class User(_odm.Entity):
         self.define_field(_odm.field.String('country'))
         self.define_field(_odm.field.String('city'))
 
-        # Indices
+    def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('login', _odm.I_ASC)], unique=True)
         self.define_index([('nickname', _odm.I_ASC)], unique=True)
         self.define_index([('token', _odm.I_ASC)], unique=True)

@@ -196,14 +196,16 @@ def create_user(login: str, password: str=None) -> _model.User:
 def get_user(login: str=None, uid: str=None, nickname: str=None) -> _model.User:
     """Get user by login or by uid.
     """
+    # Don't cache finder results due to frequent user updates in database
+    f = _odm.find('user').cache(0)
     if login:
         if login == _model.ANONYMOUS_USER_LOGIN:
             return None
-        return _odm.find('user').where('login', '=', login).first()
+        return f.where('login', '=', login).first()
     elif uid:
-        return _odm.find('user').where('_id', '=', uid).first()
+        return f.where('_id', '=', uid).first()
     elif nickname:
-        return _odm.find('user').where('nickname', '=', nickname).first()
+        return f.where('nickname', '=', nickname).first()
 
 
 def create_role(name: str, description: str=''):

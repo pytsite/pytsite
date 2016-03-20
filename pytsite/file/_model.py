@@ -11,7 +11,7 @@ __license__ = 'MIT'
 class File(_odm.Entity):
     """File Model.
     """
-    def _setup(self):
+    def _setup_fields(self):
         """_setup() hook.
         """
         self.define_field(_odm.field.String('path', nonempty=True))
@@ -82,8 +82,8 @@ class File(_odm.Entity):
 
         return super()._on_f_get(field_name, value)
 
-    def serialize(self, include_fields: tuple=(), exclude_fields: tuple=()):
-        r = super().serialize(include_fields, exclude_fields)
+    def as_dict(self, include_fields: tuple=(), exclude_fields: tuple=()):
+        r = super().as_dict(include_fields, exclude_fields)
 
         if 'url' in include_fields or 'url' not in exclude_fields:
             r['url'] = self.url

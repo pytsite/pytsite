@@ -64,7 +64,6 @@ def __init():
     events.listen('pytsite.cron.hourly', _eh.cron_hourly)
     events.listen('pytsite.cron.daily', _eh.cron_daily)
     events.listen('pytsite.cron.weekly', _eh.cron_weekly)
-    events.listen('pytsite.update', _eh.update)
 
     # Settings
     settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',

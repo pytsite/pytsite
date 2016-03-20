@@ -14,13 +14,12 @@ __license__ = 'MIT'
 
 def __init():
     from pytsite import console, lang
-    from . import _console_command, _finder_cache
+    from . import _console_command
 
     # Resources
     lang.register_package(__name__)
 
     # Console commands
     console.register_command(_console_command.ODM())
-
 
 __init()

@@ -3,17 +3,21 @@
 from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
-from pytsite import lang as _lang, util as _util, reg as _reg
-from . import _entity, _field, _api, _finder_cache
+from pytsite import lang as _lang, util as _util, reg as _reg, cache as _cache, logger as _logger
+from . import _entity, _field, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_pool_prefix = 'pytsite.odm.finder:'
+_dbg = _reg.get('odm.debug')
+
 
 class Query:
     """Query Representation.
     """
+
     def __init__(self, model: _entity.Entity):
         """Init.
         """
@@ -61,7 +65,7 @@ class Query:
             raise TypeError("Invalid comparison operator: '{0}'.".format(op))
 
     @staticmethod
-    def _resolve_language(code: str=None):
+    def _resolve_language(code: str = None):
         if not code:
             code = _lang.get_current()
 
@@ -80,27 +84,28 @@ class Query:
 
         # If not sub document
         if field_name.find('.') < 0:
-            field = self._model.get_field(field_name)
+            if field_name == '_id':
+                # Convert str to ObjectId
+                if isinstance(arg, str):
+                    arg = _ObjectId(arg)
+            else:
+                field = self._model.get_field(field_name)
 
-            # Convert str to ObjectId
-            if isinstance(field, _field.ObjectId) and isinstance(arg, str):
-                arg = _ObjectId(arg)
+                # Convert instance to DBRef
+                if isinstance(field, _field.Ref) and isinstance(arg, _entity.Entity):
+                    arg = arg.ref
 
-            # Convert instance to DBRef
-            if isinstance(field, _field.Ref) and isinstance(arg, _entity.Entity):
-                arg = arg.ref
+                # Convert list of instances to list of DBRefs
+                if isinstance(field, _field.RefsList):
+                    if not isinstance(arg, _Iterable):
+                        arg = (arg,)
 
-            # Convert list of instances to list of DBRefs
-            if isinstance(field, _field.RefsList):
-                if not isinstance(arg, _Iterable):
-                    arg = (arg,)
-
-                clean_arg = []
-                for v in arg:
-                    if isinstance(v, _entity.Entity):
-                        v = v.ref
-                    clean_arg.append(v)
-                arg = clean_arg
+                    clean_arg = []
+                    for v in arg:
+                        if isinstance(v, _entity.Entity):
+                            v = v.ref
+                        clean_arg.append(v)
+                    arg = clean_arg
 
         # Checking for argument type
         if comparison_op == '$near':
@@ -117,7 +122,7 @@ class Query:
         else:
             self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 
-    def add_text_search(self, logical_op: str, search: str, language: str=None):
+    def add_text_search(self, logical_op: str, search: str, language: str = None):
         """Add text search criteria.
         """
         logical_op = self._resolve_logical_op(logical_op)
@@ -151,26 +156,51 @@ class Query:
 class Result:
     """DB Query Result.
     """
-    def __init__(self, model: str, cursor: _Cursor):
+
+    def __init__(self, model: str, cursor: _Cursor = None, ids: list = None):
         """Init.
         """
         self._model = model
         self._cursor = cursor
+        self._cached = ids is not None
+        self._ids = [doc['_id'] for doc in list(cursor)] if cursor else ids
+        self._total = len(self._ids)
+        self._current = 0
+
+    @property
+    def model(self) -> str:
+        return self._model
+
+    @property
+    def ids(self) -> list:
+        return self._ids
 
     def __iter__(self):
         """Get iterator.
         """
+        self._current = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> _entity.Entity:
         """Get next item.
         """
-        doc = next(self._cursor)
-        return _api.dispense(self._model, doc['_id'])
+        if self._current == self._total:
+            raise StopIteration()
+
+        entity = _api.dispense(self._model, self._ids[self._current])
+        self._current += 1
+
+        return entity
+
+    def count(self) -> int:
+        return self._total
 
     def explain(self) -> dict:
         """Explain the cursor.
         """
+        if not self._current:
+            raise RuntimeError('Cannot explain cached results.')
+
         return self._cursor.explain()
 
     def explain_winning_plan(self) -> dict:
@@ -187,25 +217,6 @@ class Result:
         """Explain execution stats of the the cursor.
         """
         return self.explain()['executionStats']
-
-
-class CachedResult:
-    def __init__(self, entities: tuple):
-        self._entities = entities
-        self._total = len(self._entities)
-        self._current = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self) -> _entity.Entity:
-        if self._current >= self._total:
-            raise StopIteration
-
-        entity = self._entities[self._current]
-        self._current += 1
-
-        return entity
 
 
 class Finder:
@@ -239,6 +250,10 @@ class Finder:
     @property
     def id(self) -> str:
         return _util.md5_hex_digest(str((self._query.compile(), self._skip, self._limit, self._sort)))
+
+    @property
+    def cache_ttl(self) -> int:
+        return self._cache_ttl
 
     def cache(self, ttl: int):
         """Set query cache TTL.
@@ -301,8 +316,8 @@ class Finder:
         """
         if fields:
             for f in fields:
-                if not self._mock.has_field(f[0]):
-                    raise Exception("Unknown field '{}' in model '{}'".format(f[0], self._model))
+                if f[0] != '_id' and not self._mock.has_field(f[0]):
+                    raise RuntimeError("Unknown field '{}' in model '{}'".format(f[0], self._model))
             self._sort = fields
         else:
             self._sort = None
@@ -317,18 +332,22 @@ class Finder:
 
         return collection.count(filter=flt, skip=self._skip)
 
-    def get(self, limit: int=0) -> _Union[_Iterable[_entity.Entity], Result]:
+    def get(self, limit: int = 0) -> _Union[_Iterable[_entity.Entity], Result]:
         """Execute the query and return a cursor.
         """
         self._limit = limit
         query = self._query.compile()
 
         # Search for previous result in cache
-        if _reg.get('odm.cache.enabled', True) and self._cache_ttl and _finder_cache.has(self):
-            return CachedResult(_finder_cache.get(self))
+        if _reg.get('odm.cache.enabled', True) and self._cache_ttl and _cache_has(self):
+            ids = _cache_get(self)
+            if _dbg:
+                _logger.debug("GET cached query results: query: {}, {}, id: {}, entities: {}.".
+                              format(self.model, self.query.compile(), self.id, len(ids)), __name__)
 
-        collection = self._mock.collection
-        cursor = collection.find(
+            return Result(self._model, ids=ids)
+
+        cursor = self._mock.collection.find(
             filter=query,
             projection={'_id': True},
             skip=self._skip,
@@ -340,14 +359,20 @@ class Finder:
         result = Result(self._model, cursor)
 
         if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
-            result = CachedResult(_finder_cache.put(self, result, self._cache_ttl))
+            if _dbg:
+                _logger.debug("STORE query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".
+                              format(self.model, self.query.compile(), self.id, result.count(), self._cache_ttl),
+                              __name__)
+
+            _cache_put(self, result)
 
         return result
 
-    def first(self) -> _entity.Entity:
+    def first(self) -> _Union[_entity.Entity, None]:
         """Execute the query and return a first result.
         """
         result = list(self.get(1))
+
         if not result:
             return None
 
@@ -363,3 +388,27 @@ class Finder:
             r.append(v)
 
         return r
+
+
+def _cache_put(finder: Finder, result: Result):
+    # Store IDs of entities
+    _cache.get_pool(_pool_prefix + finder.model).put(finder.id, result.ids, finder.cache_ttl)
+
+
+def _cache_has(finder: Finder) -> bool:
+    return _cache.get_pool(_pool_prefix + finder.model).has(finder.id)
+
+
+def _cache_get(finder: Finder) -> _Union[list, None]:
+    return _cache.get_pool(_pool_prefix + finder.model).get(finder.id)
+
+
+def cache_create_pool(model: str):
+    _cache.create_pool(_pool_prefix + model, _reg.get('odm.cache.driver', 'redis'))
+
+
+def cache_clear(model: str):
+    if _dbg:
+        _logger.debug("CLEAR query cache for model: '{}'.".format(model))
+
+    _cache.clear_pool(_pool_prefix + model)

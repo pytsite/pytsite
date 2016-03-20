@@ -21,7 +21,7 @@ def __init():
     odm.register_model('content_import', _model.ContentImport)
 
     # Event handlers
-    events.listen('pytsite.odm.model.setup', _eh.odm_model_setup)
+    events.listen('pytsite.odm.model.setup_indexes', _eh.odm_model_setup_indexes)
     events.listen('pytsite.cron.1min', _eh.cron_1min)
 
     # Sidebar menu

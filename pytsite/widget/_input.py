@@ -38,7 +38,7 @@ class Input(_base.Base):
 
     def _clear_non_empty_rule(self):
         rules = [r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)]
-        self.clear_rules().add_rules(rules)
+        self.clr_rules().add_rules(rules)
 
 
 class Hidden(Input):
