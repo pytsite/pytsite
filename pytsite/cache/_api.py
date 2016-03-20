@@ -1,7 +1,7 @@
 """PytSite Cache API.
 """
 from typing import Dict as _Dict
-from pytsite import threading as _threading, logger as _logger, reg as _reg
+from pytsite import logger as _logger, reg as _reg
 from . import _driver
 
 __author__ = 'Alexander Shepetko'
@@ -9,62 +9,81 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-__pools = {}  # type: _Dict[str, _driver.Abstract]
+_pools = {}  # type: _Dict[str, _driver.Abstract]
+_dbg = _reg.get('cache.debug')
 
 
 def has_pool(name: str) -> bool:
-    with _threading.get_r_lock():
-        return name in __pools
+    """Check whether a pool exists.
+    """
+    return name in _pools
 
 
-def create_pool(name: str, driver: str='memory', default_ttl: int=3600) -> _driver.Abstract:
-    with _threading.get_r_lock():
-        if name in __pools:
-            raise KeyError("Cache pool '{}' already exists.".format(name))
+def create_pool(name: str, driver: str='memory') -> _driver.Abstract:
+    """Create new pool.
+    """
+    if name in _pools:
+        raise KeyError("Cache pool '{}' already exists.".format(name))
 
-        if driver == 'memory':
-            drv = _driver.Memory(name, default_ttl)
-        else:
-            raise ValueError("Cache driver '{}' is not supported.".format(driver))
+    if driver == 'memory':
+        drv = _driver.Memory(name)
+    elif driver == 'db':
+        drv = _driver.Db(name)
+    elif driver == 'redis':
+        drv = _driver.Redis(name)
+    else:
+        raise ValueError("Cache driver '{}' is not supported.".format(driver))
 
-        __pools[name] = drv
+    _pools[name] = drv
 
-        if _reg.get('cache.debug'):
-            _logger.debug("New POOL CREATED: '{}', driver: '{}'.".format(name, driver), __name__)
+    if _dbg:
+        _logger.debug("POOL CREATED: '{}', driver: '{}'.".format(name, driver), __name__)
 
-        return drv
+    return drv
 
 
 def get_pool(name: str) -> _driver.Abstract:
-    with _threading.get_r_lock():
-        if name not in __pools:
-            raise KeyError("Pool '{}' is not defined.".format(name))
+    """Get a pool.
+    """
+    if name not in _pools:
+        raise KeyError("Pool '{}' is not defined.".format(name))
 
-        return __pools[name]
+    if _dbg:
+        _logger.debug("POOL GET: '{}'.".format(name), __name__)
+
+    return _pools[name]
+
+
+def clear_pool(name: str):
+    """Clear a pool.
+    """
+    if name not in _pools:
+        raise KeyError("Pool '{}' is not defined.".format(name))
+
+    _pools[name].clear()
 
 
 def delete_pool(name: str):
-    with _threading.get_r_lock():
-        if name not in __pools:
-            raise KeyError("Pool '{}' is not defined.".format(name))
+    """Delete a pool.
+    """
+    clear_pool(name)
+    del _pools[name]
 
-        del __pools[name]
-
-        if _reg.get('cache.debug'):
-            _logger.debug("POOL DELETED: '{}'.".format(name), __name__)
+    if _dbg:
+        _logger.debug("POOL DELETE: '{}'.".format(name), __name__)
 
 
 def cleanup_pool(name: str):
-    with _threading.get_r_lock():
-        if _reg.get('cache.debug'):
-            _logger.debug("Cache cleanup started for pool '{}'.".format(name), __name__)
+    """Clear expired items in a pool.
+    """
+    if _dbg:
+        _logger.debug("POOL CLEANUP: {}.".format(name), __name__)
 
-        get_pool(name).cleanup()
-
-        if _reg.get('cache.debug'):
-            _logger.debug("Cache cleanup finished for pool '{}'.".format(name), __name__)
+    get_pool(name).cleanup()
 
 
 def cleanup_pools():
-    for name in __pools.keys():
+    """Clear expired items in all pools.
+    """
+    for name in _pools.keys():
         cleanup_pool(name)

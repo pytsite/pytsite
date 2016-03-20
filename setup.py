@@ -50,6 +50,7 @@ setup(
         'lxml',
         'pytz',
         'frozendict',
+        'redis',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

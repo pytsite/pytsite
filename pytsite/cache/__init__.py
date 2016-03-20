@@ -1,7 +1,8 @@
 """PytSite Cache.
 """
 from pytsite import events as _events
-from ._api import has_pool, create_pool, get_pool, delete_pool, cleanup_pools
+from ._api import has_pool, create_pool, get_pool, clear_pool, delete_pool, cleanup_pools
+from . import _driver as driver
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

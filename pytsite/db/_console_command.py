@@ -53,8 +53,8 @@ class Db(_console.command.Abstract):
             target_subdir_move = '{}-{}'.format(target_subdir, ctime.strftime('%Y%m%d-%H%M%S'))
             _shutil.move(target_subdir, target_subdir_move)
 
-        from . import _function
-        config = _function.get_config()
+        from . import _api
+        config = _api.get_config()
 
         command = 'mongodump -h {}:{} --gzip -o {} -d {}'.format(config['host'], config['port'], target_dir, db_name)
 
@@ -78,8 +78,8 @@ class Db(_console.command.Abstract):
         db_name = _reg.get('db.database')
         source_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump', db_name)
 
-        from . import _function
-        config = _function.get_config()
+        from . import _api
+        config = _api.get_config()
 
         command = 'mongorestore -h {}:{} --drop --gzip --stopOnError --dir {} -d {}'.\
             format(config['host'], config['port'], source_dir, db_name)
