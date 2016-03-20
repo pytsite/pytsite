@@ -2,7 +2,8 @@ $(function () {
     $('.widget-ckeditor').each(function () {
         var widget = $(this);
         widget.find('textarea').ckeditor({
-            extraPlugins: 'youtube,codesnippet',
+            title: false,
+            extraPlugins: 'youtube,codesnippet,stylescombo',
             language: pytsite.lang.current(),
             filebrowserUploadUrl: '/file/upload/image',
             height: 500,
@@ -11,7 +12,7 @@ $(function () {
                 ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
                 ['Link', 'Unlink'],
                 ['PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'],
-                ['Image', 'Youtube', 'CodeSnippet', 'Iframe', 'Table', 'HorizontalRule', 'SpecialChar'],
+                ['Image', 'Youtube', 'CodeSnippet', 'Iframe', 'Table', 'HorizontalRule', 'SpecialChar', 'Styles'],
                 ['ShowBlocks', 'Source', 'Maximize']
             ],
             coreStyles_italic: {
