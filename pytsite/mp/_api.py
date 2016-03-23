@@ -16,7 +16,7 @@ def get_lock(name: str = None, recursive: bool = False, driver: str = _default_d
     """Lock factory.
     """
     if not name:
-        name = _util.random_str()
+        name = _util.random_str(exclude=_locks.keys())
 
     if name in _locks:
         return _locks[name]

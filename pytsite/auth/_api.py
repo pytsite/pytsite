@@ -243,9 +243,9 @@ def authorize(user: _model.User, count_login: bool=True, issue_event: bool=True,
     if count_login:
         user.f_inc('login_count').f_set('last_login', _datetime.now()).save()
 
-    # Update geo ip data
+    # Update IP address and geo data
     if update_geo_ip and _router.request():
-        user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
+        user.f_set('last_ip', _router.request().remote_addr)
         if not user.country and user.geo_ip.country:
             user.f_set('country', user.geo_ip.country)
         if not user.city and user.geo_ip.city:

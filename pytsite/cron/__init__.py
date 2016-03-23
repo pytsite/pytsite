@@ -104,4 +104,4 @@ def is_started() -> bool:
 
 # Start cron right after module initialization
 if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    _threading.create_thread(_cron_thread).start()
+    _threading.create(_cron_thread).start()

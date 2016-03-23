@@ -3,7 +3,7 @@
 import requests as _requests
 import re as _re
 from pytsite import odm as _odm
-from . import _model
+from . import _model, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -39,10 +39,10 @@ def resolve(ip: str) -> _model.GeoIP:
 
     # Fetching data from external API
     entity = _odm.dispense('geo_ip').f_set('ip', ip)
-    if not _private_ip_re.match(ip):
+    if ip != '0.0.0.0' and not _private_ip_re.match(ip):
         r = _requests.get('http://ip-api.com/json/{}'.format(ip))
         if r.status_code != 200:
-            raise Exception(r.text)
+            raise _error.ResolveError(r.text)
         for ext_api_f, val in r.json().items():
             if ext_api_f in _field_mapping:
                 entity.f_set(_field_mapping[ext_api_f], val)

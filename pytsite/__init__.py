@@ -98,6 +98,9 @@ def __init():
     # Initializing event subsystem
     from . import events
 
+    # Initializing cron
+    __import__('pytsite.cron')
+
     # Initializing console
     __import__('pytsite.console')
 

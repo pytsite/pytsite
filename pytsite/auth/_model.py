@@ -79,7 +79,8 @@ class User(_odm.Entity):
         self.define_field(_odm.field.Virtual('is_online'))
         self.define_field(_odm.field.RefsList('follows', model='user'))
         self.define_field(_odm.field.RefsList('followers', model='user'))
-        self.define_field(_odm.field.Ref('geo_ip', model='geo_ip'))
+        self.define_field(_odm.field.String('last_ip'))
+        self.define_field(_odm.field.Virtual('geo_ip'))
         self.define_field(_odm.field.String('country'))
         self.define_field(_odm.field.String('city'))
 
@@ -201,6 +202,10 @@ class User(_odm.Entity):
         return self.f_get('followers')
 
     @property
+    def last_ip(self) -> str:
+        return self.f_get('last_ip')
+
+    @property
     def geo_ip(self) -> _geo_ip.model.GeoIP:
         return self.f_get('geo_ip')
 
@@ -313,12 +318,18 @@ class User(_odm.Entity):
                 email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
                 value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
 
-        if field_name == 'is_online':
+        elif field_name == 'is_online':
             value = (_datetime.now() - self.last_activity).seconds < 180
 
-        if field_name == 'full_name':
+        elif field_name == 'full_name':
             value = self.first_name
             if self.last_name:
                 value += ' ' + self.last_name
+
+        elif field_name == 'geo_ip':
+            try:
+                value = _geo_ip.resolve(self.last_ip)
+            except _geo_ip.error.ResolveError:
+                value = _geo_ip.resolve('0.0.0.0')
 
         return value

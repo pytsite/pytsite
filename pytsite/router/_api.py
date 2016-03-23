@@ -1,15 +1,16 @@
 """PytSite Router API.
 """
 import re as _re
+from typing import Dict as _Dict
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from importlib import import_module as _import_module
-from werkzeug.routing import Map as _Map, Rule as _Rule
+from werkzeug.routing import Map as _Map, Rule as _Rule, MapAdapter as _MapAdapter
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag, \
-    tpl as _tpl
+    tpl as _tpl, threading as _threading
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -19,27 +20,28 @@ __license__ = 'MIT'
 # Routes map
 _routes = _Map()
 
-# Routes map adapter
-_map_adapter = _routes.bind(_reg.get('server.name', 'localhost'))
-
 # Route path aliases
 _path_aliases = {}
 
-# Session
+# Session store
 _session_store = _FilesystemSessionStore(path=_reg.get('paths.session'), session_class=_http.session.Session)
-_current_session = None  # type: _http.session.Session
 
-# Current cache status
-no_cache = False
+# Thread safe map adapters collection
+_map_adapters = {}  # type: _Dict[int, _MapAdapter]
 
-# Current request object
-_current_request = None  # type: _http.request.Request
+# Thread safe requests collection
+_requests = {}  # type: _Dict[int, _http.request.Request]
+
+# Thread safe sessions collection
+_sessions = {}  # type: _Dict[int, _http.session.Session]
+
+# Thread safe 'no-cache' statues collection
+_no_cache = {}  # type: _Dict[int, bool]
 
 
 class Rule(_Rule):
     """Routing Rule.
     """
-
     def __init__(self, url_path: str, **kwargs):
         self.call = kwargs.pop('call')
         self.filters = kwargs.pop('filters', ())
@@ -56,15 +58,27 @@ class Rule(_Rule):
 
 
 def request() -> _http.request.Request:
-    """Get current request.
+    """Get request belonged to the current thread.
     """
-    return _current_request
+    return _requests[_threading.get_id()]
 
 
 def session() -> _http.session.Session:
-    """Get current session.
+    """Get session belonged to the current thread.
     """
-    return _current_session
+    return _sessions[_threading.get_id()]
+
+
+def get_no_cache() -> bool:
+    """Get 'no-cache' status belonged to the current thread
+    """
+    return _no_cache[_threading.get_id()]
+
+
+def set_no_cache(status: bool):
+    """Set 'no-cache' status belonged to the current thread
+    """
+    _no_cache[_threading.get_id()] = status
 
 
 def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None, methods=None, filters=None):
@@ -108,6 +122,12 @@ def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None
     )
 
     _routes.add(rule)
+
+    # Bind routes map to corresponding adapter.
+    # It is necessary to get ability to build endpoint URLs before dispatch() call.
+    tid = _threading.get_id()
+    if tid not in _map_adapters:
+        _map_adapters[tid] = _routes.bind(server_name())
 
 
 def add_path_alias(alias: str, target: str):
@@ -170,7 +190,7 @@ def dispatch(env: dict, start_response: callable):
     """Dispatch the request.
     """
     from pytsite import events
-    global _map_adapter, _current_request, _current_session, no_cache
+    tid = _threading.get_id()
 
     # Check maintenance mode status
     if _path.exists(_reg.get('paths.maintenance.lock')):
@@ -178,17 +198,18 @@ def dispatch(env: dict, start_response: callable):
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
 
+    _map_adapters[tid] = _routes.bind_to_environ(env)
+
     # Remove trailing slash
-    _map_adapter = _routes.bind_to_environ(env)
-    path_info = _map_adapter.path_info
+    path_info = _map_adapters[tid].path_info
     if len(path_info) > 1 and path_info.endswith('/'):
         redirect_url = _re.sub('/$', '', path_info)
-        if _map_adapter.query_args:
-            redirect_url += '?' + _map_adapter.query_args
+        if _map_adapters[tid].query_args:
+            redirect_url += '?' + _map_adapters[tid].query_args
         return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # All requests are cached by default
-    no_cache = False
+    set_no_cache(False)
 
     # Detect language from path
     languages = _lang.langs()
@@ -218,17 +239,17 @@ def dispatch(env: dict, start_response: callable):
     env['PATH_INFO'] = _path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
 
     # Replace url adapter with modified environment
-    _map_adapter = _routes.bind_to_environ(env)
+    _map_adapters[tid] = _routes.bind_to_environ(env)
 
     # Creating request
-    _current_request = _http.request.Request(env)
+    _requests[tid] = _http.request.Request(env)
 
     # Session setup
-    sid = _current_request.cookies.get('PYTSITE_SESSION')
+    sid = request().cookies.get('PYTSITE_SESSION')
     if sid:
-        _current_session = _session_store.get(sid)
+        _sessions[tid] = _session_store.get(sid)
     else:
-        _current_session = _session_store.new()
+        _sessions[tid] = _session_store.new()
 
     # Processing request
     try:
@@ -236,7 +257,7 @@ def dispatch(env: dict, start_response: callable):
         events.fire('pytsite.router.dispatch')
 
         # Search for rule
-        rule, rule_args = _map_adapter.match(return_rule=True)
+        rule, rule_args = _map_adapters[tid].match(return_rule=True)
 
         # Processing rule filters
         for flt in rule.filters:
@@ -249,7 +270,7 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_ep(flt_endpoint, flt_args, _current_request.inp)
+            flt_response = call_ep(flt_endpoint, flt_args, request().inp)
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
@@ -257,7 +278,7 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Processing response from handler
-        response_from_callable = call_ep(rule.call, rule_args, _current_request.inp)
+        response_from_callable = call_ep(rule.call, rule_args, request().inp)
         if isinstance(response_from_callable, str):
             # Minifying output
             if _reg.get('output.minify'):
@@ -270,16 +291,16 @@ def dispatch(env: dict, start_response: callable):
             wsgi_response.data = ''
 
         # Cache control
-        if no_cache or _current_request.method != 'GET':
+        if get_no_cache() or request().method != 'GET':
             wsgi_response.headers.set('Cache-Control', 'private, max-age=0, no-cache, no-store')
             wsgi_response.headers.set('Pragma', 'no-cache')
         else:
             wsgi_response.headers.set('Cache-Control', 'public')
 
         # Updating session data
-        if _current_session.should_save:
-            _session_store.save(_current_session)
-            wsgi_response.set_cookie('PYTSITE_SESSION', _current_session.sid)
+        if session().should_save:
+            _session_store.save(session())
+            wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
 
         return wsgi_response(env, start_response)
 
@@ -342,8 +363,9 @@ def server_name():
     """
     from pytsite import reg
     name = reg.get('server.name', 'localhost')
-    if _map_adapter:
-        name = _map_adapter.server_name
+    tid = _threading.get_id()
+    if tid in _map_adapters:
+        name = _map_adapters[tid].server_name
 
     return name
 
@@ -352,8 +374,9 @@ def scheme():
     """Get current URL scheme.
     """
     r = 'http'
-    if _map_adapter:
-        r = _map_adapter.url_scheme
+    tid = _threading.get_id()
+    if tid in _map_adapters:
+        r = _map_adapters[_threading.get_id()].url_scheme
 
     return r
 
@@ -434,10 +457,10 @@ def url(s: str, **kwargs) -> str:
 def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str = None) -> str:
     """Get current path.
     """
-    if not _current_request:
+    if not _requests:
         return '/'
 
-    r = _urlparse.urlparse(_current_request.url)
+    r = _urlparse.urlparse(request().url)
     path = _urlparse.urlunparse(('', '', r[2], r[3], '', ''))
     query = _urlparse.urlunparse(('', '', '', '', r[4], r[5]))
 
@@ -468,10 +491,10 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True, lang: str=Non
 
 
 def ep_path(endpoint: str, args: dict = None, strip_lang=False) -> str:
-    return url(_map_adapter.build(endpoint, args), relative=True, strip_lang=strip_lang)
+    return url(_map_adapters[_threading.get_id()].build(endpoint, args), relative=True, strip_lang=strip_lang)
 
 
 def ep_url(ep_name: str, args: dict = None, **kwargs) -> str:
     """Get URL for endpoint.
     """
-    return url(_map_adapter.build(ep_name, args), relative=False, **kwargs)
+    return url(_map_adapters[_threading.get_id()].build(ep_name, args), relative=False, **kwargs)

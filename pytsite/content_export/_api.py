@@ -24,7 +24,7 @@ def register_driver(driver: _driver.Abstract):
 
 
 def get_driver(name: str) -> _driver.Abstract:
-    """Instantiate driver.
+    """Get driver instance.
     """
     if name not in _drivers:
         raise _error.DriverNotRegistered("Driver with name '{}' is not registered.")

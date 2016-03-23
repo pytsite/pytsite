@@ -1,9 +1,11 @@
+"""PytSite Response Objects.
+"""
+import json
+from werkzeug.wrappers import Response as _BaseResponse
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-import json
-from werkzeug.wrappers import Response as _BaseResponse
 
 
 class Response(_BaseResponse):

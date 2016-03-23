@@ -68,7 +68,7 @@ class Entity(_ABC):
 
         # Loading fields data from collection
         if obj_id:
-            # Load data from from DB
+            # Fill fields with data
             self._load_fields_data(obj_id)
         else:
             # Filling fields with initial values
@@ -85,9 +85,13 @@ class Entity(_ABC):
         return _mp.get_lock('pytsite.odm.{}.{}'.format(self.model, self.id), True)
 
     def lock(self, ttl: int = 10):
+        """Lock the entity.
+        """
         self._get_lock().lock(ttl)
 
     def unlock(self):
+        """Unlock the entity.
+        """
         self._get_lock().unlock()
 
     def _load_fields_data(self, eid: _Union[str, _ObjectId], skip_cache=False):
@@ -170,6 +174,7 @@ class Entity(_ABC):
         """
         if self.has_field(field_obj.name):
             raise Exception("Field '{}' already defined in model '{}'.".format(field_obj.name, self.model))
+
         self._fields[field_obj.name] = field_obj
 
         return self
@@ -224,15 +229,15 @@ class Entity(_ABC):
         """Push fields data into cache.
         """
         if self._is_new:
-            raise RuntimeError('New entities cannot be cached.')
+            raise RuntimeError('Non-saved entities cannot be cached.')
 
-        _cache_put(self._model, self._id, self.as_storable(check_empty_fields))
+        _cache_put(self._model, self._id, self.as_db_doc(check_empty_fields))
 
     def _cache_pull(self):
         """Pull fields data from cache.
         """
         if self._is_new:
-            raise RuntimeError('New entities cannot be cached.')
+            raise RuntimeError('Non-saved entities cannot be cached.')
 
         self._fill_fields_data(_cache_get(self._model, self._id))
 
@@ -256,15 +261,11 @@ class Entity(_ABC):
     def has_field(self, field_name: str) -> bool:
         """Check if the entity has a field.
         """
-        self._check_deletion()
-
         return False if field_name not in self._fields else True
 
     def get_field(self, field_name) -> _field.Abstract:
         """Get field's object.
         """
-        self._check_deletion()
-
         if not self.has_field(field_name):
             raise _error.FieldNotDefined("Field '{}' is not defined in model '{}'.".format(field_name, self.model))
 
@@ -274,16 +275,12 @@ class Entity(_ABC):
     def collection(self) -> _Collection:
         """Get entity's collection.
         """
-        self._check_deletion()
-
         return _db.get_collection(self._collection_name)
 
     @property
     def fields(self) -> _Dict[str, _field.Abstract]:
         """Get all field objects.
         """
-        self._check_deletion()
-
         return self._fields
 
     @property
@@ -337,7 +334,7 @@ class Entity(_ABC):
 
     @property
     def is_new(self) -> bool:
-        """Is the entity new or already stored in a database?
+        """Is the entity stored in the database?
         """
         return self._is_new
 
@@ -345,8 +342,6 @@ class Entity(_ABC):
     def is_modified(self) -> bool:
         """Is the entity has been modified?
         """
-        self._check_deletion()
-
         return self._is_modified
 
     @property
@@ -363,7 +358,6 @@ class Entity(_ABC):
 
         try:
             if not self._is_new:
-                self._check_deletion()
                 self.lock()
 
             value = self._on_f_set(field_name, value, **kwargs)
@@ -397,9 +391,6 @@ class Entity(_ABC):
                 self.lock()
                 self._cache_pull()
 
-            # Yes, here we SHOULD NOT call self._check_deletion(),
-            # because entity itself might want to have access to its fields AFTER deletion.
-
             # Get value
             field_val = self.get_field(field_name).get_val(**kwargs)
 
@@ -423,8 +414,8 @@ class Entity(_ABC):
 
         try:
             if not self._is_new:
-                self._check_deletion()
                 self.lock()
+                self._cache_pull()
 
             value = self._on_f_add(field_name, value, **kwargs)
             self.get_field(field_name).add_val(value, **kwargs)
@@ -454,8 +445,8 @@ class Entity(_ABC):
 
         try:
             if not self._is_new:
-                self._check_deletion()
                 self.lock()
+                self._cache_pull()
 
             value = self._on_f_sub(field_name, value, **kwargs)
             self.get_field(field_name).sub_val(value, **kwargs)
@@ -485,8 +476,8 @@ class Entity(_ABC):
 
         try:
             if not self._is_new:
-                self._check_deletion()
                 self.lock()
+                self._cache_pull()
 
             self._on_f_inc(field_name, **kwargs)
             self.get_field(field_name).inc_val(**kwargs)
@@ -516,8 +507,8 @@ class Entity(_ABC):
 
         try:
             if not self._is_new:
-                self._check_deletion()
                 self.lock()
+                self._cache_pull()
 
             self._on_f_dec(field_name, **kwargs)
             self.get_field(field_name).dec_val(**kwargs)
@@ -547,7 +538,6 @@ class Entity(_ABC):
 
         try:
             if not self._is_new:
-                self._check_deletion()
                 self.lock()
 
             self._on_f_clr(field_name, **kwargs)
@@ -574,8 +564,8 @@ class Entity(_ABC):
         """Checks if the field is empty.
         """
         if not self._is_new:
-            self._check_deletion()
             self.lock()
+            self._cache_pull()
 
         try:
             return self.get_field(field_name).is_empty
@@ -635,7 +625,7 @@ class Entity(_ABC):
                 self.f_set('_modified', _datetime.now())
 
             # Getting storable data from each field
-            data = self.as_storable()
+            data = self.as_db_doc()
 
             # Let DB to calculate object's ID
             if self._is_new:
@@ -659,17 +649,19 @@ class Entity(_ABC):
             if self._is_new:
                 self._id = data['_id']
 
-            # After save hook
-            if not skip_hooks:
-                self._after_save()
-
             # Update modified state
             self._is_modified = False
 
             # Entity is not new anymore
             if self._is_new:
                 self._is_new = False
-                self._cache_push(True)
+
+            # After-save hook
+            if not skip_hooks:
+                self._cache_push(True)  # It is important to push cache before calling hook
+                self._after_save()
+
+            self._cache_push(True)
 
             # Clear entire finder cache for this model
             from . import _finder
@@ -681,8 +673,7 @@ class Entity(_ABC):
                     child.save(True, False)
 
         finally:
-            if not self._is_new:
-                self.unlock()
+            self.unlock()
 
         return self
 
@@ -705,8 +696,9 @@ class Entity(_ABC):
         if _dbg:
             _logger.debug('{}.delete()'.format(self.model), __name__)
 
+        self._check_deletion()
+
         try:
-            self._check_deletion()
             self.lock()
 
             # Pre delete hook
@@ -737,15 +729,14 @@ class Entity(_ABC):
             # Delete entity from cache
             _cache_rm(self._model, self.id)
 
-            # Delete all entities of that model from finder cache
+            # Clear finder cache
             from . import _finder
             _finder.cache_clear(self.model)
 
             self._is_deleted = True
 
         finally:
-            if not self._is_new:
-                self.unlock()
+            self.unlock()
 
         return self
 
@@ -759,8 +750,8 @@ class Entity(_ABC):
         """
         pass
 
-    def as_storable(self, check_empty: bool = True) -> dict:
-        """Get pickled representation of the entity.
+    def as_db_doc(self, check_empty_fields: bool = True) -> dict:
+        """Get storable representation of the entity.
         """
         r = {
             '_id': self._id,
@@ -772,7 +763,7 @@ class Entity(_ABC):
                 continue
 
             # Required fields should be filled
-            if check_empty and f.nonempty and f.is_empty:
+            if check_empty_fields and f.nonempty and f.is_empty:
                 raise _error.FieldEmpty("Value of the field '{}' cannot be empty.".format(f_name))
 
             r[f_name] = f.get_storable_val()
@@ -847,7 +838,7 @@ def _cache_put(model: str, eid: _Union[str, _ObjectId], data: dict):
     if isinstance(eid, _ObjectId):
         eid = str(eid)
 
-    _cache_pool.put('{}:{}'.format(model, eid, data), data)
+    _cache_pool.put('{}:{}'.format(model, eid, data), data, 86400)
 
 
 def _cache_rm(model: str, eid: _Union[str, _ObjectId]):
@@ -855,4 +846,5 @@ def _cache_rm(model: str, eid: _Union[str, _ObjectId]):
     """
     if isinstance(eid, _ObjectId):
         eid = str(eid)
+
     _cache_pool.rm('{}:{}'.format(model, eid))

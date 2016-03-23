@@ -38,6 +38,7 @@ class FilesUpload(_widget.Base):
 
         _browser.include('jquery-ui')
         _browser.include('imagesloaded')
+
         _assetman.add('pytsite.file@css/upload-widget.css')
         _assetman.add('pytsite.file@js/load-image.all.min.js')
         _assetman.add('pytsite.file@js/canvas-to-blob.min.js')

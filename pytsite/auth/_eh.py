@@ -46,7 +46,7 @@ def pytsite_router_dispatch():
     # Update user activity timestamp
     user = _api.get_current_user()
     if not user.is_anonymous:
-        _router.no_cache = True
+        _router.set_no_cache(True)
         user.f_set('last_activity', _datetime.now()).save(True, False)
 
     # Alternate languages

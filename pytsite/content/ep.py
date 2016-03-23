@@ -164,14 +164,15 @@ def propose(args: dict, inp: dict) -> str:
     model = args.get('model')
     endpoint = _reg.get('content.endpoints.propose.' + model, 'app.ep.' + model + '_propose')
 
-    form = _odm_ui.get_m_form(model)
-    form.get_widget('actions').get_child('action_cancel').href = _router.base_url()
-    form.redirect = _router.base_url()
+    frm = _odm_ui.get_m_form(model)
+    frm.title = None
+    frm.get_widget('form-actions').get_child('action-cancel').href = _router.base_url()
+    frm.redirect = _router.base_url()
 
     _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
 
     return _router.call_ep(endpoint, {
-        'form': form
+        'form': frm
     })
 
 

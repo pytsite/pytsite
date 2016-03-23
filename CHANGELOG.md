@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.60
+### Added
+- `router`: support for multithreading.
+- `auth`: new field in `User` model: 'last_ip'.
+
+### Changed
+- `auth`: `User`'s field 'geo_ip' is virtual now.
+
+### Fixed
+- `odm`: issues with multithreaded mode.
+- `content`: error while displaying 'Propose' form.
+- `cron`: autostarting issue.
+
+
 ## 0.59
 ### Added
 - New packages: `mp`, `google`.
