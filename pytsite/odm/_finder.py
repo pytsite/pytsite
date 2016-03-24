@@ -379,11 +379,14 @@ class Finder:
         return result[0]
 
     def distinct(self, field_name: str) -> list:
+        """Get a list of distinct values for field_name among all documents in the collection.
+        """
         from ._api import get_by_ref
         values = self._mock.collection.distinct(field_name, self._query.compile())
 
         r = []
         for v in values:
+            # Transform references to entities
             if isinstance(v, _DBRef):
                 v = get_by_ref(v)
             r.append(v)
@@ -392,23 +395,32 @@ class Finder:
 
 
 def _cache_put(finder: Finder, result: Result):
-    # Store IDs of entities
+    """Put query result into cache.
+    """
     _cache.get_pool(_pool_prefix + finder.model).put(finder.id, result.ids, finder.cache_ttl)
 
 
 def _cache_has(finder: Finder) -> bool:
+    """Check if cache has stored result for query.
+    """
     return _cache.get_pool(_pool_prefix + finder.model).has(finder.id)
 
 
 def _cache_get(finder: Finder) -> _Union[list, None]:
+    """Get stored query result from cache.
+    """
     return _cache.get_pool(_pool_prefix + finder.model).get(finder.id)
 
 
 def cache_create_pool(model: str):
+    """Create cache pool to tore query results of particular model.
+    """
     _cache.create_pool(_pool_prefix + model, _reg.get('odm.cache.driver', 'redis'))
 
 
 def cache_clear(model: str):
+    """Clear cached query results of particular model,
+    """
     if _dbg:
         _logger.debug("CLEAR query cache for model: '{}'.".format(model))
 

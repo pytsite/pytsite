@@ -30,8 +30,8 @@ class Abstract(_ABC):
         self._default = kwargs.get('default')
         self._value = None
 
-        # Set default valuer
-        self.set_val(_deepcopy(self._default))
+        # Set value to default
+        self.clr_val()
 
     @property
     def nonempty(self) -> bool:
@@ -50,6 +50,11 @@ class Abstract(_ABC):
     @property
     def default(self) -> _Any:
         return self._default
+
+    @default.setter
+    def default(self, value):
+        self._default = value
+        self.clr_val()
 
     def get_val(self, **kwargs) -> _Any:
         """Get value of the field.

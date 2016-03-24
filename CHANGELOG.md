@@ -1,6 +1,15 @@
 # PytSite Changelog
 
-## 0.61
+## 0.61.1
+### Changed
+- `file`: upload widget's JS library update.
+
+### Fixed
+- `content`: non-empty author check in Article and Page models.
+- `image`: incorrect EXIF rotation directions.
+
+
+## 0.61 (2016-03-24)
 ### Added
 - `content`: improvements of 'content:generate' console command.
 - `google`: basic geocoding API support.
@@ -15,7 +24,7 @@
 - `wallet`: `is_empty` checking in `field.Money`.
 
 
-## 0.60
+## 0.60 (2016-03-23)
 ### Added
 - `router`: support for multithreading.
 - `auth`: new field in `User` model: 'last_ip'.
@@ -29,7 +38,7 @@
 - `cron`: autostarting issue.
 
 
-## 0.59
+## 0.59 (2016-03-20)
 ### Added
 - New packages: `mp`, `google`.
 - `odm`: new hook: `_setup_indexes()`.
@@ -48,7 +57,7 @@
 - `cron`: now works without storing data on filesystem.
 
 
-## 0.58
+## 0.58 (2016-03-13)
 ### Added
 - `assetman`: TypeScript support.
 - `browser`: new JS functions: `addJS()`, `addCSS()`, `getLocationHash()`.

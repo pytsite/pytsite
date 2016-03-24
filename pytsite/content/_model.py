@@ -762,6 +762,8 @@ class Page(Content):
         self.remove_field('section')
         self.remove_field('starred')
 
+        self.get_field('author').nonempty = True
+
 
 class Article(Content):
     """Article Model.
@@ -771,6 +773,7 @@ class Article(Content):
 
         self.get_field('images').nonempty = True
         self.get_field('body').nonempty = True
+        self.get_field('author').nonempty = True
 
 
 class ContentSubscriber(_odm.Entity):

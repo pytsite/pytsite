@@ -54,9 +54,9 @@ class Image(_file.model.File):
             orientation = str(exif['Image Orientation'])
             rotated = None
             if orientation == 'Rotated 90 CCW':
-                rotated = image.rotate(270, PILImage.BICUBIC, True)
-            elif orientation == 'Rotated 90 CW':
                 rotated = image.rotate(90, PILImage.BICUBIC, True)
+            elif orientation == 'Rotated 90 CW':
+                rotated = image.rotate(-90, PILImage.BICUBIC, True)
             elif orientation == 'Rotated 180':
                 rotated = image.rotate(180, PILImage.BICUBIC, True)
 
