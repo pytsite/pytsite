@@ -23,6 +23,10 @@ class Money(_odm.field.Abstract):
 
         super().__init__(name, **kwargs)
 
+    @property
+    def is_empty(self):
+        return self._value['amount'] == _Decimal('0.0')
+
     def set_val(self, value: dict, **kwargs):
         """Set value fo the field.
         """

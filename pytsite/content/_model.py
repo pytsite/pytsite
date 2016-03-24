@@ -289,8 +289,10 @@ class Content(_odm_ui.UIEntity):
 
         # Extract inline images from the body
         if self.has_field('body'):
-            body, images = self._extract_body_images()
-            self.f_set('body', body).f_set('images', images)
+            if self.has_field('images'):
+                body, images = self._extract_body_images()
+                self.f_set('body', body)
+                self.f_set('images', images)
 
         if self.is_new:
             # Attach section to tags
@@ -320,18 +322,21 @@ class Content(_odm_ui.UIEntity):
             if self.status == 'waiting':
                 self._send_waiting_status_notification()
 
-        # Recalculate tags weights
         from . import _api
-        for tag in self.tags:
-            weight = 0
-            for model in _api.get_models().keys():
-                weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
-            tag.f_set('weight', weight).save()
+
+        # Recalculate tags weights
+        if self.has_field('tags'):
+            for tag in self.tags:
+                weight = 0
+                for model in _api.get_models().keys():
+                    weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
+                tag.f_set('weight', weight).save()
 
         # Creating back links in images
-        for img in self.images:
-            if not img.f_get('attached_to'):
-                img.f_set('attached_to', self).f_set('owner', self.author).save()
+        if self.has_field('images'):
+            for img in self.images:
+                if not img.f_get('attached_to'):
+                    img.f_set('attached_to', self).f_set('owner', self.author).save()
 
         # Updating localization entities references
         for lng in _lang.langs(False):
@@ -350,10 +355,11 @@ class Content(_odm_ui.UIEntity):
     def _after_delete(self):
         """Hook.
         """
-        self.f_get('route_alias').delete()
+        self.route_alias.delete()
 
-        for i in self.f_get('images'):
-            i.delete()
+        if self.has_field('images'):
+            for i in self.f_get('images'):
+                i.delete()
 
     @classmethod
     def ui_browser_setup(cls, browser):

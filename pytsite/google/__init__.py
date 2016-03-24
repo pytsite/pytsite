@@ -1,8 +1,7 @@
 """PytSite Google Init.
 """
 # Public API
-from . import _widget as widget
-from ._api import get_map_link
+from . import _maps as maps
 
 # Necessary libraries
 import re as _re
@@ -19,10 +18,10 @@ __libraries_re = _re.compile('libraries=([a-z]+)')
 
 def __browser_library_maps_callback(permanent: bool, **kwargs):
     # Google Map API key is required
-    api_key = _reg.get('google.maps.key')
+    api_key = _reg.get('google.maps.client_key')
     if not api_key:
-        raise ValueError("Configuration parameter 'google.maps.key' is not defined. You can obtain it at {}.".
-                         format('https://developers.google.com/maps/documentation/javascript/get-api-key'))
+        raise RuntimeError("Configuration parameter 'google.maps.client_key' is not defined. Obtain it at {}.".
+                           format('https://developers.google.com/maps/documentation/javascript/get-api-key'))
 
     # Search for currently added Google JSs to find which Google libraries included
     asset_weight = 0

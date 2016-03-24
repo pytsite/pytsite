@@ -1,5 +1,20 @@
 # PytSite Changelog
 
+## 0.61
+### Added
+- `content`: improvements of 'content:generate' console command.
+- `google`: basic geocoding API support.
+
+### Changed
+- `google`: names of configuration options.
+
+### Fixed
+- `auth`: error while checking session variable.
+- `odm`: unsaved entity unlocking exception.
+- `router`: errors of work in multithreaded environment.
+- `wallet`: `is_empty` checking in `field.Money`.
+
+
 ## 0.60
 ### Added
 - `router`: support for multithreading.

@@ -77,10 +77,7 @@ class Entity(_ABC):
 
     def _get_lock(self):
         if self._is_new:
-            raise RuntimeError('New entities cannot be locked.')
-
-        if not self._id:
-            raise RuntimeError('Entity does not have an ID.')
+            raise RuntimeError('Non-saved entities cannot be locked.')
 
         return _mp.get_lock('pytsite.odm.{}.{}'.format(self.model, self.id), True)
 
@@ -645,22 +642,20 @@ class Entity(_ABC):
                 _events.fire('pytsite.odm.entity.save', entity=self)
                 _events.fire('pytsite.odm.entity.save.' + self.model, entity=self)
 
-            # Getting assigned ID from MongoDB
+            # Saved entity is not 'new'
             if self._is_new:
                 self._id = data['_id']
-
-            # Update modified state
-            self._is_modified = False
-
-            # Entity is not new anymore
-            if self._is_new:
                 self._is_new = False
+
+            # Saved entity is not 'modified'
+            self._is_modified = False
 
             # After-save hook
             if not skip_hooks:
                 self._cache_push(True)  # It is important to push cache before calling hook
                 self._after_save()
 
+            # Push cache
             self._cache_push(True)
 
             # Clear entire finder cache for this model
@@ -673,7 +668,8 @@ class Entity(_ABC):
                     child.save(True, False)
 
         finally:
-            self.unlock()
+            if not self._is_new:
+                self.unlock()
 
         return self
 
@@ -764,7 +760,7 @@ class Entity(_ABC):
 
             # Required fields should be filled
             if check_empty_fields and f.nonempty and f.is_empty:
-                raise _error.FieldEmpty("Value of the field '{}' cannot be empty.".format(f_name))
+                raise _error.FieldEmpty("{}.{}: Value cannot be empty.".format(self.model, f_name))
 
             r[f_name] = f.get_storable_val()
 

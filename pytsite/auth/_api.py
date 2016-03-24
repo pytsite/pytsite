@@ -275,7 +275,7 @@ def get_anonymous_user() -> _model.User:
 def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
-    if _router.session() is None:
+    if not _router.session():
         return get_anonymous_user()
 
     login = _router.session().get('pytsite.auth.login')

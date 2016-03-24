@@ -1,6 +1,7 @@
 """Geo Functions.
 """
 from urllib.parse import quote_plus as _urlquote
+from . import _geocoding
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -18,3 +19,11 @@ def get_map_link(lng: float=None, lat: float=None, query: str=None, zoom: int=15
 
     if (not lat or not lng) and query:
         return 'https://www.google.com/maps/search/{}'.format(_urlquote(query), lat, lng)
+
+
+def code(address: str, **kwargs):
+    return _geocoding.GeoCoder().code(address, **kwargs)
+
+
+def decode(lng: float, lat: float, **kwargs):
+    return _geocoding.GeoCoder().decode(lng, lat, **kwargs)

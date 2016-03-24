@@ -1,7 +1,7 @@
 """PytSite Router API.
 """
 import re as _re
-from typing import Dict as _Dict
+from typing import Dict as _Dict, Union as _Union
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
@@ -57,22 +57,22 @@ class Rule(_Rule):
         return super().get_rules(rules_map)
 
 
-def request() -> _http.request.Request:
+def request() -> _Union[_http.request.Request, None]:
     """Get request belonged to the current thread.
     """
-    return _requests[_threading.get_id()]
+    return _requests.get(_threading.get_id())
 
 
 def session() -> _http.session.Session:
     """Get session belonged to the current thread.
     """
-    return _sessions[_threading.get_id()]
+    return _sessions.get(_threading.get_id())
 
 
 def get_no_cache() -> bool:
     """Get 'no-cache' status belonged to the current thread
     """
-    return _no_cache[_threading.get_id()]
+    return _no_cache.get(_threading.get_id())
 
 
 def set_no_cache(status: bool):

@@ -381,6 +381,7 @@ class Finder:
     def distinct(self, field_name: str) -> list:
         from ._api import get_by_ref
         values = self._mock.collection.distinct(field_name, self._query.compile())
+
         r = []
         for v in values:
             if isinstance(v, _DBRef):

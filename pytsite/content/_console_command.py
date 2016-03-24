@@ -15,7 +15,7 @@ class Generate(_console.command.Abstract):
     """Abstract command.
     """
     li_url = 'http://loripsum.net/api/prude/'
-    lp_url = 'http://lorempixel.com/1024/768/'
+    lp_url = 'http://loremflickr.com/1024/768/'
 
     def get_name(self) -> str:
         """Get command's name.
@@ -28,10 +28,10 @@ class Generate(_console.command.Abstract):
         return _lang.t('pytsite.content@console_generate_command_description')
 
     def get_options_help(self) -> str:
-        """Get help for the command.
+        """Get help for command's options.
         """
-        return '[--num=NUM] [--title-len=LEN] [--description-len=LEN] [--lang=LANG] [--no-html] [--short] ' \
-               '[--author=LOGIN] --model=MODEL'
+        return '[--author=LOGIN] [--description-len=LEN] [--images=NUM] [--lang=LANG] [--num=NUM] [--no-html] ' \
+               '[--no-tags] [--no-sections] [--short] [--title-len=LEN] --model=MODEL'
 
     def get_options(self) -> tuple:
         """Get command options.
@@ -39,12 +39,15 @@ class Generate(_console.command.Abstract):
         return (
             ('model', _validation.rule.NonEmpty(msg_id='pytsite.content@model_is_required')),
             ('num', _validation.rule.Integer()),
+            ('images', _validation.rule.Integer()),
             ('title-len', _validation.rule.Integer()),
             ('description-len', _validation.rule.Integer()),
             ('lang', _validation.rule.Regex(pattern='^[a-z]{2}$')),
             ('no-html', _validation.rule.Dummy()),
             ('short', _validation.rule.Dummy()),
             ('author', _validation.rule.Dummy()),
+            ('no-tags', _validation.rule.Dummy()),
+            ('no-sections', _validation.rule.Dummy()),
         )
 
     def execute(self, args: tuple=(), **kwargs):
@@ -52,95 +55,99 @@ class Generate(_console.command.Abstract):
         """
         model = kwargs['model']
 
-        # Author
-        author = None
-        author_login = kwargs.get('author')
-        if author_login:
-            author = _auth.get_user(author_login)
-            if not author:
-                raise _console.error.Error("'{}' is not a registered user.".format(author_login))
-
         # Checking if the content model registered
         if not _api.is_model_registered(model):
             raise _console.error.Error("'{}' is not a registered content model.".format(model))
 
+        author_login = kwargs.get('author')
         num = int(kwargs.get('num', 10))
+        images_num = int(kwargs.get('images', 1))
         language = kwargs.get('lang', _lang.get_current())
         no_html = kwargs.get('no-html')
         short = kwargs.get('short')
+        no_tags = kwargs.get('no-tags')
+        no_sections = kwargs.get('no-sections')
 
         if short:
             self.li_url += 'short/'
 
-        # Generate sections
-        sections = list(_api.get_sections(language))
-        if not len(sections):
-            for m in range(0, 3):
-                title = self._generate_title(1)
-                section = _api.dispense_section(title, language=language)
-                sections.append(section)
-                _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
-
-        # Generate tags
-        tags = list(_api.get_tags(language=language))
-        if len(tags) < 10:
-            for n in range(0, 10):
-                tag = _api.dispense_tag(self._generate_title(1), language=language)
-                tags.append(tag)
-
         # Generate content entities
         for m in range(0, num):
+            entity = _api.dispense(model)
+
             # Author
-            if not author_login:
+            if author_login:
+                author = _auth.get_user(author_login)
+                if not author:
+                    raise _console.error.Error("'{}' is not a registered user.".format(author_login))
+                entity.f_set('author', author)
+            else:
                 user_finder = _auth.find_users()
                 users_count = user_finder.count()
                 if not users_count:
                     raise _lang.t('pytsite.content@no_users_found')
-
-                author = user_finder.skip(_randint(0, users_count - 1)).first()
+                entity.f_set('author', user_finder.skip(_randint(0, users_count - 1)).first())
 
             # Title
-            title = self._generate_title(int(kwargs.get('title-len', 7)))
+            entity.f_set('title', self._generate_title(int(kwargs.get('title-len', 7))))
 
             # Description
-            description = self._generate_title(int(kwargs.get('description-len', 28)))
+            if entity.has_field('description'):
+                entity.f_set('description', self._generate_title(int(kwargs.get('description-len', 28))))
 
-            # Preparing sections and tags
-            _shuffle(sections)
-            _shuffle(tags)
+            # Tags
+            if not no_tags and entity.has_field('tags'):
+                # Generate tags
+                tags = list(_api.get_tags(language=language))
+                if len(tags) < 10:
+                    for n in range(0, 10):
+                        tag = _api.dispense_tag(self._generate_title(1), language=language)
+                        tags.append(tag)
 
-            # Body and images
+                _shuffle(tags)
+                entity.f_set('tags', tags[:5])
+
+            # Section
+            if not no_sections and entity.has_field('section'):
+                # Generate sections
+                sections = list(_api.get_sections(language))
+                if not len(sections):
+                    for i in range(0, 3):
+                        title = self._generate_title(1)
+                        section = _api.dispense_section(title, language=language)
+                        sections.append(section)
+                        _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
+
+                _shuffle(sections)
+                entity.f_set('section', sections[0])
+
+            # Body
+            body_parts_num = images_num or 3
             body = []
-            images = [_image.create(self.lp_url)]
-            for n in range(2, 3 if short else 6):
+            for n in range(1, body_parts_num + 1):
                 if no_html:
                     body.append(_requests.get(self.li_url + '/plaintext/').content.decode('utf-8'))
                 else:
-                    images.append(_image.create(self.lp_url))
                     body.append(_requests.get(self.li_url + '/decorate/link/ul/ol/dl/bq/').content.decode('utf-8'))
                     body.append('\n<p>[img:{}]</p>\n'.format(n))
                     body.append(_requests.get(self.li_url).content.decode('utf-8'))
-
-            entity = _api.dispense(model)
-            entity.f_set('title', title)
-            entity.f_set('description', description)
             entity.f_set('body', ''.join(body))
-            entity.f_set('images', images)
-            entity.f_set('tags', tags[:5])
-            entity.f_set('author', author)
+
+            # Images
+            if entity.has_field('images') and images_num:
+                for n in range(0, images_num):
+                    entity.f_add('images', _image.create(self.lp_url))
+
             entity.f_set('status', 'published')
             entity.f_set('views_count', int(_random() * 1000))
             entity.f_set('comments_count', int(_random() * 100))
             entity.f_set('language', language)
 
-            if entity.has_field('section'):
-                entity.f_set('section', sections[0])
-
-            _events.fire('pytsite.content.console.generate', entity=entity)
+            _events.fire('pytsite.content.generate', entity=entity)
 
             entity.save()
 
-            _console.print_info(_lang.t('pytsite.content@new_content_created', {'title': title}))
+            _console.print_info(_lang.t('pytsite.content@new_content_created', {'title': entity.title}))
 
     def _generate_title(self, max_words=7) -> str:
         title = str(_requests.get(self.li_url + '/1/plaintext/verylong').content.decode('utf-8')).strip()

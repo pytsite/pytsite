@@ -28,9 +28,7 @@ class Location(_odm.field.Dict):
 
     @property
     def is_empty(self) -> bool:
-        v = self.get_val()
-
-        return not v['lng'] or not v['lat']
+        return self.get_val()['lng_lat'] == (0.0, 0.0)
 
     def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Hook.
@@ -67,7 +65,7 @@ class Address(_odm.field.Dict):
         default = kwargs.get('default', {
             'lng': 0.0,
             'lat': 0.0,
-            'lng_lat': [0.0, 0.0],
+            'lng_lat': (0.0, 0.0),
             'address': '',
             'address_components': [],
         })
@@ -78,7 +76,7 @@ class Address(_odm.field.Dict):
     def is_empty(self) -> bool:
         v = self.get_val()
 
-        return not v['lng'] or not v['lat'] or not v['address']
+        return v['lng_lat'] == (0.0, 0.0) or not v['address']
 
     def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Hook.
