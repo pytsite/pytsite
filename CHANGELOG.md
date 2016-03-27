@@ -1,6 +1,11 @@
 # PytSite Changelog
 
-## 0.61.1
+## 0.61.2 (2016-03-28)
+### Fixed
+- `db`: error while invoking 'db' console command.
+
+
+## 0.61.1 (2016-03-25)
 ### Changed
 - `file`: upload widget's JS library update.
 

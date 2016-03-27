@@ -4,7 +4,7 @@ import subprocess as _subprocess
 import shutil as _shutil
 from os import path as _path
 from datetime import datetime as _datetime
-from pytsite import console as _console, reg as _reg, validation as _validation
+from pytsite import console as _console, reg as _reg, validation as _validation, maintenance as _maintenance
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -23,6 +23,7 @@ class Db(_console.command.Abstract):
         """Get description of the command.
         """
         from pytsite.lang import t
+
         return t('pytsite.db@db_console_command_description')
 
     def get_options_help(self) -> str:
@@ -42,7 +43,7 @@ class Db(_console.command.Abstract):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
             raise Exception('Cannot find mongodump executable.')
 
-        _console.run_command('maint', args=('enable',))
+        _maintenance.enable()
 
         db_name = _reg.get('db.database')
         target_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump')
@@ -65,7 +66,7 @@ class Db(_console.command.Abstract):
 
         r = _subprocess.call(command, shell=True)
 
-        _console.run_command('maint', args=('disable',))
+        _maintenance.disable()
 
         return r
 
@@ -73,7 +74,7 @@ class Db(_console.command.Abstract):
         if _subprocess.call('which mongorestore', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True):
             raise Exception('Cannot find mongorestore executable.')
 
-        _console.run_command('maint', args=('enable',))
+        _maintenance.enable()
 
         db_name = _reg.get('db.database')
         source_dir = _path.join(_reg.get('paths.root'), 'misc', 'dbdump', db_name)
@@ -91,7 +92,7 @@ class Db(_console.command.Abstract):
 
         r = _subprocess.call(command, shell=True)
 
-        _console.run_command('maint', args=('disable',))
+        _maintenance.disable()
 
         return r
 
