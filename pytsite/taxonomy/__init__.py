@@ -11,18 +11,18 @@ __license__ = 'MIT'
 
 
 def __init():
-    import sys
     from pytsite import assetman, tpl, lang, router, admin
 
+    # Resources
     lang.register_package(__name__)
-
     tpl.register_package(__name__)
-    tpl.register_global('taxonomy', sys.modules[__package__])
-
     assetman.register_package(__name__)
-    assetman.add('pytsite.taxonomy@css/common.css')
 
+    # Search term route
     router.add_rule('/pytsite/taxonomy/search/<string:model>/<string:query>', 'pytsite.taxonomy.eps.search_terms')
+
+    # Admin sidebar menu
     admin.sidebar.add_section('taxonomy', __name__ + '@taxonomy', 500, ('*',))
+
 
 __init()

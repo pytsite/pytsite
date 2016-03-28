@@ -1,15 +1,16 @@
 """PytSite Meta Tags Support.
 """
-from pytsite import lang as _lang, util as _util, reg as _reg, events as _events, assetman as _assetman
+from pytsite import lang as _lang, util as _util, reg as _reg, events as _events, assetman as _assetman, \
+    threading as _threading
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-__tags = {'link': []}
+_tags = {}
 
-__allowed_tags = (
+_allowed_tags = (
     'title',
     'author',
     'link',
@@ -40,9 +41,7 @@ __allowed_tags = (
 def reset():
     """Reset tags.
     """
-    global __tags
-
-    __tags = {'link': []}
+    _tags[_threading.get_id()] = {'link': []}
 
     t_set('charset', 'UTF-8')
     t_set('title', _lang.t('pytsite.metatag@untitled_document'))
@@ -53,8 +52,10 @@ def reset():
 def t_set(tag: str, value: str=None, **kwargs):
     """Set tag value.
     """
-    if tag not in __allowed_tags:
+    if tag not in _allowed_tags:
         raise Exception("Unknown tag '{}'".format(tag))
+
+    tid = _threading.get_id()
 
     if tag in ('link',):
         if tag == 'link':
@@ -67,44 +68,43 @@ def t_set(tag: str, value: str=None, **kwargs):
         for k, v in kwargs.items():
             value += ' {}="{}"'.format(k, v)
 
-        __tags['link'].append(value)
+        _tags[tid]['link'].append(value)
     else:
-        __tags[tag] = _util.escape_html(value)
+        _tags[tid][tag] = _util.escape_html(value)
 
 
 def get(tag: str) -> str:
     """Get value of the tag.
     """
-    if tag not in __allowed_tags:
+    if tag not in _allowed_tags:
         raise Exception("Unknown tag '{0}'".format(tag))
 
-    if tag not in __tags:
-        return ''
-
-    return __tags[tag]
+    return _tags[_threading.get_id()].get(tag, '')
 
 
 def dump(tag: str) -> str:
     """ Dump single tag.
     """
-    if tag not in __allowed_tags:
+    if tag not in _allowed_tags:
         raise Exception("Unknown tag '{0}'".format(tag))
 
-    if tag not in __tags:
+    tid = _threading.get_id()
+
+    if tag not in _tags[tid]:
         return ''
 
     if tag == 'charset':
-        r = '<meta charset="{}">\n'.format(__tags[tag])
+        r = '<meta charset="{}">\n'.format(_tags[tid][tag])
     elif tag == 'title':
-        r = '<title>{} | {}</title>\n'.format(__tags[tag], _lang.t('app_name'))
+        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app_name'))
     elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):
-        r = '<meta property="{}" content="{}">'.format(tag, __tags[tag])
+        r = '<meta property="{}" content="{}">'.format(tag, _tags[tid][tag])
     elif tag == 'link':
         r = ''
-        for value in __tags[tag]:
+        for value in _tags[tid][tag]:
             r += '<{}{}>\n'.format(tag, value)
     else:
-        r = '<meta name="{}" content="{}">'.format(tag, __tags[tag])
+        r = '<meta name="{}" content="{}">'.format(tag, _tags[tid][tag])
 
     return r
 
@@ -115,7 +115,7 @@ def dump_all() -> str:
     _events.fire('pytsite.metatag.dump_all')
 
     r = str()
-    for tag in __tags:
+    for tag in _tags[_threading.get_id()]:
         r += dump(tag) + '\n'
 
     return r

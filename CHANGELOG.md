@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.61.4 (2016-03-28)
+### Added
+- `assetman`: path-prefixed assets.
+
+### Changed:
+- `assetman`: `tpl`'s global `asset_url()` renamed to `assetman_url()`.
+
+### Fixed
+- `assetman`, `hreflang`, `metatag`: work in multithreaded environment.
+
+
 ## 0.61.3 (2016-03-28)
 ### Fixed
 - `assetman`: work in multithreaded environment.

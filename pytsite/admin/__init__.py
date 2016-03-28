@@ -18,7 +18,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite import assetman, tpl, lang, router, auth, robots, hreflang, events
+    from pytsite import assetman, tpl, lang, router, auth, robots, hreflang, events, browser
 
     def router_dispatch_eh():
         # Alternate languages
@@ -26,10 +26,18 @@ def __init():
             for lng in lang.langs(False):
                 hreflang.add(lng, router.url(router.current_path(), lang=lng))
 
+    # Resources
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    tpl.register_global('admin', sys.modules[__name__])
     assetman.register_package(__name__)
+
+    # Assets
+    browser.include('bootstrap', permanent=True, path_prefix='/admin')
+    browser.include('font-awesome', permanent=True, path_prefix='/admin')
+    assetman.add('pytsite.admin@AdminLTE/css/AdminLTE.min.css', permanent=True, path_prefix='/admin')
+    assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css', permanent=True, path_prefix='/admin')
+    assetman.add('pytsite.admin@css/custom.css', permanent=True, path_prefix='/admin')
+    assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix='/admin')
 
     # Permissions
     auth.define_permission_group('admin', 'pytsite.admin@admin')
@@ -44,7 +52,9 @@ def __init():
     # robots.txt rules
     robots.disallow(base_path() + '/')
 
+    # Event handlers
     events.listen('pytsite.router.dispatch', router_dispatch_eh)
+
 
 # Initialization
 __init()

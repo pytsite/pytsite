@@ -1,7 +1,7 @@
 """Tag Widgets.
 """
 from pytsite import widget as _widget, html as _html, odm as _odm, router as _router, tpl as _tpl, odm_ui as _odm_ui, \
-    lang as _lang
+    lang as _lang, assetman as _assetman
 from . import _functions
 
 __author__ = 'Alexander Shepetko'
@@ -98,6 +98,8 @@ class Cloud(_widget.Base):
         self._wrap = kwargs.get('wrap', True)
 
         self._css += ' widget-taxonomy-cloud widget-taxonomy-cloud-{}'.format(self._model)
+
+        _assetman.add('pytsite.taxonomy@css/common.css')
 
     @property
     def model(self) -> str:

@@ -1,6 +1,6 @@
 """Pytsite Hreflang Package.
 """
-from ._functions import add, get, get_all, reset
+from ._api import add, get, get_all, reset
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
