@@ -2,7 +2,7 @@
 """
 # Public API
 from ._api import register_package, add, remove, dump_js, dump_css, url, add_inline, dump_inline, get_urls, \
-    get_locations
+    get_locations, reset
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,7 +21,7 @@ def __init():
     console.register_command(_console_command.Assetman())
 
     # Events
-    events.listen('pytsite.router.dispatch', _api.reset)
+    events.listen('pytsite.router.dispatch', reset)
     events.listen('pytsite.update.after', lambda: console.run_command('assetman', build=True, no_maintenance=True))
 
     # Tpl globals

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.61.3 (2016-03-28)
+### Fixed
+- `assetman`: work in multithreaded environment.
+
+
 ## 0.61.2 (2016-03-28)
 ### Fixed
 - `db`: error while invoking 'db' console command.
