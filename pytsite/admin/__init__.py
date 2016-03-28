@@ -32,12 +32,12 @@ def __init():
     assetman.register_package(__name__)
 
     # Assets
-    browser.include('bootstrap', permanent=True, path_prefix='/admin')
-    browser.include('font-awesome', permanent=True, path_prefix='/admin')
-    assetman.add('pytsite.admin@AdminLTE/css/AdminLTE.min.css', permanent=True, path_prefix='/admin')
-    assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css', permanent=True, path_prefix='/admin')
-    assetman.add('pytsite.admin@css/custom.css', permanent=True, path_prefix='/admin')
-    assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix='/admin')
+    browser.include('bootstrap', permanent=True, path_prefix=base_path())
+    browser.include('font-awesome', permanent=True, path_prefix=base_path())
+    assetman.add('pytsite.admin@AdminLTE/css/AdminLTE.min.css', permanent=True, path_prefix=base_path())
+    assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css', permanent=True, path_prefix=base_path())
+    assetman.add('pytsite.admin@css/custom.css', permanent=True, path_prefix=base_path())
+    assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix=base_path())
 
     # Permissions
     auth.define_permission_group('admin', 'pytsite.admin@admin')

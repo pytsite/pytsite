@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.61.5 (2016-03-28)
+### Fixed
+- `admin`: dynamic paths prefix while asset additions. 
+
+
 ## 0.61.4 (2016-03-28)
 ### Added
 - `assetman`: path-prefixed assets.
