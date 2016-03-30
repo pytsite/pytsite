@@ -11,6 +11,7 @@ __license__ = 'MIT'
 class Button(_base.Base):
     """Button.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -49,7 +50,10 @@ class Button(_base.Base):
 
         self._html_em.content = self.get_val()
         if self._icon and not self._html_em.children:
-            self._html_em.append(_html.I(cls='fa fa-fw fa-'+self._icon))
+            self._html_em.append(_html.I(cls='fa fa-fw fa-' + self._icon))
+
+        for k, v in self._data.items():
+            self._html_em.set_attr('data_' + k, v)
 
         return self._html_em
 
@@ -57,6 +61,7 @@ class Button(_base.Base):
 class Submit(Button):
     """Submit Button.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -71,6 +76,7 @@ class Submit(Button):
 class Link(Button):
     """Link Button.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

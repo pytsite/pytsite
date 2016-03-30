@@ -16,7 +16,7 @@ $(function () {
 
         if (remoteSource) {
             tokenFieldOptions.autocomplete.source = function (request, response) {
-                var term = request['term'].trim();
+                var term = _request['term'].trim();
                 if (!term.length)
                     return;
 

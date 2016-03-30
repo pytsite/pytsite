@@ -1,2 +1,3 @@
 save: 'Зберегти'
-next: 'Далі'
+forward: 'Далі'
+backward: 'Назад'

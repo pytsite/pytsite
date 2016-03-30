@@ -1,7 +1,7 @@
 """PytSite Select Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import assetman as _assetman, browser as _browser, html as _html, lang as _lang, \
+from pytsite import browser as _browser, html as _html, lang as _lang, \
     validation as _validation, hreflang as _hreflang, router as _router
 from . import _input, _base
 
@@ -72,7 +72,7 @@ class Select2(Select):
         super().__init__(uid, **kwargs)
 
         _browser.include('select2')
-        _assetman.add('pytsite.widget@js/select2.js')
+        self._js_files.extend(['pytsite.widget@js/select2.js'])
 
         self._theme = kwargs.get('theme', 'bootstrap')
         self._ajax_url = kwargs.get('ajax_url')
@@ -224,7 +224,7 @@ class DateTime(_input.Text):
         super().__init__(uid, **kwargs)
 
         _browser.include('datetimepicker')
-        _assetman.add('pytsite.widget@js/datetime.js')
+        self._js_files.extend(['pytsite.widget@js/datetime.js'])
 
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
         self.add_rule(_validation.rule.DateTime())

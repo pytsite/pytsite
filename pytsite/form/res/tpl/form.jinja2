@@ -1,59 +1,52 @@
-{% block open_tag %}
-    <form role="form" method="{{ form.method }}" action="{{ form.action }}" id="{{ form.uid }}" name="{{ form.name }}"
-          class="{{ form.css }}" data-cid="{{ form.cid }}"
-          {% if form.validation_ep %}data-validation-ep="{{ form.validation_ep }}"{% endif %}>
-{% endblock open_tag %}
+{% if form.modal %}
+    <div class="modal fade" id="{{ form.uid }}-modal" tabindex="-1" role="dialog" aria-labelledby="{{ form.uid }}-label">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+{% endif %}
 
-{% block area_hidden %}
-    {% set widgets = form.get_widgets('hidden') %}
-    {% if widgets %}
-        <div class="{{ form.area_hidden_css }}">
-            {% for uid, widget in widgets.items() %}
-                {{ widget }}
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endblock %}
+<form role="form"
+      method="{{ form.method }}"
+      action="{{ form.action }}"
+      id="{{ form.uid }}"
+      name="{{ form.name }}"
+      class="{{ form.css }}"
+      data-cid="{{ form.cid }}"
+      data-get-widgets-ep="{{ form.get_widgets_ep }}"
+      data-validation-ep="{{ form.validation_ep }}"
+      data-steps="{{ form.steps }}"
+      data-reload-on-forward="{{ form.reload_on_forward }}">
 
-{% block area_header %}
-    {% set widgets = form.get_widgets('header') %}
-    {% if widgets or form.title %}
-        <div class="{{ form.area_header_css }}">
+    <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden"></div>
+
+    <div class="form-area box-header {% if form.modal %}modal-header{% endif %} {{ form.area_header_css }}"
+         data-form-area="header">
+
+        {% if form.modal %}
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        {% endif %}
+
+        <div class="form-title">
             {% if form.title %}
-                <h3 class="{{ form.title_css }}">{{ form.title | e }}</h3>
-            {% endif %}
-            {% if widgets %}
-                {% for uid, widget in widgets.items() %}
-                    {{ widget }}
-                {% endfor %}
+                <h4 id="{{ form.uid }}-label" class="{% if form.modal %}modal-title{% endif %} {{ form.title_css }}">
+                    {{ form.title | e }}
+                </h4>
             {% endif %}
         </div>
-    {% endif %}
-{% endblock %}
+        <div class="form-messages"></div>
+    </div>
 
-{% block area_body %}
-    {% set widgets = form.get_widgets('body') %}
-    {% if widgets %}
-        <div class="{{ form.area_body_css }}">
-            {% for uid, widget in widgets.items() %}
-                {{ widget }}
-            {% endfor %}
+    <div class="form-area box-body {% if form.modal %}modal-body{% endif %} {{ form.area_body_css }}"
+         data-form-area="body"></div>
+
+    <div class="form-area box-footer {% if form.modal %}modal-footer{% endif %} {{ form.area_footer_css }}"
+         data-form-area="footer"></div>
+</form>
+
+
+{% if form.modal %}
+            </div>
         </div>
-    {% endif %}
-{% endblock %}
-
-{% block area_footer %}
-    {% set widgets = form.get_widgets('footer') %}
-    {% if widgets %}
-        <div class="{{ form.area_footer_css }}">
-            {% for uid, widget in widgets.items() %}
-                {{ widget }}
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endblock %}
-
-{% block close_tag %}
-    </form>
-{% endblock close_tag %}
-
+    </div>
+{% endif %}

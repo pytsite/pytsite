@@ -12,45 +12,19 @@ pytsite.ajax = {
         return r;
     },
 
-    request: function (method, endpoint, data, success, error) {
+    request: function (method, endpoint, data) {
         return $.ajax({
             url: pytsite.ajax.url(endpoint),
             method: method,
-            data: data,
-            success: function (resp) {
-                if (resp instanceof Object) {
-                    if ('_css' in resp) {
-                        $.each(resp['_css'], function (i, url) {
-                            pytsite.browser.addCSS(url);
-                        });
-
-                        delete resp['_css'];
-                    }
-
-                    if ('_js' in resp) {
-                        $.each(resp['_js'], function (i, url) {
-                            pytsite.browser.addJS(url);
-                        });
-
-                        delete resp['_js'];
-                    }
-
-                    if (Object.keys(resp).length == 1)
-                        resp = resp[Object.keys(resp)[0]];
-                }
-
-                if (success)
-                    success(resp);
-            },
-            error: error
+            data: data
         });
     },
 
-    get: function (endpoint, data, success, error) {
-        return this.request('GET', endpoint, data, success, error)
+    get: function (endpoint, data) {
+        return this._request('GET', endpoint, data)
     },
 
-    post: function (endpoint, data, success, error) {
-        return this.request('POST', endpoint, data, success, error)
+    post: function (endpoint, data) {
+        return this._request('POST', endpoint, data)
     }
 };

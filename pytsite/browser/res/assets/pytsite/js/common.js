@@ -2,10 +2,7 @@ if (!String.prototype.format) {
     String.prototype.format = function () {
         var args = arguments;
         return this.replace(/{(\d+)}/g, function (match, number) {
-            return typeof args[number] != 'undefined'
-                ? args[number]
-                : match
-                ;
+            return typeof args[number] != 'undefined' ? args[number] : match;
         });
     };
 }
@@ -13,17 +10,45 @@ if (!String.prototype.format) {
 var pytsite = {};
 
 pytsite.browser = {
-    addJS: function(url) {
-        if (!$('script[src="' + url + '"]').length)
-            $('body').append($('<script type="text/javascript" src="' + url + '"></script>'));
+    assetUrl: function(url) {
+        if (url.indexOf('/') == 0 || url.indexOf('http') == 0)
+            return url;
+
+        var pkgName = 'app';
+        var assetPath = url;
+        var urlParts = url.split('@');
+
+        if (urlParts.length == 2) {
+            pkgName = urlParts[0];
+            assetPath = urlParts[1];
+        }
+
+        return '/assets/{0}/{1}'.format(pkgName, assetPath);
     },
 
-    addCSS: function(url) {
-        if (!$('link[href="' + url + '"]').length)
-            $('head').append($('<link rel="stylesheet" href="' + url + '">'));
+    addJS: function (urls) {
+        if (typeof urls == 'string')
+            urls = [urls];
+
+        for (var i = 0; i < urls.length; i++) {
+            urls[i] = pytsite.browser.assetUrl(urls[i]);
+            if (!$('script[src="' + urls[i] + '"]').length)
+                $('body').append($('<script type="text/javascript" src="' + urls[i] + '"></script>'));
+        }
     },
 
-    getLocationHash: function() {
+    addCSS: function (urls) {
+        if (typeof urls == 'string')
+            urls = [urls];
+
+        for (var i = 0; i < urls.length; i++) {
+            urls[i] = pytsite.browser.assetUrl(urls[i]);
+            if (!$('link[href="' + urls[i] + '"]').length)
+                $('head').append($('<link rel="stylesheet" href="' + urls[i] + '">'));
+        }
+    },
+
+    getLocationHash: function () {
         var hash = window.location.hash.replace(/^#/, '').split('&');
         var r = {};
         for (var i = 0; i < hash.length; ++i) {

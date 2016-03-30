@@ -35,19 +35,18 @@ class Base(_ABC):
         self._hidden = kwargs.get('hidden', False)
         self._rules = kwargs.get('rules', [])
         self._form_area = kwargs.get('form_area', 'body')
-        self._form_steps = kwargs.get('form_steps', '*')
+        self._form_step = kwargs.get('form_step', 1)
+        self._css_files = kwargs.get('css_files', [])
+        self._js_files = kwargs.get('js_files', [])
 
+        # Check validation rules
         if type(self._rules) not in (list, tuple):
             self._rules = [self._rules]
         if isinstance(self._rules, tuple):
             self._rules = list(self._rules)
-
         for rule in self._rules:
             if not isinstance(rule, _validation.rule.Base):
                 raise TypeError('instance of pytsite.validation.rule.Base expected.')
-
-        if type(self._form_steps) not in (list, tuple) and self._form_steps != '*':
-            self._form_steps = (self._form_steps,)
 
         if 'value' in kwargs:
             # It is important to filter value through the setter-method
@@ -236,12 +235,16 @@ class Base(_ABC):
         self._form_area = area
 
     @property
-    def form_steps(self) -> _Union[str, tuple]:
-        return self._form_steps
+    def form_step(self) -> _Union[str, tuple]:
+        """Get current form step.
+        """
+        return self._form_step
 
-    @form_steps.setter
-    def form_steps(self, value: _Union[str, tuple]):
-        self._form_steps = value
+    @form_step.setter
+    def form_step(self, value: int):
+        """Set current form step.
+        """
+        self._form_step = value
 
     @property
     def h_size(self) -> str:
@@ -250,6 +253,18 @@ class Base(_ABC):
     @h_size.setter
     def h_size(self, value: str):
         self._h_size = value
+
+    @property
+    def css_files(self) -> list:
+        """Get CSS files list.
+        """
+        return self._css_files
+
+    @property
+    def js_files(self) -> list:
+        """Get JS files list.
+        """
+        return self._js_files
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.

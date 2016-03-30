@@ -1737,7 +1737,7 @@
         if (!silent) {
             this.$tableLoading.show();
         }
-        request = $.extend({}, calculateObjectValue(null, this.options.ajaxOptions), {
+        _request = $.extend({}, calculateObjectValue(null, this.options.ajaxOptions), {
             type: this.options.method,
             url: this.options.url,
             data: this.options.contentType === 'application/json' && this.options.method === 'post' ?
@@ -1762,9 +1762,9 @@
         });
 
         if (this.options.ajax) {
-            calculateObjectValue(this, this.options.ajax, [request], null);
+            calculateObjectValue(this, this.options.ajax, [_request], null);
         } else {
-            $.ajax(request);
+            $.ajax(_request);
         }
     };
 
