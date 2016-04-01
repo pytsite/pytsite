@@ -1,29 +1,26 @@
 """Settings Plugin Functions
 """
-from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm, widget as _widget, \
-    lang as _lang
+from typing import Callable as _Callable
+from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm
+from . import _frm
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_settings = {}
 
-__settings = {}
 
-
-def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weight: int=0,
-           perm_name: str='*', perm_description: str=None):
+def define(uid: str, form_setup: _Callable, menu_title: str, menu_icon: str, menu_weight: int = 0,
+           perm_name: str = '*', perm_description: str = None):
     """Define setting.
     """
-    if uid in __settings:
+    if uid in _settings:
         raise KeyError("Setting '{}' already defined.".format(uid))
 
-    if not isinstance(form_cls, type) or not issubclass(form_cls, _form.Form):
-        raise TypeError("Subclass of base form expected.")
-
-    __settings[uid] = {
+    _settings[uid] = {
         'title': menu_title,
-        'form_cls': form_cls,
+        'form_setup': form_setup,
         'weight': menu_weight,
         'perm_name': perm_name,
         'perm_description': perm_description,
@@ -39,43 +36,16 @@ def define(uid: str, form_cls: type, menu_title: str, menu_icon: str, menu_weigh
 def get_definition(uid: str) -> dict:
     """Get setting definition.
     """
-    if uid not in __settings:
+    if uid not in _settings:
         raise KeyError("Setting '{}' is not defined.".format(uid))
 
-    return __settings[uid]
-
-
-def get_form(uid) -> _form.Form:
-    """Get form for setting.
-    """
-    frm_class = get_definition(uid)['form_cls']
-    frm = frm_class('settings-' + uid)
-    """:type : _form.Form """
-
-    frm.action = _router.ep_url('pytsite.settings.ep.form_submit', {'uid': uid})
-    frm.validation_ep = 'pytsite.settings.ep.form_validate'
-
-    frm.add_widget(_widget.input.Hidden(
-        uid='__setting_uid',
-        value=uid,
-        form_area='hidden',
-    ))
-
-    frm.get_widget('form-actions').append(_widget.button.Link(
-        uid='action-cancel',
-        weight=20,
-        value=_lang.t('pytsite.settings@cancel'),
-        icon='fa fa-ban',
-        href=_router.ep_url('pytsite.admin.ep.dashboard')
-    ))
-
-    return frm
+    return _settings[uid]
 
 
 def get_setting(uid) -> dict:
     """Get setting value.
     """
-    if uid not in __settings:
+    if uid not in _settings:
         raise KeyError("Setting '{}' is not defined.".format(uid))
 
     entity = _odm.find('setting').where('uid', '=', uid).first()

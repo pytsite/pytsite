@@ -71,8 +71,8 @@ class Select2(Select):
         """
         super().__init__(uid, **kwargs)
 
-        _browser.include('select2')
-        self._js_files.extend(['pytsite.widget@js/select2.js'])
+        self.assets.extend(_browser.get_assets('select2'))
+        self.assets.extend(['pytsite.widget@js/select2.js'])
 
         self._theme = kwargs.get('theme', 'bootstrap')
         self._ajax_url = kwargs.get('ajax_url')
@@ -82,6 +82,7 @@ class Select2(Select):
 
     def get_html_em(self) -> _html.Element:
         select = self._get_select_html_em()
+        select.set_attr('style', 'width: 100%;')
 
         if self._ajax_url:
             select.set_attr('data_theme', self._theme)
@@ -223,8 +224,8 @@ class DateTime(_input.Text):
         """
         super().__init__(uid, **kwargs)
 
-        _browser.include('datetimepicker')
-        self._js_files.extend(['pytsite.widget@js/datetime.js'])
+        self.assets.extend(_browser.get_assets('datetimepicker'))
+        self.assets.extend(['pytsite.widget@js/datetime.js'])
 
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
         self.add_rule(_validation.rule.DateTime())

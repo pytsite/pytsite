@@ -1,6 +1,6 @@
 """Input Widgets.
 """
-from pytsite import browser as _client, html as _html, util as _util, tpl as _tpl, validation as _validation, \
+from pytsite import browser as _browser, html as _html, util as _util, tpl as _tpl, validation as _validation, \
     router as _router
 from . import _base
 
@@ -102,9 +102,7 @@ class Text(Input):
         self._append = kwargs.get('append')
         self._css = ' '.join((self._css, 'widget-input-text'))
         self._type = 'text'
-        self._js_files.extend([
-            'pytsite.widget@js/text.js'
-        ])
+        self.assets.extend(['pytsite.widget@js/text.js'])
 
     def get_html_em(self) -> _html.Element:
         """Render the widget
@@ -151,9 +149,9 @@ class TypeaheadText(Text):
         if not ajax_ep:
             raise ValueError('AJAX endpoint is not specified.')
 
-        _client.include('typeahead')
+        self.assets.extend(_browser.get_assets('typeahead'))
+        self.assets.extend(['pytsite.widget@js/typeahead.js'])
 
-        self._js_files.extend(['pytsite.widget@js/typeahead.js'])
         self._css = ' '.join((self._css, 'widget-typeahead-text-input'))
 
         source_url_q = kwargs.get('ajax_ep_args', {})
@@ -196,7 +194,7 @@ class Number(Text):
         if self._max is not None:
             self.add_rule(_validation.rule.LessOrEqual(than=self._max))
 
-        _client.include('inputmask')
+        _browser.include('inputmask')
 
 
 class Integer(Number):
@@ -209,7 +207,7 @@ class Integer(Number):
 
         self._css = ' '.join((self._css, 'widget-input-integer'))
         self.add_rule(_validation.rule.Integer())
-        self._js_files.extend(['pytsite.widget@js/integer.js'])
+        self._assets.extend(['pytsite.widget@js/integer.js'])
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.
@@ -234,7 +232,7 @@ class Decimal(Number):
 
         self._css = ' '.join((self._css, 'widget-input-decimal'))
         self.add_rule(_validation.rule.Decimal())
-        self._js_files.extend(['pytsite.widget@js/decimal.js'])
+        self._assets.extend(['pytsite.widget@js/decimal.js'])
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.
@@ -263,8 +261,10 @@ class StringList(_base.Base):
         self._css = ' '.join((self._css, 'widget-string-list'))
         self._data['max_values'] = self._max_values
 
-        self._js_files.extend(['pytsite.widget@js/list.js'])
-        self._css_files.extend(['pytsite.widget@css/list.css'])
+        self._assets.extend([
+            'pytsite.widget@css/list.css',
+            'pytsite.widget@js/list.js',
+        ])
 
     @property
     def add_btn_label(self) -> str:
@@ -366,10 +366,12 @@ class Tokens(Input):
         super().__init__(uid, **kwargs)
 
         self._css = ' '.join((self._css, 'widget-token-input'))
-        _client.include('tokenfield')
 
-        self._js_files.extend(['pytsite.widget@js/tokens.js'])
-        self._css_files.extend(['pytsite.widget@css/tokens.css'])
+        self.assets.extend(_browser.get_assets('tokenfield'))
+        self.assets.extend([
+            'pytsite.widget@css/tokens.css',
+            'pytsite.widget@js/tokens.js',
+        ])
 
         self._local_source = kwargs.get('local_source')
         self._remote_source = kwargs.get('remote_source')

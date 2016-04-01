@@ -1,143 +1,35 @@
 """ODM UI Manager.
 """
 from typing import Iterable as _Iterable
-from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
-    form as _form, widget as _widget, html as _html, events as _events
-from . import _entity
+from pytsite import auth as _auth, router as _router, metatag as _metatag, odm as _odm, http as _http, form as _form
+from . import _entity, _forms
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid=None, redirect: str=None, update_meta_title: bool=True, **kwargs) -> _form.Form:
+def get_m_form(model: str, eid=None, redirect: str = None, update_meta_title: bool = True, **kwargs) -> _forms.Modify:
     """Get entity modification form.
     """
     eid = eid if eid != '0' else None
 
-    # Checking permissions
-    if not eid and not check_permissions('create', model):
-        raise _http.error.Forbidden()
-    if eid and not check_permissions('modify', model, eid):
-        raise _http.error.Forbidden()
-
-    # Checking model settings
-    model_class = _odm.get_model_class(model)
-    """:type: _entity.UIEntity"""
-    if not eid and not model_class.ui_is_model_creation_allowed():
-        raise _http.error.Forbidden()
-    if eid and not model_class.ui_is_model_modification_allowed():
-        raise _http.error.Forbidden()
-
-    # Creating form
-    frm = _form.Form('odm-ui-form-' + model, **kwargs)
-    frm.css += ' odm-ui-form odm-ui-form-' + model
-
-    # Redirect location after successful form submit
-    if _router.request() and '__redirect' in _router.request().inp:
-        f_redirect = _router.request().inp.get('__redirect')
-    elif redirect:
-        f_redirect = redirect
-    else:
-        f_redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
-
-    # Action, redirect and validation endpoints
-    frm.validation_ep = 'pytsite.odm_ui.ep.validate_m_form'
-    frm.action = _router.ep_url('pytsite.odm_ui.ep.post_m_form', {
-        'model': model,
-        'id': eid or '0',
-        '__redirect': f_redirect,
-    })
-
-    # Cancel button
-    frm.get_widget('form-actions').append(_widget.button.Link(
-        weight=20,
-        uid='action-cancel',
-        value=_lang.t('pytsite.odm_ui@cancel'),
-        icon='fa fa-remove',
-        href=redirect if not frm.modal else '#',
-        dismiss='modal'
-    ))
-
-    # Metadata
-    frm.add_widget(_widget.input.Hidden(uid='__odm_ui_model', value=model, form_area='hidden'))
-    frm.add_widget(_widget.input.Hidden(uid='__odm_ui_entity_id', value=eid, form_area='hidden'))
-
-    entity = dispense_entity(model, eid)
-
-    # Form title
-    if entity.is_new:
-        frm.title = entity.t('odm_ui_form_title_create_' + model)
-    else:
-        frm.title = entity.t('odm_ui_form_title_modify_' + model)
-
-    if update_meta_title:
-        _metatag.t_set('title', frm.title)
-
-    # Setting up the form with entity hook
-    entity.ui_m_form_setup(frm)
-    _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(model), frm=frm, entity=entity)
-
-    return frm
+    return _forms.Modify('odm-ui-form-' + model, model=model, eid=eid, update_meta_title=update_meta_title, **kwargs)
 
 
-def get_mass_action_form(fid: str, model: str, ids: _Iterable, action: str) -> _form.Form:
+def get_mass_action_form(fid: str, model: str, ids: _Iterable) -> _form.Form:
     """Get entity mass action form.
     """
-    f = _form.Form(fid)
-
-    # List of items to process
-    ol = _html.Ol()
-    for eid in ids:
-        entity = dispense_entity(model, eid)
-        f.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
-        ol.append(_html.Li(entity.ui_mass_action_get_entity_description()))
-    f.add_widget(_widget.static.HTML(uid='ids-text', em=ol))
-
-    # Redirect after successful form submit
-    if _router.request() and '__redirect' in _router.request().inp:
-        redirect = _router.request().inp.get('__redirect')
-    else:
-        redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
-
-    # Adding redirect information to the action URL
-    f.action = _router.url(action, query={'__redirect': redirect})
-
-    # Continue button
-    submit_button = f.get_widget('form-actions').get_child('action-submit')  # type: _widget.button.Submit
-    submit_button.value = _lang.t('pytsite.odm_ui@continue')
-    submit_button.icon = 'angle-double-right'
-
-    # Cancel button
-    cancel_button = _widget.button.Link(uid='button-cancel', weight=20, value=_lang.t('pytsite.odm_ui@cancel'),
-                                        href=redirect, icon='ban', form_area='footer')
-    f.get_widget('form-actions').append(cancel_button)
-
-    return f
+    return _forms.MassAction(fid, model=model, eids=ids)
 
 
 def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     """Get entities delete _form.
     """
-    model_class = _odm.get_model_class(model)
-    """:type: _entity.UIEntity"""
-
-    if not check_permissions('delete', model, ids) or not model_class.ui_is_model_deletion_allowed():
-        raise _http.error.Forbidden()
-
-    # Setup form
-    f_action = _router.ep_url('pytsite.odm_ui.ep.post_d_form', {'model': model})
-    f = get_mass_action_form('odm-ui-delete-form', model, ids, f_action)
-
-    # Change submit button color
-    f.get_widget('form-actions').get_child('action-submit').color = 'danger'
-
-    _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + model))
-
-    return f
+    return _forms.Delete('odm-ui-d-form', model=model, eids=ids)
 
 
-def dispense_entity(model: str, entity_id: str=None):
+def dispense_entity(model: str, entity_id: str = None):
     """Dispense entity.
 
     :rtype: _entity.UIEntity
@@ -174,6 +66,7 @@ def check_permissions(perm_type: str, model: str, ids=None) -> bool:
     if perm_type == 'create':
         if current_user.has_permission('pytsite.odm_ui.create.' + model):
             return True
+
     elif perm_type in ('browse', 'modify', 'delete'):
         # User can browse, modify or delete ANY entity of this model
         if current_user.has_permission('pytsite.odm_ui.' + perm_type + '.' + model):

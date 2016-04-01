@@ -1,9 +1,8 @@
-$(function () {
-    $('.widget-typeahead-text-input').each(function () {
-        var widget = $(this);
-        var input = widget.find('input');
+$(window).on('pytsite.widget.init', function (e, widget) {
+    widget.em.find('.widget-typeahead-text-input').each(function () {
+        var input = $(this).find('input');
 
-        widget.keydown(function (event) {
+        $(this).keydown(function (event) {
             if (event.keyCode == 13) {
                 event.preventDefault();
                 input.typeahead('close');
@@ -18,7 +17,7 @@ $(function () {
                 datumTokenizer: Bloodhound.tokenizers.mapObject.whitespace,
                 queryTokenizer: Bloodhound.tokenizers.whitespace,
                 remote: {
-                    url: widget.data('sourceUrl'),
+                    url: $(this).data('sourceUrl'),
                     wildcard: '__QUERY'
                 }
             })

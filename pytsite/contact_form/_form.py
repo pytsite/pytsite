@@ -18,7 +18,7 @@ class Form(_form.Form):
         self._css += ' pytsite-contact-form'
         _assetman.add('pytsite.contact_form@js/common.js', permanent=True)
 
-    def _setup(self):
+    def setup(self):
         """Hook.
         """
         self.add_widget(_widget.input.Text(

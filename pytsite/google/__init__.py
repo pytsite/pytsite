@@ -42,7 +42,7 @@ def __browser_library_maps_callback(permanent: bool, path_prefix: str, **kwargs)
     js = 'https://maps.googleapis.com/maps/api/js?libraries={}&amp;language={}&amp;key={}'\
         .format(libs, _lang.get_current(), api_key)
 
-    _assetman.add(js, 'js', asset_weight, permanent, path_prefix)
+    _assetman.add(js, permanent, 'js', asset_weight, path_prefix)
 
 
 def __init():

@@ -47,7 +47,7 @@ class Browser:
 
         # 'Create' toolbar button
         if self._model_class.ui_is_model_creation_allowed() and _api.check_permissions('create', self._model):
-            create_form_url = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {'model': self._model, 'id': '0'})
+            create_form_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': self._model, 'id': '0'})
             title = _lang.t('pytsite.odm_ui@create')
             btn = _html.A(href=create_form_url, cls='btn btn-default add-button', title=title)
             btn.append(_html.I(cls='fa fa-fw fa-plus'))
@@ -56,7 +56,7 @@ class Browser:
 
         # 'Delete' toolbar button
         if self._model_class.ui_is_model_deletion_allowed() and _api.check_permissions('delete', self._model):
-            delete_form_url = _router.ep_url('pytsite.odm_ui.ep.get_d_form', {'model': self._model})
+            delete_form_url = _router.ep_url('pytsite.odm_ui.ep.d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='btn btn-danger mass-action-button', title=title)
             btn.append(_html.I(cls='fa fa-fw fa-remove'))
@@ -285,7 +285,7 @@ class Browser:
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
         if entity.ui_is_entity_modification_allowed() and _api.check_permissions('modify', entity.model, entity.id):
-            href = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {'model': entity.model, 'id': entity.id})
+            href = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': entity.model, 'id': entity.id})
             title = _lang.t('pytsite.odm_ui@modify')
             a = _html.A(cls='btn btn-xs btn-default', href=href, title=title)
             a.append(_html.I(cls='fa fa-edit'))
@@ -293,7 +293,7 @@ class Browser:
             group.append(_html.TagLessElement('&nbsp;'))
 
         if entity.ui_is_entity_deletion_allowed() and _api.check_permissions('delete', entity.model, entity.id):
-            href = _router.ep_url('pytsite.odm_ui.ep.get_d_form', {'model': entity.model, 'ids': entity.id})
+            href = _router.ep_url('pytsite.odm_ui.ep.d_form', {'model': entity.model, 'ids': entity.id})
             title = _lang.t('pytsite.odm_ui@delete')
             a = _html.A(cls='btn btn-xs btn-danger', href=href, title=title)
             a.append(_html.I(cls='fa fa-remove'))

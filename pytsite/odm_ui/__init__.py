@@ -27,18 +27,18 @@ def __init():
                     filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form show
-    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>', 'pytsite.odm_ui.ep.get_m_form',
+    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>', 'pytsite.odm_ui.ep.m_form',
                     filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form submit
-    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>/submit', 'pytsite.odm_ui.ep.post_m_form',
+    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>/submit', 'pytsite.odm_ui.ep.m_form_submit',
                     methods='POST', filters=auth_filter)
 
     # Route: 'delete' form show
-    router.add_rule(abp + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.get_d_form', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.d_form', filters=auth_filter)
 
     # Route: 'delete' form submit
-    router.add_rule(abp + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.post_d_form', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.d_form_submit', filters=auth_filter)
 
     # Resources
     lang.register_package(__name__)

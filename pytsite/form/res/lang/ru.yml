@@ -1,3 +1,4 @@
 save: 'Сохранить'
 forward: 'Далее'
 backward: 'Назад'
+loading: 'Загрузка...'

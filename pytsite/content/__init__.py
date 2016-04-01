@@ -16,9 +16,8 @@ def __init():
     """
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
         ajax
-    from . import _eh
+    from . import _eh, _settings
     from ._model import Tag, Section, ContentSubscriber
-    from ._form import Settings
     from ._console_command import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)
@@ -66,7 +65,7 @@ def __init():
     events.listen('pytsite.cron.weekly', _eh.cron_weekly)
 
     # Settings
-    settings.define('content', Settings, __name__ + '@content', 'fa fa-file-o',
+    settings.define('content', _settings.form_setup, __name__ + '@content', 'fa fa-file-o',
                     perm_name='pytsite.content.settings',
                     perm_description=__name__ + '@manage_content_settings_permission')
 

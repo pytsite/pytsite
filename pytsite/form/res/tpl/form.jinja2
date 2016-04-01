@@ -11,10 +11,16 @@
       name="{{ form.name }}"
       class="{{ form.css }}"
       data-cid="{{ form.cid }}"
+      data-uid="{{ form.uid }}"
       data-get-widgets-ep="{{ form.get_widgets_ep }}"
       data-validation-ep="{{ form.validation_ep }}"
       data-steps="{{ form.steps }}"
-      data-reload-on-forward="{{ form.reload_on_forward }}">
+      data-reload-on-forward="{{ form.reload_on_forward }}"
+
+      {% for k, v in form.data.items() %}
+          data-{{ k }}="{{ v }}"
+      {% endfor %}
+>
 
     <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden"></div>
 
@@ -38,7 +44,7 @@
     </div>
 
     <div class="form-area box-body {% if form.modal %}modal-body{% endif %} {{ form.area_body_css }}"
-         data-form-area="body"></div>
+         data-form-area="body"><div class="loading">{{ t('pytsite.form@loading') }}</div></div>
 
     <div class="form-area box-footer {% if form.modal %}modal-footer{% endif %} {{ form.area_footer_css }}"
          data-form-area="footer"></div>

@@ -1,6 +1,7 @@
 """PytSite ODM UI Entity.
 """
 from pytsite import odm as _odm, router as _router, form as _form
+from . import _forms
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -88,12 +89,12 @@ class UIMixin:
         """
         return ''
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def ui_m_form_setup(self, frm: _forms.Modify):
         """Modify form setup hook.
         """
         pass
 
-    def ui_m_form_submit(self, frm: _form.Form):
+    def ui_m_form_submit(self, frm: _forms.Modify):
         """Modify form submit hook.
         """
         pass
@@ -131,19 +132,19 @@ class UIEntity(_odm.Entity, UIMixin):
 
         args.update({'model': self.model, 'id': str(self.id)})
 
-        return _router.ep_url('pytsite.odm_ui.ep.get_m_form', args)
+        return _router.ep_url('pytsite.odm_ui.ep.m_form', args)
 
     def ui_d_form_get_url(self, ajax: bool=False) -> str:
         """Get deletion form URL.
         """
         if ajax:
-            return _router.ep_url('pytsite.odm_ui.ep.post_d_form', {
+            return _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {
                 'model': self.model,
                 'ids': str(self.id),
                 'ajax': 'true'
             })
         else:
-            return _router.ep_url('pytsite.odm_ui.ep.get_d_form', {
+            return _router.ep_url('pytsite.odm_ui.ep.d_form', {
                 'model': self.model,
                 'ids': str(self.id)
             })

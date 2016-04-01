@@ -1,5 +1,5 @@
-$(function () {
-    $('.widget-select-select2').each(function () {
+$(window).on('pytsite.widget.init', function (e, widget) {
+    widget.em.find('.widget-select-select2').each(function () {
         var theme = $(this).data('theme');
         var ajax_url = $(this).data('ajaxUrl');
         var ajax_delay = $(this).data('ajaxDelay');

@@ -16,9 +16,9 @@ class AddThis(_widget.Base):
         """
         super().__init__(uid, **kwargs)
 
-        self._pub_id = _reg.get('add_this.pub_id')
+        self._pub_id = _reg.get('addthis.pub_id')
         if not self._pub_id:
-            raise Exception("Configuration parameter 'add_this.pub_id' is not defined.")
+            raise Exception("Configuration parameter 'addthis.pub_id' is not defined.")
 
         self._valid_types = ('sharing_toolbox', 'recommended_horizontal')
         self._box_type = kwargs.get('box_type', 'sharing_toolbox')
@@ -27,7 +27,7 @@ class AddThis(_widget.Base):
 
         self._url = kwargs.get('url')
 
-        _assetman.add('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id, 'js')
+        _assetman.add('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id)
 
     def get_html_em(self) -> _html.Element:
         """Render the widget.

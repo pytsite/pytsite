@@ -1,7 +1,8 @@
 """ODM UI Endpoints.
 """
+from typing import Union as _Union
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
-    admin as _admin, form as _form, events as _events
+    admin as _admin, form as _form
 from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -31,45 +32,18 @@ def browse_get_rows(args: dict, inp: dict) -> _http.response.JSON:
     return _http.response.JSON(rows)
 
 
-def get_m_form(args: dict, inp: dict) -> str:
+def m_form(args: dict, inp: dict) -> str:
     """Get entity create/modify form.
     """
     try:
-        eid = args.get('id') if args.get('id') != '0' else None
-        frm = _api.get_m_form(args.get('model'), eid)
-
-        # Form title is not necessary on admin pages
-        frm.title = None
-
-        return _admin.render(_tpl.render('pytsite.odm_ui@modify_form', {'form': frm}))
+        eid = args['id'] if args.get('id') != '0' else None
+        return _admin.render_form(_api.get_m_form(args.get('model'), eid))
 
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
 
 
-def validate_m_form(args: dict, inp: dict) -> dict:
-    """Validate entity create/modify form.
-    """
-    model = inp.get('__odm_ui_model')
-    entity_id = inp.get('__odm_ui_entity_id')
-    if not model:
-        return {'status': True}
-
-    try:
-        # Get form and fill it in 'validation' mode
-        frm = _api.get_m_form(model, entity_id)
-        frm.fill(inp, mode='validation')
-
-        # Validating form itself
-        frm.validate()
-
-        return {'status': True}
-
-    except _form.error.ValidationError as e:
-        return {'status': False, 'messages': {'widgets': e.errors}}
-
-
-def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
+def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     """Process submit of modify form.
     """
     model = args.get('model')
@@ -81,6 +55,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     # Validate form
     try:
         frm.fill(inp, mode='validation').validate()
+
     except _form.error.ValidationError as e:
         _router.session().add_error(str(e.errors))
         raise _http.error.InternalServerError()
@@ -113,7 +88,7 @@ def post_m_form(args: dict, inp: dict) -> _http.response.Redirect:
     return _http.response.Redirect(redirect)
 
 
-def get_d_form(args: dict, inp: dict) -> str:
+def d_form(args: dict, inp: dict) -> str:
     """Get entity deletion form.
     """
     model = args.get('model')
@@ -127,13 +102,11 @@ def get_d_form(args: dict, inp: dict) -> str:
     if not model or not ids:
         return _http.error.NotFound()
 
-    return _admin.render(_tpl.render('pytsite.odm_ui@delete_form', {'form': _api.get_d_form(model, ids)}))
+    return _admin.render_form(_api.get_d_form(model, ids))
 
 
-def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
+def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _http.response.JSON]:
     """Submit delete form.
-
-    :rtype _http.response.Redirect | _http.response.JSON
     """
     model = args.get('model')
     json = inp.get('json')
@@ -167,4 +140,5 @@ def post_d_form(args: dict, inp: dict) -> _http.response.Redirect:
             _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
     redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+
     return _http.response.Redirect(redirect)

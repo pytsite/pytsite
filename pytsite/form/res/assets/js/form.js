@@ -17,23 +17,22 @@ $.fn.serializeForm = function () {
 };
 
 pytsite.form = {
-    Widget: function (uid, htmlStr, formArea, formStep, weight, jsFiles, cssFiles) {
+    Widget: function (uid, content, formArea, formStep, weight, assets) {
         var self = this;
         self.uid = uid;
         self.formArea = formArea;
         self.formStep = formStep;
         self.weight = weight;
-        self.jsFiles = jsFiles;
-        self.cssFiles = cssFiles;
-        self.srcEm = $(htmlStr);
+        self.assets = assets;
+        self.content = $(content);
         self.em = $('<div class="pytsite-form-widget-wrapper hidden">');
         self.messagesEm = $('<div class="messages">');
 
         // Append widget's HTML to the container
-        self.em.append(self.srcEm);
+        self.em.append(self.content);
 
         // Additional styles depends on widget's HTML tag
-        if($.inArray(self.srcEm.prop('tagName'), ['A', 'BUTTON', 'SPAN']) >= 0)
+        if ($.inArray(self.content.prop('tagName'), ['A', 'BUTTON', 'SPAN']) >= 0)
             self.em.addClass('inline');
 
         // Add block for messages
@@ -44,8 +43,7 @@ pytsite.form = {
             self.em.append(self.messagesEm);
 
         // Load widget's assets
-        pytsite.browser.addCSS(self.cssFiles);
-        pytsite.browser.addJS(self.jsFiles);
+        pytsite.browser.addAssets(self.assets);
 
         // Initialize widget
         $(window).trigger('pytsite.widget.init', self);
@@ -129,12 +127,12 @@ pytsite.form = {
             return r;
         };
 
+        // Do an AJAX request
         self._request = function (method, ep) {
-            var data = {
-                __form_uid: self.id,
-                __form_cid: self.cid,
-                __form_step: self.currentStep
-            };
+            var emDataAttrs = self.em.data();
+            var data = {};
+            for (k in emDataAttrs)
+                data['__form_data_' + k] = emDataAttrs[k];
 
             $.extend(data, self.serialize());
 
@@ -170,8 +168,7 @@ pytsite.form = {
             if (w.uid in self.widgets)
                 throw "Widget '{0}' already exists.".format(w.uid);
 
-            var widget = new pytsite.form.Widget(
-                w.uid, w.htmlStr, w.formArea, w.formStep, w.weight, w.jsFiles, w.cssFiles);
+            var widget = new pytsite.form.Widget(w.uid, w.content, w.formArea, w.formStep, w.weight, w.assets);
 
             // Append widget's HTML to DOM
             self.areas[widget.formArea].append(widget.em);
@@ -193,6 +190,8 @@ pytsite.form = {
                 .done(function (resp) {
                     for (var i = 0; i < resp.length; i++)
                         self.addWidget(resp[i]);
+
+                    self.areas['body'].find('.loading').remove();
                 });
         };
 
@@ -204,14 +203,14 @@ pytsite.form = {
 
             var validateDeferred = $.Deferred();
 
-            self._request('POST', self.validationEp)
-                .done(function (resp) {
-                    if (resp.status) {
-                        validateDeferred.resolve();
-                    }
-                    else {
-                        // Add error messages for widgets
-                        for (var uid in resp.messages) {
+            self._request('POST', self.validationEp).done(function (resp) {
+                if (resp.status) {
+                    validateDeferred.resolve();
+                }
+                else {
+                    // Add error messages for widgets
+                    for (var uid in resp.messages) {
+                        if (uid in self.widgets) {
                             var widget = self.widgets[uid];
                             widget.setState('error');
 
@@ -219,10 +218,11 @@ pytsite.form = {
                                 widget.addMessage(resp.messages[uid]);
                             }
                         }
-
-                        validateDeferred.reject();
                     }
-                });
+
+                    validateDeferred.reject();
+                }
+            });
 
             return validateDeferred;
         };
@@ -282,19 +282,18 @@ pytsite.form = {
         };
 
         // Submit event handler
-        self.em.submit(function () {
+        self.em.submit(function (event) {
             if (!self.readyToSubmit) {
-                self.validate()
-                    .done(function () {
-                        if (self.currentStep < self.totalSteps)
-                            self.forward();
-                        else {
-                            self.readyToSubmit = true;
-                            self.em.submit();
-                        }
-                    });
+                event.preventDefault();
 
-                return false;
+                self.validate().done(function () {
+                    if (self.currentStep < self.totalSteps)
+                        self.forward();
+                    else {
+                        self.readyToSubmit = true;
+                        self.em.submit();
+                    }
+                });
             }
         });
     }

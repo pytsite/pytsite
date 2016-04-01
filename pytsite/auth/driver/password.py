@@ -12,7 +12,7 @@ __license__ = 'MIT'
 class _LoginForm(_form.Form):
     """Password Login Form.
     """
-    def _setup(self):
+    def setup(self):
         """_setup() hook.
         """
         for k, v in _router.request().inp.items():

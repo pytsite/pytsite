@@ -16,11 +16,14 @@ class CKEditor(_widget.Base):
         super().__init__(uid, **kwargs)
 
         self._css = ' '.join((self._css, 'widget-ckeditor'))
-        _assetman.add('pytsite.ckeditor@js/ckeditor_preconfig.js')
-        _assetman.add('pytsite.ckeditor@ckeditor/skins/moono/editor.css')
-        _assetman.add('pytsite.ckeditor@ckeditor/ckeditor.min.js')
-        _assetman.add('pytsite.ckeditor@ckeditor/adapters/jquery.js')
-        _assetman.add('pytsite.ckeditor@js/ckeditor.js')
+
+        self._assets.extend([
+            'pytsite.ckeditor@ckeditor/skins/moono/editor.css',
+            'pytsite.ckeditor@js/ckeditor_preconfig.js',
+            'pytsite.ckeditor@ckeditor/ckeditor.min.js',
+            'pytsite.ckeditor@ckeditor/adapters/jquery.js',
+            'pytsite.ckeditor@js/ckeditor.js',
+        ])
 
     def get_html_em(self) -> str:
         """Render the widget.

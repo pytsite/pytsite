@@ -1,7 +1,6 @@
-$(function () {
-    $('.widget-ckeditor').each(function () {
-        var widget = $(this);
-        widget.find('textarea').ckeditor({
+$(window).on('pytsite.widget.init', function (e, widget) {
+    widget.em.find('.widget-ckeditor textarea').each(function () {
+        $(this).ckeditor({
             title: false,
             extraPlugins: 'youtube,codesnippet,stylescombo',
             language: pytsite.lang.current(),

@@ -1,5 +1,5 @@
-$(function () {
-    $('.widget-token-input').each(function () {
+$(window).on('pytsite.widget.init', function (e, widget) {
+    widget.em.find('.widget-token-input').each(function () {
         var widget = $(this);
         var widgetInput = widget.find('input');
         var localSource = widget.data('localSource');

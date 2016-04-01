@@ -43,14 +43,14 @@ def get_packages() -> dict:
     return _packages
 
 
-def add(location: str, collection: str = None, weight: int = 0, permanent=False, path_prefix: str = None):
+def add(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None):
     """Add an asset.
     """
     # Determine collection
     if not collection:
-        if location.endswith('.js'):
+        if location.find('.js') > 0:
             collection = 'js'
-        elif location.endswith('.css'):
+        elif location.find('.css') > 0:
             collection = 'css'
         else:
             raise ValueError("Cannot determine collection of location '{}'.".format(location))

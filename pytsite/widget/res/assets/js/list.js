@@ -1,4 +1,4 @@
-$(function () {
+$(window).on('pytsite.widget.init', function (e, widget) {
     function countSlots(widget) {
         var n = 0;
         widget.find('.slot').each(function () {
@@ -22,32 +22,32 @@ $(function () {
         });
     }
 
-    $('.widget-string-list').each(function () {
-        var widget = $(this);
-        var maxValues = parseInt(widget.data('maxValues'));
-        var slots = widget.find('.slots');
-        var addBtn = widget.find('.add-btn a');
+    widget.em.find('.widget-string-list').each(function () {
+        var w = $(this);
+        var maxValues = parseInt(w.data('maxValues'));
+        var slots = w.find('.slots');
+        var addBtn = w.find('.add-btn a');
 
-        if(countSlots(widget) >= maxValues)
+        if (countSlots(w) >= maxValues)
             addBtn.hide();
 
-        widget.find('.slot').each(function () {
-            setupSlot(widget, $(this), maxValues);
+        w.find('.slot').each(function () {
+            setupSlot(w, $(this), maxValues);
         });
 
         addBtn.click(function (e) {
             e.preventDefault();
 
-            if (countSlots(widget) >= maxValues)
+            if (countSlots(w) >= maxValues)
                 return false;
 
             var btn = $(this);
-            var slot = widget.find('.slot').first().clone();
+            var slot = w.find('.slot').first().clone();
 
             slot.find('input').val('');
             slots.append(slot);
-            setupSlot(widget, slot, maxValues);
-            if (countSlots(widget) >= maxValues)
+            setupSlot(w, slot, maxValues);
+            if (countSlots(w) >= maxValues)
                 btn.hide();
         });
     });

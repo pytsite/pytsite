@@ -217,6 +217,8 @@ $.fn.extend({
     }
 });
 
-$(function () {
-    $('.widget-files-upload').widgetFilesUpload();
+$(window).on('pytsite.widget.init', function (e, widget) {
+    widget.em.find('.widget-files-upload').each(function () {
+        $(this).widgetFilesUpload();
+    });
 });

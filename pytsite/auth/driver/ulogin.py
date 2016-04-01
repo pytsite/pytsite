@@ -32,22 +32,22 @@ class _LoginWidget(_widget.Base):
 class _LoginForm(_form.Form):
     """ULogin Login Form.
     """
-    def _setup(self):
+    def setup(self):
         """_setup() hook.
         """
-        # Transform all input into hidden fields
-        for k, v in _router.request().inp.items():
-            self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
-
-        # Hidden widget for storing token is necessary
-        if not self.has_widget(self.uid + '-token'):
-            self.add_widget(_widget.input.Hidden(uid=self.uid + '-token', name='token', form_area='hidden'))
+        self.add_widget(_widget.input.Hidden(
+            uid=self.uid + '-widget-ulogin-token',
+            form_area='hidden',
+            required=True,
+        ))
 
         # uLogin widget
-        self.add_widget(_LoginWidget(self.uid + '-widget-ulogin'))
+        self.add_widget(_LoginWidget(
+            uid=self.uid + '-widget-ulogin'
+        ))
 
         # Action buttons is not necessary, form submitting initiates via JS code
-        self.remove_widget('form-actions')
+        self.remove_widget('action-submit')
 
 
 class Driver(AbstractDriver):
@@ -66,8 +66,18 @@ class Driver(AbstractDriver):
     def post_login_form(self, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.
         """
+        token = ''
+        for k, v in inp.items():
+            if k.endswith('-widget-ulogin-token'):
+                token = v
+                del inp[k]
+                break
+
+        if not token:
+            raise ValueError('No token received.')
+
         # Reading response from uLogin
-        response = _urlopen('http://ulogin.ru/token.php?{}'.format(_urlencode(inp)))
+        response = _urlopen('http://ulogin.ru/token.php?token={}&host={}'.format(token, _router.request().host))
         if response.status != 200:
             raise _error.LoginError("Bad response status code from uLogin: {}.".format(response.status))
         ulogin_data = _json.loads(response.read().decode('utf-8'))

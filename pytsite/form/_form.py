@@ -1,4 +1,4 @@
-"""PytSite Base Form Class.
+"""PytSite Base Form.
 """
 from typing import Dict as _Dict
 from collections import OrderedDict as _OrderedDict
@@ -12,7 +12,7 @@ __license__ = 'MIT'
 
 
 class Form:
-    """Abstract form.
+    """Base Form.
     """
 
     def __init__(self, uid: str = None, **kwargs):
@@ -33,33 +33,64 @@ class Form:
         self._area_body_css = kwargs.get('area_body_css', '')
         self._area_footer_css = kwargs.get('area_footer_css', '')
 
-        self._uid = uid or _util.random_str()
+        # Messages area CSS
+        self._messages_css = kwargs.get('messages_css', 'form-messages')
+
+        self._uid = uid or _util.md5_hex_digest(self.cid)
         self._name = kwargs.get('name') or self._uid
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
         self._steps = kwargs.get('steps', 1)
         self._modal = kwargs.get('modal', False)
-        self._reload_on_forward = kwargs.get('reload_widgets_on_forward', False)
+        self._reload_on_forward = kwargs.get('reload_on_forward', False)
+        self._redirect = kwargs.get('redirect')
 
+        # AJAX endpoint to load form's widgets
         self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form.ajax.get_widgets')
+
+        # AJAX endpoint to perform form validation
         self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ajax.validate')
-        self._tpl = kwargs.get('tpl', 'pytsite.form@form' if not self._modal else 'pytsite.form@modal-form')
+
+        # Form template
+        self._tpl = kwargs.get('tpl', 'pytsite.form@form')
 
         # <form>'s tag CSS class
         self._css = kwargs.get('css', '') + ' pytsite-form'
         self._css = self._css.strip()
 
-        # Form title
+        # Title
         self._title = kwargs.get('title')
         self._title_css = kwargs.get('title_css', 'box-title')
 
-        # Messages area settings
-        self._messages_css = kwargs.get('messages_css', 'form-messages')
+        self._data = kwargs.get('data', {})
+
+        # Convert kwargs to data-attributes. It is convenient method to export additional form constructor's arguments
+        # in child classes. It is necessary to pass arguments back via AJAX requests when validating forms.
+        skip_data_kwargs = ('area_hidden_css', 'area_header_css', 'area_body_css', 'area_footer_css', 'messages_css',
+                            'name', 'method', 'action', 'modal', 'tpl', 'css', 'title')
+        for k, v in kwargs.items():
+            if k not in skip_data_kwargs:
+                if isinstance(v, (tuple, list)):
+                    v = ','.join(v)
+                self._data.update({k: v})
+
+        # 'Submit' button for the last step
+        self.add_widget(_widget.button.Submit(
+            weight=20,
+            uid='action-submit',
+            value=_lang.t('pytsite.form@save'),
+            color='primary',
+            icon='fa fa-save',
+            form_area='footer',
+        ))
 
         # Setup hook
-        self._setup()
+        self.setup()
 
         if self._steps > 1:
+            # Submit button only on the last step
+            self.get_widget('action-submit').form_step = self.steps
+
             # 'Next' button for all steps except the last one
             for i in range(1, self._steps):
                 self.add_widget(_widget.button.Submit(
@@ -91,22 +122,11 @@ class Form:
                     }
                 ))
 
-        # 'Submit' button for the last step
-        self.add_widget(_widget.button.Submit(
-            weight=20,
-            uid='action-submit',
-            value=_lang.t('pytsite.form@save'),
-            color='primary',
-            icon='fa fa-save',
-            form_area='footer',
-            form_step=self._steps,
-        ))
-
         # Assets
         _assetman.add('pytsite.form@css/form.css')
         _assetman.add('pytsite.form@js/form.js')
 
-    def _setup(self):
+    def setup(self):
         """_setup() hook.
         """
         pass
@@ -149,7 +169,11 @@ class Form:
     def action(self) -> str:
         """Get form action URL.
         """
-        return self._action
+        r = self._action
+        if self._redirect:
+            r = _router.url(r, query={'__redirect': self._redirect})
+
+        return r
 
     @action.setter
     def action(self, value):
@@ -259,6 +283,18 @@ class Form:
     def reload_on_forward(self, val: bool):
         self._reload_on_forward = val
 
+    @property
+    def redirect(self) -> str:
+        return self._redirect
+
+    @redirect.setter
+    def redirect(self, val: str):
+        self._redirect = val
+
+    @property
+    def data(self) -> dict:
+        return self._data
+
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
@@ -354,7 +390,7 @@ class Form:
         """Get a widget.
         """
         if not self.has_widget(uid):
-            raise KeyError("Widget '{}' is not exists.".format(uid))
+            raise KeyError("Widget '{}' does not exist.".format(uid))
 
         return self._widgets[uid]
 

@@ -36,8 +36,7 @@ class Base(_ABC):
         self._rules = kwargs.get('rules', [])
         self._form_area = kwargs.get('form_area', 'body')
         self._form_step = kwargs.get('form_step', 1)
-        self._css_files = kwargs.get('css_files', [])
-        self._js_files = kwargs.get('js_files', [])
+        self._assets = kwargs.get('assets', [])
 
         # Check validation rules
         if type(self._rules) not in (list, tuple):
@@ -255,16 +254,10 @@ class Base(_ABC):
         self._h_size = value
 
     @property
-    def css_files(self) -> list:
+    def assets(self) -> list:
         """Get CSS files list.
         """
-        return self._css_files
-
-    @property
-    def js_files(self) -> list:
-        """Get JS files list.
-        """
-        return self._js_files
+        return self._assets
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.

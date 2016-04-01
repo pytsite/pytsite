@@ -32,9 +32,6 @@ def __init():
     # Sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',))
 
-    # AJAX endpoints
-    ajax.register_ep('pytsite.settings.ep.form_validate')
-
 
 # Package initialization
 __init()

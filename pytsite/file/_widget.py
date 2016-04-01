@@ -39,10 +39,12 @@ class FilesUpload(_widget.Base):
         _browser.include('jquery-ui')
         _browser.include('imagesloaded')
 
-        _assetman.add('pytsite.file@css/upload-widget.css')
-        _assetman.add('pytsite.file@js/load-image.all.min.js')
-        _assetman.add('pytsite.file@js/canvas-to-blob.min.js')
-        _assetman.add('pytsite.file@js/upload-widget.js')
+        self.assets.extend([
+            'pytsite.file@css/upload-widget.css',
+            'pytsite.file@js/load-image.all.min.js',
+            'pytsite.file@js/canvas-to-blob.min.js',
+            'pytsite.file@js/upload-widget.js',
+        ])
 
     @property
     def accept_files(self) -> str:

@@ -419,3 +419,10 @@ def md5_hex_digest(inp, encoding='utf8') -> str:
     m.update(inp)
 
     return m.hexdigest()
+
+
+def to_snake_case(s: str) -> str:
+    """Convert CamelCase to snake_case.
+    """
+    s = _re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+    return _re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
