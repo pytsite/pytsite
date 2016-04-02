@@ -9,8 +9,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
-    from pytsite import odm, router
+def _init():
+    from pytsite import odm, router, assetman
 
     odm.register_model('image', model.Image)
 
@@ -19,4 +19,7 @@ def __init():
         'pytsite.image.ep.resize'
     )
 
-__init()
+    assetman.register_package(__name__)
+
+
+_init()

@@ -17,77 +17,6 @@ $.fn.serializeForm = function () {
 };
 
 pytsite.form = {
-    Widget: function (uid, content, formArea, formStep, weight, assets) {
-        var self = this;
-        self.uid = uid;
-        self.formArea = formArea;
-        self.formStep = formStep;
-        self.weight = weight;
-        self.assets = assets;
-        self.content = $(content);
-        self.em = $('<div class="pytsite-form-widget-wrapper hidden">');
-        self.messagesEm = $('<div class="messages">');
-
-        // Append widget's HTML to the container
-        self.em.append(self.content);
-
-        // Additional styles depends on widget's HTML tag
-        if ($.inArray(self.content.prop('tagName'), ['A', 'BUTTON', 'SPAN']) >= 0)
-            self.em.addClass('inline');
-
-        // Add block for messages
-        var fGroup = self.em.find('.form-group');
-        if (fGroup.length)
-            fGroup.append(self.messagesEm);
-        else
-            self.em.append(self.messagesEm);
-
-        // Load widget's assets
-        pytsite.browser.addAssets(self.assets);
-
-        // Initialize widget
-        $(window).trigger('pytsite.widget.init', self);
-
-        self.resetState = function () {
-            self.em.removeClass('has-success');
-            self.em.removeClass('has-warning');
-            self.em.removeClass('has-error');
-
-            return self;
-        };
-
-        self.setState = function (type) {
-            self.resetState();
-            self.em.addClass('has-' + type);
-
-            return self;
-        };
-
-        self.clearMessages = function () {
-            self.messagesEm.html('');
-
-            return self;
-        };
-
-        self.addMessage = function (msg) {
-            self.messagesEm.append('<span class="help-block">{0}</span>'.format(msg));
-
-            return self;
-        };
-
-        self.hide = function () {
-            self.em.addClass('hidden');
-
-            return self;
-        };
-
-        self.show = function () {
-            self.em.removeClass('hidden');
-
-            return self;
-        };
-    },
-
     Form: function (em) {
         var self = this;
         self.em = em;
@@ -130,7 +59,9 @@ pytsite.form = {
         // Do an AJAX request
         self._request = function (method, ep) {
             var emDataAttrs = self.em.data();
-            var data = {};
+            var data = {
+                __form_data_step: self.currentStep
+            };
             for (k in emDataAttrs)
                 data['__form_data_' + k] = emDataAttrs[k];
 
@@ -164,13 +95,15 @@ pytsite.form = {
         };
 
         // Add a widget to the form
-        self.addWidget = function (w) {
-            if (w.uid in self.widgets)
-                throw "Widget '{0}' already exists.".format(w.uid);
+        self.addWidget = function (widgetData) {
+            // Initialize widget
+            var widget = new pytsite.widget.Widget(widgetData);
 
-            var widget = new pytsite.form.Widget(w.uid, w.content, w.formArea, w.formStep, w.weight, w.assets);
+            if (widget.uid in self.widgets)
+                throw "Widget '" + widget.uid + "' already exists.";
 
-            // Append widget's HTML to DOM
+            // Append widget to the form
+            widget.hide();
             self.areas[widget.formArea].append(widget.em);
             self.widgets[widget.uid] = widget;
         };
@@ -188,10 +121,17 @@ pytsite.form = {
         self.loadWidgets = function () {
             return self._request('GET', self.getWidgetsEp)
                 .done(function (resp) {
-                    for (var i = 0; i < resp.length; i++)
-                        self.addWidget(resp[i]);
+                    var progress = self.areas['body'].find('.progress');
+                    var totalWidgets = resp.length;
 
-                    self.areas['body'].find('.loading').remove();
+                    for (var i = 0; i < totalWidgets; i++) {
+                        var percents = (100 / totalWidgets) * (i + 1);
+                        progress.find('.progress-bar').css('width', percents + '%');
+
+                        self.addWidget(resp[i]);
+                    }
+
+                    progress.addClass('hidden');
                 });
         };
 
@@ -199,7 +139,7 @@ pytsite.form = {
         self.validate = function () {
             // Reset widgets state
             for (var uid in self.widgets)
-                self.widgets[uid].resetState().clearMessages();
+                self.widgets[uid].clearState().clearMessages();
 
             var validateDeferred = $.Deferred();
 

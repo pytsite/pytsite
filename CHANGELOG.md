@@ -451,8 +451,8 @@
 ## 0.45 (2016-01-11)
 ### Changed
 - `contact` renamed to `contact_form`.
-- `odm_ui.UIMixin.ui_is_modification_allowed()` renamed to `odm_ui.UIMixin.ui_is_model_modification_allowed()`.
-- `odm_ui.UIMixin.ui_is_deletion_allowed()` renamed to `odm_ui.UIMixin.ui_is_model_deletion_allowed()`.
+- `odm_ui.UIMixin.ui_is_modification_allowed()` renamed to `odm_ui.UIMixin.ui_model_modification_enabled()`.
+- `odm_ui.UIMixin.ui_is_deletion_allowed()` renamed to `odm_ui.UIMixin.ui_model_deletion_enabled()`.
 - `browser`'s 'imagesLoaded' plugin updated from 3.1.8 to 4.0.0.
 
 ### Fixed

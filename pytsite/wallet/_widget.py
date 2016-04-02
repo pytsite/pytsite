@@ -43,6 +43,8 @@ class MoneyInput(_w.input.Decimal):
 
         super().__init__(uid, **kwargs)
 
+        self._assets.append('pytsite.wallet@js/widget-money-input.js')
+
     def set_val(self, value: dict, **kwargs):
         """Set value of the widget.
         """

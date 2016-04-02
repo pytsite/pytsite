@@ -17,7 +17,7 @@ class Button(_base.Base):
         """
         super().__init__(uid, **kwargs)
 
-        self._css += ' btn btn-'
+        self._css += ' inline'
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
         self._dismiss = kwargs.get('dismiss', None)
@@ -46,7 +46,7 @@ class Button(_base.Base):
     def get_html_em(self) -> _html.Element:
         """Render the widget.
         """
-        self._html_em.set_attr('cls', self._css + self._color)
+        self._html_em.set_attr('cls', 'btn btn-' + self._color)
 
         self._html_em.content = self.get_val()
         if self._icon and not self._html_em.children:

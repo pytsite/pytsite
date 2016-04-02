@@ -88,6 +88,7 @@ class Auth(_widget.Base):
     def get_html_em(self) -> _html.Element:
         """Get HTML element representation of the widget.
         """
+        # Link to user profile or to FB authorization URL
         if self._user_id and self._screen_name:
             a = _html.A(self._screen_name, href='https://facebook.com/' + self._user_id, target='_blank')
             a.append(_html.I(cls='fa fa-facebook-square'))

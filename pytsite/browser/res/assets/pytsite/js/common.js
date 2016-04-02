@@ -27,39 +27,39 @@ pytsite.browser = {
     },
 
     addAssets: function (loc) {
-        if (typeof loc == 'string')
+        if (loc instanceof String)
             loc = [loc];
 
         for (var i = 0; i < loc.length; i++) {
-            if (loc[i].indexOf('.js') > 0)
-                pytsite.browser.addJS(loc[i]);
-            else if (loc[i].indexOf('.css') > 0)
-                pytsite.browser.addCSS(loc[i]);
-            else
-                throw "Cannot determine type of the asset '{0}'.".format(loc[i]);
+            if (loc[i] instanceof String) {
+                if (loc[i].indexOf('.js') > 0)
+                    pytsite.browser.addJS(loc[i]);
+                else if (loc[i].indexOf('.css') > 0)
+                    pytsite.browser.addCSS(loc[i]);
+                else
+                    throw "Cannot determine type of the asset '{0}'.".format(loc[i]);
+            }
+            else if (loc[i] instanceof Array) {
+                if (loc[i][1] == 'js')
+                    pytsite.browser.addJS(loc[i][0]);
+                else if (loc[i][1] == 'css')
+                    pytsite.browser.addCSS(loc[i][0]);
+                else
+                    throw "Cannot determine type of the asset '{0}'.".format(loc[i][0]);
+            }
         }
     },
 
     addJS: function (loc) {
-        if (typeof loc == 'string')
-            loc = [loc];
-
-        for (var i = 0; i < loc.length; i++) {
-            loc[i] = pytsite.browser.assetUrl(loc[i]);
-            if (!$('script[src="' + loc[i] + '"]').length)
-                $('body').append($('<script type="text/javascript" src="' + loc[i] + '"></script>'));
-        }
+        loc = pytsite.browser.assetUrl(loc);
+        if (!$('script[src="' + loc + '"]').length)
+            $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
     },
 
     addCSS: function (loc) {
-        if (typeof loc == 'string')
-            loc = [loc];
-
-        for (var i = 0; i < loc.length; i++) {
-            loc[i] = pytsite.browser.assetUrl(loc[i]);
-            if (!$('link[href="' + loc[i] + '"]').length)
-                $('head').append($('<link rel="stylesheet" href="' + loc[i] + '">'));
-        }
+        loc = pytsite.browser.assetUrl(loc);
+        if (!$('link[href="' + loc + '"]').length)
+            $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
     },
 
     getLocationHash: function () {

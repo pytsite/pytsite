@@ -55,18 +55,11 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
 
 
 def get_widgets(args: dict, inp: dict) -> dict:
-    r = []
-    for widget in _create_form(inp).get_widgets(step=int(inp.get('__form_step', 1))).values():
-        r.append({
-            'uid': widget.uid,
-            'weight': widget.weight,
-            'formArea': widget.form_area,
-            'formStep': widget.form_step,
-            'assets': widget.assets,
-            'content': widget.render(),
-        })
-
     _router.set_no_cache(True)
+
+    r = []
+    for widget in _create_form(inp).get_widgets(step=int(inp.get('__form_data_step', 1))).values():
+        r.append(widget.render())
 
     return r
 

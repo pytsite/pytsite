@@ -400,7 +400,7 @@ class TextArea(BlockElement):
 
 class Label(InlineElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'label_for', 'class'
+        return 'label_for',
 
 
 class Select(BlockElement):

@@ -1,7 +1,7 @@
 """PytSite ODM UI Entity.
 """
+from typing import Union as _Union, Tuple as _Tuple, Dict as _Dict
 from pytsite import odm as _odm, router as _router, form as _form
-from . import _forms
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -20,28 +20,38 @@ class UIMixin:
         pass
 
     @classmethod
-    def ui_is_model_creation_allowed(cls) -> bool:
-        """If the model creation is allowed via UI.
+    def ui_model_creation_enabled(cls) -> bool:
+        """Are entities of this MODEL can be CREATED via UI.
         """
         return True
 
     @classmethod
-    def ui_is_model_modification_allowed(cls) -> bool:
-        """If the model modification is allowed via UI.
+    def ui_model_modification_enabled(cls) -> bool:
+        """Are entities of this MODEL can be MODIFIED via UI.
         """
         return True
 
     @classmethod
-    def ui_is_model_deletion_allowed(cls) -> bool:
-        """Is the model deletion allowed via UI.
+    def ui_model_deletion_enabled(cls) -> bool:
+        """Are entities of this MODEL can be DELETED via UI.
         """
         return True
 
     @classmethod
-    def ui_is_actions_allowed(cls) -> bool:
-        """If the 'actions' column should be enabled.
+    def ui_model_actions_enabled(cls) -> bool:
+        """Should the 'actions' column be visible in the entities browser.
         """
         return True
+
+    def ui_entity_modification_enabled(self) -> bool:
+        """Is this ENTITY can be MODIFIED via UI.
+        """
+        return self.ui_model_modification_enabled()
+
+    def ui_entity_deletion_enabled(self):
+        """Is this ENTITY can be DELETED via UI.
+        """
+        return self.ui_model_deletion_enabled()
 
     @classmethod
     def ui_browser_search(cls, finder: _odm.Finder, query: str):
@@ -55,46 +65,32 @@ class UIMixin:
                     finder.or_where(name, 'regex_i', query)
 
     @classmethod
-    def ui_browser_get_mass_action_buttons(cls):
+    def ui_browser_get_mass_action_buttons(cls) -> _Tuple[_Dict]:
         """Get toolbar mass actions buttons data.
-
-        :rtype: tuple[dict]
         """
         return ()
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_get_row(self) -> _Tuple:
         """Get single UI browser row.
         """
         return ()
 
-    def ui_is_entity_modification_allowed(self) -> bool:
-        """Is ENTITY modification allowed.
-        """
-        return self.ui_is_model_modification_allowed()
-
-    def ui_is_entity_deletion_allowed(self):
-        """Is ENTITY deletion allowed.
-        """
-        return self.ui_is_model_deletion_allowed()
-
-    def ui_browser_get_entity_actions(self):
+    def ui_browser_get_entity_actions(self) -> _Tuple[_Dict]:
         """Get actions buttons data for single data row.
-
-        :rtype: tuple[dict]
         """
         return ()
 
     def ui_mass_action_get_entity_description(self) -> str:
-        """Get description for mass action form.
+        """Get entity description on mass action forms.
         """
         return ''
 
-    def ui_m_form_setup(self, frm: _forms.Modify):
+    def ui_m_form_setup(self, frm: _form.Form):
         """Modify form setup hook.
         """
         pass
 
-    def ui_m_form_submit(self, frm: _forms.Modify):
+    def ui_m_form_submit(self, frm: _form.Form):
         """Modify form submit hook.
         """
         pass
@@ -102,23 +98,23 @@ class UIMixin:
 
 class UIEntity(_odm.Entity, UIMixin):
     def ui_mass_action_get_entity_description(self) -> str:
-        """Get delete form description.
+        """Get entity description on mass action forms.
         """
         return str(self.id)
 
-    def ui_is_entity_modification_allowed(self) -> bool:
-        """Is ENTITY modification allowed.
+    def ui_entity_modification_enabled(self) -> bool:
+        """Is this ENTITY can be MODIFIED via UI.
         """
-        if not self.ui_is_model_modification_allowed():
+        if not self.ui_model_modification_enabled():
             return False
 
         from ._api import check_permissions
         return check_permissions('modify', self.model, self.id)
 
-    def ui_is_entity_deletion_allowed(self):
-        """Is ENTITY deletion allowed.
+    def ui_entity_deletion_enabled(self):
+        """Is this ENTITY can be DELETED via UI.
         """
-        if not self.ui_is_model_deletion_allowed():
+        if not self.ui_model_deletion_enabled():
             return False
 
         from ._api import check_permissions
@@ -135,7 +131,7 @@ class UIEntity(_odm.Entity, UIMixin):
         return _router.ep_url('pytsite.odm_ui.ep.m_form', args)
 
     def ui_d_form_get_url(self, ajax: bool=False) -> str:
-        """Get deletion form URL.
+        """Get URL of deletion form.
         """
         if ajax:
             return _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {

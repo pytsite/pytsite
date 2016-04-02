@@ -14,7 +14,6 @@ __license__ = 'MIT'
 class Form:
     """Base Form.
     """
-
     def __init__(self, uid: str = None, **kwargs):
         """Init.
         """

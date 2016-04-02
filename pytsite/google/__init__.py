@@ -3,53 +3,39 @@
 # Public API
 from . import _maps as maps
 
-# Necessary libraries
-import re as _re
-from pytsite import reg as _reg, browser as _browser, assetman as _assetman, lang as _lang
+# Necessary imports
+from pytsite import reg as _reg, browser as _browser, assetman as _assetman, lang as _lang, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-__maps_url_re = _re.compile('^https://maps.googleapis.com/maps/api/js')
-__libraries_re = _re.compile('libraries=([a-z]+)')
-
-
-def __browser_library_maps_callback(permanent: bool, path_prefix: str, **kwargs):
+def _browser_library_maps() -> list:
     # Google Map API key is required
     api_key = _reg.get('google.maps.client_key')
     if not api_key:
         raise RuntimeError("Configuration parameter 'google.maps.client_key' is not defined. Obtain it at {}.".
                            format('https://developers.google.com/maps/documentation/javascript/get-api-key'))
 
-    # Search for currently added Google JSs to find which Google libraries included
-    asset_weight = 0
-    libs = kwargs.get('libraries', [])
-    for loc in _assetman.get_locations('js'):
-        if __maps_url_re.match(loc[0]) and 'libraries=' in loc[0]:
-            # Remember weight of the location to place new one at the same position
-            asset_weight = loc[2]
+    google_url = _router.url('https://maps.googleapis.com/maps/api/js', query={
+        'language': _lang.get_current(),
+        'key': api_key,
+        'callback': 'pytsite.google.initCallback'
+    })
 
-            # Extracting Google libraries list
-            libs += __libraries_re.findall(loc[0])[0].split(',')
+    libs = ','.join(_reg.get('google.maps.libraries', []))
+    if libs:
+        google_url = _router.url(google_url, query={'libraries': libs})
 
-    # Remove probably previously added link too Google Maps API JS
-    _assetman.remove(__maps_url_re)
-
-    # Add assets
-    libs = ','.join(libs)
-    js = 'https://maps.googleapis.com/maps/api/js?libraries={}&amp;language={}&amp;key={}'\
-        .format(libs, _lang.get_current(), api_key)
-
-    _assetman.add(js, permanent, 'js', asset_weight, path_prefix)
+    return ['pytsite.google@js/pytsite-google.js', (google_url, 'js')]
 
 
-def __init():
+def _init():
     """Init wrapper.
     """
     _assetman.register_package(__name__)
-    _browser.register('google-maps', __browser_library_maps_callback)
+    _browser.register('google-maps', _browser_library_maps)
 
 
-__init()
+_init()

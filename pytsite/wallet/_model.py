@@ -10,13 +10,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 _main_currency = _currency.get_main()
 
 
 class Account(_odm_ui.UIEntity):
     """Wallet ODM Model.
     """
-
     def _setup_fields(self):
         """Hook.
         """
@@ -116,36 +116,35 @@ class Account(_odm_ui.UIEntity):
 
         if self.is_new:
             frm.add_widget(_currency.widget.Select(
-                    uid='currency',
-                    weight=20,
-                    label=self.t('currency'),
-                    required=True,
-                    value=self.currency,
-                    h_size='col-sm-4 col-md-3 col-lg-2',
+                uid='currency',
+                weight=20,
+                label=self.t('currency'),
+                required=True,
+                value=self.currency,
+                h_size='col-sm-4 col-md-3 col-lg-2',
             ))
         else:
             frm.add_widget(_widget.static.Text(
-                    uid='currency',
-                    weight=20,
-                    label=self.t('currency'),
-                    title=self.currency,
-                    value=self.currency,
+                uid='currency',
+                weight=20,
+                label=self.t('currency'),
+                title=self.currency,
+                value=self.currency,
             ))
 
         frm.add_widget(_auth_ui.widget.UserSelect(
-                uid='owner',
-                weight=30,
-                label=self.t('owner'),
-                required=True,
-                value=self.owner,
-                h_size='col-sm-6 col-md-5 col-lg-4',
+            uid='owner',
+            weight=30,
+            label=self.t('owner'),
+            required=True,
+            value=self.owner,
+            h_size='col-sm-6 col-md-5 col-lg-4',
         ))
 
 
 class Transaction(_odm_ui.UIEntity):
     """Transaction ODM Model.
     """
-
     def _setup_fields(self):
         """Hook.
         """
@@ -234,11 +233,11 @@ class Transaction(_odm_ui.UIEntity):
         browser.default_sort_field = 'time'
 
     @classmethod
-    def ui_browser_get_mass_action_buttons(cls):
-        return {
-                   'ep': 'pytsite.wallet.ep.transactions_cancel', 'icon': 'undo', 'color': 'danger',
-                   'title': Transaction.t('odm_ui_form_title_delete_wallet_transaction'),
-               },
+    def ui_browser_get_mass_action_buttons(cls) -> tuple:
+        return {'ep': 'pytsite.wallet.ep.transactions_cancel',
+                'icon': 'undo',
+                'color': 'danger',
+                'title': Transaction.t('odm_ui_form_title_delete_wallet_transaction')},
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -263,17 +262,21 @@ class Transaction(_odm_ui.UIEntity):
 
     def ui_browser_get_entity_actions(self) -> tuple:
         if self.state == 'committed':
-            return {'icon': 'undo', 'ep': 'pytsite.wallet.ep.transactions_cancel', 'color': 'danger',
+            return {'icon': 'undo',
+                    'ep': 'pytsite.wallet.ep.transactions_cancel',
+                    'color': 'danger',
                     'title': self.t('cancel')},
 
         return ()
 
     @classmethod
-    def ui_is_model_modification_allowed(cls) -> bool:
+    def ui_model_modification_enabled(cls) -> bool:
+        # Transactions cannot be modified via UI
         return False
 
     @classmethod
-    def ui_is_model_deletion_allowed(cls) -> bool:
+    def ui_model_deletion_enabled(cls) -> bool:
+        # Transactions cannot be deleted via UI
         return False
 
     def ui_m_form_setup(self, frm):
@@ -282,35 +285,35 @@ class Transaction(_odm_ui.UIEntity):
         :type frm: pytsite.form.Form
         """
         frm.add_widget(_wallet_widget.AccountSelect(
-                uid='source',
-                weight=10,
-                label=self.t('source'),
-                required=True,
-                value=self.source,
+            uid='source',
+            weight=10,
+            label=self.t('source'),
+            required=True,
+            value=self.source,
         ))
 
         frm.add_widget(_wallet_widget.AccountSelect(
-                uid='destination',
-                weight=20,
-                label=self.t('destination'),
-                required=True,
-                value=self.destination,
+            uid='destination',
+            weight=20,
+            label=self.t('destination'),
+            required=True,
+            value=self.destination,
         ))
 
         frm.add_widget(_widget.input.Decimal(
-                uid='amount',
-                weight=30,
-                label=self.t('amount'),
-                value=self.amount,
-                required=True,
-                min=0.01,
-                h_size='col-sm-4 col-md-3 col-lg-2',
+            uid='amount',
+            weight=30,
+            label=self.t('amount'),
+            value=self.amount,
+            required=True,
+            min=0.01,
+            h_size='col-sm-4 col-md-3 col-lg-2',
         ))
 
         frm.add_widget(_widget.input.Text(
-                uid='description',
-                weight=40,
-                label=self.t('description'),
-                value=self.description,
-                required=True,
+            uid='description',
+            weight=40,
+            label=self.t('description'),
+            value=self.description,
+            required=True,
         ))

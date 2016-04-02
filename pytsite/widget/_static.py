@@ -30,12 +30,18 @@ class HTML(_base.Base):
 class Container(_base.Base):
     """Div Container Widget.
     """
-    def get_html_em(self) -> _html.Element:
-        html_container = _html.Div(uid=self.uid, cls=self.css, child_sep=self._child_sep)
-        for child in self.children:
-            html_container.append(child.get_html_em())
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
 
-        return html_container
+        self._css += ' widget-container'
+        self._data['container'] = True
+
+    def get_html_em(self) -> _html.Element:
+        cont = _html.Div(uid=self.uid, cls='children', child_sep=self._child_sep)
+        for child in self.children:
+            cont.append(_html.TagLessElement(child.render()))
+
+        return cont
 
 
 class Text(_base.Base):

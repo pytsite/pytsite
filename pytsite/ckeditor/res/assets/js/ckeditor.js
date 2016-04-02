@@ -1,5 +1,5 @@
-$(window).on('pytsite.widget.init', function (e, widget) {
-    widget.em.find('.widget-ckeditor textarea').each(function () {
+$(window).on('pytsite.widget.init:pytsite.ckeditor._widget.CKEditor', function (e, widget) {
+    widget.find('textarea').each(function () {
         $(this).ckeditor({
             title: false,
             extraPlugins: 'youtube,codesnippet,stylescombo',

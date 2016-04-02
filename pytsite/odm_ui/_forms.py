@@ -40,9 +40,9 @@ class Modify(_form.Form):
 
         # Checking model-wide permissions
         model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
-        if not self._eid and not model_class.ui_is_model_creation_allowed():
+        if not self._eid and not model_class.ui_model_creation_enabled():
             raise _http.error.Forbidden()
-        if self._eid and not model_class.ui_is_model_modification_allowed():
+        if self._eid and not model_class.ui_model_modification_enabled():
             raise _http.error.Forbidden()
 
         # Dispense entity
@@ -114,11 +114,6 @@ class MassAction(_form.Form):
         # Redirect after successful form submit
         self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
 
-        # Action URL
-        self._action = _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {
-            'model': self._model,
-        })
-
         # Submit button
         submit_button = self.get_widget('action-submit')  # type: _widget.button.Submit
         submit_button.value = _lang.t('pytsite.odm_ui@continue')
@@ -148,7 +143,7 @@ class Delete(MassAction):
         model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
 
         # Check permissions
-        if not check_permissions('delete', self._model, self._eids) or not model_class.ui_is_model_deletion_allowed():
+        if not check_permissions('delete', self._model, self._eids) or not model_class.ui_model_deletion_enabled():
             raise _http.error.Forbidden()
 
         # Action URL

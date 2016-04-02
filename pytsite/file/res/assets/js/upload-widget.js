@@ -114,6 +114,7 @@ $.fn.extend({
                     file_name: file.name,
                     max_size: maxFileSizeMB
                 }));
+
                 return false;
             }
 
@@ -129,6 +130,7 @@ $.fn.extend({
                 filesCount = maxFiles;
                 progressSlot.hide();
                 alert(t('pytsite.file@max_files_exceeded'));
+
                 return false;
             }
 
@@ -217,8 +219,6 @@ $.fn.extend({
     }
 });
 
-$(window).on('pytsite.widget.init', function (e, widget) {
-    widget.em.find('.widget-files-upload').each(function () {
-        $(this).widgetFilesUpload();
-    });
+$(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e, widget) {
+    widget.widgetFilesUpload();
 });

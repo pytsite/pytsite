@@ -1,7 +1,5 @@
-$(window).on('pytsite.widget.init', function (e, widget) {
-    widget.em.find('.widget-input-text input').each(function () {
-        $(this).focus(function () {
-            this.select();
-        });
+$(window).on('pytsite.widget.init:pytsite.widget._input.Text', function (e, widget) {
+    widget.find('input').focus(function () {
+        this.select();
     });
 });

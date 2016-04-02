@@ -33,12 +33,8 @@ class FilesUpload(_widget.Base):
         self._image_max_height = kwargs.get('image_max_height', 0)
         self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
 
-        if self._max_files:
-            self._data['max_files'] = self._max_files
-
-        _browser.include('jquery-ui')
-        _browser.include('imagesloaded')
-
+        self._assets.extend(_browser.get_assets('jquery-ui'))
+        self._assets.extend(_browser.get_assets('imagesloaded'))
         self.assets.extend([
             'pytsite.file@css/upload-widget.css',
             'pytsite.file@js/load-image.all.min.js',
@@ -111,7 +107,7 @@ class FilesUpload(_widget.Base):
         self._slot_css = value
 
     def get_html_em(self) -> str:
-        self._data = {
+        self._data.update({
             'url': _router.ep_url('pytsite.file.ep.upload', {'model': self._model}),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,
@@ -120,7 +116,7 @@ class FilesUpload(_widget.Base):
             'image_max_width': self._image_max_width,
             'image_max_height': self._image_max_height,
             'slot_css': self._slot_css
-        }
+        })
 
         widget_em = _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
 

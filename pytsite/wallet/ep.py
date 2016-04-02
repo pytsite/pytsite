@@ -2,6 +2,7 @@
 """
 from pytsite import tpl as _tpl, http as _http, router as _router, odm as _odm, lang as _lang, metatag as _metatag, \
     odm_ui as _odm_ui, admin as _admin
+from . import _forms
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -18,13 +19,11 @@ def transactions_cancel(args: dict, inp: dict):
     if isinstance(ids, str):
         ids = (ids,)
 
-    f_action = _router.ep_url('pytsite.wallet.ep.transactions_cancel_submit')
-    f = _odm_ui.get_mass_action_form('wallet-transaction-cancel', 'wallet_transaction', ids, f_action)
-    f.get_widget('button-submit').color = 'danger'
+    frm = _forms.TransactionsCancel('odm-ui-d-form', model='wallet_transaction', eids=ids)
 
     _metatag.t_set('title', _lang.t('pytsite.wallet@odm_ui_form_title_delete_wallet_transaction'))
 
-    return _admin.render(_tpl.render('pytsite.odm_ui@delete_form', {'form': f}))
+    return _admin.render_form(frm)
 
 
 def transactions_cancel_submit(args: dict, inp: dict):
@@ -41,4 +40,5 @@ def transactions_cancel_submit(args: dict, inp: dict):
         entity.cancel()
 
     redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_transaction'}))
+
     return _http.response.Redirect(redirect)

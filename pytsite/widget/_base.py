@@ -1,9 +1,10 @@
-"""Abstract Base Widget.
+"""PytSite Base Widget.
 """
+from json import dumps as _json_dumps
 from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
-from pytsite import util as _util, html as _html, validation as _validation
+from pytsite import util as _util, html as _html, validation as _validation, assetman as _assetman
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -53,11 +54,16 @@ class Base(_ABC):
         else:
             self._value = _deepcopy(self._default)
 
+        _assetman.add('pytsite.widget@js/widget.js')
+        _assetman.add('pytsite.widget@css/widget.css')
+
     def append(self, widget):
         """Append a child widget.
 
         :type widget: Base
         """
+        widget.form_step = self.form_step
+        widget.form_area = self.form_area
         self._children.append(widget)
 
         return self
@@ -71,7 +77,39 @@ class Base(_ABC):
     def render(self) -> str:
         """Render the widget into a string.
         """
-        return self.get_html_em().render()
+        wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
+        if self._hidden:
+            wrap_css += ' hidden'
+
+        wrap = _html.Div(
+            cls=wrap_css,
+            data_cid=self.__module__ + '.' + self.__class__.__name__,
+            data_uid=self._uid,
+            data_weight=self._weight,
+            data_form_area=self._form_area,
+            data_form_step=self._form_step,
+            data_hidden=self._hidden,
+        )
+
+        if self._assets:
+            assets = []
+            for asset in self._assets:
+                if isinstance(asset, (list, tuple)):
+                    assets.append((asset[0], asset[1]))
+                else:
+                    assets.append((asset, _assetman.detect_collection(asset)))
+
+            wrap.set_attr('data_assets', _json_dumps(assets))
+
+        html_em = self.get_html_em()
+
+        if isinstance(self._data, dict):
+            for k, v in self._data.items():
+                wrap.set_attr('data_' + k, v)
+
+        wrap.append(html_em)
+
+        return wrap.render()
 
     def __str__(self) -> str:
         return self.render()
@@ -306,19 +344,7 @@ class Base(_ABC):
             content = content.wrap(_html.Div(cls=self._h_size))
             content = content.wrap(_html.Div(cls='row'))
 
-        css = 'form-group widget widget-uid-{} {}'.format(self.uid, self._css)
-
-        if self._hidden:
-            css += ' hidden'
-
-        group_wrapper = _html.Div(cls=css, data_widget_uid=self.uid, data_widget_weight=self.weight)
-
-        if self._hidden:
-            group_wrapper.set_attr('hidden', True)
-
-        if isinstance(self._data, dict):
-            for k, v in self._data.items():
-                group_wrapper.set_attr('data_' + k, v)
+        wrap = _html.Div(cls='form-group')
 
         if not self._label and self._placeholder:
             self._label = self.placeholder
@@ -326,12 +352,12 @@ class Base(_ABC):
         if self.label and not self._label_disabled:
             label = _html.Label(self.label, label_for=self.uid)
             if self._label_hidden:
-                label.set_attr('class', 'sr-only')
-            group_wrapper.append(label)
+                label.set_attr('cls', 'sr-only')
+            wrap.append(label)
 
-        group_wrapper.append(content)
+        wrap.append(content)
 
         if self._help:
-            group_wrapper.append(_html.Span(self._help, cls='help-block'))
+            wrap.append(_html.Span(self._help, cls='help-block'))
 
-        return group_wrapper
+        return wrap

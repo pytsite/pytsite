@@ -1,4 +1,4 @@
-$(function () {
+$(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', function (e, widget) {
     function setBounds(autcomplete) {
         if ('geolocation' in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
@@ -10,9 +10,9 @@ $(function () {
         }
     }
 
-    $('.widget-google-address-input').each(function () {
-        var widget = $(this);
-        var uid = widget.data('widget-uid');
+    // Start work only after Google libraries are all ready
+    $(window).on('pytsite.google.ready', function () {
+        var uid = widget.data('uid');
         var searchInput = widget.find('input[name="' + uid + '[search]"]');
         var addressInput = widget.find('input[name="' + uid + '[address]"]');
         var lngInput = widget.find('input[name="' + uid + '[lng]"]');

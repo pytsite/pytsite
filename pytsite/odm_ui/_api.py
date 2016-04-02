@@ -17,12 +17,6 @@ def get_m_form(model: str, eid=None, redirect: str = None, update_meta_title: bo
     return _forms.Modify('odm-ui-form-' + model, model=model, eid=eid, update_meta_title=update_meta_title, **kwargs)
 
 
-def get_mass_action_form(fid: str, model: str, ids: _Iterable) -> _form.Form:
-    """Get entity mass action form.
-    """
-    return _forms.MassAction(fid, model=model, eids=ids)
-
-
 def get_d_form(model: str, ids: _Iterable) -> _form.Form:
     """Get entities delete _form.
     """

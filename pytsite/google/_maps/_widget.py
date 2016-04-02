@@ -3,7 +3,7 @@
 from typing import Union as _Union
 from json import dumps as _json_dumps, loads as _json_loads
 from frozendict import frozendict as _frozendict
-from pytsite import widget as _pytsite_widget, assetman as _assetman, browser as _browser, html as _html
+from pytsite import widget as _pytsite_widget, browser as _browser, html as _html, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +13,6 @@ __license__ = 'MIT'
 class AddressInput(_pytsite_widget.Base):
     """Geo Address Input Widget.
     """
-
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -35,9 +34,14 @@ class AddressInput(_pytsite_widget.Base):
         # Default value
         self.set_val(self._default)
 
+        maps_libs = _reg.get('google.maps.libraries', [])
+        if 'places' not in maps_libs:
+            maps_libs.append('places')
+            _reg.set_val('google.maps.libraries', maps_libs)
+
         # Assets
-        _browser.include('google-maps', libraries=['places'])
-        _assetman.add('pytsite.google@js/widget/address-input.js')
+        self.assets.extend(_browser.get_assets('google-maps'))
+        self.assets.append('pytsite.google@js/widget/address-input.js')
 
     @property
     def autodetect(self) -> bool:

@@ -2,7 +2,7 @@
 """
 from os import path as _path
 from importlib.util import find_spec as _find_spec
-from pytsite import router as _router, threading as _threading
+from pytsite import router as _router, threading as _threading, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -43,17 +43,21 @@ def get_packages() -> dict:
     return _packages
 
 
+def detect_collection(location: str) -> str:
+    if location.find('.js') > 0:
+        return 'js'
+    elif location.find('.css') > 0:
+        return 'css'
+    else:
+        raise ValueError("Cannot determine collection of location '{}'.".format(location))
+
+
 def add(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None):
     """Add an asset.
     """
     # Determine collection
     if not collection:
-        if location.find('.js') > 0:
-            collection = 'js'
-        elif location.find('.css') > 0:
-            collection = 'css'
-        else:
-            raise ValueError("Cannot determine collection of location '{}'.".format(location))
+        collection = detect_collection(location)
 
     if path_prefix and not path_prefix.startswith('/'):
         path_prefix = '/' + path_prefix
@@ -165,21 +169,25 @@ def get_inline() -> list:
     return sorted(_inline[tid], key=lambda x: x[1])
 
 
-def dump_js() -> str:
+def dump_js(html_escape: bool = True) -> str:
     """Dump JS links.
     """
     r = ''
     for loc_url in get_urls('js'):
+        if html_escape:
+            loc_url = _util.escape_html(loc_url)
         r += '<script type="text/javascript" src="{}"></script>\n'.format(loc_url)
 
     return r
 
 
-def dump_css() -> str:
+def dump_css(html_escape: bool = True) -> str:
     """Dump CSS links.
     """
     r = ''
     for loc_url in get_urls('css'):
+        if html_escape:
+            loc_url = _util.escape_html(loc_url)
         r += '<link rel="stylesheet" href="{}">\n'.format(loc_url)
 
     return r
