@@ -44,6 +44,10 @@ class Input(_base.Base):
 class Hidden(Input):
     """Hidden Input Widget
     """
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
+        self._hidden = True
+
     def get_html_em(self) -> _html.Input:
         """Render the widget.
         """
@@ -262,8 +266,8 @@ class StringList(_base.Base):
         self._data['max_values'] = self._max_values
 
         self._assets.extend([
-            'pytsite.widget@css/list.css',
-            'pytsite.widget@js/list.js',
+            'pytsite.widget@css/string-list.css',
+            'pytsite.widget@js/string-list.js',
         ])
 
     @property
@@ -306,6 +310,11 @@ class ListList(StringList):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
         self._css = ' '.join((self._css, 'widget-list-list'))
+
+        self.assets.extend([
+            'pytsite.widget@css/list-list.css',
+            'pytsite.widget@js/list-list.js',
+        ])
 
     @property
     def col_titles(self) -> tuple:

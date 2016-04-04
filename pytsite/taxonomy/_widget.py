@@ -38,10 +38,12 @@ class TokensInput(_widget.input.Tokens):
             'query': '__QUERY'
         })
 
-        self._data = {
+        self._data.update({
             'local_source': self._local_source,
             'remote_source': self._remote_source,
-        }
+        })
+
+        self._assets.append('pytsite.taxonomy@js/widget/tokens-input.js')
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.
@@ -99,7 +101,7 @@ class Cloud(_widget.Base):
 
         self._css += ' widget-taxonomy-cloud widget-taxonomy-cloud-{}'.format(self._model)
 
-        self._assets.extend(['pytsite.taxonomy@css/taxonomy.css'])
+        self._assets.append('pytsite.taxonomy@css/taxonomy.css')
 
     @property
     def model(self) -> str:

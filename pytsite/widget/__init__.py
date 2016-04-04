@@ -15,4 +15,7 @@ def __init():
     lang.register_package(__name__)
     tpl.register_package(__name__)
 
+    assetman.add('pytsite.widget@js/widget.js', True)
+    assetman.add('pytsite.widget@css/widget.css', True)
+
 __init()

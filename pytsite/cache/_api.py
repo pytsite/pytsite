@@ -8,7 +8,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _pools = {}  # type: _Dict[str, _driver.Abstract]
 _dbg = _reg.get('cache.debug')
 
@@ -19,11 +18,14 @@ def has_pool(name: str) -> bool:
     return name in _pools
 
 
-def create_pool(name: str, driver: str='memory') -> _driver.Abstract:
+def create_pool(name: str, driver: str = None) -> _driver.Abstract:
     """Create new pool.
     """
     if name in _pools:
         raise KeyError("Cache pool '{}' already exists.".format(name))
+
+    if driver is None:
+        driver = _reg.get('cache.driver', 'redis')
 
     if driver == 'memory':
         drv = _driver.Memory(name)

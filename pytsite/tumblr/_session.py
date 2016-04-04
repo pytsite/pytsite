@@ -1,7 +1,7 @@
 """Tumblr Session.
 """
 from requests_oauthlib import OAuth1Session as _OAuthSession
-from pytsite import reg as _reg, router as _router, validation as _validation
+from pytsite import reg as _reg, router as _router, validation as _validation, cache as _cache
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -10,10 +10,10 @@ __license__ = 'MIT'
 
 
 _API_BASE_URL = 'https://api.tumblr.com/v2/'
-_request_tokens = {}
+_request_tokens = _cache.create_pool('pytsite.tumblr.tokens')
 
 
-class AuthSession():
+class AuthSession:
     def __init__(self, request_token: str=None, callback_uri: str=None):
         self._app_key = _reg.get('tumblr.app_key')
         self._app_secret = _reg.get('tumblr.app_secret')
@@ -23,9 +23,9 @@ class AuthSession():
         self._callback_uri = callback_uri if callback_uri else _router.current_url()
 
         if request_token:
-            if request_token in _request_tokens:
+            if _request_tokens.has(request_token):
                 self._request_token = request_token
-                self._request_secret = _request_tokens[request_token]
+                self._request_secret = _request_tokens.get(request_token)
                 self._oauth_session = _OAuthSession(self._app_key, self._app_secret,
                                                     self._request_token, self._request_secret, self._callback_uri)
             else:
@@ -38,7 +38,7 @@ class AuthSession():
         s = _OAuthSession(self._app_key, self._app_secret, callback_uri=self._callback_uri)
         r = s.fetch_request_token('https://tumblr.com/oauth/request_token')
 
-        _request_tokens[r['oauth_token']] = r['oauth_token_secret']
+        _request_tokens.put(r['oauth_token'], r['oauth_token_secret'], 60)
         self._request_token = r['oauth_token']
         self._request_secret = r['oauth_token_secret']
         self._oauth_session = _OAuthSession(self._app_key, self._app_secret,
@@ -61,7 +61,7 @@ class AuthSession():
                                                       auth_data['oauth_verifier'])
 
 
-class Session():
+class Session:
     def __init__(self, oauth_token: str, oauth_token_secret: str):
         self._client = _OAuthSession(_reg.get('tumblr.app_key'), _reg.get('tumblr.app_secret'),
                                      oauth_token, oauth_token_secret)

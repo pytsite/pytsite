@@ -38,6 +38,7 @@ class Base(_ABC):
         self._form_area = kwargs.get('form_area', 'body')
         self._form_step = kwargs.get('form_step', 1)
         self._assets = kwargs.get('assets', [])
+        self._replaces = kwargs.get('replaces', None)
 
         # Check validation rules
         if type(self._rules) not in (list, tuple):
@@ -53,9 +54,6 @@ class Base(_ABC):
             self.set_val(kwargs.get('value'), mode='init')
         else:
             self._value = _deepcopy(self._default)
-
-        _assetman.add('pytsite.widget@js/widget.js')
-        _assetman.add('pytsite.widget@css/widget.css')
 
     def append(self, widget):
         """Append a child widget.
@@ -100,6 +98,9 @@ class Base(_ABC):
                     assets.append((asset, _assetman.detect_collection(asset)))
 
             wrap.set_attr('data_assets', _json_dumps(assets))
+
+        if self._replaces:
+            wrap.set_attr('data_replaces', self._replaces)
 
         html_em = self.get_html_em()
 
@@ -296,6 +297,14 @@ class Base(_ABC):
         """Get CSS files list.
         """
         return self._assets
+
+    @property
+    def replaces(self) -> str:
+        return self._replaces
+
+    @replaces.setter
+    def replaces(self, value: str) -> str:
+        self._replaces = value
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.

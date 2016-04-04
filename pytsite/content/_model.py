@@ -252,7 +252,7 @@ class Content(_odm_ui.UIEntity):
             value = _router.url(value, lang=self.language, relative=kwargs.get('relative', False))
 
         if field_name == 'edit_url' and self.id:
-            value = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {
+            value = _router.ep_url('pytsite.odm_ui.ep.m_form', {
                 'model': self.model,
                 'id': self.id
             })

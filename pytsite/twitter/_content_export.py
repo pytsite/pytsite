@@ -3,7 +3,7 @@
 from frozendict import frozendict as _frozendict
 from twython import Twython as _Twython, TwythonError as _TwythonError
 from pytsite import content as _content, content_export as _content_export, logger as _logger, reg as _reg, \
-    form as _form, router as _router
+    widget as _widget, router as _router
 from ._widget import Auth as _TwitterAuthWidget
 
 __author__ = 'Alexander Shepetko'
@@ -29,26 +29,17 @@ class Driver(_content_export.AbstractDriver):
         """
         return driver_options.get('screen_name')
 
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+    def get_settings_widget(self, driver_opts: _frozendict) -> _widget.Base:
         """Add widgets to the settings form of the driver.
         """
-        inp = _router.request().inp
-        callback_uri_q = {}
-        for k, v in inp.items():
-            if not k.startswith('__'):
-                callback_uri_q[k] = v
-
-        if '__form_step' in inp:
-            callback_uri_q['__form_step'] = inp['__form_step']
-
-        frm.add_widget(_TwitterAuthWidget(
+        return _TwitterAuthWidget(
             uid='driver_opts',
-            oauth_token=driver_options.get('oauth_token'),
-            oauth_token_secret=driver_options.get('oauth_token_secret'),
-            user_id=driver_options.get('user_id'),
-            screen_name=driver_options.get('screen_name'),
-            callback_uri=_router.current_url(add_query=callback_uri_q)
-        ))
+            oauth_token=driver_opts.get('oauth_token'),
+            oauth_token_secret=driver_opts.get('oauth_token_secret'),
+            user_id=driver_opts.get('user_id'),
+            screen_name=driver_opts.get('screen_name'),
+            callback_uri=_router.request().inp.get('__form_data_location'),
+        )
 
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.

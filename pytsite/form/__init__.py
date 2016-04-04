@@ -17,7 +17,7 @@ def _init():
     assetman.register_package(__name__)
     tpl.register_package(__name__)
 
-    # AJAX nedpoints
+    # AJAX endpoints
     ajax.register_ep('pytsite.form.ajax.get_widgets')
     ajax.register_ep('pytsite.form.ajax.validate')
 

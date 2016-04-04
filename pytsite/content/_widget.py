@@ -43,6 +43,8 @@ class EntitySelect(_widget.select.Select2):
 
         super().__init__(uid, **kwargs)
 
+        self._assets.append('pytsite.content@js/widget/entity-select.js')
+
     def set_val(self, value, **kwargs):
         if isinstance(value, str) and not value:
             value = None

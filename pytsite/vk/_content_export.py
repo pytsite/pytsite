@@ -2,7 +2,7 @@
 """
 from frozendict import frozendict as _frozendict
 import re as _re
-from pytsite import content as _content, content_export as _content_export, logger as _logger, form as _form
+from pytsite import content as _content, content_export as _content_export, logger as _logger, widget as _widget
 from ._widget import Auth as _VKAuthWidget
 from ._session import Session as _VKSession
 
@@ -37,14 +37,14 @@ class Driver(_content_export.AbstractDriver):
 
         return r
 
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+    def get_settings_widget(self, driver_opts: _frozendict) -> _widget.Base:
         """Add widgets to the settings form of the driver.
         """
-        frm.add_widget(_VKAuthWidget(
+        return _VKAuthWidget(
             uid='driver_opts',
-            access_url=driver_options.get('access_url'),
-            group_id=driver_options.get('group_id'),
-        ))
+            access_url=driver_opts.get('access_url'),
+            group_id=driver_opts.get('group_id'),
+        )
 
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
@@ -72,7 +72,10 @@ class Driver(_content_export.AbstractDriver):
             raise _content_export.error.ExportError(e)
 
     def _parse_user_id(self, access_url: str) -> int:
-        return int(_re_user_id.findall(access_url)[0])
+        try:
+            return int(_re_user_id.findall(access_url)[0])
+        except IndexError:
+            return 0
 
     def _parse_access_token(self, access_url: str) -> str:
         return _re_access_token.findall(access_url)[0]

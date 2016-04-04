@@ -40,9 +40,9 @@ class Modify(_form.Form):
 
         # Checking model-wide permissions
         model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
-        if not self._eid and not model_class.ui_model_creation_enabled():
+        if not self._eid and not model_class.ui_model_creation_allowed():
             raise _http.error.Forbidden()
-        if self._eid and not model_class.ui_model_modification_enabled():
+        if self._eid and not model_class.ui_model_modification_allowed():
             raise _http.error.Forbidden()
 
         # Dispense entity
@@ -69,7 +69,7 @@ class Modify(_form.Form):
 
         # Cancel button
         self.add_widget(_widget.button.Link(
-            weight=30,
+            weight=10,
             uid='action-cancel',
             value=_lang.t('pytsite.odm_ui@cancel'),
             icon='fa fa-remove',
@@ -122,7 +122,7 @@ class MassAction(_form.Form):
         # Cancel button
         self.add_widget(_widget.button.Link(
             uid='action-cancel',
-            weight=30,
+            weight=10,
             value=_lang.t('pytsite.odm_ui@cancel'),
             href=self.redirect,
             icon='ban',
@@ -143,7 +143,7 @@ class Delete(MassAction):
         model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
 
         # Check permissions
-        if not check_permissions('delete', self._model, self._eids) or not model_class.ui_model_deletion_enabled():
+        if not check_permissions('delete', self._model, self._eids) or not model_class.ui_model_deletion_allowed():
             raise _http.error.Forbidden()
 
         # Action URL

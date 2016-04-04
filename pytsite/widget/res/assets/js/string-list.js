@@ -1,4 +1,4 @@
-$(window).on('pytsite.widget.init:pytsite.widget._input.List', function (e, widget) {
+$(window).on('pytsite.widget.init:pytsite.widget._input.StringList', function (e, widget) {
     function countSlots(w) {
         var n = 0;
         w.find('.slot').each(function () {

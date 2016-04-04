@@ -270,7 +270,7 @@ class Transaction(_odm_ui.UIEntity):
         return ()
 
     @classmethod
-    def ui_model_modification_enabled(cls) -> bool:
+    def ui_model_modification_allowed(cls) -> bool:
         # Transactions cannot be modified via UI
         return False
 

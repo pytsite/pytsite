@@ -9,7 +9,7 @@
                         <div class="thumb"><img class="img-responsive" src="{{ item.thumb_url }}"></div>
                         <button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>
                         <span class="number"></span>
-                        <input type="hidden" name="{{ widget.uid }}" value="{{ fid }}">
+                        <input type="hidden" name="{{ widget.uid }}[]" value="{{ fid }}">
                     </div>
                 </div>
             {% endfor %}
@@ -29,5 +29,6 @@
         </div>
     </div>
 
-    <input type="hidden" name="{{ widget.uid }}" value="">
+    {# At least one input should be on the form #}
+    <input type="hidden" name="{{ widget.uid }}[]" value="">
 </div>

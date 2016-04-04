@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, router as _router, \
-    widget as _widget, util as _util, form as _form, lang as _lang
+    widget as _widget, util as _util, form as _form, lang as _lang, validation as _validation
 from . import _widget as _content_export_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -127,20 +127,17 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
         return content_model, driver_desc, opts_desc, all_authors, w_images, max_age, enabled, \
             errors, paused_till, self.owner.full_name
 
-    def ui_m_form_setup(self, frm):
+    def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
-
-        :type frm: pytsite.form.Form
         """
+        frm.reload_on_forward = True
         frm.steps = 2
-        inp = _router.request().inp
 
         frm.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='enabled',
             label=self.t('enabled'),
             value=self.enabled,
-            form_steps=1,
         ))
 
         frm.add_widget(_widget.select.Checkbox(
@@ -148,7 +145,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             uid='process_all_authors',
             label=self.t('process_all_authors'),
             value=self.process_all_authors,
-            form_steps=1,
         ))
 
         frm.add_widget(_widget.select.Checkbox(
@@ -156,7 +152,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             uid='with_images_only',
             label=self.t('with_images_only'),
             value=self.with_images_only,
-            form_steps=1,
         ))
 
         frm.add_widget(_content.widget.ModelSelect(
@@ -166,7 +161,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             value=self.content_model,
             h_size='col-sm-4',
             required=True,
-            form_steps=1,
         ))
 
         frm.add_widget(_content_export_widget.DriverSelect(
@@ -176,7 +170,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             value=self.driver,
             h_size='col-sm-4',
             required=True,
-            form_steps=1,
         ))
 
         frm.add_widget(_widget.input.Integer(
@@ -185,7 +178,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             label=self.t('max_age'),
             value=self.max_age,
             h_size='col-sm-1',
-            form_steps=1,
         ))
 
         frm.add_widget(_widget.input.Tokens(
@@ -193,7 +185,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             uid='add_tags',
             label=self.t('additional_tags'),
             value=self.add_tags,
-            form_steps=1,
         ))
 
         frm.add_widget(_widget.select.DateTime(
@@ -202,7 +193,6 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             label=self.t('paused_till'),
             value=self.paused_till,
             h_size='col-sm-5 col-md-4 col-lg-3',
-            form_steps=1,
         ))
 
         frm.add_widget(_widget.input.Integer(
@@ -211,27 +201,22 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
             label=self.t('errors'),
             value=self.errors,
             h_size='col-sm-1',
-            form_steps=1,
         ))
 
-        if frm.step == 2:
-            _api.get_driver(inp.get('driver')).build_settings_form(frm, self.driver_opts)
-
-    def ui_m_form_submit(self, frm: _form.Form):
-        """Modify form submit hook.
-        """
-        options = {}
-        for k, v in _router.request().inp.items():
-            if k.startswith('driver_opts_'):
-                options[k.replace('driver_opts_', '')] = v
-
-        if frm.has_widget('driver_opts'):
-            frm.remove_widget('driver_opts')
-
+        # Placeholder widget to give ability to save data while form submit
         frm.add_widget(_widget.input.Hidden(
+            weight=100,
             uid='driver_opts',
-            value=options,
         ))
+
+        # Replace placeholder widget with real widget provided from driver
+        if frm.step == 2:
+            driver = _api.get_driver(_router.request().inp.get('driver'))
+            settings_widget = driver.get_settings_widget(self.driver_opts)
+            settings_widget.uid = 'driver_opts'
+            settings_widget.form_step = 2
+            frm.replace_widget('driver_opts', settings_widget)
+            frm.add_rule('driver_opts', _validation.rule.NonEmpty())
 
     def ui_mass_action_get_entity_description(self) -> str:
         """Get description for mass action form.

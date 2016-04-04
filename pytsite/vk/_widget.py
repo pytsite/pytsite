@@ -50,7 +50,7 @@ class Auth(_widget.Base):
         wrapper = _widget.static.Container(self.uid)
 
         wrapper.append(_widget.input.Text(
-            uid=self.uid + '_access_url',
+            uid=self.uid + '[access_url]',
             weight=10,
             label=_lang.t('pytsite.vk@access_url'),
             help=_lang.t('pytsite.vk@access_url_help', {'link': authorize_url}),
@@ -59,7 +59,7 @@ class Auth(_widget.Base):
         ))
 
         wrapper.append(_widget.input.Integer(
-            uid=self.uid + '_group_id',
+            uid=self.uid + '[group_id]',
             weight=20,
             label=_lang.t('pytsite.vk@group_id'),
             value=self.group_id,

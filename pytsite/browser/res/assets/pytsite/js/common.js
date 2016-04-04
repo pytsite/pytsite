@@ -62,20 +62,67 @@ pytsite.browser = {
             $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
     },
 
-    getLocationHash: function () {
-        var hash = window.location.hash.replace(/^#/, '').split('&');
-        var r = {};
-        for (var i = 0; i < hash.length; ++i) {
-            var part = hash[i].split('=');
-            if (part.length == 1) {
-                r[decodeURIComponent(part[0])] = null;
+    getLocation: function (skipEmpty) {
+        function split(s) {
+            var r = {};
+
+            s = s.split('&');
+            for (var i = 0; i < s.length; ++i) {
+                var part = s[i].split('=');
+                if (part.length == 1 && part[0].length) {
+                    r[decodeURIComponent(part[0])] = null;
+                }
+                else if (part.length == 2) {
+                    var k = decodeURIComponent(part[0].replace('+', '%20'));
+                    var v = decodeURIComponent(part[1].replace('+', '%20'));
+
+                    if (k.indexOf('[]') > 0) {
+                        k = k.replace('[]', '');
+
+                        if (k in r && !(r[k] instanceof Array))
+                            r[k] = [r[k]];
+                        else
+                            r[k] = [];
+
+                        r[k].push(v);
+                    }
+                    else {
+                        r[k] = v;
+                    }
+                }
             }
-            else if (part.length == 2) {
-                r[decodeURIComponent(part[0])] = decodeURIComponent(part[1]);
+
+            for (var l in r) {
+                if (r[l] instanceof Array && r[l].length == 1)
+                    r[l] = r[l][0];
+
+                if (skipEmpty == true && !r[l])
+                    delete r[l];
+            }
+
+            return r;
+        }
+
+        return {
+            query: split(window.location.search.replace(/^\?/, '')),
+            hash: split(window.location.hash.replace(/^#/, ''))
+        };
+    },
+
+    encodeQuery: function (data) {
+        var r = [];
+        for (var k in data) {
+            if (data[k] instanceof Array) {
+                for (var l = 0; l < data[k].length; l++) {
+                    r.push(encodeURIComponent(k) + "[]=" + encodeURIComponent(data[k][l]));
+                }
+            }
+            else {
+                r.push(encodeURIComponent(k) + "=" + encodeURIComponent(data[k]));
             }
         }
 
-        return r
+        return r.join("&");
     }
 };
 

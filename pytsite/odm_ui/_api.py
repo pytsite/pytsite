@@ -12,15 +12,14 @@ __license__ = 'MIT'
 def get_m_form(model: str, eid=None, redirect: str = None, update_meta_title: bool = True, **kwargs) -> _forms.Modify:
     """Get entity modification form.
     """
-    eid = eid if eid != '0' else None
+    return _forms.Modify('odm-ui-form-' + model, redirect=redirect, model=model, eid=eid if eid != '0' else None,
+                         update_meta_title=update_meta_title, **kwargs)
 
-    return _forms.Modify('odm-ui-form-' + model, model=model, eid=eid, update_meta_title=update_meta_title, **kwargs)
 
-
-def get_d_form(model: str, ids: _Iterable) -> _form.Form:
-    """Get entities delete _form.
+def get_d_form(model: str, ids: _Iterable, redirect: str=None) -> _form.Form:
+    """Get entities delete form.
     """
-    return _forms.Delete('odm-ui-d-form', model=model, eids=ids)
+    return _forms.Delete('odm-ui-d-form', model=model, eids=ids, redirect=redirect)
 
 
 def dispense_entity(model: str, entity_id: str = None):

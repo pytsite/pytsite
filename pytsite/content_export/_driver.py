@@ -2,7 +2,7 @@
 """
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from frozendict import frozendict as _frozendict
-from pytsite import form as _form
+from pytsite import widget as _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -29,7 +29,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+    def get_settings_widget(self, driver_options: _frozendict) -> _widget.Base:
         """Add widgets to the settings form of the driver.
         """
         pass

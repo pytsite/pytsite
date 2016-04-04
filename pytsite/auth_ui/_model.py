@@ -242,7 +242,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                     exclude_ids=self.id)
             ))
 
-    def ui_entity_deletion_enabled(self) -> bool:
+    def ui_entity_deletion_allowed(self) -> bool:
         return False if _auth.get_current_user().id == self.id else True
 
     def ui_mass_action_get_entity_description(self) -> str:

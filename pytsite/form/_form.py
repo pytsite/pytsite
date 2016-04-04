@@ -40,6 +40,7 @@ class Form:
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
         self._steps = kwargs.get('steps', 1)
+        self._step = kwargs.get('step', 1)
         self._modal = kwargs.get('modal', False)
         self._reload_on_forward = kwargs.get('reload_on_forward', False)
         self._redirect = kwargs.get('redirect')
@@ -267,6 +268,14 @@ class Form:
         self._steps = value
 
     @property
+    def step(self) -> int:
+        return self._step
+
+    @step.setter
+    def step(self, value: int):
+        self._step = value
+
+    @property
     def modal(self) -> bool:
         return self._modal
 
@@ -367,16 +376,17 @@ class Form:
 
         return self
 
-    def replace_widget(self, uid: str, replacement: _widget.Base):
+    def replace_widget(self, source_uid: str, replacement: _widget.Base):
         """Replace a widget with another one.
         """
-        current = self.get_widget(uid)
+        current = self.get_widget(source_uid)
         if not replacement.weight and current.weight:
             replacement.weight = current.weight
 
         replacement.form_area = current.form_area
+        replacement.replaces = source_uid
 
-        self.remove_widget(uid).add_widget(replacement)
+        self.remove_widget(source_uid).add_widget(replacement)
 
         return self
 

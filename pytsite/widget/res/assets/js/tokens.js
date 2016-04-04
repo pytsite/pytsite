@@ -14,7 +14,7 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.Tokens', function (e, wi
 
     if (remoteSource) {
         tokenFieldOptions.autocomplete.source = function (request, response) {
-            var term = _request['term'].trim();
+            var term = request['term'].trim();
             if (!term.length)
                 return;
 

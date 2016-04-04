@@ -27,15 +27,6 @@ class Auth(_widget.Base):
         self._session = TwitterSession(self.oauth_token, self.oauth_token_secret)
         """:type: pytsite.twitter._oauth.Driver"""
 
-        # If 'verifier' is here, we need to exchange it to an access token
-        inp_oauth_verifier = _router.request().inp.get('oauth_verifier')
-        if inp_oauth_verifier:
-            token = self._session.get_access_token(inp_oauth_verifier)
-            self._oauth_token = token['oauth_token']
-            self._oauth_token_secret = token['oauth_token_secret']
-            self._user_id = token['user_id']
-            self._screen_name = token['screen_name']
-
     @property
     def oauth_token(self) -> str:
         return self._oauth_token
@@ -55,25 +46,35 @@ class Auth(_widget.Base):
     def get_html_em(self) -> _html.Element:
         """Render widget.
         """
+        # If 'verifier' is here, we need to exchange it to an access token
+        if not self._user_id:
+            inp_oauth_verifier = _router.request().inp.get('oauth_verifier')
+            if inp_oauth_verifier:
+                token = self._session.get_access_token(inp_oauth_verifier)
+                self._oauth_token = token['oauth_token']
+                self._oauth_token_secret = token['oauth_token_secret']
+                self._user_id = token['user_id']
+                self._screen_name = token['screen_name']
+
         wrapper = _widget.static.Container(self.uid)
 
         wrapper.append(_widget.input.Hidden(
-            uid=self.uid + '_oauth_token',
+            uid=self.uid + '[oauth_token]',
             value=self.oauth_token,
         ))
 
         wrapper.append(_widget.input.Hidden(
-            uid=self.uid + '_oauth_token_secret',
+            uid=self.uid + '[oauth_token_secret]',
             value=self.oauth_token_secret,
         ))
 
         wrapper.append(_widget.input.Hidden(
-            uid=self.uid + '_user_id',
+            uid=self.uid + '[user_id]',
             value=self.user_id,
         ))
 
         wrapper.append(_widget.input.Hidden(
-            uid=self.uid + '_screen_name',
+            uid=self.uid + '[screen_name]',
             value=self.screen_name,
         ))
 
@@ -85,7 +86,7 @@ class Auth(_widget.Base):
             href = self._session.get_authorization_url(self._callback_uri)
 
         wrapper.append(_widget.static.HTML(
-            uid=self.uid + '_auth_link',
+            uid=self.uid + '[auth_link]',
             em=_html.A(title, href=href).append(_html.I(cls='fa fa-twitter'))
         ))
 

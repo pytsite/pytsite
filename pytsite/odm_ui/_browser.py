@@ -46,7 +46,7 @@ class Browser:
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._model_class.ui_model_creation_enabled() and _api.check_permissions('create', self._model):
+        if self._model_class.ui_model_creation_allowed() and _api.check_permissions('create', self._model):
             create_form_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': self._model, 'id': '0'})
             title = _lang.t('pytsite.odm_ui@create')
             btn = _html.A(href=create_form_url, cls='btn btn-default add-button', title=title)
@@ -55,7 +55,7 @@ class Browser:
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._model_class.ui_model_deletion_enabled() and _api.check_permissions('delete', self._model):
+        if self._model_class.ui_model_deletion_allowed() and _api.check_permissions('delete', self._model):
             delete_form_url = _router.ep_url('pytsite.odm_ui.ep.d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='btn btn-danger mass-action-button', title=title)
@@ -284,7 +284,7 @@ class Browser:
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if entity.ui_entity_modification_enabled() and _api.check_permissions('modify', entity.model, entity.id):
+        if entity.ui_entity_modification_allowed() and _api.check_permissions('modify', entity.model, entity.id):
             href = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': entity.model, 'id': entity.id})
             title = _lang.t('pytsite.odm_ui@modify')
             a = _html.A(cls='btn btn-xs btn-default', href=href, title=title)
@@ -292,7 +292,7 @@ class Browser:
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
-        if entity.ui_entity_deletion_enabled() and _api.check_permissions('delete', entity.model, entity.id):
+        if entity.ui_entity_deletion_allowed() and _api.check_permissions('delete', entity.model, entity.id):
             href = _router.ep_url('pytsite.odm_ui.ep.d_form', {'model': entity.model, 'ids': entity.id})
             title = _lang.t('pytsite.odm_ui@delete')
             a = _html.A(cls='btn btn-xs btn-danger', href=href, title=title)

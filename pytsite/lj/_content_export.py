@@ -28,34 +28,31 @@ class _SettingsWidget(_widget.Base):
     def get_html_em(self) -> _html.Element:
         """Get HTML element of the widget.
         """
-        wrapper = _html.TagLessElement()
+        wrapper = _widget.static.Container(uid=self._uid)
 
         wrapper.append(_widget.input.Text(
             weight=10,
-            uid='username',
-            name='{}[username]'.format(self._uid),
+            uid='{}[username]'.format(self._uid),
             label=_lang.t('pytsite.lj@username'),
             required=True,
             value=self._username,
-        ).get_html_em())
+        ))
 
         wrapper.append(_widget.input.Password(
+            uid='{}[password]'.format(self._uid),
             weight=20,
-            uid='password',
-            name='{}[password]'.format(self._uid),
             label=_lang.t('pytsite.lj@password'),
             required=True,
             value=self._password,
-        ).get_html_em())
+        ))
 
         wrapper.append(_widget.input.Text(
+            uid='{}[lj_like]'.format(self._uid),
             weight=30,
-            uid='lj-like',
-            name='{}[lj_like]'.format(self._uid),
             label=_lang.t('pytsite.lj@lj_like_buttons'),
             help=_lang.t('pytsite.lj@lj_like_buttons_help'),
             value=self._lj_like,
-        ).get_html_em())
+        ))
 
         wrapper.append(_widget.input.Hidden(
             weight=40,
@@ -63,7 +60,7 @@ class _SettingsWidget(_widget.Base):
             name='{}[title]'.format(self._uid),
             required=True,
             value=self._title,
-        ).get_html_em())
+        ))
 
         return self._group_wrap(wrapper)
 
@@ -86,33 +83,15 @@ class Driver(_content_export.AbstractDriver):
         """
         return driver_options.get('username')
 
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
+    def get_settings_widget(self, driver_opts: _frozendict) -> _widget.Base:
         """Add widgets to the settings form of the driver.
         """
-        frm.add_widget(_widget.input.Text(
-            weight=10,
-            uid='driver_opts_username',
-            label=_lang.t('pytsite.lj@username'),
-            required=True,
-            value=driver_options.get('username'),
-        ))
-
-        frm.add_widget(_widget.input.Password(
-            uid='driver_opts_password',
-            weight=20,
-            label=_lang.t('pytsite.lj@password'),
-            required=True,
-            value=driver_options.get('password'),
-        ))
-
-        frm.add_widget(_widget.input.Text(
-            weight=30,
-            uid='driver_opts_lj_like',
-            label=_lang.t('pytsite.lj@lj_like_buttons'),
-            required=True,
-            value=driver_options.get('lj_like', 'fb,tw,go,vk,lj'),
-            help=_lang.t('pytsite.lj@lj_like_buttons_help'),
-        ))
+        return _SettingsWidget(
+            uid='driver_opts',
+            username=driver_opts.get('username'),
+            password=driver_opts.get('password'),
+            lj_like=driver_opts.get('lj_like', 'fb,tw,go,vk,lj'),
+        )
 
     def export(self, entity, exporter):
         """Performs export.
@@ -136,7 +115,7 @@ class Driver(_content_export.AbstractDriver):
             if entity.description:
                 msg += '<p>{}</p>'.format(entity.description)
             msg += '<lj-cut>'
-            msg += _util.trim_str(entity.f_get('body', process_tags=True, responsive=False), 64535, True)
+            msg += _util.trim_str(entity.f_get('body', process_tags=True, responsive=False), 64000, True)
             msg += '</lj-cut>'
             if opts['lj_like']:
                 msg += '<lj-like buttons="{}">'.format(opts['lj_like'])

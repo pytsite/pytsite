@@ -61,7 +61,7 @@ class AuthLog(_odm_ui.UIEntity):
         """
         user = ''
         if self.user:
-            user_edit_url = _router.ep_url('pytsite.odm_ui.ep.get_m_form', {
+            user_edit_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {
                 'model': 'user',
                 'id': str(self.user.id),
             })
@@ -87,7 +87,7 @@ class AuthLog(_odm_ui.UIEntity):
         return user, ip, geo, description, severity, modified
 
     @classmethod
-    def ui_model_creation_enabled(cls) -> bool:
+    def ui_model_creation_allowed(cls) -> bool:
         return False
 
     @classmethod

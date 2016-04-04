@@ -4,7 +4,7 @@ import requests as _requests
 import re as _re
 from frozendict import frozendict as _frozendict
 from pytsite import content_export as _content_export, logger as _logger, content as _content, util as _util, \
-    form as _form, router as _router
+    widget as _widget, router as _router
 from ._widget import Auth as _FacebookAuthWidget
 from ._session import Session as _Session
 from . import _error
@@ -28,31 +28,20 @@ class Driver(_content_export.AbstractDriver):
         """
         return 'pytsite.fb@facebook'
 
-    def build_settings_form(self, frm: _form.Form, driver_options: _frozendict):
-        """Add widgets to the settings form of the driver.
+    def get_settings_widget(self, driver_options: _frozendict) -> _widget.Base:
+        """Get settings widget.
         """
-        inp = _router.request().inp
-        redirect_url_q = {}
-        for k, v in inp.items():
-            if not k.startswith('__'):
-                redirect_url_q[k] = v
-
-        if '__form_step' in inp:
-            redirect_url_q['__form_step'] = inp['__form_step']
-
-        frm.add_widget(_FacebookAuthWidget(
-            weight=10,
+        return _FacebookAuthWidget(
             uid='driver_opts',
             scope='public_profile,email,user_friends,publish_actions,manage_pages,publish_pages',
-            form_steps=2,
             access_token=driver_options.get('access_token'),
             access_token_type=driver_options.get('access_token_type'),
             access_token_expires=driver_options.get('access_token_expires'),
             user_id=driver_options.get('user_id'),
             page_id=driver_options.get('page_id'),
             screen_name=driver_options.get('screen_name'),
-            redirect_url=_router.current_url(add_query=redirect_url_q),
-        ))
+            redirect_url=_router.request().inp.get('__form_data_location'),
+        )
 
     def get_options_description(self, driver_options: _frozendict) -> str:
         """Get driver options as a string.

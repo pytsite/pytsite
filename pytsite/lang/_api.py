@@ -261,7 +261,7 @@ def pretty_date(time: _datetime) -> str:
     r = '{} {}'.format(time.day, t_plural('pytsite.lang@month_' + str(time.month)))
 
     diff = _datetime.now() - time
-    if diff.days > 365:
+    if abs(diff.days) > 365:
         r += ' ' + str(time.year)
 
     return r

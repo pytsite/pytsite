@@ -5,7 +5,7 @@ $.fn.extend({
             return;
 
         var slots = widget.find('.slots');
-        var widgetUid = widget.data('widgetUid');
+        var widgetUid = widget.data('uid');
         var addBtn = widget.find('.add-button');
         var postUrl = widget.data('url');
         var maxFiles = parseInt(widget.data('maxFiles'));
@@ -40,7 +40,7 @@ $.fn.extend({
         };
 
         var setupSlot = function (slot) {
-            // Remove button click event handler
+            // 'Remove' button click event handler
             $(slot).find('.btn-remove').click(function () {
                 removeSlot(slot)
             });
@@ -56,7 +56,7 @@ $.fn.extend({
             inner.append($('<div class="thumb"><img class="img-responsive" src="{u}"></div>'.replace('{u}', thumb_url)));
             inner.append($('<button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>'));
             inner.append($('<span class="number">'));
-            widget.append('<input type="hidden" name="' + widgetUid + '" value="' + fid + '">');
+            inner.append('<input type="hidden" name="' + widgetUid + '[]" value="' + fid + '">');
 
             return setupSlot(slot);
         };

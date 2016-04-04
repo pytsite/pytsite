@@ -15,6 +15,7 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
     for k, v in inp.items():
         if k.startswith('__form_data_'):
             k = _util.to_snake_case(k.replace('__form_data_', ''))
+
             if k not in ('get_widgets_ep', 'validation_ep', 'steps'):
                 if v == 'None':
                     v = None
@@ -23,7 +24,7 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
                 elif v == 'True':
                     v = True
 
-                args[k] = v
+            args[k] = v
 
     # Get form class ID
     if 'cid' not in args:
@@ -45,7 +46,7 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
     # Create form
     frm = frm_cls(uid, **args)  # type: _form.Form
 
-    # Filter out non-widget data
+    # Filter out non-widget (form-related) data
     values = {}
     for k, v in inp.items():
         if not k.startswith('__form_data_'):
@@ -55,10 +56,14 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
 
 
 def get_widgets(args: dict, inp: dict) -> dict:
+    """Get widgets of the form for particular step.
+    """
     _router.set_no_cache(True)
 
+    frm = _create_form(inp)
+
     r = []
-    for widget in _create_form(inp).get_widgets(step=int(inp.get('__form_data_step', 1))).values():
+    for widget in frm.get_widgets(step=frm.step).values():
         r.append(widget.render())
 
     return r

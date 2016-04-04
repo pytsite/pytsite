@@ -20,19 +20,19 @@ class UIMixin:
         pass
 
     @classmethod
-    def ui_model_creation_enabled(cls) -> bool:
+    def ui_model_creation_allowed(cls) -> bool:
         """Are entities of this MODEL can be CREATED via UI.
         """
         return True
 
     @classmethod
-    def ui_model_modification_enabled(cls) -> bool:
+    def ui_model_modification_allowed(cls) -> bool:
         """Are entities of this MODEL can be MODIFIED via UI.
         """
         return True
 
     @classmethod
-    def ui_model_deletion_enabled(cls) -> bool:
+    def ui_model_deletion_allowed(cls) -> bool:
         """Are entities of this MODEL can be DELETED via UI.
         """
         return True
@@ -43,15 +43,15 @@ class UIMixin:
         """
         return True
 
-    def ui_entity_modification_enabled(self) -> bool:
+    def ui_entity_modification_allowed(self) -> bool:
         """Is this ENTITY can be MODIFIED via UI.
         """
-        return self.ui_model_modification_enabled()
+        return self.ui_model_modification_allowed()
 
-    def ui_entity_deletion_enabled(self):
+    def ui_entity_deletion_allowed(self):
         """Is this ENTITY can be DELETED via UI.
         """
-        return self.ui_model_deletion_enabled()
+        return self.ui_model_deletion_allowed()
 
     @classmethod
     def ui_browser_search(cls, finder: _odm.Finder, query: str):
@@ -102,19 +102,19 @@ class UIEntity(_odm.Entity, UIMixin):
         """
         return str(self.id)
 
-    def ui_entity_modification_enabled(self) -> bool:
+    def ui_entity_modification_allowed(self) -> bool:
         """Is this ENTITY can be MODIFIED via UI.
         """
-        if not self.ui_model_modification_enabled():
+        if not self.ui_model_modification_allowed():
             return False
 
         from ._api import check_permissions
         return check_permissions('modify', self.model, self.id)
 
-    def ui_entity_deletion_enabled(self):
+    def ui_entity_deletion_allowed(self):
         """Is this ENTITY can be DELETED via UI.
         """
-        if not self.ui_model_deletion_enabled():
+        if not self.ui_model_deletion_allowed():
             return False
 
         from ._api import check_permissions

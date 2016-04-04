@@ -56,7 +56,7 @@ def profile_edit(args: dict, inp: dict) -> str:
         raise _http.error.NotFound()
 
     tpl_name = 'pytsite.auth_ui@profile-edit'
-    frm = _odm_ui.get_m_form('user', str(profile_owner.id), form_uid='auth-ui-profile')
+    frm = _odm_ui.get_m_form('user', str(profile_owner.id), uid='auth-ui-profile')
 
     # Give control of the response to an alternate endpoint
     target_ep = _reg.get('auth_ui.ep.profile_edit')

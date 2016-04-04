@@ -4,6 +4,7 @@ pytsite.widget = {
         self.em = $(em);
         self.cid = self.em.data('cid');
         self.uid = self.em.data('uid');
+        self.replaces = self.em.data('replaces');
         self.formArea = self.em.data('formArea');
         self.formStep = self.em.data('formStep');
         self.alwaysHidden = self.em.data('hidden') == 'True';
@@ -21,7 +22,7 @@ pytsite.widget = {
 
         // Load children widgets
         if (self.em.data('container') == 'True') {
-            self.em.find('.children .pytsite-widget:not(.initialized)').each(function() {
+            self.em.find('.children .pytsite-widget:not(.initialized)').each(function () {
                 var w = pytsite.widget.Widget(this);
                 self.childWidgets[w.uid] = w;
             });
@@ -83,8 +84,8 @@ pytsite.widget = {
 };
 
 // Automatically initialize all existing widgets after page load
-$(function() {
-    $('.pytsite-widget:not(.initialized)').each(function() {
+$(function () {
+    $('.pytsite-widget:not(.initialized)').each(function () {
         pytsite.widget.Widget(this);
     });
 });
