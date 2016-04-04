@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.1 (2016-04-04)
+### Fixed
+- `router`: work in multithreaded environment.
+
+
 ## 0.62 (2016-04-04)
 ### Added
 - `form`: multi-step lazy forms. 

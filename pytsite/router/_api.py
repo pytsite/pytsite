@@ -491,10 +491,18 @@ def current_url(strip_query: bool=False, resolve_alias: bool=True, lang: str=Non
 
 
 def ep_path(endpoint: str, args: dict = None, strip_lang=False) -> str:
-    return url(_map_adapters[_threading.get_id()].build(endpoint, args), relative=True, strip_lang=strip_lang)
+    tid = _threading.get_id()
+    if tid not in _map_adapters:
+        _map_adapters[tid] = _routes.bind(server_name())
+
+    return url(_map_adapters[tid].build(endpoint, args), relative=True, strip_lang=strip_lang)
 
 
 def ep_url(ep_name: str, args: dict = None, **kwargs) -> str:
     """Get URL for endpoint.
     """
-    return url(_map_adapters[_threading.get_id()].build(ep_name, args), relative=False, **kwargs)
+    tid = _threading.get_id()
+    if tid not in _map_adapters:
+        _map_adapters[tid] = _routes.bind(server_name())
+
+    return url(_map_adapters[tid].build(ep_name, args), relative=False, **kwargs)
