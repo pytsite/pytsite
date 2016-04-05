@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.62.2 (2016-04-05)
+### Fixed
+- `form`: asynchronous widget loading.
+- `ckeditor`: automatic update underneath textarea on changes.
+
+
 ## 0.62.1 (2016-04-04)
 ### Fixed
 - `router`: work in multithreaded environment.

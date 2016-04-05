@@ -13,28 +13,6 @@ pytsite.widget = {
         self.messagesEm = $('<div class="messages">');
         self.childWidgets = {};
 
-        // Add block for messages
-        var fGroup = self.em.find('.form-group').first();
-        if (fGroup.length)
-            fGroup.append(self.messagesEm);
-        else
-            self.em.append(self.messagesEm);
-
-        // Load children widgets
-        if (self.em.data('container') == 'True') {
-            self.em.find('.children .pytsite-widget:not(.initialized)').each(function () {
-                var w = pytsite.widget.Widget(this);
-                self.childWidgets[w.uid] = w;
-            });
-        }
-
-        // Load widget's assets
-        pytsite.browser.addAssets(self.assets);
-
-        // Initialize the widget
-        $(window).trigger('pytsite.widget.init:' + self.cid, [self.em, self]);
-        self.em.addClass('initialized');
-
         // Clear state fo the widget
         self.clearState = function () {
             self.em.removeClass('has-success');
@@ -80,6 +58,33 @@ pytsite.widget = {
 
             return self;
         };
+
+        // Add block for messages
+        var fGroup = self.em.find('.form-group').first();
+        if (fGroup.length)
+            fGroup.append(self.messagesEm);
+        else
+            self.em.append(self.messagesEm);
+
+        // Load children widgets
+        if (self.em.data('container') == 'True') {
+            self.em.find('.children .pytsite-widget:not(.initialized)').each(function () {
+                var w = pytsite.widget.Widget(this);
+                self.childWidgets[w.uid] = w;
+            });
+        }
+
+        // Load widget's assets
+        pytsite.browser.loadAssets(self.assets)
+            .done(function () {
+                // Initialize the widget
+                $(window).trigger('pytsite.widget.init:' + self.cid, [self.em, self]);
+                $(self).trigger('ready', [self]);
+                self.em.addClass('initialized');
+            })
+            .fail(function() {
+                $(self).trigger('initError', [self]);
+            });
     }
 };
 

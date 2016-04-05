@@ -4,6 +4,7 @@ pytsite.form = {
         self.em = em;
         self.id = em.attr('id');
         self.cid = em.data('cid');
+        self.weight = parseInt(em.data('weight'));
         self.getWidgetsEp = em.data('getWidgetsEp');
         self.validationEp = em.data('validationEp');
         self.reloadOnForward = em.data('reloadOnForward') == 'True';
@@ -99,6 +100,17 @@ pytsite.form = {
                 });
         };
 
+        // Count widgets for current step
+        self.count = function() {
+            var r = 0;
+            for (var uid in self.widgets) {
+                if (self.widgets[uid].formStep == self.currentStep)
+                    ++r;
+            }
+
+            return r;
+        };
+
         // Get form's title
         self.setTitle = function (title) {
             self.title.html('<h4>' + title + '</h4>');
@@ -118,21 +130,32 @@ pytsite.form = {
         };
 
         // Add a widget to the form
-        self.addWidget = function (widgetData) {
+        self.loadWidget = function (widgetData, index) {
+            var deffer = $.Deferred();
+
             // Initialize widget
             var widget = new pytsite.widget.Widget(widgetData);
 
-            if (widget.uid in self.widgets) {
-                if (widget.replaces == widget.uid)
-                    self.removeWidget(widget.uid);
-                else
-                    throw "Widget '" + widget.uid + "' already exists.";
-            }
+            $(widget)
+                .on('ready', function () {
+                    if (widget.uid in self.widgets) {
+                        if (widget.replaces == widget.uid)
+                            self.removeWidget(widget.uid);
+                        else
+                            throw "Widget '" + widget.uid + "' already exists.";
+                    }
 
-            // Append widget to the form
-            widget.hide();
-            self.areas[widget.formArea].append(widget.em);
-            self.widgets[widget.uid] = widget;
+                    // Append widget to the form
+                    widget.hide();
+                    self.widgets[widget.uid] = widget;
+
+                    deffer.resolve(index);
+                })
+                .on('initError', function () {
+                    deffer.reject(index);
+                });
+
+            return deffer;
         };
 
         // Remove widget from the form
@@ -146,36 +169,56 @@ pytsite.form = {
 
         // Load widgets for the current step
         self.loadWidgets = function (showAfterLoad) {
+            var deffer = $.Deferred();
             var progress = self.areas['body'].find('.progress');
+            var progressBar = progress.find('.progress-bar');
 
             // Show progress bar
-            progress.find('.progress-bar').css('width', '0');
             progress.removeClass('hidden');
+            progressBar.css('width', '0');
 
-            return self._request('POST', self.getWidgetsEp)
+            self._request('POST', self.getWidgetsEp)
                 .done(function (resp) {
+                    var numWidgetsToLoad = resp.length;
 
-                    var totalWidgets = resp.length;
-
-                    for (var i = 0; i < totalWidgets; i++) {
-                        // Increase progress bar value
-                        var percents = (100 / totalWidgets) * (i + 1);
-                        progress.find('.progress-bar').css('width', percents + '%');
-
+                    for (var i = 0; i < numWidgetsToLoad; i++) {
                         // Append widget
-                        self.addWidget(resp[i]);
+                        self.loadWidget(resp[i], i)
+                            .done(function (index) {
+                                // Increase progress bar value
+                                var percents = (100 / numWidgetsToLoad) * (index + 1);
+                                progressBar.css('width', percents + '%');
+
+                                // This widget is the last one
+                                if (self.count() == numWidgetsToLoad) {
+                                    // Sort all loaded widgets by weight
+                                    var sortedWidgets = [];
+                                    for (var uid in self.widgets) {
+                                        sortedWidgets.push(self.widgets[uid]);
+                                    }
+                                    sortedWidgets.sort(function(a, b) {return a.weight - b.weight});
+
+                                    // Place loaded widgets to the form
+                                    for (var k = 0; k < sortedWidgets.length; k++)
+                                        self.areas[sortedWidgets[k].formArea].append(sortedWidgets[k].em);
+
+                                    // Hide progress bar
+                                    progress.addClass('hidden');
+
+                                    // Fill widgets with data from location string
+                                    self.fill(pytsite.browser.getLocation().query);
+
+                                    // Show loaded widgets
+                                    if (showAfterLoad == true)
+                                        self.showWidgets();
+
+                                    deffer.resolve();
+                                }
+                            });
                     }
-
-                    // Hide progress bar
-                    progress.addClass('hidden');
-
-                    // Fill widgets with data from location string
-                    self.fill(pytsite.browser.getLocation().query);
-
-                    // Show loaded widgets
-                    if (showAfterLoad == true)
-                        self.showWidgets();
                 });
+
+            return deffer;
         };
 
         // Fill form with data
@@ -216,7 +259,7 @@ pytsite.form = {
                             }
                         }
 
-                        $("html, body").animate({ scrollTop: self.em.find('.has-error').first().offset().top + 'px' });
+                        $("html, body").animate({scrollTop: self.em.find('.has-error').first().offset().top + 'px'});
                         deffer.reject();
                     }
                 });

@@ -23,43 +23,98 @@ pytsite.browser = {
             assetPath = urlParts[1];
         }
 
-        return '/assets/{0}/{1}'.format(pkgName, assetPath);
+        return location.origin + '/assets/{0}/{1}'.format(pkgName, assetPath);
     },
 
-    addAssets: function (loc) {
-        if (loc instanceof String)
-            loc = [loc];
+    loadAssets: function (loc) {
+        var deffer = $.Deferred();
 
-        for (var i = 0; i < loc.length; i++) {
-            if (loc[i] instanceof String) {
-                if (loc[i].indexOf('.js') > 0)
-                    pytsite.browser.addJS(loc[i]);
-                else if (loc[i].indexOf('.css') > 0)
-                    pytsite.browser.addCSS(loc[i]);
-                else
-                    throw "Cannot determine type of the asset '{0}'.".format(loc[i]);
+        setTimeout(function () {
+            if (loc instanceof String)
+                loc = [loc];
+
+            if (loc.length > 0) {
+                for (var i = 0; i < loc.length; i++) {
+                    var assetSrc;
+                    var assetType;
+
+                    if (loc[i] instanceof String) {
+                        assetSrc = loc[i];
+                        if (loc[i].indexOf('.js') > 0)
+                            assetType = 'js';
+                        else if (loc[i].indexOf('.css') > 0)
+                            assetType = 'css';
+                    }
+                    else if (loc[i] instanceof Array) {
+                        assetSrc = loc[i][0];
+                        if (loc[i][1] == 'js')
+                            assetType = 'js';
+                        else if (loc[i][1] == 'css')
+                            assetType = 'css';
+                    }
+
+                    switch (assetType) {
+                        case 'js':
+                            pytsite.browser.addJS(assetSrc, i)
+                                .done(function (index) {
+                                    if (index + 1 == loc.length)
+                                        deffer.resolve();
+                                });
+                            break;
+
+                        case 'css':
+                            pytsite.browser.addCSS(assetSrc, i)
+                                .done(function (index) {
+                                    if (index + 1 == loc.length)
+                                        deffer.resolve();
+                                });
+                            break;
+
+                        default:
+                            deffer.reject();
+                            throw "Cannot determine type of the asset '{0}'.".format(assetSrc);
+                    }
+                }
             }
-            else if (loc[i] instanceof Array) {
-                if (loc[i][1] == 'js')
-                    pytsite.browser.addJS(loc[i][0]);
-                else if (loc[i][1] == 'css')
-                    pytsite.browser.addCSS(loc[i][0]);
-                else
-                    throw "Cannot determine type of the asset '{0}'.".format(loc[i][0]);
+            else {
+                deffer.resolve();
             }
-        }
+        }, 0);
+
+        return deffer;
     },
 
-    addJS: function (loc) {
-        loc = pytsite.browser.assetUrl(loc);
-        if (!$('script[src="' + loc + '"]').length)
-            $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
+    addJS: function (loc, index) {
+        var deffer = $.Deferred();
+
+        setTimeout(function () {
+            loc = pytsite.browser.assetUrl(loc);
+            if (!$('script[src="' + loc + '"]').length) {
+                $.ajaxSetup({cache: true});
+                $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
+                $.ajaxSetup({cache: false});
+            }
+
+            deffer.resolve(index);
+        }, 0);
+
+        return deffer;
     },
 
-    addCSS: function (loc) {
-        loc = pytsite.browser.assetUrl(loc);
-        if (!$('link[href="' + loc + '"]').length)
-            $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
+    addCSS: function (loc, index) {
+        var deffer = $.Deferred();
+
+        setTimeout(function () {
+            loc = pytsite.browser.assetUrl(loc);
+            if (!$('link[href="' + loc + '"]').length) {
+                $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
+
+            }
+
+            deffer.resolve(index);
+        }, 0);
+
+        return deffer;
     },
 
     getLocation: function (skipEmpty) {

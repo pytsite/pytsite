@@ -1,6 +1,6 @@
 $(window).on('pytsite.widget.init:pytsite.ckeditor._widget.CKEditor', function (e, widget) {
     widget.find('textarea').each(function () {
-        $(this).ckeditor({
+        var editor = $(this).ckeditor({
             title: false,
             extraPlugins: 'youtube,codesnippet,stylescombo',
             language: pytsite.lang.current(),
@@ -19,6 +19,10 @@ $(window).on('pytsite.widget.init:pytsite.ckeditor._widget.CKEditor', function (
             },
             extraAllowedContent: 'div p blockquote img ul ol li a i span[data-*,hidden,lang](*);script[*];code(*);pre(*)',
             disableNativeSpellChecker: false
+        }).editor;
+
+        editor.on('change', function() {
+            this.updateElement();
         });
     });
 });
