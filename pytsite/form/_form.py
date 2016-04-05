@@ -20,6 +20,8 @@ class Form:
         if not _router.request():
             raise RuntimeError('Form cannot be created without HTTP request context.')
 
+        self._setup_completed = False
+
         # Widgets
         self._widgets = {}  # type: _Dict[str, _widget.Base]
 
@@ -83,44 +85,6 @@ class Form:
             icon='fa fa-save',
             form_area='footer',
         ))
-
-        # Setup hook
-        self.setup()
-
-        if self._steps > 1:
-            # Submit button only on the last step
-            self.get_widget('action-submit').form_step = self.steps
-
-            # 'Next' button for all steps except the last one
-            for i in range(1, self._steps):
-                self.add_widget(_widget.button.Submit(
-                    weight=20,
-                    uid='action-forward-' + str(i + 1),
-                    value=_lang.t('pytsite.form@forward'),
-                    form_area='footer',
-                    form_step=i,
-                    color='primary',
-                    icon='fa fa-forward',
-                    css='form-action-forward',
-                    data={
-                        'to-step': i + 1,
-                    }
-                ))
-
-            # 'Back' button for all steps except the first one
-            for i in range(2, self._steps + 1):
-                self.add_widget(_widget.button.Button(
-                    weight=10,
-                    uid='action-backward-' + str(i - 1),
-                    value=_lang.t('pytsite.form@backward'),
-                    form_area='footer',
-                    form_step=i,
-                    icon='fa fa-backward',
-                    css='form-action-backward',
-                    data={
-                        'to-step': i - 1,
-                    }
-                ))
 
         # Assets
         _assetman.add('pytsite.form@css/form.css')
@@ -306,6 +270,10 @@ class Form:
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
+        if not self._setup_completed:
+            self.setup()
+            self._after_setup()
+
         for field_name, field_value in values.items():
             if self.has_widget(field_name):
                 self.get_widget(field_name).set_val(field_value, **kwargs)
@@ -337,6 +305,10 @@ class Form:
     def validate(self):
         """Validate the form.
         """
+        if not self._setup_completed:
+            self.setup()
+            self._after_setup()
+
         errors = {}
 
         # Validate each widget
@@ -354,6 +326,10 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
+        if not self._setup_completed:
+            self.setup()
+            self._after_setup()
+
         _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
 
         return _tpl.render(self._tpl, {'form': self})
@@ -407,11 +383,16 @@ class Form:
         """Hide a widget.
         """
         self.get_widget(uid).hide()
+
         return self
 
     def get_widgets(self, area: str = None, step: int = None) -> _Dict[str, _widget.Base]:
         """Get widgets.
         """
+        if not self._setup_completed:
+            self.setup()
+            self._after_setup()
+
         widgets = []
 
         # First, filter widgets by area
@@ -442,3 +423,41 @@ class Form:
         """Render form's widget.
         """
         return self.get_widget(widget_uid).get_html_em()
+
+    def _after_setup(self):
+        if self._steps > 1:
+            # Submit button only on the last step
+            self.get_widget('action-submit').form_step = self.steps
+
+            # 'Next' button for all steps except the last one
+            for i in range(1, self._steps):
+                self.add_widget(_widget.button.Submit(
+                    weight=20,
+                    uid='action-forward-' + str(i + 1),
+                    value=_lang.t('pytsite.form@forward'),
+                    form_area='footer',
+                    form_step=i,
+                    color='primary',
+                    icon='fa fa-forward',
+                    css='form-action-forward',
+                    data={
+                        'to-step': i + 1,
+                    }
+                ))
+
+            # 'Back' button for all steps except the first one
+            for i in range(2, self._steps + 1):
+                self.add_widget(_widget.button.Button(
+                    weight=10,
+                    uid='action-backward-' + str(i - 1),
+                    value=_lang.t('pytsite.form@backward'),
+                    form_area='footer',
+                    form_step=i,
+                    icon='fa fa-backward',
+                    css='form-action-backward',
+                    data={
+                        'to-step': i - 1,
+                    }
+                ))
+
+        self._setup_completed = True

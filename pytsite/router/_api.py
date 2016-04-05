@@ -57,6 +57,12 @@ class Rule(_Rule):
         return super().get_rules(rules_map)
 
 
+def set_request(r: _http.request.Request):
+    """Set request for the current thread.
+    """
+    _requests[_threading.get_id()] = r
+
+
 def request() -> _Union[_http.request.Request, None]:
     """Get request belonged to the current thread.
     """
@@ -241,8 +247,8 @@ def dispatch(env: dict, start_response: callable):
     # Replace url adapter with modified environment
     _map_adapters[tid] = _routes.bind_to_environ(env)
 
-    # Creating request
-    _requests[tid] = _http.request.Request(env)
+    # Creating request context
+    set_request(_http.request.Request(env))
 
     # Session setup
     sid = request().cookies.get('PYTSITE_SESSION')

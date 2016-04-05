@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.62.3 (2016-04-05)
+### Fixed
+- `ajax`: typo.
+- `form`: lazy setup on server side.
+
+
 ## 0.62.2 (2016-04-05)
 ### Fixed
 - `form`: asynchronous widget loading.

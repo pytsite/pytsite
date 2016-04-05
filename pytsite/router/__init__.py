@@ -2,7 +2,7 @@
 """
 from ._api import add_rule, add_path_alias, base_path, base_url, call_ep, current_path, current_url, dispatch, ep_path,\
     ep_url, is_base_url, is_ep_callable, get_no_cache, set_no_cache, remove_path_alias, resolve_ep_callable, scheme, \
-    server_name, url, session, request
+    server_name, url, session, request, set_request
 
 
 __author__ = 'Alexander Shepetko'

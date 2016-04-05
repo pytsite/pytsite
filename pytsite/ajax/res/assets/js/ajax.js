@@ -21,10 +21,10 @@ pytsite.ajax = {
     },
 
     get: function (endpoint, data) {
-        return this._request('GET', endpoint, data)
+        return pytsite.ajax.request('GET', endpoint, data)
     },
 
     post: function (endpoint, data) {
-        return this._request('POST', endpoint, data)
+        return pytsite.ajax.request('POST', endpoint, data)
     }
 };
