@@ -178,7 +178,6 @@ class Result:
     def __iter__(self):
         """Get iterator.
         """
-        self._current = 0
         return self
 
     def __next__(self) -> _entity.Entity:
@@ -198,7 +197,7 @@ class Result:
     def explain(self) -> dict:
         """Explain the cursor.
         """
-        if not self._current:
+        if not self._cursor:
             raise RuntimeError('Cannot explain cached results.')
 
         return self._cursor.explain()

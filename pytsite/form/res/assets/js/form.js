@@ -101,7 +101,7 @@ pytsite.form = {
         };
 
         // Count widgets for current step
-        self.count = function() {
+        self.count = function () {
             var r = 0;
             for (var uid in self.widgets) {
                 if (self.widgets[uid].formStep == self.currentStep)
@@ -180,14 +180,16 @@ pytsite.form = {
             self._request('POST', self.getWidgetsEp)
                 .done(function (resp) {
                     var numWidgetsToLoad = resp.length;
+                    var progressCount = 1;
 
                     for (var i = 0; i < numWidgetsToLoad; i++) {
                         // Append widget
                         self.loadWidget(resp[i], i)
                             .done(function (index) {
                                 // Increase progress bar value
-                                var percents = (100 / numWidgetsToLoad) * (index + 1);
-                                progressBar.css('width', percents + '%');
+                                var percents = (100 / numWidgetsToLoad) * progressCount++;
+                                progressBar.width(percents + '%');
+                                progressBar.attr('aria-valuenow', percents);
 
                                 // This widget is the last one
                                 if (self.count() == numWidgetsToLoad) {
@@ -196,7 +198,9 @@ pytsite.form = {
                                     for (var uid in self.widgets) {
                                         sortedWidgets.push(self.widgets[uid]);
                                     }
-                                    sortedWidgets.sort(function(a, b) {return a.weight - b.weight});
+                                    sortedWidgets.sort(function (a, b) {
+                                        return a.weight - b.weight
+                                    });
 
                                     // Place loaded widgets to the form
                                     for (var k = 0; k < sortedWidgets.length; k++)

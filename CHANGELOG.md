@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.62.4 (2016-04-05)
+### Fixed
+- `widget`: incorrect page number processing from request input data in `widget.static.Pager`.
+- `odm`: incorrect variable usage in `finder.Result.explain()`.
+- `lang`: IETF language region completion.
+- `browser`: disabled transitions in Bootstrap's progress bar.
+- `form`: progress bar update precision.
+
+
 ## 0.62.3 (2016-04-05)
 ### Fixed
 - `ajax`: typo.

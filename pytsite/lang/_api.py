@@ -280,10 +280,7 @@ def ietf_tag(language: str=None, region: str=None, sep: str='-') -> str:
         language = get_current()
 
     if not region:
-        if language not in __default_regions:
-            raise ValueError("Cannot determine default region for language '{}'.".format(language))
-        else:
-            region = __default_regions[language]
+        region = __default_regions[language] if language in __default_regions else language
 
     return language.lower() + sep + region.upper()
 

@@ -2,6 +2,11 @@
     display: inline-block;
 }
 
+.progress-bar {
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
 @media (min-width: 0) {
     .text-xs-B-left {
         text-align: left;

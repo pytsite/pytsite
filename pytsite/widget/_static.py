@@ -166,11 +166,13 @@ class Pager(_base.Base):
         """
         super().__init__(uid, **kwargs)
 
+        inp = _router.request().inp
+
         self._total_items = int(kwargs.get('total_items'))
         self._items_per_page = int(kwargs.get('per_page', 100))
         self._total_pages = _ceil(self._total_items / self._items_per_page)
         self._visible_numbers = int(kwargs.get('visible_numbers', 5)) - 1
-        self._current_page = int(_router.request().inp.get('page', 1))
+        self._current_page = inp['page'] if ('page' in inp and isinstance(inp['page'], int)) else 1
 
         if self._current_page < 1:
             self._current_page = 1
