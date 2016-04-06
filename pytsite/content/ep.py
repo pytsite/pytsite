@@ -166,7 +166,7 @@ def propose(args: dict, inp: dict) -> str:
 
     frm = _odm_ui.get_m_form(model, redirect=_router.base_url())
     frm.title = None
-    frm.get_widget('form-actions').get_child('action-cancel').href = _router.base_url()
+    frm.get_widget('action-cancel').href = _router.base_url()
 
     _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
 

@@ -93,10 +93,9 @@ class Account(_odm_ui.UIEntity):
         return str(self.id), self.title, self.currency, balance, self.owner.full_name
 
     def ui_mass_action_get_entity_description(self) -> str:
-
         return '{} ({}, {})'.format(self.title, str(self.id), self.currency)
 
-    def ui_m_form_setup(self, frm):
+    def ui_m_form_setup_widgets(self, frm):
         """Modify form setup hook.
 
         :type frm: pytsite.form.Form
@@ -279,7 +278,7 @@ class Transaction(_odm_ui.UIEntity):
         # Transactions cannot be deleted via UI
         return False
 
-    def ui_m_form_setup(self, frm):
+    def ui_m_form_setup_widgets(self, frm):
         """Modify form setup hook.
 
         :type frm: pytsite.form.Form

@@ -1,6 +1,6 @@
 """Taxonomy Models.
 """
-from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget
+from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -96,9 +96,8 @@ class Term(_odm_ui.UIEntity):
             self.f_get('order'),
         )
 
-    def ui_m_form_setup(self, frm):
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
-        :type frm: pytsite.form.Form
         """
         frm.add_widget(_widget.input.Text(
             weight=10,
@@ -137,6 +136,7 @@ class Term(_odm_ui.UIEntity):
             lang_title = _lang.t('lang_title_' + _lang.get_current())
         else:
             lang_title = _lang.t('lang_title_' + self.language)
+
         frm.add_widget(_widget.static.Text(
             uid='language',
             weight=900,

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.5 (2016-04-06)
+### Fixed
+- `form`: various fixes.
+
+
 ## 0.62.4 (2016-04-05)
 ### Fixed
 - `widget`: incorrect page number processing from request input data in `widget.static.Pager`.

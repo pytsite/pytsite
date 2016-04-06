@@ -312,12 +312,20 @@ pytsite.form = {
         // Move to the next step
         self.forward = function () {
             var deffer = $.Deferred();
+            var submitButton = self.em.find('.form-action-submit button');
 
             // Validating the form for the current step
+            submitButton.each(function () {
+                $(this).attr('disabled', true);
+            });
             self.validate()
                 .done(function () {
                     // It is not a last step, so just load (if necessary) and show widgets for the next step
                     if (self.currentStep < self.totalSteps) {
+                        submitButton.each(function () {
+                            $(this).attr('disabled', false);
+                        });
+
                         // Hide widgets for the current step
                         self.hideWidgets();
 
@@ -361,6 +369,10 @@ pytsite.form = {
                     }
                 })
                 .fail(function () {
+                    submitButton.each(function () {
+                        $(this).attr('disabled', false);
+                    });
+
                     deffer.reject();
                 });
 

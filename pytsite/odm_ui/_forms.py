@@ -22,13 +22,10 @@ class Modify(_form.Form):
 
         super().__init__(uid, **kwargs)
 
-    def setup(self):
+    def _setup_form(self):
         """Hook.
         """
         from ._api import check_permissions, dispense_entity
-
-        # Default redirect
-        self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
 
         # Checking 'create' permission
         if not self._eid and not check_permissions('create', self._model):
@@ -57,15 +54,26 @@ class Modify(_form.Form):
         if self._update_meta_title:
             _metatag.t_set('title', self.title)
 
-        # Setting up the form through entity hook
-        entity.ui_m_form_setup(self)
-        _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
+        # Default redirect
+        if not self._redirect:
+            self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
 
         # Action URL
         self._action = _router.ep_url('pytsite.odm_ui.ep.m_form_submit', {
             'model': self._model,
             'id': self._eid or '0',
         })
+
+        # CSS
+        self.css += ' odm-ui-form odm-ui-form-' + self._model
+
+    def _setup_widgets(self):
+        from ._api import dispense_entity
+
+        # Setting up the form through entity hook and global event
+        entity = dispense_entity(self._model, self._eid)
+        entity.ui_m_form_setup_widgets(self)
+        _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
 
         # Cancel button
         self.add_widget(_widget.button.Link(
@@ -77,9 +85,6 @@ class Modify(_form.Form):
             dismiss='modal',
             form_area='footer',
         ))
-
-        # CSS
-        self.css += ' odm-ui-form odm-ui-form-' + self._model
 
 
 class MassAction(_form.Form):
@@ -98,7 +103,12 @@ class MassAction(_form.Form):
 
         super().__init__(uid, **kwargs)
 
-    def setup(self):
+    def _setup_form(self):
+        """Hook.
+        """
+        self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
+
+    def _setup_widgets(self):
         """Hook.
         """
         from ._api import dispense_entity
@@ -110,9 +120,6 @@ class MassAction(_form.Form):
             self.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
             ol.append(_html.Li(entity.ui_mass_action_get_entity_description()))
         self.add_widget(_widget.static.HTML(uid='ids-text', em=ol))
-
-        # Redirect after successful form submit
-        self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
 
         # Submit button
         submit_button = self.get_widget('action-submit')  # type: _widget.button.Submit
@@ -133,12 +140,12 @@ class MassAction(_form.Form):
 class Delete(MassAction):
     """Entities Delete Form.
     """
-    def setup(self):
+    def _setup_form(self):
         """Hook.
         """
         from ._api import check_permissions
 
-        super().setup()
+        super()._setup_form()
 
         model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
 
@@ -149,8 +156,13 @@ class Delete(MassAction):
         # Action URL
         self._action = _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {'model': self._model})
 
-        # Change submit button color
-        self.get_widget('action-submit').color = 'danger'
-
         # Page title
         _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + self._model))
+
+    def _setup_widgets(self):
+        """Hook.
+        """
+        super()._setup_widgets()
+
+        # Change submit button color
+        self.get_widget('action-submit').color = 'danger'

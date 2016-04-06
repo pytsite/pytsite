@@ -1,6 +1,6 @@
 """PytSite ODM UI Entity.
 """
-from typing import Union as _Union, Tuple as _Tuple, Dict as _Dict
+from typing import Tuple as _Tuple, Dict as _Dict
 from pytsite import odm as _odm, router as _router, form as _form
 
 __author__ = 'Alexander Shepetko'
@@ -86,12 +86,17 @@ class UIMixin:
         return ''
 
     def ui_m_form_setup(self, frm: _form.Form):
-        """Modify form setup hook.
+        """Hook.
+        """
+        pass
+
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
+        """Hook.
         """
         pass
 
     def ui_m_form_submit(self, frm: _form.Form):
-        """Modify form submit hook.
+        """Hook.
         """
         pass
 

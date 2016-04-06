@@ -11,7 +11,7 @@ __license__ = 'MIT'
 _settings = {}
 
 
-def define(uid: str, form_setup: _Callable, menu_title: str, menu_icon: str, menu_weight: int = 0,
+def define(uid: str, form_widgets_setup: _Callable, menu_title: str, menu_icon: str, menu_weight: int = 0,
            perm_name: str = '*', perm_description: str = None):
     """Define setting.
     """
@@ -20,7 +20,7 @@ def define(uid: str, form_setup: _Callable, menu_title: str, menu_icon: str, men
 
     _settings[uid] = {
         'title': menu_title,
-        'form_setup': form_setup,
+        'form_widgets_setup': form_widgets_setup,
         'weight': menu_weight,
         'perm_name': perm_name,
         'perm_description': perm_description,

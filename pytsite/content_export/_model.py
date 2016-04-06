@@ -133,6 +133,9 @@ class ContentExport(_odm.Entity, _odm_ui.UIMixin):
         frm.reload_on_forward = True
         frm.steps = 2
 
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
+        """Hook.
+        """
         frm.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='enabled',

@@ -65,7 +65,7 @@ def __init():
     events.listen('pytsite.cron.weekly', _eh.cron_weekly)
 
     # Settings
-    settings.define('content', _settings.form_setup, __name__ + '@content', 'fa fa-file-o',
+    settings.define('content', _settings.form_widgets_setup, __name__ + '@content', 'fa fa-file-o',
                     perm_name='pytsite.content.settings',
                     perm_description=__name__ + '@manage_content_settings_permission')
 

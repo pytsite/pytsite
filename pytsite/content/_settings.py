@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def form_setup(frm: _form.Form, values: dict):
+def form_widgets_setup(frm: _form.Form, values: dict):
     i = 10
     for l in _lang.langs():
         frm.add_widget(_widget.input.Text(

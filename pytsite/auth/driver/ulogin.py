@@ -3,7 +3,6 @@
 import json as _json
 from time import strptime as _strptime
 from datetime import datetime as _datetime
-from urllib.parse import urlencode as _urlencode
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, http as _http, \
     logger as _logger, router as _router, html as _html
@@ -32,7 +31,7 @@ class _LoginWidget(_widget.Base):
 class _LoginForm(_form.Form):
     """ULogin Login Form.
     """
-    def setup(self):
+    def _setup_widgets(self):
         """_setup() hook.
         """
         self.add_widget(_widget.input.Hidden(
@@ -135,8 +134,6 @@ class Driver(AbstractDriver):
             _api.authorize(user.save())
 
             # Unneeded arguments
-            if '__form_location' in inp:
-                del inp['__form_location']
             if 'token' in inp:
                 del inp['token']
 
@@ -153,8 +150,6 @@ class Driver(AbstractDriver):
             _router.session().add_error(_lang.t('pytsite.auth@authorization_error'))
             if '__redirect' in inp:
                 del inp['__redirect']
-            if '__form_location' in inp:
-                del inp['__form_location']
             if 'token' in inp:
                 del inp['token']
 

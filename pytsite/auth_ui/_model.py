@@ -1,7 +1,7 @@
 """ODM UI Models.
 """
 from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
-    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui
+    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui, form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -65,14 +65,15 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             self.f_get('last_activity', fmt='pretty_date_time')
         )
 
-    def ui_m_form_setup(self, frm):
-        """Modify form setup hook.
+    def ui_m_form_setup(self, frm: _form.Form):
+        """Hook.
+        """
+        _metatag.t_set('title', self.t('profile_edit'))
 
-        :type frm: pytsite.form.Form
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
+        """Hook.
         """
         current_user = _auth.get_current_user()
-
-        _metatag.t_set('title', self.t('profile_edit'))
 
         # Profile is public
         frm.add_widget(_widget.select.Checkbox(
@@ -278,17 +279,19 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         return self.f_get('name'), _lang.t(self.f_get('description')), ' '.join(perms)
 
-    def ui_m_form_setup(self, frm):
-        """Modify form setup hook.
-        :type frm: pytsite.form.Form
+    def ui_m_form_setup(self, frm: _form.Form):
+        """Hook.
         """
-        if self.f_get('name') == 'admin':
+        if self.name == 'admin':
             raise _http.error.Forbidden()
 
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
+        """Hook.
+        """
         frm.add_widget(_widget.input.Text(
             weight=10,
             uid='name',
-            value=self.f_get('name'),
+            value=self.name,
             label=self.t('name'),
             required=True,
         ))
@@ -296,7 +299,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
         frm.add_widget(_widget.input.Text(
             weight=20,
             uid='description',
-            value=self.f_get('description'),
+            value=self.description,
             label=self.t('description'),
             required=True,
         ))

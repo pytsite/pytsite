@@ -130,13 +130,14 @@ class ContentImport(_odm_ui.UIEntity):
 
         return model, driver, driver_options, content_author, w_images, enabled, errors, paused_till, owner
 
-    def ui_m_form_setup(self, frm):
-        """Setup of a modification form.
-
-        :type frm: pytsite.form.Form
+    def ui_m_form_setup(self, frm: _form.Form):
+        """Hook.
         """
         frm.steps = 2
 
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
+        """Setup of a modification form.
+        """
         frm.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='enabled',
@@ -244,16 +245,3 @@ class ContentImport(_odm_ui.UIEntity):
         if frm.step == 2:
             driver = _api.get_driver(_router.request().inp.get('driver'))
             driver.build_settings_form(frm, self.driver_opts)
-
-    def ui_m_form_submit(self, frm: _form.Form):
-        """Modify form submit hook.
-        """
-        options = {}
-        for uid, widget in frm.get_widgets().items():
-            if uid.startswith('driver_opts_'):
-                options[uid.replace('driver_opts_', '')] = widget.value
-
-        frm.add_widget(_widget.input.Hidden(
-            uid='driver_opts',
-            value=options,
-        ))

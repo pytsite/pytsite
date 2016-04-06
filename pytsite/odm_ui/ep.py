@@ -50,12 +50,11 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     entity_id = args.get('id')
 
     # Re-constructing the form
-    frm = _api.get_m_form(model, entity_id)
+    frm = _api.get_m_form(model, entity_id).fill(inp, mode='validation')
 
-    # Validate form
+    # Validate the form
     try:
-        frm.fill(inp, mode='validation').validate()
-
+        frm.validate()
     except _form.error.ValidationError as e:
         _router.session().add_error(str(e.errors))
         raise _http.error.InternalServerError()
@@ -82,10 +81,7 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
         _router.session().add_error(str(e))
         _logger.error(str(e), __name__)
 
-    # Redirect location
-    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
-
-    return _http.response.Redirect(redirect)
+    return _http.response.Redirect(frm.redirect)
 
 
 def d_form(args: dict, inp: dict) -> str:

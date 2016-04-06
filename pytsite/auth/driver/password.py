@@ -12,8 +12,8 @@ __license__ = 'MIT'
 class _LoginForm(_form.Form):
     """Password Login Form.
     """
-    def setup(self):
-        """_setup() hook.
+    def _setup_widgets(self):
+        """Hook.
         """
         for k, v in _router.request().inp.items():
             self.add_widget(_widget.input.Hidden(uid=self.uid + '-' + k, name=k, value=v, form_area='hidden'))
@@ -33,7 +33,7 @@ class _LoginForm(_form.Form):
             required=True,
         ))
 
-        self.get_widget('form-actions').get_child('action-submit').value = _lang.t('pytsite.auth@login')
+        self.get_widget('action-submit').value = _lang.t('pytsite.auth@login')
 
 
 class Driver(AbstractDriver):

@@ -106,7 +106,7 @@ class Text(Input):
         self._append = kwargs.get('append')
         self._css = ' '.join((self._css, 'widget-input-text'))
         self._type = 'text'
-        self.assets.extend(['pytsite.widget@js/text.js'])
+        self.assets.append('pytsite.widget@js/text.js')
 
     def get_html_em(self) -> _html.Element:
         """Render the widget
@@ -198,7 +198,7 @@ class Number(Text):
         if self._max is not None:
             self.add_rule(_validation.rule.LessOrEqual(than=self._max))
 
-        _browser.include('inputmask')
+        self._assets.extend(_browser.get_assets('inputmask'))
 
 
 class Integer(Number):

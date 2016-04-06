@@ -1,7 +1,7 @@
 """PytSite ODM Entities Browser.
 """
 from typing import Callable as _Callable
-from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _client, \
+from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _browser, \
     odm as _odm, lang as _lang, http as _http, html as _html
 from . import _api
 from ._entity import UIMixin, UIEntity
@@ -82,8 +82,8 @@ class Browser:
         if not self.data_fields:
             raise Exception("No data fields are defined.")
 
-        _client.include('bootstrap-table')
-        _client.include('font-awesome')
+        _browser.include('bootstrap-table')
+        _browser.include('font-awesome')
         _assetman.add('pytsite.odm_ui@js/browser.js')
 
     @property

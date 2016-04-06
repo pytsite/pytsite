@@ -7,7 +7,7 @@ from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, util as _util
+    tpl as _tpl, auth_ui as _auth_ui, util as _util, form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -50,10 +50,8 @@ class Tag(_taxonomy.model.Term):
         self.define_field(_odm.field.RefsUniqueList('sections', model='section'))
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Hook.
-
-        :type browser: pytsite.odm_ui._browser.Browser
         """
         super().ui_browser_setup(browser)
         browser.default_sort_field = 'weight'
@@ -452,12 +450,15 @@ class Content(_odm_ui.UIEntity):
 
         return tuple(r)
 
-    def ui_m_form_setup(self, frm):
+    def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
-        :type frm: pytsite.form.Form
         """
         _assetman.add('pytsite.content@js/content.js')
 
+    def ui_m_form_setup_widgets(self, frm):
+        """Hook.
+        :type frm: pytsite.form.Form
+        """
         current_user = _auth.get_current_user()
 
         # Starred

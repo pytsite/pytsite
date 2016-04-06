@@ -2,7 +2,7 @@
 """
 from decimal import Decimal as _Decimal
 from datetime import datetime as _datetime
-from pytsite import odm as _odm, odm_ui as _odm_ui, widget as _widget
+from pytsite import odm as _odm, odm_ui as _odm_ui, widget as _widget, form as _form
 from . import _widget as _currency_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -59,10 +59,8 @@ class Rate(_odm_ui.UIEntity):
     def ui_mass_action_get_entity_description(self):
         return '{}, {} -&gt; {}, {}'.format(str(self.date), self.source, self.destination, str(self.rate))
 
-    def ui_m_form_setup(self, frm):
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Modify form setup hook.
-
-        :type frm: pytsite.form.Form
         """
         frm.add_widget(_widget.select.DateTime(
             uid='date',

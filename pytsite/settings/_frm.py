@@ -13,21 +13,22 @@ class SettingsForm(_form.Form):
 
         super().__init__(uid, **kwargs)
 
-    def setup(self):
+    def _setup_form(self):
+        self._action = _router.ep_url('pytsite.settings.ep.form_submit', {'uid': self._setting_uid})
+
+    def _setup_widgets(self):
         from ._api import get_definition, get_setting
 
         setting_def = get_definition(self._setting_uid)
-        setting_def['form_setup'](self, get_setting(self._setting_uid))
+        setting_def['form_widgets_setup'](self, get_setting(self._setting_uid))
 
         self.data.update({
             'setting-uid': self._setting_uid
         })
 
-        self._action = _router.ep_url('pytsite.settings.ep.form_submit', {'uid': self._setting_uid})
-
         self.add_widget(_widget.button.Link(
             uid='action-cancel',
-            weight=20,
+            weight=10,
             value=_lang.t('pytsite.settings@cancel'),
             icon='fa fa-ban',
             href=_router.ep_url('pytsite.admin.ep.dashboard'),

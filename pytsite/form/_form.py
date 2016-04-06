@@ -20,7 +20,7 @@ class Form:
         if not _router.request():
             raise RuntimeError('Form cannot be created without HTTP request context.')
 
-        self._setup_completed = False
+        self._widgets_added = False
 
         # Widgets
         self._widgets = {}  # type: _Dict[str, _widget.Base]
@@ -45,7 +45,12 @@ class Form:
         self._step = kwargs.get('step', 1)
         self._modal = kwargs.get('modal', False)
         self._reload_on_forward = kwargs.get('reload_on_forward', False)
-        self._redirect = kwargs.get('redirect')
+
+        # Redirect info
+        if '__redirect' in _router.request().inp:
+            self._redirect = _router.request().inp['__redirect']
+        else:
+            self._redirect = kwargs.get('redirect')
 
         # AJAX endpoint to load form's widgets
         self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form.ajax.get_widgets')
@@ -69,7 +74,7 @@ class Form:
         # Convert kwargs to data-attributes. It is convenient method to export additional form constructor's arguments
         # in child classes. It is necessary to pass arguments back via AJAX requests when validating forms.
         skip_data_kwargs = ('area_hidden_css', 'area_header_css', 'area_body_css', 'area_footer_css', 'messages_css',
-                            'name', 'method', 'action', 'modal', 'tpl', 'css', 'title')
+                            'name', 'method', 'action', 'modal', 'tpl', 'css', 'title', 'redirect')
         for k, v in kwargs.items():
             if k not in skip_data_kwargs:
                 if isinstance(v, (tuple, list)):
@@ -84,14 +89,23 @@ class Form:
             color='primary',
             icon='fa fa-save',
             form_area='footer',
+            css='form-action-submit',
         ))
 
         # Assets
         _assetman.add('pytsite.form@css/form.css')
         _assetman.add('pytsite.form@js/form.js')
 
-    def setup(self):
-        """_setup() hook.
+        # Setup hook
+        self._setup_form()
+
+    def _setup_form(self):
+        """Hook.
+        """
+        pass
+
+    def _setup_widgets(self):
+        """Hook.
         """
         pass
 
@@ -270,9 +284,7 @@ class Form:
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
-        if not self._setup_completed:
-            self.setup()
-            self._after_setup()
+        self.setup_widgets()
 
         for field_name, field_value in values.items():
             if self.has_widget(field_name):
@@ -305,10 +317,6 @@ class Form:
     def validate(self):
         """Validate the form.
         """
-        if not self._setup_completed:
-            self.setup()
-            self._after_setup()
-
         errors = {}
 
         # Validate each widget
@@ -326,10 +334,6 @@ class Form:
     def render(self) -> str:
         """Render the form.
         """
-        if not self._setup_completed:
-            self.setup()
-            self._after_setup()
-
         _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
 
         return _tpl.render(self._tpl, {'form': self})
@@ -389,9 +393,7 @@ class Form:
     def get_widgets(self, area: str = None, step: int = None) -> _Dict[str, _widget.Base]:
         """Get widgets.
         """
-        if not self._setup_completed:
-            self.setup()
-            self._after_setup()
+        self.setup_widgets()
 
         widgets = []
 
@@ -424,9 +426,16 @@ class Form:
         """
         return self.get_widget(widget_uid).get_html_em()
 
-    def _after_setup(self):
+    def setup_widgets(self):
+        """Ensures that widgets is added.
+        """
+        if self._widgets_added:
+            return self
+
+        self._setup_widgets()
+
         if self._steps > 1:
-            # Submit button only on the last step
+            # Submit button appears only on the last step
             self.get_widget('action-submit').form_step = self.steps
 
             # 'Next' button for all steps except the last one
@@ -460,4 +469,6 @@ class Form:
                     }
                 ))
 
-        self._setup_completed = True
+        self._widgets_added = True
+
+        return self

@@ -10,10 +10,10 @@ __license__ = 'MIT'
 class TransactionsCancel(_odm_ui.forms.Delete):
     """Transactions Cancel Form.
     """
-    def setup(self):
+    def _setup_form(self):
         """Hook.
         """
-        super().setup()
+        super()._setup_form()
 
         # Action URL
         self._action = _router.ep_url('pytsite.wallet.ep.transactions_cancel_submit')
