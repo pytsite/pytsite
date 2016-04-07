@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def odm_ui_user_m_form_setup(frm: _form.Form, entity: _auth_ui.model.UserUI):
+def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_ui.model.UserUI):
     frm.add_widget(_currency_widget.Select(
         uid='currency',
         weight=105,

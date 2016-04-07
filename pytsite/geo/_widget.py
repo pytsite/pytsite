@@ -2,7 +2,7 @@
 """
 from typing import Union as _Union
 from frozendict import frozendict as _frozendict
-from pytsite import assetman as _assetman, widget as _widget, html as _html
+from pytsite import widget as _widget, html as _html
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -29,7 +29,7 @@ class Location(_widget.Base):
         super().__init__(uid, default=default, **kwargs)
 
         # Assets
-        _assetman.add('pytsite.geo@js/widget/location.js')
+        self._assets.append('pytsite.geo@js/widget/location.js')
 
         # CSS
         self._css += ' widget-geo-location'

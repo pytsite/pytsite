@@ -78,7 +78,7 @@ pytsite.widget = {
         pytsite.browser.loadAssets(self.assets)
             .done(function () {
                 // Initialize the widget
-                $(window).trigger('pytsite.widget.init:' + self.cid, [self.em, self]);
+                $(window).trigger('pytsite.widget.init:' + self.cid, [self]);
                 $(self).trigger('ready', [self]);
                 self.em.addClass('initialized');
             })

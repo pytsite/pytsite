@@ -12,17 +12,17 @@ $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', fu
 
     // Start work only after Google libraries are all ready
     $(window).on('pytsite.google.ready', function () {
-        var uid = widget.data('uid');
-        var searchInput = widget.find('input[name="' + uid + '[search]"]');
-        var addressInput = widget.find('input[name="' + uid + '[address]"]');
-        var lngInput = widget.find('input[name="' + uid + '[lng]"]');
-        var latInput = widget.find('input[name="' + uid + '[lat]"]');
-        var componentsInput = widget.find('input[name="' + uid + '[address_components]"]');
+        var uid = widget.em.data('uid');
+        var searchInput = widget.em.find('input[name="' + uid + '[search]"]');
+        var addressInput = widget.em.find('input[name="' + uid + '[address]"]');
+        var lngInput = widget.em.find('input[name="' + uid + '[lng]"]');
+        var latInput = widget.em.find('input[name="' + uid + '[lat]"]');
+        var componentsInput = widget.em.find('input[name="' + uid + '[address_components]"]');
         var autocomplete = new google.maps.places.Autocomplete(searchInput[0], {
             types: ['geocode']
         });
 
-        widget.keydown(function (event) {
+        widget.em.keydown(function (event) {
             if (event.keyCode == 13) {
                 event.preventDefault();
                 return false;
@@ -62,7 +62,7 @@ $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', fu
         });
 
         // Automatic location detection
-        if (widget.data('autodetect') == 'True' && !addressInput.val() && 'geolocation' in navigator) {
+        if (widget.em.data('autodetect') == 'True' && !addressInput.val() && 'geolocation' in navigator) {
             setBounds(autocomplete);
             navigator.geolocation.getCurrentPosition(function (position) {
                 var geoCoder = new google.maps.Geocoder();

@@ -74,7 +74,7 @@ class Form:
         # Convert kwargs to data-attributes. It is convenient method to export additional form constructor's arguments
         # in child classes. It is necessary to pass arguments back via AJAX requests when validating forms.
         skip_data_kwargs = ('area_hidden_css', 'area_header_css', 'area_body_css', 'area_footer_css', 'messages_css',
-                            'name', 'method', 'action', 'modal', 'tpl', 'css', 'title', 'redirect')
+                            'name', 'method', 'action', 'tpl', 'css', 'title', 'redirect')
         for k, v in kwargs.items():
             if k not in skip_data_kwargs:
                 if isinstance(v, (tuple, list)):

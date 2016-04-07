@@ -1,10 +1,10 @@
 $(window).on('pytsite.widget.init:pytsite.widget._select.Select2', function (e, widget) {
-    var theme = widget.data('theme');
-    var ajax_url = widget.data('ajaxUrl');
-    var ajax_delay = widget.data('ajaxDelay');
-    var ajax_data_type = widget.data('ajaxDataType');
+    var theme = widget.em.data('theme');
+    var ajax_url = widget.em.data('ajaxUrl');
+    var ajax_delay = widget.em.data('ajaxDelay');
+    var ajax_data_type = widget.em.data('ajaxDataType');
 
-    widget.find('select').select2({
+    widget.em.find('select').select2({
         theme: theme,
         ajax: {
             url: ajax_url,

@@ -36,9 +36,7 @@ def m_form(args: dict, inp: dict) -> str:
     """Get entity create/modify form.
     """
     try:
-        eid = args['id'] if args.get('id') != '0' else None
-        return _admin.render_form(_api.get_m_form(args.get('model'), eid))
-
+        return _admin.render_form(_api.get_m_form(args.get('model'), args['id'] if args.get('id') != 0 else None))
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
 

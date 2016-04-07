@@ -4,7 +4,7 @@
         {% if widget.get_val() %}
             {% for item in widget.get_val() %}
                 {% set fid = item.model~':'~item.id %}
-                <div class="slot sortable {{ widget.slot_css }}" data-fid="{{ fid }}">
+                <div class="slot content sortable {{ widget.slot_css }}" data-fid="{{ fid }}">
                     <div class="inner">
                         <div class="thumb"><img class="img-responsive" src="{{ item.thumb_url }}"></div>
                         <button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>

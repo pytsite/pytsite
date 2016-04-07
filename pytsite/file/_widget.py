@@ -23,7 +23,6 @@ class FilesUpload(_widget.Base):
             raise ValueError('Model is not specified.')
 
         self._css = ' '.join((self._css, 'widget-files-upload'))
-
         self._max_file_size = int(kwargs.get('max_file_size', 2))
         self._max_files = int(kwargs.get('max_files', 1))
         self._accept_files = kwargs.get('accept_files', '*/*')
@@ -32,6 +31,8 @@ class FilesUpload(_widget.Base):
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
         self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
+        self._show_numbers = kwargs.get('show_numbers', True)
+        self._dnd = kwargs.get('dnd', True)
 
         self._assets.extend(_browser.get_assets('jquery-ui'))
         self._assets.extend(_browser.get_assets('imagesloaded'))
@@ -106,6 +107,22 @@ class FilesUpload(_widget.Base):
     def slot_css(self, value: str):
         self._slot_css = value
 
+    @property
+    def show_numbers(self) -> bool:
+        return self._show_numbers
+    
+    @show_numbers.setter
+    def show_numbers(self, value: bool):
+        self._show_numbers = value
+        
+    @property
+    def dnd(self) -> bool:
+        return self._dnd
+    
+    @dnd.setter
+    def dnd(self, value: bool):
+        self._dnd = value
+
     def get_html_em(self) -> str:
         self._data.update({
             'url': _router.ep_url('pytsite.file.ep.upload', {'model': self._model}),
@@ -115,7 +132,9 @@ class FilesUpload(_widget.Base):
             'accept_files': self._accept_files,
             'image_max_width': self._image_max_width,
             'image_max_height': self._image_max_height,
-            'slot_css': self._slot_css
+            'slot_css': self._slot_css,
+            'show_numbers': self._show_numbers,
+            'dnd': self._dnd,
         })
 
         widget_em = _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))

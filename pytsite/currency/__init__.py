@@ -37,7 +37,7 @@ def __init():
 
     # Event handlers
     events.listen('pytsite.odm.model.user.setup_fields', _eh.odm_model_user_setup)
-    events.listen('pytsite.odm_ui.user.m_form_setup', _eh.odm_ui_user_m_form_setup)
+    events.listen('pytsite.odm_ui.user.m_form_setup_widgets', _eh.odm_ui_user_m_form_setup_widgets)
 
 
 # Package initialization

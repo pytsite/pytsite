@@ -9,10 +9,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_m_form(model: str, eid=None, redirect: str = None, update_meta_title: bool = True, **kwargs) -> _forms.Modify:
+def get_m_form(model: str, eid=None, update_meta_title: bool = True, **kwargs) -> _forms.Modify:
     """Get entity modification form.
     """
-    return _forms.Modify('odm-ui-form-' + model, redirect=redirect, model=model, eid=eid if eid != '0' else None,
+    return _forms.Modify('odm-ui-form-' + model, model=model, eid=eid if eid != '0' else None,
                          update_meta_title=update_meta_title, **kwargs)
 
 

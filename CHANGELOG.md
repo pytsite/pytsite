@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.62.6 (2016-04-07)
+### Added
+- `form`: some improvements in JS parts.
+- `file`: new parameters in `file.widget.FilesUpload`: 'show_numbers', 'dnd'.
+
+### Fixed
+- `geo`: assets loading in `geo.widget.Location`.
+
+
 ## 0.62.5 (2016-04-06)
 ### Fixed
 - `form`: various fixes.

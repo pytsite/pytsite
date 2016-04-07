@@ -1,7 +1,7 @@
 $(window).on('pytsite.widget.init:pytsite.widget._input.Tokens', function (e, widget) {
-    var widgetInput = widget.find('input');
-    var localSource = widget.data('localSource');
-    var remoteSource = widget.data('remoteSource');
+    var widgetInput = widget.em.find('input');
+    var localSource = widget.em.data('localSource');
+    var remoteSource = widget.em.data('remoteSource');
     var tokenFieldOptions = {
         beautify: false,
         autocomplete: {
@@ -31,7 +31,7 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.Tokens', function (e, wi
 
     widgetInput.tokenfield(tokenFieldOptions);
 
-    var widgetTokenInput = widget.find('#' + widgetInput.attr('id') + '-tokenfield');
+    var widgetTokenInput = widget.em.find('#' + widgetInput.attr('id') + '-tokenfield');
 
     widgetInput.on('tokenfield:createtoken', function (e) {
         e.attrs.label = e.attrs.label.trim();

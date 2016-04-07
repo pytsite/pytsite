@@ -1,4 +1,13 @@
 pytsite.form = {
+    forms: {},
+
+    getForm: function (id) {
+        if (id in pytsite.form.forms)
+            return pytsite.form.forms[id];
+        else
+            throw "Form '" + id + "' is not found";
+    },
+
     Form: function (em) {
         var self = this;
         self.em = em;
@@ -149,6 +158,8 @@ pytsite.form = {
                     widget.hide();
                     self.widgets[widget.uid] = widget;
 
+                    $(self).trigger('widgetReady', [widget]);
+
                     deffer.resolve(index);
                 })
                 .on('initError', function () {
@@ -156,6 +167,14 @@ pytsite.form = {
                 });
 
             return deffer;
+        };
+
+        // Get widget of the form
+        self.getWidget = function (uid) {
+            if (!(uid in self.widgets))
+                throw "Widget '" + uid + "' does not exist.";
+
+            return self.widgets[uid];
         };
 
         // Remove widget from the form
@@ -394,6 +413,11 @@ $(function () {
     $('.pytsite-form').each(function () {
         // Initialize form
         var form = new pytsite.form.Form($(this));
+
+        // Add form to forms collection
+        pytsite.form.forms[form.id] = form;
+
+        $(window).trigger('pytsite.form.ready', [form]);
 
         // If requested to walk to particular step automatically
         var q = pytsite.browser.getLocation().query;

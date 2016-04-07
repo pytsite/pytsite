@@ -42,14 +42,17 @@ class Modify(_form.Form):
         if self._eid and not model_class.ui_model_modification_allowed():
             raise _http.error.Forbidden()
 
-        # Dispense entity
+        # Setting up the form through entity hook and global event
         entity = dispense_entity(self._model, self._eid)
+        entity.ui_m_form_setup(self)
+        _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
 
         # Form title
-        if entity.is_new:
-            self._title = entity.t('odm_ui_form_title_create_' + self._model)
-        else:
-            self._title = entity.t('odm_ui_form_title_modify_' + self._model)
+        if not self._title:
+            if entity.is_new:
+                self._title = entity.t('odm_ui_form_title_create_' + self._model)
+            else:
+                self._title = entity.t('odm_ui_form_title_modify_' + self._model)
 
         if self._update_meta_title:
             _metatag.t_set('title', self.title)
@@ -70,10 +73,10 @@ class Modify(_form.Form):
     def _setup_widgets(self):
         from ._api import dispense_entity
 
-        # Setting up the form through entity hook and global event
+        # Setting up form's widgets through entity hook and global event
         entity = dispense_entity(self._model, self._eid)
         entity.ui_m_form_setup_widgets(self)
-        _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
+        _events.fire('pytsite.odm_ui.{}.m_form_setup_widgets'.format(self._model), frm=self, entity=entity)
 
         # Cancel button
         self.add_widget(_widget.button.Link(
@@ -106,7 +109,8 @@ class MassAction(_form.Form):
     def _setup_form(self):
         """Hook.
         """
-        self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
+        if not self._redirect:
+            self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
 
     def _setup_widgets(self):
         """Hook.

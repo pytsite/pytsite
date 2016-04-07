@@ -22,14 +22,14 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.StringList', function (e
         });
     }
 
-    var maxValues = parseInt(widget.data('maxValues'));
-    var slots = widget.find('.slots');
-    var addBtn = widget.find('.add-btn a');
+    var maxValues = parseInt(widget.em.data('maxValues'));
+    var slots = widget.em.find('.slots');
+    var addBtn = widget.em.find('.add-btn a');
 
     if (countSlots(widget) >= maxValues)
         addBtn.hide();
 
-    widget.find('.slot').each(function () {
+    widget.em.find('.slot').each(function () {
         setupSlot(widget, $(this), maxValues);
     });
 
@@ -40,7 +40,7 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.StringList', function (e
             return false;
 
         var btn = $(this);
-        var slot = widget.find('.slot').first().clone();
+        var slot = widget.em.find('.slot').first().clone();
 
         slot.find('input').val('');
         slots.append(slot);

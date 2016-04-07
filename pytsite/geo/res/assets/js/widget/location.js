@@ -1,6 +1,6 @@
 $(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, widget) {
     // Change widget's value only if it's not empty
-    if (widget.find('.text').val().replace(' ', '') != '')
+    if (widget.em.find('.text').val().replace(' ', '') != '')
         return;
 
     if (!('geolocation' in navigator))
@@ -36,7 +36,7 @@ $(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, wi
                         break;
                 }
 
-                var input = widget.find(input_selector);
+                var input = widget.em.find(input_selector);
                 if (input.length && input.val() == '0.0') {
                     input.val(coords[k]);
                     input.change();
@@ -45,8 +45,8 @@ $(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, wi
         }
 
         // Helper field which used on backend to build indexes
-        widget.find('.lng_lat').val(JSON.stringify([coords.longitude, coords.latitude])).change();
+        widget.em.find('.lng_lat').val(JSON.stringify([coords.longitude, coords.latitude])).change();
 
-        widget.find('.text').text('Longitude: ' + coords.longitude + ', latitude: ' + coords.latitude);
+        widget.em.find('.text').text('Longitude: ' + coords.longitude + ', latitude: ' + coords.latitude);
     });
 });
