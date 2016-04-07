@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.10 (2016-04-07)
+### Added
+- `form`: smooth progress bar update while waiting for widgets from server.
+
+
 ## 0.62.9 (2016-04-07)
 ### Changed
 - `ckeditor`: updated to version 4.5.8.

@@ -196,6 +196,13 @@ pytsite.form = {
             progress.removeClass('hidden');
             progressBar.css('width', '0');
 
+            // Progress bar smooth update
+            var progressBarInt = setInterval(function () {
+                var percents = parseInt(progressBar.attr('aria-valuenow')) + 1;
+                progressBar.width(percents + '%');
+                progressBar.attr('aria-valuenow', percents);
+            }, 250);
+
             self._request('POST', self.getWidgetsEp)
                 .done(function (resp) {
                     var numWidgetsToLoad = resp.length;
@@ -226,6 +233,7 @@ pytsite.form = {
                                         self.areas[sortedWidgets[k].formArea].append(sortedWidgets[k].em);
 
                                     // Hide progress bar
+                                    clearInterval(progressBarInt);
                                     progress.addClass('hidden');
 
                                     // Fill widgets with data from location string
