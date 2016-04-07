@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.62.9 (2016-04-07)
+### Changed
+- `ckeditor`: updated to version 4.5.8.
+
+### Fixed
+- `widget`: error in JS code of `widget.input.StringList`.
+
+
 ## 0.62.8 (2016-04-07)
 ### Fixed
 - `google`: improper initialization of `google.widget.AddressInput`.

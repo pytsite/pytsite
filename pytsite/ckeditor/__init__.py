@@ -1,5 +1,8 @@
 """CKEditor Plugin Init.
 """
+# Public API
+from . import _widget as widget
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -13,7 +16,3 @@ def __init():
 
 
 __init()
-
-
-# Public API
-from . import _widget as widget

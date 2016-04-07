@@ -1,7 +1,7 @@
 $(window).on('pytsite.widget.init:pytsite.widget._input.StringList', function (e, widget) {
     function countSlots(w) {
         var n = 0;
-        w.find('.slot').each(function () {
+        w.em.find('.slot').each(function () {
             $(this).find('.order').text('[' + ++n + ']');
         });
 
@@ -15,10 +15,10 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.StringList', function (e
             if (countSlots(w) > 1) {
                 slot.remove();
                 if (countSlots(w) < maxSlots)
-                    w.find('.add-btn a').show();
+                    w.em.find('.add-btn a').show();
             }
             else
-                w.find('.slot').first().find('input').val('');
+                w.em.find('.slot').first().find('input').val('');
         });
     }
 
