@@ -1,6 +1,7 @@
 """PytSite Google Widgets.
 """
 from typing import Union as _Union
+from copy import deepcopy as _deepcopy
 from json import dumps as _json_dumps, loads as _json_loads
 from frozendict import frozendict as _frozendict
 from pytsite import widget as _pytsite_widget, browser as _browser, html as _html, reg as _reg
@@ -13,9 +14,22 @@ __license__ = 'MIT'
 class AddressInput(_pytsite_widget.Base):
     """Geo Address Input Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        maps_libs = _reg.get('google.maps.libraries', [])
+        if 'places' not in maps_libs:
+            raise RuntimeError("You should include 'places' in your 'google.maps.libraries' configuration.")
+
+        if 'default' not in kwargs:
+            kwargs['default'] = {
+                'address': '',
+                'lng': 0.0,
+                'lat': 0.0,
+                'address_components': ()
+            }
+
         super().__init__(uid, **kwargs)
 
         # Geo based auto detection
@@ -23,20 +37,6 @@ class AddressInput(_pytsite_widget.Base):
 
         # CSS
         self._css += ' widget-google-address-input'
-
-        self._default = {
-            'address': '',
-            'lng': 0.0,
-            'lat': 0.0,
-            'address_components': ()
-        }
-
-        # Default value
-        self.set_val(self._default)
-
-        maps_libs = _reg.get('google.maps.libraries', [])
-        if 'places' not in maps_libs:
-            raise RuntimeError("You should include 'places' in your 'google.maps.libraries' configuration.")
 
         # Assets
         self.assets.extend(_browser.get_assets('google-maps'))
@@ -81,16 +81,7 @@ class AddressInput(_pytsite_widget.Base):
     def get_val(self, **kwargs):
         """Set value of the widget.
         """
-        val = super().get_val(**kwargs)
-        if not val:
-            val = {
-                'address': '',
-                'lng': 0.0,
-                'lat': 0.0,
-                'address_components': []
-            }
-
-        return val
+        return super().get_val(**kwargs) or _deepcopy(self._default)
 
     def get_html_em(self) -> str:
         """Render the widget.

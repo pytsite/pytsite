@@ -4,6 +4,7 @@ import yaml as _yaml
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path
+from pytsite import threading as _threading
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -11,12 +12,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-__languages = []
-__current = None
-__fallback = None
-__packages = {}
+_languages = []
+_current = {}  # Thread safe current language store
+_fallback = None
+_packages = {}
 
-__default_regions = {
+_default_regions = {
     'en': 'US',
     'ru': 'RU',
     'uk': 'UA',
@@ -26,10 +27,10 @@ __default_regions = {
 def define(languages: list):
     """Define available languages.
     """
-    global __languages
-    __languages = languages
-    set_current(languages[0])
-    set_fallback(languages[0])
+    global _languages
+    _languages = languages
+    set_current(_languages[0])
+    set_fallback(_languages[0])
 
 
 def langs(include_current=True):
@@ -37,53 +38,56 @@ def langs(include_current=True):
     :rtype: list[str]
     """
     if include_current:
-        return __languages
+        return _languages
     else:
-        return [lng for lng in __languages if lng != __current]
+        return [lng for lng in _languages if lng != _current]
 
 
 def set_current(language: str):
     """Set current default language.
     """
-    if language not in __languages:
+    if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
 
-    global __current
-    __current = language
+    _current[_threading.get_id()] = language
 
 
 def set_fallback(language: str):
     """Set fallback language.
     """
-    if language not in __languages:
+    if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
 
-    global __fallback
-    __fallback = language
+    global _fallback
+    _fallback = language
 
 
 def get_current() -> str:
     """Get current language.
     """
-    if not __languages:
+    if not _languages:
         raise Exception("No languages are defined.")
 
-    return __current
+    tid = _threading.get_id()
+    if tid not in _current:
+        _current[_threading.get_id()] = _languages[0]
+
+    return _current[_threading.get_id()]
 
 
 def get_fallback() -> str:
     """Get fallback language.
     """
-    if not __languages:
+    if not _languages:
         raise Exception("No languages are defined.")
 
-    return __fallback
+    return _fallback
 
 
 def is_package_registered(pkg_name):
     """Check if the package already registered.
     """
-    return pkg_name in __packages
+    return pkg_name in _packages
 
 
 def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
@@ -100,13 +104,13 @@ def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
     if not _path.isdir(lng_dir):
         raise Exception("Directory '{}' is not exists.".format(lng_dir))
 
-    __packages[pkg_name] = {'__path': lng_dir}
+    _packages[pkg_name] = {'__path': lng_dir}
 
 
 def get_packages() -> dict:
     """Get info about registered packages.
     """
-    return __packages
+    return _packages
 
 
 def is_translation_defined(msg_id: str, language: str=None, use_fallback=True) -> bool:
@@ -125,7 +129,7 @@ def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, use_fa
     if not language:
         language = get_current()
 
-    if language not in __languages:
+    if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
 
     # Determining package name and message ID
@@ -204,13 +208,13 @@ def load_lang_file(pkg_name: str, language: str=None):
         language = get_current()
 
     # Getting from cache
-    if language in __packages[pkg_name]:
-        return __packages[pkg_name][language]
+    if language in _packages[pkg_name]:
+        return _packages[pkg_name][language]
 
     content = {}
 
     # Actual data loading
-    file_path = _path.join(__packages[pkg_name]['__path'], language + '.yml')
+    file_path = _path.join(_packages[pkg_name]['__path'], language + '.yml')
     if not _path.exists(file_path):
         return content
 
@@ -221,7 +225,7 @@ def load_lang_file(pkg_name: str, language: str=None):
         content = {}
 
     # Caching
-    __packages[pkg_name][language] = content
+    _packages[pkg_name][language] = content
 
     return content
 
@@ -274,13 +278,13 @@ def pretty_date_time(time: _datetime) -> str:
 
 
 def ietf_tag(language: str=None, region: str=None, sep: str='-') -> str:
-    global __default_regions
+    global _default_regions
 
     if not language:
         language = get_current()
 
     if not region:
-        region = __default_regions[language] if language in __default_regions else language
+        region = _default_regions[language] if language in _default_regions else language
 
     return language.lower() + sep + region.upper()
 

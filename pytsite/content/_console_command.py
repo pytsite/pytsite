@@ -15,7 +15,7 @@ class Generate(_console.command.Abstract):
     """Abstract command.
     """
     li_url = 'http://loripsum.net/api/prude/'
-    lp_url = 'http://loremflickr.com/1024/768/'
+    lp_url = 'http://pipsum.com/1024x768'
 
     def get_name(self) -> str:
         """Get command's name.

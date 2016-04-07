@@ -84,7 +84,7 @@ class Address(_odm.field.Dict):
         if isinstance(value, _frozendict):
             value = dict(value)
 
-        if isinstance(value, (dict, _frozendict)):
+        if isinstance(value, dict):
             # Checking lat and lng
             for k in ('lng', 'lat'):
                 if k in value:
@@ -105,8 +105,5 @@ class Address(_odm.field.Dict):
 
             # Setting up 'lat_lng' value
             value['lng_lat'] = (value['lng'], value['lat'])
-
-        elif value is not None:
-            raise ValueError("Field '{}': dict or None expected.".format(self.name))
 
         return super().set_val(value, **kwargs)

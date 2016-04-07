@@ -10,8 +10,7 @@ $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', fu
         }
     }
 
-    // Start work only after Google libraries are all ready
-    $(window).on('pytsite.google.ready', function () {
+    function init() {
         var uid = widget.em.data('uid');
         var searchInput = widget.em.find('input[name="' + uid + '[search]"]');
         var addressInput = widget.em.find('input[name="' + uid + '[address]"]');
@@ -61,8 +60,7 @@ $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', fu
             }
         });
 
-        // Automatic location detection
-        if (widget.em.data('autodetect') == 'True' && !addressInput.val() && 'geolocation' in navigator) {
+        widget.update = function() {
             setBounds(autocomplete);
             navigator.geolocation.getCurrentPosition(function (position) {
                 var geoCoder = new google.maps.Geocoder();
@@ -80,6 +78,18 @@ $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', fu
                     }
                 });
             });
+        };
+
+        // Automatic location detection
+        if (widget.em.data('autodetect') == 'True') {
+            widget.update();
+            setInterval(widget.update, 10000)
         }
-    });
+    }
+
+    // Start work only after Google libraries are all ready
+    if (pytsite.google.ready)
+        init();
+    else
+        $(window).on('pytsite.google.ready', init);
 });

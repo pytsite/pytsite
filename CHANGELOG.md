@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.62.8 (2016-04-07)
+### Fixed
+- `google`: improper initialization of `google.widget.AddressInput`.
+- `lang`: working in multithreaded environment.
+
+
 ## 0.62.7 (2016-04-07)
 ### Fixed
 - `google`: duplicated include of Google API JS.

@@ -67,7 +67,7 @@ def usage():
     global __commands
     r = ''
     for name, cmd in sorted(__commands.items()):
-        r += "{0} -- {1}\n".format(name, cmd.get_description())
+        r += "{}{}{} -- {}\n".format(COLOR_HEADER, name, COLOR_END, cmd.get_description())
 
     return r
 
