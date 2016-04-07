@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.7 (2016-04-07)
+### Fixed
+- `google`: duplicated include of Google API JS.
+
+
 ## 0.62.6 (2016-04-07)
 ### Added
 - `form`: some improvements in JS parts.

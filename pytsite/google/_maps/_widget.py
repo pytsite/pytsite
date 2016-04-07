@@ -36,8 +36,7 @@ class AddressInput(_pytsite_widget.Base):
 
         maps_libs = _reg.get('google.maps.libraries', [])
         if 'places' not in maps_libs:
-            maps_libs.append('places')
-            _reg.set_val('google.maps.libraries', maps_libs)
+            raise RuntimeError("You should include 'places' in your 'google.maps.libraries' configuration.")
 
         # Assets
         self.assets.extend(_browser.get_assets('google-maps'))
