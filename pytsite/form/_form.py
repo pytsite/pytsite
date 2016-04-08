@@ -45,6 +45,7 @@ class Form:
         self._step = kwargs.get('step', 1)
         self._modal = kwargs.get('modal', False)
         self._reload_on_forward = kwargs.get('reload_on_forward', False)
+        self._prevent_submit = kwargs.get('prevent_submit', False)
 
         # Redirect info
         if '__redirect' in _router.request().inp:
@@ -268,6 +269,14 @@ class Form:
     @reload_on_forward.setter
     def reload_on_forward(self, val: bool):
         self._reload_on_forward = val
+
+    @property
+    def prevent_submit(self) -> bool:
+        return self._prevent_submit
+
+    @prevent_submit.setter
+    def prevent_submit(self, val: bool):
+        self._prevent_submit = val
 
     @property
     def redirect(self) -> str:

@@ -14,40 +14,50 @@ class Form(_form.Form):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._tpl = 'pytsite.contact_form@form'
+
         self._css += ' pytsite-contact-form'
-        _assetman.add('pytsite.contact_form@js/common.js', permanent=True)
+        self._prevent_submit = True
+        self._area_footer_css += ' text-center'
+        _assetman.add('pytsite.contact_form@js/contact-form.js')
 
     def _setup_widgets(self):
         """Hook.
         """
-        self.add_widget(_widget.input.Text(
+        name_email_container = _widget.static.Container(
+            uid='name_email',
+            weight=10,
+            css='row',
+            child_sep=None,
+        )
+
+        name_email_container.append(_widget.input.Text(
             weight=10,
             uid='contact_name',
             placeholder=_lang.t('pytsite.contact_form@your_name'),
             label_hidden=True,
             required=True,
+            css='col-xs-12 col-sm-6',
         ))
 
-        self.add_widget(_widget.input.Email(
+        name_email_container.append(_widget.input.Email(
             weight=20,
             uid='contact_email',
             placeholder=_lang.t('pytsite.contact_form@your_email'),
             label_hidden=True,
             required=True,
+            css='col-xs-12 col-sm-6',
         ))
 
+        self.add_widget(name_email_container)
+
         self.add_widget(_widget.input.TextArea(
-            weight=30,
+            weight=20,
             uid='contact_message',
             placeholder=_lang.t('pytsite.contact_form@message'),
             label_hidden=True,
             required=True,
         ))
 
-        self.add_widget(_widget.button.Submit(
-            form_area='footer',
-            weight=10,
-            uid='contact_submit',
-            value=_lang.t('pytsite.contact_form@send_message'),
-        ))
+        submit_btn = self.get_widget('action-submit')
+        submit_btn.icon = None
+        submit_btn.value = _lang.t('pytsite.contact_form@send_message')

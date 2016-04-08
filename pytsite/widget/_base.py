@@ -4,7 +4,7 @@ from json import dumps as _json_dumps
 from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
-from pytsite import util as _util, html as _html, validation as _validation, assetman as _assetman
+from pytsite import html as _html, validation as _validation, assetman as _assetman
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -30,8 +30,6 @@ class Base(_ABC):
         self._css = kwargs.get('css', '')
         self._data = kwargs.get('data', {})
         self._help = kwargs.get('help')
-        self._child_sep = kwargs.get('child_sep', '&nbsp;')
-        self._children = []
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
         self._rules = kwargs.get('rules', [])
@@ -55,17 +53,6 @@ class Base(_ABC):
         else:
             self._value = _deepcopy(self._default)
 
-    def append(self, widget):
-        """Append a child widget.
-
-        :type widget: Base
-        """
-        widget.form_step = self.form_step
-        widget.form_area = self.form_area
-        self._children.append(widget)
-
-        return self
-
     @_abstractmethod
     def get_html_em(self) -> _html.Element:
         """Get an HTML element representation of the widget.
@@ -79,6 +66,7 @@ class Base(_ABC):
         if self._hidden:
             wrap_css += ' hidden'
 
+        # Wrapper div
         wrap = _html.Div(
             cls=wrap_css,
             data_cid=self.__module__ + '.' + self.__class__.__name__,
@@ -89,6 +77,7 @@ class Base(_ABC):
             data_hidden=self._hidden,
         )
 
+        # Assets
         if self._assets:
             assets = []
             for asset in self._assets:
@@ -99,15 +88,19 @@ class Base(_ABC):
 
             wrap.set_attr('data_assets', _json_dumps(assets))
 
+        # Replaces
         if self._replaces:
             wrap.set_attr('data_replaces', self._replaces)
 
+        # Get widget's HTML element
         html_em = self.get_html_em()
 
+        # Data attributes
         if isinstance(self._data, dict):
             for k, v in self._data.items():
                 wrap.set_attr('data_' + k, v)
 
+        # Wrap widget's HTML
         wrap.append(html_em)
 
         return wrap.render()
@@ -157,38 +150,6 @@ class Base(_ABC):
         """Shows the widget.
         """
         self._hidden = False
-
-        return self
-
-    @property
-    def children(self):
-        """Get children widgets.
-
-        :rtype: _Tuple[Base]
-        """
-        sort = []
-        for w in self._children:
-            sort.append({'widget': w, 'weight': w.weight})
-
-        r = []
-        for w in _util.weight_sort(sort):
-            r.append(w['widget'])
-
-        return tuple(r)
-
-    def get_child(self, uid: str):
-        """Get child widget by uid.
-        :rtype: pytsite.widget._base.Base
-        """
-        for w in self._children:
-            if w.uid == uid:
-                return w
-
-    def remove_child(self, uid: str):
-        """Remove child widget.
-        :rtype: pytsite.widget._base.Base
-        """
-        self._children = [w for w in self._children if w.uid != uid]
 
         return self
 
@@ -355,18 +316,25 @@ class Base(_ABC):
 
         wrap = _html.Div(cls='form-group')
 
+        # Place placeholder instead of label
         if not self._label and self._placeholder:
             self._label = self.placeholder
 
+        # Append label element
         if self.label and not self._label_disabled:
             label = _html.Label(self.label, label_for=self.uid)
             if self._label_hidden:
                 label.set_attr('cls', 'sr-only')
             wrap.append(label)
 
+        # Append widget's content
         wrap.append(content)
 
+        # Append help block
         if self._help:
             wrap.append(_html.Span(self._help, cls='help-block'))
+
+        # Append messages placeholder
+        wrap.append(_html.Div(cls='widget-messages'))
 
         return wrap

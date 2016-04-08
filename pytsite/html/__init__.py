@@ -167,6 +167,10 @@ class Element(_ABC):
         if self._children:
             for child in self._children:
                 children.append(str(child))
+
+        if not isinstance(self._child_sep, str):
+            self._child_sep = ''
+
         return self._child_sep.join(children)
 
     def render(self) -> str:

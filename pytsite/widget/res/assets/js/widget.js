@@ -10,7 +10,7 @@ pytsite.widget = {
         self.alwaysHidden = self.em.data('hidden') == 'True';
         self.weight = self.em.data('weight');
         self.assets = self.em.data('assets') ? self.em.data('assets') : [];
-        self.messagesEm = $('<div class="messages">');
+        self.messagesEm = self.em.find('.widget-messages').first();
         self.childWidgets = {};
 
         // Clear state fo the widget
@@ -32,14 +32,16 @@ pytsite.widget = {
 
         // Clear messages of the widget
         self.clearMessages = function () {
-            self.messagesEm.html('');
+            if (self.messagesEm.length)
+                self.messagesEm.html('');
 
             return self;
         };
 
         // Add message to the widget
         self.addMessage = function (msg) {
-            self.messagesEm.append('<span class="help-block">{0}</span>'.format(msg));
+            if (self.messagesEm.length)
+                self.messagesEm.append('<span class="help-block">{0}</span>'.format(msg));
 
             return self;
         };
@@ -59,17 +61,10 @@ pytsite.widget = {
             return self;
         };
 
-        // Add block for messages
-        var fGroup = self.em.find('.form-group').first();
-        if (fGroup.length)
-            fGroup.append(self.messagesEm);
-        else
-            self.em.append(self.messagesEm);
-
         // Load children widgets
         if (self.em.data('container') == 'True') {
-            self.em.find('.children .pytsite-widget:not(.initialized)').each(function () {
-                var w = pytsite.widget.Widget(this);
+            self.em.find('> .pytsite-widget:not(.initialized)').each(function () {
+                var w = new pytsite.widget.Widget(this);
                 self.childWidgets[w.uid] = w;
             });
         }
@@ -82,15 +77,8 @@ pytsite.widget = {
                 $(self).trigger('ready', [self]);
                 self.em.addClass('initialized');
             })
-            .fail(function() {
+            .fail(function () {
                 $(self).trigger('initError', [self]);
             });
     }
 };
-
-// Automatically initialize all existing widgets after page load
-$(function () {
-    $('.pytsite-widget:not(.initialized)').each(function () {
-        pytsite.widget.Widget(this);
-    });
-});

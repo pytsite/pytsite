@@ -26,4 +26,4 @@ def submit(args: dict, inp: dict) -> dict:
             reply_to=inp.get('contact_email'),
         ).send()
 
-    return _lang.t('pytsite.contact_form@message_successfully_sent')
+    return {'message': _lang.t('pytsite.contact_form@message_successfully_sent')}

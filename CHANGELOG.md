@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.62.11 (2016-04-08)
+### Added
+- `form`: new `pytsite.Form`'s attribute: 'prevent_submit'.
+
+
+### Fixed
+- `contact_form`: didn't worked.
+
+
 ## 0.62.10 (2016-04-07)
 ### Added
 - `form`: smooth progress bar update while waiting for widgets from server.

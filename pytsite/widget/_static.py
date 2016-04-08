@@ -1,8 +1,9 @@
 """Static Widgets.
 """
 import re as _re
+from typing import Tuple as _Tuple
 from math import ceil as _ceil
-from pytsite import html as _html, lang as _lang, router as _router
+from pytsite import html as _html, lang as _lang, router as _router, util as _util
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -28,16 +29,55 @@ class HTML(_base.Base):
 
 
 class Container(_base.Base):
-    """Div Container Widget.
+    """Container Widget.
     """
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
+        self._child_sep = kwargs.get('child_sep', '')
+        self._children = []
         self._css += ' widget-container'
         self._data['container'] = True
 
+    @property
+    def children(self) -> _Tuple[_base.Base]:
+        """Get children widgets.
+        """
+        sort = []
+        for w in self._children:
+            sort.append({'widget': w, 'weight': w.weight})
+
+        r = []
+        for w in _util.weight_sort(sort):
+            r.append(w['widget'])
+
+        return tuple(r)
+
+    def append(self, widget: _base.Base):
+        """Append a child widget.
+        """
+        widget.form_step = self.form_step
+        widget.form_area = self.form_area
+        self._children.append(widget)
+
+        return self
+
+    def get_child(self, uid: str) -> _base.Base:
+        """Get child widget by uid.
+        """
+        for w in self._children:
+            if w.uid == uid:
+                return w
+
+    def remove_child(self, uid: str):
+        """Remove child widget.
+        """
+        self._children = [w for w in self._children if w.uid != uid]
+
+        return self
+
     def get_html_em(self) -> _html.Element:
-        cont = _html.Div(uid=self.uid, cls='children', child_sep=self._child_sep)
+        cont = _html.TagLessElement(child_sep=self._child_sep)
         for child in self.children:
             cont.append(_html.TagLessElement(child.render()))
 

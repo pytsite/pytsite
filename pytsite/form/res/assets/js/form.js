@@ -17,6 +17,7 @@ pytsite.form = {
         self.getWidgetsEp = em.data('getWidgetsEp');
         self.validationEp = em.data('validationEp');
         self.reloadOnForward = em.data('reloadOnForward') == 'True';
+        self.preventSubmit = em.data('preventSubmit') == 'True';
         self.submitEp = em.attr('submitEp');
         self.totalSteps = em.data('steps');
         self.loadedSteps = [];
@@ -35,9 +36,19 @@ pytsite.form = {
 
         // Form submit handler
         self.em.submit(function (event) {
+            // If form has mor than 1 step and it is not last step.
+            // Just move one step forward.
             if (!self.readyToSubmit) {
                 event.preventDefault();
                 self.forward();
+            }
+            else {
+                $(window).trigger('pytsite.form.submit', [self]);
+
+                if (self.preventSubmit)
+                    event.preventDefault();
+                else
+                    self.em.find('.form-action-submit button').attr('disabled', true);
             }
         });
 
@@ -342,17 +353,13 @@ pytsite.form = {
             var submitButton = self.em.find('.form-action-submit button');
 
             // Validating the form for the current step
-            submitButton.each(function () {
-                $(this).attr('disabled', true);
-            });
+            submitButton.attr('disabled', true);
             self.validate()
                 .done(function () {
+                    submitButton.attr('disabled', false);
+
                     // It is not a last step, so just load (if necessary) and show widgets for the next step
                     if (self.currentStep < self.totalSteps) {
-                        submitButton.each(function () {
-                            $(this).attr('disabled', false);
-                        });
-
                         // Hide widgets for the current step
                         self.hideWidgets();
 
@@ -396,10 +403,7 @@ pytsite.form = {
                     }
                 })
                 .fail(function () {
-                    submitButton.each(function () {
-                        $(this).attr('disabled', false);
-                    });
-
+                    submitButton.attr('disabled', false);
                     deffer.reject();
                 });
 
