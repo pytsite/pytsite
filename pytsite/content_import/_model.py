@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, widget as _widget, content as _content, \
-    auth_ui as _auth_ui, util as _util, router as _router, form as _form, lang as _lang
+    auth_ui as _auth_ui, util as _util, router as _router, form as _form, lang as _lang, validation as _validation
 from . import _widget as _content_import_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -134,6 +134,7 @@ class ContentImport(_odm_ui.UIEntity):
         """Hook.
         """
         frm.steps = 2
+        frm.reload_on_forward = True
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Setup of a modification form.
@@ -242,6 +243,17 @@ class ContentImport(_odm_ui.UIEntity):
             hidden=self.is_new or not self.errors,
         ))
 
+        # Placeholder widget to give ability to save data while form submit
+        frm.add_widget(_widget.input.Hidden(
+            weight=120,
+            uid='driver_opts',
+        ))
+
+        # Replace placeholder widget with real widget provided from driver
         if frm.step == 2:
             driver = _api.get_driver(_router.request().inp.get('driver'))
-            driver.build_settings_form(frm, self.driver_opts)
+            settings_widget = driver.get_settings_widget(self.driver_opts)
+            settings_widget.uid = 'driver_opts'
+            settings_widget.form_step = 2
+            frm.replace_widget('driver_opts', settings_widget)
+            frm.add_rule('driver_opts', _validation.rule.NonEmpty())

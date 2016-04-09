@@ -39,7 +39,7 @@ def cron_1min():
         })
 
         driver = _api.get_driver(importer.driver)
-        max_items = 1
+        max_items = 20
         items_imported = 0
         try:
             _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options), __name__)

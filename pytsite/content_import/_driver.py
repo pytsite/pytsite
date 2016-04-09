@@ -29,7 +29,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def build_settings_form(self, frm: _form.Form, driver_opts: _frozendict):
+    def get_settings_widget(self, driver_opts: _frozendict):
         """Add widgets to the settings form of the driver.
         """
         pass
@@ -52,16 +52,22 @@ class RSS(Abstract):
         """
         return _lang.t('pytsite.content_import@rss')
 
-    def build_settings_form(self, frm: _form.Form, driver_opts: _frozendict):
+    def get_settings_widget(self, driver_opts: _frozendict):
         """Add widgets to the settings form of the driver.
         """
-        frm.add_widget(_widget.input.Text(
-            uid='driver_opts_url',
+        wrapper = _widget.static.Container(
+            uid='driver_opts',
+        )
+
+        wrapper.append(_widget.input.Text(
+            uid='driver_opts[url]',
             label=_lang.t('pytsite.content_import@url'),
             value=driver_opts.get('url', ''),
             rules=_validation.rule.Url(),
             required=True,
         ))
+
+        return wrapper
 
     def get_entities(self, options: _frozendict) -> _Iterable[_content.model.Content]:
         """Returns entities which should be imported.
