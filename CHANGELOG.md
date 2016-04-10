@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.13 (2016-04-10)
+### Fixed
+- `browser`: 'enllax' library minified JS. 
+
+
 ## 0.62.12 (2016-04-09)
 ### Fixed
 - `content_import`: new form API usage.
