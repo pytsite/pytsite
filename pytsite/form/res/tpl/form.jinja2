@@ -19,17 +19,19 @@
       data-prevent-submit="{{ form.prevent_submit }}"
       data-reload-on-forward="{{ form.reload_on_forward }}"
 
-        {% for k, v in form.data.items() %}
-      data-{{ k }}="{{ v }}"
-        {% endfor %}
+      {% for k, v in form.data.items() %}
+          data-{{ k }}="{{ v }}"
+      {% endfor %}
 >
 
+    {#  Hidden area  #}
     <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden"></div>
 
+    {#  Header area  #}
     <div class="form-area box-header {% if form.modal %}modal-header{% endif %} {{ form.area_header_css }}"
          data-form-area="header">
 
-        {% if form.modal %}
+        {% if form.modal and form.modal_close_btn %}
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>

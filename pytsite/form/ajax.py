@@ -28,7 +28,7 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
 
     # Get form class ID
     if 'cid' not in args:
-        raise ValueError('Form CID is not specified.')
+        raise ValueError('Form CID is not specified. Arguments was: {}'.format(args))
     cid = args['cid']
     del args['cid']
 

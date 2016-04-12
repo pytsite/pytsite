@@ -236,7 +236,11 @@ class Entity(_ABC):
         if self._is_new:
             raise RuntimeError('Non-saved entities cannot be cached.')
 
-        self._fill_fields_data(_cache_get(self._model, self._id))
+        try:
+            self._fill_fields_data(_cache_get(self._model, self._id))
+
+        except _error.NoCachedData:
+            pass
 
     @_abstractmethod
     def _setup_fields(self):
@@ -807,6 +811,14 @@ class Entity(_ABC):
                     return full_msg_id
 
         return cls.package_name() + '@' + partly_msg_id
+
+    def __eq__(self, other) -> bool:
+        """__eq__ overloading.
+        """
+        if hasattr(other, 'ref') and self.ref == other.ref:
+            return True
+
+        return False
 
 
 def _cache_has(model: str, eid: _Union[str, _ObjectId]) -> bool:

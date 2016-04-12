@@ -18,7 +18,6 @@ __permission_groups = []
 __permissions = []
 __anonymous_user = None
 
-
 user_login_rule = _validation.rule.Email()
 user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
                                             pattern='^[A-Za-z0-9][A-Za-z0-9\.\-_]{0,31}$')
@@ -51,7 +50,7 @@ def register_driver(driver: _AbstractDriver):
     _drivers[name] = driver
 
 
-def get_driver(name: str=None) -> _AbstractDriver:
+def get_driver(name: str = None) -> _AbstractDriver:
     """Get current driver.
     """
     if not name:
@@ -121,7 +120,7 @@ def define_permission(name: str, description: str, group: str):
     __permissions.append((name, description, group))
 
 
-def get_permissions(group: str=None) -> list:
+def get_permissions(group: str = None) -> list:
     """Get all defined permissions.
     """
     r = []
@@ -133,20 +132,20 @@ def get_permissions(group: str=None) -> list:
     return r
 
 
-def get_login_form(driver_name: str=None, title=None, uid=None, css='', modal=False) -> _form.Form:
+def get_login_form(driver_name: str = None, uid: str = None, **kwargs) -> _form.Form:
     """Get a login form.
     """
     driver = get_driver(driver_name)
 
-    css += ' pytsite-auth-login driver-' + driver.name
+    kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-login driver-' + driver.name
 
-    if uid is None:
+    if not uid:
         uid = 'pytsite-auth-login'
 
-    if title is None:
-        title = _lang.t('pytsite.auth@authorization')
+    if not kwargs.get('title'):
+        kwargs['title'] = _lang.t('pytsite.auth@authorization')
 
-    form = driver.get_login_form(uid, css.strip(), title, modal)
+    form = driver.get_login_form(uid, **kwargs)
     form.action = _router.ep_url('pytsite.auth.ep.login_submit', {'driver': driver.name})
 
     return form
@@ -162,7 +161,7 @@ def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
     return get_driver(driver_name).post_login_form(inp)
 
 
-def create_user(login: str, password: str=None) -> _model.User:
+def create_user(login: str, password: str = None) -> _model.User:
     """Create new user.
     """
     user_login_rule.value = login
@@ -193,7 +192,7 @@ def create_user(login: str, password: str=None) -> _model.User:
     return user
 
 
-def get_user(login: str=None, uid: str=None, nickname: str=None) -> _model.User:
+def get_user(login: str = None, uid: str = None, nickname: str = None) -> _model.User:
     """Get user by login or by uid.
     """
     # Don't cache finder results due to frequent user updates in database
@@ -208,7 +207,7 @@ def get_user(login: str=None, uid: str=None, nickname: str=None) -> _model.User:
         return f.where('nickname', '=', nickname).first()
 
 
-def create_role(name: str, description: str=''):
+def create_role(name: str, description: str = ''):
     """Create new role.
     """
     if get_role(name=name):
@@ -218,7 +217,7 @@ def create_role(name: str, description: str=''):
     return role.f_set('name', name).f_set('description', description)
 
 
-def get_role(name: str=None, uid=None) -> _model.Role:
+def get_role(name: str = None, uid=None) -> _model.Role:
     """Get role by name or by UID.
     """
     if name:
@@ -227,8 +226,8 @@ def get_role(name: str=None, uid=None) -> _model.Role:
         return _odm.find('role').where('_id', '=', uid).first()
 
 
-def authorize(user: _model.User, count_login: bool=True, issue_event: bool=True,
-              update_geo_ip: bool=True) -> _model.User:
+def authorize(user: _model.User, count_login: bool = True, issue_event: bool = True,
+              update_geo_ip: bool = True) -> _model.User:
     """Authorize user.
     """
     if not user:
@@ -313,7 +312,7 @@ def get_user_statuses() -> tuple:
     )
 
 
-def get_login_url(driver: str='ulogin') -> str:
+def get_login_url(driver: str = 'ulogin') -> str:
     """Get login URL.
     """
     return _router.ep_url('pytsite.auth.ep.login', {'driver': driver})
@@ -325,7 +324,7 @@ def get_logout_url() -> str:
     return _router.ep_url('pytsite.auth.ep.logout', {'__redirect': _router.current_url()})
 
 
-def find_users(active_only: bool=True) -> _odm.Finder:
+def find_users(active_only: bool = True) -> _odm.Finder:
     """Get users finder.
     """
     f = _odm.find('user').sort([('login_count', _odm.I_DESC)])

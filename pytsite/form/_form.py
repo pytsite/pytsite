@@ -44,6 +44,7 @@ class Form:
         self._steps = kwargs.get('steps', 1)
         self._step = kwargs.get('step', 1)
         self._modal = kwargs.get('modal', False)
+        self._modal_close_btn = kwargs.get('modal_close_btn', True)
         self._reload_on_forward = kwargs.get('reload_on_forward', False)
         self._prevent_submit = kwargs.get('prevent_submit', False)
 
@@ -261,6 +262,14 @@ class Form:
     @modal.setter
     def modal(self, value: bool):
         self._modal = value
+
+    @property
+    def modal_close_btn(self) -> bool:
+        return self._modal_close_btn
+
+    @modal_close_btn.setter
+    def modal_close_btn(self, value: bool):
+        self._modal_close_btn = value
 
     @property
     def reload_on_forward(self) -> bool:

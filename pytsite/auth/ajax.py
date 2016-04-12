@@ -1,6 +1,6 @@
 """PytSite Auth AJAX Endpoints.
 """
-from pytsite import assetman as _assetman, reg as _reg, util as _util
+from pytsite import assetman as _assetman, util as _util
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -10,11 +10,11 @@ __license__ = 'MIT'
 
 def get_login_form(args: dict, inp: dict) -> dict:
     frm = _api.get_login_form(
-        inp.get('driver'),
-        inp.get('title'),
-        inp.get('uid'),
-        inp.get('css', ''),
-        inp.get('modal', False)
+        driver_name=inp.get('driver'),
+        uid=inp.get('uid'),
+        title=inp.get('title'),
+        css=inp.get('css', ''),
+        modal=inp.get('modal', False)
     )
 
     return {

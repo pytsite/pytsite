@@ -207,21 +207,22 @@ class Integer(Number):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        if 'default' not in kwargs:
+            kwargs['default'] = 0
+
         super().__init__(uid, **kwargs)
 
         self._css = ' '.join((self._css, 'widget-input-integer'))
         self.add_rule(_validation.rule.Integer())
-        self._assets.extend(['pytsite.widget@js/integer.js'])
+        self._assets.append('pytsite.widget@js/integer.js')
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if value is None:
-            value = 0
-        elif isinstance(value, str):
+        if isinstance(value, str):
             value = value.strip()
             if not value:
-                value = 0
+                value = self._default
 
         return super().set_val(int(value), **kwargs)
 
@@ -232,21 +233,22 @@ class Decimal(Number):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        if 'default' not in kwargs:
+            kwargs['default'] = 0
+
         super().__init__(uid, **kwargs)
 
         self._css = ' '.join((self._css, 'widget-input-decimal'))
         self.add_rule(_validation.rule.Decimal())
-        self._assets.extend(['pytsite.widget@js/decimal.js'])
+        self._assets.append('pytsite.widget@js/decimal.js')
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if value is None:
-            value = 0.0
-        elif isinstance(value, str):
+        if isinstance(value, str):
             value = value.strip()
             if not value:
-                value = 0.0
+                value = self._default
 
         return super().set_val(float(value), **kwargs)
 

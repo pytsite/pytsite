@@ -1,6 +1,7 @@
 """PytSite Language Support
 """
 import yaml as _yaml
+from typing import List as _List
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path
@@ -10,7 +11,6 @@ from . import _error
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
 
 _languages = []
 _current = {}  # Thread safe current language store
@@ -33,9 +33,8 @@ def define(languages: list):
     set_fallback(_languages[0])
 
 
-def langs(include_current=True):
+def langs(include_current: bool = True) -> _List[str]:
     """Get all available languages.
-    :rtype: list[str]
     """
     if include_current:
         return _languages
@@ -90,7 +89,7 @@ def is_package_registered(pkg_name):
     return pkg_name in _packages
 
 
-def register_package(pkg_name: str, languages_dir: str='res/lang') -> str:
+def register_package(pkg_name: str, languages_dir: str = 'res/lang') -> str:
     """Register language container.
     """
     if is_package_registered(pkg_name):
@@ -113,7 +112,7 @@ def get_packages() -> dict:
     return _packages
 
 
-def is_translation_defined(msg_id: str, language: str=None, use_fallback=True) -> bool:
+def is_translation_defined(msg_id: str, language: str = None, use_fallback=True) -> bool:
     """Check if the translation is defined for message ID.
     """
     try:
@@ -123,7 +122,7 @@ def is_translation_defined(msg_id: str, language: str=None, use_fallback=True) -
         return False
 
 
-def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, use_fallback=True) -> str:
+def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, use_fallback=True) -> str:
     """Translate a message ID.
     """
     if not language:
@@ -159,7 +158,7 @@ def t(msg_id: str, args: dict=None, language: str=None, exceptions=False, use_fa
     return msg
 
 
-def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
+def t_plural(msg_id: str, num: int = 2, language: str = None) -> str:
     """Translate a string in plural form.
     """
     if not language:
@@ -184,7 +183,7 @@ def t_plural(msg_id: str, num: int=2, language: str=None) -> str:
             return t(msg_id + '_plural_one')
 
 
-def lang_title(language: str=None) -> str:
+def lang_title(language: str = None) -> str:
     """Get human readable language name.
     """
     if not language:
@@ -195,7 +194,7 @@ def lang_title(language: str=None) -> str:
         return language
 
 
-def load_lang_file(pkg_name: str, language: str=None):
+def load_lang_file(pkg_name: str, language: str = None):
     """Load package's language file.
 
     :rtype: dict[str, str]
@@ -277,7 +276,7 @@ def pretty_date_time(time: _datetime) -> str:
     return '{}, {}'.format(pretty_date(time), time.strftime('%H:%M'))
 
 
-def ietf_tag(language: str=None, region: str=None, sep: str='-') -> str:
+def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
     global _default_regions
 
     if not language:

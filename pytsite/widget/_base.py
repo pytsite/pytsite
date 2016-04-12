@@ -126,7 +126,7 @@ class Base(_ABC):
     def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        self._value = value
+        self._value = value or _deepcopy(self._default)
 
         return self
 

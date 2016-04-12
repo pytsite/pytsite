@@ -57,10 +57,10 @@ class Driver(AbstractDriver):
         """
         return 'ulogin'
 
-    def get_login_form(self, uid: str, css: str, title: str, modal=False) -> _form.Form:
+    def get_login_form(self, uid: str, **kwargs) -> _form.Form:
         """Get the login form.
         """
-        return _LoginForm(uid=uid, css=css, title=title, modal=modal)
+        return _LoginForm(uid=uid, **kwargs)
 
     def post_login_form(self, inp: dict) -> _http.response.Redirect:
         """Process submit of the login form.

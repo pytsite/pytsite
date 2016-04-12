@@ -336,13 +336,21 @@ class Content(_odm_ui.UIEntity):
                 if not img.f_get('attached_to'):
                     img.f_set('attached_to', self).f_set('owner', self.author).save()
 
-        # Updating localization entities references
+        # Updating localization entities references.
+        # For each language except current one
         for lng in _lang.langs(False):
+            # Get localization ref for lng
             localization = self.f_get('localization_' + lng)
+
+            # If localization is set
             if isinstance(localization, Content):
+                # If localized entity hasn't reference to this entity, set it
                 if localization.f_get('localization_' + self.language) != self:
                     localization.f_set('localization_' + self.language, self).save()
+
+            # If localization is not set
             elif localization is None:
+                # Clear references from localized entities
                 f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
                 for referenced in f.get():
                     referenced.f_set('localization_' + self.language, None).save()
