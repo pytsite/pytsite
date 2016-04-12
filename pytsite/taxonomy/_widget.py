@@ -27,6 +27,9 @@ class TokensInput(_widget.input.Tokens):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        if 'default' not in kwargs:
+            kwargs['default'] = []
+
         super().__init__(uid, **kwargs)
 
         self._model = kwargs.get('model')
@@ -48,8 +51,8 @@ class TokensInput(_widget.input.Tokens):
     def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if not value:
-            return super().set_val([])
+        if value is None:
+            return super().set_val(value, **kwargs)
 
         if isinstance(value, str):
             value = value.split(',')

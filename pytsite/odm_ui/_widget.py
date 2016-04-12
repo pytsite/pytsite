@@ -1,7 +1,7 @@
 """ODM UI Widgets.
 """
 from bson.dbref import DBRef as _DBRef
-from pytsite import widget as _widget, odm as _odm, lang as _lang, router as _router
+from pytsite import widget as _widget, odm as _odm, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

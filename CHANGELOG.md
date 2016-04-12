@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.15 (2016-04-12)
+### Fixed
+- `taxonomy.widget.TokensInput`: setting value exception. 
+
+
 ## 0.62.14 (2016-04-12)
 ### Added
 - `form`: new instance property: `form.Form.modal_close_btn`.

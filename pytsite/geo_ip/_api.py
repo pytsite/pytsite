@@ -37,7 +37,7 @@ def resolve(ip: str) -> _model.GeoIP:
     if entity:
         return entity
 
-    # Fetching data from external API
+    # Fetching data
     entity = _odm.dispense('geo_ip').f_set('ip', ip)
     if ip != '0.0.0.0' and not _private_ip_re.match(ip):
         r = _requests.get('http://ip-api.com/json/{}'.format(ip))

@@ -164,28 +164,27 @@ def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
 def create_user(login: str, password: str = None) -> _model.User:
     """Create new user.
     """
-    user_login_rule.value = login
-    user_login_rule.validate()
+    if login != _model.ANONYMOUS_USER_LOGIN:
+        if get_user(login):
+            raise RuntimeError("User with login '{}' already exists.".format(login))
 
-    if get_user(login):
-        raise Exception("User with login '{}' already exists.".format(login))
+        user_login_rule.value = login
+        user_login_rule.validate()
 
-    user = _odm.dispense('user')
-    """:type: _model.User"""
+    user = _odm.dispense('user')  # type: _model.User
     user.f_set('login', login).f_set('email', login).f_set('password', password)
 
-    # Automatic roles for new users
-    for role_name in _reg.get('auth.signup.roles', ['user']):
-        role = get_role(role_name)
-        if role:
-            user.f_add('roles', role)
+    if login != _model.ANONYMOUS_USER_LOGIN:
+        # Automatic roles for new users
+        for role_name in _reg.get('auth.signup.roles', ['user']):
+            role = get_role(role_name)
+            if role:
+                user.f_add('roles', role)
 
-    # GeoIP data
-    if _router.request():
-        user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
+        # GeoIP data
+        if _router.request():
+            user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
 
-    # Issue event
-    if user.login != _model.ANONYMOUS_USER_LOGIN:
         user.save()
         _events.fire('pytsite.auth.user.create', user=user)
 
