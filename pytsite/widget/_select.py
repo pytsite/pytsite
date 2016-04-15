@@ -13,6 +13,7 @@ __license__ = 'MIT'
 class Checkbox(_input.Input):
     """Single Checkbox Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -39,6 +40,7 @@ class Checkbox(_input.Input):
 class Select(_input.Input):
     """Select Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -96,6 +98,7 @@ class Select2(Select):
 class Checkboxes(Select):
     """Group of Checkboxes Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -122,13 +125,13 @@ class Checkboxes(Select):
         """Render the widget.
         """
         div = _html.Div()
-        div.append(_html.Input(type='hidden', name=self.uid))
+        div.append(_html.Input(type='hidden', name=self.uid + '[]'))
         for item in self._items:
             checked = True if item[0] in self._selected_items else False
             div.append(
                 _html.Div(cls='checkbox').append(
                     _html.Label(item[1]).append(
-                        _html.Input(type='checkbox', name=self.uid, value=item[0], checked=checked)
+                        _html.Input(type='checkbox', name=self.uid + '[]', value=item[0], checked=checked)
                     )
                 )
             )
@@ -139,6 +142,7 @@ class Checkboxes(Select):
 class Language(Select):
     """Select Language Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -152,6 +156,7 @@ class Language(Select):
 class LanguageNav(_base.Base):
     """Language Nav Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -219,6 +224,7 @@ class LanguageNav(_base.Base):
 class DateTime(_input.Text):
     """Date/Time Select Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

@@ -44,19 +44,19 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        groups_cell = ''
-        for role in self.f_get('roles'):
+        roles_cell = ''
+        for role in sorted(self.f_get('roles'), key=lambda role: role.name):
             cls = 'label label-default'
             if role.name == 'admin':
                 cls += ' label-danger'
-            groups_cell += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
+            roles_cell += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
 
         status_cls = 'info' if self.status == 'active' else 'default'
 
         return (
             self.login,
             self.full_name,
-            groups_cell,
+            roles_cell,
             '<span class="label label-{}">{}</span>'.format(status_cls,
                                                             _lang.t('pytsite.auth@status_' + self.f_get('status'))),
             '<span class="label label-info">{}</span>'.format(self.t('word_yes')) if self.profile_is_public else '',

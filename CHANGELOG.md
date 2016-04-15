@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.18 (2016-04-15)
+### Fixed
+- `form`: multiple checkboxes JS serialization. 
+
+
 ## 0.62.17 (2016-04-15)
 ### Changed
 - `ckeditor`: updated to full 4.5.8 version.

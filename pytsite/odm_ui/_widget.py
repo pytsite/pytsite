@@ -11,6 +11,7 @@ __license__ = 'MIT'
 class EntitySelect(_widget.select.Select):
     """Select Entity with Select Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -68,6 +69,7 @@ class EntitySelect(_widget.select.Select):
 class EntityCheckboxes(_widget.select.Checkboxes):
     """Select Entities with Checkboxes Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -104,7 +106,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         :param value: list[pytsite.odm.models.ODMModel] | list[DBRef] | list[str]
         """
 
-        # Single string can be passed from HTML form
+        # Single string can be received from HTML form
         if isinstance(value, str) or value is None:
             value = [value] if value else []
 
@@ -122,6 +124,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
                 self._selected_items.append(entity.model + ':' + str(entity.id))
 
         self._value = clean_val
+
         return self
 
     def get_html_em(self):

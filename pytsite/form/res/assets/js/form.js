@@ -54,8 +54,12 @@ pytsite.form = {
 
         self.serialize = function (skipTags) {
             function getEmValue(em) {
-                if (em.tagName == 'INPUT' && em.type == 'checkbox')
-                    return em.checked;
+                if (em.tagName == 'INPUT' && em.type == 'checkbox') {
+                    if (em.name.indexOf('[]') > 0)
+                        return em.value;
+                    else
+                        return em.checked;
+                }
                 else
                     return em.value;
             }
