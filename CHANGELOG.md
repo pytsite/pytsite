@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.62.17 (2016-04-15)
+### Changed
+- `ckeditor`: updated to full 4.5.8 version.
+
+
 ## 0.62.16 (2016-04-15)
 ### Added
 - `file`: new JS events in `widget.FilesUpload()`.
