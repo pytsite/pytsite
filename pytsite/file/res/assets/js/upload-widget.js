@@ -187,6 +187,8 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
     fileInput.change(function (e) {
         var files = this.files;
 
+        $(widget).trigger('widgetChange');
+
         for (var i = 0; i < files.length; i++) {
             var file = files[i];
 
@@ -225,14 +227,19 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
 
     // Open file select dialog
     widget.open = function () {
+        $(widget).trigger('widgetOpen');
         fileInput[0].click();
     };
 
     // Remove all existing slots
     widget.clear = function (confirmDelete) {
+        fileInput.val('');
+
         slotsEm.find('.slot.content').each(function () {
             removeSlot(this, confirmDelete);
         });
+
+        $(widget).trigger('widgetClear');
     };
 
     // Initial setup of existing slots

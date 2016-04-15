@@ -78,7 +78,7 @@ class NonEmpty(Base):
 
 
 class DictPartsNonEmpty(Base):
-    """Check if a dict particular key values are not empty.
+    """Check if a dict particular keys' values are not empty.
     """
     def __init__(self, value: None, msg_id: str=None, keys: tuple=()):
         """Init.

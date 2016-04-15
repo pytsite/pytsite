@@ -26,7 +26,7 @@ pytsite.form = {
         self.readyToSubmit = false;
         self.areas = {};
         self.title = self.em.find('.form-title');
-        self.messages = self.em.find('.form-messages');
+        self.messages = self.em.find('.form-messages').first();
         self.widgets = {};
 
         // Initialize areas
@@ -275,11 +275,15 @@ pytsite.form = {
         self.validate = function () {
             var deffer = $.Deferred();
 
+            // Mark current step as validation when validation will finish
             deffer.done(function () {
                 self.isCurrentStepValidated = true;
             });
 
             if (self.currentStep > 0) {
+                // Reset form's messages
+                self.clearMessages();
+
                 // Reset widgets state
                 for (var uid in self.widgets)
                     self.widgets[uid].clearState().clearMessages();
@@ -290,18 +294,34 @@ pytsite.form = {
                     }
                     else {
                         // Add error messages for widgets
-                        for (var uid in resp.messages) {
-                            if (uid in self.widgets) {
-                                var widget = self.widgets[uid];
-                                widget.setState('error');
+                        for (var widget_uid in resp.messages) {
+                            for (var i = 0; i < resp.messages[widget_uid].length; i++) {
+                                var widget_message = resp.messages[widget_uid][i];
 
-                                for (var i = 0; i < resp.messages[uid].length; i++) {
-                                    widget.addMessage(resp.messages[uid]);
+                                // If widget exists
+                                if (widget_uid in self.widgets) {
+                                    var widget = self.widgets[widget_uid];
+
+                                    if (!widget.alwaysHidden) {
+                                        widget.setState('error');
+                                        widget.addMessage(widget_message);
+                                    }
+                                    else {
+                                        self.addMessage(widget_uid + ': ' + widget_message, 'danger');
+                                    }
+                                }
+                                // Widget does not exist
+                                else {
+                                    self.addMessage(widget_uid + ': ' + widget_message, 'danger');
                                 }
                             }
                         }
 
-                        $("html, body").animate({scrollTop: self.em.find('.has-error').first().offset().top + 'px'});
+                        var scrollTopTarget = self.em.find('.has-error').first();
+                        if (!scrollTopTarget.length)
+                            scrollTopTarget = self.messages;
+
+                        $("html, body").animate({scrollTop: scrollTopTarget.offset().top + 'px'});
                         deffer.reject();
                     }
                 });

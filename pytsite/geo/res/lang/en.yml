@@ -1,0 +1,3 @@
+validation_geolocationnotempty: 'Location is not specified'
+validation_geoaddressnotempty: 'Enter address'
+show_on_map: 'Show on a map'

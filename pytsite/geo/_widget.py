@@ -2,7 +2,8 @@
 """
 from typing import Union as _Union
 from frozendict import frozendict as _frozendict
-from pytsite import widget as _widget, html as _html
+from pytsite import widget as _widget, html as _html, validation as _validation
+from . import _validation_rule
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,24 +16,59 @@ class Location(_widget.Base):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        default = {
-            'lng': 0.0,
-            'lat': 0.0,
-            'lng_lat': (0.0, 0.0),
-            'accuracy': 0.0,
-            'alt': 0.0,
-            'alt_accuracy': 0.0,
-            'heading': 0.0,
-            'speed': 0.0,
-        }
+        if 'default' not in kwargs:
+            kwargs['default'] = {
+                'lng': 0.0,
+                'lat': 0.0,
+                'lng_lat': (0.0, 0.0),
+                'accuracy': 0.0,
+                'alt': 0.0,
+                'alt_accuracy': 0.0,
+                'heading': 0.0,
+                'speed': 0.0,
+            }
 
-        super().__init__(uid, default=default, **kwargs)
+        super().__init__(uid, **kwargs)
+
+        # Autodetect location
+        self._autodetect = kwargs.get('autodetect', False)
 
         # Assets
         self._assets.append('pytsite.geo@js/widget/location.js')
 
         # CSS
         self._css += ' widget-geo-location'
+
+        # Validation rule for 'required' widget
+        if self._required:
+            self.clr_rules().add_rules([r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)])
+            self.add_rule(_validation_rule.LocationNonEmpty())
+
+    @property
+    def required(self) -> bool:
+        return self._required
+
+    @required.setter
+    def required(self, value: bool):
+        if value:
+            self.add_rule(_validation_rule.LocationNonEmpty())
+        else:
+            # Clear all added NonEmpty and LocationNonEmpty rules
+            rules = [r for r in self.get_rules() if not isinstance(r, (
+                _validation.rule.NonEmpty,
+                _validation_rule.LocationNonEmpty
+            ))]
+            self.clr_rules().add_rules(rules)
+
+        self._required = value
+
+    @property
+    def autodetect(self) -> bool:
+        return self._autodetect
+
+    @autodetect.setter
+    def autodetect(self, value: bool):
+        self._autodetect = value
 
     def set_val(self, val: _Union[dict, _frozendict], **kwargs):
         """Set value of the widget.
@@ -63,7 +99,9 @@ class Location(_widget.Base):
         """
         inputs = _html.TagLessElement()
 
-        inputs.append(_html.P(cls='text'))
+        inputs.append(_html.P('Longitude: 0.0, latitude: 0.0', cls='text'))
+
+        self._data['autodetect'] = self._autodetect
 
         for k in ('lng', 'lat', 'lng_lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
             inp_val = self._value[k] if k in self._value else ''

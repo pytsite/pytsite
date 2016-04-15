@@ -37,6 +37,10 @@ class Base(_ABC):
         self._form_step = kwargs.get('form_step', 1)
         self._assets = kwargs.get('assets', [])
         self._replaces = kwargs.get('replaces', None)
+        self._required = kwargs.get('required', False)
+
+        if self.required:
+            self.add_rule(_validation.rule.NonEmpty())
 
         # Check validation rules
         if type(self._rules) not in (list, tuple):
@@ -266,6 +270,20 @@ class Base(_ABC):
     @replaces.setter
     def replaces(self, value: str) -> str:
         self._replaces = value
+
+    @property
+    def required(self) -> bool:
+        return self._required
+
+    @required.setter
+    def required(self, value: bool):
+        if value:
+            self.add_rule(_validation.rule.NonEmpty())
+        else:
+            # Clear all added NonEmpty rules
+            self.clr_rules().add_rules([r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)])
+
+        self._required = value
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.

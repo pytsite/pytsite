@@ -4,7 +4,8 @@ from typing import Union as _Union
 from copy import deepcopy as _deepcopy
 from json import dumps as _json_dumps, loads as _json_loads
 from frozendict import frozendict as _frozendict
-from pytsite import widget as _pytsite_widget, browser as _browser, html as _html, reg as _reg
+from pytsite import widget as _pytsite_widget, browser as _browser, html as _html, reg as _reg, geo as _geo, \
+    validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,6 +42,29 @@ class AddressInput(_pytsite_widget.Base):
         # Assets
         self.assets.extend(_browser.get_assets('google-maps'))
         self.assets.append('pytsite.google@js/widget/address-input.js')
+
+        # Validation rule for 'required' widget
+        if self._required:
+            self.clr_rules().add_rules([r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)])
+            self.add_rule(_geo.validation_rule.AddressNonEmpty())
+
+    @property
+    def required(self) -> bool:
+        return self._required
+
+    @required.setter
+    def required(self, value: bool):
+        if value:
+            self.add_rule(_geo.validation_rule.AddressNonEmpty())
+        else:
+            # Clear all added NonEmpty and AddressNonEmpty rules
+            rules = [r for r in self.get_rules() if not isinstance(r, (
+                _validation.rule.NonEmpty,
+                _geo.validation_rule.AddressNonEmpty
+            ))]
+            self.clr_rules().add_rules(rules)
+
+        self._required = value
 
     @property
     def autodetect(self) -> bool:

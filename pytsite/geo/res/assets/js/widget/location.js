@@ -1,10 +1,9 @@
 $(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, widget) {
-    // Change widget's value only if it's not empty
-    if (widget.em.find('.text').val().replace(' ', '') != '')
+    if (widget.em.data('autodetect') != 'True')
         return;
 
     if (!('geolocation' in navigator))
-        throw 'Your browser does not provide geo location.';
+        throw 'Your browser does not support geo location.';
 
     navigator.geolocation.getCurrentPosition(function (position) {
         var coords = position.coords;

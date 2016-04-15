@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.62.16 (2016-04-15)
+### Added
+- `file`: new JS events in `widget.FilesUpload()`.
+- `geo`: processing 'required' and 'autodetect' properties in `widget.Location`.
+- `google`: processing 'required' property `maps.widget.AddressInput`.
+
+### Changed
+- `widget`: 'required' property moved from `Input` to `Base`.
+
+### Fixed
+- `lang`: thread safety in `lang()`.
+- `form`: showing errors on client.
+
+
 ## 0.62.15 (2016-04-12)
 ### Fixed
 - `taxonomy.widget.TokensInput`: setting value exception. 

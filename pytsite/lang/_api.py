@@ -39,7 +39,8 @@ def langs(include_current: bool = True) -> _List[str]:
     if include_current:
         return _languages
     else:
-        return [lng for lng in _languages if lng != _current]
+        tid = _threading.get_id()
+        return [lng for lng in _languages if lng != _current[tid]]
 
 
 def set_current(language: str):

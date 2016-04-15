@@ -16,29 +16,7 @@ class Input(_base.Base):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._required = kwargs.get('required', False)
         self._max_length = kwargs.get('max_length')
-
-        if self.required:
-            self.add_rule(_validation.rule.NonEmpty())
-
-    @property
-    def required(self) -> bool:
-        return self._required
-
-    @required.setter
-    def required(self, value: bool):
-
-        if value:
-            self.add_rule(_validation.rule.NonEmpty())
-        else:
-            self._clear_non_empty_rule()
-
-        self._required = value
-
-    def _clear_non_empty_rule(self):
-        rules = [r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)]
-        self.clr_rules().add_rules(rules)
 
 
 class Hidden(Input):
