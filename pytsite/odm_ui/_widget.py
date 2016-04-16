@@ -110,8 +110,8 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         if isinstance(value, str) or value is None:
             value = [value] if value else []
 
-        if type(value) not in (list, tuple):
-            raise TypeError('List of entities expected as a value of the widget.')
+        if not isinstance(value, (list, tuple)):
+            raise TypeError("List of entities expected as a value of the widget '{}'.".format(self.name))
 
         self._selected_items = []
         clean_val = []

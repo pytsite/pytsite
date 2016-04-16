@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.62.19 (2016-04-16)
+### Fixed
+- `taxonomy`: `widget.TokensInput` input processing by `set_val()`.
+- `form`: submit button lock in case of non-200 AJAX response from server.
+
+
 ## 0.62.18 (2016-04-15)
 ### Fixed
 - `form`: multiple checkboxes JS serialization. 

@@ -59,7 +59,7 @@ class Update(_console.command.Abstract):
                 for minor in range(0, 100):
                     if stop:
                         break
-                    for rev in range(0, 20):
+                    for rev in range(0, 100):
                         if stop:
                             break
 

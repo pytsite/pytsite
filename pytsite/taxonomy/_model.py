@@ -52,6 +52,13 @@ class Term(_odm_ui.UIEntity):
         """
         if field_name == 'alias':
             from . import _functions
+
+            if value is None:
+                value = ''
+
+            if not isinstance(value, str):
+                raise RuntimeError('str or None expected.')
+
             value = value.strip()
             if not self.is_new:
                 term = _functions.find(self.model).where('alias', '=', value).first()

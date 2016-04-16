@@ -269,20 +269,21 @@ class User(_odm.Entity):
         """
         from . import _api
 
+        # Users cannot delete themselves
         if _api.get_current_user() == self and self.is_admin:
             raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
 
         # Search for entities which user owns
         for model in _odm.get_registered_models():
-            for e in _odm.find(model).get():
+            for entity in _odm.find(model).get():
                 for f_name in ('author', 'owner'):
-                    if e.has_field(f_name) and e.f_get(f_name) == self:
-                        # Skip self avatar to avoid  deletion block
-                        if model == 'image' and self.picture == e:
+                    if entity.has_field(f_name) and entity.f_get(f_name) == self:
+                        # Skip user's avatar to avoid  deletion block
+                        if model == 'image' and self.picture == entity:
                             continue
 
                         raise _odm.error.ForbidEntityDelete(
-                            self.t('account_owns_entity', {'entity': e.model + ':' + str(e.id)}))
+                            self.t('account_owns_entity', {'entity': entity.model + ':' + str(entity.id)}))
 
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.

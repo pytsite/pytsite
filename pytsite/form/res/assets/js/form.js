@@ -292,43 +292,48 @@ pytsite.form = {
                 for (var uid in self.widgets)
                     self.widgets[uid].clearState().clearMessages();
 
-                self._request('POST', self.validationEp).done(function (resp) {
-                    if (resp.status) {
-                        deffer.resolve();
-                    }
-                    else {
-                        // Add error messages for widgets
-                        for (var widget_uid in resp.messages) {
-                            for (var i = 0; i < resp.messages[widget_uid].length; i++) {
-                                var widget_message = resp.messages[widget_uid][i];
+                self._request('POST', self.validationEp)
+                    .done(function (resp) {
+                        if (resp.status) {
+                            deffer.resolve();
+                        }
+                        else {
+                            // Add error messages for widgets
+                            for (var widget_uid in resp.messages) {
+                                for (var i = 0; i < resp.messages[widget_uid].length; i++) {
+                                    var widget_message = resp.messages[widget_uid][i];
 
-                                // If widget exists
-                                if (widget_uid in self.widgets) {
-                                    var widget = self.widgets[widget_uid];
+                                    // If widget exists
+                                    if (widget_uid in self.widgets) {
+                                        var widget = self.widgets[widget_uid];
 
-                                    if (!widget.alwaysHidden) {
-                                        widget.setState('error');
-                                        widget.addMessage(widget_message);
+                                        if (!widget.alwaysHidden) {
+                                            widget.setState('error');
+                                            widget.addMessage(widget_message);
+                                        }
+                                        else {
+                                            self.addMessage(widget_uid + ': ' + widget_message, 'danger');
+                                        }
                                     }
+                                    // Widget does not exist
                                     else {
                                         self.addMessage(widget_uid + ': ' + widget_message, 'danger');
                                     }
                                 }
-                                // Widget does not exist
-                                else {
-                                    self.addMessage(widget_uid + ': ' + widget_message, 'danger');
-                                }
                             }
+
+                            var scrollTopTarget = self.em.find('.has-error').first();
+                            if (!scrollTopTarget.length)
+                                scrollTopTarget = self.messages;
+
+                            $("html, body").animate({scrollTop: scrollTopTarget.offset().top + 'px'});
+                            deffer.reject();
                         }
-
-                        var scrollTopTarget = self.em.find('.has-error').first();
-                        if (!scrollTopTarget.length)
-                            scrollTopTarget = self.messages;
-
-                        $("html, body").animate({scrollTop: scrollTopTarget.offset().top + 'px'});
+                    })
+                    .fail(function () {
+                        $("html, body").animate({scrollTop: self.messages.offset().top + 'px'});
                         deffer.reject();
-                    }
-                });
+                    });
             }
             else {
                 deffer.resolve();
