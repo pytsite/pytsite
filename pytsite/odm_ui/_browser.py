@@ -1,6 +1,6 @@
 """PytSite ODM Entities Browser.
 """
-from typing import Callable as _Callable
+from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _browser, \
     odm as _odm, lang as _lang, http as _http, html as _html
 from . import _api
@@ -115,11 +115,11 @@ class Browser:
         return self._data_fields
 
     @data_fields.setter
-    def data_fields(self, value: tuple):
+    def data_fields(self, value: _Union[tuple, list]):
         """Set browser data fields.
         """
-        if not isinstance(value, tuple):
-            raise TypeError('Tuple expected.')
+        if not isinstance(value, (tuple, list)):
+            raise TypeError('Tuple or list expected.')
 
         fields = []
         titles = []

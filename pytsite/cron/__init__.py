@@ -1,9 +1,7 @@
 """PytSite Cron.
 """
-from time import sleep as _sleep
 from datetime import datetime as _datetime
-from pytsite import events as _events, reg as _reg, threading as _threading, logger as _logger, cache as _cache, \
-    mp as _mp
+from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, mp as _mp
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,35 +11,10 @@ __license__ = 'MIT'
 _cache_pool = _cache.create_pool('pytsite.cron', _reg.get('cron.cache.driver', 'redis'))
 
 
-def _cron_worker():
-    """Start the cron.
+def _get_lock() -> _mp.Lock:
+    """Get cron global lock.
     """
-    _events.fire('pytsite.cron.tick')
-
-    stats = _get_stats()
-    now = _datetime.now()
-    for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
-        if evt in stats:
-            delta = now - stats[evt]
-            if (evt == '1min' and delta.total_seconds() >= 60) \
-                    or (evt == '5min' and delta.total_seconds() >= 300) \
-                    or (evt == '15min' and delta.total_seconds() >= 900) \
-                    or (evt == '30min' and delta.total_seconds() >= 1800) \
-                    or (evt == 'hourly' and delta.total_seconds() >= 3600) \
-                    or (evt == 'daily' and delta.total_seconds() >= 86400) \
-                    or (evt == 'weekly' and delta.total_seconds() >= 604800) \
-                    or (evt == 'monthly' and delta.total_seconds() >= 2592000):
-
-                _logger.info('Cron event: pytsite.cron.' + evt, __name__)
-
-                try:
-                    _events.fire('pytsite.cron.' + evt)
-                except Exception as e:
-                    _logger.error('{}'.format(str(e)), __name__)
-                finally:
-                    _update_stats(evt)
-        else:
-            _update_stats(evt)
+    return _mp.get_lock('pytsite.cron')
 
 
 def _get_stats() -> dict:
@@ -75,33 +48,50 @@ def _update_stats(part: str) -> dict:
     return data
 
 
-def _get_lock() -> _mp.Lock:
-    return _mp.get_lock('pytsite.cron')
+if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
+    from uwsgidecorators import timer as _uwsgi_timer
 
-
-def _cron_thread():
-    _logger.info('Cron main thread started.', __name__)
-
-    while True:
+    @_uwsgi_timer(60)
+    def _cron_worker(num):
+        """Cron worker.
+        """
+        # Global lock is necessary in multi-server applications
         lock = _get_lock()
 
-        # Check if cron is still works
+        # Start worker only if no other worker running
         if not lock.locked():
             try:
+                # Locking maximum for 10 minutes to prevent long lived deadlocks
                 lock.lock(600)
-                _cron_worker()
+
+                # Starting worker
+                stats = _get_stats()
+                now = _datetime.now()
+                for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
+                    if evt in stats:
+                        delta = now - stats[evt]
+                        if (evt == '1min' and delta.total_seconds() >= 60) \
+                                or (evt == '5min' and delta.total_seconds() >= 300) \
+                                or (evt == '15min' and delta.total_seconds() >= 900) \
+                                or (evt == '30min' and delta.total_seconds() >= 1800) \
+                                or (evt == 'hourly' and delta.total_seconds() >= 3600) \
+                                or (evt == 'daily' and delta.total_seconds() >= 86400) \
+                                or (evt == 'weekly' and delta.total_seconds() >= 604800) \
+                                or (evt == 'monthly' and delta.total_seconds() >= 2592000):
+
+                            _logger.info('Cron event: pytsite.cron.' + evt, __name__)
+
+                            try:
+                                _events.fire('pytsite.cron.' + evt)
+                            except Exception as e:
+                                _logger.error('{}'.format(str(e)), __name__)
+                            finally:
+                                _update_stats(evt)
+                    else:
+                        _update_stats(evt)
+
             finally:
-                lock.unlock()
+              lock.unlock()
+
         else:
             _logger.warn('Cron is still working.', __name__)
-
-        _sleep(60)
-
-
-def is_started() -> bool:
-    return _get_lock().locked()
-
-
-# Start cron right after module initialization
-if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    _threading.create(_cron_thread).start()

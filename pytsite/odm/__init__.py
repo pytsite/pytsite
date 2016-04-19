@@ -1,8 +1,8 @@
 """Object Document Mapper Package Init
 """
 # Public API
-from . import _field as field, _validation as validation, _error as error
-from ._entity import Entity, I_ASC, I_DESC, I_TEXT, I_GEO2D
+from . import _field as field, _validation as validation, _error as error, _geo as geo
+from ._entity import Entity, I_ASC, I_DESC, I_TEXT, I_GEO2D, I_GEOSPHERE
 from ._finder import Finder, Result as FinderResult
 from ._api import register_model, unregister_model, is_model_registered, get_model_class, get_registered_models, \
     resolve_ref, get_by_ref, dispense, find

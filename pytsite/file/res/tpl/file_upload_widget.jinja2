@@ -8,7 +8,9 @@
                     <div class="inner">
                         <div class="thumb"><img class="img-responsive" src="{{ item.thumb_url }}"></div>
                         <button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>
-                        <span class="number"></span>
+                        {% if widget.show_numbers %}
+                            <span class="number"></span>
+                        {% endif %}
                         <input type="hidden" name="{{ widget.uid }}[]" value="{{ fid }}">
                     </div>
                 </div>

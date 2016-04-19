@@ -16,7 +16,6 @@ class Location(_odm.field.Dict):
         default = kwargs.get('default', {
             'lng': 0.0,
             'lat': 0.0,
-            'lng_lat': (0.0, 0.0),
             'accuracy': 0.0,
             'alt': 0.0,
             'alt_accuracy': 0.0,
@@ -24,11 +23,17 @@ class Location(_odm.field.Dict):
             'speed': 0.0,
         })
 
+        # Helper for building MongoDB's indexes
+        default['geo_point'] = {
+            'type': 'Point',
+            'coordinates': (default['lng'], default['lat'])
+        }
+
         super().__init__(name, default=default, keys=('lng', 'lat'), **kwargs)
 
     @property
     def is_empty(self) -> bool:
-        return self.get_val()['lng_lat'] == (0.0, 0.0)
+        return self.get_val()['coordinates'] == (0.0, 0.0)
 
     def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Hook.
@@ -47,8 +52,10 @@ class Location(_odm.field.Dict):
                 else:
                     value[k] = 0.0
 
-            # Setting up 'lat_lng' value
-            value['lng_lat'] = (value['lng'], value['lat'])
+            value['geo_point'] = {
+                'type': 'Point',
+                'coordinates': (value['lng'], value['lat']),
+            }
 
         elif value is not None:
             raise ValueError("Field '{}': dict or None expected.".format(self.name))
@@ -65,10 +72,15 @@ class Address(_odm.field.Dict):
         default = kwargs.get('default', {
             'lng': 0.0,
             'lat': 0.0,
-            'lng_lat': (0.0, 0.0),
             'address': '',
             'address_components': [],
         })
+
+        # Helper for building MongoDB's indexes
+        default['geo_point'] = {
+            'type': 'Point',
+            'coordinates': (default['lng'], default['lat'])
+        }
 
         super().__init__(name, default=default, keys=('lng', 'lat', 'address'), **kwargs)
 
@@ -76,7 +88,7 @@ class Address(_odm.field.Dict):
     def is_empty(self) -> bool:
         v = self.get_val()
 
-        return v['lng_lat'] == (0.0, 0.0) or not v['address']
+        return (v['lng'], v['lat']) == (0.0, 0.0) or not v['address']
 
     def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Hook.
@@ -103,7 +115,9 @@ class Address(_odm.field.Dict):
             if 'address_components' in value and not isinstance(value['address_components'], (list, tuple)):
                 raise ValueError("Field '{}.address_components': list or tuple expected.".format(self.name))
 
-            # Setting up 'lat_lng' value
-            value['lng_lat'] = (value['lng'], value['lat'])
+            value['geo_point'] = {
+                'type': 'Point',
+                'coordinates': (value['lng'], value['lat']),
+            }
 
         return super().set_val(value, **kwargs)

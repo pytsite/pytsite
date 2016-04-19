@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 class GeoCoder(_ABC):
     @_abstractmethod
-    def code(self, address: str, **kwargs):
+    def encode(self, address: str, **kwargs):
         pass
 
     @_abstractmethod

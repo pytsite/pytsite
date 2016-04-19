@@ -43,9 +43,6 @@ $(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, wi
             }
         }
 
-        // Helper field which used on backend to build indexes
-        widget.em.find('.lng_lat').val(JSON.stringify([coords.longitude, coords.latitude])).change();
-
         widget.em.find('.text').text('Longitude: ' + coords.longitude + ', latitude: ' + coords.latitude);
     });
 });

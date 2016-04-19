@@ -1,6 +1,5 @@
 """GeoIP Package ODM Models.
 """
-from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, geo as _geo
 
 __author__ = 'Alexander Shepetko'
@@ -78,7 +77,7 @@ class GeoIP(_odm.Entity):
         """Hook.
         """
         self.define_index([('ip', _odm.I_ASC)], unique=True)
-        self.define_index([('location.lng_lat', _odm.I_GEO2D)])
+        self.define_index([('location.geo_point', _odm.I_GEOSPHERE)])
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.

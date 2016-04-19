@@ -536,25 +536,25 @@ class String(Abstract):
         """Init.
         """
         kwargs['default'] = kwargs.get('default', '')
-        self._max_len = kwargs.get('max_len')
+        self._max_length = kwargs.get('max_length')
 
         super().__init__(name, **kwargs)
 
     @property
-    def max_len(self) -> int:
-        return self._max_len
+    def max_length(self) -> int:
+        return self._max_length
 
-    @max_len.setter
-    def max_len(self, val: int):
-        self._max_len = val
+    @max_length.setter
+    def max_length(self, val: int):
+        self._max_length = val
 
     def set_val(self, value: str, **kwargs):
         """Set value of the field.
         """
         value = '' if value is None else str(value).strip()
 
-        if self._max_len is not None:
-            value = value[:self._max_len]
+        if self._max_length is not None:
+            value = value[:self._max_length]
 
         return super().set_val(value, **kwargs)
 

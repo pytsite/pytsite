@@ -4,7 +4,7 @@ from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, U
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
-from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT
+from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT, GEOSPHERE as I_GEOSPHERE
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from bson import errors as _bson_errors
@@ -156,7 +156,7 @@ class Entity(_ABC):
                 raise Exception("Entity {} doesn't have field {}.".format(self.model, field_name))
 
             # Check index type
-            if index_type not in (I_ASC, I_DESC, I_GEO2D, I_TEXT):
+            if index_type not in (I_ASC, I_DESC, I_GEO2D, I_TEXT, I_GEOSPHERE):
                 raise ValueError("Invalid index type.")
 
             # Language field for text indexes

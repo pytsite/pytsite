@@ -11,7 +11,7 @@ __license__ = 'MIT'
 def pytsite_update(version: str):
     """'pytsite.update' event handler.
     """
-    if version == '0.59.0':
+    if version in ('0.59.0', '0.63.0'):
         # Re-create 'geo_ips' collection due to its structure changes
         _db.get_collection('geo_ips').drop()
         _console.print_info("Collection 'geo_ips' will be re-created.")

@@ -21,8 +21,8 @@ def get_map_link(lng: float=None, lat: float=None, query: str=None, zoom: int=15
         return 'https://www.google.com/maps/search/{}'.format(_urlquote(query), lat, lng)
 
 
-def code(address: str, **kwargs):
-    return _geocoding.GeoCoder().code(address, **kwargs)
+def encode(address: str, **kwargs):
+    return _geocoding.GeoCoder().encode(address, **kwargs)
 
 
 def decode(lng: float, lat: float, **kwargs):

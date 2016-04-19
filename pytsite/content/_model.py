@@ -410,7 +410,7 @@ class Content(_odm_ui.UIEntity):
         if mock.has_field('author'):
             data_fields.append('author')
 
-        browser.data_fields = tuple(data_fields)
+        browser.data_fields = data_fields
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -649,7 +649,7 @@ class Content(_odm_ui.UIEntity):
         r = super().as_dict(include_fields, exclude_fields)
 
         # Override default serialization of 'images' field
-        if 'images' in include_fields or 'images' not in exclude_fields:
+        if self.has_field('images') and ('images' in include_fields or 'images' not in exclude_fields):
             r['images'] = []
             for img in self.images:
                 r['images'].append(img.as_dict(

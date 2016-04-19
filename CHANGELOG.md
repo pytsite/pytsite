@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.63 (2016-04-19)
+### Added
+- `odm`: support for '2dsphere' geo indexes.
+
+### Changed
+- `cron`: switched to uWSGI timer.
+
+
 ## 0.62.19 (2016-04-16)
 ### Fixed
 - `taxonomy`: `widget.TokensInput` input processing by `set_val()`.

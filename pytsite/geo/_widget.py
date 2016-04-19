@@ -20,7 +20,6 @@ class Location(_widget.Base):
             kwargs['default'] = {
                 'lng': 0.0,
                 'lat': 0.0,
-                'lng_lat': (0.0, 0.0),
                 'accuracy': 0.0,
                 'alt': 0.0,
                 'alt_accuracy': 0.0,
@@ -99,11 +98,11 @@ class Location(_widget.Base):
         """
         inputs = _html.TagLessElement()
 
-        inputs.append(_html.P('Longitude: 0.0, latitude: 0.0', cls='text'))
+        inputs.append(_html.P('Longitude: {}, latitude: {}'.format(self.value['lng'], self.value['lat']), cls='text'))
 
         self._data['autodetect'] = self._autodetect
 
-        for k in ('lng', 'lat', 'lng_lat', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
+        for k in ('lng', 'lat', 'coordinates', 'accuracy', 'alt', 'alt_accuracy', 'heading', 'speed'):
             inp_val = self._value[k] if k in self._value else ''
             inputs.append(_html.Input(type='hidden', cls=k, name=self._uid + '[' + k + ']', value=inp_val))
 

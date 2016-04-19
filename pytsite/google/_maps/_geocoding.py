@@ -16,7 +16,7 @@ class GeoCoder(_geo.interface.GeoCoder):
             raise RuntimeError("Configuration parameter 'google.maps.server_key' is not defined. Obtain it at {}.".
                                format('https://developers.google.com/maps/documentation/geocoding/get-api-key'))
 
-    def code(self, address: str, **kwargs):
+    def encode(self, address: str, **kwargs):
         r = _requests.get('https://maps.googleapis.com/maps/api/geocode/json', {
             'key': self._api_key,
             'language': _lang.get_current(),

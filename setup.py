@@ -51,6 +51,7 @@ setup(
         'pytz',
         'frozendict',
         'redis',
+        'uwsgi',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

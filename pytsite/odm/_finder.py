@@ -4,7 +4,7 @@ from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef, ObjectId as _ObjectId
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from pytsite import lang as _lang, util as _util, reg as _reg, cache as _cache, logger as _logger
-from . import _entity, _field, _api
+from . import _entity, _field, _api, _geo
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -61,6 +61,12 @@ class Query:
             return '$regex_i'
         elif op in ('near', '$near'):
             return '$near'
+        elif op in ('nearSphere', '$nearSphere'):
+            return '$nearSphere'
+        elif op in ('minDistance', '$minDistance'):
+            return '$minDistance'
+        elif op in ('maxDistance', '$maxDistance'):
+            return '$maxDistance'
         else:
             raise TypeError("Invalid comparison operator: '{0}'.".format(op))
 
@@ -109,16 +115,21 @@ class Query:
 
         # Checking for argument type
         if comparison_op == '$near':
-            if type(arg) not in (list, tuple):
-                raise TypeError('Geo coordinates should be specified as a list or a tuple.')
+            if not isinstance(arg, (list, tuple)):
+                raise TypeError('$near agrument should be specified as a list or a tuple.')
+        if comparison_op == '$nearSphere':
+            if not isinstance(arg, _geo.Point):
+                raise TypeError('$near agrument should be specified as a geo point.')
 
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:
             self._criteria[logical_op] = []
 
-        # Finally adding the criteria itself
+        # Finally adding the criteria
         if comparison_op == '$regex_i':
             self._criteria[logical_op].append({field_name: {'$regex': arg, '$options': 'i'}})
+        elif comparison_op == '$nearSphere':
+            self._criteria[logical_op].append({field_name: {'$nearSphere': arg.as_dict()}})
         else:
             self._criteria[logical_op].append({field_name: {comparison_op: arg}})
 

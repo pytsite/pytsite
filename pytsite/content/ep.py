@@ -96,22 +96,25 @@ def view(args: dict, inp: dict):
     entity.f_set('comments_count', _comments.get_all_comments_count(entity.url)).save(True, False)
 
     # Meta title
-    title = entity.title
-    _metatag.t_set('title', title)
-    _metatag.t_set('og:title', title)
-    _metatag.t_set('twitter:title', title)
+    if entity.has_field('title'):
+        title = entity.title
+        _metatag.t_set('title', title)
+        _metatag.t_set('og:title', title)
+        _metatag.t_set('twitter:title', title)
 
     # Meta description
-    description = entity.description
-    _metatag.t_set('description', description)
-    _metatag.t_set('og:description', description)
-    _metatag.t_set('twitter:description', description)
+    if entity.has_field('description'):
+        description = entity.description
+        _metatag.t_set('description', description)
+        _metatag.t_set('og:description', description)
+        _metatag.t_set('twitter:description', description)
 
     # Meta keywords
-    _metatag.t_set('keywords', entity.f_get('tags', as_string=True))
+    if entity.has_field('tags'):
+        _metatag.t_set('keywords', entity.f_get('tags', as_string=True))
 
     # Meta image
-    if entity.images:
+    if entity.has_field('images') and entity.images:
         _metatag.t_set('twitter:card', 'summary_large_image')
         image_w = 900
         image_h = 500

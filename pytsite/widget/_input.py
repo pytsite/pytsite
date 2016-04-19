@@ -18,6 +18,14 @@ class Input(_base.Base):
         super().__init__(uid, **kwargs)
         self._max_length = kwargs.get('max_length')
 
+    @property
+    def max_length(self, ) -> int:
+        return self._max_length
+
+    @max_length.setter
+    def max_length(self, value: int):
+        self._max_length = value
+
 
 class Hidden(Input):
     """Hidden Input Widget
@@ -67,7 +75,7 @@ class TextArea(_base.Base):
         )
 
         if self._max_length:
-            html_input.set_attr('maxlength', int(self._max_length))
+            html_input.set_attr('maxlength', self._max_length)
 
         return self._group_wrap(html_input)
 
@@ -100,7 +108,7 @@ class Text(Input):
         )
 
         if self._max_length:
-            inp.set_attr('maxlength', int(self._max_length))
+            inp.set_attr('maxlength', self._max_length)
 
         if self._prepend or self._append:
             group = _html.Div(cls='input-group')
@@ -132,9 +140,9 @@ class TypeaheadText(Text):
             raise ValueError('AJAX endpoint is not specified.')
 
         self.assets.extend(_browser.get_assets('typeahead'))
-        self.assets.extend(['pytsite.widget@js/typeahead-text.js'])
+        self.assets.append('pytsite.widget@js/typeahead-text.js')
 
-        self._css = ' '.join((self._css, 'widget-typeahead-text-input'))
+        self._css = ' '.join((self._css, 'widget-input-typeahead-text'))
 
         source_url_q = kwargs.get('ajax_ep_args', {})
         source_url_q.update({self.uid: '__QUERY'})
