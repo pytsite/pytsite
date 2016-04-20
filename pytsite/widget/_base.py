@@ -38,6 +38,7 @@ class Base(_ABC):
         self._assets = kwargs.get('assets', [])
         self._replaces = kwargs.get('replaces', None)
         self._required = kwargs.get('required', False)
+        self._enabled = kwargs.get('enabled', True)
 
         if self.required:
             self.add_rule(_validation.rule.NonEmpty())
@@ -66,19 +67,15 @@ class Base(_ABC):
     def render(self) -> str:
         """Render the widget into a string.
         """
-        wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
-        if self._hidden:
-            wrap_css += ' hidden'
-
         # Wrapper div
         wrap = _html.Div(
-            cls=wrap_css,
             data_cid=self.__module__ + '.' + self.__class__.__name__,
             data_uid=self._uid,
             data_weight=self._weight,
             data_form_area=self._form_area,
             data_form_step=self._form_step,
             data_hidden=self._hidden,
+            data_enabled=self._enabled,
         )
 
         # Assets
@@ -98,6 +95,12 @@ class Base(_ABC):
 
         # Get widget's HTML element
         html_em = self.get_html_em()
+
+        # Wrapper CSS
+        wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
+        if self._hidden:
+            wrap_css += ' hidden'
+        wrap.set_attr('cls', wrap_css)
 
         # Data attributes
         if isinstance(self._data, dict):

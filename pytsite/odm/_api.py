@@ -123,3 +123,9 @@ def find(model: str):
     from ._finder import Finder
 
     return Finder(model)
+
+
+def aggregate(model: str):
+    from ._aggregation import Aggregator
+
+    return Aggregator(model)

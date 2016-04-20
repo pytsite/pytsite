@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.64 (2016-04-21)
+### Added
+- `odm`:
+    - basic support for aggregation operations;
+    - automatic collections reindex on every update.
+- `widget`: new widgets% `select.Score` and `select.TrafficLightScore`.
+- `flag`: big rework.
+
+
 ## 0.63 (2016-04-19)
 ### Added
 - `odm`: support for '2dsphere' geo indexes.

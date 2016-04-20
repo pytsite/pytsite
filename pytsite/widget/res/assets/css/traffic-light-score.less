@@ -1,0 +1,88 @@
+.widget-select-traffic-light-score {
+  @switch-color-default: lightgrey;
+  @switch-color-1: red;
+  @switch-color-2: orange;
+  @switch-color-3: mediumseagreen;
+
+  .switch {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    vertical-align: top;
+    font-family: "FontAwesome", sans-serif;
+    font-size: 40px;
+    line-height: 100%;
+    background: @switch-color-default;
+    border-color: @switch-color-default;
+    color: white;
+    padding: 0 3px;
+    cursor: default;
+
+    &:hover {
+      background: @switch-color-default;
+    }
+
+    &.score-1 {
+      &:before {
+        display: block;
+        content: '\f119';
+      }
+
+      &.active {
+        border-color: @switch-color-1;
+        background: @switch-color-1;
+      }
+    }
+
+    &.score-2 {
+      &:before {
+        display: block;
+        content: '\f11a';
+      }
+
+      &.active {
+        border-color: @switch-color-2;
+        background: @switch-color-2;
+      }
+    }
+
+    &.score-3 {
+      &:before {
+        display: block;
+        content: '\f118';
+      }
+
+      &.active {
+        border-color: @switch-color-3;
+        background: @switch-color-3;
+      }
+    }
+  }
+
+  &.enabled {
+    .switch {
+      cursor: pointer;
+
+      &.score-1 {
+        &:hover, &:active, &.active {
+          border-color: @switch-color-1;
+          background: @switch-color-1;
+        }
+      }
+
+      &.score-2 {
+        &:hover, &:active, &.active {
+          border-color: @switch-color-2;
+          background: @switch-color-2;
+        }
+      }
+
+      &.score-3 {
+        &:hover, &:active, &.active {
+          border-color: @switch-color-3;
+          background: @switch-color-3;
+        }
+      }
+    }
+  }
+}

@@ -1,8 +1,8 @@
 """PytSite Select Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import browser as _browser, html as _html, lang as _lang, \
-    validation as _validation, hreflang as _hreflang, router as _router
+from pytsite import browser as _browser, html as _html, lang as _lang, validation as _validation, \
+    hreflang as _hreflang, router as _router
 from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
@@ -266,3 +266,57 @@ class DateTime(_input.Text):
         )
 
         return self._group_wrap(html_input)
+
+
+class Score(_base.Base):
+    def __init__(self, uid: str, **kwargs):
+        kwargs['default'] = kwargs.get('default', 3)
+
+        super().__init__(uid, **kwargs)
+
+        self._min = kwargs.get('min', 1)
+        self._max = kwargs.get('max', 5)
+        self._show_numbers = kwargs.get('show_numbers', True)
+
+        self.css += ' widget-select-score'
+
+        self.assets.extend([
+            'pytsite.widget@css/score.css',
+            'pytsite.widget@js/score.js',
+        ])
+
+    def get_html_em(self) -> _html.Element:
+        cont = _html.Div(cls='switches-wrap')
+
+        if self._enabled:
+            cont.append(_html.Input(name=self.uid, type='hidden', value=self.get_val()))
+            self.css += ' enabled'
+
+        for i in range(self._min, self._max + 1):
+            a = _html.A(href="#", cls='switch score-' + str(i), data_score=str(i))
+
+            if self._show_numbers:
+                a.content = str(i)
+
+            if i == self.get_val():
+                a.set_attr('cls', a.get_attr('cls') + ' active')
+
+            cont.append(a)
+
+        return self._group_wrap(cont)
+
+
+class TrafficLightScore(Score):
+    def __init__(self, uid: str, **kwargs):
+        """Hook.
+        """
+        kwargs['default'] = kwargs.get('default', 2)
+
+        super().__init__(uid, max=3, show_numbers=False, **kwargs)
+
+        self.css += ' widget-select-traffic-light-score'
+
+        self.assets.extend([
+            'pytsite.widget@css/traffic-light-score.css',
+            'pytsite.widget@js/traffic-light-score.js',
+        ])
