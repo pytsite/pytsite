@@ -7,7 +7,7 @@ from shutil import rmtree as _rmtree, copy as _copy
 from webassets import Environment as _Environment, Bundle as _Bundle
 from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
 from pytsite import reg as _reg, console as _console, logger as _logger, lang as _lang, validation as _validation, \
-    maintenance as _maintenance
+    maintenance as _maintenance, events as _events
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -69,12 +69,15 @@ class Assetman(_console.command.Abstract):
                 ext = _path.splitext(src)[1]
                 if ext in ['.js', '.css', '.ts', '.less']:
                     filters = []
+                    env = _Environment(directory=package_assets_dir, debug=_reg.get('debug', False), versions=False,
+                                       manifest=False, cache=False)
 
                     # LESS compiler
                     if ext == '.less':
                         filters.append('less')
                         dst = _re.sub(r'\.less$', '.css', dst)
                         ext = '.css'
+
                     # TypeScript compiler
                     elif ext == '.ts':
                         filters.append('typescript')
@@ -89,13 +92,13 @@ class Assetman(_console.command.Abstract):
                             filters.append('cssmin')
 
                     bundle = _Bundle(src, filters=filters)
-                    env = _Environment(directory=package_assets_dir, debug=_reg.get('debug'), versions=False,
-                                       manifest=False, cache=False)
                     env.register('bundle', bundle, output=dst)
 
                     _logger.info('Compiling {} -> {}'.format(src, dst), __name__)
                     cmd = _CommandLineEnvironment(env, _logger)
                     cmd.invoke('build', {})
+
+                # Just copy file as is
                 elif '.webassets-cache' not in src:
                     dst_dir = _path.dirname(dst)
                     if not _path.exists(dst_dir):
@@ -120,6 +123,8 @@ class Assetman(_console.command.Abstract):
         with open(output_file, 'wt', encoding='utf-8') as f:
             _logger.info("Writing translations into '{}'".format(output_file), __name__)
             f.write(str_output)
+
+        _events.fire('pytsite.assetman.build.after')
 
         if maintenance:
             _maintenance.disable()

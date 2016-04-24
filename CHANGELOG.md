@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.65.1 (2016-04-24)
+### Added
+- `assetman`: new event: 'pytsite.assetman.build.after';
+
+
 ## 0.65 (2016-04-24)
 ### Added
 - `geo`: automatic location update every 5 seconds in `widget.location`.
