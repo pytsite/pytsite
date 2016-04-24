@@ -3,7 +3,7 @@
 from typing import Dict as _Dict
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, validation as _validation, \
-    tpl as _tpl, events as _events, lang as _lang, assetman as _assetman
+    tpl as _tpl, events as _events, lang as _lang, assetman as _assetman, browser as _browser
 from . import _error as error
 
 __author__ = 'Alexander Shepetko'
@@ -95,6 +95,7 @@ class Form:
         ))
 
         # Assets
+        _browser.include('scrollto')
         _assetman.add('pytsite.form@css/form.css')
         _assetman.add('pytsite.form@js/form.js')
 

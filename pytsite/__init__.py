@@ -116,21 +116,7 @@ def __init():
     # Initializing hreflang
     from . import hreflang
 
-    # Loading routes from the registry
-    for url_path, opts in reg.get('routes', {}).items():
-        name = opts.get('_name')
-        call = opts.get('_call')
-        methods = opts.get('_methods', 'GET')
-        filters = opts.get('_filters', ())
-
-        args = {}
-        for k, v in opts.items():
-            if not k.startswith('_'):
-                args[k] = v
-
-        router.add_rule(url_path, name=name, call=call, args=args, methods=methods, filters=filters)
-
-    # Initializing required packages
+    # Initializing minimal set of required packages
     __import__('pytsite.browser')
     __import__('pytsite.form')
     __import__('pytsite.setup')
@@ -141,16 +127,14 @@ def __init():
         __import__(module)
 
     # Initializing 'app' package parts
-    lang.register_package('app', 'lang')
     theme = reg.get('output.theme')
+    lang.register_package('app', 'lang')
     tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
+    __import__('app.themes.' + theme)
 
     # Settings favicon href
     reg.set_val('metatag.favicon.href', 'img/favicon.png')
-
-    # Initializing the 'app' package
-    __import__('app')
 
 
 __init()

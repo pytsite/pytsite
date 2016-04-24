@@ -1,7 +1,4 @@
-$(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, widget) {
-    if (widget.em.data('autodetect') != 'True')
-        return;
-
+function pytsiteGeoWidgetLocationUpdate(em) {
     if (!('geolocation' in navigator))
         throw 'Your browser does not support geo location.';
 
@@ -35,14 +32,23 @@ $(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, wi
                         break;
                 }
 
-                var input = widget.em.find(input_selector);
-                if (input.length && input.val() == '0.0') {
+                var input = em.find(input_selector);
+                if (input.length) {
                     input.val(coords[k]);
                     input.change();
                 }
             }
         }
 
-        widget.em.find('.text').text('Longitude: ' + coords.longitude + ', latitude: ' + coords.latitude);
+        em.find('.text').text('Longitude: ' + coords.longitude + ', latitude: ' + coords.latitude);
     });
+}
+
+$(window).on('pytsite.widget.init:pytsite.geo._widget.Location', function (e, widget) {
+    if (widget.em.data('autodetect') == 'True') {
+        pytsiteGeoWidgetLocationUpdate(widget.em);
+        setInterval(function () {
+            pytsiteGeoWidgetLocationUpdate(widget.em);
+        }, 5000);
+    }
 });

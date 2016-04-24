@@ -160,6 +160,9 @@ def is_ep_callable(ep_name: str) -> bool:
 
 
 def resolve_ep_callable(ep_name: str) -> callable:
+    if '$theme' in ep_name:
+        ep_name = ep_name.replace('$theme', 'app.themes.' + _reg.get('output.theme'))
+
     endpoint = ep_name.split('.')
     if not len(endpoint):
         raise TypeError("Invalid format of endpoint specification: '{}'".format(ep_name))

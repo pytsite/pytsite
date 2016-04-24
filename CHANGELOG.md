@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.65 (2016-04-24)
+### Added
+- `geo`: automatic location update every 5 seconds in `widget.location`.
+
+### Changed
+- Moved part of application's initialization into theme's initialization.
+
+### Fixed
+- `form`: scrolling to erroneous fields on modal forms.
+
+
 ## 0.64 (2016-04-21)
 ### Added
 - `odm`:

@@ -18,6 +18,7 @@ pytsite.form = {
         self.validationEp = em.data('validationEp');
         self.reloadOnForward = em.data('reloadOnForward') == 'True';
         self.preventSubmit = em.data('preventSubmit') == 'True';
+        self.isModal = em.data('modal') == 'True';
         self.submitEp = em.attr('submitEp');
         self.totalSteps = em.data('steps');
         self.loadedSteps = [];
@@ -36,7 +37,7 @@ pytsite.form = {
 
         // Form submit handler
         self.em.submit(function (event) {
-            // If form has mor than 1 step and it is not last step.
+            // If form has more than 1 step and it is not last step.
             // Just move one step forward.
             if (!self.readyToSubmit) {
                 event.preventDefault();
@@ -322,16 +323,20 @@ pytsite.form = {
                                 }
                             }
 
-                            var scrollTopTarget = self.em.find('.has-error').first();
-                            if (!scrollTopTarget.length)
-                                scrollTopTarget = self.messages;
+                            var scrollObject = $(window);
+                            if (self.isModal)
+                                scrollObject = self.em.closest('.modal');
 
-                            $("html, body").animate({scrollTop: scrollTopTarget.offset().top + 'px'});
+                            var scrollToTarget = self.em.find('.has-error').first();
+                            if (!scrollToTarget.length)
+                                scrollToTarget = self.messages;
+
+                            scrollObject.scrollTo(scrollToTarget, 250);
                             deffer.reject();
                         }
                     })
                     .fail(function () {
-                        $("html, body").animate({scrollTop: self.messages.offset().top + 'px'});
+                        $(window).scrollTo(0, 250);
                         deffer.reject();
                     });
             }
