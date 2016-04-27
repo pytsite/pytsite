@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.66.1
+### Fixed
+- `cache`: unpickling `None`s in 'redis' driver.
+
+
 ## 0.66
 ### Added
 - `content`: '_created' and '_modified' indices in `model.Content`.
