@@ -8,7 +8,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _locks = {}
-_valid_drivers = ['db', 'redis']
 _default_driver = _reg.get('mp.locks.driver', 'redis')
 
 

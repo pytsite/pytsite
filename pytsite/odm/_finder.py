@@ -3,7 +3,7 @@
 from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
-from pytsite import util as _util, reg as _reg, cache as _cache, logger as _logger
+from pytsite import util as _util, reg as _reg, cache as _cache, logger as _logger, threading as _threading
 from . import _entity, _api, _query
 
 __author__ = 'Alexander Shepetko'
@@ -258,25 +258,45 @@ class Finder:
 def _cache_put(finder: Finder, result: Result):
     """Put query result into cache.
     """
-    _cache.get_pool(_pool_prefix + finder.model).put(finder.id, result.ids, finder.cache_ttl)
+    try:
+        _threading.get_r_lock().acquire()
+        _cache.get_pool(_pool_prefix + finder.model).put(finder.id, result.ids, finder.cache_ttl)
+
+    finally:
+        _threading.get_r_lock().release()
 
 
 def _cache_has(finder: Finder) -> bool:
     """Check if cache has stored result for query.
     """
-    return _cache.get_pool(_pool_prefix + finder.model).has(finder.id)
+    try:
+        _threading.get_r_lock().acquire()
+        return _cache.get_pool(_pool_prefix + finder.model).has(finder.id)
+
+    finally:
+        _threading.get_r_lock().release()
 
 
 def _cache_get(finder: Finder) -> _Union[list, None]:
     """Get stored query result from cache.
     """
-    return _cache.get_pool(_pool_prefix + finder.model).get(finder.id)
+    try:
+        _threading.get_r_lock().acquire()
+        return _cache.get_pool(_pool_prefix + finder.model).get(finder.id)
+
+    finally:
+        _threading.get_r_lock().release()
 
 
 def cache_create_pool(model: str):
     """Create cache pool to tore query results of particular model.
     """
-    _cache.create_pool(_pool_prefix + model, _reg.get('odm.cache.driver', 'redis'))
+    try:
+        _threading.get_r_lock().acquire()
+        _cache.create_pool(_pool_prefix + model, _reg.get('odm.cache.driver', 'redis'))
+
+    finally:
+        _threading.get_r_lock().release()
 
 
 def cache_clear(model: str):

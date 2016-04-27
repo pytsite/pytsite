@@ -3,7 +3,7 @@
 import pickle as _pickle
 from typing import Any as _Any, Union as _Union
 from redis import StrictRedis as _StrictRedis
-from pytsite import reg as _reg, logger as _logger
+from pytsite import reg as _reg, logger as _logger, threading as _threading
 from ._abstract import Abstract as _Abstract
 from .._error import KeyNotExist as _KeyNotExist
 
@@ -37,68 +37,103 @@ class Redis(_Abstract):
     def has(self, key: str) -> bool:
         """Check whether an item exists in the pool.
         """
-        r = self._client.exists(self._get_fq_key(key))
+        try:
+            _threading.get_r_lock().acquire()
+            r = self._client.exists(self._get_fq_key(key))
+            if _dbg:
+                if r:
+                    _logger.debug("Pool '{}' HAS '{}'.".format(self.name, key), __name__)
+                else:
+                    _logger.debug("Pool '{}' DOES NOT HAVE '{}'.".format(self.name, key), __name__)
 
-        if _dbg:
-            if r:
-                _logger.debug("Pool '{}' HAS '{}'.".format(self.name, key), __name__)
-            else:
-                _logger.debug("Pool '{}' DOES NOT HAVE '{}'.".format(self.name, key), __name__)
+            return r
 
-        return r
+        finally:
+            _threading.get_r_lock().release()
+
 
     def get(self, key: str) -> _Union[_Any, None]:
         """Get an item from the pool.
         """
-        if not self._client.exists(self._get_fq_key(key)):
-            raise _KeyNotExist("Pool '{}' does not contain the key '{}'.".format(self.name, key))
+        try:
+            _threading.get_r_lock().acquire()
 
-        item = self._client.get(self._get_fq_key(key))
-        if item is not None:
-            item = _pickle.loads(item)
+            if not self._client.exists(self._get_fq_key(key)):
+                raise _KeyNotExist("Pool '{}' does not contain the key '{}'.".format(self.name, key))
 
-        if _reg.get('cache.debug'):
-            _logger.debug("GET '{}' from pool '{}'.".format(key, self.name), __name__)
+            item = self._client.get(self._get_fq_key(key))
+            if item is not None:
+                item = _pickle.loads(item)
 
-        return item
+            if _reg.get('cache.debug'):
+                _logger.debug("GET '{}' from pool '{}'.".format(key, self.name), __name__)
+
+            return item
+
+        finally:
+            _threading.get_r_lock().release()
 
     def put(self, key: str, value: _Any, ttl: int = None) -> _Any:
         """Put an item into the pool.
         """
-        self._client.set(self._get_fq_key(key), _pickle.dumps(value), ttl)
+        try:
+            _threading.get_r_lock().acquire()
+            
+            self._client.set(self._get_fq_key(key), _pickle.dumps(value), ttl)
 
-        if _reg.get('cache.debug'):
-            _logger.debug("PUT '{}' into the pool '{}' with TTL {}.".format(key, self.name, ttl), __name__)
+            if _reg.get('cache.debug'):
+                _logger.debug("PUT '{}' into the pool '{}' with TTL {}.".format(key, self.name, ttl), __name__)
 
-        return value
+            return value
+
+        finally:
+            _threading.get_r_lock().release()
 
     def rnm(self, key: str, new_key: str):
         """Rename a key.
         """
-        if not self.has(key):
-            raise KeyError("Item '{}' does not exist in pool '{}'.".format(key, self._name))
-
-        self._client.rename(key, new_key)
-
-        if _reg.get('cache.debug'):
-            _logger.debug("RENAME '{}' to '{}' in the pool '{}'.".format(key, new_key, self.name), __name__)
+        try:
+            _threading.get_r_lock().acquire()
+            
+            if not self.has(key):
+                raise KeyError("Item '{}' does not exist in pool '{}'.".format(key, self._name))
+    
+            self._client.rename(key, new_key)
+    
+            if _reg.get('cache.debug'):
+                _logger.debug("RENAME '{}' to '{}' in the pool '{}'.".format(key, new_key, self.name), __name__)
+        
+        finally:
+            _threading.get_r_lock().release()
 
     def rm(self, key: str):
         """Remove a single item from the pool.
         """
-        self._client.delete(self._get_fq_key(key))
+        try:
+            _threading.get_r_lock().acquire()
 
-        if _reg.get('cache.debug'):
-            _logger.debug("REMOVE '{}' from the pool '{}'.".format(key, self.name), __name__)
+            self._client.delete(self._get_fq_key(key))
+
+            if _reg.get('cache.debug'):
+                _logger.debug("REMOVE '{}' from the pool '{}'.".format(key, self.name), __name__)
+
+        finally:
+            _threading.get_r_lock().release()
 
     def clear(self):
         """Clear entire pool.
         """
-        for key in self._client.keys(_server_name + ':' + self._name + ':*'):
-            self._client.delete(key)
+        try:
+            _threading.get_r_lock().acquire()
 
-        if _reg.get('cache.debug'):
-            _logger.debug("Pool '{}' CLEARED.".format(self.name), __name__)
+            for key in self._client.keys(_server_name + ':' + self._name + ':*'):
+                self._client.delete(key)
+
+            if _reg.get('cache.debug'):
+                _logger.debug("Pool '{}' CLEARED.".format(self.name), __name__)
+
+        finally:
+            _threading.get_r_lock().release()
 
     def cleanup(self):
         """Cleanup outdated items from the cache.

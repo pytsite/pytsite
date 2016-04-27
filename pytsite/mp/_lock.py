@@ -133,13 +133,35 @@ class CacheBased(Abstract):
         pass
 
     def _get_block(self) -> _Union[dict, None]:
-        return self._pool.get(self._name) if self._pool.has(self._name) else None
+        # It is necessary to block other threads while getting lock object.
+        thread_lock = _threading.get_lock()
+
+        try:
+            thread_lock.acquire()
+            return self._pool.get(self._name) if self._pool.has(self._name) else None
+        finally:
+            thread_lock.release()
 
     def _create_block(self, ttl: int = None) -> dict:
-        return self._pool.put(self._name, {'uid': _get_ptid()}, ttl)
+        # It is necessary to block other threads while creating lock object.
+        thread_lock = _threading.get_lock()
+
+        try:
+            thread_lock.acquire()
+            return self._pool.put(self._name, {'uid': _get_ptid()}, ttl)
+        finally:
+            thread_lock.release()
+
 
     def _delete_block(self):
-        self._pool.rm(self._name)
+        # It is necessary to block other threads while creating lock object.
+        thread_lock = _threading.get_lock()
+
+        try:
+            thread_lock.acquire()
+            self._pool.rm(self._name)
+        finally:
+            thread_lock.release()
 
 
 class Redis(CacheBased):
