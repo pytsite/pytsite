@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.66.3
+### Fixed
+- `cache`: work in multithreaded environments. 
+- `mp`: work in multithreaded environments.
+
+
 ## 0.66.2
 ### Fixed
 - `cache`: work in multithreaded environments. 

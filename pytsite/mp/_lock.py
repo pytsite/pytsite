@@ -31,17 +31,17 @@ class Abstract(_ABC):
         self._depth = 0
 
     @_abstractmethod
-    def _get_block(self) -> _Union[dict, None]:
+    def _get_lock_object(self) -> _Union[dict, None]:
         pass
 
     @_abstractmethod
-    def _create_block(self, ttl: int = None) -> dict:
+    def _create_lock_object(self, ttl: int = None) -> dict:
         """Physically create block.
         """
         pass
 
     @_abstractmethod
-    def _delete_block(self):
+    def _delete_lock_object(self):
         """Physically delete block.
         """
         pass
@@ -54,22 +54,22 @@ class Abstract(_ABC):
     def locked(self) -> bool:
         """Check if the lock is locked.
         """
-        return bool(self._get_block())
+        return bool(self._get_lock_object())
 
     def lock(self, ttl: int = None):
         """Lock the lock.
         """
-        block = self._get_block()
+        lock_obj = self._get_lock_object()
 
         # Block does not exist, create it
-        if not block:
-            block = self._create_block(ttl)
+        if not lock_obj:
+            lock_obj = self._create_lock_object(ttl)
             self._depth = 1
 
         # If already blocked
         else:
             # If this is recursive lock and it has been locked by this process, just increase depth
-            if self._recursive and block['uid'] == _get_ptid():
+            if self._recursive and lock_obj['uid'] == _get_ptid():
                 self._depth += 1
 
             # If this lock has been locked by another process, wait while it will be unlocked
@@ -78,36 +78,36 @@ class Abstract(_ABC):
                     # Waiting for unlock
                     if _dbg:
                         _logger.debug('Lock WAIT: {}. Recursive: {}, depth: {}, UID: {}'.
-                                      format(self._name, self._recursive, self._depth, block['uid']), __name__)
+                                      format(self._name, self._recursive, self._depth, lock_obj['uid']), __name__)
                     _time.sleep(self._get_retry_time())
 
                     # Checking if lock has been unlocked
-                    if not self._get_block():
-                        self._create_block(ttl)
+                    if not self._get_lock_object():
+                        self._create_lock_object(ttl)
                         self._depth = 1
                         break
 
         if _dbg:
             _logger.debug("Lock ACQUIRED: {}. Recursive: {}, depth: {}, TTL: {}, UID: {}".
-                          format(self._name, self._recursive, self._depth, ttl, block['uid']), __name__)
+                          format(self._name, self._recursive, self._depth, ttl, lock_obj['uid']), __name__)
 
     def unlock(self):
         # Do unblocking only if block exists
-        block = self._get_block()
-        if not block:
+        lock_object = self._get_lock_object()
+        if not lock_object:
             return
 
         # If the block belongs to current process, decrease depth
-        if block['uid'] == _get_ptid():
+        if lock_object['uid'] == _get_ptid():
             self._depth -= 1
 
         # If depth if 0, we can delete block
         if self._depth == 0:
-            self._delete_block()
+            self._delete_lock_object()
 
         if _dbg:
             _logger.debug("Lock RELEASED: {}. Recursive: {}, depth: {}, UID: {}".
-                          format(self._name, self._recursive, self._depth, block['uid']), __name__)
+                          format(self._name, self._recursive, self._depth, lock_object['uid']), __name__)
 
     def __enter__(self):
         self.lock()
@@ -132,36 +132,17 @@ class CacheBased(Abstract):
     def _get_pool_driver(self) -> str:
         pass
 
-    def _get_block(self) -> _Union[dict, None]:
-        # It is necessary to block other threads while getting lock object.
-        thread_lock = _threading.get_lock()
-
+    def _get_lock_object(self) -> _Union[dict, None]:
         try:
-            thread_lock.acquire()
-            return self._pool.get(self._name) if self._pool.has(self._name) else None
-        finally:
-            thread_lock.release()
+            return self._pool.get(self._name)
+        except _cache.error.KeyNotExist:
+            return None
 
-    def _create_block(self, ttl: int = None) -> dict:
-        # It is necessary to block other threads while creating lock object.
-        thread_lock = _threading.get_lock()
+    def _create_lock_object(self, ttl: int = None) -> dict:
+        return self._pool.put(self._name, {'uid': _get_ptid()}, ttl)
 
-        try:
-            thread_lock.acquire()
-            return self._pool.put(self._name, {'uid': _get_ptid()}, ttl)
-        finally:
-            thread_lock.release()
-
-
-    def _delete_block(self):
-        # It is necessary to block other threads while creating lock object.
-        thread_lock = _threading.get_lock()
-
-        try:
-            thread_lock.acquire()
-            self._pool.rm(self._name)
-        finally:
-            thread_lock.release()
+    def _delete_lock_object(self):
+        self._pool.rm(self._name)
 
 
 class Redis(CacheBased):

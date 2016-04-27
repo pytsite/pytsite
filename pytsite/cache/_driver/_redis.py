@@ -58,12 +58,11 @@ class Redis(_Abstract):
         try:
             _threading.get_r_lock().acquire()
 
-            if not self._client.exists(self._get_fq_key(key)):
+            item = self._client.get(self._get_fq_key(key))
+            if item is None:
                 raise _KeyNotExist("Pool '{}' does not contain the key '{}'.".format(self.name, key))
 
-            item = self._client.get(self._get_fq_key(key))
-            if item is not None:
-                item = _pickle.loads(item)
+            item = _pickle.loads(item)
 
             if _reg.get('cache.debug'):
                 _logger.debug("GET '{}' from pool '{}'.".format(key, self.name), __name__)
