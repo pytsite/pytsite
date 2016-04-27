@@ -8,15 +8,19 @@ destination: 'Recipient'
 rate: 'Rate'
 
 currency_title_USD: 'US Dollar'
+currency_short_title_USD: 'usd'
 currency_symbol_USD: '$'
 
 currency_title_EUR: 'Euro'
+currency_short_title_EUR: 'eur'
 currency_symbol_EUR: '€'
 
 currency_title_UAH: 'Ukrainian hryvnia'
+currency_short_title_UAH: 'uah'
 currency_symbol_UAH: '₴'
 
 currency_title_RUB: 'Russian rouble'
+currency_short_title_RUB: 'rub'
 currency_symbol_RUB: 'Ꝑ'
 
 odm_ui_permission_group_description: 'Currency'

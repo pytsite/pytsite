@@ -96,6 +96,9 @@ class Content(_odm_ui.UIEntity):
     def _setup_indexes(self):
         """Hook.
         """
+        self.define_index([('_created', _odm.I_DESC)])
+        self.define_index([('_modified', _odm.I_DESC)])
+
         self.define_index([('title', _odm.I_ASC)])
 
         if self.has_field('ext_links'):

@@ -82,3 +82,10 @@ pytsite.widget = {
             });
     }
 };
+
+$(function() {
+    // Initialize all widgets found on a page
+    $('.pytsite-widget').not('.initialized').each(function() {
+        new pytsite.widget.Widget(this);
+    });
+});

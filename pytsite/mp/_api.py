@@ -21,9 +21,7 @@ def get_lock(name: str = None, recursive: bool = False, driver: str = _default_d
     if name in _locks:
         return _locks[name]
 
-    if driver == 'db':
-        l = _lock.Db(name, recursive)
-    elif driver == 'redis':
+    if driver == 'redis':
         l = _lock.Redis(name, recursive)
     else:
         raise KeyError('Unsupported lock driver: {}'.format(driver))

@@ -115,7 +115,7 @@ class RSS(Abstract):
             if entity.has_field('tags'):
                 # Tags from RSS item
                 for tag_title in rss_item.tags:
-                    entity.f_add('tags', _content.dispense_tag(tag_title.title))
+                    entity.f_add('tags', _content.dispense_tag(tag_title.title).save())
 
             # Images
             if entity.has_field('images') and rss_item.enclosures:

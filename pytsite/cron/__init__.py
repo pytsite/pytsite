@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_cache_pool = _cache.create_pool('pytsite.cron', _reg.get('cron.cache.driver', 'redis'))
+_cache_pool = _cache.create_pool('pytsite.cron')
 
 
 def _get_lock() -> _mp.Lock:
@@ -20,9 +20,9 @@ def _get_lock() -> _mp.Lock:
 def _get_stats() -> dict:
     """Get stats.
     """
-    stats = _cache_pool.get('stats')
-
-    if not stats:
+    if _cache_pool.has('stats'):
+        stats = _cache_pool.get('stats')
+    else:
         zero = _datetime.fromtimestamp(0)
         stats = {
             '1min': zero,
@@ -59,39 +59,39 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
         lock = _get_lock()
 
         # Start worker only if no other worker running
-        if not lock.locked():
-            try:
-                # Locking maximum for 10 minutes to prevent long lived deadlocks
-                lock.lock(600)
-
-                # Starting worker
-                stats = _get_stats()
-                now = _datetime.now()
-                for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
-                    if evt in stats:
-                        delta = now - stats[evt]
-                        if (evt == '1min' and delta.total_seconds() >= 60) \
-                                or (evt == '5min' and delta.total_seconds() >= 300) \
-                                or (evt == '15min' and delta.total_seconds() >= 900) \
-                                or (evt == '30min' and delta.total_seconds() >= 1800) \
-                                or (evt == 'hourly' and delta.total_seconds() >= 3600) \
-                                or (evt == 'daily' and delta.total_seconds() >= 86400) \
-                                or (evt == 'weekly' and delta.total_seconds() >= 604800) \
-                                or (evt == 'monthly' and delta.total_seconds() >= 2592000):
-
-                            _logger.info('Cron event: pytsite.cron.' + evt, __name__)
-
-                            try:
-                                _events.fire('pytsite.cron.' + evt)
-                            except Exception as e:
-                                _logger.error('{}'.format(str(e)), __name__)
-                            finally:
-                                _update_stats(evt)
-                    else:
-                        _update_stats(evt)
-
-            finally:
-              lock.unlock()
-
-        else:
+        if lock.locked():
             _logger.warn('Cron is still working.', __name__)
+            return
+
+        try:
+            # Locking maximum for 10 minutes to prevent long lived deadlocks
+            lock.lock(600)
+
+            # Starting worker
+            stats = _get_stats()
+            now = _datetime.now()
+            for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
+                if evt in stats:
+                    delta = now - stats[evt]
+                    if (evt == '1min' and delta.total_seconds() >= 59) \
+                            or (evt == '5min' and delta.total_seconds() >= 299) \
+                            or (evt == '15min' and delta.total_seconds() >= 899) \
+                            or (evt == '30min' and delta.total_seconds() >= 1799) \
+                            or (evt == 'hourly' and delta.total_seconds() >= 3600) \
+                            or (evt == 'daily' and delta.total_seconds() >= 86400) \
+                            or (evt == 'weekly' and delta.total_seconds() >= 604800) \
+                            or (evt == 'monthly' and delta.total_seconds() >= 2592000):
+
+                        _logger.info('Cron event: pytsite.cron.' + evt, __name__)
+
+                        try:
+                            _events.fire('pytsite.cron.' + evt)
+                        except Exception as e:
+                            _logger.error('{}'.format(str(e)), __name__)
+                        finally:
+                            _update_stats(evt)
+                else:
+                    _update_stats(evt)
+
+        finally:
+          lock.unlock()

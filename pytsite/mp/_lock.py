@@ -1,6 +1,7 @@
 """PytSite Multiprocessing Locks.
 """
 import time as _time
+from typing import Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from os import getpid as _getpid
 from pytsite import cache as _cache, reg as _reg, logger as _logger, threading as _threading
@@ -30,7 +31,7 @@ class Abstract(_ABC):
         self._depth = 0
 
     @_abstractmethod
-    def _get_block(self) -> dict:
+    def _get_block(self) -> _Union[dict, None]:
         pass
 
     @_abstractmethod
@@ -131,22 +132,14 @@ class CacheBased(Abstract):
     def _get_pool_driver(self) -> str:
         pass
 
-    def _get_block(self) -> dict:
-        return self._pool.get(self._name)
+    def _get_block(self) -> _Union[dict, None]:
+        return self._pool.get(self._name) if self._pool.has(self._name) else None
 
     def _create_block(self, ttl: int = None) -> dict:
         return self._pool.put(self._name, {'uid': _get_ptid()}, ttl)
 
     def _delete_block(self):
         self._pool.rm(self._name)
-
-
-class Db(CacheBased):
-    def _get_retry_time(self) -> float:
-        return 0.5
-
-    def _get_pool_driver(self) -> str:
-        return 'db'
 
 
 class Redis(CacheBased):

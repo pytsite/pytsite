@@ -17,10 +17,10 @@ class Driver(_comments.Driver):
         """
         return 'disqus'
 
-    def get_widget(self, widget_id: str, thread_id: str) -> _DisqusWidget:
+    def get_widget(self, widget_uid: str, thread_id: str) -> _DisqusWidget:
         """Get comments widget for particular thread.
         """
-        return _DisqusWidget(widget_id)
+        return _DisqusWidget(widget_uid)
 
     def get_comments_count(self, thread_id: str) -> int:
         """Get comments count for particular thread.

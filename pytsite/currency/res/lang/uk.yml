@@ -8,15 +8,19 @@ destination: 'Одержувач'
 rate: 'Курс'
 
 currency_title_EUR: 'Евро'
+currency_short_title_EUR: 'евро'
 currency_symbol_EUR: '€'
 
 currency_title_USD: 'Долар США'
+currency_short_title_USD: 'дол'
 currency_symbol_USD: '$'
 
 currency_title_UAH: 'Українська гривня'
+currency_short_title_UAH: 'грн'
 currency_symbol_UAH: '₴'
 
 currency_title_RUB: 'Російський рубль'
+currency_short_title_RUB: 'руб'
 currency_symbol_RUB: 'Ꝑ'
 
 odm_ui_permission_group_description: 'Валюта'

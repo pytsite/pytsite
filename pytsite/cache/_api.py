@@ -27,11 +27,7 @@ def create_pool(name: str, driver: str = None) -> _driver.Abstract:
     if driver is None:
         driver = _reg.get('cache.driver', 'redis')
 
-    if driver == 'memory':
-        drv = _driver.Memory(name)
-    elif driver == 'db':
-        drv = _driver.Db(name)
-    elif driver == 'redis':
+    if driver == 'redis':
         drv = _driver.Redis(name)
     else:
         raise ValueError("Cache driver '{}' is not supported.".format(driver))

@@ -5,6 +5,7 @@ from typing import Any as _Any, Union as _Union
 from redis import StrictRedis as _StrictRedis
 from pytsite import reg as _reg, logger as _logger
 from ._abstract import Abstract as _Abstract
+from .._error import KeyNotExist as _KeyNotExist
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -29,12 +30,12 @@ class Redis(_Abstract):
         self._client = _StrictRedis(self._host, self._port)
 
     def _get_fq_key(self, key: str) -> str:
-        """
+        """Get fully qualified pool key.
         """
         return _server_name + ':' + self._name + ':' + key
 
     def has(self, key: str) -> bool:
-        """Check whether an item is in the pool.
+        """Check whether an item exists in the pool.
         """
         r = self._client.exists(self._get_fq_key(key))
 
@@ -49,12 +50,13 @@ class Redis(_Abstract):
     def get(self, key: str) -> _Union[_Any, None]:
         """Get an item from the pool.
         """
-        item = self._client.get(self._get_fq_key(key))
+        if not self._client.exists(self._get_fq_key(key)):
+            raise _KeyNotExist("Pool '{}' does not contain the key '{}'.".format(self.name, key))
 
-        if item is not None:
-            item = _pickle.loads(item)
-            if _reg.get('cache.debug'):
-                _logger.debug("GET '{}' from pool '{}'.".format(key, self.name), __name__)
+        item = _pickle.loads(self._client.get(self._get_fq_key(key)))
+
+        if _reg.get('cache.debug'):
+            _logger.debug("GET '{}' from pool '{}'.".format(key, self.name), __name__)
 
         return item
 

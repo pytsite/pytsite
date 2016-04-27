@@ -5,7 +5,8 @@ from copy import deepcopy as _deepcopy
 from json import dumps as _json_dumps, loads as _json_loads
 from frozendict import frozendict as _frozendict
 from pytsite import widget as _pytsite_widget, browser as _browser, html as _html, reg as _reg, geo as _geo, \
-    validation as _validation
+    validation as _validation, router as _router
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -125,3 +126,46 @@ class AddressInput(_pytsite_widget.Base):
         self._data['autodetect'] = self._autodetect
 
         return self._group_wrap(inputs)
+
+
+class StaticMap(_pytsite_widget.Base):
+    """Google Static Map.
+
+    https://developers.google.com/maps/documentation/static-maps/intro
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        self._api_key = _reg.get('google.maps.client_key')
+        if not self._api_key:
+            raise RuntimeError("Configuration parameter 'google.maps.client_key' is not defined. Obtain it at {}.".
+                               format('https://developers.google.com/maps/documentation/javascript/get-api-key'))
+
+        super().__init__(uid, **kwargs)
+
+        self._lng = kwargs.get('lng', 30.5234)
+        self._lat = kwargs.get('lat', 50.4501)
+        self._zoom = kwargs.get('zoom', 15)
+        self._scale = kwargs.get('scale', 1)
+        self._markers = kwargs.get('markers', [])
+        self._linked = kwargs.get('linked', True)
+        self._link_target = kwargs.get('link_target', '_blank')
+        self._img_cls = kwargs.get('img_cls', 'img-responsive')
+
+        self.assets.append('pytsite.google@js/widget/static-map.js')
+
+    def get_html_em(self):
+        self._data['img_class'] = self._img_cls
+
+        self._data['img_url'] = _router.url('https://maps.googleapis.com/maps/api/staticmap', query={
+            'center': '{},{}'.format(self._lat, self._lng),
+            'zoom': self._zoom,
+            'scale': self._scale,
+            'markers': '|'.join(x for x in self._markers),
+            'key': self._api_key,
+        })
+
+        if self._linked:
+            self._data['link'] = _api.map_link(self._lng, self._lat, zoom=self._zoom)
+            self._data['link_target'] = self._link_target
+
+        return _html.TagLessElement()

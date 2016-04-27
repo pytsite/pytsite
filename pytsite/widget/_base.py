@@ -100,6 +100,8 @@ class Base(_ABC):
         wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
         if self._hidden:
             wrap_css += ' hidden'
+        if isinstance(html_em, _html.TagLessElement) and not html_em.content:
+            wrap_css += 'empty'
         wrap.set_attr('cls', wrap_css)
 
         # Data attributes

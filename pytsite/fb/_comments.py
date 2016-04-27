@@ -21,10 +21,10 @@ class Driver(_comments.Driver):
         """
         return 'fb'
 
-    def get_widget(self, widget_id: str, thread_id: str) -> _CommentsWidget:
+    def get_widget(self, widget_uid: str, thread_id: str) -> _CommentsWidget:
         """Get comments widget for particular thread.
         """
-        return _CommentsWidget(widget_id, href=thread_id)
+        return _CommentsWidget(widget_uid, href=thread_id)
 
     def get_comments_count(self, thread_id: str) -> int:
         """Get comments count for particular thread.

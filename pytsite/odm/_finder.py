@@ -218,6 +218,7 @@ class Finder:
 
         result = Result(self._model, cursor)
 
+        # Put query result into cache
         if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
             if _dbg:
                 _logger.debug("STORE query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".

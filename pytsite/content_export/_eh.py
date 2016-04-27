@@ -16,17 +16,19 @@ def cron_1min():
     delay_errors = _reg.get('content_export.delay_errors', 120)
 
     exporters_f = _odm.find('content_export') \
-        .cache(0) \
         .where('enabled', '=', True) \
         .where('paused_till', '<', _datetime.now()) \
         .sort([('errors', _odm.I_ASC)])
 
+    # It has no sense to cache such queries because argument is different every time
+    exporters_f.cache(0)
+
     for exporter in exporters_f.get():
-        content_f = _content.find(exporter.content_model)
-        content_f.where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age))
-        content_f.where('publish_time', '<=', _datetime.now())
-        content_f.where('options.content_export', 'nin', [str(exporter.id)])
-        content_f.sort([('publish_time', _odm.I_ASC)])
+        # Search for content entities which are hasn't been exported yet
+        content_f = _content.find(exporter.content_model) \
+            .where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age)) \
+            .where('options.content_export', 'nin', [str(exporter.id)]) \
+            .sort([('publish_time', _odm.I_ASC)])
 
         # Get content only with images
         if exporter.with_images_only:
@@ -40,7 +42,7 @@ def cron_1min():
             try:
                 driver = _api.get_driver(exporter.driver)
 
-                msg = "Model: '{}', title: '{}', driver: '{}', options: '{}'" \
+                msg = "Content export started. Model: '{}', title: '{}', driver: '{}', options: '{}'" \
                     .format(entity.model, entity.title, exporter.driver,
                             driver.get_options_description(exporter.driver_opts))
                 _logger.info(msg, __name__)
@@ -48,7 +50,7 @@ def cron_1min():
                 # Ask driver to perform export
                 driver.export(entity=entity, exporter=exporter)
 
-                # Saving information about entity was exported via current exporter
+                # Saving information that entity was exported
                 entity.lock()
                 entity_opts = dict(entity.options)
                 if 'content_export' not in entity_opts:

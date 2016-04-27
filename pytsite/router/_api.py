@@ -155,6 +155,7 @@ def is_ep_callable(ep_name: str) -> bool:
     try:
         resolve_ep_callable(ep_name)
         return True
+
     except ImportError:
         return False
 
@@ -196,7 +197,7 @@ def call_ep(ep_name: str, args: dict = None, inp: dict = None):
 
 
 def dispatch(env: dict, start_response: callable):
-    """Dispatch the request.
+    """Dispatch a request.
     """
     from pytsite import events
     tid = _threading.get_id()
@@ -244,7 +245,7 @@ def dispatch(env: dict, start_response: callable):
     # Notify listeners
     events.fire('pytsite.router.pre_dispatch', path_info=env['PATH_INFO'])
 
-    # Loading path alias
+    # Loading path alias, if it exists or use current one
     env['PATH_INFO'] = _path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
 
     # Replace url adapter with modified environment
@@ -332,11 +333,12 @@ def dispatch(env: dict, start_response: callable):
 
         events.fire('pytsite.router.exception', args=args)
 
-        if is_ep_callable('app.ep.exception'):
-            # User defined exception handler
-            wsgi_response = call_ep('app.ep.exception', args)
+        # User defined exception handler
+        if is_ep_callable('$theme.ep.exception'):
+            wsgi_response = call_ep('$theme.ep.exception', args)
+
+        # Builtin exception handler
         else:
-            # Builtin exception handler
             try:
                 # User defined template
                 wsgi_response = _tpl.render('app@exception', args)

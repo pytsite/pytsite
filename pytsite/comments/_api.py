@@ -45,10 +45,10 @@ def get_driver(driver_name: str) -> _driver.Driver:
     return _drivers[driver_name]
 
 
-def get_widget(driver_name: str, widget_id: str='comments', thread_id: str=None) -> _widget.Base:
+def get_widget(driver_name: str, widget_uid: str= 'comments', thread_id: str=None) -> _widget.Base:
     """Get comments widget for particular driver.
     """
-    return get_driver(driver_name).get_widget(widget_id, thread_id or _router.current_url())
+    return get_driver(driver_name).get_widget(widget_uid, thread_id or _router.current_url())
 
 
 def get_comments_count(driver_name: str, thread_id: str) -> int:

@@ -1,5 +1,21 @@
 # PytSite Changelog
 
+## 0.66
+### Added
+- `content`: '_created' and '_modified' indices in `model.Content`.
+- `currency`: suport for "short" currency titles.
+- `google`:
+    - `google_maps_map_link()` tpl's global;
+    - new widget: `maps.widget.StaticMap`.
+- `widget`: automatic non-form widgets initialization.
+
+### Fixed
+- `cron`: start precision.
+
+### Removed
+- `cache`: 'memory' and 'db' drivers.
+
+
 ## 0.65.1 (2016-04-24)
 ### Added
 - `assetman`: new event: 'pytsite.assetman.build.after';

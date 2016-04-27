@@ -1,6 +1,6 @@
 """PytSite Content Package.
 """
-from typing import Callable as _Callable
+from typing import Callable as _Callable, Iterable as _Iterable, List as _List
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
 from pytsite import admin as _admin, taxonomy as _taxonomy, auth as _auth, odm as _odm, util as _util, \
@@ -118,7 +118,8 @@ def find(model: str, status='published', check_publish_time=True, language: str=
     if mock.has_field('publish_time'):
         f.sort([('publish_time', _odm.I_DESC)])
         if check_publish_time:
-            f.where('publish_time', '<=', _datetime.now()).cache(0)
+            f.cache(0)  # It has no sense to cache such queries because argument is different every time
+            f.where('publish_time', '<=', _datetime.now())
     else:
         f.sort([('_modified', _odm.I_DESC)])
 
@@ -132,7 +133,7 @@ def find(model: str, status='published', check_publish_time=True, language: str=
     return f
 
 
-def get_statuses() -> list:
+def get_statuses() -> _List[str]:
     """Get allowed content publication statuses.
     """
     r = []
@@ -142,7 +143,7 @@ def get_statuses() -> list:
     return r
 
 
-def get_sections(language: str=None) -> _odm.FinderResult:
+def get_sections(language: str=None) -> _Iterable[_model.Section]:
     """Get sections.
     """
     return _taxonomy.find('section', language).sort([('order', _odm.I_ASC)]).get()
@@ -151,7 +152,7 @@ def get_sections(language: str=None) -> _odm.FinderResult:
 def dispense_section(title: str, alias: str=None, language: str=None) -> _model.Section:
     """Get or create section.
     """
-    return _taxonomy.dispense('section', title, alias, language).save()
+    return _taxonomy.dispense('section', title, alias, language)
 
 
 def find_section_by_title(title: str, language: str=None) -> _model.Section:
@@ -166,23 +167,23 @@ def find_section_by_alias(alias: str, language: str=None) -> _model.Section:
     return _taxonomy.find_by_alias('section', alias, language)
 
 
-def get_tags(limit: int=0, language: str=None) -> _odm.FinderResult:
+def get_tags(limit: int=0, language: str=None) ->  _Iterable[_model.Tag]:
     """Get tags.
     """
     return _taxonomy.find('tag', language).sort([('weight', _odm.I_DESC)]).get(limit)
 
 
 def dispense_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
-    return _taxonomy.dispense('tag', title, alias, language).save()
+    return _taxonomy.dispense('tag', title, alias, language)
 
 
-def find_tag_by_title(title: str, language: str=None) -> _model.Section:
+def find_tag_by_title(title: str, language: str=None) -> _model.Tag:
     """Get tag by title.
     """
     return _taxonomy.find_by_title('tag', title, language)
 
 
-def find_tag_by_alias(alias: str, language: str=None) -> _model.Section:
+def find_tag_by_alias(alias: str, language: str=None) -> _model.Tag:
     """Get tag by title.
     """
     return _taxonomy.find_by_alias('tag', alias, language)
@@ -192,7 +193,7 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
                  finder_setup: _Callable[[_odm.Finder], None]=None,
                  item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
                  length: int=20):
-    """
+    """Generate RSS feeds.
     """
     if not lng:
         lng = _lang.get_current()
@@ -207,7 +208,7 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
     if not _path.exists(output_dir):
         _makedirs(output_dir, 0o755, True)
 
-    for entity in finder.get(length):  # type: _model.Content
+    for entity in finder.get(length):
         item = generator.dispense_item()
         item.title = entity.title
         item.link = entity.url
@@ -241,4 +242,5 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
     out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, lng))
     with open(out_path, 'wt', encoding='utf-8') as f:
         f.write(generator.generate())
+
     _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)

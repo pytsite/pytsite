@@ -50,7 +50,7 @@ def cron_1min():
 
                 # Append tags
                 for tag_title in importer.add_tags:
-                    e.f_add('tags', _content.dispense_tag(tag_title))
+                    e.f_add('tags', _content.dispense_tag(tag_title).save())
 
                 # Save entity
                 e.save()

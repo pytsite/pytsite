@@ -457,18 +457,20 @@ pytsite.form = {
 $(function () {
     // Initialize all forms on the page after page loading
     $('.pytsite-form').each(function () {
-        // Initialize form
+        // Create form
         var form = new pytsite.form.Form($(this));
 
         // Add form to forms collection
         pytsite.form.forms[form.id] = form;
 
+        // Notify about form creation
         $(window).trigger('pytsite.form.ready', [form]);
 
         // If requested to walk to particular step automatically
         var q = pytsite.browser.getLocation().query;
         var walkToStep = '__form_data_step' in q ? parseInt(q['__form_data_step']) : 1;
         $(form).on('pytsite.form.forward', function () {
+            // When form will make its first step, move it automatically to the requested step
             if (form.currentStep < walkToStep)
                 form.forward();
         });

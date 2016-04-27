@@ -1,7 +1,6 @@
 """Poster Functions.
 """
 from frozendict import frozendict as _frozendict
-from pytsite import lang as _lang
 from . import _driver, _error
 
 __author__ = 'Alexander Shepetko'

@@ -1,6 +1,6 @@
 """Route Alias Package Init
 """
-from pytsite import odm as _odm, lang as _lang, router as _router, events as _events
+from pytsite import odm as _odm, router as _router, events as _events
 
 # Public API
 from . import _model as model
@@ -14,11 +14,7 @@ __license__ = 'MIT'
 def _router_pre_dispatch_handler(path_info: str):
     """Router pre-dispatch event handler.
     """
-    p = _odm.find('route_alias') \
-        .where('alias', '=', path_info) \
-        .where('language', '=', _lang.get_current()) \
-        .first()
-
+    p = find_by_alias(path_info)
     if p:
         _router.add_path_alias(p.f_get('alias'), p.f_get('target'))
 
