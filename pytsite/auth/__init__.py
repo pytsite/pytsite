@@ -2,9 +2,8 @@
 """
 # Public API
 from . import _error as error, _model as model
-from ._api import define_permission_group,  define_permission, get_current_user, get_permission, \
-    get_permission_groups, get_permissions, get_user_statuses, get_permission_group, get_user, create_user, get_role, \
-    get_login_form, find_users, register_driver, get_default_driver, user_nickname_rule
+from ._api import get_current_user, get_user_statuses, get_user, create_user, get_role, get_login_form, find_users, \
+    register_driver, get_default_driver, user_nickname_rule
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,7 +13,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console, ajax
+    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console, ajax, permission
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh
 
@@ -55,8 +54,8 @@ def __init():
     events.listen('pytsite.update', _eh.pytsite_update)
 
     # Permissions
-    define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
-    define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
+    permission.define_permission_group('auth', 'pytsite.auth@auth_permission_group_description')
+    permission.define_permission('admin', 'pytsite.auth@admin_permission_description', 'auth')
 
     # robots.txt rules
     robots.disallow(base_path + '/')

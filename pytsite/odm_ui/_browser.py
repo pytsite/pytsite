@@ -4,7 +4,7 @@ from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _browser, \
     odm as _odm, lang as _lang, http as _http, html as _html
 from . import _api
-from ._entity import UIMixin, UIEntity
+from ._entity import UIEntity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -32,13 +32,9 @@ class Browser:
                 and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
             raise _http.error.Forbidden()
 
-        # Model class
-        self._model_class = _odm.get_model_class(self._model)
-        """:type : _odm.models.ODMModel|UIMixin"""
-
-        # Check if the model implements UI interface
-        if not issubclass(self._model_class, UIMixin):
-            raise TypeError("Model '{}' doesn't extend 'ODMUIMixin'".format(self._model))
+        # Model class and mock instance
+        self._model_class = _api.get_model_class(self._model)
+        self._mock = _api.dispense_entity(self._model)
 
         # Browser title
         self._title = self._model_class.t('odm_ui_browser_title_' + model)
@@ -46,7 +42,7 @@ class Browser:
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._model_class.ui_model_creation_allowed() and _api.check_permissions('create', self._model):
+        if self._mock.ui_can_be_created():
             create_form_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': self._model, 'id': '0'})
             title = _lang.t('pytsite.odm_ui@create')
             btn = _html.A(href=create_form_url, cls='btn btn-default add-button', title=title)
@@ -55,7 +51,7 @@ class Browser:
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._model_class.ui_model_deletion_allowed() and _api.check_permissions('delete', self._model):
+        if self._mock.ui_can_be_deleted():
             delete_form_url = _router.ep_url('pytsite.odm_ui.ep.d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='btn btn-danger mass-action-button', title=title)
@@ -284,18 +280,16 @@ class Browser:
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if entity.ui_entity_modification_allowed() and _api.check_permissions('modify', entity.model, entity.id):
-            href = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': entity.model, 'id': entity.id})
+        if entity.ui_can_be_modified():
             title = _lang.t('pytsite.odm_ui@modify')
-            a = _html.A(cls='btn btn-xs btn-default', href=href, title=title)
+            a = _html.A(cls='btn btn-xs btn-default', href=entity.ui_m_form_url(), title=title)
             a.append(_html.I(cls='fa fa-edit'))
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
-        if entity.ui_entity_deletion_allowed() and _api.check_permissions('delete', entity.model, entity.id):
-            href = _router.ep_url('pytsite.odm_ui.ep.d_form', {'model': entity.model, 'ids': entity.id})
+        if entity.ui_can_be_deleted():
             title = _lang.t('pytsite.odm_ui@delete')
-            a = _html.A(cls='btn btn-xs btn-danger', href=href, title=title)
+            a = _html.A(cls='btn btn-xs btn-danger', href=entity.ui_d_form_url(), title=title)
             a.append(_html.I(cls='fa fa-remove'))
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))

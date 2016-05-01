@@ -1,5 +1,6 @@
 """PytSite Wallet Package Models.
 """
+from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, auth_ui as _auth_ui, \
@@ -51,10 +52,16 @@ class Account(_odm_ui.UIEntity):
 
     @property
     def pending_transactions(self):
+        """
+        :rtype: _Iterable[Transaction]
+        """
         return self.f_get('pending_transactions')
 
     @property
     def cancelling_transactions(self):
+        """
+        :rtype: _Iterable[Transaction]
+        """
         return self.f_get('cancelling_transactions')
 
     @property
@@ -218,7 +225,7 @@ class Transaction(_odm_ui.UIEntity):
         if self.state != 'committed':
             raise _error.ImproperTransactionState('It is possible to cancel only committed transactions.')
 
-        self.f_set('state', 'cancel').save()
+        self.lock().f_set('state', 'cancel').save().unlock()
 
         return self
 
@@ -268,14 +275,12 @@ class Transaction(_odm_ui.UIEntity):
 
         return ()
 
-    @classmethod
-    def ui_model_modification_allowed(cls) -> bool:
-        # Transactions cannot be modified via UI
+    def ui_can_be_modified(self) -> bool:
+        # Transactions cannot be modified
         return False
 
-    @classmethod
-    def ui_model_deletion_enabled(cls) -> bool:
-        # Transactions cannot be deleted via UI
+    def ui_can_be_deleted(self) -> bool:
+        # Transactions cannot be deleted
         return False
 
     def ui_m_form_setup_widgets(self, frm):

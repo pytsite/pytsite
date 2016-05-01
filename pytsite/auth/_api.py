@@ -71,67 +71,6 @@ def get_default_driver() -> _AbstractDriver:
     return get_driver(_reg.get('auth.default_driver'))
 
 
-def get_permission_group(name: str) -> tuple:
-    """Get permission group spec.
-    """
-    for group in __permission_groups:
-        if group[0] == name:
-            return group
-
-
-def define_permission_group(name: str, description: str):
-    """Define permission group.
-    """
-    if get_permission_group(name):
-        raise KeyError("Permission group '{}' is already defined.".format(name))
-
-    __permission_groups.append((name, description))
-
-
-def get_permission_groups() -> list:
-    """Get all defined permission groups.
-    """
-    return __permission_groups
-
-
-def get_permission(name: str) -> tuple:
-    """Get permission spec.
-    """
-    for perm in __permissions:
-        if perm[0] == name:
-            return perm
-
-
-def is_permission_defined(name: str) -> bool:
-    """Checks if the permission is defined.
-    """
-    return bool(get_permission(name))
-
-
-def define_permission(name: str, description: str, group: str):
-    """Define permission.
-    """
-    if not get_permission_group(group):
-        raise KeyError("Permission group '{}' is not defined.".format(group))
-
-    if get_permission(name):
-        raise ValueError("Permission '{0}' is already defined.".format(name))
-
-    __permissions.append((name, description, group))
-
-
-def get_permissions(group: str = None) -> list:
-    """Get all defined permissions.
-    """
-    r = []
-    for perm in __permissions:
-        if group and perm[2] != group:
-            continue
-        r.append(perm)
-
-    return r
-
-
 def get_login_form(driver_name: str = None, uid: str = None, **kwargs) -> _form.Form:
     """Get a login form.
     """

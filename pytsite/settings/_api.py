@@ -1,7 +1,7 @@
 """Settings Plugin Functions
 """
 from typing import Callable as _Callable
-from pytsite import admin as _admin, auth as _auth, router as _router, form as _form, odm as _odm
+from pytsite import admin as _admin, auth as _auth, router as _router, odm as _odm, permission as _permission
 from . import _frm
 
 __author__ = 'Alexander Shepetko'
@@ -27,7 +27,7 @@ def define(uid: str, form_widgets_setup: _Callable, menu_title: str, menu_icon: 
     }
 
     if perm_name != '*' and perm_description:
-        _auth.define_permission(perm_name, perm_description, 'admin')
+        _permission.define_permission(perm_name, perm_description, 'admin')
 
     url = _router.ep_url('pytsite.settings.ep.form', {'uid': uid})
     _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, permissions=perm_name)

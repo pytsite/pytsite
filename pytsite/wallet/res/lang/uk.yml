@@ -42,9 +42,9 @@ odm_ui_permission_delete_own_wallet_account: 'Видалення рахункі�
 odm_ui_browser_title_wallet_transaction: 'Огляд транзакцій'
 odm_ui_form_title_create_wallet_transaction: 'Створення транзакції'
 odm_ui_form_title_modify_wallet_transaction: 'Зміна транзакції'
-odm_ui_form_title_delete_wallet_transaction: 'Скасування транзакцій'
+odm_ui_form_title_cancel_wallet_transaction: 'Скасування транзакцій'
 
 odm_ui_permission_create_wallet_transaction: 'Створення транзакцій'
 odm_ui_permission_browse_wallet_transaction: 'Огляд транзакцій'
 odm_ui_permission_modify_wallet_transaction: 'Зміна транзакцій'
-odm_ui_permission_delete_wallet_transaction: 'Скасування транзакцій'
+odm_ui_permission_cancel_wallet_transaction: 'Скасування транзакцій'

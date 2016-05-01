@@ -18,7 +18,7 @@ def __init():
     """Init wrapper.
     """
     import sys
-    from pytsite import assetman, tpl, lang, router, auth, robots, hreflang, events, browser
+    from pytsite import assetman, tpl, lang, router, auth, robots, hreflang, events, browser, permission
 
     def router_dispatch_eh():
         # Alternate languages
@@ -40,8 +40,8 @@ def __init():
     assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix=base_path())
 
     # Permissions
-    auth.define_permission_group('admin', 'pytsite.admin@admin')
-    auth.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
+    permission.define_permission_group('admin', 'pytsite.admin@admin')
+    permission.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
 
     # Routes
     admin_route_filters = ('pytsite.auth.ep.filter_authorize:permissions=admin.use',)

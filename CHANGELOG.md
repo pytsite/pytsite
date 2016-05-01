@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.67
+### Changed
+- `auth`: permissions managements moved to separate package: `permission`.
+- `odm_ui`: light refactoring.
+
+### Fixed
+- `odm`: non-working method `field.EntitiesRef.sub_val()`.
+- `wallet`: various issues.
+
+
 ## 0.66.3
 ### Fixed
 - `cache`: work in multithreaded environments. 

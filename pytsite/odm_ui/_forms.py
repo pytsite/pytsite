@@ -25,25 +25,19 @@ class Modify(_form.Form):
     def _setup_form(self):
         """Hook.
         """
-        from ._api import check_permissions, dispense_entity
+        from ._api import dispense_entity
 
-        # Checking 'create' permission
-        if not self._eid and not check_permissions('create', self._model):
+        entity = dispense_entity(self._model, self._eid)
+
+        # Check if entities of this model can be created
+        if not self._eid and not entity.ui_can_be_created():
             raise _http.error.Forbidden()
 
-        # Checking 'modify' permission
-        if self._eid and not check_permissions('modify', self._model, self._eid):
-            raise _http.error.Forbidden()
-
-        # Checking model-wide permissions
-        model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
-        if not self._eid and not model_class.ui_model_creation_allowed():
-            raise _http.error.Forbidden()
-        if self._eid and not model_class.ui_model_modification_allowed():
+        # Check if the entity can be modified
+        if self._eid and not entity.ui_can_be_modified():
             raise _http.error.Forbidden()
 
         # Setting up the form through entity hook and global event
-        entity = dispense_entity(self._model, self._eid)
         entity.ui_m_form_setup(self)
         _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
 
@@ -93,6 +87,7 @@ class Modify(_form.Form):
 class MassAction(_form.Form):
     """ODM UI Mass Action Form.
     """
+
     def __init__(self, uid: str = None, **kwargs):
         """Init.
         """
@@ -140,27 +135,25 @@ class MassAction(_form.Form):
             form_area='footer'
         ))
 
-
 class Delete(MassAction):
     """Entities Delete Form.
     """
+
     def _setup_form(self):
         """Hook.
         """
-        from ._api import check_permissions
-
         super()._setup_form()
 
-        model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
-
         # Check permissions
-        if not check_permissions('delete', self._model, self._eids) or not model_class.ui_model_deletion_allowed():
+        from ._api import check_permissions
+        if not check_permissions('delete', self._model, self._eids):
             raise _http.error.Forbidden()
 
         # Action URL
         self._action = _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {'model': self._model})
 
         # Page title
+        model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
         _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + self._model))
 
     def _setup_widgets(self):

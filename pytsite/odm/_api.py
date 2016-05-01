@@ -1,3 +1,6 @@
+"""ODM API Functions.
+"""
+from typing import Union as _Union
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, events as _events
@@ -7,14 +10,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _registered_models = {}
 
 
-def register_model(model: str, cls, replace: bool=False):
+def register_model(model: str, cls: _Union[str, type], replace: bool = False):
     """Register new ODM model.
-
-    :param cls: str|type
     """
     if isinstance(cls, str):
         cls = _util.get_class(cls)
@@ -23,7 +23,7 @@ def register_model(model: str, cls, replace: bool=False):
         raise ValueError("Subclass of Model is expected.")
 
     if is_model_registered(model) and not replace:
-        raise _error.ModelAlreadyRegistered("Model '{}' already registered.".format(model))
+        raise _error.ModelAlreadyRegistered("Model '{}' already is registered.".format(model))
 
     _registered_models[model] = cls
 
@@ -68,11 +68,8 @@ def get_registered_models() -> tuple:
     return tuple(_registered_models.keys())
 
 
-def resolve_ref(something):
+def resolve_ref(something: _Union[str, _entity.Entity, _DBRef, None]) -> _Union[_DBRef, None]:
     """Resolve DB object reference.
-
-    :type something: str | _entity.Entity | _DBRef | None
-    :rtype: _DBRef | None
     """
     if isinstance(something, _DBRef) or something is None:
         return something
@@ -94,11 +91,8 @@ def resolve_ref(something):
     raise ValueError('Cannot resolve reference.')
 
 
-def get_by_ref(ref: _DBRef):
+def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_entity.Entity, None]:
     """Dispense entity by DBRef.
-
-    :type ref: str | _DBRef
-    :rtype: _entity.Entity | None
     """
     doc = _db.get_database().dereference(resolve_ref(ref))
 

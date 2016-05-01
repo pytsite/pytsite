@@ -208,7 +208,7 @@ class List(Abstract):
             raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
         # Checking for unique value
-        v = list(self.get_val())
+        v = self._value
         if self._unique:
             if value not in v:
                 v.append(value)
@@ -234,7 +234,7 @@ class List(Abstract):
         if self._min_len is not None and len(self.get_val()) == self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
-        self.set_val([v for v in self.get_val() if v != value])
+        self.set_val([v for v in self._value if v != value])
 
         return self
 

@@ -3,7 +3,7 @@
 # Public API
 from . import _widget as widget, _forms as forms
 from ._browser import Browser
-from ._api import get_m_form, get_d_form, check_permissions
+from ._api import get_m_form, get_d_form, check_permissions, get_model_class
 from ._entity import UIMixin, UIEntity
 
 __author__ = 'Alexander Shepetko'
@@ -14,7 +14,6 @@ __license__ = 'MIT'
 def __init():
     from pytsite import assetman, events, tpl, lang, router, admin, ajax
     from . import _eh
-    from ._entity import UIMixin
 
     abp = admin.base_path()
     auth_filter = 'pytsite.auth.ep.filter_authorize'

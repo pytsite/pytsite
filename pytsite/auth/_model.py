@@ -4,7 +4,8 @@ import hashlib as _hashlib
 from frozendict import frozendict as _frozendict
 from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
-from pytsite import image as _image, odm as _odm, util as _util, router as _router, geo_ip as _geo_ip
+from pytsite import image as _image, odm as _odm, util as _util, router as _router, geo_ip as _geo_ip, \
+    permission as _permission
 
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
@@ -293,9 +294,8 @@ class User(_odm.Entity):
     def has_permission(self, name: str) -> bool:
         """Checks if the user has permission.
         """
-        from . import _api
-        if not _api.is_permission_defined(name):
-            raise KeyError("Permission '{}' is not defined.".format(name))
+        # Checking for permission existence
+        _permission.get_permission(name)
 
         # Admin 'has' any role
         if self.is_admin:
@@ -312,7 +312,6 @@ class User(_odm.Entity):
         """
         if field_name == 'picture_url':
             size = kwargs.get('size', 256)
-            """:type: pytsite.image._model.Image"""
             if self.picture:
                 value = self.picture.f_get('url', width=size, height=size)
             else:

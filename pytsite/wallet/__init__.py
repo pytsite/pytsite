@@ -13,12 +13,17 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import odm, admin, router, events, assetman
+    from pytsite import odm, admin, router, events, assetman, permission
     from . import _eh
 
     # ODM models
     odm.register_model('wallet_account', model.Account)
     odm.register_model('wallet_transaction', model.Transaction)
+
+    # Permissions
+    permission.define_permission('pytsite.odm_ui.cancel.wallet_transaction',
+                                 'pytsite.wallet@odm_ui_permission_cancel_wallet_transaction',
+                                 'pytsite.wallet')
 
     # Admin sidebar entries
     admin.sidebar.add_section('wallet', 'pytsite.wallet@wallet', 250)

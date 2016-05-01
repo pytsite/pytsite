@@ -228,7 +228,7 @@ class Entity(_ABC):
         if self._is_new:
             raise RuntimeError('Non-saved entities cannot be cached.')
 
-        _cache_put(self._model, self._id, self.as_db_doc(check_empty_fields))
+        _cache_put(self._model, self._id, self.as_db_object(check_empty_fields))
 
     def _cache_pull(self):
         """Pull fields data from cache.
@@ -445,16 +445,21 @@ class Entity(_ABC):
             _logger.debug("{}.f_sub('{}'): {}".format(self.model, field_name, value), __name__)
 
         try:
+            # Lock and load actual data from cache
             if not self._is_new:
                 self.lock()
                 self._cache_pull()
 
+            # Call hook
             value = self._on_f_sub(field_name, value, **kwargs)
+
+            # Subtract value from the field
             self.get_field(field_name).sub_val(value, **kwargs)
 
             if update_state:
                 self._is_modified = True
 
+            # Reflect changes to cache
             if not self._is_new and self._is_modified:
                 self._cache_push()
 
@@ -610,7 +615,7 @@ class Entity(_ABC):
         if _dbg:
             _logger.debug('{}.save()'.format(self.model), __name__)
 
-        if not self._is_new:
+        if not self.is_new:
             self._check_deletion()
             self.lock()
 
@@ -626,7 +631,7 @@ class Entity(_ABC):
                 self.f_set('_modified', _datetime.now())
 
             # Getting storable data from each field
-            data = self.as_db_doc()
+            data = self.as_db_object()
 
             # Let DB to calculate object's ID
             if self._is_new:
@@ -750,7 +755,7 @@ class Entity(_ABC):
         """
         pass
 
-    def as_db_doc(self, check_empty_fields: bool = True) -> dict:
+    def as_db_object(self, check_empty_fields: bool = True) -> dict:
         """Get storable representation of the entity.
         """
         r = {

@@ -4,7 +4,7 @@ from typing import Callable as _Callable, Iterable as _Iterable, List as _List
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
 from pytsite import admin as _admin, taxonomy as _taxonomy, auth as _auth, odm as _odm, util as _util, \
-    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg
+    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permission as _permission
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -38,22 +38,22 @@ def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='f
     # Define 'bypass_moderation' permission
     perm_name = 'pytsite.content.bypass_moderation.' + model
     perm_description = cls.resolve_partly_msg_id('content_permission_bypass_moderation_' + model)
-    _auth.define_permission(perm_name, perm_description, cls.package_name())
+    _permission.define_permission(perm_name, perm_description, cls.package_name())
 
     # Define 'set_localization' permission
     perm_name = 'pytsite.content.set_localization.' + model
     perm_description = cls.resolve_partly_msg_id('content_permission_set_localization_' + model)
-    _auth.define_permission(perm_name, perm_description, cls.package_name())
+    _permission.define_permission(perm_name, perm_description, cls.package_name())
 
     # Define 'set_date' permission
     perm_name = 'pytsite.content.set_publish_time.' + model
     perm_description = cls.resolve_partly_msg_id('content_permission_set_publish_time_' + model)
-    _auth.define_permission(perm_name, perm_description, cls.package_name())
+    _permission.define_permission(perm_name, perm_description, cls.package_name())
 
     # Define 'set_starred' permission
     perm_name = 'pytsite.content.set_starred.' + model
     perm_description = cls.resolve_partly_msg_id('content_permission_set_starred_' + model)
-    _auth.define_permission(perm_name, perm_description, cls.package_name())
+    _permission.define_permission(perm_name, perm_description, cls.package_name())
 
     _admin.sidebar.add_menu(
         sid='content',

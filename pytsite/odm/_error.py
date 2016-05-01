@@ -21,6 +21,14 @@ class EntityNotStored(Exception):
     pass
 
 
+class ForbidEntityCreate(Exception):
+    pass
+
+
+class ForbidEntityModify(Exception):
+    pass
+
+
 class ForbidEntityDelete(Exception):
     pass
 

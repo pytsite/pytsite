@@ -1,8 +1,7 @@
 """PytSite Wallet Endpoints
 """
-from pytsite import tpl as _tpl, http as _http, router as _router, odm as _odm, lang as _lang, metatag as _metatag, \
-    odm_ui as _odm_ui, admin as _admin
-from . import _forms
+from pytsite import http as _http, router as _router, odm as _odm, lang as _lang, metatag as _metatag, admin as _admin
+from . import _forms, _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,8 +20,6 @@ def transactions_cancel(args: dict, inp: dict):
 
     frm = _forms.TransactionsCancel('odm-ui-d-form', model='wallet_transaction', eids=ids)
 
-    _metatag.t_set('title', _lang.t('pytsite.wallet@odm_ui_form_title_delete_wallet_transaction'))
-
     return _admin.render_form(frm)
 
 
@@ -35,8 +32,7 @@ def transactions_cancel_submit(args: dict, inp: dict):
         ids = (ids,)
 
     for eid in ids:
-        entity = _odm.dispense('wallet_transaction', eid)
-        """:type: pytsite.wallet._model.Transaction"""
+        entity = _odm.dispense('wallet_transaction', eid)  # type: _model.Transaction
         entity.cancel()
 
     redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_transaction'}))

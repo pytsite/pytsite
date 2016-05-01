@@ -1,7 +1,8 @@
 """ODM UI Models.
 """
 from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
-    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui, form as _form
+    http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui, form as _form, \
+    permission as _permission
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -243,7 +244,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                     exclude_ids=self.id)
             ))
 
-    def ui_entity_deletion_allowed(self) -> bool:
+    def ui_can_be_deleted(self) -> bool:
         return False if _auth.get_current_user().id == self.id else True
 
     def ui_mass_action_get_entity_description(self) -> str:
@@ -271,7 +272,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         perms = []
         for perm_name in self.f_get('permissions'):
-            perm = _auth.get_permission(perm_name)
+            perm = _permission.get_permission(perm_name)
             cls = 'label label-default permission-' + perm[0]
             if perm[0] == 'admin':
                 cls += ' label-danger'
@@ -306,12 +307,12 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         # Permissions tabs
         perms_tabs = _widget.static.Tabs('permissions-tabs', weight=30, label=self.t('permissions'))
-        for group in _auth.get_permission_groups():
-            if group[0] == 'auth':
+        for g_name, g_desc in sorted(_permission.get_permission_groups().items(), key=lambda x: x[0]):
+            if g_name == 'auth':
                 continue
 
             tab_content = _html.Div()
-            for perm in _auth.get_permissions(group[0]):
+            for perm in _permission.get_permissions(g_name):
                 p_name = perm[0]
                 tab_content.append(
                     _html.Div(cls='checkbox').append(
@@ -321,7 +322,7 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
                         )
                     )
                 )
-            perms_tabs.add_tab('permissions-' + group[0], _lang.t(group[1]), tab_content.render())
+            perms_tabs.add_tab('permissions-' + g_name, _lang.t(g_desc), tab_content.render())
 
         frm.add_widget(_widget.input.Hidden('permissions', value=''))
         frm.add_widget(perms_tabs)

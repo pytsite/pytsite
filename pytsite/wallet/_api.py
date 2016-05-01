@@ -32,7 +32,7 @@ def create_account(title: str, currency: str, owner: _auth.model.User, balance=0
     return acc
 
 
-def get_account(title: str=None, acc_id: str=None) -> _Account:
+def get_account(title: str = None, acc_id: str = None) -> _Account:
     """Find account by title or by ID.
     """
     f = _odm.find('wallet_account')
@@ -52,14 +52,12 @@ def get_account(title: str=None, acc_id: str=None) -> _Account:
 
 
 def create_transaction(src: _Account, dst: _Account, amount, description: str,
-                       date_time: _datetime=None) -> _Transaction:
+                       date_time: _datetime = None) -> _Transaction:
     """Create transaction.
 
     :type amount: int | float | str | decimal.Decimal
     """
     t = _odm.dispense('wallet_transaction')
-    """:type: _Transaction"""
-
     t.f_set('source', src)
     t.f_set('destination', dst)
     t.f_set('amount', amount)
@@ -73,7 +71,7 @@ def create_transaction(src: _Account, dst: _Account, amount, description: str,
     return t
 
 
-def get_transactions(state: str=None, from_dt: _datetime=None, to_dt: _datetime=None) -> _Iterable[_Transaction]:
+def get_transactions(state: str = None, from_dt: _datetime = None, to_dt: _datetime = None) -> _Iterable[_Transaction]:
     """Find transactions.
     """
     f = _odm.find('wallet_transaction').cache(60).sort([('time', _odm.I_DESC)])
@@ -92,26 +90,31 @@ def commit_transactions_1():
     """Commit transactions, step one. Change state from 'new' to 'pending'.
     """
     for t in get_transactions('new'):
-        # Decrease source account
         src = t.source
-        """:type: _Account"""
-
         dst = t.destination
-        """:type: _Account"""
 
-        if src != dst:
-            if t not in src.pending_transactions:
-                src.f_sub('balance', t.amount)
-                src.f_add('pending_transactions', t)
-                src.save()
+        try:
+            t.lock()
+            src.lock()
+            dst.lock()
 
-            # Increase destination account
-            if t not in dst.pending_transactions:
-                dst.f_add('balance', t.amount * t.exchange_rate)
-                dst.f_add('pending_transactions', t)
-                dst.save()
+            if src != dst:
+                # Decrease source account
+                if t not in src.pending_transactions:
+                    src.f_sub('balance', t.amount)
+                    src.f_add('pending_transactions', t)
 
-        t.f_set('state', 'pending').save()
+                # Increase destination account
+                if t not in dst.pending_transactions:
+                    dst.f_add('balance', t.amount * t.exchange_rate)
+                    dst.f_add('pending_transactions', t)
+
+            t.f_set('state', 'pending')
+
+        finally:
+            t.save().unlock()
+            src.save().unlock()
+            dst.save().unlock()
 
 
 def commit_transactions_2():
@@ -119,19 +122,23 @@ def commit_transactions_2():
     """
     for t in get_transactions('pending'):
         src = t.source
-        """:type: _Account"""
-
         dst = t.destination
-        """:type: _Account"""
 
-        if src != dst:
-            if t in src.pending_transactions:
-                src.f_sub('pending_transactions', t).save()
+        try:
+            t.lock()
+            src.lock()
+            dst.lock()
 
-            if t in dst.pending_transactions:
-                dst.f_sub('pending_transactions', t).save()
+            if src != dst:
+                src.f_sub('pending_transactions', t)
+                dst.f_sub('pending_transactions', t)
 
-        t.f_set('state', 'committed').save()
+            t.f_set('state', 'committed')
+
+        finally:
+            t.save().unlock()
+            src.save().unlock()
+            dst.save().unlock()
 
 
 def cancel_transactions_1():
@@ -139,42 +146,50 @@ def cancel_transactions_1():
     """
     for t in get_transactions('cancel'):
         src = t.source
-        """:type: _Account"""
-
         dst = t.destination
-        """:type: _Account"""
 
-        if src != dst:
-            # Increase source account
-            if t not in src.cancelling_transactions:
-                src.f_add('balance', t.amount)
-                src.f_add('cancelling_transactions', t)
-                src.save()
+        try:
+            t.lock()
+            src.lock()
+            dst.lock()
 
-            # Decrease destination account
-            if t not in dst.cancelling_transactions:
-                dst.f_sub('balance', t.amount * t.exchange_rate)
-                dst.f_add('cancelling_transactions', t)
-                dst.save()
+            if src != dst:
+                # Increase source account
+                if t not in src.cancelling_transactions:
+                    src.f_add('balance', t.amount)
+                    src.f_add('cancelling_transactions', t)
 
-        t.f_set('state', 'cancelling').save()
+                # Decrease destination account
+                if t not in dst.cancelling_transactions:
+                    dst.f_sub('balance', t.amount * t.exchange_rate)
+                    dst.f_add('cancelling_transactions', t)
 
+            t.f_set('state', 'cancelling')
+
+        finally:
+            t.save().unlock()
+            src.save().unlock()
+            dst.save().unlock()
 
 def cancel_transactions_2():
     """Cancelling transactions, step two. Change state from 'cancelling' to 'cancelled'.
     """
     for t in get_transactions('cancelling'):
         src = t.source
-        """:type: _Account"""
-
         dst = t.destination
-        """:type: _Account"""
 
-        if src != dst:
-            if t in src.f_get('cancelling_transactions'):
-                src.f_sub('cancelling_transactions', t).save()
+        try:
+            t.lock()
+            src.lock()
+            dst.lock()
 
-            if t in dst.f_get('cancelling_transactions'):
-                dst.f_sub('cancelling_transactions', t).save()
+            if src != dst:
+                src.f_sub('cancelling_transactions', t)
+                dst.f_sub('cancelling_transactions', t)
 
-        t.f_set('state', 'cancelled').save()
+            t.f_set('state', 'cancelled')
+
+        finally:
+            t.save().unlock()
+            src.save().unlock()
+            dst.save().unlock()

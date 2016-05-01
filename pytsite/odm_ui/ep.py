@@ -110,13 +110,6 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
         ids = [ids]
 
     try:
-        # Check permissions
-        if not _api.check_permissions('delete', model, ids):
-            if json:
-                return _http.response.JSON({'status': False, 'error': 'Forbidden'}, 403)
-            else:
-                raise _http.error.Forbidden()
-
         # Delete entities
         for eid in ids:
             _api.dispense_entity(model, eid).delete()
