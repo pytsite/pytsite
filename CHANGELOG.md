@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.67.1
+### Changed
+- `auth_ui`: profile view and edit form improvements.
+- `form`: processing container-like widgets.
+
+
 ## 0.67
 ### Changed
 - `auth`: permissions managements moved to separate package: `permission`.

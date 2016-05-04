@@ -22,6 +22,14 @@ class Modify(_form.Form):
 
         super().__init__(uid, **kwargs)
 
+    @property
+    def update_meta_title(self) -> bool:
+        return self._update_meta_title
+
+    @update_meta_title.setter
+    def update_meta_title(self, value: bool):
+        self._update_meta_title = value
+
     def _setup_form(self):
         """Hook.
         """
@@ -37,16 +45,15 @@ class Modify(_form.Form):
         if self._eid and not entity.ui_can_be_modified():
             raise _http.error.Forbidden()
 
+        # Form title
+        if entity.is_new:
+            self._title = entity.t('odm_ui_form_title_create_' + self._model)
+        else:
+            self._title = entity.t('odm_ui_form_title_modify_' + self._model)
+
         # Setting up the form through entity hook and global event
         entity.ui_m_form_setup(self)
         _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
-
-        # Form title
-        if not self._title:
-            if entity.is_new:
-                self._title = entity.t('odm_ui_form_title_create_' + self._model)
-            else:
-                self._title = entity.t('odm_ui_form_title_modify_' + self._model)
 
         if self._update_meta_title:
             _metatag.t_set('title', self.title)
@@ -134,6 +141,7 @@ class MassAction(_form.Form):
             icon='ban',
             form_area='footer'
         ))
+
 
 class Delete(MassAction):
     """Entities Delete Form.

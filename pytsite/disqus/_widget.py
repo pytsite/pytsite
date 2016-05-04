@@ -23,8 +23,9 @@ class Comments(_widget.Base):
         """
         return self._short_name
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         return _html.Div(_tpl.render('pytsite.disqus@widget', {'widget': self}),
                          uid=self._uid, cls='widget widget-disqus')

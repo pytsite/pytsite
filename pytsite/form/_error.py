@@ -16,3 +16,7 @@ class ValidationError(Exception):
     @property
     def errors(self) -> dict:
         return self._errors
+
+
+class WidgetNotFound(Exception):
+    pass

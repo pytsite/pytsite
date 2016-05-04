@@ -25,7 +25,8 @@ class CKEditor(_widget.Base):
             'pytsite.ckeditor@js/ckeditor.js',
         ])
 
-    def get_html_em(self) -> str:
+    def get_html_em(self, **kwargs) -> str:
         """Render the widget.
+        :param **kwargs:
         """
         return self._group_wrap(_html.TextArea(self.get_val(), name=self._uid))

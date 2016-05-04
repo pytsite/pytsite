@@ -1,16 +1,17 @@
 pytsite.widget = {
     Widget: function (em) {
         var self = this;
-        self.em = $(em);
-        self.cid = self.em.data('cid');
-        self.uid = self.em.data('uid');
-        self.replaces = self.em.data('replaces');
-        self.formArea = self.em.data('formArea');
-        self.formStep = self.em.data('formStep');
-        self.alwaysHidden = self.em.data('hidden') == 'True';
-        self.weight = self.em.data('weight');
-        self.assets = self.em.data('assets') ? self.em.data('assets') : [];
-        self.messagesEm = self.em.find('.widget-messages').first();
+        self.em = em = $(em);
+        self.cid = em.data('cid');
+        self.uid = em.data('uid');
+        self.replaces = em.data('replaces');
+        self.formArea = em.data('formArea');
+        self.formStep = em.data('formStep');
+        self.parentUid = em.data('parentUid');
+        self.alwaysHidden = em.data('hidden') == 'True';
+        self.weight = em.data('weight');
+        self.assets = em.data('assets') ? self.em.data('assets') : [];
+        self.messagesEm = em.find('.widget-messages').first();
         self.childWidgets = {};
 
         // Clear state fo the widget

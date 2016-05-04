@@ -43,8 +43,9 @@ class Auth(_widget.Base):
     def screen_name(self) -> str:
         return self._screen_name
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render widget.
+        :param **kwargs:
         """
         # If 'verifier' is here, we need to exchange it to an access token
         if not self._user_id:
@@ -58,22 +59,22 @@ class Auth(_widget.Base):
 
         wrapper = _widget.static.Container(self.uid)
 
-        wrapper.append(_widget.input.Hidden(
+        wrapper.add_widget(_widget.input.Hidden(
             uid=self.uid + '[oauth_token]',
             value=self.oauth_token,
         ))
 
-        wrapper.append(_widget.input.Hidden(
+        wrapper.add_widget(_widget.input.Hidden(
             uid=self.uid + '[oauth_token_secret]',
             value=self.oauth_token_secret,
         ))
 
-        wrapper.append(_widget.input.Hidden(
+        wrapper.add_widget(_widget.input.Hidden(
             uid=self.uid + '[user_id]',
             value=self.user_id,
         ))
 
-        wrapper.append(_widget.input.Hidden(
+        wrapper.add_widget(_widget.input.Hidden(
             uid=self.uid + '[screen_name]',
             value=self.screen_name,
         ))
@@ -85,7 +86,7 @@ class Auth(_widget.Base):
             title = _lang.t('pytsite.twitter@authorization')
             href = self._session.get_authorization_url(self._callback_uri)
 
-        wrapper.append(_widget.static.HTML(
+        wrapper.add_widget(_widget.static.HTML(
             uid=self.uid + '[auth_link]',
             em=_html.A(title, href=href).append(_html.I(cls='fa fa-twitter'))
         ))

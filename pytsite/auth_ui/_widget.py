@@ -27,8 +27,9 @@ class Profile(_widget.Base):
 
         _assetman.add('pytsite.auth_ui@css/widget/profile.css')
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         current_user = _auth.get_current_user()
 
@@ -76,8 +77,9 @@ class Follow(_widget.Base):
         _assetman.add('pytsite.auth_ui@css/widget/follow.css')
         _assetman.add('pytsite.auth_ui@js/widget/follow.js')
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         # Don't show the widget to unauthorized and profile owners
         if self._current_user.is_anonymous or self._current_user == self._user:

@@ -2,7 +2,7 @@
 """
 from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
     http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui, form as _form, \
-    permission as _permission
+    permission as _permission, auth_ui as _auth_ui
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -69,6 +69,13 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
+        current_user = _auth.get_current_user()  # type: _auth_ui.model.UserUI
+        if not current_user.is_admin:
+            frm.redirect = current_user.profile_view_url
+
+        frm.area_footer_css += ' text-center'
+        frm.area_body_css += ' row'
+
         _metatag.t_set('title', self.t('profile_edit'))
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):
@@ -76,30 +83,46 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """
         current_user = _auth.get_current_user()
 
+        pic_wrapper = _widget.static.Container(
+            uid='picture-wrapper',
+            weight=2,
+            css='col-xs-12 col-sm-4 col-lg-3',
+        )
+        frm.add_widget(pic_wrapper)
+
+        content_wrapper = _widget.static.Container(
+            uid='content-wrapper',
+            weight=4,
+            css='col-xs-12 col-sm-8 col-lg-9',
+        )
+        frm.add_widget(content_wrapper)
+
+        # Image
+        from pytsite import image
+        pic_wrapper.add_widget(image.widget.ImagesUpload(
+            weight=10,
+            uid='picture',
+            value=self.picture,
+            max_file_size=1,
+            show_numbers=False,
+            dnd=False,
+            slot_css='col-xs-B-12 col-xs-6 col-sm-12',
+        ))
+
         # Profile is public
-        frm.add_widget(_widget.select.Checkbox(
+        content_wrapper.add_widget(_widget.select.Checkbox(
             weight=10,
             uid='profile_is_public',
             value=self.f_get('profile_is_public'),
             label=self.t('profile_is_public'),
         ))
 
-        # Image
-        from pytsite import image
-        frm.add_widget(image.widget.ImagesUpload(
-            weight=20,
-            uid='picture',
-            label=self.t('picture'),
-            value=self.picture,
-            max_file_size=1,
-        ))
-
         # Login
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            frm.add_widget(_widget.input.Email(
+            content_wrapper.add_widget(_widget.input.Email(
                 weight=30,
                 uid='login',
-                value=self.f_get('login'),
+                value=self.login,
                 label=self.t('login'),
                 required=True,
             ))
@@ -111,10 +134,10 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             ))
 
         # Nickname
-        frm.add_widget(_widget.input.Text(
+        content_wrapper.add_widget(_widget.input.Text(
             weight=40,
             uid='nickname',
-            value=self.f_get('nickname'),
+            value=self.nickname,
             label=self.t('nickname'),
             required=True,
         ))
@@ -129,7 +152,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # First name
-        frm.add_widget(_widget.input.Text(
+        content_wrapper.add_widget(_widget.input.Text(
             weight=50,
             uid='first_name',
             value=self.first_name,
@@ -138,7 +161,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Last name
-        frm.add_widget(_widget.input.Text(
+        content_wrapper.add_widget(_widget.input.Text(
             weight=60,
             uid='last_name',
             value=self.last_name,
@@ -146,7 +169,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Email
-        frm.add_widget(_widget.input.Email(
+        content_wrapper.add_widget(_widget.input.Email(
             weight=70,
             uid='email',
             value=self.f_get('email'),
@@ -161,14 +184,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Password
-        frm.add_widget(_widget.input.Password(
+        content_wrapper.add_widget(_widget.input.Password(
             weight=80,
             uid='password',
             label=self.t('password'),
         ))
 
         # Country
-        frm.add_widget(_widget.input.Text(
+        content_wrapper.add_widget(_widget.input.Text(
             weight=90,
             uid='country',
             label=self.t('country'),
@@ -176,7 +199,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # City
-        frm.add_widget(_widget.input.Text(
+        content_wrapper.add_widget(_widget.input.Text(
             weight=100,
             uid='city',
             label=self.t('city'),
@@ -184,7 +207,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Description
-        frm.add_widget(_widget.input.TextArea(
+        content_wrapper.add_widget(_widget.input.TextArea(
             weight=110,
             uid='description',
             value=self.f_get('description'),
@@ -194,7 +217,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Status
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            frm.add_widget(_widget.select.Select(
+            content_wrapper.add_widget(_widget.select.Select(
                 weight=120,
                 uid='status',
                 value=self.f_get('status'),
@@ -205,7 +228,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
             ))
 
         # URLs
-        frm.add_widget(_widget.input.StringList(
+        content_wrapper.add_widget(_widget.input.StringList(
             weight=130,
             uid='urls',
             label=self.t('social_links'),
@@ -217,7 +240,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Roles
         if current_user.has_permission('pytsite.odm_ui.modify.user'):
-            frm.add_widget(_odm_ui.widget.EntityCheckboxes(
+            content_wrapper.add_widget(_odm_ui.widget.EntityCheckboxes(
                 weight=140,
                 uid='roles',
                 label=self.t('roles'),
@@ -229,7 +252,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
-            frm.add_widget(_widget.input.Text(
+            content_wrapper.add_widget(_widget.input.Text(
                 weight=150,
                 uid='token',
                 value=self.f_get('token'),

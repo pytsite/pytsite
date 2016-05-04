@@ -29,8 +29,9 @@ class AddThis(_widget.Base):
 
         _assetman.add('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id)
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         div = _html.Div(cls='addthis_' + self._box_type)
 

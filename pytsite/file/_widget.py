@@ -123,7 +123,7 @@ class FilesUpload(_widget.Base):
     def dnd(self, value: bool):
         self._dnd = value
 
-    def get_html_em(self) -> str:
+    def get_html_em(self, **kwargs) -> str:
         self._data.update({
             'url': _router.ep_url('pytsite.file.ep.upload', {'model': self._model}),
             'model': self._model,

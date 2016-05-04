@@ -227,23 +227,26 @@ class Regex(Base):
         if self._value is None:
             return
 
-        if isinstance(self.value, list):
+        if isinstance(self.value, (list, tuple)):
             self._msg_id += '_row'
             self.value = _util.cleanup_list(self.value)
             for k, v in enumerate(self.value):
                 if not self._regex.match(v):
                     raise _error.RuleError(self._msg_id, {'row': k + 1, 'pattern': self._pattern})
+
         elif isinstance(self.value, dict):
             self._msg_id += '_row'
             self.value = _util.cleanup_dict(self.value)
             for k, v in self.value.items():
                 if not self._regex.match(v):
                     raise _error.RuleError(self._msg_id, {'row': k + 1, 'pattern': self._pattern})
+
         elif isinstance(self.value, str):
             if not self._regex.match(self.value):
                 raise _error.RuleError(self._msg_id, {'pattern': self._pattern})
+
         else:
-            raise ValueError('List, dict or str expected.')
+            raise TypeError('List, dict or str expected.')
 
 
 class Url(Regex):

@@ -63,8 +63,10 @@ def get_widgets(args: dict, inp: dict) -> dict:
     frm = _create_form(inp)
 
     r = []
-    for widget in frm.get_widgets(step=frm.step).values():
-        r.append(widget.render())
+    for widget in frm.get_widgets(step=frm.step, recursive=True).values():
+        # Return widgets as flat list, without rendering children of containers,
+        # due to requirements of JavaScript code on client side.
+        r.append(widget.render(skip_children=True))
 
     return r
 

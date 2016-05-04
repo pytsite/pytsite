@@ -136,7 +136,7 @@ pytsite.form = {
             return r;
         };
 
-        // Get form's title
+        // Set form's title
         self.setTitle = function (title) {
             self.title.html('<h4>' + title + '</h4>');
         };
@@ -245,8 +245,19 @@ pytsite.form = {
                                     });
 
                                     // Place loaded widgets to the form
-                                    for (var k = 0; k < sortedWidgets.length; k++)
-                                        self.areas[sortedWidgets[k].formArea].append(sortedWidgets[k].em);
+                                    for (var k = 0; k < sortedWidgets.length; k++) {
+                                        var formArea = sortedWidgets[k].formArea;
+                                        var widget = sortedWidgets[k];
+
+                                        if(widget.parentUid) {
+                                            if (widget.parentUid in self.widgets)
+                                                self.widgets[widget.parentUid].em.append(widget.em);
+                                            else
+                                                throw "Parent widget '{0}' is not found".format(widget.parentUid)
+                                        }
+                                        else
+                                            self.areas[formArea].append(widget.em);
+                                    }
 
                                     // Hide progress bar
                                     clearInterval(progressBarInt);

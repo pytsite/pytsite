@@ -59,7 +59,7 @@ class RSS(Abstract):
             uid='driver_opts',
         )
 
-        wrapper.append(_widget.input.Text(
+        wrapper.add_widget(_widget.input.Text(
             uid='driver_opts[url]',
             label=_lang.t('pytsite.content_import@url'),
             value=driver_opts.get('url', ''),

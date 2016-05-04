@@ -53,7 +53,7 @@ class EntitySelect(_widget.select.Select2):
 
         return super().set_val(value, **kwargs)
 
-    def get_html_em(self):
+    def get_html_em(self, **kwargs):
         # In AJAX-mode Select2 doesn't contain any items,
         # but if we have selected item, it is necessary to append it
         if self._ajax_url and self._value:
@@ -137,7 +137,8 @@ class Search(_widget.Base):
     def form(self) -> _html.Element:
         return self._form
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         return self._group_wrap(_tpl.render('pytsite.content@widget/search', {'widget': self}))

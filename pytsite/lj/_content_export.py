@@ -25,12 +25,13 @@ class _SettingsWidget(_widget.Base):
 
         _assetman.add('pytsite.lj@js/content-export-settings.js')
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Get HTML element of the widget.
+        :param **kwargs:
         """
         wrapper = _widget.static.Container(uid=self._uid)
 
-        wrapper.append(_widget.input.Text(
+        wrapper.add_widget(_widget.input.Text(
             weight=10,
             uid='{}[username]'.format(self._uid),
             label=_lang.t('pytsite.lj@username'),
@@ -38,7 +39,7 @@ class _SettingsWidget(_widget.Base):
             value=self._username,
         ))
 
-        wrapper.append(_widget.input.Password(
+        wrapper.add_widget(_widget.input.Password(
             uid='{}[password]'.format(self._uid),
             weight=20,
             label=_lang.t('pytsite.lj@password'),
@@ -46,7 +47,7 @@ class _SettingsWidget(_widget.Base):
             value=self._password,
         ))
 
-        wrapper.append(_widget.input.Text(
+        wrapper.add_widget(_widget.input.Text(
             uid='{}[lj_like]'.format(self._uid),
             weight=30,
             label=_lang.t('pytsite.lj@lj_like_buttons'),
@@ -54,7 +55,7 @@ class _SettingsWidget(_widget.Base):
             value=self._lj_like,
         ))
 
-        wrapper.append(_widget.input.Hidden(
+        wrapper.add_widget(_widget.input.Hidden(
             weight=40,
             uid='title',
             name='{}[title]'.format(self._uid),

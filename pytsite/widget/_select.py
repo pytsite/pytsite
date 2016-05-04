@@ -25,8 +25,9 @@ class Checkbox(_input.Input):
         """
         self._value = bool(value)
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         div = _html.Div(cls='checkbox')
         div.append(_html.Input(type='hidden', name=self._name))
@@ -61,8 +62,9 @@ class Select(_input.Input):
 
         return select
 
-    def get_html_em(self):
+    def get_html_em(self, **kwargs):
         """Render the widget.
+        :param **kwargs:
         """
         return self._group_wrap(self._get_select_html_em())
 
@@ -82,7 +84,7 @@ class Select2(Select):
         self._ajax_data_type = kwargs.get('ajax_data_type', 'json')
         self._css += ' widget-select-select2'
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         select = self._get_select_html_em()
         select.set_attr('style', 'width: 100%;')
 
@@ -121,8 +123,9 @@ class Checkboxes(Select):
         self._value = value
         self._selected_items = value
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         div = _html.Div()
         div.append(_html.Input(type='hidden', name=self.uid + '[]'))
@@ -168,7 +171,7 @@ class LanguageNav(_base.Base):
         if self._bootstrap:
             self._css += ' nav navbar-nav'
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         if len(_lang.langs()) == 1:
             return _html.TagLessElement()
 
@@ -253,8 +256,9 @@ class DateTime(_input.Text):
         """
         return super().get_val(**kwargs)
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget
+        :param **kwargs:
         """
         html_input = _html.Input(
             type='text',
@@ -285,7 +289,7 @@ class Score(_base.Base):
             'pytsite.widget@js/score.js',
         ])
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         cont = _html.Div(cls='switches-wrap')
 
         if self._enabled:

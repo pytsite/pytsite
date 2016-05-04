@@ -30,7 +30,7 @@ class Form(_form.Form):
             child_sep=None,
         )
 
-        name_email_container.append(_widget.input.Text(
+        name_email_container.add_widget(_widget.input.Text(
             weight=10,
             uid='contact_name',
             placeholder=_lang.t('pytsite.contact_form@your_name'),
@@ -39,7 +39,7 @@ class Form(_form.Form):
             css='col-xs-12 col-sm-6',
         ))
 
-        name_email_container.append(_widget.input.Email(
+        name_email_container.add_widget(_widget.input.Email(
             weight=20,
             uid='contact_email',
             placeholder=_lang.t('pytsite.contact_form@your_email'),

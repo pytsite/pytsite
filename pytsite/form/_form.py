@@ -1,6 +1,6 @@
 """PytSite Base Form.
 """
-from typing import Dict as _Dict
+from typing import Dict as _Dict, Union as _Union
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, validation as _validation, \
     tpl as _tpl, events as _events, lang as _lang, assetman as _assetman, browser as _browser
@@ -14,6 +14,7 @@ __license__ = 'MIT'
 class Form:
     """Base Form.
     """
+
     def __init__(self, uid: str = None, **kwargs):
         """Init.
         """
@@ -99,7 +100,7 @@ class Form:
         _assetman.add('pytsite.form@css/form.css')
         _assetman.add('pytsite.form@js/form.js')
 
-        # Setup hook
+        # Setup form
         self._setup_form()
 
     def _setup_form(self):
@@ -206,9 +207,17 @@ class Form:
     def area_body_css(self) -> str:
         return self._area_body_css
 
+    @area_body_css.setter
+    def area_body_css(self, value: str):
+        self._area_body_css = value
+
     @property
     def area_footer_css(self) -> str:
         return self._area_footer_css
+
+    @area_footer_css.setter
+    def area_footer_css(self, value: str) -> str:
+        self._area_footer_css = value
 
     @property
     def get_widgets_ep(self) -> str:
@@ -232,7 +241,7 @@ class Form:
 
     @property
     def values(self) -> dict:
-        return _OrderedDict([(w.uid, w.get_val()) for w in self.get_widgets().values()])
+        return _OrderedDict([(w.uid, w.get_val()) for w in self.get_widgets(recursive=True).values()])
 
     @property
     def fields(self) -> list:
@@ -306,8 +315,11 @@ class Form:
         self.setup_widgets()
 
         for field_name, field_value in values.items():
-            if self.has_widget(field_name):
+            try:
                 self.get_widget(field_name).set_val(field_value, **kwargs)
+
+            except error.WidgetNotFound:
+                pass
 
         return self
 
@@ -339,7 +351,7 @@ class Form:
         errors = {}
 
         # Validate each widget
-        for f_name, widget in self.get_widgets().items():
+        for f_name, widget in self.get_widgets(recursive=True).items():
             try:
                 widget.validate()
             except _validation.error.RuleError as e:
@@ -389,18 +401,46 @@ class Form:
 
         return self
 
-    def has_widget(self, uid: str) -> bool:
-        """Check if the form has widget.
+    def _search_widget(self, root, uid: str) -> _Union[_widget.Base, None]:
         """
-        return uid in self._widgets
+        :type root _Union[pytsite.form.Form, _widget.static.Container]
+        """
+        if root is self and uid in self._widgets:
+            return self._widgets[uid]
+
+        if root is self and uid not in self._widgets:
+            for w in root._widgets.values():
+                if isinstance(w, _widget.static.Container):
+                    r = self._search_widget(w, uid)
+                    if r:
+                        return r
+
+        if isinstance(root, _widget.static.Container):
+            for w in root.get_widgets().values():
+                if w.uid == uid:
+                    return w
+                elif isinstance(w, _widget.static.Container):
+                    r = self._search_widget(w, uid)
+                    if r:
+                        return r
 
     def get_widget(self, uid: str) -> _widget.Base:
         """Get a widget.
         """
-        if not self.has_widget(uid):
-            raise KeyError("Widget '{}' does not exist.".format(uid))
+        r = self._search_widget(self, uid)
+        if not r:
+            raise error.WidgetNotFound("Widget '{}' does not exist.".format(uid))
 
-        return self._widgets[uid]
+        return r
+
+    def has_widget(self, uid: str) -> bool:
+        """Check if the form has widget.
+        """
+        try:
+            self.get_widget(uid)
+            return True
+        except KeyError:
+            return False
 
     def hide_widget(self, uid):
         """Hide a widget.
@@ -409,34 +449,46 @@ class Form:
 
         return self
 
-    def get_widgets(self, area: str = None, step: int = None) -> _Dict[str, _widget.Base]:
+    def get_widgets(self, area: str = None, step: int = None, recursive: bool = False,
+                    _container: _widget.static.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Base]:
         """Get widgets.
+        :type root _Union[pytsite.form.Form, _widget.static.Container]
         """
-        self.setup_widgets()
+        # Only if this is NOT recursive call
+        if not _container:
+            self.setup_widgets()
 
         widgets = []
 
-        # First, filter widgets by area
-        for w in self._widgets.values():
-            # Filter by area
-            if area and w.form_area != area:
-                continue
+        # Non-recursive call
+        if _container is None and _accumulator is None:
+            for w in self._widgets.values():
+                # Filter by area and step
+                if (area is None or w.form_area == area) and (step is None or step == w.form_step):
+                    widgets.append(w)
+                    if recursive and isinstance(w, _widget.static.Container):
+                        self.get_widgets(area, step, recursive, w, widgets)
 
-            # Filter by step
-            if step and step != w.form_step:
-                continue
-
-            widgets.append(w)
+        # Recursive call
+        else:
+            for w in _container.get_widgets().values():
+                _accumulator.append(w)
+                if isinstance(w, _widget.static.Container):
+                    self.get_widgets(area, step, recursive, w, _accumulator)
 
         # Sort by weight
-        return _OrderedDict([(w.uid, w) for w in _util.weight_sort(widgets)])
+        return _OrderedDict([(w.uid, w) for w in sorted(widgets, key=lambda x: x.weight)])
 
-    def remove_widget(self, widget_uid: str):
+    def remove_widget(self, uid: str):
         """Remove widget from the form.
         """
-        if widget_uid in self._widgets:
-            self.remove_rules(widget_uid)
-            del self._widgets[widget_uid]
+        w = self.get_widget(uid)
+        w.clr_rules()
+
+        if w.parent:
+            w.parent.remove_widget(uid)
+        else:
+            del self._widgets[uid]
 
         return self
 

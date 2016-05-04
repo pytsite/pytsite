@@ -93,8 +93,9 @@ class Location(_widget.Base):
 
         return super().set_val(val, **kwargs)
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         inputs = _html.TagLessElement()
 

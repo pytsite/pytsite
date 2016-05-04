@@ -19,7 +19,8 @@ def __init():
     # Routes
     base_path = reg.get('auth_ui.base_path', '/auth_ui')
     router.add_rule(base_path + '/profile/<string:nickname>', 'pytsite.auth_ui.ep.profile_view')
-    router.add_rule(base_path + '/profile/<string:nickname>/edit', 'pytsite.auth_ui.ep.profile_edit')
+    router.add_rule(base_path + '/profile/<string:nickname>/edit', 'pytsite.auth_ui.ep.profile_edit',
+                    filters='pytsite.auth.ep.filter_authorize')
     router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', 'pytsite.auth_ui.ep.profile_edit_submit',
                     methods='POST')
 

@@ -35,8 +35,9 @@ class Auth(_widget.Base):
     def group_id(self) -> str:
         return self._group_id
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render widget.
+        :param **kwargs:
         """
         authorize_url = _router.url('https://oauth.vk.com/authorize', query={
             'client_id': _reg.get('vk.app_id'),
@@ -49,7 +50,7 @@ class Auth(_widget.Base):
 
         wrapper = _widget.static.Container(self.uid)
 
-        wrapper.append(_widget.input.Text(
+        wrapper.add_widget(_widget.input.Text(
             uid=self.uid + '[access_url]',
             weight=10,
             label=_lang.t('pytsite.vk@access_url'),
@@ -58,7 +59,7 @@ class Auth(_widget.Base):
             required=True,
         ))
 
-        wrapper.append(_widget.input.Integer(
+        wrapper.add_widget(_widget.input.Integer(
             uid=self.uid + '[group_id]',
             weight=20,
             label=_lang.t('pytsite.vk@group_id'),

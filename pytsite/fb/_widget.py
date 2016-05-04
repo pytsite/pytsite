@@ -3,7 +3,6 @@
 from datetime import datetime as _datetime
 from pytsite import widget as _widget, html as _html, reg as _reg, router as _router, assetman as _assetman, \
     lang as _lang, tpl as _tpl
-from . import _error
 from ._session import AuthSession as _AuthSession, Session as _Session
 
 __author__ = 'Alexander Shepetko'
@@ -61,8 +60,9 @@ class Auth(_widget.Base):
     def screen_name(self) -> str:
         return self._screen_name
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Get HTML element representation of the widget.
+        :param **kwargs:
         """
         # 'state' and 'code' typically received after successful Facebook authorization redirect
         inp = _router.request().inp
@@ -98,7 +98,7 @@ class Auth(_widget.Base):
             a.append(_html.Img(src=_assetman.url('pytsite.fb@img/facebook-login-button.png')))
 
         container = _widget.static.Container(self.uid)
-        container.append(_widget.static.Text(
+        container.add_widget(_widget.static.Text(
             self.uid + '[auth_url]',
             weight=10,
             label=_lang.t('pytsite.fb@user'), title=a.render()
@@ -106,7 +106,7 @@ class Auth(_widget.Base):
 
         # Page select
         if self.pages:
-            container.append(_widget.select.Select(
+            container.add_widget(_widget.select.Select(
                 self.uid + '[page_id]',
                 weight=20,
                 value=self._page_id,
@@ -115,11 +115,11 @@ class Auth(_widget.Base):
                 h_size='col-sm-6'
             ))
 
-        container.append(_widget.input.Hidden(self.uid + '[access_token]', value=self.access_token))
-        container.append(_widget.input.Hidden(self.uid + '[access_token_type]', value=self.access_token_type))
-        container.append(_widget.input.Hidden(self.uid + '[access_token_expires]', value=self.access_token_expires))
-        container.append(_widget.input.Hidden(self.uid + '[user_id]', value=self.user_id))
-        container.append(_widget.input.Hidden(self.uid + '[screen_name]', value=self.screen_name))
+        container.add_widget(_widget.input.Hidden(self.uid + '[access_token]', value=self.access_token))
+        container.add_widget(_widget.input.Hidden(self.uid + '[access_token_type]', value=self.access_token_type))
+        container.add_widget(_widget.input.Hidden(self.uid + '[access_token_expires]', value=self.access_token_expires))
+        container.add_widget(_widget.input.Hidden(self.uid + '[user_id]', value=self.user_id))
+        container.add_widget(_widget.input.Hidden(self.uid + '[screen_name]', value=self.screen_name))
 
         return self._group_wrap(container.get_html_em())
 
@@ -140,8 +140,9 @@ class Comments(_widget.Base):
         }
         _assetman.add_inline(_tpl.render('pytsite.fb@fb-js-sdk', js_sdk_args))
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Get an HTML element representation of the widget.
+        :param **kwargs:
         """
         return _html.Div(
                 uid=self.uid,

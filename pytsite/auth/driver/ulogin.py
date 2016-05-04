@@ -22,8 +22,9 @@ class _LoginWidget(_widget.Base):
         """
         super().__init__(uid, **kwargs)
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         return _html.TagLessElement(_tpl.render('pytsite.auth@drivers/ulogin/widget', {'widget': self}))
 

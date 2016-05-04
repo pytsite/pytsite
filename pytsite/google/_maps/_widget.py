@@ -108,8 +108,9 @@ class AddressInput(_pytsite_widget.Base):
         """
         return super().get_val(**kwargs) or _deepcopy(self._default)
 
-    def get_html_em(self) -> str:
+    def get_html_em(self, **kwargs) -> str:
         """Render the widget.
+        :param **kwargs:
         """
         lng = self.value['lng']
         lat = self.value['lat']
@@ -153,7 +154,7 @@ class StaticMap(_pytsite_widget.Base):
 
         self.assets.append('pytsite.google@js/widget/static-map.js')
 
-    def get_html_em(self):
+    def get_html_em(self, **kwargs):
         self._data['img_class'] = self._img_cls
 
         self._data['img_url'] = _router.url('https://maps.googleapis.com/maps/api/staticmap', query={

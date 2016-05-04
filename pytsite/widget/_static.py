@@ -1,9 +1,10 @@
 """Static Widgets.
 """
 import re as _re
-from typing import Tuple as _Tuple
+from typing import Dict as _Dict
+from collections import OrderedDict as _OrderedDict
 from math import ceil as _ceil
-from pytsite import html as _html, lang as _lang, router as _router, util as _util
+from pytsite import html as _html, lang as _lang, router as _router
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -14,6 +15,7 @@ __license__ = 'MIT'
 class HTML(_base.Base):
     """Wrapper widget for pytsite.html.Element instances.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         :param em: pytsite.html.Element
@@ -24,62 +26,67 @@ class HTML(_base.Base):
         if not self._em:
             raise ValueError('Element is not specified.')
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         return self._em
 
 
 class Container(_base.Base):
     """Container Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
         self._child_sep = kwargs.get('child_sep', '')
-        self._children = []
+        self._children = {}
         self._css += ' widget-container'
         self._data['container'] = True
 
-    @property
-    def children(self) -> _Tuple[_base.Base]:
+    def get_widgets(self) -> _Dict[str, _base.Base]:
         """Get children widgets.
         """
-        sort = []
-        for w in self._children:
-            sort.append({'widget': w, 'weight': w.weight})
+        return _OrderedDict([(w.uid, w) for w in sorted(self._children.values(), key=lambda x: x.weight)])
 
-        r = []
-        for w in _util.weight_sort(sort):
-            r.append(w['widget'])
+    def has_widget(self, uid: str) -> bool:
+        return uid in self._children
 
-        return tuple(r)
-
-    def append(self, widget: _base.Base):
+    def add_widget(self, widget: _base.Base):
         """Append a child widget.
         """
+        if self.has_widget(widget.uid):
+            raise RuntimeError("Container '{}' already contains widget '{}'.".format(self.uid, widget.uid))
+
         widget.form_step = self.form_step
         widget.form_area = self.form_area
-        self._children.append(widget)
+        widget.parent = self
+        self._children[widget.uid] = widget
 
         return self
 
-    def get_child(self, uid: str) -> _base.Base:
+    def get_widget(self, uid: str) -> _base.Base:
         """Get child widget by uid.
         """
-        for w in self._children:
-            if w.uid == uid:
-                return w
+        if not self.has_widget(uid):
+            raise RuntimeError("Container '{}' doesn't contain widget '{}'.".format(self.uid, uid))
 
-    def remove_child(self, uid: str):
+        return self._children[uid]
+
+    def remove_widget(self, uid: str):
         """Remove child widget.
         """
-        self._children = [w for w in self._children if w.uid != uid]
+        if not self.has_widget(uid):
+            raise RuntimeError("Container '{}' doesn't contain widget '{}'.".format(self.uid, uid))
+
+        del self._children[uid]
 
         return self
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         cont = _html.TagLessElement(child_sep=self._child_sep)
-        for child in self.children:
-            cont.append(_html.TagLessElement(child.render()))
+
+        if not kwargs.get('skip_children'):
+            for w in self.get_widgets().values():
+                cont.append(_html.TagLessElement(w.render()))
 
         return cont
 
@@ -87,14 +94,16 @@ class Container(_base.Base):
 class Text(_base.Base):
     """Static Text Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
         self._css = ' '.join((self._css, 'widget-static-control'))
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         container = _html.TagLessElement()
         container.append(_html.Input(type='hidden', uid=self.uid, name=self.name, value=self.value))
@@ -106,6 +115,7 @@ class Text(_base.Base):
 class Tabs(_base.Base):
     """Tabs Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -119,7 +129,7 @@ class Tabs(_base.Base):
         self._tabs.append((tid, title, content))
         return self
 
-    def get_html_em(self) -> str:
+    def get_html_em(self, **kwargs) -> str:
         wrapper = _html.Div(role='tabpanel')
         tabs_ul = _html.Ul(cls='nav nav-tabs', role='tablist')
         content = _html.Div(cls='tab-content')
@@ -144,8 +154,10 @@ class Tabs(_base.Base):
 class VideoPlayer(_base.Base):
     """Video player widget.
     """
-    def get_html_em(self) -> _html.Element:
+
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         return self._get_embed(self.get_val())
 
@@ -162,7 +174,7 @@ class VideoPlayer(_base.Base):
             return _html.Div('Not implemented.')
 
     @staticmethod
-    def _get_embed_youtube(url, width: int=640, height: int=480) -> _html.Element:
+    def _get_embed_youtube(url, width: int = 640, height: int = 480) -> _html.Element:
         """Get YouTube player embed code.
         """
         match = _re.search('(youtube\.com/watch.+v=|youtu.be/)(.{11})', url)
@@ -174,7 +186,7 @@ class VideoPlayer(_base.Base):
         raise ValueError(_html.Div('Invalid video link: ' + url))
 
     @staticmethod
-    def _get_embed_vimeo(url, width: int=640, height: int=480) -> _html.Element:
+    def _get_embed_vimeo(url, width: int = 640, height: int = 480) -> _html.Element:
         """Get Vimeo player embed code.
         """
         match = _re.search('vimeo\.com/(\d+)', url)
@@ -186,7 +198,7 @@ class VideoPlayer(_base.Base):
         raise ValueError(_html.Div('Invalid video link: ' + url))
 
     @staticmethod
-    def _get_embed_rutube(url, width: int=640, height: int=480) -> _html.Element:
+    def _get_embed_rutube(url, width: int = 640, height: int = 480) -> _html.Element:
         """Get RuTube player embed code.
         """
         match = _re.search('rutube\.ru/video/(\w{32})', url)
@@ -201,6 +213,7 @@ class VideoPlayer(_base.Base):
 class Pager(_base.Base):
     """Pager Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -219,8 +232,9 @@ class Pager(_base.Base):
         if self._current_page > self._total_pages:
             self._current_page = self._total_pages
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
+        :param **kwargs:
         """
         if self._total_pages == 1:
             return _html.TagLessElement()

@@ -138,14 +138,14 @@ class TestModel:
         assert one_3.parent is one_1
 
         # Remove first child
-        one_1.remove_child(one_2)
+        one_1.remove_widget(one_2)
         assert len(one_1.children) == 1
         assert one_1.children[0] is one_3
         assert one_2.parent is None
         assert one_3.parent is one_1
 
         # Remove second child
-        one_1.remove_child(one_3)
+        one_1.remove_widget(one_3)
         assert len(one_1.children) == 0
         assert one_2.parent is None
         assert one_3.parent is None

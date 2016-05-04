@@ -39,6 +39,7 @@ class Base(_ABC):
         self._replaces = kwargs.get('replaces', None)
         self._required = kwargs.get('required', False)
         self._enabled = kwargs.get('enabled', True)
+        self._parent = kwargs.get('parent')
 
         if self.required:
             self.add_rule(_validation.rule.NonEmpty())
@@ -50,7 +51,7 @@ class Base(_ABC):
             self._rules = list(self._rules)
         for rule in self._rules:
             if not isinstance(rule, _validation.rule.Base):
-                raise TypeError('instance of pytsite.validation.rule.Base expected.')
+                raise TypeError('Instance of pytsite.validation.rule.Base expected.')
 
         if 'value' in kwargs:
             # It is important to filter value through the setter-method
@@ -59,12 +60,12 @@ class Base(_ABC):
             self._value = _deepcopy(self._default)
 
     @_abstractmethod
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Get an HTML element representation of the widget.
         """
         pass
 
-    def render(self) -> str:
+    def render(self, **kwargs) -> str:
         """Render the widget into a string.
         """
         # Wrapper div
@@ -76,6 +77,7 @@ class Base(_ABC):
             data_form_step=self._form_step,
             data_hidden=self._hidden,
             data_enabled=self._enabled,
+            data_parent_uid=self._parent.uid if self._parent else None,
         )
 
         # Assets
@@ -94,14 +96,14 @@ class Base(_ABC):
             wrap.set_attr('data_replaces', self._replaces)
 
         # Get widget's HTML element
-        html_em = self.get_html_em()
+        html_em = self.get_html_em(**kwargs)
 
         # Wrapper CSS
         wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
         if self._hidden:
             wrap_css += ' hidden'
         if isinstance(html_em, _html.TagLessElement) and not html_em.content:
-            wrap_css += 'empty'
+            wrap_css += ' empty'
         wrap.set_attr('cls', wrap_css)
 
         # Data attributes
@@ -289,6 +291,20 @@ class Base(_ABC):
             self.clr_rules().add_rules([r for r in self.get_rules() if not isinstance(r, _validation.rule.NonEmpty)])
 
         self._required = value
+
+    @property
+    def parent(self):
+        """
+        :rtype: pytsite.widget.static.Container
+        """
+        return self._parent
+
+    @parent.setter
+    def parent(self, value):
+        """
+        :type value: Base
+        """
+        self._parent = value
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.

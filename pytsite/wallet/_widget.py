@@ -94,8 +94,9 @@ class MoneyInput(_w.input.Decimal):
 
         return self._value
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Get HTML element of the widget.
+        :param **kwargs:
         """
         self._append = _currency.get_symbol(self._value['currency'])
 

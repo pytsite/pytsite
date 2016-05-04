@@ -28,8 +28,9 @@ class Auth(_widget.Base):
 
         self._css += ' widget-reddit-oauth'
 
-    def get_html_em(self) -> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Render widget.
+        :param **kwargs:
         """
         # If 'code' is here, we need to exchange it to an access token
         auth_state = _router.request().inp.get('state')
