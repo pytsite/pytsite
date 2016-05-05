@@ -48,7 +48,7 @@ class Auth(_widget.Base):
             'v': '5.37',
         })
 
-        wrapper = _widget.static.Container(self.uid)
+        wrapper = _widget.Container(self.uid)
 
         wrapper.add_widget(_widget.input.Text(
             uid=self.uid + '[access_url]',

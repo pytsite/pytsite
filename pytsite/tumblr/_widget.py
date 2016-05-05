@@ -1,5 +1,6 @@
 """Tumblr Auth Widget.
 """
+import pytsite.widget._base
 from pytsite import widget as _widget, html as _html, lang as _lang, router as _router
 from ._session import Session as TumblrSession, AuthSession as TumblrAuthSession
 
@@ -63,7 +64,7 @@ class Auth(_widget.Base):
             user_info = TumblrSession(self._oauth_token, self._oauth_token_secret).user_info()
             self._user_blogs = [(i['name'], i['title']) for i in user_info['blogs']]
 
-        wrapper = _widget.static.Container(self.uid)
+        wrapper = _widget.Container(self.uid)
 
         wrapper.add_widget(_widget.input.Hidden(
             uid=self.uid + '[oauth_token]',

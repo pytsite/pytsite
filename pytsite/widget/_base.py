@@ -1,7 +1,8 @@
 """PytSite Base Widget.
 """
+from collections import OrderedDict as _OrderedDict
 from json import dumps as _json_dumps
-from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union
+from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union, Dict as _Dict
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
 from pytsite import html as _html, validation as _validation, assetman as _assetman
@@ -295,14 +296,14 @@ class Base(_ABC):
     @property
     def parent(self):
         """
-        :rtype: pytsite.widget.static.Container
+        :rtype: pytsite.widget.Container
         """
         return self._parent
 
     @parent.setter
     def parent(self, value):
         """
-        :type value: Base
+        :type value: pytsite.widget.Container
         """
         self._parent = value
 
@@ -377,3 +378,64 @@ class Base(_ABC):
         wrap.append(_html.Div(cls='widget-messages'))
 
         return wrap
+
+
+class Container(Base):
+    """Container Widget.
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, **kwargs)
+
+        self._child_sep = kwargs.get('child_sep', '')
+        self._children = {}
+        self._css += ' widget-container'
+        self._data['container'] = True
+
+    def get_widgets(self) -> _Dict[str, Base]:
+        """Get children widgets.
+        """
+        return _OrderedDict([(w.uid, w) for w in sorted(self._children.values(), key=lambda x: x.weight)])
+
+    def has_widget(self, uid: str) -> bool:
+        return uid in self._children
+
+    def add_widget(self, widget: Base):
+        """Append a child widget.
+        """
+        if self.has_widget(widget.uid):
+            raise RuntimeError("Container '{}' already contains widget '{}'.".format(self.uid, widget.uid))
+
+        widget.form_step = self.form_step
+        widget.form_area = self.form_area
+        widget.parent = self
+        self._children[widget.uid] = widget
+
+        return self
+
+    def get_widget(self, uid: str) -> Base:
+        """Get child widget by uid.
+        """
+        if not self.has_widget(uid):
+            raise RuntimeError("Container '{}' doesn't contain widget '{}'.".format(self.uid, uid))
+
+        return self._children[uid]
+
+    def remove_widget(self, uid: str):
+        """Remove child widget.
+        """
+        if not self.has_widget(uid):
+            raise RuntimeError("Container '{}' doesn't contain widget '{}'.".format(self.uid, uid))
+
+        del self._children[uid]
+
+        return self
+
+    def get_html_em(self, **kwargs) -> _html.Element:
+        cont = _html.TagLessElement(child_sep=self._child_sep)
+
+        if not kwargs.get('skip_children'):
+            for w in self.get_widgets().values():
+                cont.append(_html.TagLessElement(w.render()))
+
+        return cont

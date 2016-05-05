@@ -402,24 +402,23 @@ class Form:
         return self
 
     def _search_widget(self, root, uid: str) -> _Union[_widget.Base, None]:
-        """
-        :type root _Union[pytsite.form.Form, _widget.static.Container]
+        """Recursively search for widget.
         """
         if root is self and uid in self._widgets:
             return self._widgets[uid]
 
         if root is self and uid not in self._widgets:
             for w in root._widgets.values():
-                if isinstance(w, _widget.static.Container):
+                if isinstance(w, _widget.Container):
                     r = self._search_widget(w, uid)
                     if r:
                         return r
 
-        if isinstance(root, _widget.static.Container):
+        if isinstance(root, _widget.Container):
             for w in root.get_widgets().values():
                 if w.uid == uid:
                     return w
-                elif isinstance(w, _widget.static.Container):
+                elif isinstance(w, _widget.Container):
                     r = self._search_widget(w, uid)
                     if r:
                         return r
@@ -439,7 +438,7 @@ class Form:
         try:
             self.get_widget(uid)
             return True
-        except KeyError:
+        except error.WidgetNotFound:
             return False
 
     def hide_widget(self, uid):
@@ -450,9 +449,9 @@ class Form:
         return self
 
     def get_widgets(self, area: str = None, step: int = None, recursive: bool = False,
-                    _container: _widget.static.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Base]:
+                    _container: _widget.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Base]:
         """Get widgets.
-        :type root _Union[pytsite.form.Form, _widget.static.Container]
+        :type root _Union[pytsite.form.Form, pytsite.widget.Container]
         """
         # Only if this is NOT recursive call
         if not _container:
@@ -466,14 +465,14 @@ class Form:
                 # Filter by area and step
                 if (area is None or w.form_area == area) and (step is None or step == w.form_step):
                     widgets.append(w)
-                    if recursive and isinstance(w, _widget.static.Container):
+                    if recursive and isinstance(w, _widget.Container):
                         self.get_widgets(area, step, recursive, w, widgets)
 
         # Recursive call
         else:
             for w in _container.get_widgets().values():
                 _accumulator.append(w)
-                if isinstance(w, _widget.static.Container):
+                if isinstance(w, _widget.Container):
                     self.get_widgets(area, step, recursive, w, _accumulator)
 
         # Sort by weight

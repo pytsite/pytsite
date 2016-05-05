@@ -2,7 +2,7 @@
 """
 from frozendict import frozendict as _frozendict
 from pytsite import content_export as _content_export, widget as _widget, html as _html, lang as _lang, \
-    assetman as _assetman, util as _util, logger as _logger, form as _form
+    assetman as _assetman, util as _util, logger as _logger
 from ._session import Session as _Session
 
 __author__ = 'Alexander Shepetko'
@@ -29,7 +29,7 @@ class _SettingsWidget(_widget.Base):
         """Get HTML element of the widget.
         :param **kwargs:
         """
-        wrapper = _widget.static.Container(uid=self._uid)
+        wrapper = _widget.Container(uid=self._uid)
 
         wrapper.add_widget(_widget.input.Text(
             weight=10,

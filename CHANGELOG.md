@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.67.2
+### Fixed
+- `form`: error while recursive searching for widgets. 
+
+
 ## 0.67.1
 ### Changed
 - `auth_ui`: profile view and edit form improvements.

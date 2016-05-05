@@ -83,14 +83,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """
         current_user = _auth.get_current_user()
 
-        pic_wrapper = _widget.static.Container(
+        pic_wrapper = _widget.Container(
             uid='picture-wrapper',
             weight=2,
             css='col-xs-12 col-sm-4 col-lg-3',
         )
         frm.add_widget(pic_wrapper)
 
-        content_wrapper = _widget.static.Container(
+        content_wrapper = _widget.Container(
             uid='content-wrapper',
             weight=4,
             css='col-xs-12 col-sm-8 col-lg-9',

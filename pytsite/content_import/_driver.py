@@ -4,7 +4,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Iterable as _Iterable
 from frozendict import frozendict as _frozendict
 from urllib.parse import urlparse
-from pytsite import lang as _lang, widget as _widget, validation as _validation, form as _form, feed as _feed, \
+from pytsite import lang as _lang, widget as _widget, validation as _validation, feed as _feed, \
     content as _content, image as _image
 
 
@@ -55,7 +55,7 @@ class RSS(Abstract):
     def get_settings_widget(self, driver_opts: _frozendict):
         """Add widgets to the settings form of the driver.
         """
-        wrapper = _widget.static.Container(
+        wrapper = _widget.Container(
             uid='driver_opts',
         )
 

@@ -23,7 +23,7 @@ class Form(_form.Form):
     def _setup_widgets(self):
         """Hook.
         """
-        name_email_container = _widget.static.Container(
+        name_email_container = _widget.Container(
             uid='name_email',
             weight=10,
             css='row',

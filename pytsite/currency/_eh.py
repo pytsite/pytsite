@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_ui.model.UserUI):
-    cnt_wrapper = frm.get_widget('content-wrapper')  # type: _widget.static.Container
+    cnt_wrapper = frm.get_widget('content-wrapper')  # type: _widget.Container
     cnt_wrapper.add_widget(_currency_widget.Select(
         uid='currency',
         weight=105,

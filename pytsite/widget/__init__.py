@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _button as button, _input as input, _select as select, _static as static
-from ._base import Base
+from ._base import Base, Container
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

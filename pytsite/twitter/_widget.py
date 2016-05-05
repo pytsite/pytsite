@@ -57,7 +57,7 @@ class Auth(_widget.Base):
                 self._user_id = token['user_id']
                 self._screen_name = token['screen_name']
 
-        wrapper = _widget.static.Container(self.uid)
+        wrapper = _widget.Container(self.uid)
 
         wrapper.add_widget(_widget.input.Hidden(
             uid=self.uid + '[oauth_token]',
