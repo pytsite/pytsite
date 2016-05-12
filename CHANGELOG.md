@@ -1,17 +1,33 @@
 # PytSite Changelog
 
-## 0.67.2
+## 0.67.3 (2016-05-12)
+### Added
+- `google`: various libraries to work with maps.
+- `auth`: new ODM index on 'last_login'.
+
+### Fixed
+- `browser`: asset type detection while loading via AJAX request.
+
+### Changed
+- `auth_ui`: profile template, widget and processing endpoints.
+- `geo`: position watching instead of `setInterval()` usage in `widget.Location`.
+
+### Removed
+- `reddit`: due to non-completeness.
+
+
+## 0.67.2 (2016-05-05)
 ### Fixed
 - `form`: error while recursive searching for widgets. 
 
 
-## 0.67.1
+## 0.67.1 (2016-05-04)
 ### Changed
 - `auth_ui`: profile view and edit form improvements.
 - `form`: processing container-like widgets.
 
 
-## 0.67
+## 0.67 (2016-05-01)
 ### Changed
 - `auth`: permissions managements moved to separate package: `permission`.
 - `odm_ui`: light refactoring.
@@ -21,25 +37,25 @@
 - `wallet`: various issues.
 
 
-## 0.66.3
+## 0.66.3 (2016-04-27)
 ### Fixed
 - `cache`: work in multithreaded environments. 
 - `mp`: work in multithreaded environments.
 
 
-## 0.66.2
+## 0.66.2 (2016-04-27)
 ### Fixed
 - `cache`: work in multithreaded environments. 
 - `mp`: work in multithreaded environments. 
 - `odm`: work in multithreaded environments. 
 
 
-## 0.66.1
+## 0.66.1 (2016-04-27)
 ### Fixed
 - `cache`: unpickling `None`s in 'redis' driver.
 
 
-## 0.66
+## 0.66 (2016-04-27)
 ### Added
 - `content`: '_created' and '_modified' indices in `model.Content`.
 - `currency`: suport for "short" currency titles.

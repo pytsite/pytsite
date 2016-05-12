@@ -52,6 +52,9 @@ class Result:
 
         return entity
 
+    def __len__(self) -> int:
+        return self._total
+
     def count(self) -> int:
         return self._total
 

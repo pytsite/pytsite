@@ -23,6 +23,10 @@ currency_title_RUB: 'Russian rouble'
 currency_short_title_RUB: 'rub'
 currency_symbol_RUB: 'Ꝑ'
 
+currency_title_LKR: 'Sri Lankan rupee'
+currency_short_title_LKR: 'rup'
+currency_symbol_LKR: 'රු'
+
 odm_ui_permission_group_description: 'Currency'
 
 odm_ui_browser_title_currency_rate: 'Exchange rates'

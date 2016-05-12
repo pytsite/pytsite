@@ -91,6 +91,7 @@ class User(_odm.Entity):
         self.define_index([('login', _odm.I_ASC)], unique=True)
         self.define_index([('nickname', _odm.I_ASC)], unique=True)
         self.define_index([('token', _odm.I_ASC)], unique=True)
+        self.define_index([('last_login', _odm.I_DESC)])
 
     @property
     def login(self) -> str:

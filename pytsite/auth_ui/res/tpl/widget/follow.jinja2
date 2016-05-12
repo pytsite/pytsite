@@ -1,14 +1,13 @@
-<span class="widget widget-auth-ui-follow" data-uid="{{ user.id }}" data-follow-msg-id="{{ follow_msg_id }}"  data-unfollow-msg-id="{{ unfollow_msg_id }}" data-following-msg-id="{{ following_msg_id }}">
 {% if current_user.is_anonymous %}
+    {# TODO #}
 {% else %}
     {% if current_user in user.followers %}
-        <a href="#" class="btn btn-primary following"><i
-                class="fa fa-fw fa-check icon"></i>&nbsp;<span
-                class="text">{{ t(following_msg_id) }}</span></a>
+        <a href="#" class="btn btn-primary following">
+            <i class="fa fa-fw fa-check icon"></i>&nbsp;<span class="text">{{ t(following_msg_id) }}</span>
+        </a>
     {% else %}
-        <a href="#" class="btn btn-default non-following"><i
-                class="fa fa-fw fa-plus icon"></i>&nbsp;<span
-                class="text">{{ t(follow_msg_id) }}</span></a>
+        <a href="#" class="btn btn-default non-following">
+            <i class="fa fa-fw fa-plus icon"></i>&nbsp;<span class="text">{{ t(follow_msg_id) }}</span>
+        </a>
     {% endif %}
 {% endif %}
-</span>

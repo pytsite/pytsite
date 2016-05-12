@@ -14,7 +14,7 @@
 
                 {% block user_urls %}
                     {% if user.urls %}
-                        <ul class="urls text-xs-B-center">
+                        <ul class="urls text-xs-center">
                             {% block user_urls_items %}
                                 {% for link in user.urls %}
                                     <li class="item">
@@ -39,7 +39,7 @@
         {% block col_content %}
             <div class="{{ col_content_css }} col-content">
                 {% block user_full_name %}
-                    <h3 class="text-xs-B-center text-xs-left">{{ user.full_name }}</h3>
+                    <h3 class="text-xs-B-center text-sm-left">{{ user.full_name }}</h3>
                 {% endblock user_full_name %}
 
                 {% block user_description %}
@@ -54,12 +54,16 @@
 
                 {% block user_counters %}
                     <div class="row counters">
-                        <ul class="col-xs-12 text-xs-B-center text-xs-left">
+                        <ul class="col-xs-12 text-xs-B-center text-sm-left">
                             {% block user_counters_inner %}
-                                <li class="item follows" title="{{ t('pytsite.auth@follows') }}"><i
-                                        class="fa fa-fw fa-user"></i>{{ user.follows | count }}</li>
-                                <li class="item followers" title="{{ t('pytsite.auth@followers') }}"><i
-                                        class="fa fa-fw fa-users"></i>{{ user.followers | count }}</li>
+                                {% if following_enabled %}
+                                    <li class="item counter-follows">
+                                        {{ t('pytsite.auth_ui@follows') }}: {{ user.follows | count }}
+                                    </li>
+                                    <li class="item counter-followers">
+                                        {{ t('pytsite.auth_ui@followers') }}: {{ user.followers | count }}
+                                    </li>
+                                {% endif %}
                             {% endblock user_counters_inner %}
                         </ul>
                     </div>
@@ -68,7 +72,7 @@
                 {% block user_actions %}
                     <div class="row actions">
                         {% block user_actions_inner %}
-                            <div class="col-xs-12 text-xs-B-center text-xs-left">
+                            <div class="col-xs-12 text-xs-B-center text-sm-left">
                                 {% if profile_is_editable %}
                                     <a href="{{ user.profile_edit_url }}"
                                        title="{{ t('pytsite.auth_ui@modify_profile') }}"
@@ -77,8 +81,8 @@
                                     &nbsp;
                                 {% endif %}
 
-                                {% if follow_widget %}
-                                    {{ follow_widget }}
+                                {% if follow_button %}
+                                    {{ follow_button }}
                                 {% endif %}
                             </div>
                         {% endblock user_actions_inner %}

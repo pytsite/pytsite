@@ -20,10 +20,17 @@ class Profile(_widget.Base):
         if not self._user:
             raise ValueError('User is not specified.')
 
-        self._tpl = kwargs.get('tpl', 'pytsite.auth_ui@widget/profile')
+        if 'tpl' in kwargs:
+            self._tpl = kwargs['tpl']
+        elif _tpl.tpl_exists('app@auth_ui/widget/profile'):
+            self._tpl = 'app@auth_ui/widget/profile'
+        else:
+            self._tpl = 'pytsite.auth_ui@widget/profile'
+
         self._css += ' widget-auth-ui-profile'
-        self._col_image_css = kwargs.get('col_image_css', 'col-xs-B-12 col-xs-4 col-sm-3 col-lg-2 text-center')
-        self._col_content_css = kwargs.get('col_content_css', 'col-xs-B-12 col-xs-8 col-sm-9 col-lg-10')
+        self._col_image_css = kwargs.get('col_image_css', 'col-xs-12 col-sm-4 col-md-3 col-lg-2 text-center')
+        self._col_content_css = kwargs.get('col_content_css', 'col-xs-12 col-sm-8 col-md-9 col-lg-10')
+        self._following_enabled = kwargs.get('following_enabled', True)
 
         _assetman.add('pytsite.auth_ui@css/widget/profile.css')
 
@@ -49,9 +56,11 @@ class Profile(_widget.Base):
             'profile_is_editable': profile_is_editable,
             'col_image_css': self._col_image_css,
             'col_content_css': self._col_content_css,
+            'following_enabled': self._following_enabled,
+            'follow_button': Follow(uid='auth-ui-follow-widget', user=self._user) if self._following_enabled else None,
         }))
 
-        return self._group_wrap(content)
+        return content
 
 
 class Follow(_widget.Base):
@@ -70,12 +79,17 @@ class Follow(_widget.Base):
 
         self._current_user = _auth.get_current_user()
         self._tpl = kwargs.get('tpl', 'pytsite.auth_ui@widget/follow')
-        self._follow_msg_id = kwargs.get('follow_msg_id', 'pytsite.auth_ui@follow')
-        self._unfollow_msg_id = kwargs.get('unfollow_msg_id', 'pytsite.auth_ui@unfollow')
-        self._following_msg_id = 'pytsite.auth_ui@following'
+        self._css += ' inline'
 
-        _assetman.add('pytsite.auth_ui@css/widget/follow.css')
-        _assetman.add('pytsite.auth_ui@js/widget/follow.js')
+        self._data['follow-msg-id'] = kwargs.get('follow_msg_id', 'pytsite.auth_ui@follow')
+        self._data['unfollow-msg-id'] = kwargs.get('unfollow_msg_id', 'pytsite.auth_ui@unfollow')
+        self._data['following-msg-id'] = 'pytsite.auth_ui@following'
+        self._data['user-id'] = str(self._user.id)
+
+        self._assets.extend([
+            'pytsite.auth_ui@css/widget/follow.css',
+            'pytsite.auth_ui@js/widget/follow.js',
+        ])
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
@@ -88,9 +102,9 @@ class Follow(_widget.Base):
         content = _tpl.render(self._tpl, {
             'current_user': _auth.get_current_user(),
             'user': self._user,
-            'follow_msg_id': self._follow_msg_id,
-            'unfollow_msg_id': self._unfollow_msg_id,
-            'following_msg_id': self._following_msg_id,
+            'follow_msg_id': self._data['follow-msg-id'],
+            'unfollow_msg_id': self._data['unfollow-msg-id'],
+            'following_msg_id': self._data['following-msg-id'],
         })
 
         return _html.TagLessElement(content)

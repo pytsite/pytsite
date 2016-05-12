@@ -23,6 +23,10 @@ currency_title_RUB: 'Російський рубль'
 currency_short_title_RUB: 'руб'
 currency_symbol_RUB: 'Ꝑ'
 
+currency_title_LKR: 'Шрі-ланкійська рупія'
+currency_short_title_LKR: 'руп'
+currency_symbol_LKR: 'රු'
+
 odm_ui_permission_group_description: 'Валюта'
 
 odm_ui_browser_title_currency_rate: 'Обмінні курси'

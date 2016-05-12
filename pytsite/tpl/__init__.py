@@ -1,56 +1,62 @@
 # Public API
-from . import _error as error
-
 import jinja2 as _jinja
 from datetime import datetime as _datetime
 from importlib import import_module as _import_module
 from os import path as _path
 from urllib.parse import urlparse as _urlparse
 from pytsite import reg as _reg, lang as _lang, util as _util, events as _events
+from . import _error as error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _packages = {}
+
+
+def _get_tpl_path(tpl: str) -> str:
+    if not tpl:
+        raise ValueError('Template name is not specified.')
+
+    package_name = 'app'
+    tpl_split = tpl.split('@')
+    if len(tpl_split) == 2:
+        package_name = tpl_split[0]
+        tpl = tpl_split[1]
+
+    if package_name not in _packages:
+        raise error.TemplateNotFound("Package {} is not registered.".format(package_name))
+
+    if not tpl.endswith('.jinja2'):
+        tpl += '.jinja2'
+
+    return _path.join(_packages[package_name]['templates_dir'], tpl)
+
+
+def tpl_exists(tpl: str) -> bool:
+    return _path.exists(_get_tpl_path(tpl))
 
 
 class _TemplateLoader(_jinja.BaseLoader):
     """Template loader.
     """
-    def get_source(self, environment, template: str)->tuple:
-        if not template:
-            raise TypeError('Template name is not specified.')
 
-        package_name = 'app'
-        template_split = template.split('@')
-        if len(template_split) == 2:
-            package_name = template_split[0]
-            template = template_split[1]
+    def get_source(self, environment, tpl: str) -> tuple:
+        tpl_path = _get_tpl_path(tpl)
 
-        if package_name not in _packages:
-            raise _jinja.TemplateNotFound("Package {} is not registered.".format(package_name))
+        if not tpl_exists(tpl):
+            raise error.TemplateNotFound("Template is not found at '{}'.".format(tpl_path))
 
-        if not template.endswith('.jinja2'):
-            template += '.jinja2'
-
-        template_abs_path = _path.join(_packages[package_name]['templates_dir'], template)
-        if not _path.exists(template_abs_path):
-            raise error.TemplateNotFound("Template is not found at '{}'.".format(template_abs_path))
-
-        with open(template_abs_path) as f:
+        with open(tpl_path) as f:
             source = f.read()
 
-        mtime = _path.getmtime(template_abs_path)
-
-        return source, template_abs_path, lambda: mtime == _path.getmtime(template_abs_path)
+        return source, tpl_path, lambda: False
 
 
 _env = _jinja.Environment(loader=_TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
-def _date_filter(value: _datetime, fmt: str='pretty_date') -> str:
+def _date_filter(value: _datetime, fmt: str = 'pretty_date') -> str:
     if not value:
         value = _datetime.now()
 
@@ -66,7 +72,7 @@ def _nl2br_filter(value: str) -> str:
     return value.replace('\n', _jinja.Markup('<br>'))
 
 
-def register_package(package_name: str, templates_dir: str='res/tpl'):
+def register_package(package_name: str, templates_dir: str = 'res/tpl'):
     """Register templates container.
     """
     if package_name in _packages:
@@ -80,7 +86,7 @@ def register_package(package_name: str, templates_dir: str='res/tpl'):
     _packages[package_name] = {'templates_dir': templates_dir}
 
 
-def render(template: str, args: dict=None) -> str:
+def render(template: str, args: dict = None) -> str:
     """Render a template.
     """
     if not args:

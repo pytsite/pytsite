@@ -1,7 +1,7 @@
 $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', function (e, widget) {
     function setBounds(autcomplete) {
         if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(function (position) {
+            navigator.geolocation.updateCurrentPosition(function (position) {
                 var geolocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 var circle = new google.maps.Circle({center: geolocation, radius: position.coords.accuracy});
 
@@ -62,7 +62,7 @@ $(window).on('pytsite.widget.init:pytsite.google._maps._widget.AddressInput', fu
 
         widget.update = function() {
             setBounds(autocomplete);
-            navigator.geolocation.getCurrentPosition(function (position) {
+            navigator.geolocation.updateCurrentPosition(function (position) {
                 var geoCoder = new google.maps.Geocoder();
                 var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 geoCoder.geocode({'latLng': latLng}, function (results, status) {

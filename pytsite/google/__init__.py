@@ -21,14 +21,19 @@ def _browser_library_maps() -> list:
     google_url = _router.url('https://maps.googleapis.com/maps/api/js', query={
         'language': _lang.get_current(),
         'key': api_key,
-        'callback': 'pytsite.google.initCallback'
+        'callback': 'pytsite.google.maps.initCallback'
     })
 
     libs = ','.join(_reg.get('google.maps.libraries', []))
     if libs:
         google_url = _router.url(google_url, query={'libraries': libs})
 
-    return ['pytsite.google@js/pytsite-google.js', (google_url, 'js')]
+    return [
+        'pytsite.google@js/common.js',
+        'pytsite.google@js/maps.js',
+        'pytsite.google@css/maps.css',
+        (google_url, 'js'),
+    ]
 
 
 def _init():

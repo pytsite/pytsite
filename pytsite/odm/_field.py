@@ -430,6 +430,10 @@ class RefsList(List):
         if sort_by:
             r = sorted(r, key=lambda item: item.f_get(sort_by), reverse=kwargs.get('sort_reverse', False))
 
+        limit = kwargs.get('limit')
+        if limit is not None:
+            r = r[:limit]
+
         return tuple(r)
 
     def add_val(self, value, **kwargs):

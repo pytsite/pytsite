@@ -13,7 +13,7 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.TypeaheadText', function
         hint: true
     }, {
         source: new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.mapObject.whitespace,
+            datumTokenizer: Bloodhound.tokenizers.whitespace,
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             remote: {
                 url: widget.em.data('sourceUrl'),

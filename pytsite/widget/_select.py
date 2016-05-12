@@ -297,7 +297,7 @@ class Score(_base.Base):
             self.css += ' enabled'
 
         for i in range(self._min, self._max + 1):
-            a = _html.A(href="#", cls='switch score-' + str(i), data_score=str(i))
+            a = _html.Span(cls='switch score-' + str(i), data_score=str(i))
 
             if self._show_numbers:
                 a.content = str(i)

@@ -27,18 +27,17 @@ pytsite.browser = {
     },
 
     loadAssets: function (loc) {
-        var deffer = $.Deferred();
+        var defer = $.Deferred();
 
         setTimeout(function () {
             if (loc instanceof String)
                 loc = [loc];
 
-            if (loc.length > 0) {
+            if (loc.length) {
                 for (var i = 0; i < loc.length; i++) {
-                    var assetSrc;
-                    var assetType;
+                    var assetSrc, assetType;
 
-                    if (loc[i] instanceof String) {
+                    if (typeof loc[i] == 'string') {
                         assetSrc = loc[i];
                         if (loc[i].indexOf('.js') > 0)
                             assetType = 'js';
@@ -58,7 +57,7 @@ pytsite.browser = {
                             pytsite.browser.addJS(assetSrc, i)
                                 .done(function (index) {
                                     if (index + 1 == loc.length)
-                                        deffer.resolve();
+                                        defer.resolve();
                                 });
                             break;
 
@@ -66,22 +65,22 @@ pytsite.browser = {
                             pytsite.browser.addCSS(assetSrc, i)
                                 .done(function (index) {
                                     if (index + 1 == loc.length)
-                                        deffer.resolve();
+                                        defer.resolve();
                                 });
                             break;
 
                         default:
-                            deffer.reject();
+                            defer.reject();
                             throw "Cannot determine type of the asset '{0}'.".format(assetSrc);
                     }
                 }
             }
             else {
-                deffer.resolve();
+                defer.resolve();
             }
         }, 0);
 
-        return deffer;
+        return defer;
     },
 
     addJS: function (loc, index) {

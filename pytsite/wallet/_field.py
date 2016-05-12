@@ -1,5 +1,6 @@
 """PytSite Money ODM Field
 """
+from copy import deepcopy as _deepcopy
 from frozendict import frozendict as _frozendict
 from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, currency as _currency, auth as _auth
@@ -61,21 +62,29 @@ class Money(_odm.field.Abstract):
         if not isinstance(value['amount'], _Decimal):
             value['amount'] = _Decimal(value['amount'])
 
-        # Convert to immutable dict and set
-        super().set_val(_frozendict(value), **kwargs)
+        self._value = value
 
-    def get_val(self, **kwargs) -> _frozendict:
+    def get_val(self, **kwargs) -> dict:
         """Get value of the field.
         """
-        return super().get_val(**kwargs)
+        v = _deepcopy(self._value)
+        v.update({
+            'currency_symbol': _currency.get_symbol(v['currency']),
+            'currency_title': _currency.get_title(v['currency']),
+        })
+
+        return v
+
+    def get_serializable_val(self):
+        v = self.get_val()
+        v['amount'] = float(v['amount'])
+
+        return v
 
     def get_storable_val(self):
         """Get storable value of the feld.
         """
-        v = self.get_val()
         return {
-            'currency': v['currency'],
-            'currency_symbol': _currency.get_symbol(v['currency']),
-            'currency_title': _currency.get_title(v['currency']),
-            'amount': float(v['amount'])
+            'currency': self._value['currency'],
+            'amount': float(self._value['amount'])
         }

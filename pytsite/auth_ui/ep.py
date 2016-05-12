@@ -12,9 +12,13 @@ __license__ = 'MIT'
 def profile_view(args: dict, inp: dict) -> str:
     """Profile view endpoint.
     """
-    tpl_name = 'pytsite.auth_ui@profile-view'
     current_user = _auth.get_current_user()
     profile_owner = _auth.get_user(nickname=args.get('nickname')) # type: _model.UserUI
+
+    if _tpl.tpl_exists('app@auth_ui/profile-view'):
+        tpl_name = 'app@auth_ui/profile-view'
+    else:
+        tpl_name = 'pytsite.auth_ui@profile-view'
 
     # Profile owner does nto exist
     if not profile_owner:
@@ -33,23 +37,20 @@ def profile_view(args: dict, inp: dict) -> str:
 
     # Widgets
     profile_widget = _auth_ui_widget.Profile('auth-ui-profile-widget', user=profile_owner)
-    follow_widget = _auth_ui_widget.Follow(uid='auth-ui-follow-widget', user=profile_owner)
 
-    # Pass control over the response to an alternate endpoint
-    target_ep = _reg.get('auth_ui.ep.profile_view', '$theme.ep.auth_ui_profile_view')
-    if target_ep and _router.is_ep_callable(target_ep):
+    # Alternative response handler
+    if _router.is_ep_callable('$theme.ep.auth_ui_profile_view'):
         args.update({
             'tpl': tpl_name,
             'user': profile_owner,
             'profile_widget': profile_widget,
-            'follow_widget': follow_widget,
         })
-        return _router.call_ep(target_ep, args, inp)
+
+        return _router.call_ep('$theme.ep.auth_ui_profile_view', args, inp)
 
     # Default response
     return _tpl.render(tpl_name, {
         'profile_widget': profile_widget,
-        'follow_widget': follow_widget,
     })
 
 
