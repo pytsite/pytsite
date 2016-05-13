@@ -4,6 +4,7 @@
 ### Fixed
 - `content`: inline JS code addition.
 - `auth_ui`: profile view template.
+- `widget`: CSS in `input.ListList`.
 
 ### Changed
 - `browser`: JS function `getLocation()` renamed to `parseLocation()`.

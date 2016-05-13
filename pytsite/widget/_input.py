@@ -300,7 +300,7 @@ class ListList(StringList):
         if len(self._col_titles) != len(self._col_format):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
-        self._css = ' '.join((self._css, 'widget-list-list'))
+        self._css = self._css.replace('widget-string-list', 'widget-list-list')
 
         self.assets.extend([
             'pytsite.widget@css/list-list.css',
