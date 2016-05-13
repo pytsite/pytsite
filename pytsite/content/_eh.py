@@ -37,7 +37,7 @@ def router_dispatch():
     settings = _settings.get_setting('content')
 
     # Add inline JS code
-    if 'add_js' in settings:
+    if 'add_js' in settings and settings['add_js']:
         _assetman.add_inline(settings['add_js'])
 
     # Add meta tags for home page

@@ -116,7 +116,7 @@ pytsite.browser = {
         return deffer;
     },
 
-    getLocation: function (skipEmpty) {
+    parseLocation: function (skipEmpty) {
         function split(s) {
             var r = {};
 

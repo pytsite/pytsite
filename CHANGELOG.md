@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.67.4 (2016-05-13)
+### Fixed
+- `content`: inline JS code addition.
+- `auth_ui`: profile view template.
+
+### Changed
+- `browser`: JS function `getLocation()` renamed to `parseLocation()`.
+
+
 ## 0.67.3 (2016-05-12)
 ### Added
 - `google`: various libraries to work with maps.

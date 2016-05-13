@@ -105,10 +105,10 @@ pytsite.form = {
             }
 
             // Merge data from location query
-            $.extend(data, pytsite.browser.getLocation(true).query);
+            $.extend(data, pytsite.browser.parseLocation(true).query);
 
             // Calculate form location string
-            var q = pytsite.browser.getLocation().query;
+            var q = pytsite.browser.parseLocation().query;
             $.extend(q, self.serialize(['TEXTAREA']));
             q['__form_data_step'] = self.currentStep;
             var formLocation = location.origin + location.pathname + '?' + pytsite.browser.encodeQuery(q);
@@ -264,7 +264,7 @@ pytsite.form = {
                                     progress.addClass('hidden');
 
                                     // Fill widgets with data from location string
-                                    self.fill(pytsite.browser.getLocation().query);
+                                    self.fill(pytsite.browser.parseLocation().query);
 
                                     // Show loaded widgets
                                     if (showAfterLoad == true)
@@ -478,7 +478,7 @@ $(function () {
         $(window).trigger('pytsite.form.ready', [form]);
 
         // If requested to walk to particular step automatically
-        var q = pytsite.browser.getLocation().query;
+        var q = pytsite.browser.parseLocation().query;
         var walkToStep = '__form_data_step' in q ? parseInt(q['__form_data_step']) : 1;
         $(form).on('pytsite.form.forward', function () {
             // When form will make its first step, move it automatically to the requested step
