@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.67.5 (2016-05-14)
+### Added
+- `google`: tracking map center while changing position.
+
+
 ## 0.67.4 (2016-05-13)
 ### Fixed
 - `content`: inline JS code addition.

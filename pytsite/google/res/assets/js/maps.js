@@ -51,11 +51,21 @@ pytsite.google.maps.Map = function (mapNode, options) {
 
     // Create map center control
     if (self.options.mapCenterControl) {
-        var btnCenterMap = $('<a class="pytsite-google-map-control center-map" href="#"><i class="fa fa-fw fa-3x fa-crosshairs"></i></a>');
-        self.map.controls[google.maps.ControlPosition.RIGHT_TOP].push(btnCenterMap[0]);
-        btnCenterMap.click(function (e) {
+        var btn = $('<a class="pytsite-google-map-control center-map" href="#"><i class="fa fa-fw fa-3x fa-crosshairs"></i></a>');
+        self.map.controls[google.maps.ControlPosition.RIGHT_TOP].push(btn[0]);
+        btn.click(function (e) {
             e.preventDefault();
             self.setCenterToCurrentPosition();
+            if (self.mapCenterControl) {
+                self.mapCenterControl.addClass('hidden');
+            }
+        });
+        self.mapCenterControl = btn;
+
+        self.map.addListener('drag', function () {
+            if (self.mapCenterControl) {
+                self.mapCenterControl.removeClass('hidden');
+            }
         });
     }
 
@@ -92,6 +102,11 @@ pytsite.google.maps.Map = function (mapNode, options) {
                 // Call onSuccess() callback
                 if (self.options.trackPositionOptions.onSuccess) {
                     self.options.trackPositionOptions.onSuccess(position, self.trackPositionCount);
+                }
+
+                // Move center to the current position
+                if (self.mapCenterControl && self.mapCenterControl.hasClass('hidden')) {
+                    self.setCenterToCurrentPosition();
                 }
 
                 ++self.trackPositionCount;
@@ -207,6 +222,9 @@ pytsite.google.maps.Map = function (mapNode, options) {
 
     // Reset map
     self.reset = function () {
+        // Clear drawn routes
+        self.clearRoutes();
+
         // Close all info windows before markers deletion
         self.closeInfoBoxes();
 
