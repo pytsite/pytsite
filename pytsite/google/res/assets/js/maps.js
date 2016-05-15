@@ -95,7 +95,7 @@ pytsite.google.maps.Map = function (mapNode, options) {
                 self.currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
                 // Update current position marker
-                if (self.options.trackPositionOptions.updateMarker && self.options.currentPositionMarker) {
+                if (self.options.trackPositionOptions.updateMarker && self.currentPositionMarker) {
                     self.currentPositionMarker.setPosition(self.currentPosition);
                 }
 
@@ -124,6 +124,10 @@ pytsite.google.maps.Map = function (mapNode, options) {
     // === Center map to the current position ===
     self.setCenterToCurrentPosition = function () {
         self.map.setCenter(self.currentPosition);
+
+        if (self.options.trackPosition && self.options.mapCenterControl) {
+            self.mapCenterControl.addClass('hidden');
+        }
     };
 
     // === Adjusts map viewport to make all markers visible ===

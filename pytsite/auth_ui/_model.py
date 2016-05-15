@@ -12,9 +12,12 @@ __license__ = 'MIT'
 class UserUI(_auth.model.User, _odm_ui.UIMixin):
     """User UI.
     """
+
     def _setup_fields(self):
         super()._setup_fields()
         self.define_field(_odm.field.Bool('profile_is_public'))
+        self.define_field(_odm.field.Virtual('profile_view_url'))
+        self.define_field(_odm.field.Virtual('profile_edit_url'))
 
     @property
     def profile_is_public(self) -> bool:
@@ -22,14 +25,11 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
     @property
     def profile_view_url(self) -> str:
-        return _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
+        return self.f_get('profile_view_url')
 
     @property
     def profile_edit_url(self) -> str:
-        return _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
-            'nickname': self.nickname,
-            '__redirect': _router.current_url(),
-        })
+        return self.f_get('profile_edit_url')
 
     @classmethod
     def ui_browser_setup(cls, browser):
@@ -41,6 +41,17 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         browser.data_fields = 'login', 'full_name', 'roles', 'status', 'profile_is_public', 'is_online', '_created', \
                               'last_activity'
         browser.default_sort_field = 'last_activity'
+
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        if field_name == 'profile_view_url':
+            return _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
+        elif field_name == 'profile_edit_url':
+            return _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
+                'nickname': self.nickname,
+                '__redirect': _router.current_url(),
+            })
+        else:
+            return super()._on_f_get(field_name, value, **kwargs)
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -279,6 +290,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
     """Role UI.
     """
+
     @classmethod
     def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.

@@ -88,9 +88,18 @@ class Query:
             else:
                 field = self._entity_mock.get_field(field_name)
 
-                # Convert instance to DBRef
-                if isinstance(field, _field.Ref) and isinstance(arg, _entity.Entity):
-                    arg = arg.ref
+                # Convert instance(s) to DBRef(s)
+                if isinstance(field, _field.Ref):
+                    if isinstance(arg, _entity.Entity):
+                        arg = arg.ref
+                    elif isinstance(arg, (list, tuple)):
+                        clean_arg = []
+                        for v in arg:
+                            if isinstance(v, _entity.Entity):
+                                clean_arg.append(v.ref)
+                            else:
+                                clean_arg.append(v)
+                        arg = clean_arg
 
                 # Convert list of instances to list of DBRefs
                 if isinstance(field, _field.RefsList):

@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.67.6 (2016-05-15)
+### Changed
+- `odm`: 
+    - entities serialization hook refactored;
+    - addition of list of entities as argument in `$in` finder's criteria.
+
+### Fixed
+- `google`: map center button hiding after map centering.
+
+
 ## 0.67.5 (2016-05-14)
 ### Added
 - `google`: tracking map center while changing position.

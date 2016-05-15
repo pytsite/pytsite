@@ -11,6 +11,7 @@ __license__ = 'MIT'
 class File(_odm.Entity):
     """File Model.
     """
+
     def _setup_fields(self):
         """_setup() hook.
         """
@@ -64,7 +65,6 @@ class File(_odm.Entity):
     def _on_f_get(self, field_name: str, value, **kwargs):
         """_on_f_get() hook.
         """
-
         if field_name == 'abs_path':
             return _path.join(_reg.get('paths.storage'), self.path)
 
@@ -81,11 +81,3 @@ class File(_odm.Entity):
             raise NotImplementedError()
 
         return super()._on_f_get(field_name, value)
-
-    def as_dict(self, include_fields: tuple=(), exclude_fields: tuple=()):
-        r = super().as_dict(include_fields, exclude_fields)
-
-        if 'url' in include_fields or 'url' not in exclude_fields:
-            r['url'] = self.url
-
-        return r

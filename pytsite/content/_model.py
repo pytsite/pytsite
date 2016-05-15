@@ -176,7 +176,7 @@ class Content(_odm_ui.UIEntity):
         return self.f_get('publish_time', fmt='pretty_date')
 
     @property
-    def author(self) -> _auth.model.User:
+    def author(self) -> _auth_ui.model.UserUI:
         return self.f_get('author')
 
     @property
@@ -646,18 +646,22 @@ class Content(_odm_ui.UIEntity):
         """
         return self.title
 
-    def as_dict(self, include_fields: tuple=(), exclude_fields: tuple=()):
+    def as_dict(self, include_fields: tuple=(), **kwargs):
         """Get serializable representation of a product.
         """
-        r = super().as_dict(include_fields, exclude_fields)
+        r = super().as_dict(include_fields)
 
-        # Override default serialization of 'images' field
-        if self.has_field('images') and ('images' in include_fields or 'images' not in exclude_fields):
+        # Images
+        if self.has_field('images') and 'images' in include_fields:
             r['images'] = []
             for img in self.images:
-                r['images'].append(img.as_dict(
-                    ('path', 'width', 'height', 'mime', 'length', 'name', 'description', 'url')
-                ))
+                img_dict = img.as_dict(('path', 'width', 'height', 'mime', 'length', 'name', 'description', 'url'))
+                img_dict['responsive_html'] = img.get_responsive_html(
+                    kwargs.get('images_responsive_html_alt', ''),
+                    kwargs.get('images_responsive_html_css', ''),
+                    kwargs.get('images_responsive_html_aspect_ratio', None),
+                    kwargs.get('images_responsive_html_enlarge', True))
+                r['images'].append(img_dict)
 
         return r
 

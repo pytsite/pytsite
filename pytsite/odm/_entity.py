@@ -775,16 +775,24 @@ class Entity(_ABC):
 
         return r
 
-    def as_dict(self, include_fields: tuple = (), exclude_fields: tuple = ()) -> _Dict:
-        """Get serializable representation of the entity.
+    def as_dict(self, fields: tuple = (), **kwargs) -> _Dict:
+        """Get dictionary representation of the entity.
         """
-        r = {n: f.get_serializable_val() for n, f in self.fields.items() if not isinstance(f, _field.Virtual)}
+        r = {}
+        for f_name in fields:
+            if self.has_field(f_name):
+                f = self.get_field(f_name)
 
-        if include_fields:
-            r = {n: f.get_serializable_val() for n, f in self.fields.items() if n in include_fields}
-
-        if exclude_fields:
-            r = {n: f.get_serializable_val() for n, f in self.fields.items() if n not in exclude_fields}
+                if isinstance(f, _field.Ref):
+                    f_val = f.get_val()
+                    if f_val:
+                        sub_fields = tuple([sub_f_name.replace(f_name + '.', '')
+                                            for sub_f_name in fields if sub_f_name.startswith(f_name + '.')])
+                        r[f_name] = f_val.as_dict(sub_fields)
+                elif isinstance(f, _field.Virtual):
+                    r[f_name] = self.f_get(f_name)
+                else:
+                    r[f_name] = f.get_serializable_val()
 
         return r
 
