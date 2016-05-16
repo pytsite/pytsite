@@ -50,6 +50,8 @@ image_required: 'Загрузите хотя бы одно изображени�
 localization: 'Локализация (:lang)'
 word_yes: 'Да'
 model_is_required: 'Необходимо указать модель'
+blocks: 'Блоки'
+uid: 'UID'
 
 odm_ui_permission_group_description: 'Содержимое'
 
@@ -108,3 +110,18 @@ content_permission_bypass_moderation_page: 'Публикация СТРАНИЦ 
 content_permission_set_localization_page: 'Управление локализацией СТРАНИЦ'
 content_permission_set_publish_time_page: 'Управление временем публикации СТРАНИЦ'
 content_permission_set_starred_page: "Устанавливать флаг 'Закрепелно' для СТРАНИЦ"
+
+odm_ui_browser_title_block: 'Блоки'
+odm_ui_form_title_create_block: 'Создание блока'
+odm_ui_form_title_modify_block: 'Изменение блока'
+odm_ui_form_title_delete_block: 'Удаление блоков'
+
+odm_ui_permission_create_block: 'Создание блоков'
+odm_ui_permission_browse_own_block: 'Обзор блоков'
+odm_ui_permission_browse_block: 'Обзор ВСЕХ блоков'
+odm_ui_permission_modify_own_block: 'Изменение блоков'
+odm_ui_permission_modify_block: 'Изменение ЛЮБЫХ блоков'
+odm_ui_permission_delete_own_block: 'Удаление блоков'
+odm_ui_permission_delete_block: 'Удаление ЛЮБЫХ блоков'
+
+content_permission_set_localization_block: 'Управление локализацией БЛОКОВ'

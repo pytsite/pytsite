@@ -1,7 +1,7 @@
 """Content Models
 """
 import re as _re
-from typing import Tuple as _Tuple
+from typing import Tuple as _Tuple, Union as _Union
 from datetime import datetime as _datetime, timedelta as _timedelta
 from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
@@ -13,14 +13,92 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
+
+
+def _process_body_tags(entity, inp: str, responsive: bool, img_width: int = None) -> str:
+    """Converts body tags like [img] into HTML tags.
+
+    :type entity: _Union[Block, Content]
+    """
+
+    def process_img_tag(match):
+        """Converts single body [img] tag into HTML <img> tag.
+        """
+        # Image index
+        img_index = int(match.group(1))
+
+        # Does image exist?
+        if len(entity.images) < img_index:
+            return ''
+
+        img = entity.images[img_index - 1]
+
+        # Additional parameters defaults
+        link_orig = False
+        enlarge = True
+        alt = entity.title
+
+        for arg in match.group(2).split(':'):  # type: str
+            arg = arg.strip()
+            if arg == 'link_orig':
+                link_orig = True
+            if arg == 'skip_enlarge':
+                enlarge = False
+            if arg.startswith('alt='):
+                alt = arg.split('=')[1]
+
+        # HTML code
+        if responsive:
+            r = img.get_responsive_html(alt, enlarge=enlarge)
+        else:
+            r = img.get_html(alt, width=img_width, enlarge=enlarge)
+
+        # Link to original
+        if link_orig:
+            r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(alt), r)
+
+        return r
+
+    def process_vid_tag(match):
+        """Converts single body [vid] tag into video player HTML code.
+        """
+        vid_index = int(match.group(1))
+        if len(entity.video_links) < vid_index:
+            return ''
+        return str(_widget.static.VideoPlayer('content-video-' + str(vid_index),
+                                              value=entity.video_links[vid_index - 1]))
+
+    inp = _body_img_tag_re.sub(process_img_tag, inp)
+    inp = _body_vid_tag_re.sub(process_vid_tag, inp)
+
+    return inp
+
+
+def _extract_body_images(entity) -> tuple:
+    """Transforms inline HTML <img> tags into [img] tags.
+
+    :type entity: _Union[Block, Content]
+    """
+    images = list(entity.images)
+    img_index = len(images)
+
+    def replace_func(match):
+        nonlocal img_index, images
+        img_index += 1
+        images.append(_image.create(match.group(1)))
+        return '[img:{}]'.format(img_index)
+
+    body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.body)
+
+    return body, images
 
 
 class Section(_taxonomy.model.Term):
     """Section Model.
     """
+
     def _pre_delete(self, **kwargs):
         from . import _api
         for m in _api.get_models():
@@ -43,6 +121,7 @@ class Section(_taxonomy.model.Term):
 class Tag(_taxonomy.model.Term):
     """Tag Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """
@@ -58,48 +137,274 @@ class Tag(_taxonomy.model.Term):
         browser.default_sort_order = _odm.I_DESC
 
 
-class Content(_odm_ui.UIEntity):
-    """Base Content Model.
+class Base(_odm_ui.UIEntity):
+    """Base Content Entity.
     """
+
     def _setup_fields(self):
-        """Hook.
-        """
-        # Common fields
         self.define_field(_odm.field.String('title', nonempty=True))
-        self.define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
-        self.define_field(_odm.field.String('status', nonempty=True, default='waiting'))
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
-
-        # Not always necessary fields
-        self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.String('body'))
-        self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now()))
         self.define_field(_odm.field.Ref('author', model='user'))
-        self.define_field(_odm.field.RefsUniqueList('tags', model='tag'))
         self.define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self.define_field(_odm.field.Ref('section', model='section'))
-        self.define_field(_odm.field.Bool('starred'))
-        self.define_field(_odm.field.Integer('views_count'))
-        self.define_field(_odm.field.Integer('comments_count'))
-        self.define_field(_odm.field.Dict('options'))
-        self.define_field(_odm.field.StringList('ext_links'))
         self.define_field(_odm.field.StringList('video_links'))
-
-        # Virtual fields
-        self.define_field(_odm.field.Virtual('url'))
-        self.define_field(_odm.field.Virtual('edit_url'))
+        self.define_field(_odm.field.Dict('options'))
 
         for lng in _lang.langs():
             self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
 
     def _setup_indexes(self):
-        """Hook.
-        """
         self.define_index([('_created', _odm.I_DESC)])
         self.define_index([('_modified', _odm.I_DESC)])
-
         self.define_index([('title', _odm.I_ASC)])
+
+    @property
+    def title(self) -> str:
+        return self.f_get('title')
+
+    @property
+    def body(self) -> str:
+        return self.f_get('body', process_tags=True)
+
+    @property
+    def images(self) -> tuple:
+        return self.f_get('images')
+
+    @property
+    def video_links(self) -> tuple:
+        return self.f_get('video_links')
+
+    @property
+    def language(self) -> str:
+        return self.f_get('language')
+
+    @property
+    def author(self) -> _auth.model.User:
+        return self.f_get('author')
+
+    @property
+    def options(self) -> _frozendict:
+        return self.f_get('options')
+
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        """Hook.
+        """
+        if field_name == 'body' and kwargs.get('process_tags'):
+            return _process_body_tags(self, value, kwargs.get('responsive', True), kwargs.get('img_width', 1200))
+
+        return value
+
+    def _on_f_set(self, field_name: str, value, **kwargs):
+        """Hook.
+        """
+        if field_name == 'language':
+            if value not in _lang.langs():
+                raise ValueError("Language '{}' is not supported.".format(value))
+
+            if value == 'en':
+                self.f_set('language_db', 'english')
+            elif value == 'ru':
+                self.f_set('language_db', 'russian')
+            else:
+                self.f_set('language_db', 'none')
+
+        return value
+
+    def _pre_save(self):
+        """Hook.
+        """
+        current_user = _auth.get_current_user()
+
+        # Language is required
+        if not self.language or not self.f_get('language_db'):
+            self.f_set('language', _lang.get_current())
+
+        # If author is required
+        if self.has_field('author') and self.get_field('author').nonempty and not self.author:
+            if not current_user.is_anonymous:
+                self.f_set('author', current_user)
+            else:
+                raise ValueError('Cannot assign author, because current user is anonymous.')
+
+        # Extract inline images from the body
+        if self.has_field('body') and self.has_field('images'):
+            body, images = _extract_body_images(self)
+            self.f_set('body', body)
+            self.f_set('images', images)
+
+        _events.fire('pytsite.content.entity.pre_save', entity=self)
+        _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
+
+    def _after_save(self):
+        """Hook.
+        """
+        # Creating back links in images
+        if self.has_field('images'):
+            for img in self.images:
+                if not img.f_get('attached_to'):
+                    img.f_set('attached_to', self).f_set('owner', self.author).save()
+
+        # Updating localization entities references.
+        # For each language except current one
+        from . import _api
+        for lng in _lang.langs(False):
+            # Get localization ref for lng
+            localization = self.f_get('localization_' + lng)
+
+            # If localization is set
+            if isinstance(localization, Content):
+                # If localized entity hasn't reference to this entity, set it
+                if localization.f_get('localization_' + self.language) != self:
+                    localization.f_set('localization_' + self.language, self).save()
+
+            # If localization is not set
+            elif localization is None:
+                # Clear references from localized entities
+                f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
+                for referenced in f.get():
+                    referenced.f_set('localization_' + self.language, None).save()
+
+        _events.fire('pytsite.content.entity.save', entity=self)
+        _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
+
+    def _after_delete(self):
+        """Hook.
+        """
+        if self.has_field('images'):
+            for i in self.f_get('images'):
+                i.delete()
+
+    @classmethod
+    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+        """Setup ODM UI browser hook.
+        """
+        # Filter by language
+        browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
+
+        browser.default_sort_field = '_modified'
+
+        browser.data_fields = ('title',)
+
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
+        """Hook.
+        """
+        current_user = _auth.get_current_user()
+
+        # Title
+        frm.add_widget(_widget.input.Text(
+            uid='title',
+            weight=100,
+            label=self.t('title'),
+            value=self.title,
+            required=True,
+        ))
+
+        # Images
+        if self.has_field('images'):
+            frm.add_widget(_image.widget.ImagesUpload(
+                uid='images',
+                weight=200,
+                label=self.t('images'),
+                value=self.f_get('images'),
+                max_file_size=5,
+            ))
+
+        # Video links
+        if self.has_field('vieo_links'):
+            frm.add_widget(_widget.input.StringList(
+                uid='video_links',
+                weight=300,
+                label=self.t('video'),
+                add_btn_label=self.t('add_link'),
+                value=self.video_links
+            ))
+            frm.add_rule('video_links', _validation.rule.VideoHostingUrl())
+
+        # Body
+        if self.has_field('body'):
+            frm.add_widget(_ckeditor.widget.CKEditor(
+                uid='body',
+                weight=400,
+                label=self.t('body'),
+                value=self.f_get('body', process_tags=False),
+            ))
+            if self.get_field('body').nonempty:
+                frm.add_rule('body', _validation.rule.NonEmpty())
+
+        # Language settings
+        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
+            # Language
+            if self.is_new:
+                lang_title = _lang.t('lang_title_' + _lang.get_current())
+            else:
+                lang_title = _lang.t('lang_title_' + self.language)
+            frm.add_widget(_widget.static.Text(
+                uid='language',
+                weight=500,
+                label=self.t('language'),
+                title=lang_title,
+                value=_lang.get_current() if self.is_new else self.language,
+                hidden=False if len(_lang.langs()) > 1 else True,
+            ))
+
+            # Localization selects
+            from ._widget import EntitySelect
+            for i, lng in enumerate(_lang.langs(False)):
+                frm.add_widget(EntitySelect(
+                    uid='localization_' + lng,
+                    weight=600 + i,
+                    label=self.t('localization', {'lang': _lang.lang_title(lng)}),
+                    model=self.model,
+                    language=lng,
+                    value=self.f_get('localization_' + lng)
+                ))
+
+        # Visible only for admins
+        if _auth.get_current_user().is_admin:
+            # Author
+            if self.has_field('author'):
+                frm.add_widget(_auth_ui.widget.UserSelect(
+                    uid='author',
+                    weight=700,
+                    label=self.t('author'),
+                    value=_auth.get_current_user() if self.is_new else self.author,
+                    h_size='col-sm-4',
+                    required=True,
+                ))
+
+    def ui_mass_action_get_entity_description(self) -> str:
+        """Get delete form description.
+        """
+        return self.title
+
+
+class Content(Base):
+    """Content Model.
+    """
+
+    def _setup_fields(self):
+        """Hook.
+        """
+        super()._setup_fields()
+
+        self.define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
+        self.define_field(_odm.field.String('status', nonempty=True, default='waiting'))
+        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now()))
+        self.define_field(_odm.field.RefsUniqueList('tags', model='tag'))
+        self.define_field(_odm.field.Ref('section', model='section'))
+        self.define_field(_odm.field.Bool('starred'))
+        self.define_field(_odm.field.Integer('views_count'))
+        self.define_field(_odm.field.Integer('comments_count'))
+        self.define_field(_odm.field.StringList('ext_links'))
+        self.define_field(_odm.field.Virtual('url'))
+        self.define_field(_odm.field.Virtual('edit_url'))
+
+    def _setup_indexes(self):
+        """Hook.
+        """
+        super()._setup_indexes()
 
         if self.has_field('ext_links'):
             self.define_index([('ext_links', _odm.I_ASC)])
@@ -114,10 +419,6 @@ class Content(_odm_ui.UIEntity):
             self.define_index([('title', _odm.I_TEXT), ('description', _odm.I_TEXT)])
         elif self.has_field('body'):
             self.define_index([('title', _odm.I_TEXT), ('body', _odm.I_TEXT)])
-
-    @property
-    def title(self) -> str:
-        return self.f_get('title')
 
     @property
     def description(self) -> str:
@@ -152,18 +453,6 @@ class Content(_odm_ui.UIEntity):
         return self.f_get('status')
 
     @property
-    def options(self) -> _frozendict:
-        return self.f_get('options')
-
-    @property
-    def language(self) -> str:
-        return self.f_get('language')
-
-    @property
-    def body(self) -> str:
-        return self.f_get('body', process_tags=True)
-
-    @property
     def publish_time(self) -> _datetime:
         return self.f_get('publish_time')
 
@@ -176,14 +465,6 @@ class Content(_odm_ui.UIEntity):
         return self.f_get('publish_time', fmt='pretty_date')
 
     @property
-    def author(self) -> _auth_ui.model.UserUI:
-        return self.f_get('author')
-
-    @property
-    def images(self) -> _Tuple[_image.model.Image]:
-        return self.f_get('images')
-
-    @property
     def starred(self) -> bool:
         return self.f_get('starred')
 
@@ -194,10 +475,6 @@ class Content(_odm_ui.UIEntity):
     @property
     def ext_links(self) -> _Tuple[str]:
         return self.f_get('ext_links')
-
-    @property
-    def video_links(self) -> _Tuple[str]:
-        return self.f_get('video_links')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
@@ -226,20 +503,12 @@ class Content(_odm_ui.UIEntity):
         elif field_name == 'status':
             from ._api import get_statuses
             if value not in [v[0] for v in get_statuses()]:
-                raise Exception("Invalid publish status: '{}'.".format(value))
+                raise RuntimeError("Invalid publish status: '{}'.".format(value))
 
-        elif field_name == 'language':
-            if value not in _lang.langs():
-                raise ValueError("Language '{}' is not supported.".format(value))
+        else:
+            value = super()._on_f_set(field_name, value, **kwargs)
 
-            if value == 'en':
-                self.f_set('language_db', 'english')
-            elif value == 'ru':
-                self.f_set('language_db', 'russian')
-            else:
-                self.f_set('language_db', 'none')
-
-        return super()._on_f_set(field_name, value, **kwargs)
+        return value
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
@@ -250,50 +519,30 @@ class Content(_odm_ui.UIEntity):
             value = r_alias.alias if r_alias else target_path
 
             # Transform path to absolute URL
-            value = _router.url(value, lang=self.language, relative=kwargs.get('relative', False))
+            return _router.url(value, lang=self.language, relative=kwargs.get('relative', False))
 
-        if field_name == 'edit_url' and self.id:
-            value = _router.ep_url('pytsite.odm_ui.ep.m_form', {
+        elif field_name == 'edit_url' and self.id:
+            return _router.ep_url('pytsite.odm_ui.ep.m_form', {
                 'model': self.model,
                 'id': self.id
             })
 
-        if field_name == 'body' and kwargs.get('process_tags'):
-            value = self._process_body_tags(value, kwargs.get('responsive', True), kwargs.get('img_width', 1200))
-
-        if field_name == 'tags':
+        elif field_name == 'tags':
             if kwargs.get('as_string'):
-                value = ','.join([tag.title for tag in self.f_get('tags')])
+                return ','.join([tag.title for tag in self.f_get('tags')])
 
-        return value
+        else:
+            return super()._on_f_get(field_name, value, **kwargs)
 
     def _pre_save(self):
         """Hook.
         """
-        current_user = _auth.get_current_user()
-
-        # Language is required
-        if not self.language or not self.f_get('language_db'):
-            self.f_set('language', _lang.get_current())
-
-        # If author is required
-        if self.has_field('author') and self.get_field('author').nonempty and not self.author:
-            if not current_user.is_anonymous:
-                self.f_set('author', current_user)
-            else:
-                raise ValueError('Cannot assign author, because current user is anonymous.')
+        super()._pre_save()
 
         # Route alias is required
         if not self.route_alias:
             # Setting None leads to route alias auto-generation
             self.f_set('route_alias', None)
-
-        # Extract inline images from the body
-        if self.has_field('body'):
-            if self.has_field('images'):
-                body, images = self._extract_body_images()
-                self.f_set('body', body)
-                self.f_set('images', images)
 
         if self.is_new:
             # Attach section to tags
@@ -301,12 +550,11 @@ class Content(_odm_ui.UIEntity):
                 for tag in self.tags:
                     tag.f_add('sections', self.section).save()
 
-        _events.fire('pytsite.content.entity.pre_save', entity=self)
-        _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
-
     def _after_save(self):
         """Hook.
         """
+        super()._after_save()
+
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
             target = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id}, True)
@@ -323,9 +571,8 @@ class Content(_odm_ui.UIEntity):
             if self.status == 'waiting':
                 self._send_waiting_status_notification()
 
-        from . import _api
-
         # Recalculate tags weights
+        from . import _api
         if self.has_field('tags'):
             for tag in self.tags:
                 weight = 0
@@ -333,59 +580,24 @@ class Content(_odm_ui.UIEntity):
                     weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
                 tag.f_set('weight', weight).save()
 
-        # Creating back links in images
-        if self.has_field('images'):
-            for img in self.images:
-                if not img.f_get('attached_to'):
-                    img.f_set('attached_to', self).f_set('owner', self.author).save()
-
-        # Updating localization entities references.
-        # For each language except current one
-        for lng in _lang.langs(False):
-            # Get localization ref for lng
-            localization = self.f_get('localization_' + lng)
-
-            # If localization is set
-            if isinstance(localization, Content):
-                # If localized entity hasn't reference to this entity, set it
-                if localization.f_get('localization_' + self.language) != self:
-                    localization.f_set('localization_' + self.language, self).save()
-
-            # If localization is not set
-            elif localization is None:
-                # Clear references from localized entities
-                f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
-                for referenced in f.get():
-                    referenced.f_set('localization_' + self.language, None).save()
-
-        _events.fire('pytsite.content.entity.save', entity=self)
-        _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
-
     def _after_delete(self):
         """Hook.
         """
+        super()._after_delete()
+
         self.route_alias.delete()
 
-        if self.has_field('images'):
-            for i in self.f_get('images'):
-                i.delete()
-
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Setup ODM UI browser hook.
-
-        :type browser: pytsite.odm_ui._browser.Browser
         """
-        mock = _odm.dispense(browser.model)
+        Base.ui_browser_setup(browser)
 
-        # Filter by language
-        browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
+        mock = _odm.dispense(browser.model)
 
         # Sort field
         if mock.has_field('publish_time'):
             browser.default_sort_field = 'publish_time'
-        else:
-            browser.default_sort_field = '_modified'
 
         # Title
         data_fields = ['title']
@@ -466,17 +678,18 @@ class Content(_odm_ui.UIEntity):
         """
         _assetman.add('pytsite.content@js/content.js')
 
-    def ui_m_form_setup_widgets(self, frm):
+    def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
-        :type frm: pytsite.form.Form
         """
+        super().ui_m_form_setup_widgets(frm)
+
         current_user = _auth.get_current_user()
 
         # Starred
         if self.has_field('starred') and current_user.has_permission('pytsite.content.set_starred.' + self.model):
             frm.add_widget(_widget.select.Checkbox(
                 uid='starred',
-                weight=100,
+                weight=50,
                 label=self.t('starred'),
                 value=self.starred,
             ))
@@ -486,21 +699,12 @@ class Content(_odm_ui.UIEntity):
             from ._widget import SectionSelect
             frm.add_widget(SectionSelect(
                 uid='section',
-                weight=200,
+                weight=75,
                 label=self.t('section'),
                 value=self.section,
                 h_size='col-sm-6',
                 required=True,
             ))
-
-        # Title
-        frm.add_widget(_widget.input.Text(
-            uid='title',
-            weight=300,
-            label=self.t('title'),
-            value=self.title,
-            required=True,
-        ))
 
         # Description
         if self.has_field('description'):
@@ -520,42 +724,6 @@ class Content(_odm_ui.UIEntity):
                 label=self.t('tags'),
                 value=self.tags,
             ))
-
-        # Images
-        if self.has_field('images'):
-            from pytsite import image
-            frm.add_widget(image.widget.ImagesUpload(
-                uid='images',
-                weight=600,
-                label=self.t('images'),
-                value=self.f_get('images'),
-                max_files=10,
-                max_file_size=5,
-            ))
-            if self.get_field('images').nonempty:
-                frm.add_rule('images', _validation.rule.NonEmpty(msg_id='pytsite.content@image_required'))
-
-        # Video links
-        if self.has_field('video_links'):
-            frm.add_widget(_widget.input.StringList(
-                uid='video_links',
-                weight=700,
-                label=self.t('video'),
-                add_btn_label=self.t('add_link'),
-                value=self.video_links
-            ))
-            frm.add_rule('video_links', _validation.rule.VideoHostingUrl())
-
-        # Body
-        if self.has_field('body'):
-            frm.add_widget(_ckeditor.widget.CKEditor(
-                uid='body',
-                weight=800,
-                label=self.t('body'),
-                value=self.f_get('body', process_tags=False),
-            ))
-            if self.get_field('body').nonempty:
-                frm.add_rule('body', _validation.rule.NonEmpty())
 
         # External links
         if self.has_field('ext_links'):
@@ -592,34 +760,6 @@ class Content(_odm_ui.UIEntity):
                     required=True,
                 ))
 
-        # Language settings
-        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
-            # Language
-            if self.is_new:
-                lang_title = _lang.t('lang_title_' + _lang.get_current())
-            else:
-                lang_title = _lang.t('lang_title_' + self.language)
-            frm.add_widget(_widget.static.Text(
-                uid='language',
-                weight=1300,
-                label=self.t('language'),
-                title=lang_title,
-                value=_lang.get_current() if self.is_new else self.language,
-                hidden=False if len(_lang.langs()) > 1 else True,
-            ))
-
-            # Localization selects
-            from ._widget import EntitySelect
-            for i, lng in enumerate(_lang.langs(False)):
-                frm.add_widget(EntitySelect(
-                    uid='localization_' + lng,
-                    weight=1400 + i,
-                    label=self.t('localization', {'lang': _lang.lang_title(lng)}),
-                    model=self.model,
-                    language=lng,
-                    value=self.f_get('localization_' + lng)
-                ))
-
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             # Route alias
@@ -630,23 +770,7 @@ class Content(_odm_ui.UIEntity):
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-            # Author
-            if self.has_field('author'):
-                frm.add_widget(_auth_ui.widget.UserSelect(
-                    uid='author',
-                    weight=1600,
-                    label=self.t('author'),
-                    value=_auth.get_current_user() if self.is_new else self.author,
-                    h_size='col-sm-4',
-                    required=True,
-                ))
-
-    def ui_mass_action_get_entity_description(self) -> str:
-        """Get delete form description.
-        """
-        return self.title
-
-    def as_dict(self, include_fields: tuple=(), **kwargs):
+    def as_dict(self, include_fields: tuple = (), **kwargs):
         """Get serializable representation of a product.
         """
         r = super().as_dict(include_fields)
@@ -664,77 +788,6 @@ class Content(_odm_ui.UIEntity):
                 r['images'].append(img_dict)
 
         return r
-
-    def _process_body_tags(self, inp: str, responsive: bool, img_width: int=None) -> str:
-        """Converts body tags like [img] into HTML tags.
-        """
-        def process_img_tag(match):
-            """Converts single body [img] tag into HTML <img> tag.
-            """
-            # Image index
-            img_index = int(match.group(1))
-
-            # Does image exist?
-            if len(self.images) < img_index:
-                return ''
-
-            img = self.images[img_index - 1]
-
-            # Additional parameters defaults
-            link_orig = False
-            enlarge = True
-            alt = self.title
-
-            for arg in match.group(2).split(':'):  # type: str
-                arg = arg.strip()
-                if arg == 'link_orig':
-                    link_orig = True
-                if arg == 'skip_enlarge':
-                    enlarge = False
-                if arg.startswith('alt='):
-                    alt = arg.split('=')[1]
-
-            # HTML code
-            if responsive:
-                r = img.get_responsive_html(alt, enlarge=enlarge)
-            else:
-                r = img.get_html(alt, width=img_width, enlarge=enlarge)
-
-            # Link to original
-            if link_orig:
-                r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(alt), r)
-
-            return r
-
-        def process_vid_tag(match):
-            """Converts single body [vid] tag into video player HTML code.
-            """
-            vid_index = int(match.group(1))
-            if len(self.video_links) < vid_index:
-                return ''
-            return str(_widget.static.VideoPlayer('content-video-' + str(vid_index),
-                                                  value=self.video_links[vid_index - 1]))
-
-        inp = _body_img_tag_re.sub(process_img_tag, inp)
-        inp = _body_vid_tag_re.sub(process_vid_tag, inp)
-
-        return inp
-
-    def _extract_body_images(self) -> tuple:
-        """Transforms inline HTML <img> tags into [img] tags.
-        """
-        images = list(self.images)
-        img_index = len(images)
-
-        def replace_func(match):
-            nonlocal img_index, images
-            img_index += 1
-            images.append(_image.create(match.group(1)))
-            return '[img:{}]'.format(img_index)
-
-        body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, self.f_get('body'))
-
-        return body, images
 
     def _send_waiting_status_notification(self):
         for u in _auth.find_users().get():
@@ -770,6 +823,7 @@ class Content(_odm_ui.UIEntity):
 class Page(Content):
     """Page Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """
@@ -784,6 +838,7 @@ class Page(Content):
 class Article(Content):
     """Article Model.
     """
+
     def _setup_fields(self):
         super()._setup_fields()
 
@@ -795,6 +850,7 @@ class Article(Content):
 class ContentSubscriber(_odm.Entity):
     """content_subscriber ODM Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """

@@ -50,6 +50,8 @@ image_required: 'Завантажте хоча б одне зображення'
 localization: 'Локалізація (:lang)'
 word_yes: 'Так'
 model_is_required: 'Потрібно вказати модель'
+blocks: 'Блоки'
+uid: 'UID'
 
 odm_ui_permission_group_description: 'Контент'
 

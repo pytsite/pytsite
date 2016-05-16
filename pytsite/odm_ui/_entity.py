@@ -123,8 +123,8 @@ class UIMixin:
                     'model': self.model,
                     'ids': str(self.id)
                 })
-
-        raise NotImplementedError()
+        else:
+            raise RuntimeError('Not implemented yet.')
 
 
 class UIEntity(_odm.Entity, UIMixin):
