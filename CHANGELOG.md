@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.68.2 (2016-05-17)
+### Fixed
+- `logger`: processing codec-related errors while writing data to log-file.
+
+
 ## 0.68.1 (2016-05-17)
 ### Fixed
 - `tpl`: reading non-ascii template files. 

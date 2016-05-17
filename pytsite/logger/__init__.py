@@ -18,7 +18,8 @@ if not _path.exists(_log_dir):
     _makedirs(_log_dir, 0o755, True)
 
 _format = '%(asctime)s %(levelname)s %(message)s'
-_logging.basicConfig(filename=_log_path, datefmt='%Y-%m-%d %H:%M:%S', format=_format)
+_log_stream = open(_log_path, 'at', encoding='utf-8', errors='replace')
+_logging.basicConfig(stream=_log_stream, datefmt='%Y-%m-%d %H:%M:%S', format=_format)
 _logger = _logging.getLogger(_reg.get('env.name', 'default'))
 _level = _logging.DEBUG if _reg.get('debug') else _logging.INFO
 _logger.setLevel(_level)
