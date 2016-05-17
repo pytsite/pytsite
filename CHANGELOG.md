@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.68.1 (2016-05-17)
+### Fixed
+- `tpl`: reading non-ascii template files. 
+
+
 ## 0.68 (2016-05-17)
 ### Added
 - New package: `block`.

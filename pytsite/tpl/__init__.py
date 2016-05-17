@@ -47,7 +47,7 @@ class _TemplateLoader(_jinja.BaseLoader):
         if not tpl_exists(tpl):
             raise error.TemplateNotFound("Template is not found at '{}'.".format(tpl_path))
 
-        with open(tpl_path) as f:
+        with open(tpl_path, encoding='utf-8') as f:
             source = f.read()
 
         return source, tpl_path, lambda: False
