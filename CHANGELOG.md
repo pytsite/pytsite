@@ -1,5 +1,17 @@
 # PytSite Changelog
 
+## 0.68 (2016-05-17)
+### Added
+- New package: `block`.
+
+### Changed
+- `content`: base entity classes refactored.
+
+### Fixed
+- `odm`: processing default values of fields.
+- `odm_ui`: new entity hook: `ui_m_form_validate()`.
+
+
 ## 0.67.6 (2016-05-15)
 ### Changed
 - `odm`: 

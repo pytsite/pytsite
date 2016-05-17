@@ -105,6 +105,11 @@ class UIMixin:
         """
         pass
 
+    def ui_m_form_validate(self, frm: _form.Form):
+        """Hook.
+        """
+        pass
+
     def ui_m_form_submit(self, frm: _form.Form):
         """Hook.
         """

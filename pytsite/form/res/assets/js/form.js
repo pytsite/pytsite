@@ -249,7 +249,7 @@ pytsite.form = {
                                         var formArea = sortedWidgets[k].formArea;
                                         var widget = sortedWidgets[k];
 
-                                        if(widget.parentUid) {
+                                        if (widget.parentUid) {
                                             if (widget.parentUid in self.widgets)
                                                 self.widgets[widget.parentUid].em.append(widget.em);
                                             else
@@ -312,13 +312,21 @@ pytsite.form = {
                         else {
                             // Add error messages for widgets
                             for (var widget_uid in resp.messages) {
+                                var widget, widget_message;
+                                if (widget_uid in self.widgets)
+                                    widget = self.widgets[widget_uid];
+
+                                // Convert single message to array for convenience
+                                if (typeof resp.messages[widget_uid] == 'string') {
+                                    resp.messages[widget_uid] = [resp.messages[widget_uid]];
+                                }
+
+                                // Iterate over multiple messages for the same widget
                                 for (var i = 0; i < resp.messages[widget_uid].length; i++) {
-                                    var widget_message = resp.messages[widget_uid][i];
+                                    widget_message = resp.messages[widget_uid][i];
 
                                     // If widget exists
-                                    if (widget_uid in self.widgets) {
-                                        var widget = self.widgets[widget_uid];
-
+                                    if (widget) {
                                         if (!widget.alwaysHidden) {
                                             widget.setState('error');
                                             widget.addMessage(widget_message);

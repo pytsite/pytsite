@@ -17,7 +17,7 @@ _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 
 
-def _process_body_tags(entity, inp: str, responsive: bool, img_width: int = None) -> str:
+def _process_tags(entity, inp: str, responsive: bool, img_width: int = None) -> str:
     """Converts body tags like [img] into HTML tags.
 
     :type entity: _Union[Block, Content]
@@ -76,7 +76,7 @@ def _process_body_tags(entity, inp: str, responsive: bool, img_width: int = None
     return inp
 
 
-def _extract_body_images(entity) -> tuple:
+def _extract_images(entity) -> tuple:
     """Transforms inline HTML <img> tags into [img] tags.
 
     :type entity: _Union[Block, Content]
@@ -90,7 +90,7 @@ def _extract_body_images(entity) -> tuple:
         images.append(_image.create(match.group(1)))
         return '[img:{}]'.format(img_index)
 
-    body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.body)
+    body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.f_get('body', process_tags=False))
 
     return body, images
 
@@ -151,9 +151,6 @@ class Base(_odm_ui.UIEntity):
         self.define_field(_odm.field.StringList('video_links'))
         self.define_field(_odm.field.Dict('options'))
 
-        for lng in _lang.langs():
-            self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
-
     def _setup_indexes(self):
         self.define_index([('_created', _odm.I_DESC)])
         self.define_index([('_modified', _odm.I_DESC)])
@@ -191,7 +188,7 @@ class Base(_odm_ui.UIEntity):
         """Hook.
         """
         if field_name == 'body' and kwargs.get('process_tags'):
-            return _process_body_tags(self, value, kwargs.get('responsive', True), kwargs.get('img_width', 1200))
+            value = _process_tags(self, value, kwargs.get('responsive', True), kwargs.get('img_width', 1200))
 
         return value
 
@@ -229,7 +226,7 @@ class Base(_odm_ui.UIEntity):
 
         # Extract inline images from the body
         if self.has_field('body') and self.has_field('images'):
-            body, images = _extract_body_images(self)
+            body, images = _extract_images(self)
             self.f_set('body', body)
             self.f_set('images', images)
 
@@ -245,26 +242,6 @@ class Base(_odm_ui.UIEntity):
                 if not img.f_get('attached_to'):
                     img.f_set('attached_to', self).f_set('owner', self.author).save()
 
-        # Updating localization entities references.
-        # For each language except current one
-        from . import _api
-        for lng in _lang.langs(False):
-            # Get localization ref for lng
-            localization = self.f_get('localization_' + lng)
-
-            # If localization is set
-            if isinstance(localization, Content):
-                # If localized entity hasn't reference to this entity, set it
-                if localization.f_get('localization_' + self.language) != self:
-                    localization.f_set('localization_' + self.language, self).save()
-
-            # If localization is not set
-            elif localization is None:
-                # Clear references from localized entities
-                f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
-                for referenced in f.get():
-                    referenced.f_set('localization_' + self.language, None).save()
-
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
 
@@ -272,8 +249,8 @@ class Base(_odm_ui.UIEntity):
         """Hook.
         """
         if self.has_field('images'):
-            for i in self.f_get('images'):
-                i.delete()
+            for img in self.images:
+                img.delete()
 
     @classmethod
     def ui_browser_setup(cls, browser: _odm_ui.Browser):
@@ -283,8 +260,12 @@ class Base(_odm_ui.UIEntity):
         browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
 
         browser.default_sort_field = '_modified'
-
         browser.data_fields = ('title',)
+
+    def ui_browser_get_row(self) -> tuple:
+        """Get single UI browser row hook.
+        """
+        return (self.title,)
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
@@ -294,7 +275,7 @@ class Base(_odm_ui.UIEntity):
         # Title
         frm.add_widget(_widget.input.Text(
             uid='title',
-            weight=100,
+            weight=200,
             label=self.t('title'),
             value=self.title,
             required=True,
@@ -304,17 +285,19 @@ class Base(_odm_ui.UIEntity):
         if self.has_field('images'):
             frm.add_widget(_image.widget.ImagesUpload(
                 uid='images',
-                weight=200,
+                weight=400,
                 label=self.t('images'),
                 value=self.f_get('images'),
                 max_file_size=5,
             ))
+            if self.get_field('images').nonempty:
+                frm.add_rule('images', _validation.rule.NonEmpty())
 
         # Video links
-        if self.has_field('vieo_links'):
+        if self.has_field('video_links'):
             frm.add_widget(_widget.input.StringList(
                 uid='video_links',
-                weight=300,
+                weight=600,
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
                 value=self.video_links
@@ -325,40 +308,12 @@ class Base(_odm_ui.UIEntity):
         if self.has_field('body'):
             frm.add_widget(_ckeditor.widget.CKEditor(
                 uid='body',
-                weight=400,
+                weight=800,
                 label=self.t('body'),
                 value=self.f_get('body', process_tags=False),
             ))
             if self.get_field('body').nonempty:
                 frm.add_rule('body', _validation.rule.NonEmpty())
-
-        # Language settings
-        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
-            # Language
-            if self.is_new:
-                lang_title = _lang.t('lang_title_' + _lang.get_current())
-            else:
-                lang_title = _lang.t('lang_title_' + self.language)
-            frm.add_widget(_widget.static.Text(
-                uid='language',
-                weight=500,
-                label=self.t('language'),
-                title=lang_title,
-                value=_lang.get_current() if self.is_new else self.language,
-                hidden=False if len(_lang.langs()) > 1 else True,
-            ))
-
-            # Localization selects
-            from ._widget import EntitySelect
-            for i, lng in enumerate(_lang.langs(False)):
-                frm.add_widget(EntitySelect(
-                    uid='localization_' + lng,
-                    weight=600 + i,
-                    label=self.t('localization', {'lang': _lang.lang_title(lng)}),
-                    model=self.model,
-                    language=lng,
-                    value=self.f_get('localization_' + lng)
-                ))
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
@@ -366,7 +321,7 @@ class Base(_odm_ui.UIEntity):
             if self.has_field('author'):
                 frm.add_widget(_auth_ui.widget.UserSelect(
                     uid='author',
-                    weight=700,
+                    weight=1200,
                     label=self.t('author'),
                     value=_auth.get_current_user() if self.is_new else self.author,
                     h_size='col-sm-4',
@@ -400,6 +355,9 @@ class Content(Base):
         self.define_field(_odm.field.StringList('ext_links'))
         self.define_field(_odm.field.Virtual('url'))
         self.define_field(_odm.field.Virtual('edit_url'))
+
+        for lng in _lang.langs():
+            self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
 
     def _setup_indexes(self):
         """Hook.
@@ -527,9 +485,8 @@ class Content(Base):
                 'id': self.id
             })
 
-        elif field_name == 'tags':
-            if kwargs.get('as_string'):
-                return ','.join([tag.title for tag in self.f_get('tags')])
+        elif field_name == 'tags' and kwargs.get('as_string'):
+            return ','.join([tag.title for tag in self.f_get('tags')])
 
         else:
             return super()._on_f_get(field_name, value, **kwargs)
@@ -579,6 +536,26 @@ class Content(Base):
                 for model in _api.get_models().keys():
                     weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
                 tag.f_set('weight', weight).save()
+
+        # Updating localization entities references.
+        # For each language except current one
+        from . import _api
+        for lng in _lang.langs(False):
+            # Get localization ref for lng
+            localization = self.f_get('localization_' + lng)
+
+            # If localization is set
+            if isinstance(localization, Content):
+                # If localized entity hasn't reference to this entity, set it
+                if localization.f_get('localization_' + self.language) != self:
+                    localization.f_set('localization_' + self.language, self).save()
+
+            # If localization is not set
+            elif localization is None:
+                # Clear references from localized entities
+                f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
+                for referenced in f.get():
+                    referenced.f_set('localization_' + self.language, None).save()
 
     def _after_delete(self):
         """Hook.
@@ -647,15 +624,16 @@ class Content(Base):
             r.append(starred)
 
         # Status
-        status = self.status
-        status_str = self.t('status_' + status)
-        status_cls = 'primary'
-        if status == 'waiting':
-            status_cls = 'warning'
-        elif status == 'unpublished':
-            status_cls = 'default'
-        status = str(_html.Span(status_str, cls='label label-' + status_cls))
-        r.append(status)
+        if self.has_field('status'):
+            status = self.status
+            status_str = self.t('status_' + status)
+            status_cls = 'primary'
+            if status == 'waiting':
+                status_cls = 'warning'
+            elif status == 'unpublished':
+                status_cls = 'default'
+            status = str(_html.Span(status_str, cls='label label-' + status_cls))
+            r.append(status)
 
         # Images counter
         if self.has_field('images'):
@@ -689,7 +667,7 @@ class Content(Base):
         if self.has_field('starred') and current_user.has_permission('pytsite.content.set_starred.' + self.model):
             frm.add_widget(_widget.select.Checkbox(
                 uid='starred',
-                weight=50,
+                weight=100,
                 label=self.t('starred'),
                 value=self.starred,
             ))
@@ -699,7 +677,7 @@ class Content(Base):
             from ._widget import SectionSelect
             frm.add_widget(SectionSelect(
                 uid='section',
-                weight=75,
+                weight=150,
                 label=self.t('section'),
                 value=self.section,
                 h_size='col-sm-6',
@@ -710,7 +688,7 @@ class Content(Base):
         if self.has_field('description'):
             frm.add_widget(_widget.input.Text(
                 uid='description',
-                weight=400,
+                weight=300,
                 label=self.t('description'),
                 value=self.description,
             ))
@@ -719,7 +697,7 @@ class Content(Base):
         if self.has_field('tags'):
             frm.add_widget(_taxonomy.widget.TokensInput(
                 uid='tags',
-                weight=500,
+                weight=350,
                 model='tag',
                 label=self.t('tags'),
                 value=self.tags,
@@ -741,7 +719,7 @@ class Content(Base):
             from ._widget import StatusSelect
             frm.add_widget(StatusSelect(
                 uid='status',
-                weight=1100,
+                weight=950,
                 label=self.t('status'),
                 value='published' if self.is_new else self.status,
                 h_size='col-sm-4 col-md-3 col-lg-2',
@@ -753,11 +731,39 @@ class Content(Base):
             if current_user.has_permission('pytsite.content.set_publish_time.' + self.model):
                 frm.add_widget(_widget.select.DateTime(
                     uid='publish_time',
-                    weight=1200,
+                    weight=975,
                     label=self.t('publish_time'),
                     value=_datetime.now() if self.is_new else self.publish_time,
                     h_size='col-sm-4 col-md-3 col-lg-2',
                     required=True,
+                ))
+
+        # Language settings
+        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
+            # Current language
+            if self.is_new:
+                lang_title = _lang.t('lang_title_' + _lang.get_current())
+            else:
+                lang_title = _lang.t('lang_title_' + self.language)
+            frm.add_widget(_widget.static.Text(
+                uid='language',
+                weight=1000,
+                label=self.t('language'),
+                title=lang_title,
+                value=_lang.get_current() if self.is_new else self.language,
+                hidden=False if len(_lang.langs()) > 1 else True,
+            ))
+
+            # Localization selects
+            from ._widget import EntitySelect
+            for i, lng in enumerate(_lang.langs(False)):
+                frm.add_widget(EntitySelect(
+                    uid='localization_' + lng,
+                    weight=1000 + i,
+                    label=self.t('localization', {'lang': _lang.lang_title(lng)}),
+                    model=self.model,
+                    language=lng,
+                    value=self.f_get('localization_' + lng)
                 ))
 
         # Visible only for admins
@@ -765,7 +771,7 @@ class Content(Base):
             # Route alias
             frm.add_widget(_widget.input.Text(
                 uid='route_alias',
-                weight=1500,
+                weight=1100,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))

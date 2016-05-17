@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     from os import path, makedirs
     from pytsite import tpl, lang, reg
 
@@ -33,4 +33,4 @@ def __init():
     tpl.register_global('session_messages', lambda x: session().get_messages(x) if session() else ())
 
 
-__init()
+_init()

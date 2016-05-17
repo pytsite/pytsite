@@ -133,7 +133,7 @@ def find(model: str, status='published', check_publish_time=True, language: str=
         language = _lang.get_current()
     f.where('language', '=', language)
 
-    if status:
+    if status and mock.has_field('status'):
         f.where('status', '=', status)
 
     return f

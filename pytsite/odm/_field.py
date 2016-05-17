@@ -27,7 +27,7 @@ class Abstract(_ABC):
         self._name = name
         self._uid = None  # type: str
         self._nonempty = kwargs.get('nonempty', False)
-        self._default = kwargs.get('default')
+        self._default = _deepcopy(kwargs.get('default'))
         self._value = None
 
         # Set value to default
@@ -53,8 +53,7 @@ class Abstract(_ABC):
 
     @default.setter
     def default(self, value):
-        self._default = value
-        self.clr_val()
+        self._default = _deepcopy(value)
 
     def get_val(self, **kwargs) -> _Any:
         """Get value of the field.
@@ -81,7 +80,9 @@ class Abstract(_ABC):
     def clr_val(self, **kwargs):
         """Clear the field.
         """
-        self.set_val(_deepcopy(self._default), **kwargs)
+        self._value = _deepcopy(self._default)
+
+        return self
 
     def add_val(self, value, **kwargs):
         """Add a value to the field.
@@ -145,26 +146,25 @@ class List(Abstract):
         self._unique = kwargs.get('unique', False)
         self._cleanup = kwargs.get('cleanup', True)
 
-        if kwargs.get('default') is None:
-            kwargs['default'] = ()
+        kwargs['default'] = kwargs.get('default', [])
 
         super().__init__(name, **kwargs)
 
     def get_val(self, **kwargs) -> tuple:
         """Get value of the field.
         """
-        return tuple(super().get_val(**kwargs))
+        return tuple(self._value)
 
     def set_val(self, value, **kwargs):
         """Set value of the field.
 
         :type value: list | tuple
         """
-        if not value:
-            value = ()
+        if value is None:
+            return self.clr_val()
 
         if type(value) not in (list, tuple):
-            raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, repr(value)))
+            raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, type(value)))
 
         # In internals value is always a list
         if isinstance(value, tuple):
@@ -195,7 +195,9 @@ class List(Abstract):
         if self._cleanup:
             value = _util.cleanup_list(value)
 
-        return super().set_val(value, **kwargs)
+        self._value = value
+
+        return self
 
     def add_val(self, value, **kwargs):
         """Add a value to the field.
@@ -234,9 +236,7 @@ class List(Abstract):
         if self._min_len is not None and len(self.get_val()) == self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
-        self.set_val([v for v in self._value if v != value])
-
-        return self
+        return self.set_val([v for v in self._value if v != value])
 
 
 class UniqueList(List):
@@ -261,33 +261,27 @@ class Dict(Abstract):
         self._keys = kwargs.get('keys', ())
         self._nonempty_keys = kwargs.get('nonempty_keys', ())
 
-        default = kwargs.get('default')
-        if default is None:
-            kwargs['default'] = _frozendict({})
-        elif not isinstance(default, _frozendict):
-            kwargs['default'] = _frozendict(default)
+        kwargs['default'] = kwargs.get('default', {})
 
         super().__init__(name, **kwargs)
 
     def get_val(self, **kwargs) -> _frozendict:
         """Get value of the field.
         """
-        return super().get_val(**kwargs)
-
-    def get_storable_val(self):
-        return dict(self.get_val())
+        return _frozendict(self._value)
 
     def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Set value of the field.
         """
         if value is None:
-            value = self._default
+            return self.clr_val()
 
         if type(value) not in (dict, _frozendict):
-            raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
+            raise TypeError("Value of the field '{}' should be a dict. Got '{}'.".format(self._name, type(value)))
 
-        if isinstance(value, dict):
-            value = _frozendict(value)
+        # Internally this field stores ordinary dict
+        if isinstance(value, _frozendict):
+            value = dict(value)
 
         if self._keys:
             for k in self._keys:
@@ -299,7 +293,9 @@ class Dict(Abstract):
                 if k not in value or value[k] is None:
                     raise ValueError("Value of the field '{}' must contain nonempty key '{}'.".format(self._name, k))
 
-        return super().set_val(value, **kwargs)
+        self._value = _deepcopy(value)
+
+        return self
 
     def add_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Add a value to the field.
@@ -307,13 +303,9 @@ class Dict(Abstract):
         if type(value) not in (dict, _frozendict):
             raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
 
-        if isinstance(value, dict):
-            value = _frozendict(value)
+        self._value.update(value)
 
-        v = dict(self.get_val())
-        v.update(value)
-
-        return self.set_val(v, **kwargs)
+        return self
 
 
 class Ref(Abstract):
@@ -323,6 +315,7 @@ class Ref(Abstract):
         """Init.
         """
         self._model = model
+
         super().__init__(name, **kwargs)
 
     @property
@@ -337,7 +330,7 @@ class Ref(Abstract):
         from ._entity import Entity
 
         if value is None:
-            return super().set_val(value, **kwargs)
+            return self.clr_val()
 
         # Get first item from the iterable value
         if type(value) in (list, tuple):
@@ -386,6 +379,7 @@ class RefsList(List):
         """
         from ._entity import Entity
         self._model = model
+
         super().__init__(name, allowed_types=(_bson_DBRef, Entity), **kwargs)
 
     @property
@@ -395,8 +389,11 @@ class RefsList(List):
     def set_val(self, value, **kwargs):
         """Set value of the field.
         """
+        if value is None:
+            return self.clr_val()
+
         if type(value) not in (list, tuple):
-            raise TypeError('List or tuple expected.')
+            raise TypeError("List or tuple expected as a value of field '{}'. Got {}.".format(self._name, type(value)))
 
         # Cleaning up value
         clean_value = []
@@ -450,9 +447,7 @@ class RefsList(List):
         else:
             raise TypeError("DBRef of entity expected.")
 
-        super().add_val(value, **kwargs)
-
-        return self
+        return super().add_val(value, **kwargs)
 
     def sub_val(self, value, **kwargs):
         """Subtract value fom the field.
@@ -468,9 +463,7 @@ class RefsList(List):
         else:
             raise TypeError("DBRef of entity expected.")
 
-        super().sub_val(value, **kwargs)
-
-        return self
+        return super().sub_val(value, **kwargs)
 
     def get_serializable_val(self) -> list:
         return [e.as_dict() for e in self.get_val()]
@@ -493,8 +486,7 @@ class DateTime(Abstract):
 
         :param default: _datetime
         """
-        if kwargs.get('default') is None:
-            kwargs['default'] = _datetime(1970, 1, 1)
+        kwargs['default'] = kwargs.get('default', _datetime(1970, 1, 1))
 
         super().__init__(name, **kwargs)
 
@@ -502,7 +494,7 @@ class DateTime(Abstract):
         """Set field's value.
         """
         if value is None:
-            value = self._default
+            return self.clr_val()
 
         if not isinstance(value, _datetime):
             raise TypeError("DateTime expected, while got {}".format(value))
@@ -510,12 +502,14 @@ class DateTime(Abstract):
         if value.tzinfo:
             value = value.replace(tzinfo=None)
 
-        return super().set_val(value, **kwargs)
+        self._value = value
+
+        return self
 
     def get_val(self, fmt: str=None, **kwargs):
         """Get field's value.
         """
-        value = super().get_val()  # type: _datetime
+        value = self._value  # type: _datetime
 
         if fmt:
             if fmt == 'ago':
@@ -569,13 +563,12 @@ class Integer(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        if kwargs.get('default') is None:
-            kwargs['default'] = 0
+        kwargs['default'] = kwargs.get('default', 0)
 
         super().__init__(name, **kwargs)
 
     def get_val(self, **kwargs) -> int:
-        return super().get_val(**kwargs)
+        return self._value
 
     def set_val(self, value: int, **kwargs):
         """Set value of the field.
@@ -583,24 +576,33 @@ class Integer(Abstract):
         if not isinstance(value, int):
             value = int(value)
 
-        return super().set_val(int(value), **kwargs)
+        self._value = value
+
+        return self
 
     def add_val(self, value: int, **kwargs):
         """Add a value to the value of the field.
         """
         if not isinstance(value, int):
-            raise ValueError('Integer expected.')
-        return self.set_val(self.get_val(**kwargs) + value, **kwargs)
+            raise TypeError('Integer expected.')
+
+        self._value += value
+
+        return self
 
     def inc_val(self, **kwargs):
         """Increment field's value.
         """
-        return self.set_val(self.get_val(**kwargs) + 1, **kwargs)
+        self._value += 1
+
+        return self
 
     def dec_val(self, **kwargs):
         """Increment field's value.
         """
-        return self.set_val(self.get_val(**kwargs) - 1, **kwargs)
+        self._value -= 1
+
+        return self
 
 
 class Decimal(Abstract):
@@ -650,31 +652,37 @@ class Decimal(Abstract):
     def get_val(self, **kwargs) -> _Decimal:
         """Get value of the field.
         """
-        return super().get_val()
+        return self._value
 
     def get_storable_val(self) -> float:
         """Get storable value of the field.
         """
-        return float(self.get_val())
+        return float(self._value)
 
     def set_val(self, value, **kwargs):
         """Set value of the field.
 
         :type value: _Decimal | float | int | str
         """
-        return super().set_val(self._sanitize_type(value), **kwargs)
+        self._value = self._sanitize_type(value)
+
+        return self
 
     def add_val(self, value, **kwargs):
         """
         :type value: _Decimal | float | integer | str
         """
-        return super().add_val(self._sanitize_type(value), **kwargs)
+        self._value += self._sanitize_type(value)
+
+        return self
 
     def sub_val(self, value, **kwargs):
         """
         :type value: _Decimal | float | integer | str
         """
-        return super().sub_val(self._sanitize_type(value), **kwargs)
+        self._value -= self._sanitize_type(value)
+
+        return self
 
 
 class Bool(Abstract):
@@ -684,15 +692,16 @@ class Bool(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        if kwargs.get('default') is None:
-            kwargs['default'] = False
+        kwargs['default'] = kwargs.get('default', False)
 
         super().__init__(name, **kwargs)
 
     def set_val(self, value: bool, **kwargs):
         """Set value of the field.
         """
-        return super().set_val(bool(value), **kwargs)
+        self._value = bool(value)
+
+        return self
 
 
 class StringList(List):

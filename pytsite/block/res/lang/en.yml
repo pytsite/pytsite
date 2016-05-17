@@ -1,0 +1,17 @@
+blocks: 'Blocks'
+block_already_exists: 'Block with same UID already exists'
+
+odm_ui_browser_title_block: 'Blocks'
+odm_ui_form_title_create_block: 'Create block'
+odm_ui_form_title_modify_block: 'Modify block'
+odm_ui_form_title_delete_block: 'Delete block(s)'
+
+odm_ui_permission_create_block: 'Create blocks'
+odm_ui_permission_browse_own_block: 'Browse blocks'
+odm_ui_permission_browse_block: 'Browse ALL blocks'
+odm_ui_permission_modify_own_block: 'Modify blocks'
+odm_ui_permission_modify_block: 'Modify ANY blocks'
+odm_ui_permission_delete_own_block: 'Delete blocks'
+odm_ui_permission_delete_block: 'Delete ANY blocks'
+
+content_permission_set_localization_block: 'Manage localizations of BLOCKS'

@@ -90,6 +90,15 @@ class Modify(_form.Form):
             form_area='footer',
         ))
 
+    def validate(self):
+        # Perform native form validation
+        super().validate()
+
+        # Ask entity to validate the form
+        from ._api import dispense_entity
+        entity = dispense_entity(self._model, self._eid)
+        entity.ui_m_form_validate(self)
+
 
 class MassAction(_form.Form):
     """ODM UI Mass Action Form.

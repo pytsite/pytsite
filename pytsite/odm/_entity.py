@@ -361,8 +361,11 @@ class Entity(_ABC):
             if not self._is_new:
                 self.lock()
 
-            value = self._on_f_set(field_name, value, **kwargs)
-            self.get_field(field_name).set_val(value, **kwargs)
+            hooked_val = self._on_f_set(field_name, value, **kwargs)
+            if value is not None and hooked_val is None:
+                raise RuntimeWarning("_on_f_set() for field '{}.{}' returned None.".format(self._model, field_name))
+
+            self.get_field(field_name).set_val(hooked_val, **kwargs)
 
             if update_state:
                 self._is_modified = True
@@ -393,10 +396,14 @@ class Entity(_ABC):
                 self._cache_pull()
 
             # Get value
-            field_val = self.get_field(field_name).get_val(**kwargs)
+            orig_val = self.get_field(field_name).get_val(**kwargs)
 
             # Pass value through hook method
-            return self._on_f_get(field_name, field_val, **kwargs)
+            hooked_val = self._on_f_get(field_name, orig_val, **kwargs)
+            if orig_val is not None and hooked_val is None:
+                raise RuntimeWarning("_on_f_get() for field '{}.{}' returned None.".format(self._model, field_name))
+
+            return hooked_val
 
         finally:
             if not self._is_new:

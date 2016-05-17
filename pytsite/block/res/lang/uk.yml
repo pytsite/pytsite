@@ -1,0 +1,17 @@
+blocks: 'Блоки'
+block_already_exists: 'Блок з таким же UID вже існує'
+
+odm_ui_browser_title_block: 'Блоки'
+odm_ui_form_title_create_block: 'Новий блок'
+odm_ui_form_title_modify_block: 'Зміна блоку'
+odm_ui_form_title_delete_block: 'Видалення блоків'
+
+odm_ui_permission_create_block: 'Створення блоків'
+odm_ui_permission_browse_own_block: 'Огляд блоків'
+odm_ui_permission_browse_block: 'Огляд ВСІХ блоків'
+odm_ui_permission_modify_own_block: 'Зміна блоків'
+odm_ui_permission_modify_block: 'Зміна БУДЬ-ЯКИХ блоків'
+odm_ui_permission_delete_own_block: 'Видалення блоків'
+odm_ui_permission_delete_block: 'Видалення БУДЬ-ЯКИХ блоків'
+
+content_permission_set_localization_block: 'Управління локалізацією БЛОКІВ'

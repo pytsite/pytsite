@@ -29,7 +29,8 @@ def _clean_tmp_files():
 def _clean_sessions():
     session_path = _reg.get('paths.session')
     ttl = int(_reg.get('router.session.ttl', 21600))  # 6 hours
-    _logger.info('Cleaning up old session data in {}'.format(session_path), __name__)
+
+    _logger.info('Cleaning up session data older {} seconds in {}'.format(ttl, session_path), __name__)
 
     for file_name in _listdir(session_path):
         file_path = _path.join(session_path, file_name)
