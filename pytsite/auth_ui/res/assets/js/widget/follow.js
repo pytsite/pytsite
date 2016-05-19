@@ -25,7 +25,10 @@ $(window).on('pytsite.widget.init:pytsite.auth_ui._widget.Follow', function (e, 
         e.preventDefault();
 
         if (btn.hasClass('following')) {
-            pytsite.ajax.post('pytsite.auth_ui.ep.follow', {
+            if (!confirm(t('pytsite.auth_ui@unfollow_confirmation')))
+                return;
+
+            pytsite.ajax.post('pytsite.auth_ui.ajax.follow', {
                 op: 'unfollow',
                 uid: em.data('userId')
             }).done(function (data) {
@@ -37,7 +40,7 @@ $(window).on('pytsite.widget.init:pytsite.auth_ui._widget.Follow', function (e, 
             });
         }
         else if (btn.hasClass('non-following')) {
-            pytsite.ajax.post('pytsite.auth_ui.ep.follow', {
+            pytsite.ajax.post('pytsite.auth_ui.ajax.follow', {
                 op: 'follow',
                 uid: em.data('userId')
             }).done(function (data) {

@@ -1,6 +1,8 @@
 blocks: 'Блоки'
 block_already_exists: 'Блок с таким же UID уже существует'
 
+odm_ui_permission_group_description: 'Блоки'
+
 odm_ui_browser_title_block: 'Блоки'
 odm_ui_form_title_create_block: 'Создание блока'
 odm_ui_form_title_modify_block: 'Изменение блока'

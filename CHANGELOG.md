@@ -1,4 +1,15 @@
 # PytSite Changelog
+## 0.69 (2016-05-19)
+### Added
+- `odm`: new argument `first_save` in `_after_save()` hook.
+- `auth_ui`: unfollowing confirmation.
+
+### Changed
+- `flag`: improved and refactored.
+
+### Fixed
+- `block`: translations.
+
 
 ## 0.68.2 (2016-05-17)
 ### Fixed

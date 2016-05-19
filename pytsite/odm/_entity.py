@@ -627,6 +627,7 @@ class Entity(_ABC):
             self.lock()
 
         try:
+
             # Pre-save hook
             if not skip_hooks:
                 self._pre_save()
@@ -654,22 +655,23 @@ class Entity(_ABC):
                 _logger.error('BSON error: {}. Document dump: {}'.format(e, data), __name__)
                 raise e
 
-            if not skip_hooks:
-                _events.fire('pytsite.odm.entity.save', entity=self)
-                _events.fire('pytsite.odm.entity.save.' + self.model, entity=self)
-
             # Saved entity is not 'new'
             if self._is_new:
+                first_save = True
                 self._id = data['_id']
                 self._is_new = False
-
-            # Saved entity is not 'modified'
-            self._is_modified = False
+            else:
+                first_save = False
 
             # After-save hook
             if not skip_hooks:
                 self._cache_push(True)  # It is important to push cache before calling hook
-                self._after_save()
+                self._after_save(first_save)
+                _events.fire('pytsite.odm.entity.save', entity=self)
+                _events.fire('pytsite.odm.entity.save.' + self.model, entity=self)
+
+            # Saved entity is not 'modified'
+            self._is_modified = False
 
             # Push cache
             self._cache_push(True)
@@ -694,7 +696,7 @@ class Entity(_ABC):
         """
         pass
 
-    def _after_save(self):
+    def _after_save(self, first_save: bool = False):
         """After save hook.
         """
         pass

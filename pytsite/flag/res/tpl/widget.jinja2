@@ -1,9 +1,0 @@
-{% if not current_user.is_anonymous %}
-    <a href="#" title="{{ t('pytsite.flag@flag') }}">
-{% endif %}
-
-<i class="{{ widget.icon }}"></i> <span class="count">{{ widget.count }}</span>
-
-{% if not current_user.is_anonymous %}
-    </a>
-{% endif %}

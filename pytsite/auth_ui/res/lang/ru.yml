@@ -36,6 +36,7 @@ followers: 'Подписчики'
 follows: 'Подписан'
 country: 'Страна'
 city: 'Город'
+unfollow_confirmation: 'Вы действительно хотите отписаться от этого пользователя?'
 
 odm_ui_permission_group_description: 'Безопасность'
 

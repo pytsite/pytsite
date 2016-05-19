@@ -36,6 +36,7 @@ followers: 'Followers'
 follows: 'Follows'
 country: 'Country'
 city: 'City'
+unfollow_confirmation: 'Do you really want to stop following this user?'
 
 odm_ui_permission_group_description: 'Security'
 

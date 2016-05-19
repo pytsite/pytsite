@@ -233,7 +233,7 @@ class Base(_odm_ui.UIEntity):
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
 
-    def _after_save(self):
+    def _after_save(self, first_save: bool = False):
         """Hook.
         """
         # Creating back links in images
@@ -507,17 +507,17 @@ class Content(Base):
                 for tag in self.tags:
                     tag.f_add('sections', self.section).save()
 
-    def _after_save(self):
+    def _after_save(self, first_save: bool = False):
         """Hook.
         """
-        super()._after_save()
+        super()._after_save(first_save)
 
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
             target = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id}, True)
             self.route_alias.f_set('target', target).save()
 
-        if self.is_new:
+        if first_save:
             # Clean up not fully filled route aliases
             f = _route_alias.find()
             f.where('target', '=', 'NONE').where('_created', '<', _datetime.now() - _timedelta(1))

@@ -1,6 +1,6 @@
 """Flag Package Widgets.
 """
-from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, assetman as _assetman
+from pytsite import auth as _auth, widget as _widget, html as _html, tpl as _tpl, odm as _odm
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -8,26 +8,32 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Flag(_widget.Base):
+class Like(_widget.Base):
     """Flag Widget.
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
-        :param entity: pytsite.odm.Model
+        :param entity: _odm.Entity
         :param icon: str
         """
         super().__init__(uid, **kwargs)
 
+        self._icon = kwargs.get('icon', 'fa fa-fw fa-star')
         self._entity = kwargs.get('entity')
+        self._counter = kwargs.get('counter', True)
+
         if not self._entity:
             raise ValueError('Entity is not specified.')
 
-        _assetman.add('pytsite.flag@css/common.css')
+        self._css += ' widget-flag-like'
 
-        self._icon = kwargs.get('icon', 'fa fa-star')
+        self._assets.extend([
+            'pytsite.flag@css/like.css',
+            'pytsite.flag@js/like.js',
+        ])
 
     @property
-    def entity(self) -> str:
+    def entity(self) -> _odm.Entity:
         return self._entity
 
     @property
@@ -38,14 +44,23 @@ class Flag(_widget.Base):
     def count(self) -> int:
         return _api.count(self._entity)
 
+    @property
+    def flagged(self) -> int:
+        return _api.is_flagged(self._entity, _auth.get_current_user())
+
+    @property
+    def counter(self) -> bool:
+        return self._counter
+
     def get_html_em(self, **kwargs) -> _html.Element:
         current_user = _auth.get_current_user()
 
-        css = 'widget widget-flag'
-        if _api.is_flagged(self._entity, current_user):
-            css += ' flagged'
+        if self.flagged:
+            self._css += ' flagged'
 
-        return _html.Span(_tpl.render('pytsite.flag@widget', {
+        self._data['entity'] = '{}:{}'.format(self._entity.model, self._entity.id)
+
+        return _html.TagLessElement(_tpl.render('pytsite.flag@like', {
             'widget': self,
             'current_user': current_user
-        }), cls=css, data_entity='{}:{}'.format(self._entity.model, self._entity.id))
+        }))

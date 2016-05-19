@@ -8,5 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def odm_entity_delete(entity: _odm=_odm.Entity):
+def pytsite_odm_entity_delete(entity: _odm=_odm.Entity):
+    """Delete all related flags on entity deletion.
+    """
     _api.delete(entity)

@@ -1,0 +1,10 @@
+{% if not current_user.is_anonymous and widget.enabled %}
+    <a href="#" title="{% if widget.flagged %}{{ t('pytsite.flag@dislike') }}{% else %}{{ t('pytsite.flag@like') }}{% endif %}">
+{% endif %}
+
+<i class="icon {{ widget.icon }}"></i>
+{% if widget.counter %}<span class="count">{{ widget.count }}</span>{% endif %}
+
+{% if not current_user.is_anonymous and widget.enabled %}
+    </a>
+{% endif %}

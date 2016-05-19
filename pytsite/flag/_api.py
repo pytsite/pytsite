@@ -1,12 +1,12 @@
 """PytSite Flag API.
 """
-from pytsite import odm as _odm, auth as _auth, cache as _cache
+from pytsite import odm as _odm, auth as _auth, cache as _cache, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_CACHE_TTL = 1800  # 30 min
+_CACHE_TTL = 300  # 5 min
 _cache_p = _cache.create_pool('pytsite.flag')
 
 
@@ -67,26 +67,29 @@ def is_flagged(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'de
     return bool(f.count())
 
 
-def flag(entity: _odm.Entity, author: _auth.model.User, flag_type: str = 'default', score: float = 1.0):
+def flag(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'default', score: float = 1.0):
     """Flag the entity.
     """
-    if author.is_anonymous:
+    if user.is_anonymous or is_flagged(entity, user):
         return
 
-    if not is_flagged(entity, author):
-        e = _odm.dispense('flag')
-        e.f_set('entity', entity).f_set('author', author).f_set('type', flag_type).f_set('score', score)
-        e.save()
+    e = _odm.dispense('flag')
+    e.f_set('entity', entity).f_set('author', user).f_set('type', flag_type).f_set('score', score)
+    e.save()
+
+    _events.fire('pytsite.flag.flag', entity=entity, user=user, flag_type=flag_type, score=score)
 
 
-def unflag(entity: _odm.Entity, author: _auth.model.User, flag_type: str = 'default'):
+def unflag(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'default'):
     """Remove flag.
     """
-    if author.is_anonymous:
+    if user.is_anonymous or not is_flagged(entity, user):
         return
 
-    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', author).where('type', '=', flag_type)
+    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', user).where('type', '=', flag_type)
     f.first().delete()
+
+    _events.fire('pytsite.flag.unflag', entity=entity, user=user, flag_type=flag_type)
 
 
 def toggle(entity: _odm.Entity, author: _auth.model.User, flag_type: str = 'default', score: float = 1.0) -> bool:

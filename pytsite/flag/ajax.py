@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def toggle(args: dict, inp: dict) -> dict:
+def like(args: dict, inp: dict) -> dict:
     current_user = _auth.get_current_user()
     entity = _odm.get_by_ref(inp.get('entity'))
 

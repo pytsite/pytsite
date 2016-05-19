@@ -50,7 +50,7 @@ def __init():
     # robots.txt rules
     robots.disallow(base_path + '/')
 
-    # Browser API endpoints
-    ajax.register_ep('pytsite.auth_ui.ep.follow')
+    # AJAX API endpoints
+    ajax.register_ep('pytsite.auth_ui.ajax.follow')
 
 __init()

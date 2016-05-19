@@ -276,7 +276,7 @@ class Base(_ABC):
         return self._replaces
 
     @replaces.setter
-    def replaces(self, value: str) -> str:
+    def replaces(self, value: str):
         self._replaces = value
 
     @property
@@ -306,6 +306,14 @@ class Base(_ABC):
         :type value: pytsite.widget.Container
         """
         self._parent = value
+
+    @property
+    def enabled(self) -> bool:
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value: bool):
+        self._enabled = value
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.

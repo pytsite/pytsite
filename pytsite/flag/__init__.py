@@ -21,8 +21,10 @@ def __init():
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
-    events.listen('pytsite.odm.entity.delete', _eh.odm_entity_delete)
+    # Event listeners
+    events.listen('pytsite.odm.entity.delete', _eh.pytsite_odm_entity_delete)
 
-    ajax.register_ep('pytsite.flag.ep.toggle')
+    # AJAX endpoints
+    ajax.register_ep('pytsite.flag.ajax.like')
 
 __init()
