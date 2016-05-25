@@ -20,7 +20,7 @@
                             <div class="row">
                                 {% for follower in user.f_get('followers', sort_by='last_login', sort_reverse=True, limit=6) %}
                                     <div class="item col-xs-B-6 col-xs-6 col-sm-3 col-lg-2 text-center">
-                                        <a href="{{ follower.profile_view_url }}">
+                                        <a href="{{ follower.url }}">
                                             <div class="image">
                                                 {{ follower.picture.get_responsive_html(aspect_ratio=1) }}
                                             </div>
@@ -45,7 +45,7 @@
                             <div class="row">
                                 {% for follower in user.f_get('follows', sort_by='last_login', sort_reverse=True, limit=6) %}
                                     <div class="item col-xs-B-6 col-xs-6 col-sm-3 col-lg-2 text-center">
-                                        <a href="{{ follower.profile_view_url }}">
+                                        <a href="{{ follower.url }}">
                                             <div class="image">
                                                 {{ follower.picture.get_responsive_html(aspect_ratio=1) }}
                                             </div>

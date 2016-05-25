@@ -35,7 +35,6 @@ pytsite.google.maps.Map = function (mapNode, options) {
         },
         trackPosition: false,
         trackPositionOptions: {
-            updateMarker: true,
             onSuccess: null,
             onError: null
         }
@@ -51,8 +50,12 @@ pytsite.google.maps.Map = function (mapNode, options) {
 
     // Create map center control
     if (self.options.mapCenterControl) {
-        var btn = $('<a class="pytsite-google-map-control center-map" href="#"><i class="fa fa-fw fa-3x fa-crosshairs"></i></a>');
+        // Create and add button
+        var btn = $('<a class="pytsite-google-map-control center-map hidden" href="#">' +
+            '<i class="fa fa-fw fa-3x fa-crosshairs"></i></a>');
         self.map.controls[google.maps.ControlPosition.RIGHT_TOP].push(btn[0]);
+
+        // Center the map and hide the button after click on it
         btn.click(function (e) {
             e.preventDefault();
             self.setCenterToCurrentPosition();
@@ -62,6 +65,7 @@ pytsite.google.maps.Map = function (mapNode, options) {
         });
         self.mapCenterControl = btn;
 
+        // Show the button on map dragging
         self.map.addListener('drag', function () {
             if (self.mapCenterControl) {
                 self.mapCenterControl.removeClass('hidden');
@@ -69,7 +73,7 @@ pytsite.google.maps.Map = function (mapNode, options) {
         });
     }
 
-    // Create current location marker
+    // Create current position marker
     if (self.options.currentPositionMarker) {
         $.extend(self.options.currentPositionMarkerOptions, {
             position: self.currentPosition,
@@ -95,7 +99,7 @@ pytsite.google.maps.Map = function (mapNode, options) {
                 self.currentPosition = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
 
                 // Update current position marker
-                if (self.options.trackPositionOptions.updateMarker && self.currentPositionMarker) {
+                if (self.currentPositionMarker) {
                     self.currentPositionMarker.setPosition(self.currentPosition);
                 }
 
@@ -105,7 +109,7 @@ pytsite.google.maps.Map = function (mapNode, options) {
                 }
 
                 // Move center to the current position
-                if (self.mapCenterControl && self.mapCenterControl.hasClass('hidden')) {
+                if (self.options.mapCenterControl && self.mapCenterControl.hasClass('hidden')) {
                     self.setCenterToCurrentPosition();
                 }
 
@@ -125,7 +129,7 @@ pytsite.google.maps.Map = function (mapNode, options) {
     self.setCenterToCurrentPosition = function () {
         self.map.setCenter(self.currentPosition);
 
-        if (self.options.trackPosition && self.options.mapCenterControl) {
+        if (self.options.mapCenterControl) {
             self.mapCenterControl.addClass('hidden');
         }
     };

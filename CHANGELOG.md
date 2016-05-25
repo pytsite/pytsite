@@ -1,6 +1,11 @@
 # PytSite Changelog
-## 0.69.1 (2016-05-25)
+## 0.69.2 (2016-05-25)
+### Fixed
+- `admin`, `auth_ui`: incorrect profile links.
+- `google`: map current location tracking.
 
+
+## 0.69.1 (2016-05-25)
 ### Added
 - `odm_ui`: support for redirection to newly created entity after submitting its form.
 
