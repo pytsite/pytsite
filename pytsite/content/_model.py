@@ -265,7 +265,7 @@ class Base(_odm_ui.UIEntity):
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
-        return (self.title,)
+        return self.title,
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
@@ -289,6 +289,7 @@ class Base(_odm_ui.UIEntity):
                 label=self.t('images'),
                 value=self.f_get('images'),
                 max_file_size=5,
+                max_files=50,
             ))
             if self.get_field('images').nonempty:
                 frm.add_rule('images', _validation.rule.NonEmpty())
@@ -353,8 +354,6 @@ class Content(Base):
         self.define_field(_odm.field.Integer('views_count'))
         self.define_field(_odm.field.Integer('comments_count'))
         self.define_field(_odm.field.StringList('ext_links'))
-        self.define_field(_odm.field.Virtual('url'))
-        self.define_field(_odm.field.Virtual('edit_url'))
 
         for lng in _lang.langs():
             self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
@@ -386,13 +385,15 @@ class Content(Base):
     def tags(self) -> _Tuple[Tag]:
         return self.f_get('tags', sort_by='weight', sort_reverse=True)
 
-    @property
-    def url(self) -> str:
-        return self.f_get('url', relative=False)
+    def ui_view_url(self) -> str:
+        if not self.is_new:
+            target_path = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)}, True)
+            r_alias = _route_alias.find_by_target(target_path, self.language)
+            value = r_alias.alias if r_alias else target_path
 
-    @property
-    def edit_url(self) -> str:
-        return self.f_get('edit_url')
+            return _router.url(value, lang=self.language)
+        else:
+            raise RuntimeError('Cannot generate view URL for non-saved entity.')
 
     @property
     def route_alias(self) -> _route_alias.model.RouteAlias:
@@ -438,7 +439,6 @@ class Content(Base):
         """Hook.
         """
         if field_name == 'route_alias' and (isinstance(value, str) or value is None):
-            # Generate route alias string via hook method
             if value is None:
                 value = ''
 
@@ -471,21 +471,7 @@ class Content(Base):
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
-        if field_name == 'url' and not self.is_new:
-            target_path = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)}, True)
-            r_alias = _route_alias.find_by_target(target_path, self.language)
-            value = r_alias.alias if r_alias else target_path
-
-            # Transform path to absolute URL
-            return _router.url(value, lang=self.language, relative=kwargs.get('relative', False))
-
-        elif field_name == 'edit_url' and self.id:
-            return _router.ep_url('pytsite.odm_ui.ep.m_form', {
-                'model': self.model,
-                'id': self.id
-            })
-
-        elif field_name == 'tags' and kwargs.get('as_string'):
+        if field_name == 'tags' and kwargs.get('as_string'):
             return ','.join([tag.title for tag in self.f_get('tags')])
 
         else:
@@ -721,7 +707,7 @@ class Content(Base):
                 uid='status',
                 weight=950,
                 label=self.t('status'),
-                value='published' if self.is_new else self.status,
+                value=self.status,
                 h_size='col-sm-4 col-md-3 col-lg-2',
                 required=True,
             ))
@@ -776,13 +762,13 @@ class Content(Base):
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-    def as_dict(self, include_fields: tuple = (), **kwargs):
+    def as_dict(self, fields: tuple = (), **kwargs):
         """Get serializable representation of a product.
         """
-        r = super().as_dict(include_fields)
+        r = super().as_dict(fields)
 
         # Images
-        if self.has_field('images') and 'images' in include_fields:
+        if self.has_field('images') and 'images' in fields:
             r['images'] = []
             for img in self.images:
                 img_dict = img.as_dict(('path', 'width', 'height', 'mime', 'length', 'name', 'description', 'url'))
@@ -821,7 +807,7 @@ class Content(Base):
                     orig_str = '{}/{}'.format(self.model, orig_str)
             else:
                 # Without entity's title we cannot construct route alias string
-                raise ValueError('Cannot generate route alias because title is empty.')
+                raise RuntimeError('Cannot generate route alias because title is empty.')
 
         return orig_str
 

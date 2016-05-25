@@ -141,7 +141,10 @@ class TypeaheadText(Text):
             raise ValueError('AJAX endpoint is not specified.')
 
         self.assets.extend(_browser.get_assets('typeahead'))
-        self.assets.append('pytsite.widget@js/typeahead-text.js')
+        self.assets.extend([
+            'pytsite.widget@css/typeahead-text.css',
+            'pytsite.widget@js/typeahead-text.js',
+        ])
 
         self._css = ' '.join((self._css, 'widget-input-typeahead-text'))
 

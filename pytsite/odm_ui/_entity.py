@@ -83,18 +83,6 @@ class UIMixin:
         if hasattr(self, 'id'):
             return str(self.id)
 
-    def ui_m_form_url(self, args: dict = None):
-        if hasattr(self, 'model') and hasattr(self, 'id'):
-            if not args:
-                args = {}
-
-            args.update({'model': self.model, 'id': str(self.id)})
-
-            return _router.ep_url('pytsite.odm_ui.ep.m_form', args)
-
-        raise NotImplementedError()
-
-
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
@@ -131,6 +119,40 @@ class UIMixin:
         else:
             raise RuntimeError('Not implemented yet.')
 
+    def ui_m_form_url(self, args: dict = None):
+        if hasattr(self, 'model') and hasattr(self, 'id'):
+            if not args:
+                args = {}
+
+            args.update({'model': self.model, 'id': str(self.id)})
+
+            return _router.ep_url('pytsite.odm_ui.ep.m_form', args)
+
+        else:
+            raise RuntimeError('Not implemented yet.')
+
+    def ui_view_url(self) -> str:
+        raise RuntimeError('Not implemented yet.')
+
+    @property
+    def url(self) -> str:
+        return self.ui_view_url()
+
+    @property
+    def edit_url(self) -> str:
+        return self.ui_m_form_url()
+
 
 class UIEntity(_odm.Entity, UIMixin):
-    pass
+    def as_dict(self, fields: tuple = (), **kwargs) -> dict:
+        r = super().as_dict(fields, **kwargs)
+
+        # View URL
+        if 'url' in fields:
+            r['url'] = self.url
+
+        # Edit URL
+        if 'edit_url' in fields:
+            r['edit_url'] = self.edit_url
+
+        return r

@@ -13,7 +13,7 @@ def profile_view(args: dict, inp: dict) -> str:
     """Profile view endpoint.
     """
     current_user = _auth.get_current_user()
-    profile_owner = _auth.get_user(nickname=args.get('nickname')) # type: _model.UserUI
+    profile_owner = _auth.get_user(nickname=args.get('nickname'))  # type: _model.UserUI
 
     if _tpl.tpl_exists('app@auth_ui/profile-view'):
         tpl_name = 'app@auth_ui/profile-view'

@@ -48,12 +48,7 @@ class Form:
         self._modal_close_btn = kwargs.get('modal_close_btn', True)
         self._reload_on_forward = kwargs.get('reload_on_forward', False)
         self._prevent_submit = kwargs.get('prevent_submit', False)
-
-        # Redirect info
-        if '__redirect' in _router.request().inp:
-            self._redirect = _router.request().inp['__redirect']
-        else:
-            self._redirect = kwargs.get('redirect')
+        self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
 
         # AJAX endpoint to load form's widgets
         self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form.ajax.get_widgets')
@@ -150,12 +145,8 @@ class Form:
     @property
     def action(self) -> str:
         """Get form action URL.
-        """
-        r = self._action
-        if self._redirect:
-            r = _router.url(r, query={'__redirect': self._redirect})
-
-        return r
+         """
+        return _router.url(self._action, query={'__redirect': self._redirect}) if self._redirect else self._action
 
     @action.setter
     def action(self, value):
@@ -443,7 +434,7 @@ class Form:
 
     def hide_widget(self, uid):
         """Hide a widget.
-        """
+         """
         self.get_widget(uid).hide()
 
         return self
@@ -451,8 +442,7 @@ class Form:
     def get_widgets(self, area: str = None, step: int = None, recursive: bool = False,
                     _container: _widget.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Base]:
         """Get widgets.
-        :type root _Union[pytsite.form.Form, pytsite.widget.Container]
-        """
+         """
         # Only if this is NOT recursive call
         if not _container:
             self.setup_widgets()

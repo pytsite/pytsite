@@ -5,7 +5,7 @@ from frozendict import frozendict as _frozendict
 from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from pytsite import image as _image, odm as _odm, util as _util, router as _router, geo_ip as _geo_ip, \
-    permission as _permission
+    permission as _permission, events as _events
 
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
@@ -242,10 +242,7 @@ class User(_odm.Entity):
                 raise Exception("Invalid user status: '{}'.".format(value))
 
         if field_name == 'nickname':
-            from ._api import user_nickname_rule
-            value = value[:24]
-            user_nickname_rule.value = value
-            user_nickname_rule.validate()
+            value = _util.transform_str_2(value[:32])
 
         return value
 
@@ -253,7 +250,7 @@ class User(_odm.Entity):
         """Hook.
         """
         if self.login == ANONYMOUS_USER_LOGIN:
-            raise Exception('Anonymous user cannot be saved.')
+            raise RuntimeError('Anonymous user cannot be saved.')
 
         if not self.password:
             self.f_set('password', '')
@@ -265,6 +262,10 @@ class User(_odm.Entity):
             m = _hashlib.md5()
             m.update(self.login.encode('UTF-8'))
             self.f_set('nickname', m.hexdigest())
+
+    def _after_save(self, first_save: bool = False):
+        if first_save:
+            _events.fire('pytsite.auth.user.create', user=self)
 
     def _pre_delete(self, **kwargs):
         """Hook.

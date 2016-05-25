@@ -2,7 +2,7 @@
 """
 from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
     http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui, form as _form, \
-    permission as _permission, auth_ui as _auth_ui
+    permission as _permission, admin as _admin
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -16,20 +16,14 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     def _setup_fields(self):
         super()._setup_fields()
         self.define_field(_odm.field.Bool('profile_is_public'))
-        self.define_field(_odm.field.Virtual('profile_view_url'))
-        self.define_field(_odm.field.Virtual('profile_edit_url'))
 
     @property
     def profile_is_public(self) -> bool:
         return self.f_get('profile_is_public')
 
     @property
-    def profile_view_url(self) -> str:
-        return self.f_get('profile_view_url')
-
-    @property
-    def profile_edit_url(self) -> str:
-        return self.f_get('profile_edit_url')
+    def edit_url(self) -> str:
+        return self.ui_m_form_url()
 
     @classmethod
     def ui_browser_setup(cls, browser):
@@ -42,16 +36,11 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                               'last_activity'
         browser.default_sort_field = 'last_activity'
 
-    def _on_f_get(self, field_name: str, value, **kwargs):
-        if field_name == 'profile_view_url':
-            return _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
-        elif field_name == 'profile_edit_url':
-            return _router.ep_url('pytsite.auth_ui.ep.profile_edit', {
-                'nickname': self.nickname,
-                '__redirect': _router.current_url(),
-            })
-        else:
-            return super()._on_f_get(field_name, value, **kwargs)
+    def ui_view_url(self) -> str:
+        return _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
+
+    def ui_m_form_url(self, args: dict = None) -> str:
+        return _router.ep_url('pytsite.auth_ui.ep.profile_edit', {'nickname': self.nickname})
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -80,9 +69,8 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
-        current_user = _auth.get_current_user()  # type: _auth_ui.model.UserUI
-        if not current_user.is_admin:
-            frm.redirect = current_user.profile_view_url
+        if not _router.current_path().startswith(_admin.base_path()):
+            frm.redirect = 'ENTITY_VIEW'
 
         frm.area_footer_css += ' text-center'
         frm.area_body_css += ' row'
@@ -285,6 +273,19 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """Get delete form description.
         """
         return self.login
+
+    def as_dict(self, fields: tuple = (), **kwargs) -> dict:
+        r = super().as_dict(fields, **kwargs)
+
+        # View URL
+        if 'url' in fields:
+            r['url'] = self.url
+
+        # Edit URL
+        if 'edit_url' in fields:
+            r['edit_url'] = self.edit_url
+
+        return r
 
 
 class RoleUI(_auth.model.Role, _odm_ui.UIMixin):

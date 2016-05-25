@@ -5,7 +5,7 @@ from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, http as _http, \
-    logger as _logger, router as _router, html as _html
+    logger as _logger, router as _router, html as _html, util as _util
 from .. import _api, _error
 from .abstract import AbstractDriver
 
@@ -99,7 +99,7 @@ class Driver(AbstractDriver):
                 user = _api.create_user(email)
 
             # Picture
-            if not user.f_get('picture'):
+            if not user.picture:
                 picture_url = ulogin_data['photo_big'] if 'photo_big' in ulogin_data else None
                 if not picture_url:
                     picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
@@ -112,6 +112,12 @@ class Driver(AbstractDriver):
                 user.f_set('first_name', ulogin_data['first_name'])
             if not user.last_name and 'last_name' in ulogin_data:
                 user.f_set('last_name', ulogin_data['last_name'])
+
+            # Alter nickname
+            if user.is_new:
+                nickname = _util.transform_str_2(user.full_name)
+                if nickname and not _api.get_user(nickname=nickname):
+                    user.f_set('nickname', nickname)
 
             # Gender
             if not user.gender and 'sex' in ulogin_data:

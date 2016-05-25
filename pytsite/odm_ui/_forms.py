@@ -60,7 +60,9 @@ class Modify(_form.Form):
 
         # Default redirect
         if not self._redirect:
-            self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
+            self._redirect = _router.request().inp.get('__redirect')
+            if not self._redirect:
+                self._redirect = 'ENTITY_VIEW'
 
         # Action URL
         self._action = _router.ep_url('pytsite.odm_ui.ep.m_form_submit', {
@@ -80,12 +82,18 @@ class Modify(_form.Form):
         _events.fire('pytsite.odm_ui.{}.m_form_setup_widgets'.format(self._model), frm=self, entity=entity)
 
         # Cancel button
+        cancel_href = '#'
+        if not self.modal:
+            cancel_href = _router.request().inp.get('__redirect')
+            if not cancel_href:
+                cancel_href = _router.base_url() if entity.is_new else entity.ui_view_url()
+
         self.add_widget(_widget.button.Link(
             weight=10,
             uid='action-cancel',
             value=_lang.t('pytsite.odm_ui@cancel'),
             icon='fa fa-remove',
-            href=self._redirect if not self.modal else '#',
+            href=cancel_href,
             dismiss='modal',
             form_area='footer',
         ))

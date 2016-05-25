@@ -124,14 +124,11 @@ def create_user(login: str, password: str = None) -> _model.User:
         if _router.request():
             user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
 
-        user.save()
-        _events.fire('pytsite.auth.user.create', user=user)
-
     return user
 
 
 def get_user(login: str = None, uid: str = None, nickname: str = None) -> _model.User:
-    """Get user by login or by uid.
+    """Get user by login, nickname or by uid.
     """
     # Don't cache finder results due to frequent user updates in database
     f = _odm.find('user').cache(0)
@@ -149,7 +146,7 @@ def create_role(name: str, description: str = ''):
     """Create new role.
     """
     if get_role(name=name):
-        raise Exception("Role with name '{}' already exists.".format(name))
+        raise RuntimeError("Role with name '{}' already exists.".format(name))
 
     role = _odm.dispense('role')
     return role.f_set('name', name).f_set('description', description)

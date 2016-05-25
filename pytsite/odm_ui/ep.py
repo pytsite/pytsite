@@ -47,17 +47,20 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     model = args.get('model')
     entity_id = args.get('id')
 
-    # Re-constructing the form
-    frm = _api.get_m_form(model, entity_id).fill(inp, mode='validation')
+    # Creating the form
+    frm = _api.get_m_form(model, entity_id)
 
-    # Validate the form
+    # Filling form in 'validation' mode
+    frm.fill(inp, mode='validation')
+
+    # Validating the form
     try:
         frm.validate()
     except _form.error.ValidationError as e:
         _router.session().add_error(str(e.errors))
         raise _http.error.InternalServerError()
 
-    # Re-fill form in 'normal' mode
+    # Refill form in 'normal' mode
     frm.fill(inp)
 
     # Dispense entity
@@ -75,9 +78,13 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
         # Save entity
         entity.save()
         _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+
     except Exception as e:
         _router.session().add_error(str(e))
         _logger.error(str(e), __name__)
+
+    if frm.redirect == 'ENTITY_VIEW':
+        frm.redirect = entity.ui_view_url()
 
     return _http.response.Redirect(frm.redirect)
 
@@ -126,6 +133,6 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
         else:
             _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
-    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model}))
+    default_redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
 
-    return _http.response.Redirect(redirect)
+    return _http.response.Redirect(inp.get('__redirect', default_redirect))

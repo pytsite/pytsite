@@ -14,6 +14,7 @@ __license__ = 'MIT'
 class Browser:
     """ODM Entities Browser.
     """
+
     def __init__(self, model: str):
         """Init.
         """
@@ -43,7 +44,11 @@ class Browser:
 
         # 'Create' toolbar button
         if self._mock.ui_can_be_created():
-            create_form_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {'model': self._model, 'id': '0'})
+            create_form_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {
+                'model': self._model,
+                'id': '0',
+                '__redirect': _router.current_url(),
+            })
             title = _lang.t('pytsite.odm_ui@create')
             btn = _html.A(href=create_form_url, cls='btn btn-default add-button', title=title)
             btn.append(_html.I(cls='fa fa-fw fa-plus'))
@@ -203,8 +208,8 @@ class Browser:
 
         return self._toolbar.render() + table.render()
 
-    def get_rows(self, offset: int=0, limit: int=0, sort_field: str=None, sort_order: str=None,
-                 search: str=None) -> list:
+    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: str = None,
+                 search: str = None) -> list:
         """Get browser rows.
         """
         r = {'total': 0, 'rows': []}
@@ -243,9 +248,9 @@ class Browser:
                 continue
 
             if not row:
-                raise Exception("'ui_browser_get_row()' returned nothing.")
+                raise RuntimeError("'ui_browser_get_row()' returned nothing.")
             if len(row) != len(self.data_fields):
-                raise Exception("'ui_browser_get_row()' returned invalid number of cells.")
+                raise RuntimeError("'ui_browser_get_row()' returned invalid number of cells.")
 
             # Data TDs
             cell = {}
@@ -281,15 +286,25 @@ class Browser:
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
         if entity.ui_can_be_modified():
+            m_form_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {
+                'model': entity.model,
+                'id': str(entity.id),
+                '__redirect': _router.ep_url('pytsite.odm_ui.ep.browse', {'model': entity.model}),
+            })
             title = _lang.t('pytsite.odm_ui@modify')
-            a = _html.A(cls='btn btn-xs btn-default', href=entity.ui_m_form_url(), title=title)
+            a = _html.A(cls='btn btn-xs btn-default', href=m_form_url, title=title)
             a.append(_html.I(cls='fa fa-edit'))
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
         if entity.ui_can_be_deleted():
+            d_form_url = _router.ep_url('pytsite.odm_ui.ep.d_form', {
+                'model': entity.model,
+                'ids': str(entity.id),
+                '__redirect': _router.ep_url('pytsite.odm_ui.ep.browse', {'model': entity.model}),
+            })
             title = _lang.t('pytsite.odm_ui@delete')
-            a = _html.A(cls='btn btn-xs btn-danger', href=entity.ui_d_form_url(), title=title)
+            a = _html.A(cls='btn btn-xs btn-danger', href=d_form_url, title=title)
             a.append(_html.I(cls='fa fa-remove'))
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))

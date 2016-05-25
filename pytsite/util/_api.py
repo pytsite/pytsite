@@ -279,6 +279,14 @@ def transliterate(text: str)->str:
 
 def transform_str_1(s: str) -> str:
     """Transform a string, variant 1.
+
+    1. Remove some "special" chars except slashes
+    2. Lowercase
+    3. Transliterate
+    4. Replace multiple slashes with single ones
+    5. Replace all non-alphanumeric chars with hyphens
+    6. Replace multiple hyphens with single ones
+    7. Remove leading and trailing hyphens
     """
     mapping = {
         '!': '', '@': '', '#': '', '$': '', '%': '', '^': '', '&': '', '*': '', '(': '', ')': '', '_': '',
@@ -300,6 +308,9 @@ def transform_str_1(s: str) -> str:
 
 def transform_str_2(s: str) -> str:
     """Transform a string, variant 2.
+
+    1. transform_1()
+    2. Replace slashes with hyphens
     """
     return _re.sub('/', '-', transform_str_1(s))
 

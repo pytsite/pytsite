@@ -1,4 +1,21 @@
 # PytSite Changelog
+## 0.69.1 (2016-05-25)
+
+### Added
+- `odm_ui`: support for redirection to newly created entity after submitting its form.
+
+### Changed
+- `auth_ui`:
+    - `model.User.profile_view_url` now is `model.User.url`;
+    - `model.User.profile_edit_url` now is `model.User.edit_url`.
+
+### Fixed
+- `auth`: nickname generation.
+- `content`: default max files value while setting widgets in ODM UI form of `model.Base`.
+- `odm_ui`: 'Cancel' button URL on modify forms. 
+- `widget`: CSS in 'input.TypeaheadText'.
+
+
 ## 0.69 (2016-05-19)
 ### Added
 - `odm`: new argument `first_save` in `_after_save()` hook.
