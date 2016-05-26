@@ -40,6 +40,7 @@ class Form:
 
         self._uid = uid or _util.md5_hex_digest(self.cid)
         self._name = kwargs.get('name') or self._uid
+        self._path = kwargs.get('path', _router.current_path(True))
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', '#')
         self._steps = kwargs.get('steps', 1)
@@ -300,6 +301,10 @@ class Form:
     def data(self) -> dict:
         return self._data
 
+    @property
+    def path(self) -> str:
+        return self._path
+
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
@@ -398,14 +403,14 @@ class Form:
         if root is self and uid in self._widgets:
             return self._widgets[uid]
 
-        if root is self and uid not in self._widgets:
-            for w in root._widgets.values():
+        elif root is self and uid not in self._widgets:
+            for w in self._widgets.values():
                 if isinstance(w, _widget.Container):
                     r = self._search_widget(w, uid)
                     if r:
                         return r
 
-        if isinstance(root, _widget.Container):
+        elif isinstance(root, _widget.Container):
             for w in root.get_widgets().values():
                 if w.uid == uid:
                     return w

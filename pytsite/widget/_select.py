@@ -51,9 +51,14 @@ class Select(_input.Input):
         if type(self._items) not in (list, tuple):
             raise TypeError('List or tuple expected.')
 
+        self._append_none_item = kwargs.get('append_none_item', True)
+
     def _get_select_html_em(self) -> _html.Element:
         select = _html.Select(name=self.name, cls='form-control', required=self._required)
-        select.append(_html.Option('--- ' + _lang.t('pytsite.widget@select_none_item') + ' ---', value=''))
+
+        if self._append_none_item:
+            select.append(_html.Option('--- ' + _lang.t('pytsite.widget@select_none_item') + ' ---', value=''))
+
         for item in self._items:
             option = _html.Option(item[1], value=item[0])
             if item[0] == self._value:

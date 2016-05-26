@@ -35,7 +35,10 @@ class Modify(_form.Form):
         """
         from ._api import dispense_entity
 
-        entity = dispense_entity(self._model, self._eid)
+        try:
+            entity = dispense_entity(self._model, self._eid)
+        except _odm.error.EntityNotFound:
+            raise _http.error.NotFound()
 
         # Check if entities of this model can be created
         if not self._eid and not entity.ui_can_be_created():

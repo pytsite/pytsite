@@ -1,4 +1,17 @@
 # PytSite Changelog
+## 0.69.3 (2016-05-26)
+### Added
+- `wallet`: currency select in `widget.MoneyInput`.
+- `form`: new property: `Form.path`.
+- `currency`: sorting currencies on add.
+
+### Fixed
+- `odm_ui`:
+    - entities deletion via AJAX requests;
+    - checking permissions on entities deletion.
+- `auth_ui`: profile edit button URL in `widget.Profile` template.
+
+
 ## 0.69.2 (2016-05-25)
 ### Fixed
 - `admin`, `auth_ui`: incorrect profile links.

@@ -18,6 +18,8 @@ __main = None
 def define(code: str):
     """Define a currency.
     """
+    global _currencies
+
     if code in _currencies:
         raise _error.CurrencyAlreadyDefined("Currency '{}' is already defined.".format(code))
 
@@ -25,6 +27,8 @@ def define(code: str):
 
     if not get_main():
         set_main(code)
+
+    _currencies = sorted(_currencies)
 
 
 def get_all(include_main: bool = True) -> _Tuple[str]:

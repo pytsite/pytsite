@@ -2,7 +2,7 @@
 """
 from decimal import Decimal as _Decimal
 from frozendict import frozendict as _frozendict
-from pytsite import widget as _w, odm as _odm, auth as _auth, currency as _currency, html as _html
+from pytsite import widget as _w, odm as _odm, auth as _auth, currency as _currency, html as _html, browser as _browser
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,6 +12,7 @@ __license__ = 'MIT'
 class AccountSelect(_w.select.Select):
     """Wallet Account Select Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         u = _auth.get_current_user()
         items = []
@@ -31,19 +32,28 @@ class AccountSelect(_w.select.Select):
         super().__init__(uid, items=items, **kwargs)
 
 
-class MoneyInput(_w.input.Decimal):
+class MoneyInput(_w.Base):
     """Money Input Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        super().__init__(uid, **kwargs)
+
         self._default_currency = kwargs.get('default_currency', _currency.get_main())
         if self._default_currency not in _currency.get_all():
             raise _currency.error.CurrencyNotDefined("Currency '{}' is not defined.".format(self._default_currency))
 
-        super().__init__(uid, **kwargs)
+        self._currency_select = kwargs.get('currency_select', False)
 
-        self._assets.append('pytsite.wallet@js/widget-money-input.js')
+        self._css += ' widget-wallet-money-input'
+
+        self._assets.extend(_browser.get_assets('inputmask'))
+        self._assets.extend([
+            'pytsite.wallet@css/widget-money-input.css',
+            'pytsite.wallet@js/widget-money-input.js',
+        ])
 
     def set_val(self, value: dict, **kwargs):
         """Set value of the widget.
@@ -96,17 +106,38 @@ class MoneyInput(_w.input.Decimal):
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Get HTML element of the widget.
-        :param **kwargs:
         """
-        self._append = _currency.get_symbol(self._value['currency'])
+        # Container
+        r = _html.Div()
 
-        r = super().get_html_em()
-        r.append(_html.Input(type='hidden', name=self._uid + '[currency]', value=self._value['currency']))
+        # Text input for amount
+        r.append(_html.Input(
+            type='tel',
+            name=self.uid + '[amount]',
+            value=round(self._value['amount'], 2),
+            cls='amount form-control',
+        ))
 
-        new_uid = self.uid + '[amount]'
-        text_input = r.get_child_by_uid(self._uid)
-        text_input.set_attr('value', round(self._value['amount'], 2))
-        text_input.set_attr('uid', new_uid)
-        text_input.set_attr('name', new_uid)
+        if self._currency_select:
+            # Currency select
+            r.set_attr('cls', 'inputs-wrapper')
+            sel = _html.Select(
+                uid=self.uid + '[currency]',
+                name=self.uid + '[currency]',
+                cls='currency-select form-control'
+            )
 
-        return r
+            for code in _currency.get_all():
+                if not code.startswith('_'):
+                    cur_title = _currency.get_symbol(code)
+                    selected = True if code == self._value['currency'] else False
+                    sel.append(_html.Option(cur_title, value=code, selected=selected))
+
+            r.append(sel)
+        else:
+            # Currency static add-on
+            r.set_attr('cls', 'input-group')
+            r.append(_html.Span(_currency.get_symbol(self._value['currency']), cls='input-group-addon'))
+            r.append(_html.Input(type='hidden', name=self._uid + '[currency]', value=self._value['currency']))
+
+        return self._group_wrap(r)

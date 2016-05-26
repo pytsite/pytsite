@@ -74,7 +74,7 @@
                         {% block user_actions_inner %}
                             <div class="col-xs-12 text-xs-B-center text-sm-left">
                                 {% if profile_is_editable %}
-                                    <a href="{{ user.url }}"
+                                    <a href="{{ user.edit_url }}"
                                        title="{{ t('pytsite.auth_ui@modify_profile') }}"
                                        class="btn btn-default"><i
                                             class="fa fa-edit"></i>&nbsp;{{ t('pytsite.auth_ui@modify_profile') }}</a>

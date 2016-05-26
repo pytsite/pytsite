@@ -111,7 +111,6 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
     """Submit delete form.
     """
     model = args.get('model')
-    json = inp.get('json')
     ids = inp.get('ids', ())
 
     if isinstance(ids, str):
@@ -120,20 +119,19 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
     try:
         # Delete entities
         for eid in ids:
-            _api.dispense_entity(model, eid).delete()
+            entity = _api.dispense_entity(model, eid)
 
-        if json:
-            return _http.response.JSON({'status': True})
-        else:
-            _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+            # Check permissions
+            if not entity.ui_can_be_deleted():
+                raise _odm.error.ForbidEntityDelete('User does not have sufficient permissions.')
+
+            entity.delete()
+
+        _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
 
     # Entity deletion was forbidden
     except _odm.error.ForbidEntityDelete as e:
-        if json:
-            return _http.response.JSON({'status': False, 'error': str(e)}, 403)
-        else:
-            _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
+        _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
     default_redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
-
     return _http.response.Redirect(inp.get('__redirect', default_redirect))

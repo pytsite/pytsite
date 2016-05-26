@@ -34,10 +34,12 @@ def __init():
                     methods='POST', filters=auth_filter)
 
     # Route: 'delete' form show
-    router.add_rule(abp + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.d_form', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.d_form',
+                    filters=auth_filter)
 
     # Route: 'delete' form submit
-    router.add_rule(abp + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.d_form_submit', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.d_form_submit',
+                    filters=auth_filter)
 
     # Resources
     lang.register_package(__name__)
@@ -47,7 +49,8 @@ def __init():
     # Event listeners
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)
 
-    # AJAX form validator
+    # AJAX endpoints
     ajax.register_ep('pytsite.odm_ui.ep.validate_m_form')
+    ajax.register_ep('pytsite.odm_ui.ajax.entities_delete')
 
 __init()
