@@ -169,18 +169,16 @@ class LanguageNav(_base.Base):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._bootstrap = kwargs.get('bootstrap', True)
-        self._dropdown = kwargs.get('dropdown')
-        self._css += ' lang-switch'
 
-        if self._bootstrap:
-            self._css += ' nav navbar-nav'
+        self._wrap_em = _html.Ul()
+        self._dropdown = kwargs.get('dropdown')
+        self._css += ' nav navbar-nav widget-select-language-nav'
 
     def get_html_em(self, **kwargs) -> _html.Element:
         if len(_lang.langs()) == 1:
             return _html.TagLessElement()
 
-        root_ul = _html.Ul(uid=self._uid, cls=self._css)
+        root = _html.TagLessElement()
         cur_lang = _lang.get_current()
 
         if self._dropdown:
@@ -205,28 +203,28 @@ class LanguageNav(_base.Base):
                     )
 
             dropdown_root.append(toggle_a).append(dropdown_menu)
-            root_ul.append(dropdown_root)
+            root.append(dropdown_root)
         else:
             # Simple list
             for lng in _lang.langs():
                 lang_title = _lang.lang_title(lng)
                 if lng == cur_lang:
                     # Active language
-                    root_ul.append(_html.Li(cls='active').append(
+                    root.append(_html.Li(cls='active').append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.current_url(),
                                 title=lang_title)))
                 elif _hreflang.get(lng):
                     # Inactive language, related link
-                    root_ul.append(_html.Li().append(
+                    root.append(_html.Li().append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_hreflang.get(lng),
                                 title=lang_title)))
                 else:
                     # Link to homepage, no related link found
-                    root_ul.append(_html.Li().append(
+                    root.append(_html.Li().append(
                         _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.base_url(lang=lng),
                                 title=lang_title)))
 
-        return root_ul
+        return root
 
 
 class DateTime(_input.Text):

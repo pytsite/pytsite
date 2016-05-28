@@ -19,6 +19,7 @@ class Base(_ABC):
         """Init.
         """
         self._uid = uid
+        self._wrap_em = _html.Div()
         self._name = kwargs.get('name', uid)
         self._weight = kwargs.get('weight', 0)
         self._default = kwargs.get('default')
@@ -70,16 +71,14 @@ class Base(_ABC):
         """Render the widget into a string.
         """
         # Wrapper div
-        wrap = _html.Div(
-            data_cid=self.__module__ + '.' + self.__class__.__name__,
-            data_uid=self._uid,
-            data_weight=self._weight,
-            data_form_area=self._form_area,
-            data_form_step=self._form_step,
-            data_hidden=self._hidden,
-            data_enabled=self._enabled,
-            data_parent_uid=self._parent.uid if self._parent else None,
-        )
+        self._wrap_em.set_attr('data_cid', self.__module__ + '.' + self.__class__.__name__)
+        self._wrap_em.set_attr('data_uid', self._uid)
+        self._wrap_em.set_attr('data_weight', self._weight)
+        self._wrap_em.set_attr('data_form_area', self._form_area)
+        self._wrap_em.set_attr('data_form_step', self._form_step)
+        self._wrap_em.set_attr('data_hidden', self._hidden)
+        self._wrap_em.set_attr('data_enabled', self._enabled)
+        self._wrap_em.set_attr('data_parent_uid', self._parent.uid if self._parent else None)
 
         # Assets
         if self._assets:
@@ -90,11 +89,11 @@ class Base(_ABC):
                 else:
                     assets.append((asset, _assetman.detect_collection(asset)))
 
-            wrap.set_attr('data_assets', _json_dumps(assets))
+            self._wrap_em.set_attr('data_assets', _json_dumps(assets))
 
         # Replaces
         if self._replaces:
-            wrap.set_attr('data_replaces', self._replaces)
+            self._wrap_em.set_attr('data_replaces', self._replaces)
 
         # Get widget's HTML element
         html_em = self.get_html_em(**kwargs)
@@ -105,17 +104,17 @@ class Base(_ABC):
             wrap_css += ' hidden'
         if isinstance(html_em, _html.TagLessElement) and not html_em.content:
             wrap_css += ' empty'
-        wrap.set_attr('cls', wrap_css)
+        self._wrap_em.set_attr('cls', wrap_css)
 
         # Data attributes
         if isinstance(self._data, dict):
             for k, v in self._data.items():
-                wrap.set_attr('data_' + k, v)
+                self._wrap_em.set_attr('data_' + k, v)
 
         # Wrap widget's HTML
-        wrap.append(html_em)
+        self._wrap_em.append(html_em)
 
-        return wrap.render()
+        return self._wrap_em.render()
 
     def __str__(self) -> str:
         return self.render()

@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.69.4 (2016-05-29)
+### Fixed
+- `widget`: HTML layout of `select.LanguageNav`.
+
+
 ## 0.69.3 (2016-05-26)
 ### Added
 - `wallet`: currency select in `widget.MoneyInput`.
