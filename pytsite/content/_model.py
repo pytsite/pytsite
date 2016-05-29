@@ -7,7 +7,7 @@ from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, util as _util, form as _form
+    tpl as _tpl, auth_ui as _auth_ui, util as _util, form as _form, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -17,7 +17,7 @@ _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 
 
-def _process_tags(entity, inp: str, responsive: bool, img_width: int = None) -> str:
+def _process_tags(entity, inp: str) -> str:
     """Converts body tags like [img] into HTML tags.
 
     :type entity: _Union[Block, Content]
@@ -37,27 +37,55 @@ def _process_tags(entity, inp: str, responsive: bool, img_width: int = None) -> 
 
         # Additional parameters defaults
         link_orig = False
+        link_target = '_blank'
+        link_class = ''
+        img_css = ''
         enlarge = True
-        alt = entity.title
+        alt = entity.title if entity.has_field('title') else ''
+        width = 0
+        height = 0
+        responsive = True
 
         for arg in match.group(2).split(':'):  # type: str
             arg = arg.strip()
-            if arg == 'link_orig':
+            if arg in ('link_orig', 'link'):
                 link_orig = True
-            if arg == 'skip_enlarge':
+            elif arg.startswith('link_target='):
+                link_target = arg.split('=')[1]
+            elif arg.startswith('link_class='):
+                link_class = arg.split('=')[1]
+            elif arg in ('skip_enlarge', 'no_enlarge'):
                 enlarge = False
-            if arg.startswith('alt='):
+            elif arg.startswith('class='):
+                img_css = arg.split('=')[1]
+            elif arg.startswith('alt='):
                 alt = arg.split('=')[1]
+            elif arg.startswith('width='):
+                responsive = False
+                try:
+                    width = int(arg.split('=')[1])
+                except ValueError:
+                    width = 0
+            elif arg.startswith('height='):
+                responsive = False
+                try:
+                    height = int(arg.split('=')[1])
+                except ValueError:
+                    height = 0
 
         # HTML code
         if responsive:
-            r = img.get_responsive_html(alt, enlarge=enlarge)
+            r = img.get_responsive_html(alt, enlarge=enlarge, css=_util.escape_html(img_css))
         else:
-            r = img.get_html(alt, width=img_width, enlarge=enlarge)
+            r = img.get_html(alt, width=width, height=height, enlarge=enlarge, css=_util.escape_html(img_css))
 
-        # Link to original
+        # Link to original file
         if link_orig:
-            r = '<a target="_blank" href="{}" title="{}">{}</a>'.format(img.url, _util.escape_html(alt), r)
+            link = _html.A(r, href=img.url, target=link_target, title=_util.escape_html(alt))
+            if link_class:
+                link.set_attr('cls', _util.escape_html(link_class))
+
+            r = str(link)
 
         return r
 
@@ -146,7 +174,7 @@ class Base(_odm_ui.UIEntity):
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
         self.define_field(_odm.field.String('body'))
-        self.define_field(_odm.field.Ref('author', model='user'))
+        self.define_field(_odm.field.Ref('author', nonempty=True, model='user'))
         self.define_field(_odm.field.RefsUniqueList('images', model='image'))
         self.define_field(_odm.field.StringList('video_links'))
         self.define_field(_odm.field.Dict('options'))
@@ -188,7 +216,7 @@ class Base(_odm_ui.UIEntity):
         """Hook.
         """
         if field_name == 'body' and kwargs.get('process_tags'):
-            value = _process_tags(self, value, kwargs.get('responsive', True), kwargs.get('img_width', 1200))
+            value = _process_tags(self, value)
 
         return value
 
@@ -222,7 +250,7 @@ class Base(_odm_ui.UIEntity):
             if not current_user.is_anonymous:
                 self.f_set('author', current_user)
             else:
-                raise ValueError('Cannot assign author, because current user is anonymous.')
+                raise RuntimeError('Cannot assign author, because current user is anonymous.')
 
         # Extract inline images from the body
         if self.has_field('body') and self.has_field('images'):
@@ -270,8 +298,6 @@ class Base(_odm_ui.UIEntity):
     def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
-        current_user = _auth.get_current_user()
-
         # Title
         frm.add_widget(_widget.input.Text(
             uid='title',
@@ -322,7 +348,7 @@ class Base(_odm_ui.UIEntity):
             if self.has_field('author'):
                 frm.add_widget(_auth_ui.widget.UserSelect(
                     uid='author',
-                    weight=1200,
+                    weight=1000,
                     label=self.t('author'),
                     value=_auth.get_current_user() if self.is_new else self.author,
                     h_size='col-sm-4',
@@ -511,7 +537,7 @@ class Content(Base):
                 ra.delete()
 
             # Notify content moderators about waiting content
-            if self.status == 'waiting':
+            if self.status == 'waiting' and _reg.get('content.send_waiting_notifications', True):
                 self._send_waiting_status_notification()
 
         # Recalculate tags weights
@@ -574,7 +600,8 @@ class Content(Base):
             data_fields.append('starred')
 
         # Status
-        data_fields.append('status')
+        if mock.has_field('status'):
+            data_fields.append('status')
 
         # Images
         if mock.has_field('images'):
@@ -701,13 +728,13 @@ class Content(Base):
             frm.add_rule('ext_links', _validation.rule.Url())
 
         # Status
-        if current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
+        if self.has_field('status') and current_user.has_permission('pytsite.content.bypass_moderation.' + self.model):
             from ._widget import StatusSelect
             frm.add_widget(StatusSelect(
                 uid='status',
                 weight=950,
                 label=self.t('status'),
-                value=self.status,
+                value='published' if self.is_new else self.status,
                 h_size='col-sm-4 col-md-3 col-lg-2',
                 required=True,
             ))
@@ -733,7 +760,7 @@ class Content(Base):
                 lang_title = _lang.t('lang_title_' + self.language)
             frm.add_widget(_widget.static.Text(
                 uid='language',
-                weight=1000,
+                weight=1200,
                 label=self.t('language'),
                 title=lang_title,
                 value=_lang.get_current() if self.is_new else self.language,
@@ -745,7 +772,7 @@ class Content(Base):
             for i, lng in enumerate(_lang.langs(False)):
                 frm.add_widget(EntitySelect(
                     uid='localization_' + lng,
-                    weight=1000 + i,
+                    weight=1200 + i,
                     label=self.t('localization', {'lang': _lang.lang_title(lng)}),
                     model=self.model,
                     language=lng,
@@ -757,7 +784,7 @@ class Content(Base):
             # Route alias
             frm.add_widget(_widget.input.Text(
                 uid='route_alias',
-                weight=1100,
+                weight=1400,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
             ))
@@ -824,8 +851,6 @@ class Page(Content):
         self.remove_field('section')
         self.remove_field('starred')
 
-        self.get_field('author').nonempty = True
-
 
 class Article(Content):
     """Article Model.
@@ -836,7 +861,6 @@ class Article(Content):
 
         self.get_field('images').nonempty = True
         self.get_field('body').nonempty = True
-        self.get_field('author').nonempty = True
 
 
 class ContentSubscriber(_odm.Entity):

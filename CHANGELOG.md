@@ -1,4 +1,15 @@
 # PytSite Changelog
+## 0.69.6 (2016-05-30)
+### Added
+- `content`: support for additional parameters in `[img]` tags.
+
+### Changed
+- `content`: signature of `find()` API's method.
+
+### Fixed
+- `content`: description auto fill on content's ODM UI forms.  
+
+
 ## 0.69.5 (2016-05-29)
 ### Added
 - `browser`: new library: 'magnific-popup'.

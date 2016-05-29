@@ -81,7 +81,7 @@ def view(args: dict, inp: dict):
     from . import _api
 
     model = args.get('model')
-    entity = _api.find(model, None, False).where('_id', '=', args.get('id')).first()
+    entity = _api.find(model, status=None, check_publish_time=False).where('_id', '=', args.get('id')).first()
     """:type: pytsite.content._model.Content"""
 
     if not entity:

@@ -1,13 +1,16 @@
-$(function () {
-    var form = $('.odm-ui-form');
-    form.find('.widget-uid-description input').focus(function () {
-        var descriptionInput = $(this);
-        var titleInput = form.find('.widget-uid-title input');
+$(window).on('pytsite.form.ready', function (e, form) {
+    $(form).on('pytsite.form.forward', function () {
+        form.em.find('.widget-uid-description input').focus(function () {
+            var descriptionInput = $(this);
+            var titleInput = form.em.find('.widget-uid-title input');
 
-        if (descriptionInput.val() == '')
-            descriptionInput.val(titleInput.val());
+            if (descriptionInput.val() == '')
+                descriptionInput.val(titleInput.val());
+        });
     });
+});
 
+$(function () {
     // Views count
     $('.content-entity').each(function () {
         var model = $(this).data('model');

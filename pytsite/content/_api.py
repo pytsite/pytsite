@@ -11,11 +11,10 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 __models = {}
 
 
-def register_model(model: str, cls, title: str, menu_weight: int=0, icon: str='fa fa-file-text-o', replace=False):
+def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str = 'fa fa-file-text-o', replace=False):
     """Register content model.
     :type cls: str | _odm.Entity
     """
@@ -112,29 +111,28 @@ def dispense(model: str) -> _model.Content:
     return _odm.dispense(model)
 
 
-def find(model: str, status='published', check_publish_time=True, language: str=None):
+def find(model: str, **kwargs):
     """Get content entities finder.
     """
     if not is_model_registered(model):
         raise KeyError("Model '{}' is not registered as content model.".format(model))
 
-    mock = dispense(model)
     f = _odm.find(model)
 
-    if mock.has_field('publish_time'):
+    # Publish time
+    if f.mock.has_field('publish_time'):
         f.sort([('publish_time', _odm.I_DESC)])
-        if check_publish_time:
+        if kwargs.get('check_publish_time', True):
             f.cache(0)  # It has no sense to cache such queries because argument is different every time
             f.where('publish_time', '<=', _datetime.now())
     else:
         f.sort([('_modified', _odm.I_DESC)])
 
-    if not language:
-        language = _lang.get_current()
-    f.where('language', '=', language)
+    # Language
+    f.where('language', '=', kwargs.get('language') or _lang.get_current())  # It is important to use 'or' here!
 
-    if status and mock.has_field('status'):
-        f.where('status', '=', status)
+    if f.mock.has_field('status'):
+        f.where('status', '=', kwargs.get('status') or 'published')  # It is important to use 'or' here!
 
     return f
 
@@ -149,56 +147,56 @@ def get_statuses() -> _List[str]:
     return r
 
 
-def get_sections(language: str=None) -> _Iterable[_model.Section]:
+def get_sections(language: str = None) -> _Iterable[_model.Section]:
     """Get sections.
     """
     return _taxonomy.find('section', language).sort([('order', _odm.I_ASC)]).get()
 
 
-def dispense_section(title: str, alias: str=None, language: str=None) -> _model.Section:
+def dispense_section(title: str, alias: str = None, language: str = None) -> _model.Section:
     """Get or create section.
     """
     return _taxonomy.dispense('section', title, alias, language)
 
 
-def find_section_by_title(title: str, language: str=None) -> _model.Section:
+def find_section_by_title(title: str, language: str = None) -> _model.Section:
     """Get section by title.
     """
     return _taxonomy.find_by_title('section', title, language)
 
 
-def find_section_by_alias(alias: str, language: str=None) -> _model.Section:
+def find_section_by_alias(alias: str, language: str = None) -> _model.Section:
     """Get section by title.
     """
     return _taxonomy.find_by_alias('section', alias, language)
 
 
-def get_tags(limit: int=0, language: str=None) ->  _Iterable[_model.Tag]:
+def get_tags(limit: int = 0, language: str = None) -> _Iterable[_model.Tag]:
     """Get tags.
     """
     return _taxonomy.find('tag', language).sort([('weight', _odm.I_DESC)]).get(limit)
 
 
-def dispense_tag(title: str, alias: str=None, language: str=None) -> _model.Tag:
+def dispense_tag(title: str, alias: str = None, language: str = None) -> _model.Tag:
     return _taxonomy.dispense('tag', title, alias, language)
 
 
-def find_tag_by_title(title: str, language: str=None) -> _model.Tag:
+def find_tag_by_title(title: str, language: str = None) -> _model.Tag:
     """Get tag by title.
     """
     return _taxonomy.find_by_title('tag', title, language)
 
 
-def find_tag_by_alias(alias: str, language: str=None) -> _model.Tag:
+def find_tag_by_alias(alias: str, language: str = None) -> _model.Tag:
     """Get tag by title.
     """
     return _taxonomy.find_by_alias('tag', alias, language)
 
 
-def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str=None,
-                 finder_setup: _Callable[[_odm.Finder], None]=None,
-                 item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
-                 length: int=20):
+def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str = None,
+                 finder_setup: _Callable[[_odm.Finder], None] = None,
+                 item_setup: _Callable[[_feed.rss.Item, _model.Content], None] = None,
+                 length: int = 20):
     """Generate RSS feeds.
     """
     if not lng:

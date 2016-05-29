@@ -12,6 +12,7 @@ __license__ = 'MIT'
 class Image(_file.model.File):
     """Image Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """
@@ -103,12 +104,12 @@ class Image(_file.model.File):
         else:
             return super()._on_f_get(field_name, value, **kwargs)
 
-    def get_url(self, width: int=0, height: int=0) -> str:
+    def get_url(self, width: int = 0, height: int = 0) -> str:
         """Shortcut to use in Jinja templates.
         """
         return self.f_get('url', width=width, height=height)
 
-    def get_html(self, alt: str= '', css: str= '', width: int=0, height: int=0, enlarge: bool=True):
+    def get_html(self, alt: str = '', css: str = '', width: int = 0, height: int = 0, enlarge: bool = True):
         """Get HTML code to embed the image.
         """
         if not enlarge:
@@ -123,7 +124,8 @@ class Image(_file.model.File):
             self.get_url(width, height), css.strip(), _util.escape_html(alt)
         )
 
-    def get_responsive_html(self, alt: str='', css: str='', aspect_ratio: float=None, enlarge: bool=True) -> str:
+    def get_responsive_html(self, alt: str = '', css: str = '', aspect_ratio: float = None,
+                            enlarge: bool = True) -> str:
         """Get HTML code to embed the image (responsive way).
         """
         alt = _util.escape_html(alt)
@@ -131,5 +133,5 @@ class Image(_file.model.File):
         css += ' img-responsive pytsite-img'
 
         return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}" ' \
-               'data-width="{}" data-height="{}" data-enlarge="{}"></span>'\
+               'data-width="{}" data-height="{}" data-enlarge="{}"></span>' \
             .format(css.strip(), path, alt, aspect_ratio, self.width, self.height, enlarge)
