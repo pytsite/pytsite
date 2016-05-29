@@ -19,8 +19,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_cache_driver = _reg.get('odm.cache.driver', 'redis')
-_cache_pool = _cache.create_pool('pytsite.odm.entities', _cache_driver)
 _dbg = _reg.get('odm.debug')
 
 
@@ -28,7 +26,7 @@ class Entity(_ABC):
     """ODM Model.
     """
 
-    def __init__(self, model: str, obj_id=_Union[str, _ObjectId]):
+    def __init__(self, model: str, obj_id: _Union[str, _ObjectId], cache_pool: _cache.driver.Abstract):
         """Init.
         """
         if not hasattr(self, 'collection_name'):
@@ -42,6 +40,7 @@ class Entity(_ABC):
 
         self._model = model
         self._id = None  # type: _ObjectId
+        self._cache_pool = cache_pool
         self._is_new = True
         self._is_modified = False
         self._is_deleted = False
@@ -101,7 +100,7 @@ class Entity(_ABC):
         try:
             if not skip_cache:
                 # Try to load data from cache:
-                data = _cache_get(self._model, str(eid))
+                data = self._cache_get(eid)
                 data_from_cache = True
                 if _dbg:
                     _logger.debug('Entity data LOADED from cache: {}:{}'.format(self._model, eid), __name__)
@@ -218,9 +217,9 @@ class Entity(_ABC):
         """Reload entity data from database.
         """
         if self._is_new:
-            return
+            raise RuntimeError('Non saved entity cannot be reloaded.')
 
-        self._load_fields_data(self.id, skip_cache=True)
+        self._load_fields_data(self._id, skip_cache=True)
 
     def _cache_push(self, check_empty_fields: bool = False):
         """Push fields data into cache.
@@ -228,16 +227,20 @@ class Entity(_ABC):
         if self._is_new:
             raise RuntimeError('Non-saved entities cannot be cached.')
 
-        _cache_put(self._model, self._id, self.as_db_object(check_empty_fields))
+        self._cache_pool.put(
+            '{}:{}'.format(self._model, str(self._id)),
+            self.as_db_object(check_empty_fields),
+            _reg.get('odm.cache.ttl', 3600)
+        )
 
     def _cache_pull(self):
         """Pull fields data from cache.
         """
         if self._is_new:
-            raise RuntimeError('Non-saved entities cannot be cached.')
+            raise RuntimeError('Non saved entities cannot have data in cache.')
 
         try:
-            self._fill_fields_data(_cache_get(self._model, self._id))
+            self._fill_fields_data(self._cache_get(self._id))
 
         except _error.NoCachedData:
             pass
@@ -677,8 +680,8 @@ class Entity(_ABC):
             self._cache_push(True)
 
             # Clear entire finder cache for this model
-            from . import _finder
-            _finder.cache_clear(self.model)
+            from . import _api
+            _api.get_finder_cache(self._model).clear()
 
             # Save children with updated '_parent' field
             for child in self.children:
@@ -741,11 +744,11 @@ class Entity(_ABC):
             _events.fire('pytsite.odm.entity.{}.delete'.format(self.model), entity=self)
 
             # Delete entity from cache
-            _cache_rm(self._model, self.id)
+            self._cache_pool.rm('{}:{}'.format(self.model, str(self.id)))
 
             # Clear finder cache
-            from . import _finder
-            _finder.cache_clear(self.model)
+            from . import _api
+            _api.get_finder_cache(self._model).clear()
 
             self._is_deleted = True
 
@@ -764,7 +767,7 @@ class Entity(_ABC):
         """
         pass
 
-    def as_db_object(self, check_empty_fields: bool = True) -> dict:
+    def as_db_object(self, check_required_fields: bool = True) -> dict:
         """Get storable representation of the entity.
         """
         r = {
@@ -777,7 +780,7 @@ class Entity(_ABC):
                 continue
 
             # Required fields should be filled
-            if check_empty_fields and f.nonempty and f.is_empty:
+            if check_required_fields and f.nonempty and f.is_empty:
                 raise _error.FieldEmpty("{}.{}: Value cannot be empty.".format(self.model, f_name))
 
             r[f_name] = f.get_storable_val()
@@ -842,39 +845,13 @@ class Entity(_ABC):
 
         return False
 
+    def _cache_get(self, eid: _Union[str, _ObjectId]) -> dict:
+        """Get entity's data from cache.
+        """
+        if isinstance(eid, _ObjectId):
+            eid = str(eid)
 
-def _cache_has(model: str, eid: _Union[str, _ObjectId]) -> bool:
-    if isinstance(eid, _ObjectId):
-        eid = str(eid)
+        if not self._cache_pool.has('{}:{}'.format(self._model, eid)):
+            raise _error.NoCachedData("No cached data for {}.{}".format(self._model, eid))
 
-    return _cache_pool.has('{}:{}'.format(model, eid))
-
-
-def _cache_get(model: str, eid: _Union[str, _ObjectId]) -> dict:
-    """Build entity from cached data.
-    """
-    if isinstance(eid, _ObjectId):
-        eid = str(eid)
-
-    if not _cache_has(model, eid):
-        raise _error.NoCachedData("No cached data for {}.{}".format(model, eid))
-
-    return _cache_pool.get('{}:{}'.format(model, eid))
-
-
-def _cache_put(model: str, eid: _Union[str, _ObjectId], data: dict):
-    """Put entity data into the cache.
-    """
-    if isinstance(eid, _ObjectId):
-        eid = str(eid)
-
-    _cache_pool.put('{}:{}'.format(model, eid, data), data, 86400)
-
-
-def _cache_rm(model: str, eid: _Union[str, _ObjectId]):
-    """Remove item from the cache.
-    """
-    if isinstance(eid, _ObjectId):
-        eid = str(eid)
-
-    _cache_pool.rm('{}:{}'.format(model, eid))
+        return self._cache_pool.get('{}:{}'.format(self._model, eid))

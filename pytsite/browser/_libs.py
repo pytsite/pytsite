@@ -185,3 +185,10 @@ def highlight(**kwargs):
         'pytsite.browser@highlight/styles/' + kwargs.get('style', 'default') + '.css',
         'pytsite.browser@highlight/highlight.pack.js',
     ]
+
+
+def magnific_popup():
+    return [
+        'pytsite.browser@magnific-popup/magnific-popup.css',
+        'pytsite.browser@magnific-popup/jquery.magnific-popup.min.js',
+    ]

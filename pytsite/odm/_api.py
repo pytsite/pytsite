@@ -3,7 +3,7 @@
 from typing import Union as _Union
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
-from pytsite import db as _db, util as _util, events as _events
+from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache, threading as _threading
 from . import _entity, _error, _finder
 
 __author__ = 'Alexander Shepetko'
@@ -11,6 +11,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _registered_models = {}
+_cache_driver = _reg.get('odm.cache.driver', 'redis')
+_entities_cache = _cache.create_pool('pytsite.odm.entities', _cache_driver)
+_finder_cache = {}
 
 
 def register_model(model: str, cls: _Union[str, type], replace: bool = False):
@@ -25,10 +28,11 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
     if is_model_registered(model) and not replace:
         raise _error.ModelAlreadyRegistered("Model '{}' already is registered.".format(model))
 
-    _registered_models[model] = cls
-
+    # Create finder cache pool for each newly registered model
     if not replace:
-        _finder.cache_create_pool(model)
+        _finder_cache[model] = _cache.create_pool('pytsite.odm.finder:' + model, _cache_driver)
+
+    _registered_models[model] = cls
 
     _events.fire('pytsite.odm.register_model', model=model, cls=cls, replace=replace)
 
@@ -106,7 +110,7 @@ def dispense(model: str, eid=None) -> _entity.Entity:
         raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
     # Instantiate entity
-    entity = get_model_class(model)(model, eid)
+    entity = get_model_class(model)(model, eid, _entities_cache)
 
     return entity
 
@@ -115,11 +119,18 @@ def find(model: str):
     """Get ODM finder.
     """
     from ._finder import Finder
-
-    return Finder(model)
+    return Finder(model, _cache.get_pool('pytsite.odm.finder:' + model))
 
 
 def aggregate(model: str):
     from ._aggregation import Aggregator
 
     return Aggregator(model)
+
+
+def get_entities_cache() -> _cache.driver.Abstract:
+    return _entities_cache
+
+
+def get_finder_cache(model: str) -> _cache.driver.Abstract:
+    return _cache.get_pool('pytsite.odm.finder:' + model)

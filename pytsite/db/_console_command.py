@@ -4,7 +4,8 @@ import subprocess as _subprocess
 import shutil as _shutil
 from os import path as _path
 from datetime import datetime as _datetime
-from pytsite import console as _console, reg as _reg, validation as _validation, maintenance as _maintenance
+from pytsite import console as _console, reg as _reg, validation as _validation, maintenance as _maintenance, \
+    events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,7 +42,7 @@ class Db(_console.command.Abstract):
 
     def _dump(self):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
-            raise Exception('Cannot find mongodump executable.')
+            raise RuntimeError('Cannot find mongodump executable.')
 
         _maintenance.enable()
 
@@ -72,7 +73,7 @@ class Db(_console.command.Abstract):
 
     def _restore(self):
         if _subprocess.call('which mongorestore', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True):
-            raise Exception('Cannot find mongorestore executable.')
+            raise RuntimeError('Cannot find mongorestore executable.')
 
         _maintenance.enable()
 
@@ -91,6 +92,8 @@ class Db(_console.command.Abstract):
             command += ' --ssl --sslAllowInvalidCertificates'
 
         r = _subprocess.call(command, shell=True)
+
+        _events.fire('pytsite.db.restore')
 
         _maintenance.disable()
 

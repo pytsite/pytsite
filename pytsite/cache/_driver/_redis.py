@@ -51,7 +51,6 @@ class Redis(_Abstract):
         finally:
             _threading.get_r_lock().release()
 
-
     def get(self, key: str) -> _Union[_Any, None]:
         """Get an item from the pool.
         """
@@ -77,7 +76,7 @@ class Redis(_Abstract):
         """
         try:
             _threading.get_r_lock().acquire()
-            
+
             self._client.set(self._get_fq_key(key), _pickle.dumps(value), ttl)
 
             if _reg.get('cache.debug'):
@@ -93,15 +92,15 @@ class Redis(_Abstract):
         """
         try:
             _threading.get_r_lock().acquire()
-            
+
             if not self.has(key):
                 raise KeyError("Item '{}' does not exist in pool '{}'.".format(key, self._name))
-    
+
             self._client.rename(key, new_key)
-    
+
             if _reg.get('cache.debug'):
                 _logger.debug("RENAME '{}' to '{}' in the pool '{}'.".format(key, new_key, self.name), __name__)
-        
+
         finally:
             _threading.get_r_lock().release()
 

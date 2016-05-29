@@ -83,10 +83,11 @@ class Result:
 
 
 class Finder:
-    def __init__(self, model: str):
+    def __init__(self, model: str, cache_pool: _cache.driver.Abstract):
         """Init.
         """
         self._model = model
+        self._cache_pool = cache_pool
         self._mock = _api.dispense(model)
         self._query = _query.Query(self._mock)
         self._skip = 0
@@ -202,8 +203,8 @@ class Finder:
         query = self._query.compile()
 
         # Search for previous result in cache
-        if _reg.get('odm.cache.enabled', True) and self._cache_ttl and _cache_has(self):
-            ids = _cache_get(self)
+        if _reg.get('odm.cache.enabled', True) and self._cache_ttl and self._cache_pool.has(self.id):
+            ids = self._cache_pool.get(self.id)
             if _dbg:
                 _logger.debug("GET cached query results: query: {}, {}, id: {}, entities: {}.".
                               format(self.model, self.query.compile(), self.id, len(ids)), __name__)
@@ -228,7 +229,7 @@ class Finder:
                               format(self.model, self.query.compile(), self.id, result.count(), self._cache_ttl),
                               __name__)
 
-            _cache_put(self, result)
+            self._cache_pool.put(self.id, result.ids, self._cache_ttl)
 
         return result
 
@@ -256,56 +257,3 @@ class Finder:
             r.append(v)
 
         return r
-
-
-def _cache_put(finder: Finder, result: Result):
-    """Put query result into cache.
-    """
-    try:
-        _threading.get_r_lock().acquire()
-        _cache.get_pool(_pool_prefix + finder.model).put(finder.id, result.ids, finder.cache_ttl)
-
-    finally:
-        _threading.get_r_lock().release()
-
-
-def _cache_has(finder: Finder) -> bool:
-    """Check if cache has stored result for query.
-    """
-    try:
-        _threading.get_r_lock().acquire()
-        return _cache.get_pool(_pool_prefix + finder.model).has(finder.id)
-
-    finally:
-        _threading.get_r_lock().release()
-
-
-def _cache_get(finder: Finder) -> _Union[list, None]:
-    """Get stored query result from cache.
-    """
-    try:
-        _threading.get_r_lock().acquire()
-        return _cache.get_pool(_pool_prefix + finder.model).get(finder.id)
-
-    finally:
-        _threading.get_r_lock().release()
-
-
-def cache_create_pool(model: str):
-    """Create cache pool to tore query results of particular model.
-    """
-    try:
-        _threading.get_r_lock().acquire()
-        _cache.create_pool(_pool_prefix + model, _reg.get('odm.cache.driver', 'redis'))
-
-    finally:
-        _threading.get_r_lock().release()
-
-
-def cache_clear(model: str):
-    """Clear cached query results of particular model,
-    """
-    if _dbg:
-        _logger.debug("CLEAR query cache for model: '{}'.".format(model))
-
-    _cache.clear_pool(_pool_prefix + model)

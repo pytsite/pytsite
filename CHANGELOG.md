@@ -1,4 +1,15 @@
 # PytSite Changelog
+## 0.69.5 (2016-05-29)
+### Added
+- `browser`: new library: 'magnific-popup'.
+- `db`: new event: 'pytsite.db.restore'.
+- `odm`:
+    - cache clearing after restoring database from dump.
+
+### Changed
+- `odm`: work with cache refactored.
+
+
 ## 0.69.4 (2016-05-29)
 ### Fixed
 - `widget`: HTML layout of `select.LanguageNav`.

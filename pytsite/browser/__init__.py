@@ -47,6 +47,7 @@ def __init():
     register('select2', _libs.select2)
     register('gotop', _libs.gotop)
     register('highlight', _libs.highlight)
+    register('magnific-popup', _libs.magnific_popup)
 
     # jQuery is ultimately required
     include('jquery', permanent=True)
