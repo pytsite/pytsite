@@ -1,0 +1,17 @@
+<script type="text/javascript">
+    function pytsite_ulogin_callback_{{ widget.uid | replace('-', '_') }}(token) {
+        console.log('#' + '{{ widget.uid }}' + '-token');
+
+        var tokenInput = $('#' + '{{ widget.uid }}' + '-token').first();
+
+        if (tokenInput.length) {
+            tokenInput.val(token);
+            tokenInput.closest('form').submit();
+        }
+        else {
+            alert('Cannot find token input element.');
+        }
+    }
+</script>
+<script src="//ulogin.ru/js/ulogin.js"></script>
+<div id="{{ widget.uid }}" data-ulogin="display=panel;fields=first_name,last_name,email,nickname,bdate,sex,photo,photo_big,city,country;providers=facebook,twitter,googleplus,vkontakte;redirect_uri=;callback=pytsite_ulogin_callback_{{ widget.uid | replace('-', '_') }}"></div>

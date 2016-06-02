@@ -66,9 +66,9 @@ class User(_odm.Entity):
         self.define_field(_odm.field.Virtual('full_name'))
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.DateTime('birth_date'))
-        self.define_field(_odm.field.DateTime('last_login'))
+        self.define_field(_odm.field.DateTime('last_sign_in'))
         self.define_field(_odm.field.DateTime('last_activity'))
-        self.define_field(_odm.field.Integer('login_count'))
+        self.define_field(_odm.field.Integer('sign_in_count'))
         self.define_field(_odm.field.String('status', default='active'))
         self.define_field(_odm.field.RefsList('roles', model='role'))
         self.define_field(_odm.field.Integer('gender'))
@@ -91,7 +91,7 @@ class User(_odm.Entity):
         self.define_index([('login', _odm.I_ASC)], unique=True)
         self.define_index([('nickname', _odm.I_ASC)], unique=True)
         self.define_index([('token', _odm.I_ASC)], unique=True)
-        self.define_index([('last_login', _odm.I_DESC)])
+        self.define_index([('last_sign_in', _odm.I_DESC)])
 
     @property
     def login(self) -> str:
@@ -138,12 +138,12 @@ class User(_odm.Entity):
         return self.f_get('picture_url')
 
     @property
-    def login_count(self) -> int:
-        return self.f_get('login_count')
+    def sign_in_count(self) -> int:
+        return self.f_get('sign_in_count')
 
     @property
-    def last_login(self) -> _datetime:
-        return self.f_get('last_login')
+    def last_sign_in(self) -> _datetime:
+        return self.f_get('last_sign_in')
 
     @property
     def last_activity(self) -> _datetime:
@@ -223,14 +223,14 @@ class User(_odm.Entity):
         """_on_f_set() hook.
         """
         if field_name == 'password':
-            from ._api import password_hash
+            from ._api import hash_password
             if value:
-                value = password_hash(value)
+                value = hash_password(value)
                 self.f_set('token', _util.random_str(32))
             else:
                 if self.is_new:
                     # Set random password
-                    value = password_hash(_util.random_password())
+                    value = hash_password(_util.random_password())
                     self.f_set('token', _util.random_str(32))
                 else:
                     # Keep old password

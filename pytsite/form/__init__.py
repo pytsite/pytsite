@@ -11,14 +11,11 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import assetman, tpl, lang, ajax
+    from pytsite import assetman, tpl, lang
 
     lang.register_package(__name__)
     assetman.register_package(__name__)
     tpl.register_package(__name__)
 
-    # AJAX endpoints
-    ajax.register_ep('pytsite.form.ajax.get_widgets')
-    ajax.register_ep('pytsite.form.ajax.validate')
 
 _init()

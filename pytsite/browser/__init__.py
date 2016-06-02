@@ -24,7 +24,6 @@ def __init():
 
     register('jquery', _libs.jquery)
     register('jquery-ui', _libs.jquery_ui)
-    register('jquery-mobile', _libs.jquery_mobile)
     register('font-awesome', _libs.font_awesome)
     register('bootstrap', _libs.bootstrap)
     register('bootstrap-table', _libs.bootstrap_table)
@@ -38,8 +37,6 @@ def __init():
     register('animate', _libs.animate)
     register('wow', _libs.wow)
     register('mousewheel', _libs.mousewheel)
-    register('smoothscroll', _libs.smoothscroll)
-    register('enllax', _libs.enllax)
     register('scrollto', _libs.scrollto)
     register('waypoints', _libs.waypoints)
     register('slippry', _libs.slippry)

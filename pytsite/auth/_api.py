@@ -1,103 +1,86 @@
 """Auth Manager.
 """
+from typing import Dict as _Dict
 from collections import OrderedDict
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router, \
-    events as _events, validation as _validation, geo_ip as _geo_ip
-from .driver.abstract import AbstractDriver as _AbstractDriver
-from . import _error, _model
+    events as _events, validation as _validation, geo_ip as _geo_ip, logger as _logger
+from . import _error, _model, _driver
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_drivers = OrderedDict()
-""":type: dict[_AbstractDriver]"""
+_registered_drivers = OrderedDict()  # type: _Dict[str, _driver.Abstract]
 
 __permission_groups = []
 __permissions = []
-__anonymous_user = None
+_anonymous_user = None
 
 user_login_rule = _validation.rule.Email()
 user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
                                             pattern='^[A-Za-z0-9][A-Za-z0-9\.\-_]{0,31}$')
 
 
-def password_hash(secret: str) -> str:
+def hash_password(secret: str) -> str:
     """Hash a password.
     """
     from werkzeug.security import generate_password_hash
     return generate_password_hash(secret)
 
 
-def password_verify(clear_text: str, hashed: str) -> bool:
+def verify_password(clear_text: str, hashed: str) -> bool:
     """Verify hashed password.
     """
     from werkzeug.security import check_password_hash
     return check_password_hash(hashed, clear_text)
 
 
-def register_driver(driver: _AbstractDriver):
+def register_driver(driver: _driver.Abstract):
     """Change current driver.
     """
-    if not isinstance(driver, _AbstractDriver):
+    if not isinstance(driver, _driver.Abstract):
         raise TypeError('Instance of AbstractDriver expected.')
 
     name = driver.get_name()
-    if name in _drivers:
+    if name in _registered_drivers:
         raise ValueError("Driver '{}' is already registered.".format(name))
 
-    _drivers[name] = driver
+    _registered_drivers[name] = driver
 
 
-def get_driver(name: str = None) -> _AbstractDriver:
-    """Get current driver.
+def get_driver(name: str = None) -> _driver.Abstract:
+    """Get driver instance.
     """
-    if not name:
-        if _drivers:
-            name = next(iter(_drivers.values())).get_name()
+    if name is None:
+        if _registered_drivers:
+            name = list(_registered_drivers)[-1]  # last registered driver is default
         else:
-            raise Exception('No driver registered.')
+            raise RuntimeError('No auth driver registered.')
 
-    if name not in _drivers:
-        raise _error.DriverNotRegistered("Driver '{}' is not registered.".format(name))
+    if name not in _registered_drivers:
+        raise _error.DriverNotRegistered("Authentication driver '{}' is not registered.".format(name))
 
-    return _drivers[name]
-
-
-def get_default_driver() -> _AbstractDriver:
-    """Get default driver.
-    """
-    return get_driver(_reg.get('auth.default_driver'))
+    return _registered_drivers[name]
 
 
-def get_login_form(driver_name: str = None, uid: str = None, **kwargs) -> _form.Form:
+def get_sign_in_form(driver_name: str = None, uid: str = None, **kwargs) -> _form.Form:
     """Get a login form.
     """
     driver = get_driver(driver_name)
 
-    kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-login driver-' + driver.name
+    kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-sign-in driver-' + driver.name
 
     if not uid:
-        uid = 'pytsite-auth-login'
+        uid = 'pytsite-auth-sign-in'
 
     if not kwargs.get('title'):
-        kwargs['title'] = _lang.t('pytsite.auth@authorization')
+        kwargs['title'] = _lang.t('pytsite.auth@authentication')
 
-    form = driver.get_login_form(uid, **kwargs)
-    form.action = _router.ep_url('pytsite.auth.ep.login_submit', {'driver': driver.name})
+    form = driver.get_sign_in_form(uid, **kwargs)
+    form.action = _router.ep_url('pytsite.auth.ep.sign_in_submit', {'driver': driver.name})
 
     return form
-
-
-def post_login_form(driver_name: str, inp: dict) -> _http.response.Redirect:
-    """Post a login form.
-    """
-    for i in ('__form_steps', '__form_step'):
-        if i in inp:
-            del inp[i]
-
-    return get_driver(driver_name).post_login_form(inp)
 
 
 def create_user(login: str, password: str = None) -> _model.User:
@@ -105,7 +88,7 @@ def create_user(login: str, password: str = None) -> _model.User:
     """
     if login != _model.ANONYMOUS_USER_LOGIN:
         if get_user(login):
-            raise RuntimeError("User with login '{}' already exists.".format(login))
+            raise _error.UserExists("User with login '{}' already exists.".format(login))
 
         user_login_rule.value = login
         user_login_rule.validate()
@@ -113,6 +96,7 @@ def create_user(login: str, password: str = None) -> _model.User:
     user = _odm.dispense('user')  # type: _model.User
     user.f_set('login', login).f_set('email', login).f_set('password', password)
 
+    # Do some actions with non-anonymous users
     if login != _model.ANONYMOUS_USER_LOGIN:
         # Automatic roles for new users
         for role_name in _reg.get('auth.signup.roles', ['user']):
@@ -132,14 +116,22 @@ def get_user(login: str = None, uid: str = None, nickname: str = None) -> _model
     """
     # Don't cache finder results due to frequent user updates in database
     f = _odm.find('user').cache(0)
-    if login:
-        if login == _model.ANONYMOUS_USER_LOGIN:
-            return None
+    if login is not None:
         return f.where('login', '=', login).first()
-    elif uid:
+
+    elif uid is not None:
         return f.where('_id', '=', uid).first()
-    elif nickname:
+
+    elif nickname is not None:
         return f.where('nickname', '=', nickname).first()
+
+    else:
+        # Return anonymous user
+        global _anonymous_user
+        if not _anonymous_user:
+            _anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
+
+        return _anonymous_user
 
 
 def create_role(name: str, description: str = ''):
@@ -155,30 +147,31 @@ def create_role(name: str, description: str = ''):
 def get_role(name: str = None, uid=None) -> _model.Role:
     """Get role by name or by UID.
     """
+    f = _odm.find('role')
+
     if name:
-        return _odm.find('role').where('name', '=', name).first()
+        return f.where('name', '=', name).first()
     if uid:
-        return _odm.find('role').where('_id', '=', uid).first()
+        return f.where('_id', '=', uid).first()
 
 
-def authorize(user: _model.User, count_login: bool = True, issue_event: bool = True,
-              update_geo_ip: bool = True) -> _model.User:
-    """Authorize user.
+def sign_in(driver: str, data: dict) -> _model.User:
+    """Authenticate user.
     """
-    if not user:
-        raise _error.LoginError('pytsite.auth@authorization_error')
+    try:
+        user = get_driver(driver).sign_in(data)
+        if user.status != 'active':
+            raise _error.AuthenticationError("User account '{}' is not active".format(user.login))
 
-    # Checking user status
-    if user.f_get('status') != 'active':
-        logout_current_user(issue_event)
-        raise _error.LoginError('pytsite.auth@authorization_error')
+    except _error.AuthenticationError as e:
+        _logger.warn(str(e))
+        raise e
 
     # Update login counter
-    if count_login:
-        user.f_inc('login_count').f_set('last_login', _datetime.now()).save()
+    user.f_inc('sign_in_count').f_set('last_sign_in', _datetime.now()).save()
 
     # Update IP address and geo data
-    if update_geo_ip and _router.request():
+    if _router.request():
         user.f_set('last_ip', _router.request().remote_addr)
         if not user.country and user.geo_ip.country:
             user.f_set('country', user.geo_ip.country)
@@ -188,53 +181,45 @@ def authorize(user: _model.User, count_login: bool = True, issue_event: bool = T
         user.save()
 
     # Login event
-    if issue_event:
-        _events.fire('pytsite.auth.login', user=user)
-
-    _router.session()['pytsite.auth.login'] = user.login
+    _events.fire('pytsite.auth.sign_in', user=user)
 
     return user
-
-
-def get_anonymous_user() -> _model.User:
-    """Get anonymous user.
-    """
-    global __anonymous_user
-    if not __anonymous_user:
-        __anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
-
-    return __anonymous_user
 
 
 def get_current_user() -> _model.User:
     """Get currently authorized user.
     """
-    if not _router.session():
-        return get_anonymous_user()
+    # If no session data available, return anonymous user
+    if not _router.session() or not _router.session().get('pytsite.auth.login'):
+        return get_user()
 
-    login = _router.session().get('pytsite.auth.login')
-    if not login:
-        return get_anonymous_user()
+    user = get_user(login=_router.session().get('pytsite.auth.login'))
+    if not user:
+        raise _error.UserNotExist()
 
-    try:
-        user = get_user(login=login)
-        if not user:
-            return get_anonymous_user()
-
-        return authorize(user, False, False, False)
-
-    except _error.LoginError:
-        return get_anonymous_user()
+    return user
 
 
-def logout_current_user(issue_event=True):
-    """Log out current user.
+def sign_out(driver: str = None, issue_event: bool = True):
+    """Sign out current user.
     """
+    if not _router.session():
+        return
+
     user = get_current_user()
-    if not user.is_anonymous:
-        if issue_event:
-            _events.fire('pytsite.auth.logout', user=user)
-        del _router.session()['pytsite.auth.login']
+
+    # Anonymous user cannot be signed out
+    if user.is_anonymous:
+        return
+
+    # Ask driver to perform necessary operations
+    get_driver(driver).sign_out()
+
+    if issue_event:
+        _events.fire('pytsite.auth.sign_out', user=user)
+
+    # Delete user's session data
+    del _router.session()['pytsite.auth.login']
 
 
 def get_user_statuses() -> tuple:
@@ -247,22 +232,28 @@ def get_user_statuses() -> tuple:
     )
 
 
-def get_login_url(driver: str = 'ulogin') -> str:
+def get_sign_in_url(driver: str = None) -> str:
     """Get login URL.
     """
-    return _router.ep_url('pytsite.auth.ep.login', {'driver': driver})
+    if not driver:
+        driver = list(_registered_drivers)[-1]
+
+    return _router.ep_url('pytsite.auth.ep.sign_in', {'driver': driver})
 
 
-def get_logout_url() -> str:
+def get_sign_out_url(driver: str = None) -> str:
     """Get logout URL.
     """
-    return _router.ep_url('pytsite.auth.ep.logout', {'__redirect': _router.current_url()})
+    if not driver:
+        driver = list(_registered_drivers)[-1]
+
+    return _router.ep_url('pytsite.auth.ep.sign_out', {'driver': driver, '__redirect': _router.current_url()})
 
 
 def find_users(active_only: bool = True) -> _odm.Finder:
     """Get users finder.
     """
-    f = _odm.find('user').sort([('login_count', _odm.I_DESC)])
+    f = _odm.find('user').sort([('sign_in_count', _odm.I_DESC)])
     if active_only:
         f.where('status', '=', 'active')
 

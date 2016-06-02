@@ -1,6 +1,6 @@
 pytsite.auth = {
     getLoginForm: function(driver, title, uid, css, modal, success) {
-        pytsite.ajax.get('pytsite.auth.ajax.get_login_form', {
+        pytsite.jsApi.get('pytsite.auth.get_login_form', {
             driver: driver,
             title: title,
             uid: uid,
@@ -13,7 +13,7 @@ pytsite.auth = {
     },
 
     isAnonymous: function(yes, no) {
-        pytsite.ajax.get('pytsite.auth.ajax.is_anonymous', {}, function(resp) {
+        pytsite.jsApi.get('pytsite.auth.is_anonymous', {}, function(resp) {
             if(resp instanceof Boolean) {
                 if (resp)
                     yes();

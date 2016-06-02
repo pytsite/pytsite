@@ -5,7 +5,7 @@ $(window).on('pytsite.widget.init:pytsite.flag._widget.Like', function (e, widge
         if (widget.em.hasClass('flagged') && !confirm(t('pytsite.flag@dislike_confirmation')))
             return;
 
-        pytsite.ajax.post('pytsite.flag.ajax.like', {
+        pytsite.jsApi.post('pytsite.flag.like', {
                 entity: widget.em.data('entity')
             })
             .done(function (data) {

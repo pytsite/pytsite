@@ -166,7 +166,7 @@ def resolve_ep_callable(ep_name: str) -> callable:
 
     endpoint = ep_name.split('.')
     if not len(endpoint):
-        raise TypeError("Invalid format of endpoint specification: '{}'".format(ep_name))
+        raise RuntimeError("Invalid format of endpoint specification: '{}'".format(ep_name))
 
     module_name = '.'.join(endpoint[0:len(endpoint) - 1])
     callable_name = endpoint[-1]
@@ -185,15 +185,22 @@ def resolve_ep_callable(ep_name: str) -> callable:
 def call_ep(ep_name: str, args: dict = None, inp: dict = None):
     """Call a callable.
     """
-    if '_call' in args:
-        args['_call_orig'] = args['_call']
-    args['_call'] = ep_name
+    if args is not None:
+        if '_call' in args:
+            args['_call_orig'] = args['_call']
+        args['_call'] = ep_name
 
-    if '_name' in args:
-        args['_name_orig'] = args['_name']
-    args['_name'] = ep_name
+        if '_name' in args:
+            args['_name_orig'] = args['_name']
+        args['_name'] = ep_name
 
-    return resolve_ep_callable(ep_name)(args, inp)
+        return resolve_ep_callable(ep_name)(args, inp)
+
+    elif inp is not None:
+        return resolve_ep_callable(ep_name)(inp)
+
+    else:
+        return resolve_ep_callable(ep_name)()
 
 
 def dispatch(env: dict, start_response: callable):

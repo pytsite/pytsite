@@ -24,13 +24,6 @@ def jquery_ui() -> list:
     return r
 
 
-def jquery_mobile() -> list:
-    return [
-        'pytsite.browser@jquery-mobile/jquery.mobile-1.4.5.min.css',
-        'pytsite.browser@jquery-mobile/jquery.mobile-1.4.5.min.js',
-    ]
-
-
 def font_awesome() -> list:
     return ['pytsite.browser@font-awesome/css/font-awesome.min.css']
 
@@ -125,20 +118,6 @@ def wow() -> list:
 
 def mousewheel() -> list:
     return ['pytsite.browser@js/jquery.mousewheel.min.js']
-
-
-def smoothscroll() -> list:
-    r = _api.get_assets('mousewheel')
-    r.extend([
-        'pytsite.browser@js/jquery.simplr.smoothscroll.min.js',
-        'pytsite.browser@js/smoothscroll-init.js',
-    ])
-
-    return r
-
-
-def enllax() -> list:
-    return ['pytsite.browser@js/jquery.enllax.min.js']
 
 
 def scrollto() -> list:

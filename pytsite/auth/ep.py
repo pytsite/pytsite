@@ -2,7 +2,7 @@
 """
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
-    router as _router
+    router as _router, logger as _logger
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def login(args: dict, inp: dict) -> str:
+def sign_in(args: dict, inp: dict) -> str:
     """Page with login form.
     """
     # Redirect user if it already authorized
@@ -21,27 +21,42 @@ def login(args: dict, inp: dict) -> str:
         return _http.response.Redirect(redirect_url)
 
     _assetman.add('pytsite.auth@css/common.css')
-    _metatag.t_set('title', _lang.t('pytsite.auth@authorization'))
+    _metatag.t_set('title', _lang.t('pytsite.auth@authentication'))
 
     try:
         return _tpl.render('pytsite.auth@views/login', {
             'driver': args['driver'],
-            'form': _api.get_login_form(args.get('driver')),
+            'form': _api.get_sign_in_form(args.get('driver')),
         })
     except _error.DriverNotRegistered:
         raise _http.error.NotFound()
 
 
-def login_submit(args: dict, inp: dict) -> _http.response.Redirect:
+def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
     """Process login form submit.
     """
-    return _api.post_login_form(args['driver'], inp)
+    for i in ('__form_steps', '__form_step'):
+        if i in inp:
+            del inp[i]
+
+    driver = args.pop('driver')
+    redirect = inp.pop('__redirect', _router.base_url())
+
+    try:
+        user = _api.sign_in(driver, inp)
+        _router.session()['pytsite.auth.login'] = user.login
+        return _http.response.Redirect(redirect)
+
+    except _error.AuthenticationError as e:
+        _router.session().add_error(_lang.t('pytsite.auth@authentication_error'))
+        inp.update({'driver': driver})
+        return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.sign_in', args=inp))
 
 
-def logout(args: dict, inp: dict) -> _http.response.Redirect:
+def sign_out(args: dict, inp: dict) -> _http.response.Redirect:
     """Logout endpoint.
     """
-    _api.logout_current_user()
+    _api.sign_out()
 
     return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 
@@ -61,9 +76,9 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
 
     # Redirecting to the authorization endpoint
     inp['__redirect'] = _escape(_router.current_url(True))
-    inp['driver'] = _api.get_default_driver().name
+    inp['driver'] = _api.get_driver().name
 
     if '__form_location' in inp:
         del inp['__form_location']
 
-    return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.login', inp))
+    return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.sign_in', inp))

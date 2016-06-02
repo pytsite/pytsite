@@ -1,4 +1,19 @@
 # PytSite Changelog
+## 0.70 (2016-06-02)
+### Added
+- New package: `http_api`.
+
+### Changed
+- `auth`:
+    - hugely refactored;
+    - `ulogin` moved to separate package.
+    
+- `ajax`: moved to `js_api`.
+    
+### Removed
+- `browser`: 'jquery-mobile', 'smoothscroll', 'enllax'.
+
+
 ## 0.69.6 (2016-05-30)
 ### Added
 - `content`: support for additional parameters in `[img]` tags.

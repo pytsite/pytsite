@@ -8,20 +8,20 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def auth_login(user: _auth.model.User):
-    """'pytsite.auth.login' event handler.
+def auth_sign_in(user: _auth.model.User):
+    """'pytsite.auth.sign_in' event handler.
     """
     _create_odm_entity(user, _lang.t('pytsite.auth_log@login'))
 
 
-def auth_logout(user: _auth.model.User):
-    """'pytsite.auth.logout' event handler.
+def auth_sign_out(user: _auth.model.User):
+    """'pytsite.auth.sign_out' event handler.
     """
     _create_odm_entity(user, _lang.t('pytsite.auth_log@logout'))
 
 
-def auth_login_error(exception, user: _auth.model.User):
-    """'pytsite.auth.login_error' event handler.
+def auth_sign_in_error(exception, user: _auth.model.User):
+    """'pytsite.auth.sign_in_error' event handler.
     """
     _create_odm_entity(user, str(exception), _api.SEVERITY_WARNING)
 

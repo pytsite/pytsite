@@ -1,5 +1,5 @@
-authorization: 'Авторизация'
-authorization_error: 'Ошибка авторизации'
+authentication: 'Аутентификация'
+authentication_error: 'Ошибка аутентификации'
 enter_admin_email: 'Email администратора'
 role_has_been_created: 'Создана новая роль: :name'
 user_has_been_created: 'Создан новый пользователь: :login'

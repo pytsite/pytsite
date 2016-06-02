@@ -43,8 +43,13 @@ def pytsite_setup():
 def pytsite_router_dispatch():
     """pytsite.router.dispatch Event Handler.
     """
-    # Update user activity timestamp
     user = _api.get_current_user()
+
+    # Check user status
+    if user.status != 'active':
+        _api.sign_out()
+
+    # Update user activity timestamp
     if not user.is_anonymous:
         _router.set_no_cache(True)
         user.f_set('last_activity', _datetime.now()).save(True, False)

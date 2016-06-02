@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, odm, tpl, lang, events, ajax
+    from pytsite import assetman, odm, tpl, lang, events, js_api
     from . import _model, _eh
 
     # ODM models
@@ -24,7 +24,5 @@ def __init():
     # Event listeners
     events.listen('pytsite.odm.entity.delete', _eh.pytsite_odm_entity_delete)
 
-    # AJAX endpoints
-    ajax.register_ep('pytsite.flag.ajax.like')
 
 __init()

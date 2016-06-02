@@ -12,7 +12,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, events, tpl, lang, router, admin, ajax
+    from pytsite import assetman, events, tpl, lang, router, admin, js_api
     from . import _eh
 
     abp = admin.base_path()
@@ -49,8 +49,5 @@ def __init():
     # Event listeners
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)
 
-    # AJAX endpoints
-    ajax.register_ep('pytsite.odm_ui.ep.validate_m_form')
-    ajax.register_ep('pytsite.odm_ui.ajax.entities_delete')
 
 __init()

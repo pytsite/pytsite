@@ -5,17 +5,25 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class NotFound(_e.NotFound):
+class Base(_e.HTTPException):
     pass
 
 
-class Forbidden(_e.Forbidden):
+class NotFound(Base, _e.NotFound):
     pass
 
 
-class InternalServerError(_e.InternalServerError):
+class Unauthorized(Base, _e.Unauthorized):
     pass
 
 
-class MethodNotAllowed(_e.MethodNotAllowed):
+class Forbidden(Base, _e.Forbidden):
+    pass
+
+
+class InternalServerError(Base, _e.InternalServerError):
+    pass
+
+
+class MethodNotAllowed(Base, _e.MethodNotAllowed):
     pass

@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg, util, ajax
+    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg, util, js_api
     from . import _model
 
     # Resources
@@ -49,8 +49,5 @@ def __init():
 
     # robots.txt rules
     robots.disallow(base_path + '/')
-
-    # AJAX API endpoints
-    ajax.register_ep('pytsite.auth_ui.ajax.follow')
 
 __init()

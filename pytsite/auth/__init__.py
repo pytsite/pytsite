@@ -1,9 +1,10 @@
 """ PytSite Auth Module Init.
 """
 # Public API
-from . import _error as error, _model as model
-from ._api import get_current_user, get_user_statuses, get_user, create_user, get_role, get_login_form, find_users, \
-    register_driver, get_default_driver, user_nickname_rule
+from . import _error as error, _model as model, _driver as driver
+from ._api import get_current_user, get_user_statuses, get_user, create_user, get_role, get_sign_in_form, find_users, \
+    register_driver, user_nickname_rule, sign_in, get_driver, create_role, get_sign_in_url, get_sign_out_url, \
+    verify_password, hash_password, sign_out
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +14,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console, ajax, permission
+    from pytsite import reg, assetman, odm, events, tpl, lang, router, robots, console, js_api, permission
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh
 
@@ -28,25 +29,20 @@ def __init():
     odm.register_model('user', _model.User)
     odm.register_model('role', _model.Role)
 
-    # Auth drivers
-    from .driver import ulogin, password
-    register_driver(ulogin.Driver())
-    register_driver(password.Driver())
+    # Base auth driver
+    from ._driver.password import Password
+    register_driver(Password())
 
     # Routes
     base_path = reg.get('auth.base_path', '/auth')
-    router.add_rule(base_path + '/login/<driver>', 'pytsite.auth.ep.login')
-    router.add_rule(base_path + '/login/<driver>/post', 'pytsite.auth.ep.login_submit', methods='POST')
-    router.add_rule(base_path + '/logout', 'pytsite.auth.ep.logout')
-
-    # AJAX endpoints
-    ajax.register_ep('pytsite.auth.ajax.get_login_form')
-    ajax.register_ep('pytsite.auth.ajax.is_anonymous')
+    router.add_rule(base_path + '/sign-in/<driver>', 'pytsite.auth.ep.sign_in')
+    router.add_rule(base_path + '/sign-in/<driver>/post', 'pytsite.auth.ep.sign_in_submit', methods='POST')
+    router.add_rule(base_path + '/sign-out/<driver>', 'pytsite.auth.ep.sign_out')
 
     # Template engine globals
     tpl.register_global('auth_current_user', _api.get_current_user)
-    tpl.register_global('auth_login_url', _api.get_login_url)
-    tpl.register_global('auth_logout_url', _api.get_logout_url)
+    tpl.register_global('auth_sign_in_url', _api.get_sign_in_url)
+    tpl.register_global('auth_sign_out_url', _api.get_sign_out_url)
 
     # Event handlers
     events.listen('pytsite.setup', _eh.pytsite_setup)

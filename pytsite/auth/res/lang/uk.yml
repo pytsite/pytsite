@@ -1,5 +1,5 @@
-authorization: 'Авторизація'
-authorization_error: 'Помилка авторизації'
+authentication: 'Аутентифікація'
+authentication_error: 'Помилка аутентифікації'
 enter_admin_email: 'Email адміністратора'
 role_has_been_created: 'Створена нова роль: :name'
 user_has_been_created: 'Створений новий користувач: :login'

@@ -52,10 +52,10 @@ class Form:
         self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
 
         # AJAX endpoint to load form's widgets
-        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form.ajax.get_widgets')
+        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form.get_widgets')
 
         # AJAX endpoint to perform form validation
-        self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.ajax.validate')
+        self._validation_ep = kwargs.get('validation_ep', 'pytsite.form.validate')
 
         # Form template
         self._tpl = kwargs.get('tpl', 'pytsite.form@form')

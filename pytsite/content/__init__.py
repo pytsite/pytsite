@@ -15,7 +15,7 @@ def __init():
     """Module Init Wrapper.
     """
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
-        ajax
+        js_api
     from . import _eh, _settings
     from ._model import Tag, Section, ContentSubscriber
     from ._console_command import Generate as GenerateConsoleCommand
@@ -26,9 +26,6 @@ def __init():
     # Assets
     assetman.register_package(__name__)
     browser.include('responsive', True)
-
-    # Browser API endpoints
-    ajax.register_ep('pytsite.content.ep.view_count')
 
     # Common routes
     router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')
@@ -44,7 +41,6 @@ def __init():
                     filters='pytsite.auth.ep.filter_authorize')
 
     # Content subscription routes
-    ajax.register_ep('pytsite.content.ep.subscribe')
     router.add_rule('/content/subscribe', 'pytsite.content.ep.subscribe', methods='POST')
     router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.ep.unsubscribe')
 
