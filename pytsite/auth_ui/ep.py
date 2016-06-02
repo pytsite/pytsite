@@ -50,6 +50,7 @@ def profile_view(args: dict, inp: dict) -> str:
 
     # Default response
     return _tpl.render(tpl_name, {
+        'user': profile_owner,
         'profile_widget': profile_widget,
     })
 

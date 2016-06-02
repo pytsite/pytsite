@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def follow(args: dict, inp: dict) -> dict:
+def follow(inp: dict) -> dict:
     """Follow widget JS endpoint.
     """
     op = inp.get('op')

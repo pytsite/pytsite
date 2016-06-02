@@ -27,6 +27,8 @@ class AddThis(_widget.Base):
 
         self._url = kwargs.get('url')
 
+        self._css += ' widget-addthis'
+
         _assetman.add('//s7.addthis.com/js/300/addthis_widget.js#pubid=' + self._pub_id)
 
     def get_html_em(self, **kwargs) -> _html.Element:

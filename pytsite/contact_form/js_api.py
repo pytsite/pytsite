@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def submit(args: dict, inp: dict) -> dict:
+def submit(inp: dict) -> dict:
     """Precess form submission.
     """
     for field in ('contact_name', 'contact_email', 'contact_message'):

@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.70.1 (2016-06-02)
+### Fixed
+- `auth`, `contact_form`, `flag`, `content`: inaccessible `js_api`'s endpoints. 
+
+
 ## 0.70 (2016-06-02)
 ### Added
 - New package: `http_api`.

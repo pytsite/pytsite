@@ -1,1 +1,1 @@
-# PytSite: The Simple Web Framework
+# PytSite: Yet Another Python Web Framework
