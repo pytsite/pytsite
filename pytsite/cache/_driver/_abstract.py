@@ -42,6 +42,12 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
+    def ttl(self, key: str) -> int:
+        """Get key's expiration time.
+        """
+        pass
+
+    @_abstractmethod
     def rnm(self, key: str, new_key: str):
         """Rename a key.
         """

@@ -10,7 +10,7 @@ def _init():
     from pytsite import router
     from . import ep
 
-    router.add_rule('/api/<int:version>/<string:package>/<string:callback>', 'pytsite.http_api.ep.entry')
+    router.add_rule('/api/<int:version>/<package>/<callback>', 'pytsite.http_api@entry')
 
 
 _init()

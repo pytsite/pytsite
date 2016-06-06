@@ -1,7 +1,7 @@
 """Password Auth Driver.
 """
 from pytsite import form as _form, lang as _lang, widget as _widget, router as _router
-from .. import _api, _error
+from .. import _api, _error, _model
 from .abstract import Abstract
 
 __author__ = 'Alexander Shepetko'
@@ -57,7 +57,7 @@ class Password(Abstract):
         # TODO
         pass
 
-    def sign_in(self, data: dict):
+    def sign_in(self, data: dict) -> _model.User:
         """Authenticate user.
         """
         login = data.get('login')
@@ -77,7 +77,7 @@ class Password(Abstract):
 
         return user
 
-    def sign_out(self):
+    def sign_out(self, user: _model.User):
         """End user's session.
         """
         pass

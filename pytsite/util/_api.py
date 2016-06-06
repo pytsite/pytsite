@@ -3,7 +3,8 @@
 import random as _random
 import re as _re
 import pytz as _pytz
-from typing import Iterable as _Iterable
+from importlib import import_module as _import_module
+from typing import Iterable as _Iterable, Callable as _Callable
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
 from datetime import datetime as _datetime
@@ -434,3 +435,22 @@ def to_snake_case(s: str) -> str:
     """
     s = _re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
     return _re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
+
+
+def get_callable(s: str) -> callable:
+    """Check if the object described by a string is callable.
+    """
+    s = s.split('.')
+
+    module_name = '.'.join(s[:-1])
+    callable_name = ''.join(s[-1:])
+
+    module = _import_module(module_name)
+    if callable_name not in dir(module):
+        raise ImportError("Module '{}' doesn't define '{}'".format(module_name, callable_name))
+
+    callable_obj = getattr(module, callable_name)
+    if not callable(callable_obj):
+        raise ImportError("Object '{}' of module '{}' is not callable".format(callable_name, module_name))
+
+    return callable_obj

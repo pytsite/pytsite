@@ -1,7 +1,7 @@
 """Content Models
 """
 import re as _re
-from typing import Tuple as _Tuple, Union as _Union
+from typing import Tuple as _Tuple, Union as _Union, List as _List
 from datetime import datetime as _datetime, timedelta as _timedelta
 from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
@@ -413,7 +413,7 @@ class Content(Base):
 
     def ui_view_url(self) -> str:
         if not self.is_new:
-            target_path = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': str(self.id)}, True)
+            target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)}, True)
             r_alias = _route_alias.find_by_target(target_path, self.language)
             value = r_alias.alias if r_alias else target_path
 
@@ -526,7 +526,7 @@ class Content(Base):
 
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
-            target = _router.ep_path('pytsite.content.ep.view', {'model': self.model, 'id': self.id}, True)
+            target = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': self.id}, True)
             self.route_alias.f_set('target', target).save()
 
         if first_save:
@@ -789,7 +789,7 @@ class Content(Base):
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-    def as_dict(self, fields: tuple = (), **kwargs):
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
         """Get serializable representation of a product.
         """
         r = super().as_dict(fields)

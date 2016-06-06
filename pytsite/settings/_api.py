@@ -29,7 +29,7 @@ def define(uid: str, form_widgets_setup: _Callable, menu_title: str, menu_icon: 
     if perm_name != '*' and perm_description:
         _permission.define_permission(perm_name, perm_description, 'admin')
 
-    url = _router.ep_url('pytsite.settings.ep.form', {'uid': uid})
+    url = _router.ep_url('pytsite.settings@form', {'uid': uid})
     _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, permissions=perm_name)
 
 

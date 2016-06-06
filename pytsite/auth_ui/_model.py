@@ -1,5 +1,6 @@
 """ODM UI Models.
 """
+from typing import Union as _Union, List as _List, Tuple as _Tuple
 from pytsite import html as _html, lang as _lang, widget as _widget, odm as _odm, validation as _validation, \
     http as _http, router as _router, metatag as _metatag, auth as _auth, odm_ui as _odm_ui, form as _form, \
     permission as _permission, admin as _admin
@@ -37,10 +38,10 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         browser.default_sort_field = 'last_activity'
 
     def ui_view_url(self) -> str:
-        return _router.ep_url('pytsite.auth_ui.ep.profile_view', {'nickname': self.nickname})
+        return _router.ep_url('pytsite.auth_ui@profile_view', {'nickname': self.nickname})
 
     def ui_m_form_url(self, args: dict = None) -> str:
-        return _router.ep_url('pytsite.auth_ui.ep.profile_edit', {'nickname': self.nickname})
+        return _router.ep_url('pytsite.auth_ui@profile_edit', {'nickname': self.nickname})
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -253,16 +254,16 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
             content_wrapper.add_widget(_widget.input.Text(
                 weight=150,
-                uid='token',
-                value=self.f_get('token'),
+                uid='access_token',
+                value=self.access_token,
                 label=self.t('token'),
             ))
-            frm.add_rules('token', (
+            frm.add_rules('access_token', (
                 _validation.rule.Regex(pattern='^[a-f0-9]{32}$'),
                 _odm.validation.FieldUnique(
                     msg_id='pytsite.auth_ui@this_token_already_used',
                     model=self.model,
-                    field='token',
+                    field='access_token',
                     exclude_ids=self.id)
             ))
 
@@ -274,7 +275,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """
         return self.login
 
-    def as_dict(self, fields: tuple = (), **kwargs) -> dict:
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> dict:
         r = super().as_dict(fields, **kwargs)
 
         # View URL

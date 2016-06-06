@@ -16,29 +16,29 @@ def __init():
     from . import _eh
 
     abp = admin.base_path()
-    auth_filter = 'pytsite.auth.ep.filter_authorize'
+    auth_filter = 'pytsite.auth@filter_authorize'
 
     # Route: ODM browser page
-    router.add_rule(abp + '/odm_ui/<string:model>', 'pytsite.odm_ui.ep.browse', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<model>', 'pytsite.odm_ui@browse', filters=auth_filter)
 
     # Route: get ODM browser table rows
-    router.add_rule(abp + '/odm_ui/browse_get_rows/<string:model>', 'pytsite.odm_ui.ep.browse_get_rows',
+    router.add_rule(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows',
                     filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form show
-    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>', 'pytsite.odm_ui.ep.m_form',
+    router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form',
                     filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form submit
-    router.add_rule(abp + '/odm_ui/<string:model>/modify/<string:id>/submit', 'pytsite.odm_ui.ep.m_form_submit',
+    router.add_rule(abp + '/odm_ui/<model>/modify/<id>/submit', 'pytsite.odm_ui@m_form_submit',
                     methods='POST', filters=auth_filter)
 
     # Route: 'delete' form show
-    router.add_rule(abp + '/odm_ui/<string:model>/delete', 'pytsite.odm_ui.ep.d_form',
+    router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form',
                     filters=auth_filter)
 
     # Route: 'delete' form submit
-    router.add_rule(abp + '/odm_ui/<string:model>/delete/submit', 'pytsite.odm_ui.ep.d_form_submit',
+    router.add_rule(abp + '/odm_ui/<model>/delete/submit', 'pytsite.odm_ui@d_form_submit',
                     filters=auth_filter)
 
     # Resources

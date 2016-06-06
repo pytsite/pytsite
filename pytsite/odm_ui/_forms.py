@@ -68,7 +68,7 @@ class Modify(_form.Form):
                 self._redirect = 'ENTITY_VIEW'
 
         # Action URL
-        self._action = _router.ep_url('pytsite.odm_ui.ep.m_form_submit', {
+        self._action = _router.ep_url('pytsite.odm_ui@m_form_submit', {
             'model': self._model,
             'id': self._eid or '0',
         })
@@ -132,7 +132,7 @@ class MassAction(_form.Form):
         """Hook.
         """
         if not self._redirect:
-            self._redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': self._model})
+            self._redirect = _router.ep_url('pytsite.odm_ui@browse', {'model': self._model})
 
     def _setup_widgets(self):
         """Hook.
@@ -178,7 +178,7 @@ class Delete(MassAction):
             raise _http.error.Forbidden()
 
         # Action URL
-        self._action = _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {'model': self._model})
+        self._action = _router.ep_url('pytsite.odm_ui@d_form_submit', {'model': self._model})
 
         # Page title
         model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity

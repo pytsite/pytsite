@@ -32,7 +32,7 @@ def __init():
     # Admin menu
     admin.sidebar.add_section('currency', 'pytsite.currency@currency', 260)
     admin.sidebar.add_menu('currency', 'rates', 'pytsite.currency@rates',
-                           router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'currency_rate'}),
+                           router.ep_url('pytsite.odm_ui@browse', {'model': 'currency_rate'}),
                            'fa fa-usd', weight=10, permissions='pytsite.odm_ui.browse.currency_rate')
 
     # Event handlers

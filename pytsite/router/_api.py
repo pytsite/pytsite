@@ -161,25 +161,9 @@ def is_ep_callable(ep_name: str) -> bool:
 
 
 def resolve_ep_callable(ep_name: str) -> callable:
-    if '$theme' in ep_name:
-        ep_name = ep_name.replace('$theme', 'app.themes.' + _reg.get('output.theme'))
+    ep_name = ep_name.replace('$theme', 'app.themes.' + _reg.get('output.theme')).replace('@', '.ep.')
 
-    endpoint = ep_name.split('.')
-    if not len(endpoint):
-        raise RuntimeError("Invalid format of endpoint specification: '{}'".format(ep_name))
-
-    module_name = '.'.join(endpoint[0:len(endpoint) - 1])
-    callable_name = endpoint[-1]
-
-    module = _import_module(module_name)
-    if callable_name not in dir(module):
-        raise ImportError("'{}' is not callable".format(ep_name))
-
-    callable_obj = getattr(module, callable_name)
-    if not hasattr(callable_obj, '__call__'):
-        raise ImportError("'{}' is not callable".format(ep_name))
-
-    return callable_obj
+    return _util.get_callable(ep_name)
 
 
 def call_ep(ep_name: str, args: dict = None, inp: dict = None):
@@ -341,8 +325,8 @@ def dispatch(env: dict, start_response: callable):
         events.fire('pytsite.router.exception', args=args)
 
         # User defined exception handler
-        if is_ep_callable('$theme.ep.exception'):
-            wsgi_response = call_ep('$theme.ep.exception', args)
+        if is_ep_callable('$theme@exception'):
+            wsgi_response = call_ep('$theme@exception', args)
 
         # Builtin exception handler
         else:

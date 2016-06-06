@@ -1,6 +1,7 @@
 """Auth Models
 """
 import hashlib as _hashlib
+from typing import Union as _Union, Tuple as _Tuple, List as _List
 from frozendict import frozendict as _frozendict
 from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
@@ -19,7 +20,7 @@ class Role(_odm.Entity):
         """
         self.define_field(_odm.field.String('name'))
         self.define_field(_odm.field.String('description'))
-        self.define_field(_odm.field.UniqueList('permissions', allowed_types=(str,)))
+        self.define_field(_odm.field.UniqueStringList('permissions'))
 
     def _setup_indexes(self):
         """Hook.
@@ -46,7 +47,7 @@ class Role(_odm.Entity):
         # Check if the role is used by users
         for user in _api.find_users(False).get():
             if user.has_role(self.name):
-                raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.login}))
+                raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.f_get('login')}))
 
 
 class User(_odm.Entity):
@@ -60,7 +61,7 @@ class User(_odm.Entity):
         self.define_field(_odm.field.String('email', nonempty=True))
         self.define_field(_odm.field.String('password', nonempty=True))
         self.define_field(_odm.field.String('nickname', nonempty=True))
-        self.define_field(_odm.field.String('token', nonempty=True))
+        self.define_field(_odm.field.String('access_token'))
         self.define_field(_odm.field.String('first_name'))
         self.define_field(_odm.field.String('last_name'))
         self.define_field(_odm.field.Virtual('full_name'))
@@ -70,7 +71,7 @@ class User(_odm.Entity):
         self.define_field(_odm.field.DateTime('last_activity'))
         self.define_field(_odm.field.Integer('sign_in_count'))
         self.define_field(_odm.field.String('status', default='active'))
-        self.define_field(_odm.field.RefsList('roles', model='role'))
+        self.define_field(_odm.field.RefsUniqueList('roles', model='role'))
         self.define_field(_odm.field.Integer('gender'))
         self.define_field(_odm.field.String('phone'))
         self.define_field(_odm.field.Dict('options'))
@@ -78,8 +79,8 @@ class User(_odm.Entity):
         self.define_field(_odm.field.Virtual('picture_url'))
         self.define_field(_odm.field.StringList('urls', unique=True))
         self.define_field(_odm.field.Virtual('is_online'))
-        self.define_field(_odm.field.RefsList('follows', model='user'))
-        self.define_field(_odm.field.RefsList('followers', model='user'))
+        self.define_field(_odm.field.RefsUniqueList('follows', model='user'))
+        self.define_field(_odm.field.RefsUniqueList('followers', model='user'))
         self.define_field(_odm.field.String('last_ip'))
         self.define_field(_odm.field.Virtual('geo_ip'))
         self.define_field(_odm.field.String('country'))
@@ -90,7 +91,7 @@ class User(_odm.Entity):
         """
         self.define_index([('login', _odm.I_ASC)], unique=True)
         self.define_index([('nickname', _odm.I_ASC)], unique=True)
-        self.define_index([('token', _odm.I_ASC)], unique=True)
+        self.define_index([('access_token', _odm.I_ASC)])
         self.define_index([('last_sign_in', _odm.I_DESC)])
 
     @property
@@ -178,8 +179,8 @@ class User(_odm.Entity):
         return self.f_get('password')
 
     @property
-    def token(self) -> str:
-        return self.f_get('token')
+    def access_token(self) -> str:
+        return self.f_get('access_token')
 
     @property
     def roles(self) -> _Iterable[Role]:
@@ -226,12 +227,10 @@ class User(_odm.Entity):
             from ._api import hash_password
             if value:
                 value = hash_password(value)
-                self.f_set('token', _util.random_str(32))
             else:
                 if self.is_new:
                     # Set random password
                     value = hash_password(_util.random_password())
-                    self.f_set('token', _util.random_str(32))
                 else:
                     # Keep old password
                     value = self.password
@@ -254,9 +253,6 @@ class User(_odm.Entity):
 
         if not self.password:
             self.f_set('password', '')
-
-        if not self.token:
-            self.f_set('token', _util.random_str(32))
 
         if not self.nickname:
             m = _hashlib.md5()
@@ -335,3 +331,14 @@ class User(_odm.Entity):
                 value = _geo_ip.resolve('0.0.0.0')
 
         return value
+
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
+        # Never show user's password
+        r = super().as_dict([f for f in fields if f != 'password'], **kwargs)
+
+        if 'geo_ip' in r:
+            r['geo_ip'] = self.geo_ip.as_dict(('ip', 'asn', 'city', 'country', 'country_code', 'isp', 'longitude',
+                                               'latitude', 'location', 'organization', 'postal_code', 'region',
+                                               'region_name', 'timezone'))
+
+        return r

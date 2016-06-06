@@ -11,7 +11,7 @@ __license__ = 'MIT'
 def __init():
     from pytsite import router, assetman
 
-    router.add_rule('/pytsite/js_api/<string:endpoint>', 'pytsite.js_api.ep.entry', methods=('GET', 'POST'))
+    router.add_rule('/pytsite/js_api/<endpoint>', 'pytsite.js_api@entry', methods=('GET', 'POST'))
 
     assetman.register_package(__name__)
     assetman.add(__name__ + '@js/common.js', permanent=True)

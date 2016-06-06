@@ -19,13 +19,13 @@ def __init():
 
     router.add_rule(
         '/file/upload/<string:model>',
-        'pytsite.file.ep.upload',
-        filters=('pytsite.auth.ep.filter_authorize',)
+        'pytsite.file@upload',
+        filters=('pytsite.auth@filter_authorize',)
     )
 
     router.add_rule(
         '/file/download/<string:model>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',
-        'pytsite.file.ep.download',
+        'pytsite.file@download',
     )
 
     lang.register_package(__name__)

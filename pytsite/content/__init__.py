@@ -28,21 +28,21 @@ def __init():
     browser.include('responsive', True)
 
     # Common routes
-    router.add_rule('/content/index/<string:model>', 'pytsite.content.ep.index')
-    router.add_rule('/content/view/<string:model>/<string:id>', 'pytsite.content.ep.view')
-    router.add_rule('/content/count/<string:model>/<string:id>', 'pytsite.content.ep.view_count')
-    router.add_rule('/content/search/<string:model>', 'pytsite.content.ep.search', call='pytsite.content.ep.index')
-    router.add_rule('/content/ajax_search/<string:model>', 'pytsite.content.ep.ajax_search')
+    router.add_rule('/content/index/<model>', 'pytsite.content@index')
+    router.add_rule('/content/view/<model>/<id>', 'pytsite.content@view')
+    router.add_rule('/content/count/<model>/<id>', 'pytsite.content@view_count')
+    router.add_rule('/content/search/<model>', 'pytsite.content@search', call='pytsite.content@index')
+    router.add_rule('/content/ajax_search/<model>', 'pytsite.content@ajax_search')
 
     # Propose route
-    router.add_rule('/content/propose/<string:model>', 'pytsite.content.ep.propose',
-                    filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule('/content/propose/<string:model>/submit', 'pytsite.content.ep.propose_submit',
-                    filters='pytsite.auth.ep.filter_authorize')
+    router.add_rule('/content/propose/<model>', 'pytsite.content@propose',
+                    filters='pytsite.auth@filter_authorize')
+    router.add_rule('/content/propose/<model>/submit', 'pytsite.content@propose_submit',
+                    filters='pytsite.auth@filter_authorize')
 
     # Content subscription routes
-    router.add_rule('/content/subscribe', 'pytsite.content.ep.subscribe', methods='POST')
-    router.add_rule('/content/unsubscribe/<string:id>', 'pytsite.content.ep.unsubscribe')
+    router.add_rule('/content/subscribe', 'pytsite.content@subscribe', methods='POST')
+    router.add_rule('/content/unsubscribe/<id>', 'pytsite.content@unsubscribe')
 
     # Taxonomy models
     taxonomy.register_model('section', Section, __name__ + '@sections')

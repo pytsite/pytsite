@@ -23,3 +23,7 @@ class UserNotExist(Exception):
 
 class UserExists(Exception):
     pass
+
+
+class InvalidAccessToken(Exception):
+    pass

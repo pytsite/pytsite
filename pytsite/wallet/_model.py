@@ -240,7 +240,7 @@ class Transaction(_odm_ui.UIEntity):
 
     @classmethod
     def ui_browser_get_mass_action_buttons(cls) -> tuple:
-        return {'ep': 'pytsite.wallet.ep.transactions_cancel',
+        return {'ep': 'pytsite.wallet@transactions_cancel',
                 'icon': 'undo',
                 'color': 'danger',
                 'title': Transaction.t('odm_ui_form_title_delete_wallet_transaction')},
@@ -269,7 +269,7 @@ class Transaction(_odm_ui.UIEntity):
     def ui_browser_get_entity_actions(self) -> tuple:
         if self.state == 'committed':
             return {'icon': 'undo',
-                    'ep': 'pytsite.wallet.ep.transactions_cancel',
+                    'ep': 'pytsite.wallet@transactions_cancel',
                     'color': 'danger',
                     'title': self.t('cancel')},
 

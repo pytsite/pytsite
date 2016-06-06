@@ -1,9 +1,5 @@
 """Pytsite Mail Subsystem.
 """
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 import threading
 from os import path as _path
 from mimetypes import guess_type as _guess_mime_type
@@ -12,6 +8,10 @@ from email.mime.multipart import MIMEMultipart as _MIMEMultipart
 from email.mime.image import MIMEImage as _MIMEImage
 from email.mime.text import MIMEText as _MIMEText
 from pytsite import reg as _reg, logger as _logger, router as _router
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
 
 
 class Message(_MIMEMultipart):

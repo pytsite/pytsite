@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def transactions_cancel(args: dict, inp: dict):
-    browse_url = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_transaction'})
+    browse_url = _router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_transaction'})
 
     ids = inp.get('ids')
     if not ids:
@@ -35,6 +35,6 @@ def transactions_cancel_submit(args: dict, inp: dict):
         entity = _odm.dispense('wallet_transaction', eid)  # type: _model.Transaction
         entity.cancel()
 
-    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_transaction'}))
+    redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_transaction'}))
 
     return _http.response.Redirect(redirect)

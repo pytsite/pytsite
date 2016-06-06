@@ -70,7 +70,7 @@ def index(args: dict, inp: dict):
 
     args['entities'] = list(f.skip(pager.skip).get(pager.limit))
     args['pager'] = pager
-    endpoint = _reg.get('content.endpoints.view.' + model, '$theme.ep.' + model + '_index')
+    endpoint = _reg.get('content.endpoints.view.' + model, '$theme@' + model + '_index')
 
     return _router.call_ep(endpoint, args, inp)
 
@@ -142,7 +142,7 @@ def view(args: dict, inp: dict):
     _assetman.add('pytsite.content@js/content.js')
 
     args['entity'] = entity
-    endpoint = _reg.get('content.endpoints.view.' + model, '$theme.ep.' + model + '_view')
+    endpoint = _reg.get('content.endpoints.view.' + model, '$theme@' + model + '_view')
 
     return _router.call_ep(endpoint, args, inp)
 
@@ -151,7 +151,7 @@ def propose(args: dict, inp: dict) -> str:
     """Propose content endpoint.
     """
     model = args.get('model')
-    endpoint = _reg.get('content.endpoints.propose.' + model, '$theme.ep.' + model + '_propose')
+    endpoint = _reg.get('content.endpoints.propose.' + model, '$theme@' + model + '_propose')
 
     frm = _odm_ui.get_m_form(model, redirect=_router.base_url())
     frm.title = None

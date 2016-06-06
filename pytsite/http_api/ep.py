@@ -16,8 +16,8 @@ def entry(args: dict, inp: dict):
     endpoint = None
 
     # Searching for callable endpoint
-    for v in ('v' + str(version), 'any'):
-        possible_ep = '{}.http_api.{}_{}_{}'.format(package, v, method, callback)
+    for v in ('v' + str(version) + '_', ''):
+        possible_ep = '{}.http_api.{}{}_{}'.format(package, v, method, callback)
         if _router.is_ep_callable(possible_ep):
             endpoint = possible_ep
             break
@@ -35,9 +35,9 @@ def entry(args: dict, inp: dict):
         return _http.response.JSON(r, code)
 
     except _http.error.Base as e:
-        _logger.warn("Endpoint '" + endpoint + '": ' + str(e), __name__)
+        _logger.warn("Endpoint '" + str(endpoint) + '": ' + str(e.description), __name__)
         return _http.response.JSON({'error': str(e.description)}, e.code)
 
     except Exception as e:
-        _logger.error("Endpoint '" + endpoint + '": ' + str(e), __name__)
+        _logger.error("Endpoint '" + str(endpoint) + '": ' + str(e), __name__)
         return _http.response.JSON({'error': str(e)}, 500)

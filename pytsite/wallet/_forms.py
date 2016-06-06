@@ -20,7 +20,7 @@ class TransactionsCancel(_odm_ui.forms.MassAction):
             raise _http.error.Forbidden()
 
         # Action URL
-        self._action = _router.ep_url('pytsite.wallet.ep.transactions_cancel_submit')
+        self._action = _router.ep_url('pytsite.wallet@transactions_cancel_submit')
 
         # Page title
         _metatag.t_set('title', _lang.t('pytsite.wallet@odm_ui_form_title_cancel_' + self._model))

@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg, util, js_api
+    from pytsite import admin, odm, tpl, lang, router, assetman, robots, reg, util
     from . import _model
 
     # Resources
@@ -18,10 +18,10 @@ def __init():
 
     # Routes
     base_path = reg.get('auth_ui.base_path', '/auth_ui')
-    router.add_rule(base_path + '/profile/<string:nickname>', 'pytsite.auth_ui.ep.profile_view')
-    router.add_rule(base_path + '/profile/<string:nickname>/edit', 'pytsite.auth_ui.ep.profile_edit',
-                    filters='pytsite.auth.ep.filter_authorize')
-    router.add_rule(base_path + '/profile/<string:nickname>/edit/submit', 'pytsite.auth_ui.ep.profile_edit_submit',
+    router.add_rule(base_path + '/profile/<nickname>', 'pytsite.auth_ui@profile_view')
+    router.add_rule(base_path + '/profile/<nickname>/edit', 'pytsite.auth_ui@profile_edit',
+                    filters='pytsite.auth@filter_authorize')
+    router.add_rule(base_path + '/profile/<nickname>/edit/submit', 'pytsite.auth_ui@profile_edit_submit',
                     methods='POST')
 
     # Replace 'user' and 'role' models with UI-compatible
@@ -35,12 +35,12 @@ def __init():
                               permissions=('pytsite.odm_ui.browse.user', 'pytsite.odm_ui.browse.role'))
 
     # 'Users' admin sidebar menu
-    url = router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'user'})
+    url = router.ep_url('pytsite.odm_ui@browse', {'model': 'user'})
     admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_ui@users', url, 'fa fa-user', weight=10,
                            permissions=('pytsite.odm_ui.browse.user',))
 
     # 'Roles' admin sidebar menu
-    url = router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'role'})
+    url = router.ep_url('pytsite.odm_ui@browse', {'model': 'role'})
     admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_ui@roles', url, 'fa fa-users', weight=20,
                            permissions=('pytsite.odm_ui.browse.role',))
 

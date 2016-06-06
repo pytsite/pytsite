@@ -1,5 +1,6 @@
 """ODM models.
 """
+import re as _re
 from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
@@ -152,7 +153,7 @@ class Entity(_ABC):
 
             # Check for field existence
             if not self.has_field(field_name.split('.')[0]):
-                raise Exception("Entity {} doesn't have field {}.".format(self.model, field_name))
+                raise RuntimeError("Entity {} doesn't have field {}.".format(self.model, field_name))
 
             # Check index type
             if index_type not in (I_ASC, I_DESC, I_GEO2D, I_TEXT, I_GEOSPHERE):
@@ -630,7 +631,6 @@ class Entity(_ABC):
             self.lock()
 
         try:
-
             # Pre-save hook
             if not skip_hooks:
                 self._pre_save()
@@ -787,24 +787,55 @@ class Entity(_ABC):
 
         return r
 
-    def as_dict(self, fields: tuple = (), **kwargs) -> _Dict:
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> _Dict:
         """Get dictionary representation of the entity.
         """
         r = {}
         for f_name in fields:
+            f_name = _re.sub('\..+', '', f_name)
             if self.has_field(f_name):
                 f = self.get_field(f_name)
 
+                # Reference to another entity
                 if isinstance(f, _field.Ref):
                     f_val = f.get_val()
                     if f_val:
-                        sub_fields = tuple([sub_f_name.replace(f_name + '.', '')
-                                            for sub_f_name in fields if sub_f_name.startswith(f_name + '.')])
-                        r[f_name] = f_val.as_dict(sub_fields)
+                        # Build list of sub-fields to include
+                        sub_fields = []
+                        for sub_f_name in fields:
+                            if sub_f_name.startswith(f_name + '.'):
+                                sub_fields.append(sub_f_name.replace(f_name + '.', ''))
+                        r[f_name] = f_val.as_dict(sub_fields, **kwargs)
+
+                # List of references
+                elif isinstance(f, _field.RefsList):
+                    r[f_name] = []
+
+                    # Build list of sub-fields to include
+                    sub_fields = []
+                    for sub_f_name in fields:
+                        if sub_f_name.startswith(f_name + '.'):
+                            sub_fields.append(sub_f_name.replace(f_name + '.', ''))
+
+                    for ref in f.get_val():
+                        r[f_name].append(ref.as_dict(sub_fields))
+
+                # Virtual field
                 elif isinstance(f, _field.Virtual):
                     r[f_name] = self.f_get(f_name)
+
+                # Simply serializable field
                 else:
                     r[f_name] = f.get_serializable_val()
+
+            elif f_name == 'id':
+                r[f_name] = str(self._id)
+
+            elif f_name == 'model':
+                r[f_name] = self._model
+
+            elif f_name == 'ref':
+                r[f_name] = self._model + ':' + str(self._id)
 
         return r
 

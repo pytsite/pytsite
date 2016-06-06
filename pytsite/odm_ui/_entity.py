@@ -1,6 +1,6 @@
 """PytSite ODM UI Entity.
 """
-from typing import Tuple as _Tuple, Dict as _Dict
+from typing import Tuple as _Tuple, Dict as _Dict, Union as _Union, List as _List
 from pytsite import odm as _odm, router as _router, form as _form
 
 __author__ = 'Alexander Shepetko'
@@ -106,13 +106,13 @@ class UIMixin:
     def ui_d_form_url(self, ajax: bool = False) -> str:
         if hasattr(self, 'model') and hasattr(self, 'id'):
             if ajax:
-                return _router.ep_url('pytsite.odm_ui.ep.d_form_submit', {
+                return _router.ep_url('pytsite.odm_ui@d_form_submit', {
                     'model': self.model,
                     'ids': str(self.id),
                     'ajax': 'true'
                 })
             else:
-                return _router.ep_url('pytsite.odm_ui.ep.d_form', {
+                return _router.ep_url('pytsite.odm_ui@d_form', {
                     'model': self.model,
                     'ids': str(self.id)
                 })
@@ -126,7 +126,7 @@ class UIMixin:
 
             args.update({'model': self.model, 'id': str(self.id)})
 
-            return _router.ep_url('pytsite.odm_ui.ep.m_form', args)
+            return _router.ep_url('pytsite.odm_ui@m_form', args)
 
         else:
             raise RuntimeError('Not implemented yet.')
@@ -144,7 +144,7 @@ class UIMixin:
 
 
 class UIEntity(_odm.Entity, UIMixin):
-    def as_dict(self, fields: tuple = (), **kwargs) -> dict:
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> dict:
         r = super().as_dict(fields, **kwargs)
 
         # View URL

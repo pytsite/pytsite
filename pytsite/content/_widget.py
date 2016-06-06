@@ -36,7 +36,7 @@ class StatusSelect(_widget.select.Select):
 
 class EntitySelect(_widget.select.Select2):
     def __init__(self, uid: str, **kwargs):
-        kwargs['ajax_url'] = _router.ep_url('pytsite.content.ep.ajax_search', {
+        kwargs['ajax_url'] = _router.ep_url('pytsite.content@ajax_search', {
             'model': kwargs.get('model'),
             'language': kwargs.get('language', _lang.get_current()),
         })
@@ -114,7 +114,7 @@ class Search(_widget.Base):
         self._form = _html.Form(cls='wrapper form-inline', method='GET')
         self._form.append(_html.Input(type='text', cls='form-control', name='search',  required=True, value=self.value,
                           placeholder=_lang.t('pytsite.content@search_input_placeholder')))
-        self._form.set_attr('action', _router.ep_url('pytsite.content.ep.search', {'model': self._model}))
+        self._form.set_attr('action', _router.ep_url('pytsite.content@search', {'model': self._model}))
 
         btn = _html.Button(type='submit', cls='btn btn-default')
         self._form.append(btn.append(_html.I(cls='fa fa-search')))

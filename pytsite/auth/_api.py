@@ -3,8 +3,9 @@
 from typing import Dict as _Dict
 from collections import OrderedDict
 from datetime import datetime as _datetime
-from pytsite import reg as _reg, http as _http, odm as _odm, form as _form, lang as _lang, router as _router, \
-    events as _events, validation as _validation, geo_ip as _geo_ip, logger as _logger
+from pytsite import reg as _reg, odm as _odm, form as _form, lang as _lang, router as _router, cache as _cache, \
+    events as _events, validation as _validation, geo_ip as _geo_ip, logger as _logger, util as _util, \
+    threading as _threading
 from . import _error, _model, _driver
 
 __author__ = 'Alexander Shepetko'
@@ -16,6 +17,7 @@ _registered_drivers = OrderedDict()  # type: _Dict[str, _driver.Abstract]
 __permission_groups = []
 __permissions = []
 _anonymous_user = None
+_access_tokens = _cache.create_pool('pytsite.auth.access_tokens')
 
 user_login_rule = _validation.rule.Email()
 user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
@@ -26,14 +28,14 @@ def hash_password(secret: str) -> str:
     """Hash a password.
     """
     from werkzeug.security import generate_password_hash
-    return generate_password_hash(secret)
+    return generate_password_hash(str(secret))
 
 
 def verify_password(clear_text: str, hashed: str) -> bool:
     """Verify hashed password.
     """
     from werkzeug.security import check_password_hash
-    return check_password_hash(hashed, clear_text)
+    return check_password_hash(str(hashed), str(clear_text))
 
 
 def register_driver(driver: _driver.Abstract):
@@ -78,7 +80,7 @@ def get_sign_in_form(driver_name: str = None, uid: str = None, **kwargs) -> _for
         kwargs['title'] = _lang.t('pytsite.auth@authentication')
 
     form = driver.get_sign_in_form(uid, **kwargs)
-    form.action = _router.ep_url('pytsite.auth.ep.sign_in_submit', {'driver': driver.name})
+    form.action = _router.ep_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
 
     return form
 
@@ -111,7 +113,7 @@ def create_user(login: str, password: str = None) -> _model.User:
     return user
 
 
-def get_user(login: str = None, uid: str = None, nickname: str = None) -> _model.User:
+def get_user(login: str = None, uid: str = None, nickname: str = None, access_token: str = None) -> _model.User:
     """Get user by login, nickname or by uid.
     """
     # Don't cache finder results due to frequent user updates in database
@@ -124,6 +126,10 @@ def get_user(login: str = None, uid: str = None, nickname: str = None) -> _model
 
     elif nickname is not None:
         return f.where('nickname', '=', nickname).first()
+
+    elif access_token is not None:
+        if _access_tokens.has(access_token):
+            return f.where('access_token', '=', access_token).first()
 
     else:
         # Return anonymous user
@@ -159,13 +165,22 @@ def sign_in(driver: str, data: dict) -> _model.User:
     """Authenticate user.
     """
     try:
+        # Get user from driver
         user = get_driver(driver).sign_in(data)
+
+        # Check user's status
         if user.status != 'active':
             raise _error.AuthenticationError("User account '{}' is not active".format(user.login))
 
     except _error.AuthenticationError as e:
         _logger.warn(str(e))
         raise e
+
+    # Generate new token or prolong existing token
+    if not _access_tokens.has(user.access_token):
+        user.f_set('access_token', create_access_token(user.login, data.get('access_token_ttl', 3600))).save()
+    else:
+        prolong_access_token(user.access_token)
 
     # Update login counter
     user.f_inc('sign_in_count').f_set('last_sign_in', _datetime.now()).save()
@@ -186,8 +201,78 @@ def sign_in(driver: str, data: dict) -> _model.User:
     return user
 
 
+def get_access_token_info(token: str) -> dict:
+    """Get access token's metadata.
+    """
+    if not _access_tokens.has(token):
+        raise _error.InvalidAccessToken('Invalid access token.')
+
+    r = _access_tokens.get(token)
+    r['expires'] = _access_tokens.ttl(token)
+
+    return r
+
+
+def create_access_token(login: str, ttl: int) -> str:
+    """Generate new access token.
+    """
+    try:
+        access_token_ttl = int(ttl)
+        if access_token_ttl <= 0:
+            raise ValueError()
+    except ValueError:
+        raise ValueError("'access_token_ttl' must be a positive integer.")
+
+    with _threading.get_r_lock():
+        while True:
+            token = _util.random_str(32)
+            if not _access_tokens.has(token):
+                _access_tokens.put(token, {'login': login, 'ttl': ttl}, ttl)
+                return token
+
+
+def prolong_access_token(token: str):
+    """Prolong user's access token.
+    """
+    with _threading.get_r_lock():
+        token_info = get_access_token_info(token)
+        _access_tokens.put(token, token_info, token_info['ttl'])
+
+
+def sign_in_by_token(token: str) -> _model.User:
+    """Sign in user by access token.
+    """
+    with _threading.get_r_lock():
+        user = get_user(access_token=token)  # Token expiration will be checked in get_user()
+        if not user or user.is_anonymous or user.status != 'active':
+            raise _error.AuthenticationError(_lang.t('pytsite.auth@authentication_error'))
+
+        user.f_set('last_activity', _datetime.now()).save(True, False)
+        prolong_access_token(token)
+
+        return user
+
+
+def sign_out(user: _model.User, driver: str = None, issue_event: bool = True):
+    """Sign out current user.
+    """
+    # Anonymous user cannot be signed out
+    if user.is_anonymous:
+        return
+
+    # Ask driver to perform necessary operations
+    get_driver(driver).sign_out(user)
+
+    # Remove access token
+    _access_tokens.rm(user.access_token)
+
+    # Notify listeners
+    if issue_event:
+        _events.fire('pytsite.auth.sign_out', user=user)
+
+
 def get_current_user() -> _model.User:
-    """Get currently authorized user.
+    """Get currently session-authorized user.
     """
     # If no session data available, return anonymous user
     if not _router.session() or not _router.session().get('pytsite.auth.login'):
@@ -198,28 +283,6 @@ def get_current_user() -> _model.User:
         raise _error.UserNotExist()
 
     return user
-
-
-def sign_out(driver: str = None, issue_event: bool = True):
-    """Sign out current user.
-    """
-    if not _router.session():
-        return
-
-    user = get_current_user()
-
-    # Anonymous user cannot be signed out
-    if user.is_anonymous:
-        return
-
-    # Ask driver to perform necessary operations
-    get_driver(driver).sign_out()
-
-    if issue_event:
-        _events.fire('pytsite.auth.sign_out', user=user)
-
-    # Delete user's session data
-    del _router.session()['pytsite.auth.login']
 
 
 def get_user_statuses() -> tuple:
@@ -238,7 +301,7 @@ def get_sign_in_url(driver: str = None) -> str:
     if not driver:
         driver = list(_registered_drivers)[-1]
 
-    return _router.ep_url('pytsite.auth.ep.sign_in', {'driver': driver})
+    return _router.ep_url('pytsite.auth@sign_in', {'driver': driver})
 
 
 def get_sign_out_url(driver: str = None) -> str:
@@ -247,7 +310,7 @@ def get_sign_out_url(driver: str = None) -> str:
     if not driver:
         driver = list(_registered_drivers)[-1]
 
-    return _router.ep_url('pytsite.auth.ep.sign_out', {'driver': driver, '__redirect': _router.current_url()})
+    return _router.ep_url('pytsite.auth@sign_out', {'driver': driver, '__redirect': _router.current_url()})
 
 
 def find_users(active_only: bool = True) -> _odm.Finder:

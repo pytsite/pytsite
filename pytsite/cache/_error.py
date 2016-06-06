@@ -20,3 +20,7 @@ class PoolExists(Exception):
 
 class KeyNotExist(Exception):
     pass
+
+
+class KeyNeverExpires(Exception):
+    pass

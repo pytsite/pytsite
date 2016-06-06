@@ -44,7 +44,7 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     _api.set_setting(uid, value)
     _router.session().add_success(_lang.t('pytsite.settings@settings_has_been_saved'))
 
-    return _http.response.Redirect(_router.ep_url('pytsite.settings.ep.form', {'uid': uid}))
+    return _http.response.Redirect(_router.ep_url('pytsite.settings@form', {'uid': uid}))
 
 
 def _check_permissions(uid: str) -> bool:

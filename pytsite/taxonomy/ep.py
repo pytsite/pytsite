@@ -1,11 +1,11 @@
 """Taxonomy Endpoints.
 """
+from pytsite import http as _http
+from . import _functions
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-from pytsite import http as _http
-from . import _functions
 
 
 def search_terms(args: dict, inp: dict) -> _http.response.JSON:

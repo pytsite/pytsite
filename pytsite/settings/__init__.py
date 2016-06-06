@@ -25,8 +25,8 @@ def __init():
     odm.register_model('setting', Setting)
 
     # Routing
-    router.add_rule(admin.base_path() + '/settings/<string:uid>', 'pytsite.settings.ep.form')
-    router.add_rule(admin.base_path() + '/settings/<string:uid>/submit', 'pytsite.settings.ep.form_submit',
+    router.add_rule(admin.base_path() + '/settings/<uid>', 'pytsite.settings@form')
+    router.add_rule(admin.base_path() + '/settings/<uid>/submit', 'pytsite.settings@form_submit',
                     methods='POST')
 
     # Sidebar section

@@ -36,7 +36,7 @@ class TokensInput(_widget.input.Tokens):
         if not self._model:
             raise ValueError('Model is not specified.')
 
-        self._remote_source = _router.ep_url('pytsite.taxonomy.eps.search_terms', {
+        self._remote_source = _router.ep_url('pytsite.taxonomy@search_terms', {
             'model': self._model,
             'query': '__QUERY'
         })

@@ -82,9 +82,14 @@ def resolve_ref(something: _Union[str, _entity.Entity, _DBRef, None]) -> _Union[
         return something.ref
 
     if isinstance(something, str):
+        something = something.strip()
+
+        if not something:
+            raise ValueError('Entity reference string is empty.')
+
         parts = something.split(':')
         if len(parts) != 2:
-            raise ValueError('Invalid string reference format: {}'.format(something))
+            raise ValueError('Invalid entity reference format string: {}.'.format(something))
 
         model, uid = parts
         if not is_model_registered(model):

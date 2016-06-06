@@ -10,4 +10,4 @@ __license__ = 'MIT'
 def ep_url(js_api_ep_name) -> str:
     """Construct JS API endpoint URL.
     """
-    return _router.ep_url('pytsite.js_api.ep.entry', {'endpoint': js_api_ep_name})
+    return _router.ep_url('pytsite.js_api@entry', {'endpoint': js_api_ep_name})

@@ -17,8 +17,7 @@ def base_path() -> str:
 def __init():
     """Init wrapper.
     """
-    import sys
-    from pytsite import assetman, tpl, lang, router, auth, robots, hreflang, events, browser, permission
+    from pytsite import assetman, tpl, lang, router, robots, hreflang, events, browser, permission
 
     def router_dispatch_eh():
         # Alternate languages
@@ -44,8 +43,8 @@ def __init():
     permission.define_permission('admin.use', 'pytsite.admin@use_admin_panel', 'admin')
 
     # Routes
-    admin_route_filters = ('pytsite.auth.ep.filter_authorize:permissions=admin.use',)
-    router.add_rule(base_path(), __name__ + '.ep.dashboard', filters=admin_route_filters)
+    admin_route_filters = ('pytsite.auth@filter_authorize:permissions=admin.use',)
+    router.add_rule(base_path(), __name__ + '@dashboard', filters=admin_route_filters)
 
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 

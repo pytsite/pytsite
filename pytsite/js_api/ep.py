@@ -1,6 +1,6 @@
 """PytSite AJAX Endpoints.
 """
-from pytsite import http as _http, router as _router, logger as _logger, reg as _reg
+from pytsite import http as _http, reg as _reg, logger as _logger, util as _util
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -11,16 +11,17 @@ __license__ = 'MIT'
 def entry(args: dict, inp: dict) -> _http.response.JSON:
     """AJAX endpoint proxy.
     """
-    ep_name_split = args.get('endpoint').split('.')
-    ep_name = '.'.join(ep_name_split[:-1]) + '.js_api.' + ep_name_split[-1]
+    theme = _reg.get('output.theme')
+    ep_name = str(args.get('endpoint')).replace('$theme', 'app.themes.' + theme).replace('@', '.js_api.')
 
     try:
-        if not _router.is_ep_callable(ep_name):
-            raise _http.error.NotFound()
-
-        r = _router.call_ep(ep_name, None, inp)
+        r = _util.get_callable(ep_name)(inp)
 
         return r if isinstance(r, _http.response.JSON) else _http.response.JSON(r)
+
+    except ImportError as e:
+        _logger.warn("Endpoint '" + ep_name + '": ' + str(e), __name__)
+        raise _http.error.NotFound()
 
     except _http.error.Base as e:
         _logger.warn("Endpoint '" + ep_name + '": ' + str(e), __name__)

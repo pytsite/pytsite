@@ -133,5 +133,5 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
     except _odm.error.ForbidEntityDelete as e:
         _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
-    default_redirect = _router.ep_url('pytsite.odm_ui.ep.browse', {'model': model})
+    default_redirect = _router.ep_url('pytsite.odm_ui@browse', {'model': model})
     return _http.response.Redirect(inp.get('__redirect', default_redirect))

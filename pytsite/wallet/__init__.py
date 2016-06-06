@@ -28,21 +28,21 @@ def __init():
     # Admin sidebar entries
     admin.sidebar.add_section('wallet', 'pytsite.wallet@wallet', 250)
     admin.sidebar.add_menu('wallet', 'accounts', 'pytsite.wallet@accounts',
-                           router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_account'}),
+                           router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_account'}),
                            'fa fa-credit-card', weight=10, permissions='pytsite.odm_ui.browse.wallet_transaction')
     admin.sidebar.add_menu('wallet', 'transactions', 'pytsite.wallet@transactions',
-                           router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'wallet_transaction'}),
+                           router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_transaction'}),
                            'fa fa-exchange', weight=20, permissions='pytsite.odm_ui.browse.wallet_transaction')
 
     # Cron event dispatcher
     events.listen('pytsite.cron.1min', _eh.cron_1_min)
 
     # Admin routes
-    router.add_rule(admin.base_path() + '/odm_ui/wallet_transaction/cancel', 'pytsite.wallet.ep.transactions_cancel',
-                    filters='pytsite.auth.ep.filter_authorize:permissions=pytsite.odm_ui.delete.wallet_transaction')
+    router.add_rule(admin.base_path() + '/odm_ui/wallet_transaction/cancel', 'pytsite.wallet@transactions_cancel',
+                    filters='pytsite.auth@filter_authorize:permissions=pytsite.odm_ui.delete.wallet_transaction')
     router.add_rule(admin.base_path() + '/odm_ui/wallet_transaction/cancel/submit',
-                    'pytsite.wallet.ep.transactions_cancel_submit',
-                    filters='pytsite.auth.ep.filter_authorize:permissions=pytsite.odm_ui.delete.wallet_transaction')
+                    'pytsite.wallet@transactions_cancel_submit',
+                    filters='pytsite.auth@filter_authorize:permissions=pytsite.odm_ui.delete.wallet_transaction')
 
     assetman.register_package(__name__)
 

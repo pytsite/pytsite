@@ -713,8 +713,26 @@ class StringList(List):
         super().__init__(name, allowed_types=(str,), **kwargs)
 
 
+class UniqueStringList(UniqueList):
+    """Unique String List.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, allowed_types=(str,), **kwargs)
+
+
 class IntegerList(List):
     """List of Integers.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, allowed_types=(int,), **kwargs)
+
+
+class UniqueIntegerList(UniqueList):
+    """Unique String List.
     """
     def __init__(self, name: str, **kwargs):
         """Init.

@@ -4,7 +4,7 @@
 from . import _error as error, _model as model, _driver as driver
 from ._api import get_current_user, get_user_statuses, get_user, create_user, get_role, get_sign_in_form, find_users, \
     register_driver, user_nickname_rule, sign_in, get_driver, create_role, get_sign_in_url, get_sign_out_url, \
-    verify_password, hash_password, sign_out
+    verify_password, hash_password, sign_out, sign_in_by_token, get_access_token_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -35,9 +35,9 @@ def __init():
 
     # Routes
     base_path = reg.get('auth.base_path', '/auth')
-    router.add_rule(base_path + '/sign-in/<driver>', 'pytsite.auth.ep.sign_in')
-    router.add_rule(base_path + '/sign-in/<driver>/post', 'pytsite.auth.ep.sign_in_submit', methods='POST')
-    router.add_rule(base_path + '/sign-out/<driver>', 'pytsite.auth.ep.sign_out')
+    router.add_rule(base_path + '/sign-in/<driver>', 'pytsite.auth@sign_in')
+    router.add_rule(base_path + '/sign-in/<driver>/post', 'pytsite.auth@sign_in_submit', methods='POST')
+    router.add_rule(base_path + '/sign-out/<driver>', 'pytsite.auth@sign_out')
 
     # Template engine globals
     tpl.register_global('auth_current_user', _api.get_current_user)

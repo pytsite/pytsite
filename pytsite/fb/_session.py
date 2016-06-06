@@ -40,7 +40,7 @@ class AuthSession:
         return _router.url('https://www.facebook.com/dialog/oauth', query={
             'client_id': self._app_id,
             'state': self._state,
-            'redirect_uri': _router.ep_url('pytsite.fb.ep.authorize'),
+            'redirect_uri': _router.ep_url('pytsite.fb@authorize'),
             'scope': scope,
         })
 
@@ -50,7 +50,7 @@ class AuthSession:
         url = _router.url(_API_REQUEST_URL + 'oauth/access_token', query={
             'client_id': self._app_id,
             'client_secret': self._app_secret,
-            'redirect_uri': _router.ep_url('pytsite.fb.ep.authorize'),
+            'redirect_uri': _router.ep_url('pytsite.fb@authorize'),
             'code': auth_code,
         })
 

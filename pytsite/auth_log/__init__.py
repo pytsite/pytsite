@@ -17,7 +17,7 @@ def __init():
     events.listen('pytsite.auth.sign_out', _eh.auth_sign_out)
     events.listen('pytsite.auth.sign_in_error', _eh.auth_sign_in_error)
 
-    admin_href = router.ep_url('pytsite.odm_ui.ep.browse', {'model': 'auth_log'})
+    admin_href = router.ep_url('pytsite.odm_ui@browse', {'model': 'auth_log'})
     admin.sidebar.add_menu('auth', 'auth_log', 'pytsite.auth_log@log', admin_href, 'fa fa-history',
                            weight=30, permissions='pytsite.odm_ui.browse.auth_log')
 

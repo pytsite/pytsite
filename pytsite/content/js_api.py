@@ -21,7 +21,7 @@ def view_count(inp: dict) -> int:
     return 0
 
 
-def search(args: dict, inp: dict) -> dict:
+def search(inp: dict) -> dict:
     from . import _api
 
     # Query is mandatory parameter
@@ -34,7 +34,7 @@ def search(args: dict, inp: dict) -> dict:
     if user.is_anonymous:
         raise _http.error.Forbidden()
 
-    model = args.get('model')
+    model = inp.get('model')
     language = inp.get('language', _lang.get_current())
 
     # User can browse ANY entities
@@ -56,7 +56,7 @@ def search(args: dict, inp: dict) -> dict:
     return {'results': r}
 
 
-def subscribe(args: dict, inp: dict) -> str:
+def subscribe(inp: dict) -> str:
     """Subscribe to digest endpoint.
     """
     email = inp.get('email')

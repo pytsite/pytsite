@@ -45,7 +45,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def sign_out(self):
+    def sign_out(self, user: _model.User):
         """End user's session.
         """
         pass

@@ -1,4 +1,20 @@
 # PytSite Changelog
+## 0.71 (2016-06-06)
+### Added
+- New package: `http_api`.
+- `auth`:
+    - basic support of `http_api`;
+    - access tokens generation functions;
+    - new argument in `get_user()` function: `access_token`.
+- `cache`: new drivers' method: `ttl()`.
+- `content`: `http_api`'s endpoint: 'GET entity'.
+
+### Changed
+- `router`: format of rules' names.
+- `js_api`: format of endpoints names.
+- `auth`: signature of `sign_out()` API function and drivers' method.
+
+
 ## 0.70.1 (2016-06-02)
 ### Fixed
 - `auth`, `contact_form`, `flag`, `content`: inaccessible `js_api`'s endpoints. 

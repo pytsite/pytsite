@@ -148,7 +148,7 @@ class ULogin(_auth.driver.Abstract):
         """
         return self.sign_up(data)
 
-    def sign_out(self):
+    def sign_out(self, user: _auth.model.User):
         """End user's session.
         """
         pass

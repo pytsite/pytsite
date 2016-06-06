@@ -45,20 +45,20 @@ def pytsite_router_dispatch():
     """
     user = _api.get_current_user()
 
-    # Check user status
-    if user.status != 'active':
-        _api.sign_out()
-
-    # Update user activity timestamp
+    # Check user status and update its activity timestamp
     if not user.is_anonymous:
-        _router.set_no_cache(True)
-        user.f_set('last_activity', _datetime.now()).save(True, False)
+        if user.status == 'active':
+            _router.set_no_cache(True)
+            user.f_set('last_activity', _datetime.now()).save(True, False)
+        else:
+            _api.sign_out(user)
 
-    # Alternate languages
-    base_path = _reg.get('auth.base_path', '/auth/login')
-    if base_path == _router.current_path(True):
-        for lng in _lang.langs(False):
-            _hreflang.add(lng, _router.url(base_path, lang=lng))
+    # Alternate languages for sign in page
+    if len(_lang.langs()) > 1:
+        base_path = _reg.get('auth.base_path', '/auth/login')
+        if base_path == _router.current_path(True):
+            for lng in _lang.langs(False):
+                _hreflang.add(lng, _router.url(base_path, lang=lng))
 
 
 def pytsite_update(version: str):

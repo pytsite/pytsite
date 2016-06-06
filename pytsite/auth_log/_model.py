@@ -61,7 +61,7 @@ class AuthLog(_odm_ui.UIEntity):
         """
         user = ''
         if self.user:
-            user_edit_url = _router.ep_url('pytsite.odm_ui.ep.m_form', {
+            user_edit_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': 'user',
                 'id': str(self.user.id),
             })

@@ -2,7 +2,7 @@
 """
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
-    router as _router, logger as _logger
+    router as _router
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -47,16 +47,20 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
         _router.session()['pytsite.auth.login'] = user.login
         return _http.response.Redirect(redirect)
 
-    except _error.AuthenticationError as e:
+    except _error.AuthenticationError:
         _router.session().add_error(_lang.t('pytsite.auth@authentication_error'))
         inp.update({'driver': driver})
-        return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.sign_in', args=inp))
+        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args=inp))
 
 
 def sign_out(args: dict, inp: dict) -> _http.response.Redirect:
     """Logout endpoint.
     """
-    _api.sign_out()
+    _api.sign_out(_api.get_current_user())
+
+    # Delete user's session data
+    if 'pytsite.auth.login' in _router.session():
+        del _router.session()['pytsite.auth.login']
 
     return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 
@@ -81,4 +85,4 @@ def filter_authorize(args: dict, inp: dict) -> _http.response.Redirect:
     if '__form_location' in inp:
         del inp['__form_location']
 
-    return _http.response.Redirect(_router.ep_url('pytsite.auth.ep.sign_in', inp))
+    return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', inp))

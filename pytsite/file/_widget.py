@@ -110,22 +110,22 @@ class FilesUpload(_widget.Base):
     @property
     def show_numbers(self) -> bool:
         return self._show_numbers
-    
+
     @show_numbers.setter
     def show_numbers(self, value: bool):
         self._show_numbers = value
-        
+
     @property
     def dnd(self) -> bool:
         return self._dnd
-    
+
     @dnd.setter
     def dnd(self, value: bool):
         self._dnd = value
 
     def get_html_em(self, **kwargs) -> str:
         self._data.update({
-            'url': _router.ep_url('pytsite.file.ep.upload', {'model': self._model}),
+            'url': _router.ep_url('pytsite.file@upload', {'model': self._model}),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,

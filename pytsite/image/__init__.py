@@ -16,7 +16,7 @@ def _init():
 
     router.add_rule(
         '/image/resize/<int:width>/<int:height>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',
-        'pytsite.image.ep.resize'
+        'pytsite.image@resize'
     )
 
     assetman.register_package(__name__)

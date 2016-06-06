@@ -5,7 +5,7 @@ from typing import Any as _Any, Union as _Union
 from redis import StrictRedis as _StrictRedis
 from pytsite import reg as _reg, logger as _logger, threading as _threading
 from ._abstract import Abstract as _Abstract
-from .._error import KeyNotExist as _KeyNotExist
+from .._error import KeyNotExist as _KeyNotExist, KeyNeverExpires as _KeyNeverExpires
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -83,6 +83,23 @@ class Redis(_Abstract):
                 _logger.debug("PUT '{}' into the pool '{}' with TTL {}.".format(key, self.name, ttl), __name__)
 
             return value
+
+        finally:
+            _threading.get_r_lock().release()
+
+    def ttl(self, key: str) -> int:
+        """Get key's expiration time.
+        """
+        try:
+            _threading.get_r_lock().acquire()
+
+            r = self._client.ttl(self._get_fq_key(key))
+            if r == -1:
+                raise _KeyNeverExpires("Key '{}' in pool '{}' has no expiration time.".format(key, self.name))
+            if r == -2:
+                raise _KeyNotExist("Pool '{}' does not contain the key '{}'.".format(self.name, key))
+
+            return r
 
         finally:
             _threading.get_r_lock().release()

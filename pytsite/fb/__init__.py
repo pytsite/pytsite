@@ -30,7 +30,7 @@ def __init():
     tpl.register_package(__name__)
 
     # Routes
-    router.add_rule('/fb/authorize', 'pytsite.fb.ep.authorize')
+    router.add_rule('/fb/authorize', 'pytsite.fb@authorize')
 
     # Content export driver
     content_export.register_driver(ContentExportDriver())

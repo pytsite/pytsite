@@ -1,5 +1,6 @@
 """File Model.
 """
+from typing import Union as _Union, Tuple as _Tuple, List as _List
 from os import path as _path, unlink as _unlink
 from pytsite import odm as _odm, reg as _reg, router as _router
 
@@ -70,7 +71,7 @@ class File(_odm.Entity):
 
         if field_name == 'url':
             p = str(self.path).split('/')
-            return _router.ep_url('pytsite.file.ep.download', {
+            return _router.ep_url('pytsite.file@download', {
                 'model': p[0],
                 'p1': p[1],
                 'p2': p[2],
@@ -81,3 +82,7 @@ class File(_odm.Entity):
             raise NotImplementedError()
 
         return super()._on_f_get(field_name, value)
+
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
+        # Never reveal absolute path on the filesystem
+        return super().as_dict([f for f in fields if f != 'abs_path'])
