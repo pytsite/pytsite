@@ -19,7 +19,7 @@ def __init():
     assetman.register_package(__name__)
 
     # Search term route
-    router.add_rule('/pytsite/taxonomy/search/<string:model>/<string:query>', 'pytsite.taxonomy.eps.search_terms')
+    router.add_rule('/taxonomy/search/<model>/<query>', 'pytsite.taxonomy@search_terms')
 
     # Admin sidebar menu
     admin.sidebar.add_section('taxonomy', __name__ + '@taxonomy', 500, ('*',))

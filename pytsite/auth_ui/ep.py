@@ -38,7 +38,7 @@ def profile_view(args: dict, inp: dict) -> str:
     # Widgets
     profile_widget = _auth_ui_widget.Profile('auth-ui-profile-widget', user=profile_owner)
 
-    # Alternative response handler
+    # Give control of the response to an alternate endpoint
     if _router.is_ep_callable('$theme@auth_ui_profile_view'):
         args.update({
             'tpl': tpl_name,
@@ -69,14 +69,13 @@ def profile_edit(args: dict, inp: dict) -> str:
     _metatag.t_set('title', _lang.t('pytsite.auth_ui@profile_edit'))
 
     # Give control of the response to an alternate endpoint
-    target_ep = _reg.get('auth_ui@profile_edit')
-    if target_ep and _router.is_ep_callable(target_ep):
+    if _router.is_ep_callable('$theme@auth_ui_profile_edit'):
         args.update({
             'tpl': tpl_name,
             'user': profile_owner,
             'frm': frm,
         })
-        return _router.call_ep(target_ep, args, inp)
+        return _router.call_ep('$theme@auth_ui_profile_edit', args, inp)
 
     # Default response
     return _tpl.render(tpl_name, {'frm': frm})

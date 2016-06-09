@@ -1,4 +1,13 @@
 # PytSite Changelog
+## 0.72.1 (2016-06-09)
+## Changed
+- `auth_ui`, `content`: custom endpoints names format.
+
+## Fixed
+- `auth_ui`: 
+- `taxonomy`: broken tokenfield's search endpoint.
+- `content`, `flag`: invalid JS API endpoints calls.
+
 ## 0.72 (2016-06-09)
 ### Added
 - New package: `auth_driver_google`.
