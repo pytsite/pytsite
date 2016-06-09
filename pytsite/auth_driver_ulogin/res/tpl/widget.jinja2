@@ -1,7 +1,5 @@
 <script type="text/javascript">
     function pytsite_ulogin_callback_{{ widget.uid | replace('-', '_') }}(token) {
-        console.log('#' + '{{ widget.uid }}' + '-token');
-
         var tokenInput = $('#' + '{{ widget.uid }}' + '-token').first();
 
         if (tokenInput.length) {

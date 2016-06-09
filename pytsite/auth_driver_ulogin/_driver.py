@@ -20,14 +20,14 @@ class _LoginWidget(_widget.Base):
         """
         super().__init__(uid, **kwargs)
 
-        self._assets.append('pytsite.ulogin@css/widget.css')
+        self._assets.append('pytsite.auth_driver_ulogin@css/widget.css')
         self._css += 'widget-ulogin'
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
-        return _html.TagLessElement(_tpl.render('pytsite.ulogin@widget', {'widget': self}))
+        return _html.TagLessElement(_tpl.render('pytsite.auth_driver_ulogin@widget', {'widget': self}))
 
 
 class _LoginForm(_form.Form):
@@ -96,7 +96,7 @@ class ULogin(_auth.driver.Abstract):
 
         # User is not exists and its creation is not allowed
         if not user and not _reg.get('auth.signup.enabled'):
-            raise _auth.error.AuthenticationError(_lang.t('pytsite.auth@signup_is_disabled'))
+            raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_driver_ulogin@signup_is_disabled'))
 
         # Create new user
         if not user:
@@ -104,9 +104,9 @@ class ULogin(_auth.driver.Abstract):
 
         # Picture
         if not user.picture:
-            picture_url = ulogin_data['photo_big'] if 'photo_big' in ulogin_data else None
+            picture_url = ulogin_data.get('photo_big')
             if not picture_url:
-                picture_url = ulogin_data['photo'] if 'photo' in ulogin_data else None
+                picture_url = ulogin_data.get('photo')
             if picture_url:
                 from pytsite import image
                 user.f_set('picture', image.create(picture_url))
@@ -119,9 +119,7 @@ class ULogin(_auth.driver.Abstract):
 
         # Alter nickname
         if user.is_new:
-            nickname = _util.transform_str_2(user.full_name)
-            if nickname and not _auth.get_user(nickname=nickname):
-                user.f_set('nickname', nickname)
+            user.f_set('nickname', user.full_name)
 
         # Gender
         if not user.gender and 'sex' in ulogin_data:

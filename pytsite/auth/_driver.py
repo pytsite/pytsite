@@ -1,8 +1,8 @@
-"""Abstract Auth Driver.
+"""PytSite Auth Base Drivers.
 """
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import form as _form
-from .. import _model
+from . import _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

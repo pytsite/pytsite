@@ -49,8 +49,17 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
 
     except _error.AuthenticationError:
         _router.session().add_error(_lang.t('pytsite.auth@authentication_error'))
-        inp.update({'driver': driver})
-        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args=inp))
+        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
+            'driver': driver,
+            '__redirect': redirect,
+        }))
+
+    except Exception as e:
+        _router.session().add_error(str(e))
+        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
+            'driver': driver,
+            '__redirect': redirect,
+        }))
 
 
 def sign_out(args: dict, inp: dict) -> _http.response.Redirect:

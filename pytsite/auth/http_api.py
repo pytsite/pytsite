@@ -9,7 +9,9 @@ __license__ = 'MIT'
 
 def post_sign_in(inp: dict) -> dict:
     try:
+        # Try to sign in user via driver
         user = _auth.sign_in(inp.get('driver'), inp)
+
         fields = ['access_token'] + [f.strip() for f in inp.get('fields', '').split(',')]
         r = user.as_dict(fields)
         r['access_token_ttl'] = _auth.get_access_token_info(user.access_token)['ttl']

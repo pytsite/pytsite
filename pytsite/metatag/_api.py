@@ -10,33 +10,6 @@ __license__ = 'MIT'
 
 _tags = {}
 
-_allowed_tags = (
-    'title',
-    'author',
-    'link',
-    'description',
-    'charset',
-    'viewport',
-    'keywords',
-    'og:title',
-    'og:description',
-    'og:locale',
-    'og:image',
-    'og:image:width',
-    'og:image:height',
-    'og:url',
-    'og:type',
-    'article:author',
-    'article:publisher',
-    'twitter:card',
-    'twitter:title',
-    'twitter:description',
-    'twitter:image',
-    'twitter:site',
-    'fb:app_id',
-    'fb:admins',
-)
-
 
 def reset():
     """Reset tags.
@@ -52,9 +25,6 @@ def reset():
 def t_set(tag: str, value: str=None, **kwargs):
     """Set tag value.
     """
-    if tag not in _allowed_tags:
-        raise Exception("Unknown tag '{}'".format(tag))
-
     tid = _threading.get_id()
 
     if tag in ('link',):
@@ -76,33 +46,36 @@ def t_set(tag: str, value: str=None, **kwargs):
 def get(tag: str) -> str:
     """Get value of the tag.
     """
-    if tag not in _allowed_tags:
-        raise Exception("Unknown tag '{0}'".format(tag))
-
     return _tags[_threading.get_id()].get(tag, '')
 
 
 def dump(tag: str) -> str:
     """ Dump single tag.
     """
-    if tag not in _allowed_tags:
-        raise Exception("Unknown tag '{0}'".format(tag))
-
     tid = _threading.get_id()
 
     if tag not in _tags[tid]:
         return ''
 
+    # Page charset
     if tag == 'charset':
         r = '<meta charset="{}">\n'.format(_tags[tid][tag])
+
+    # Page title
     elif tag == 'title':
         r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app_name'))
+
+    # OpenGraph tags
     elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):
         r = '<meta property="{}" content="{}">'.format(tag, _tags[tid][tag])
+
+    # Page links
     elif tag == 'link':
         r = ''
         for value in _tags[tid][tag]:
             r += '<{}{}>\n'.format(tag, value)
+
+    # Other
     else:
         r = '<meta name="{}" content="{}">'.format(tag, _tags[tid][tag])
 

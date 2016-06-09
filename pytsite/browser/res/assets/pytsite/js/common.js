@@ -30,6 +30,8 @@ pytsite.browser = {
         var defer = $.Deferred();
 
         setTimeout(function () {
+            var loadedLocationsCount = 0;
+
             if (loc instanceof String)
                 loc = [loc];
 
@@ -55,16 +57,16 @@ pytsite.browser = {
                     switch (assetType) {
                         case 'js':
                             pytsite.browser.addJS(assetSrc, i)
-                                .done(function (index) {
-                                    if (index + 1 == loc.length)
+                                .done(function (l, i) {
+                                    if (++loadedLocationsCount == loc.length)
                                         defer.resolve();
                                 });
                             break;
 
                         case 'css':
                             pytsite.browser.addCSS(assetSrc, i)
-                                .done(function (index) {
-                                    if (index + 1 == loc.length)
+                                .done(function (l, i) {
+                                    if (++loadedLocationsCount == loc.length)
                                         defer.resolve();
                                 });
                             break;
@@ -92,9 +94,12 @@ pytsite.browser = {
                 $.ajaxSetup({cache: true});
                 $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
                 $.ajaxSetup({cache: false});
+                deffer.resolve(loc, index);
             }
-
-            deffer.resolve(index);
+            else {
+                // Script already loaded
+                deffer.resolve(loc, index);
+            }
         }, 0);
 
         return deffer;

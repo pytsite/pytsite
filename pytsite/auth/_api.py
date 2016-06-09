@@ -6,7 +6,7 @@ from datetime import datetime as _datetime
 from pytsite import reg as _reg, odm as _odm, form as _form, lang as _lang, router as _router, cache as _cache, \
     events as _events, validation as _validation, geo_ip as _geo_ip, logger as _logger, util as _util, \
     threading as _threading
-from . import _error, _model, _driver
+from . import _error, _model, driver as _driver
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -56,9 +56,9 @@ def get_driver(name: str = None) -> _driver.Abstract:
     """
     if name is None:
         if _registered_drivers:
-            name = list(_registered_drivers)[-1]  # last registered driver is default
+            name = _reg.get('auth.default_driver', list(_registered_drivers)[-1])
         else:
-            raise RuntimeError('No auth driver registered.')
+            raise _error.DriverNotRegistered('No authentication driver registered.')
 
     if name not in _registered_drivers:
         raise _error.DriverNotRegistered("Authentication driver '{}' is not registered.".format(name))
@@ -83,6 +83,20 @@ def get_sign_in_form(driver_name: str = None, uid: str = None, **kwargs) -> _for
     form.action = _router.ep_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
 
     return form
+
+
+def sanitize_nickname(s: str) -> str:
+    """Generate unique nickname.
+    """
+    cnt = 0
+    s = _util.transform_str_2(s[:32])
+    nickname = s
+    while True:
+        if not get_user(nickname=nickname):
+            return nickname
+
+        cnt += 1
+        nickname = s + '-' + str(cnt)
 
 
 def create_user(login: str, password: str = None) -> _model.User:

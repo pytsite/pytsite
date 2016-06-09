@@ -1,4 +1,17 @@
 # PytSite Changelog
+## 0.72 (2016-06-09)
+### Added
+- New package: `auth_driver_google`.
+- `auth`: sanitizing user's nicknames while setting.
+
+### Changed
+- 'password' authentication driver moved to separate package `auth_driver_password`.
+- 'ulogin' authentication driver moved to separate package `auth_driver_ulogin`.
+
+### Fixed
+- `browser`: incorrect deferred object resolving in JS code.
+
+
 ## 0.71 (2016-06-06)
 ### Added
 - New package: `http_api`.

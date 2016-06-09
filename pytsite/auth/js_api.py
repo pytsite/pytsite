@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_login_form(args: dict, inp: dict) -> dict:
+def get_login_form(inp: dict) -> dict:
     frm = _api.get_sign_in_form(
         driver_name=inp.get('driver'),
         uid=inp.get('uid'),
@@ -24,5 +24,5 @@ def get_login_form(args: dict, inp: dict) -> dict:
     }
 
 
-def is_anonymous(args: dict, inp: dict) -> bool:
+def is_anonymous(inp: dict) -> bool:
     return _api.get_current_user().is_anonymous

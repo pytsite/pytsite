@@ -241,7 +241,8 @@ class User(_odm.Entity):
                 raise Exception("Invalid user status: '{}'.".format(value))
 
         if field_name == 'nickname':
-            value = _util.transform_str_2(value[:32])
+            from ._api import sanitize_nickname
+            value = sanitize_nickname(value)
 
         return value
 
