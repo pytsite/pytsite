@@ -126,8 +126,6 @@ def create_user(login: str, password: str = None) -> _model.User:
         if _router.request():
             user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
 
-        user.save()
-
     return user
 
 

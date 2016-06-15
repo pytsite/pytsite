@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.73.5 (2016-06-15)
+### Fixed
+- `auth`: creating new users.
+
+
 ## 0.73.4 (2016-06-15)
 ### Fixed
 - `auth`: creating new users.
