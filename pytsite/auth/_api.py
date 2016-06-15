@@ -126,7 +126,7 @@ def create_user(login: str, password: str = None) -> _model.User:
         if _router.request():
             user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
 
-    return user
+    return user.save()
 
 
 def get_anonymous_user() -> _model.User:
@@ -170,7 +170,7 @@ def get_user(login: str = None, uid: str = None, nickname: str = None, access_to
             return get_anonymous_user()
 
         user = f.first()  # type: _model.User
-        if check_status and user.status != 'active':
+        if user and check_status and user.status != 'active':
             sign_out(user)
             raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
 
