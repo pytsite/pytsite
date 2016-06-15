@@ -3,9 +3,9 @@
 from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, \
-    tpl as _tpl, mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, \
-    console as _console, assetman as _assetman, feed as _feed
+from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, tpl as _tpl, \
+    mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
+    feed as _feed
 from . import _api
 
 __author__ = 'Alexander Shepetko'

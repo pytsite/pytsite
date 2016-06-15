@@ -5,7 +5,7 @@ from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, router as _router, \
-    html as _html, util as _util, auth as _auth
+    html as _html, auth as _auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -20,14 +20,14 @@ class _LoginWidget(_widget.Base):
         """
         super().__init__(uid, **kwargs)
 
-        self._assets.append('pytsite.auth_driver_ulogin@css/widget.css')
+        self._assets.append('pytsite.auth_ulogin@css/widget.css')
         self._css += 'widget-ulogin'
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
-        return _html.TagLessElement(_tpl.render('pytsite.auth_driver_ulogin@widget', {'widget': self}))
+        return _html.TagLessElement(_tpl.render('pytsite.auth_ulogin@widget', {'widget': self}))
 
 
 class _LoginForm(_form.Form):
@@ -96,7 +96,7 @@ class ULogin(_auth.driver.Abstract):
 
         # User is not exists and its creation is not allowed
         if not user and not _reg.get('auth.signup.enabled'):
-            raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_driver_ulogin@signup_is_disabled'))
+            raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_ulogin@signup_is_disabled'))
 
         # Create new user
         if not user:

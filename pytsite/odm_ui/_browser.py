@@ -2,9 +2,9 @@
 """
 from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _browser, \
-    odm as _odm, lang as _lang, http as _http, html as _html
+    odm as _odm, lang as _lang, http as _http, html as _html, http_api as _http_api, odm_perm as _odm_perm
 from . import _api
-from ._entity import UIEntity
+from ._model import UIEntity
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -29,8 +29,7 @@ class Browser:
         self._toolbar = _html.Div(uid='odm-ui-browser-toolbar')
 
         # Checking current user's permissions
-        if not self._current_user.has_permission('pytsite.odm_ui.browse.' + model) \
-                and not self._current_user.has_permission('pytsite.odm_ui.browse_own.' + model):
+        if not _odm_perm.check_permissions('view', model):
             raise _http.error.Forbidden()
 
         # Model class and mock instance
@@ -43,7 +42,7 @@ class Browser:
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._mock.ui_can_be_created():
+        if self._mock.perm_check('create'):
             create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': self._model,
                 'id': '0',
@@ -56,7 +55,7 @@ class Browser:
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._mock.ui_can_be_deleted():
+        if self._mock.perm_check('delete'):
             delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='btn btn-danger mass-action-button', title=title)
@@ -167,12 +166,10 @@ class Browser:
     def get_table(self) -> str:
         """Get browser table skeleton.
         """
-        data_url = _router.ep_url('pytsite.odm_ui@browse_get_rows', {'model': self._model})
-
         # Table skeleton
         table = _html.Table(
             data_toggle='table',
-            data_url=data_url,
+            data_url=_http_api.url('pytsite.odm_ui@browser_rows', model=self._model),
             data_toolbar='#odm-ui-browser-toolbar',
             data_show_refresh='true',
             data_search='true',
@@ -219,7 +216,7 @@ class Browser:
         self._finder_adjust(finder)
 
         # Permissions based limitations if current user can browse only OWN entities
-        if not self._current_user.has_permission('pytsite.odm_ui.browse.' + self._model):
+        if not self._current_user.has_permission('pytsite.odm_perm.view.' + self._model):
             if finder.mock.has_field('author'):
                 finder.where('author', '=', self._current_user)
             elif finder.mock.has_field('owner'):
@@ -285,7 +282,7 @@ class Browser:
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if entity.ui_can_be_modified():
+        if entity.perm_check('modify'):
             m_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': entity.model,
                 'id': str(entity.id),
@@ -297,7 +294,7 @@ class Browser:
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
-        if entity.ui_can_be_deleted():
+        if entity.perm_check('delete'):
             d_form_url = _router.ep_url('pytsite.odm_ui@d_form', {
                 'model': entity.model,
                 'ids': str(entity.id),

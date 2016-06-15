@@ -3,8 +3,8 @@
 from typing import Union as _Union
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
-from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache, threading as _threading
-from . import _entity, _error, _finder
+from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache
+from . import _model, _error, _finder
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,7 +22,7 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
     if isinstance(cls, str):
         cls = _util.get_class(cls)
 
-    if not issubclass(cls, _entity.Entity):
+    if not issubclass(cls, _model.Entity):
         raise ValueError("Subclass of Model is expected.")
 
     if is_model_registered(model) and not replace:
@@ -72,13 +72,13 @@ def get_registered_models() -> tuple:
     return tuple(_registered_models.keys())
 
 
-def resolve_ref(something: _Union[str, _entity.Entity, _DBRef, None]) -> _Union[_DBRef, None]:
+def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None]) -> _Union[_DBRef, None]:
     """Resolve DB object reference.
     """
     if isinstance(something, _DBRef) or something is None:
         return something
 
-    if isinstance(something, _entity.Entity):
+    if isinstance(something, _model.Entity):
         return something.ref
 
     if isinstance(something, str):
@@ -100,7 +100,7 @@ def resolve_ref(something: _Union[str, _entity.Entity, _DBRef, None]) -> _Union[
     raise ValueError('Cannot resolve reference.')
 
 
-def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_entity.Entity, None]:
+def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_model.Entity, None]:
     """Dispense entity by DBRef.
     """
     doc = _db.get_database().dereference(resolve_ref(ref))
@@ -108,7 +108,7 @@ def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_entity.Entity, None]:
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def dispense(model: str, eid=None) -> _entity.Entity:
+def dispense(model: str, eid=None) -> _model.Entity:
     """Dispense an entity.
     """
     if not is_model_registered(model):
@@ -123,8 +123,7 @@ def dispense(model: str, eid=None) -> _entity.Entity:
 def find(model: str):
     """Get ODM finder.
     """
-    from ._finder import Finder
-    return Finder(model, _cache.get_pool('pytsite.odm.finder:' + model))
+    return _finder.Finder(model, _cache.get_pool('pytsite.odm.finder:' + model))
 
 
 def aggregate(model: str):

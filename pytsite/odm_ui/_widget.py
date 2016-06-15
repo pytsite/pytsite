@@ -38,7 +38,7 @@ class EntitySelect(_widget.select.Select):
         """
         if isinstance(value, str) and not value:
             value = None
-        elif isinstance(value, _odm.Entity):
+        elif isinstance(value, _odm.model.Entity):
             value = value.model + ':' + str(value.id)
         elif isinstance(value, _DBRef):
             value = _odm.get_by_ref(value)
@@ -79,6 +79,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         self.set_val(kwargs.get('value'))
         self._model = kwargs.get('model')
         self._caption_field = kwargs.get('caption_field')
+        self._exclude = kwargs.get('exclude', ())
         self._sort_field = kwargs.get('sort_field', self._caption_field)
 
         if not self._model:
@@ -131,7 +132,8 @@ class EntityCheckboxes(_widget.select.Checkboxes):
     def get_html_em(self, **kwargs):
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
-            k = entity.model + ':' + str(entity.id)
-            self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))
+            if entity not in self._exclude:
+                k = entity.model + ':' + str(entity.id)
+                self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))
 
         return super().get_html_em()

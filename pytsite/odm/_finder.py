@@ -4,7 +4,7 @@ from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
 from pytsite import util as _util, reg as _reg, cache as _cache, logger as _logger, threading as _threading
-from . import _entity, _api, _query
+from . import _model, _api, _query
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,7 +41,7 @@ class Result:
         """
         return self
 
-    def __next__(self) -> _entity.Entity:
+    def __next__(self) -> _model.Entity:
         """Get next item.
         """
         if self._current == self._total:
@@ -102,7 +102,7 @@ class Finder:
         return self._model
 
     @property
-    def mock(self) -> _entity.Entity:
+    def mock(self) -> _model.Entity:
         """Get entity mock.
         """
         return self._mock
@@ -196,7 +196,7 @@ class Finder:
 
         return collection.count(filter=flt, skip=self._skip)
 
-    def get(self, limit: int = 0) -> _Union[_Iterable[_entity.Entity], Result]:
+    def get(self, limit: int = 0) -> _Union[_Iterable[_model.Entity], Result]:
         """Execute the query and return a cursor.
         """
         self._limit = limit
@@ -233,7 +233,7 @@ class Finder:
 
         return result
 
-    def first(self) -> _Union[_entity.Entity, None]:
+    def first(self) -> _Union[_model.Entity, None]:
         """Execute the query and return a first result.
         """
         result = list(self.get(1))

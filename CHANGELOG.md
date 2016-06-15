@@ -1,10 +1,13 @@
 # PytSite Changelog
+## 0.73 (2016-06-15)
+Huge undocumented refactoring.
+
+
 ## 0.72.1 (2016-06-09)
-## Changed
+### Changed
 - `auth_ui`, `content`: custom endpoints names format.
 
-## Fixed
-- `auth_ui`: 
+### Fixed
 - `taxonomy`: broken tokenfield's search endpoint.
 - `content`, `flag`: invalid JS API endpoints calls.
 

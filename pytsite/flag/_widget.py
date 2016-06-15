@@ -13,7 +13,7 @@ class Like(_widget.Base):
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
-        :param entity: _odm.Entity
+        :param entity: _odm.model.Entity
         :param icon: str
         """
         super().__init__(uid, **kwargs)
@@ -33,7 +33,7 @@ class Like(_widget.Base):
         ])
 
     @property
-    def entity(self) -> _odm.Entity:
+    def entity(self) -> _odm.model.Entity:
         return self._entity
 
     @property

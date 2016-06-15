@@ -325,9 +325,9 @@ class Ref(Abstract):
     def set_val(self, value, **kwargs):
         """Set value of the field.
 
-        :type value: pytsite.odm._entity.Entity | _bson_DBRef | str | None
+        :type value: pytsite.odm._model.Entity | _bson_DBRef | str | None
         """
-        from ._entity import Entity
+        from ._model import Entity
 
         if value is None:
             return self.clr_val()
@@ -351,7 +351,7 @@ class Ref(Abstract):
 
     def get_val(self, **kwargs):
         """Get value of the field.
-        :rtype: pytsite.odm._entity.Entity | None
+        :rtype: pytsite.odm._model.Entity | None
         """
         v = super().get_val()
         if isinstance(v, _bson_DBRef):
@@ -377,7 +377,7 @@ class RefsList(List):
     def __init__(self, name: str, model: str, **kwargs):
         """Init.
         """
-        from ._entity import Entity
+        from ._model import Entity
         self._model = model
 
         super().__init__(name, allowed_types=(_bson_DBRef, Entity), **kwargs)
@@ -397,7 +397,7 @@ class RefsList(List):
 
         # Cleaning up value
         clean_value = []
-        from ._entity import Entity
+        from ._model import Entity
         for item in value:
             if isinstance(item, Entity):
                 if self._model != '*' and item.model != self._model:
@@ -413,7 +413,7 @@ class RefsList(List):
     def get_val(self, **kwargs):
         """Get value of the field.
 
-        :rtype: _Tuple[pytsite.odm._entity.Entity]
+        :rtype: _Tuple[pytsite.odm._model.Entity]
         """
         from ._api import get_by_ref
 
@@ -436,7 +436,7 @@ class RefsList(List):
     def add_val(self, value, **kwargs):
         """Add a value to the field.
         """
-        from ._entity import Entity
+        from ._model import Entity
 
         if isinstance(value, Entity):
             if self._model != '*' and value.model != self._model:
@@ -452,7 +452,7 @@ class RefsList(List):
     def sub_val(self, value, **kwargs):
         """Subtract value fom the field.
         """
-        from ._entity import Entity
+        from ._model import Entity
 
         if isinstance(value, Entity):
             if self._model != '*' and value.model != self._model:

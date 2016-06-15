@@ -15,7 +15,7 @@ __license__ = 'MIT'
 _main_currency = _currency.get_main()
 
 
-class Account(_odm_ui.UIEntity):
+class Account(_odm_ui.model.UIEntity):
     """Wallet ODM Model.
     """
     def _setup_fields(self):
@@ -148,7 +148,7 @@ class Account(_odm_ui.UIEntity):
         ))
 
 
-class Transaction(_odm_ui.UIEntity):
+class Transaction(_odm_ui.model.UIEntity):
     """Transaction ODM Model.
     """
     def _setup_fields(self):
@@ -274,14 +274,6 @@ class Transaction(_odm_ui.UIEntity):
                     'title': self.t('cancel')},
 
         return ()
-
-    def ui_can_be_modified(self) -> bool:
-        # Transactions cannot be modified
-        return False
-
-    def ui_can_be_deleted(self) -> bool:
-        # Transactions cannot be deleted
-        return False
 
     def ui_m_form_setup_widgets(self, frm):
         """Modify form setup hook.

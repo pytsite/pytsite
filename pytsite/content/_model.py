@@ -165,7 +165,7 @@ class Tag(_taxonomy.model.Term):
         browser.default_sort_order = _odm.I_DESC
 
 
-class Base(_odm_ui.UIEntity):
+class Base(_odm_ui.model.UIEntity):
     """Base Content Entity.
     """
 
@@ -411,15 +411,21 @@ class Content(Base):
     def tags(self) -> _Tuple[Tag]:
         return self.f_get('tags', sort_by='weight', sort_reverse=True)
 
-    def ui_view_url(self) -> str:
-        if not self.is_new:
-            target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)}, True)
-            r_alias = _route_alias.find_by_target(target_path, self.language)
-            value = r_alias.alias if r_alias else target_path
+    def ui_m_form_url(self, args: dict = None) -> str:
+        return _router.ep_url('pytsite.content@modify', {
+            'model': self.model,
+            'id': '0' if self.is_new else str(self.id),
+        })
 
-            return _router.url(value, lang=self.language)
-        else:
+    def ui_view_url(self) -> str:
+        if self.is_new:
             raise RuntimeError('Cannot generate view URL for non-saved entity.')
+
+        target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)}, True)
+        r_alias = _route_alias.find_by_target(target_path, self.language)
+        value = r_alias.alias if r_alias else target_path
+
+        return _router.url(value, lang=self.language)
 
     @property
     def route_alias(self) -> _route_alias.model.RouteAlias:
@@ -789,7 +795,7 @@ class Content(Base):
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
+    def as_dict(self, fields: _Union[_List, _Tuple] = (), **kwargs):
         """Get serializable representation of a product.
         """
         r = super().as_dict(fields)
@@ -810,7 +816,7 @@ class Content(Base):
 
     def _send_waiting_status_notification(self):
         for u in _auth.find_users().get():
-            if u.has_permission('pytsite.odm_ui.modify.' + self.model):
+            if u.has_permission('pytsite.odm_perm.modify.' + self.model):
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
                 m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current(), {
                     'user': u,
@@ -863,7 +869,7 @@ class Article(Content):
         self.get_field('body').nonempty = True
 
 
-class ContentSubscriber(_odm.Entity):
+class ContentSubscriber(_odm.model.Entity):
     """content_subscriber ODM Model.
     """
 

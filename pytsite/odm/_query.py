@@ -1,14 +1,14 @@
 from typing import Iterable as _Iterable, Any as _Any
 from bson import ObjectId as _ObjectId
 from pytsite import lang as _lang
-from . import _entity, _geo, _field
+from . import _model, _geo, _field
 
 
 class Query:
     """Query Representation.
     """
 
-    def __init__(self, entity_mock: _entity.Entity):
+    def __init__(self, entity_mock: _model.Entity):
         """Init.
         """
         self._entity_mock = entity_mock
@@ -90,12 +90,12 @@ class Query:
 
                 # Convert instance(s) to DBRef(s)
                 if isinstance(field, _field.Ref):
-                    if isinstance(arg, _entity.Entity):
+                    if isinstance(arg, _model.Entity):
                         arg = arg.ref
                     elif isinstance(arg, (list, tuple)):
                         clean_arg = []
                         for v in arg:
-                            if isinstance(v, _entity.Entity):
+                            if isinstance(v, _model.Entity):
                                 clean_arg.append(v.ref)
                             else:
                                 clean_arg.append(v)
@@ -108,7 +108,7 @@ class Query:
 
                     clean_arg = []
                     for v in arg:
-                        if isinstance(v, _entity.Entity):
+                        if isinstance(v, _model.Entity):
                             v = v.ref
                         clean_arg.append(v)
                     arg = clean_arg

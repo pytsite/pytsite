@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Rate(_odm_ui.UIEntity):
+class Rate(_odm_ui.model.UIEntity):
     """Currency Exchange Rate Model
     """
     def _setup_fields(self):

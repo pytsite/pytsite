@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     """Module Init Wrapper.
     """
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
@@ -30,7 +30,7 @@ def __init():
     # Common routes
     router.add_rule('/content/index/<model>', 'pytsite.content@index')
     router.add_rule('/content/view/<model>/<id>', 'pytsite.content@view')
-    router.add_rule('/content/count/<model>/<id>', 'pytsite.content@view_count')
+    router.add_rule('/content/modify/<model>/<id>', 'pytsite.content@modify')
     router.add_rule('/content/search/<model>', 'pytsite.content@search', call='pytsite.content@index')
     router.add_rule('/content/ajax_search/<model>', 'pytsite.content@ajax_search')
 
@@ -72,4 +72,4 @@ def __init():
     robots.sitemap('/sitemap/index.xml')
 
 
-__init()
+_init()

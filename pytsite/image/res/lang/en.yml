@@ -1,0 +1,8 @@
+odm_perm_group_description: 'Images'
+odm_perm_create_image: 'Create images'
+odm_perm_view_image: 'View ALL images'
+odm_perm_view_own_image: 'View OWN images'
+odm_perm_modify_image: 'Modify ANY images'
+odm_perm_modify_own_image: 'Modify OWN images'
+odm_perm_delete_image: 'Delete ANY images'
+odm_perm_delete_own_image: 'Delete OWN images'

@@ -47,7 +47,7 @@ class Profile(_widget.Base):
         # Check whether to show 'Edit' button
         profile_is_editable = False
         if not current_user.is_anonymous:
-            if current_user.id == self._user.id or current_user.has_permission('pytsite.odm_ui.modify.user'):
+            if current_user.id == self._user.id or current_user.has_permission('pytsite.odm_perm.modify.user'):
                 profile_is_editable = True
 
         # Rendering widget's template
@@ -119,7 +119,7 @@ class UserSelect(_widget.select.Select):
         f = _auth.find_users().sort([('first_name', _odm.I_ASC)])
 
         current_user = _auth.get_current_user()
-        if not current_user.has_permission('pytsite.odm_ui.browse.user'):
+        if not current_user.has_permission('pytsite.odm_perm.view.user'):
             f.where('login', '=', current_user.login)
 
         for user in f.get():

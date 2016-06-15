@@ -1,0 +1,8 @@
+odm_perm_group_description: 'Комментарии'
+odm_perm_create_comment_native: 'Создание комментариев'
+odm_perm_view_comment_native: 'Просмотр ВСЕХ комментариев'
+odm_perm_view_own_comment_native: 'Просмотр СВОИХ комментариев'
+odm_perm_modify_comment_native: 'Изменение ЛЮБЫХ комментариев'
+odm_perm_modify_own_comment_native: 'Изменение СВОИХ комментариев'
+odm_perm_delete_comment_native: 'Удаление ЛЮБЫХ комментариев'
+odm_perm_delete_own_comment_native: 'Удаление СВОИХ комментариев'

@@ -73,13 +73,15 @@ class Driver(_content_export.AbstractDriver):
             # Notify OpenGraph about sharing
             scrape_r = user_session.request('', 'POST', id=entity.url, scrape='true')
             if 'updated_time' not in scrape_r:
-                raise _error.OpenGraphError("Error while updating OG story '{}'.".format(entity.title))
+                raise _error.OpenGraphError("Error while updating OG story '{}'. Response from Facebook: {}."
+                                            .format(entity.title, scrape_r))
 
             if 'page_id' in opts and opts['page_id']:
                 page_session = _Session(self._get_page_access_token(opts['page_id'], user_session))
                 page_session.feed_message(message, entity.url)
             else:
                 user_session.feed_message(message, entity.url)
+
         except Exception as e:
             raise _content_export.error.ExportError(e)
 

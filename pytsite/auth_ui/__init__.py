@@ -32,17 +32,17 @@ def __init():
 
     # 'Security' admin sidebar section
     admin.sidebar.add_section('auth', 'pytsite.auth_ui@security', 1000,
-                              permissions=('pytsite.odm_ui.browse.user', 'pytsite.odm_ui.browse.role'))
+                              permissions=('pytsite.odm_perm.view.user', 'pytsite.odm_perm.view.role'))
 
     # 'Users' admin sidebar menu
     url = router.ep_url('pytsite.odm_ui@browse', {'model': 'user'})
     admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_ui@users', url, 'fa fa-user', weight=10,
-                           permissions=('pytsite.odm_ui.browse.user',))
+                           permissions=('pytsite.odm_perm.view.user',))
 
     # 'Roles' admin sidebar menu
     url = router.ep_url('pytsite.odm_ui@browse', {'model': 'role'})
     admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_ui@roles', url, 'fa fa-users', weight=20,
-                           permissions=('pytsite.odm_ui.browse.role',))
+                           permissions=('pytsite.odm_perm.view.role',))
 
     # Assets
     assetman.register_package(__name__)

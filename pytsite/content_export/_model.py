@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ContentExport(_odm.Entity, _odm_ui.UIMixin):
+class ContentExport(_odm.model.Entity, _odm_ui.model.UIMixin):
     """oAuth Account Model.
     """
     def _setup_fields(self):

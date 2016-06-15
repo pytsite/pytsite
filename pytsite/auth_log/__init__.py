@@ -19,6 +19,6 @@ def __init():
 
     admin_href = router.ep_url('pytsite.odm_ui@browse', {'model': 'auth_log'})
     admin.sidebar.add_menu('auth', 'auth_log', 'pytsite.auth_log@log', admin_href, 'fa fa-history',
-                           weight=30, permissions='pytsite.odm_ui.browse.auth_log')
+                           weight=30, permissions='pytsite.odm_perm.view.auth_log')
 
 __init()

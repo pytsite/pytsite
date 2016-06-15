@@ -1,19 +1,18 @@
 """PytSite ODM UI.
 """
 # Public API
-from . import _widget as widget, _forms as forms
+from . import _widget as widget, _forms as forms, _model as model
 from ._browser import Browser
-from ._api import get_m_form, get_d_form, check_permissions, get_model_class
-from ._entity import UIMixin, UIEntity
+from ._api import get_m_form, get_d_form, get_model_class
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
-    from pytsite import assetman, events, tpl, lang, router, admin, js_api
-    from . import _eh
+def _init():
+    from pytsite import assetman, tpl, lang, router, admin
 
     abp = admin.base_path()
     auth_filter = 'pytsite.auth@filter_authorize'
@@ -46,8 +45,5 @@ def __init():
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
-    # Event listeners
-    events.listen('pytsite.odm.register_model', _eh.odm_register_model)
 
-
-__init()
+_init()

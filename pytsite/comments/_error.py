@@ -11,3 +11,7 @@ class DriverAlreadyRegistered(Exception):
 
 class DriverNotRegistered(Exception):
     pass
+
+
+class InvalidCommentStatus(Exception):
+    pass

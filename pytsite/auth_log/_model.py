@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class AuthLog(_odm_ui.UIEntity):
+class AuthLog(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
@@ -86,8 +86,8 @@ class AuthLog(_odm_ui.UIEntity):
 
         return user, ip, geo, description, severity, modified
 
-    def ui_can_be_created(self) -> bool:
-        return False
+    def perm_check(self, perm_type: str) -> bool:
+        if perm_type == 'create':
+            return True
 
-    def ui_can_be_modified(self) -> bool:
-        return False
+        return super().perm_check(perm_type)

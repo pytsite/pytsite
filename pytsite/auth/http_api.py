@@ -24,7 +24,7 @@ def post_sign_in(inp: dict) -> dict:
 
 def post_sign_out(inp: dict) -> dict:
     try:
-        _auth.sign_out(_auth.sign_in_by_token(inp.get('access_token', '')))
+        _auth.sign_out(_auth.get_current_user())
     except _auth.error.AuthenticationError as e:
         raise _http.error.Unauthorized(str(e))
 
@@ -38,6 +38,6 @@ def get_access_token_info(inp: dict) -> dict:
 
 
 def get_user(inp: dict) -> dict:
-    user = _auth.sign_in_by_token(inp.get('access_token', ''))
+    user = _auth.get_current_user()
 
     return user.as_dict(['login'] + [f.strip() for f in inp.get('fields', '').split(',')])

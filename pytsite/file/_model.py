@@ -2,14 +2,14 @@
 """
 from typing import Union as _Union, Tuple as _Tuple, List as _List
 from os import path as _path, unlink as _unlink
-from pytsite import odm as _odm, reg as _reg, router as _router
+from pytsite import odm as _odm, odm_perm as _odm_perm, reg as _reg, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class File(_odm.Entity):
+class File(_odm.model.Entity, _odm_perm.model.PermMixin):
     """File Model.
     """
 

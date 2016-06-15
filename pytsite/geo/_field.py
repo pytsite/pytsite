@@ -33,7 +33,7 @@ class Location(_odm.field.Dict):
 
     @property
     def is_empty(self) -> bool:
-        return self.get_val()['coordinates'] == (0.0, 0.0)
+        return self.get_val()['geo_point']['coordinates'] == (0.0, 0.0)
 
     def set_val(self, value: _Union[dict, _frozendict], **kwargs):
         """Hook.

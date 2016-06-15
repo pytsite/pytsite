@@ -29,7 +29,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
 
     menu_url = _router.ep_url('pytsite.odm_ui@browse', {'model': model})
     _admin.sidebar.add_menu('taxonomy', model, menu_title, menu_url, menu_icon, weight=menu_weight,
-                            permissions='pytsite.odm_ui.browse.' + model)
+                            permissions='pytsite.odm_perm.view.' + model)
 
 
 def is_model_registered(model: str) -> bool:

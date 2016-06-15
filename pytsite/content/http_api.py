@@ -11,7 +11,7 @@ __license__ = 'MIT'
 def get_entity(inp: dict) -> dict:
     user = None
     try:
-        user = _auth.sign_in_by_token(inp.get('access_token'))
+        user = _auth.get_current_user()
     except _auth.error.AuthenticationError as e:
         raise _http.error.Forbidden(e)
 

@@ -38,11 +38,11 @@ def search(inp: dict) -> dict:
     language = inp.get('language', _lang.get_current())
 
     # User can browse ANY entities
-    if user.has_permission('pytsite.odm_ui.browse.' + model):
+    if user.has_permission('pytsite.odm_perm.view.' + model):
         f = _api.find(model, status=None, check_publish_time=None, language=language)
 
     # User can browse only its OWN entities
-    elif user.has_permission('pytsite.odm_ui.browse_own.' + model):
+    elif user.has_permission('pytsite.odm_perm.view_own.' + model):
         f = _api.find(model, status=None, check_publish_time=None, language=language)
         f.where('author', '=', user)
 

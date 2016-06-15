@@ -16,7 +16,7 @@ __models = {}
 
 def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str = 'fa fa-file-text-o', replace=False):
     """Register content model.
-    :type cls: str | _odm.Entity
+    :type cls: str | _odm.model.Entity
     """
     # Resolve class
     if isinstance(cls, str):
@@ -68,8 +68,8 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
         icon=icon,
         weight=menu_weight,
         permissions=(
-            'pytsite.odm_ui.browse.' + model,
-            'pytsite.odm_ui.browse_own.' + model,
+            'pytsite.odm_perm.view.' + model,
+            'pytsite.odm_perm.view_own.' + model,
         ),
         replace=replace
     )
@@ -129,10 +129,20 @@ def find(model: str, **kwargs):
         f.sort([('_modified', _odm.I_DESC)])
 
     # Language
-    f.where('language', '=', kwargs.get('language') or _lang.get_current())  # It is important to use 'or' here!
+    if f.mock.has_field('language'):
+        if 'language' in kwargs:
+            if kwargs['language'] is not None:
+                f.where('language', '=', kwargs['language'])
+        else:
+            f.where('language', '=', _lang.get_current())
 
+    # Status
     if f.mock.has_field('status'):
-        f.where('status', '=', kwargs.get('status') or 'published')  # It is important to use 'or' here!
+        if 'status' in kwargs:
+            if kwargs['status'] is not None:
+                f.where('status', '=', kwargs['status'])
+        else:
+            f.where('status', '=', 'published')
 
     return f
 

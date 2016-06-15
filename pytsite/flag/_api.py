@@ -10,13 +10,13 @@ _CACHE_TTL = 300  # 5 min
 _cache_p = _cache.create_pool('pytsite.flag')
 
 
-def count(entity: _odm.Entity, flag_type: str = 'default') -> int:
+def count(entity: _odm.model.Entity, flag_type: str = 'default') -> int:
     """Get flags count for the entity.
     """
     return _odm.find('flag').where('entity', '=', entity).where('type', '=', flag_type).count()
 
 
-def sum(entity: _odm.Entity, flag_type: str = 'default') -> float:
+def sum(entity: _odm.model.Entity, flag_type: str = 'default') -> float:
     """Get sum of scores for the entity.
     """
     c_key = 'sum.{}.{}'.format(entity.id, flag_type)
@@ -36,7 +36,7 @@ def sum(entity: _odm.Entity, flag_type: str = 'default') -> float:
     return _cache_p.put(c_key, v, _CACHE_TTL)
 
 
-def average(entity: _odm.Entity, flag_type: str = 'default') -> float:
+def average(entity: _odm.model.Entity, flag_type: str = 'default') -> float:
     """Get average score for the entity.
     """
     c_key = 'average.{}.{}'.format(entity.id, flag_type)
@@ -56,7 +56,7 @@ def average(entity: _odm.Entity, flag_type: str = 'default') -> float:
     return _cache_p.put(c_key, v, _CACHE_TTL)
 
 
-def is_flagged(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'default') -> bool:
+def is_flagged(entity: _odm.model.Entity, user: _auth.model.User, flag_type: str = 'default') -> bool:
     """Check if an entity is flagged by a user.
     """
     if user.is_anonymous:
@@ -67,7 +67,7 @@ def is_flagged(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'de
     return bool(f.count())
 
 
-def flag(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'default', score: float = 1.0):
+def flag(entity: _odm.model.Entity, user: _auth.model.User, flag_type: str = 'default', score: float = 1.0):
     """Flag the entity.
     """
     if user.is_anonymous or is_flagged(entity, user):
@@ -80,7 +80,7 @@ def flag(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'default'
     _events.fire('pytsite.flag.flag', entity=entity, user=user, flag_type=flag_type, score=score)
 
 
-def unflag(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'default'):
+def unflag(entity: _odm.model.Entity, user: _auth.model.User, flag_type: str = 'default'):
     """Remove flag.
     """
     if user.is_anonymous or not is_flagged(entity, user):
@@ -92,7 +92,7 @@ def unflag(entity: _odm.Entity, user: _auth.model.User, flag_type: str = 'defaul
     _events.fire('pytsite.flag.unflag', entity=entity, user=user, flag_type=flag_type)
 
 
-def toggle(entity: _odm.Entity, author: _auth.model.User, flag_type: str = 'default', score: float = 1.0) -> bool:
+def toggle(entity: _odm.model.Entity, author: _auth.model.User, flag_type: str = 'default', score: float = 1.0) -> bool:
     """Toggle flag.
     """
     if author.is_anonymous:
@@ -106,7 +106,7 @@ def toggle(entity: _odm.Entity, author: _auth.model.User, flag_type: str = 'defa
         return True
 
 
-def delete(entity: _odm.Entity) -> int:
+def delete(entity: _odm.model.Entity) -> int:
     """Delete all flags for particular entity.
     """
     r = 0

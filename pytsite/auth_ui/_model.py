@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class UserUI(_auth.model.User, _odm_ui.UIMixin):
+class UserUI(_auth.model.User, _odm_ui.model.UIMixin):
     """User UI.
     """
 
@@ -21,10 +21,6 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
     @property
     def profile_is_public(self) -> bool:
         return self.f_get('profile_is_public')
-
-    @property
-    def edit_url(self) -> str:
-        return self.ui_m_form_url()
 
     @classmethod
     def ui_browser_setup(cls, browser):
@@ -83,6 +79,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         """
         current_user = _auth.get_current_user()
 
+        # Picture wrapper
         pic_wrapper = _widget.Container(
             uid='picture-wrapper',
             weight=2,
@@ -90,6 +87,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         )
         frm.add_widget(pic_wrapper)
 
+        # Content wrapper
         content_wrapper = _widget.Container(
             uid='content-wrapper',
             weight=4,
@@ -118,7 +116,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Login
-        if current_user.has_permission('pytsite.odm_ui.modify.user'):
+        if current_user.has_permission('pytsite.odm_perm.modify.user'):
             content_wrapper.add_widget(_widget.input.Email(
                 weight=30,
                 uid='login',
@@ -216,7 +214,7 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         ))
 
         # Status
-        if current_user.has_permission('pytsite.odm_ui.modify.user'):
+        if current_user.has_permission('pytsite.odm_perm.modify.user'):
             content_wrapper.add_widget(_widget.select.Select(
                 weight=120,
                 uid='status',
@@ -239,19 +237,20 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
         frm.add_rule('urls', _validation.rule.Url())
 
         # Roles
-        if current_user.has_permission('pytsite.odm_ui.modify.user'):
+        if current_user.has_permission('pytsite.odm_perm.modify.user'):
             content_wrapper.add_widget(_odm_ui.widget.EntityCheckboxes(
                 weight=140,
                 uid='roles',
                 label=self.t('roles'),
                 model='role',
                 caption_field='description',
+                exclude=(_auth.get_role('anonymous'),),
                 value=self.f_get('roles'),
             ))
             frm.add_rule('roles', _odm.validation.ODMEntitiesList(model='role'))
 
         # Token
-        if not self.is_new and current_user.has_permission('pytsite.odm_ui.modify.user'):
+        if not self.is_new and current_user.has_permission('pytsite.odm_perm.modify.user'):
             content_wrapper.add_widget(_widget.input.Text(
                 weight=150,
                 uid='access_token',
@@ -266,9 +265,6 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
                     field='access_token',
                     exclude_ids=self.id)
             ))
-
-    def ui_can_be_deleted(self) -> bool:
-        return False if _auth.get_current_user().id == self.id else True
 
     def ui_mass_action_get_entity_description(self) -> str:
         """Get delete form description.
@@ -288,8 +284,16 @@ class UserUI(_auth.model.User, _odm_ui.UIMixin):
 
         return r
 
+    def perm_check(self, perm_type: str) -> bool:
+        # Users can modify themselves
+        user = _auth.get_current_user()
+        if perm_type == 'modify' and not user.is_anonymous and user == self:
+            return True
 
-class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
+        return super().perm_check(perm_type)
+
+
+class RoleUI(_auth.model.Role, _odm_ui.model.UIMixin):
     """Role UI.
     """
 
@@ -309,6 +313,8 @@ class RoleUI(_auth.model.Role, _odm_ui.UIMixin):
 
         perms = []
         for perm_name in self.f_get('permissions'):
+            if not _permission.is_permission_defined(perm_name):
+                continue
             perm = _permission.get_permission(perm_name)
             cls = 'label label-default permission-' + perm[0]
             if perm[0] == 'admin':

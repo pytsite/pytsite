@@ -13,17 +13,6 @@ __license__ = 'MIT'
 def pytsite_setup():
     """'pytsite.setup' Event Handler
     """
-    # Creating roles
-    admin_role = ('admin', 'pytsite.auth@admin_role_description')
-    user_role = ('user', 'pytsite.auth@user_role_description')
-    for role in admin_role, user_role:
-        if not _api.get_role(name=role[0]):
-            role_entity = _api.create_role(role[0], role[1])
-            if role_entity.f_get('name') == 'admin':
-                role_entity.f_add('permissions', 'admin')
-            role_entity.save()
-            _console.print_success(_lang.t('pytsite.auth@role_has_been_created', {'name': role_entity.f_get('name')}))
-
     # Creating administrator
     email = input(_lang.t('pytsite.auth@enter_admin_email') + ': ')
     try:
@@ -43,14 +32,27 @@ def pytsite_setup():
 def pytsite_router_dispatch():
     """pytsite.router.dispatch Event Handler.
     """
-    user = _api.get_current_user()
+    # Determine current user based on session's data
+    if 'pytsite.auth.login' in _router.session():
+        user = _api.get_user(_router.session()['pytsite.auth.login'])
 
-    # Check user status and update its activity timestamp
+    # Determine current user based on request's argument
+    elif 'access_token' in _router.request().inp:
+        user = _api.get_user(access_token=_router.request().inp['access_token'])
+
+    else:
+        user = _api.get_anonymous_user()
+
+    # Set current user
+    _api.set_current_user(user)
+
     if not user.is_anonymous:
         if user.status == 'active':
+            # Update user's activity timestamp
             _router.set_no_cache(True)
             user.f_set('last_activity', _datetime.now()).save(True, False)
         else:
+            # Sign out inactive user
             _api.sign_out(user)
 
     # Alternate languages for sign in page

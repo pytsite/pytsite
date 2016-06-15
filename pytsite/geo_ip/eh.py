@@ -12,7 +12,7 @@ def pytsite_update(version: str):
     """'pytsite.update' event handler.
     """
     if version in ('0.59.0', '0.63.0'):
-        # Re-create 'geo_ips' collection due to its structure changes
+        # Re-create 'geo_ips' collection due to its structural changes
         _db.get_collection('geo_ips').drop()
 
 

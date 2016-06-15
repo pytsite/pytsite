@@ -14,10 +14,12 @@ __license__ = 'MIT'
 
 _registered_drivers = OrderedDict()  # type: _Dict[str, _driver.Abstract]
 
-__permission_groups = []
-__permissions = []
+_permission_groups = []
+_permissions = []
 _anonymous_user = None
+_system_user = None
 _access_tokens = _cache.create_pool('pytsite.auth.access_tokens')
+_current_user = {}  # user object per thread
 
 user_login_rule = _validation.rule.Email()
 user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
@@ -102,7 +104,7 @@ def sanitize_nickname(s: str) -> str:
 def create_user(login: str, password: str = None) -> _model.User:
     """Create new user.
     """
-    if login != _model.ANONYMOUS_USER_LOGIN:
+    if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
         if get_user(login):
             raise _error.UserExists("User with login '{}' already exists.".format(login))
 
@@ -113,7 +115,7 @@ def create_user(login: str, password: str = None) -> _model.User:
     user.f_set('login', login).f_set('email', login).f_set('password', password)
 
     # Do some actions with non-anonymous users
-    if login != _model.ANONYMOUS_USER_LOGIN:
+    if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
         # Automatic roles for new users
         for role_name in _reg.get('auth.signup.roles', ['user']):
             role = get_role(role_name)
@@ -127,31 +129,52 @@ def create_user(login: str, password: str = None) -> _model.User:
     return user
 
 
-def get_user(login: str = None, uid: str = None, nickname: str = None, access_token: str = None) -> _model.User:
+def get_anonymous_user() -> _model.User:
+    global _anonymous_user
+    if not _anonymous_user:
+        _anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
+
+    return _anonymous_user
+
+
+def get_system_user() -> _model.User:
+    global _system_user
+    if not _system_user:
+        _system_user = create_user(_model.SYSTEM_USER_LOGIN)
+
+    return _system_user
+
+
+def get_user(login: str = None, uid: str = None, nickname: str = None, access_token: str = None,
+             check_status: bool = True) -> _model.User:
     """Get user by login, nickname or by uid.
     """
-    # Don't cache finder results due to frequent user updates in database
-    f = _odm.find('user').cache(0)
-    if login is not None:
-        return f.where('login', '=', login).first()
+    with _threading.get_r_lock():
+        # Don't cache finder results due to frequent user updates in database
+        f = _odm.find('user').cache(0)
+        if login is not None:
+            f.where('login', '=', login)
 
-    elif uid is not None:
-        return f.where('_id', '=', uid).first()
+        elif uid is not None:
+            f.where('_id', '=', uid)
 
-    elif nickname is not None:
-        return f.where('nickname', '=', nickname).first()
+        elif nickname is not None:
+            f.where('nickname', '=', nickname)
 
-    elif access_token is not None:
-        if _access_tokens.has(access_token):
-            return f.where('access_token', '=', access_token).first()
+        elif access_token is not None:
+            # Check if the access token is valid
+            if _access_tokens.has(access_token):
+                f.where('access_token', '=', access_token)
 
-    else:
-        # Return anonymous user
-        global _anonymous_user
-        if not _anonymous_user:
-            _anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
+        else:
+            return get_anonymous_user()
 
-        return _anonymous_user
+        user = f.first()  # type: _model.User
+        if check_status and user.status != 'active':
+            sign_out(user)
+            raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
+
+        return user
 
 
 def create_role(name: str, description: str = ''):
@@ -161,6 +184,7 @@ def create_role(name: str, description: str = ''):
         raise RuntimeError("Role with name '{}' already exists.".format(name))
 
     role = _odm.dispense('role')
+
     return role.f_set('name', name).f_set('description', description)
 
 
@@ -171,8 +195,10 @@ def get_role(name: str = None, uid=None) -> _model.Role:
 
     if name:
         return f.where('name', '=', name).first()
-    if uid:
+    elif uid:
         return f.where('_id', '=', uid).first()
+    else:
+        RuntimeError('Either role name or ID must be specified while calling this function.')
 
 
 def sign_in(driver: str, data: dict) -> _model.User:
@@ -181,20 +207,21 @@ def sign_in(driver: str, data: dict) -> _model.User:
     try:
         # Get user from driver
         user = get_driver(driver).sign_in(data)
-
-        # Check user's status
-        if user.status != 'active':
-            raise _error.AuthenticationError("User account '{}' is not active".format(user.login))
+        set_current_user(user)
 
     except _error.AuthenticationError as e:
         _logger.warn(str(e))
         raise e
 
-    # Generate new token or prolong existing token
+    # Generate new token or prolong existing one
     if not _access_tokens.has(user.access_token):
         user.f_set('access_token', create_access_token(user.login, data.get('access_token_ttl', 3600))).save()
     else:
         prolong_access_token(user.access_token)
+
+    # Set session marker
+    if _router.session():
+        _router.session()['pytsite.auth.login'] = user.login
 
     # Update login counter
     user.f_inc('sign_in_count').f_set('last_sign_in', _datetime.now()).save()
@@ -253,50 +280,41 @@ def prolong_access_token(token: str):
         _access_tokens.put(token, token_info, token_info['ttl'])
 
 
-def sign_in_by_token(token: str) -> _model.User:
-    """Sign in user by access token.
-    """
-    with _threading.get_r_lock():
-        user = get_user(access_token=token)  # Token expiration will be checked in get_user()
-        if not user or user.is_anonymous or user.status != 'active':
-            raise _error.AuthenticationError(_lang.t('pytsite.auth@authentication_error'))
-
-        user.f_set('last_activity', _datetime.now()).save(True, False)
-        prolong_access_token(token)
-
-        return user
-
-
-def sign_out(user: _model.User, driver: str = None, issue_event: bool = True):
+def sign_out(user: _model.User, issue_event: bool = True):
     """Sign out current user.
     """
     # Anonymous user cannot be signed out
     if user.is_anonymous:
         return
 
-    # Ask driver to perform necessary operations
-    get_driver(driver).sign_out(user)
+    # Ask drivers to perform necessary operations
+    for driver in _registered_drivers.values():
+        driver.sign_out(user)
 
     # Remove access token
     _access_tokens.rm(user.access_token)
+
+    # Remove session's data
+    if _router.session() and _router.session().get('pytsite.auth.login'):
+        del _router.session()['pytsite.auth.login']
 
     # Notify listeners
     if issue_event:
         _events.fire('pytsite.auth.sign_out', user=user)
 
+    # Set anonymous user as current
+    set_current_user(get_anonymous_user())
+
 
 def get_current_user() -> _model.User:
     """Get currently session-authorized user.
     """
-    # If no session data available, return anonymous user
-    if not _router.session() or not _router.session().get('pytsite.auth.login'):
-        return get_user()
+    # Current or anonymous
+    return _current_user.get(_threading.get_id(), get_anonymous_user())
 
-    user = get_user(login=_router.session().get('pytsite.auth.login'))
-    if not user:
-        raise _error.UserNotExist()
 
-    return user
+def set_current_user(user: _model.User = None):
+    _current_user[_threading.get_id()] = user
 
 
 def get_user_statuses() -> tuple:

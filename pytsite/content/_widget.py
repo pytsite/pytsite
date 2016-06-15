@@ -19,7 +19,7 @@ class ModelSelect(_widget.select.Select):
         u = _auth.get_current_user()
         for k, v in _api.get_models().items():
             if self._check_perms:
-                if u.has_permission('pytsite.odm_ui.browse.' + k) or u.has_permission('pytsite.odm_ui.browse_own.' + k):
+                if u.has_permission('pytsite.odm_perm.view.' + k) or u.has_permission('pytsite.odm_perm.view_own.' + k):
                     items.append((k, _lang.t(v[1])))
             else:
                 items.append((k, _lang.t(v[1])))

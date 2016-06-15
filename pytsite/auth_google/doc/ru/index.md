@@ -18,4 +18,4 @@
 
 ## Ссылки
 * [Google Sign-In for Websites](https://developers.google.com/identity/sign-in/web/)
-* [PytSite HTTP API](../../../auth/doc/ru/http_api.md)
+* [PytSite Authentication HTTP API](../../../auth/doc/ru/http_api.md)

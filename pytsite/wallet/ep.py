@@ -1,6 +1,6 @@
 """PytSite Wallet Endpoints
 """
-from pytsite import http as _http, router as _router, odm as _odm, lang as _lang, metatag as _metatag, admin as _admin
+from pytsite import http as _http, router as _router, odm as _odm, admin as _admin
 from . import _forms, _model
 
 __author__ = 'Alexander Shepetko'
@@ -33,6 +33,9 @@ def transactions_cancel_submit(args: dict, inp: dict):
 
     for eid in ids:
         entity = _odm.dispense('wallet_transaction', eid)  # type: _model.Transaction
+        if not entity.perm_check('cancel'):
+            raise _http.error.Unauthorized()
+
         entity.cancel()
 
     redirect = inp.get('__redirect', _router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_transaction'}))

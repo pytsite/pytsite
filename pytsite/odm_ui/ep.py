@@ -13,23 +13,9 @@ __license__ = 'MIT'
 def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
-    table = _browser.Browser(args.get('model')).get_table()
-
-    return _admin.render(_tpl.render('pytsite.odm_ui@browser', {'table': table}))
-
-
-def browse_get_rows(args: dict, inp: dict) -> _http.response.JSON:
-    """Get browser rows via AJAX request.
-    """
-    offset = int(inp.get('offset', 0))
-    limit = int(inp.get('limit', 0))
-    sort_field = inp.get('sort')
-    sort_order = inp.get('order')
-    search = inp.get('search')
-    browser = _browser.Browser(args.get('model'))
-    rows = browser.get_rows(offset, limit, sort_field, sort_order, search)
-
-    return _http.response.JSON(rows)
+    return _admin.render(_tpl.render('pytsite.odm_ui@browser', {
+        'table': _browser.Browser(args.get('model')).get_table()
+    }))
 
 
 def m_form(args: dict, inp: dict) -> str:
@@ -37,6 +23,7 @@ def m_form(args: dict, inp: dict) -> str:
     """
     try:
         return _admin.render_form(_api.get_m_form(args.get('model'), args['id'] if args.get('id') != 0 else None))
+
     except _odm.error.EntityNotFound:
         raise _http.error.NotFound()
 
@@ -122,7 +109,7 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
             entity = _api.dispense_entity(model, eid)
 
             # Check permissions
-            if not entity.ui_can_be_deleted():
+            if not entity.perm_check('delete'):
                 raise _odm.error.ForbidEntityDelete('User does not have sufficient permissions.')
 
             entity.delete()

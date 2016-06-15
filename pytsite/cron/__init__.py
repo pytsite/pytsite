@@ -1,7 +1,7 @@
 """PytSite Cron.
 """
 from datetime import datetime as _datetime
-from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, mp as _mp
+from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, mp as _mp, auth as _auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -66,6 +66,9 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
         try:
             # Locking maximum for 10 minutes to prevent long lived deadlocks
             lock.lock(600)
+
+            # Disable permissions check
+            _auth.set_current_user(_auth.get_system_user())
 
             # Starting worker
             stats = _get_stats()

@@ -1,8 +1,8 @@
 """PytSite ODM Entity Modify Form.
 """
 from pytsite import form as _form, widget as _widget, lang as _lang, http as _http, odm as _odm, events as _events, \
-    metatag as _metatag, router as _router, html as _html
-from . import _entity
+    metatag as _metatag, router as _router, html as _html, odm_perm as _odm_perm
+from . import _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,11 +41,11 @@ class Modify(_form.Form):
             raise _http.error.NotFound()
 
         # Check if entities of this model can be created
-        if not self._eid and not entity.ui_can_be_created():
+        if not self._eid and not entity.perm_check('create'):
             raise _http.error.Forbidden()
 
         # Check if the entity can be modified
-        if self._eid and not entity.ui_can_be_modified():
+        if self._eid and not entity.perm_check('modify'):
             raise _http.error.Forbidden()
 
         # Form title
@@ -173,15 +173,14 @@ class Delete(MassAction):
         super()._setup_form()
 
         # Check permissions
-        from ._api import check_permissions
-        if not check_permissions('delete', self._model, self._eids):
+        if not _odm_perm.check_permissions('delete', self._model, self._eids):
             raise _http.error.Forbidden()
 
         # Action URL
         self._action = _router.ep_url('pytsite.odm_ui@d_form_submit', {'model': self._model})
 
         # Page title
-        model_class = _odm.get_model_class(self._model)  # type: _entity.UIEntity
+        model_class = _odm.get_model_class(self._model)  # type: _model.UIEntity
         _metatag.t_set('title', model_class.t('odm_ui_form_title_delete_' + self._model))
 
     def _setup_widgets(self):

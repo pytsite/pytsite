@@ -1,41 +1,16 @@
 """PytSite ODM UI Entity.
 """
 from typing import Tuple as _Tuple, Dict as _Dict, Union as _Union, List as _List
-from pytsite import odm as _odm, router as _router, form as _form
+from pytsite import odm as _odm, odm_perm as _odm_perm, router as _router, form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class UIMixin:
-    """Base ODM UI Model.
+class UIMixin(_odm_perm.model.PermMixin):
+    """ODM Entity UI Mixin.
     """
-    def ui_can_be_created(self) -> bool:
-        if hasattr(self, 'model'):
-            from ._api import check_permissions
-            return check_permissions('create', self.model)
-
-        return True
-
-    def ui_can_be_modified(self) -> bool:
-        """Is this entity can be modified via UI.
-        """
-        if hasattr(self, 'model') and hasattr(self, 'id'):
-            from ._api import check_permissions
-            return check_permissions('modify', self.model, self.id)
-
-        return True
-
-    def ui_can_be_deleted(self) -> bool:
-        """Is this entity can be deleted via UI.
-        """
-        if hasattr(self, 'model') and hasattr(self, 'id'):
-            from ._api import check_permissions
-            return check_permissions('delete', self.model, self.id)
-
-        return True
-
     @classmethod
     def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
@@ -143,7 +118,7 @@ class UIMixin:
         return self.ui_m_form_url()
 
 
-class UIEntity(_odm.Entity, UIMixin):
+class UIEntity(_odm.model.Entity, UIMixin):
     def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> dict:
         r = super().as_dict(fields, **kwargs)
 

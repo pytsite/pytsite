@@ -1,7 +1,7 @@
 """Content Console Commands.
 """
-from random import shuffle as _shuffle, random as _random, randint as _randint
 import requests as _requests
+from random import shuffle as _shuffle, random as _random, randint as _randint
 from pytsite import image as _image, auth as _auth, console as _console, lang as _lang, events as _events, \
     validation as _validation
 from . import _api

@@ -1,35 +1,30 @@
 """Comments Models.
 """
-from pytsite import odm as _odm
+from typing import Tuple as _Tuple
+from pytsite import image as _image, auth as _auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class CommentsCount(_odm.Entity):
-    """Comments Count Model.
-    """
-    def _setup_fields(self):
-        """Hook.
-        """
-        self.define_field(_odm.field.String('driver', nonempty=True))
-        self.define_field(_odm.field.String('thread_id', nonempty=True))
-        self.define_field(_odm.field.Integer('count'))
-
-    def _setup_indexes(self):
-        """Hook.
-        """
-        self.define_index([('driver', _odm.I_ASC), ('thread_id', _odm.I_ASC)], unique=True)
-
-    @property
-    def driver(self) -> str:
-        return self.f_get('driver')
-
+class Comment:
     @property
     def thread_id(self) -> str:
-        return self.f_get('thread_id')
+        raise NotImplementedError("Not implemented yet")
 
     @property
-    def count(self) -> int:
-        return self.f_get('count')
+    def body(self) -> str:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def images(self) -> _Tuple[_image.model.Image]:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def status(self) -> str:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def author(self) -> _auth.model.User:
+        raise NotImplementedError("Not implemented yet")

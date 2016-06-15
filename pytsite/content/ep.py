@@ -2,9 +2,9 @@
 """
 import re as _re
 from datetime import datetime as _datetime
-from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, reg as _reg, http as _http, \
+from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, \
     router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
-    lang as _lang, validation as _validation, logger as _logger, hreflang as _hreflang, comments as _comments
+    lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -83,13 +83,21 @@ def view(args: dict, inp: dict):
     entity = _api.find(model, status=None, check_publish_time=False).where('_id', '=', args.get('id')).first()
     """:type: pytsite.content._model.Content"""
 
+    # Check entity existence
     if not entity:
         raise _http.error.NotFound()
 
-    # Checking publish time
-    if entity.publish_time > _datetime.now():
-        if not _auth.get_current_user().has_permission('pytsite.odm_ui.modify.' + entity.model):
-            raise _http.error.Forbidden()
+    # Check view permissions for current user
+    if not entity.perm_check('view'):
+        raise _http.error.Forbidden()
+
+    # Show non published entities only who can edit them
+    if entity.has_field('publish_time') and entity.publish_time > _datetime.now():
+        if not entity.perm_check('modify'):
+            raise _http.error.NotFound()
+    if entity.has_field('status') and entity.status != 'published':
+        if not entity.perm_check('modify'):
+            raise _http.error.NotFound()
 
     # Update comments count
     entity.f_set('comments_count', _comments.get_all_comments_count(entity.url)).save(True, False)
@@ -143,6 +151,26 @@ def view(args: dict, inp: dict):
     args['entity'] = entity
 
     return _router.call_ep('$theme@content_' + model + '_view', args, inp)
+
+
+def modify(args: dict, inp: dict) -> str:
+    """Get content entity create/modify form.
+    """
+    model = args['model']
+    eid = args['id']
+
+    try:
+        frm = _odm_ui.get_m_form(model, eid if eid != 0 else None)
+
+        if _router.is_ep_callable('$theme@content_' + model + '_modify'):
+            args['frm'] = frm
+            return _router.call_ep('$theme@content_' + model + '_modify', args, inp)
+
+        else:
+            return _tpl.render('pytsite.content@page/modify', {'frm': frm})
+
+    except _odm.error.EntityNotFound:
+        raise _http.error.NotFound()
 
 
 def propose(args: dict, inp: dict) -> str:

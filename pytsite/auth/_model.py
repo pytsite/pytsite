@@ -10,9 +10,10 @@ from pytsite import image as _image, odm as _odm, util as _util, router as _rout
 
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
+SYSTEM_USER_LOGIN = 'system@system.system'
 
 
-class Role(_odm.Entity):
+class Role(_odm.model.Entity):
     """Role.
     """
     def _setup_fields(self):
@@ -50,7 +51,7 @@ class Role(_odm.Entity):
                 raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.f_get('login')}))
 
 
-class User(_odm.Entity):
+class User(_odm.model.Entity):
     """User ODM Model.
     """
     def _setup_fields(self):
@@ -110,7 +111,13 @@ class User(_odm.Entity):
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.f_get('login') == ANONYMOUS_USER_LOGIN
+        return self.login == ANONYMOUS_USER_LOGIN
+
+    @property
+    def is_system(self) -> bool:
+        """Check if the user is anonymous.
+        """
+        return self.login == SYSTEM_USER_LOGIN
 
     @property
     def is_admin(self) -> bool:
@@ -183,7 +190,7 @@ class User(_odm.Entity):
         return self.f_get('access_token')
 
     @property
-    def roles(self) -> _Iterable[Role]:
+    def roles(self) -> _Tuple[Role]:
         return self.f_get('roles')
 
     @property
@@ -251,6 +258,9 @@ class User(_odm.Entity):
         """
         if self.login == ANONYMOUS_USER_LOGIN:
             raise RuntimeError('Anonymous user cannot be saved.')
+
+        if self.login == SYSTEM_USER_LOGIN:
+            raise RuntimeError('System user cannot be saved.')
 
         if not self.password:
             self.f_set('password', '')
@@ -330,6 +340,13 @@ class User(_odm.Entity):
                 value = _geo_ip.resolve(self.last_ip)
             except _geo_ip.error.ResolveError:
                 value = _geo_ip.resolve('0.0.0.0')
+
+        elif field_name == 'roles':
+            from ._api import get_role
+            if self.is_anonymous:
+                value = (get_role('anonymous'),)
+            elif self.is_system:
+                value = (get_role('admin'),)
 
         return value
 

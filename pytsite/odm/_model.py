@@ -670,8 +670,8 @@ class Entity(_ABC):
             if not skip_hooks:
                 self._cache_push(True)  # It is important to push cache before calling hook
                 self._after_save(first_save)
-                _events.fire('pytsite.odm.entity.save', entity=self)
-                _events.fire('pytsite.odm.entity.save.' + self.model, entity=self)
+                _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
+                _events.fire('pytsite.odm.entity.save.' + self.model, entity=self, first_save=first_save)
 
             # Saved entity is not 'modified'
             self._is_modified = False
@@ -708,7 +708,7 @@ class Entity(_ABC):
         """Delete the entity.
         """
         if self._is_new:
-            raise RuntimeError('New entities cannot be deleted.')
+            raise _error.ForbidEntityDelete('New entities cannot be deleted.')
 
         if _dbg:
             _logger.debug('{}.delete()'.format(self.model), __name__)
@@ -787,7 +787,7 @@ class Entity(_ABC):
 
         return r
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> _Dict:
+    def as_dict(self, fields: _Union[_List, _Tuple] = (), **kwargs) -> _Dict:
         """Get dictionary representation of the entity.
         """
         r = {}

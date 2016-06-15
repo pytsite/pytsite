@@ -2,7 +2,7 @@
 """
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
-    router as _router
+    router as _router, logger as _logger
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -43,8 +43,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
     redirect = inp.pop('__redirect', _router.base_url())
 
     try:
-        user = _api.sign_in(driver, inp)
-        _router.session()['pytsite.auth.login'] = user.login
+        _api.sign_in(driver, inp)
         return _http.response.Redirect(redirect)
 
     except _error.AuthenticationError:
@@ -55,6 +54,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
         }))
 
     except Exception as e:
+        _logger.error(e)
         _router.session().add_error(str(e))
         return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
             'driver': driver,
@@ -66,10 +66,6 @@ def sign_out(args: dict, inp: dict) -> _http.response.Redirect:
     """Logout endpoint.
     """
     _api.sign_out(_api.get_current_user())
-
-    # Delete user's session data
-    if 'pytsite.auth.login' in _router.session():
-        del _router.session()['pytsite.auth.login']
 
     return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 

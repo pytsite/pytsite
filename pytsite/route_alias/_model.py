@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class RouteAlias(_odm.Entity):
+class RouteAlias(_odm.model.Entity):
     """Taxonomy Term Model.
     """
     def _setup_fields(self):

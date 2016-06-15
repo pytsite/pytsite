@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class GeoIP(_odm.Entity):
+class GeoIP(_odm.model.Entity):
     @property
     def ip(self) -> str:
         return self.f_get('ip')
