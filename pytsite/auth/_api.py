@@ -115,7 +115,7 @@ def create_user(login: str, password: str = None) -> _model.User:
     user.f_set('login', login).f_set('email', login).f_set('password', password)
 
     # Do some actions with non-anonymous users
-    if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
+    if not user.is_anonymous and not user.is_system:
         # Automatic roles for new users
         for role_name in _reg.get('auth.signup.roles', ['user']):
             role = get_role(role_name)
@@ -126,7 +126,9 @@ def create_user(login: str, password: str = None) -> _model.User:
         if _router.request():
             user.f_set('geo_ip', _geo_ip.resolve(_router.request().remote_addr))
 
-    return user.save()
+        user.save()
+
+    return user
 
 
 def get_anonymous_user() -> _model.User:
