@@ -8,12 +8,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
-    from pytsite import assetman, lang, tpl, js_api
+def _init():
+    from pytsite import assetman, lang, tpl
 
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
 
 
-__init()
+_init()

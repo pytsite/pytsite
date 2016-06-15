@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def submit(inp: dict) -> dict:
+def post_submit(inp: dict) -> dict:
     """Precess form submission.
     """
     for field in ('contact_name', 'contact_email', 'contact_message'):
@@ -22,7 +22,7 @@ def submit(inp: dict) -> dict:
         _mail.Message(
             rcp,
             _lang.t('pytsite.contact_form@message_from_site', {'name': _lang.t('app_name')}),
-            _tpl.render('pytsite.contact_form@mail', inp),
+            _tpl.render(_reg.get('contact_form.tpl', 'pytsite.contact_form@mail'), inp),
             reply_to=inp.get('contact_email'),
         ).send()
 

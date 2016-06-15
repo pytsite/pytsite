@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.73.2 (2016-06-15)
+### Fixed
+- `contact_form`: was broken.
+
+
 ## 0.73.1 (2016-06-15)
 ### Fixed
 - `auth`: invalid router's session management.
