@@ -20,8 +20,8 @@ class _SignInWidget(_widget.Base):
 
         self._assets.extend(_browser.get_assets('google-platform'))
         self._assets.extend([
-            'pytsite.auth_driver_google@css/widget.css',
-            'pytsite.auth_driver_google@js/widget.js',
+            'pytsite.auth_google@css/widget.css',
+            'pytsite.auth_google@js/widget.js',
         ])
 
     def get_html_em(self, **kwargs) -> _html.Element:

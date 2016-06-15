@@ -3,7 +3,7 @@ var pytsiteAuthDriverGoogleWidgetCount = 0;
 /**
  * While writing code for this widget, refer to https://developers.google.com/identity/sign-in/web/reference
  */
-$(window).on('pytsite.widget.init:pytsite.auth_driver_google._driver._SignInWidget', function (e, widget) {
+$(window).on('pytsite.widget.init:pytsite.auth_google._driver._SignInWidget', function (e, widget) {
     function initButton(w) {
         var googleUserLoadCount = 0;
         var auth2 = gapi.auth2.getAuthInstance();

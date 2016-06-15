@@ -1,4 +1,10 @@
 # PytSite Changelog
+## 0.73.1 (2016-06-15)
+### Fixed
+- `auth`: invalid router's session management.
+- `auth_google`: invalid asset paths.
+
+
 ## 0.73 (2016-06-15)
 Huge undocumented refactoring.
 

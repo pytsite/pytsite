@@ -46,7 +46,7 @@ def pytsite_router_dispatch():
     # Set current user
     _api.set_current_user(user)
 
-    if not user.is_anonymous:
+    if not user.is_anonymous and not user.is_system:
         if user.status == 'active':
             # Update user's activity timestamp
             _router.set_no_cache(True)

@@ -220,7 +220,7 @@ def sign_in(driver: str, data: dict) -> _model.User:
         prolong_access_token(user.access_token)
 
     # Set session marker
-    if _router.session():
+    if _router.session() is not None:
         _router.session()['pytsite.auth.login'] = user.login
 
     # Update login counter
@@ -295,7 +295,7 @@ def sign_out(user: _model.User, issue_event: bool = True):
     _access_tokens.rm(user.access_token)
 
     # Remove session's data
-    if _router.session() and _router.session().get('pytsite.auth.login'):
+    if _router.session().get('pytsite.auth.login'):
         del _router.session()['pytsite.auth.login']
 
     # Notify listeners

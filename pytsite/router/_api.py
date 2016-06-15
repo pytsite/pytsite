@@ -5,7 +5,6 @@ from typing import Dict as _Dict, Union as _Union
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
-from importlib import import_module as _import_module
 from werkzeug.routing import Map as _Map, Rule as _Rule, MapAdapter as _MapAdapter
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
