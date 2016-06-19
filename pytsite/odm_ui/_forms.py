@@ -1,7 +1,7 @@
 """PytSite ODM Entity Modify Form.
 """
 from pytsite import form as _form, widget as _widget, lang as _lang, http as _http, odm as _odm, events as _events, \
-    metatag as _metatag, router as _router, html as _html, odm_perm as _odm_perm
+    metatag as _metatag, router as _router, html as _html, odm_auth as _odm_auth
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -89,7 +89,10 @@ class Modify(_form.Form):
         if not self.modal:
             cancel_href = _router.request().inp.get('__redirect')
             if not cancel_href:
-                cancel_href = _router.base_url() if entity.is_new else entity.ui_view_url()
+                if not entity.is_new and entity.ui_view_url():
+                    cancel_href = entity.ui_view_url()
+                else:
+                    cancel_href = _router.base_url()
 
         self.add_widget(_widget.button.Link(
             weight=10,
@@ -173,7 +176,7 @@ class Delete(MassAction):
         super()._setup_form()
 
         # Check permissions
-        if not _odm_perm.check_permissions('delete', self._model, self._eids):
+        if not _odm_auth.check_permissions('delete', self._model, self._eids):
             raise _http.error.Forbidden()
 
         # Action URL

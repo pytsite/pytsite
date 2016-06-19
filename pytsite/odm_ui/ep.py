@@ -69,6 +69,7 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     except Exception as e:
         _router.session().add_error(str(e))
         _logger.error(str(e), __name__)
+        raise e
 
     # Process 'special' redirect endpoint
     if frm.redirect == 'ENTITY_VIEW':

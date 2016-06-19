@@ -1,4 +1,8 @@
 # PytSite Changelog
+## 0.74 (2016-06-19)
+Huge undocumented refactoring.
+
+
 ## 0.73.5 (2016-06-15)
 ### Fixed
 - `auth`: creating new users.

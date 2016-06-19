@@ -41,7 +41,7 @@ class _SignInForm(_form.Form):
         self.remove_widget('action-submit')
 
 
-class Google(_auth.driver.Abstract):
+class Google(_auth.driver.Authentication):
     def __init__(self):
         self._client_id = _reg.get('auth.google.client_id')
         if not self._client_id:
@@ -65,12 +65,7 @@ class Google(_auth.driver.Abstract):
 
         return _SignInForm(form_uid, client_id=self._client_id, **kwargs)
 
-    def sign_up(self, data: dict) -> _auth.model.User:
-        """Register new user.
-        """
-        return self.sign_in(data)
-
-    def sign_in(self, data: dict) -> _auth.model.User:
+    def sign_in(self, data: dict) -> _auth.model.UserInterface:
         """Authenticate user.
         """
         token = data.get('id_token')
@@ -100,33 +95,40 @@ class Google(_auth.driver.Abstract):
             raise _auth.error.AuthenticationError("Email '{}' is not verified by Google.".format(google_data['email']))
 
         # Try to load user
-        user = _auth.get_user(google_data.get('email'))
-
-        # Try to create new user
-        if not user:
+        try:
+            user = _auth.get_user(google_data.get('email'))
+        except _auth.error.UserNotExist:
+            # Try to create new user
             if not _reg.get('auth.signup.enabled'):
                 raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_driver_google@signup_is_disabled'))
             else:
+                # New users can be created only by system user
+                _auth.switch_user(_auth.get_system_user())
+
+                # Create new user
                 user = _auth.create_user(google_data.get('email'))
+
+        # As soon as user created or loaded, set it as current
+        _auth.switch_user(user)
 
         # Picture
         if not user.picture:
             from pytsite import image
-            user.f_set('picture', image.create(google_data.get('picture')))
+            user.picture = image.create(google_data.get('picture'))
 
         # Name
         if not user.first_name:
-            user.f_set('first_name', google_data.get('given_name'))
+            user.first_name = google_data.get('given_name')
         if not user.last_name:
-            user.f_set('last_name', google_data.get('family_name'))
+            user.last_name = google_data.get('family_name')
 
         # Alter nickname
         if user.is_new:
-            user.f_set('nickname', user.full_name)
+            user.nickname = user.full_name
 
         return user
 
-    def sign_out(self, user: _auth.model.User):
-        """End user's session.
+    def sign_up(self, data: dict) -> _auth.model.UserInterface:
+        """Register new user.
         """
-        pass
+        return self.sign_in(data)

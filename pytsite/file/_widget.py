@@ -1,8 +1,8 @@
 """File Widgets.
 """
 from typing import Iterable as _Iterable
-from pytsite import widget as _widget, assetman as _assetman, tpl as _tpl, browser as _browser, html as _html, \
-    router as _router
+from pytsite import widget as _widget, tpl as _tpl, browser as _browser, html as _html, router as _router, \
+    http_api as _http_api
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -125,7 +125,7 @@ class FilesUpload(_widget.Base):
 
     def get_html_em(self, **kwargs) -> str:
         self._data.update({
-            'url': _router.ep_url('pytsite.file@upload', {'model': self._model}),
+            'url': _http_api.url('pytsite.file@upload', model=self._model),
             'model': self._model,
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,

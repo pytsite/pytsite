@@ -10,6 +10,6 @@ def _init():
     from pytsite import auth
     from . import _driver
 
-    auth.register_driver(_driver.Password())
+    auth.register_auth_driver(_driver.Password())
 
 _init()

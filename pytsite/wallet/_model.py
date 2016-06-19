@@ -3,8 +3,7 @@
 from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
-from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, auth_ui as _auth_ui, \
-    widget as _widget
+from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, widget as _widget
 from . import _error, _widget as _wallet_widget
 
 __author__ = 'Alexander Shepetko'
@@ -47,7 +46,7 @@ class Account(_odm_ui.model.UIEntity):
         return self.f_get('balance')
 
     @property
-    def owner(self) -> _auth.model.User:
+    def owner(self) -> _auth.model.UserInterface:
         return self.f_get('owner')
 
     @property
@@ -138,7 +137,7 @@ class Account(_odm_ui.model.UIEntity):
                 value=self.currency,
             ))
 
-        frm.add_widget(_auth_ui.widget.UserSelect(
+        frm.add_widget(_auth.widget.UserSelect(
             uid='owner',
             weight=30,
             label=self.t('owner'),

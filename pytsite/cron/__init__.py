@@ -68,7 +68,7 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
             lock.lock(600)
 
             # Disable permissions check
-            _auth.set_current_user(_auth.get_system_user())
+            _auth.switch_user(_auth.get_system_user())
 
             # Starting worker
             stats = _get_stats()

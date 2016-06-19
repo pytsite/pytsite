@@ -26,7 +26,7 @@ class AuthLog(_odm_ui.model.UIEntity):
         self.define_index([('severity', _odm.I_ASC)])
 
     @property
-    def user(self) -> _auth.model.User:
+    def user(self) -> _auth.model.UserInterface:
         return self.f_get('user')
 
     @property
@@ -86,8 +86,8 @@ class AuthLog(_odm_ui.model.UIEntity):
 
         return user, ip, geo, description, severity, modified
 
-    def perm_check(self, perm_type: str) -> bool:
-        if perm_type == 'create':
+    def perm_check(self, action: str) -> bool:
+        if action == 'create':
             return True
 
-        return super().perm_check(perm_type)
+        return super().perm_check(action)

@@ -2,14 +2,14 @@
 """
 from typing import Union as _Union, Tuple as _Tuple, List as _List
 from os import path as _path, unlink as _unlink
-from pytsite import odm as _odm, odm_perm as _odm_perm, reg as _reg, router as _router
+from pytsite import odm as _odm, odm_auth as _odm_auth, reg as _reg, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class File(_odm.model.Entity, _odm_perm.model.PermMixin):
+class File(_odm_auth.model.AuthorizableEntity):
     """File Model.
     """
 
@@ -58,18 +58,19 @@ class File(_odm.model.Entity, _odm_perm.model.PermMixin):
     def _after_delete(self):
         """_after_delete() hook.
         """
+        # Remove file from storage
         storage_dir = _reg.get('paths.storage')
         file_abs_path = _path.join(storage_dir, self.f_get('path'))
         if _path.exists(file_abs_path):
             _unlink(file_abs_path)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
-        """_on_f_get() hook.
+        """Hook.
         """
         if field_name == 'abs_path':
             return _path.join(_reg.get('paths.storage'), self.path)
 
-        if field_name == 'url':
+        elif field_name == 'url':
             p = str(self.path).split('/')
             return _router.ep_url('pytsite.file@download', {
                 'model': p[0],
@@ -78,11 +79,13 @@ class File(_odm.model.Entity, _odm_perm.model.PermMixin):
                 'filename': p[3]
             })
 
-        if field_name == 'thumb_url':
+        elif field_name == 'thumb_url':
             raise NotImplementedError()
 
         return super()._on_f_get(field_name, value)
 
     def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
+        """Hook.
+        """
         # Never reveal absolute path on the filesystem
         return super().as_dict([f for f in fields if f != 'abs_path'])

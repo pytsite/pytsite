@@ -1,111 +1,49 @@
 """Auth Models
 """
-import hashlib as _hashlib
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Union as _Union, Tuple as _Tuple, List as _List
-from frozendict import frozendict as _frozendict
-from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
-from pytsite import image as _image, odm as _odm, util as _util, router as _router, geo_ip as _geo_ip, \
-    permission as _permission, events as _events
-
+from pytsite import geo_ip as _geo_ip, permission as _permission, router as _router, util as _util
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 SYSTEM_USER_LOGIN = 'system@system.system'
 
 
-class Role(_odm.model.Entity):
+class RoleInterface(_ABC):
     """Role.
     """
-    def _setup_fields(self):
-        """Hook.
-        """
-        self.define_field(_odm.field.String('name'))
-        self.define_field(_odm.field.String('description'))
-        self.define_field(_odm.field.UniqueStringList('permissions'))
-
-    def _setup_indexes(self):
-        """Hook.
-        """
-        self.define_index([('name', _odm.I_ASC)], unique=True)
 
     @property
     def name(self) -> str:
-        return self.f_get('name')
+        raise NotImplementedError()
+
+    @name.setter
+    def name(self, value: str):
+        raise NotImplementedError()
 
     @property
     def description(self) -> str:
-        return self.f_get('description')
+        raise NotImplementedError()
+
+    @description.setter
+    def description(self, value: str):
+        raise NotImplementedError()
 
     @property
-    def permissions(self) -> _Iterable[str]:
-        return self.f_get('permissions')
+    def permissions(self) -> _Union[_List, _Tuple]:
+        raise NotImplementedError()
 
-    def _pre_delete(self, **kwargs):
-        """Hook.
-        """
-        from . import _api
-
-        # Check if the role is used by users
-        for user in _api.find_users(False).get():
-            if user.has_role(self.name):
-                raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.f_get('login')}))
+    @permissions.setter
+    def permissions(self, value: _Union[_List, _Tuple]):
+        raise NotImplementedError()
 
 
-class User(_odm.model.Entity):
+class UserInterface(_ABC):
     """User ODM Model.
     """
-    def _setup_fields(self):
-        """_setup() hook.
-        """
-        # Fields
-        self.define_field(_odm.field.String('login', nonempty=True))
-        self.define_field(_odm.field.String('email', nonempty=True))
-        self.define_field(_odm.field.String('password', nonempty=True))
-        self.define_field(_odm.field.String('nickname', nonempty=True))
-        self.define_field(_odm.field.String('access_token'))
-        self.define_field(_odm.field.String('first_name'))
-        self.define_field(_odm.field.String('last_name'))
-        self.define_field(_odm.field.Virtual('full_name'))
-        self.define_field(_odm.field.String('description'))
-        self.define_field(_odm.field.DateTime('birth_date'))
-        self.define_field(_odm.field.DateTime('last_sign_in'))
-        self.define_field(_odm.field.DateTime('last_activity'))
-        self.define_field(_odm.field.Integer('sign_in_count'))
-        self.define_field(_odm.field.String('status', default='active'))
-        self.define_field(_odm.field.RefsUniqueList('roles', model='role'))
-        self.define_field(_odm.field.Integer('gender'))
-        self.define_field(_odm.field.String('phone'))
-        self.define_field(_odm.field.Dict('options'))
-        self.define_field(_odm.field.Ref('picture', model='image'))
-        self.define_field(_odm.field.Virtual('picture_url'))
-        self.define_field(_odm.field.StringList('urls', unique=True))
-        self.define_field(_odm.field.Virtual('is_online'))
-        self.define_field(_odm.field.RefsUniqueList('follows', model='user'))
-        self.define_field(_odm.field.RefsUniqueList('followers', model='user'))
-        self.define_field(_odm.field.String('last_ip'))
-        self.define_field(_odm.field.Virtual('geo_ip'))
-        self.define_field(_odm.field.String('country'))
-        self.define_field(_odm.field.String('city'))
-
-    def _setup_indexes(self):
-        """Hook.
-        """
-        self.define_index([('login', _odm.I_ASC)], unique=True)
-        self.define_index([('nickname', _odm.I_ASC)], unique=True)
-        self.define_index([('access_token', _odm.I_ASC)])
-        self.define_index([('last_sign_in', _odm.I_DESC)])
-
     @property
-    def login(self) -> str:
-        return self.f_get('login')
-
-    @property
-    def email(self) -> str:
-        return self.f_get('email')
-
-    @property
-    def nickname(self) -> str:
-        return self.f_get('nickname')
+    def uid(self) -> str:
+        return _util.md5_hex_digest(self.login)
 
     @property
     def is_anonymous(self) -> bool:
@@ -126,174 +64,278 @@ class User(_odm.model.Entity):
         return self.has_role('admin')
 
     @property
-    def first_name(self) -> str:
-        return self.f_get('first_name')
-
-    @property
-    def last_name(self) -> str:
-        return self.f_get('last_name')
-
-    @property
-    def full_name(self) -> str:
-        return self.f_get('full_name')
-
-    @property
-    def description(self) -> str:
-        return self.f_get('description')
-
-    @property
-    def picture_url(self) -> str:
-        return self.f_get('picture_url')
-
-    @property
-    def sign_in_count(self) -> int:
-        return self.f_get('sign_in_count')
-
-    @property
-    def last_sign_in(self) -> _datetime:
-        return self.f_get('last_sign_in')
-
-    @property
-    def last_activity(self) -> _datetime:
-        return self.f_get('last_activity')
-
-    @property
-    def gender(self) -> int:
-        return self.f_get('gender')
-
-    @property
-    def picture(self) -> _image.model.Image:
-        return self.f_get('picture')
-
-    @property
-    def urls(self) -> tuple:
-        return self.f_get('urls')
-
-    @property
     def is_online(self) -> bool:
-        return self.f_get('is_online')
+        return (_datetime.now() - self.last_activity).seconds < 180
 
     @property
-    def status(self) -> bool:
-        return self.f_get('status')
+    def geo_ip(self) -> _geo_ip.model.GeoIP:
+        try:
+            return _geo_ip.resolve(self.last_ip)
+        except _geo_ip.error.ResolveError:
+            return _geo_ip.resolve('0.0.0.0')
 
     @property
-    def profile_is_public(self) -> bool:
-        return self.f_get('profile_is_public')
+    def is_new(self) -> bool:
+        raise NotImplementedError()
+
+    @property
+    def created(self) -> _datetime:
+        raise NotImplementedError()
+
+    @property
+    def login(self) -> str:
+        raise NotImplementedError()
+
+    @login.setter
+    def login(self, value: str):
+        raise NotImplementedError()
+
+    @property
+    def email(self) -> str:
+        raise NotImplementedError()
+
+    @email.setter
+    def email(self, value: str):
+        raise NotImplementedError()
 
     @property
     def password(self) -> str:
-        return self.f_get('password')
+        raise NotImplementedError()
+
+    @password.setter
+    def password(self, value: str):
+        raise NotImplementedError()
+
+    @property
+    def nickname(self) -> str:
+        raise NotImplementedError()
+
+    @nickname.setter
+    def nickname(self, value: str):
+        raise NotImplementedError()
 
     @property
     def access_token(self) -> str:
-        return self.f_get('access_token')
+        raise NotImplementedError()
+
+    @access_token.setter
+    def access_token(self, value: str):
+        raise NotImplementedError()
 
     @property
-    def roles(self) -> _Tuple[Role]:
-        return self.f_get('roles')
+    def first_name(self) -> str:
+        raise NotImplementedError()
+
+    @first_name.setter
+    def first_name(self, value: str):
+        raise NotImplementedError()
 
     @property
-    def options(self) -> _frozendict:
-        return self.f_get('options')
+    def last_name(self) -> str:
+        raise NotImplementedError()
+
+    @last_name.setter
+    def last_name(self, value: str):
+        raise NotImplementedError()
+
+    @property
+    def full_name(self) -> str:
+        return self.first_name + ' ' + self.last_name
+
+    @property
+    def description(self) -> str:
+        raise NotImplementedError()
+
+    @description.setter
+    def description(self, value: str):
+        raise NotImplementedError()
+
+    @property
+    def birth_date(self) -> _datetime:
+        raise NotImplementedError()
+
+    @birth_date.setter
+    def birth_date(self, value: _datetime):
+        raise NotImplementedError()
+
+    @property
+    def last_sign_in(self) -> _datetime:
+        raise NotImplementedError()
+
+    @last_sign_in.setter
+    def last_sign_in(self, value: _datetime):
+        raise NotImplementedError()
+
+    @property
+    def last_activity(self) -> _datetime:
+        raise NotImplementedError()
+
+    @last_activity.setter
+    def last_activity(self, value: _datetime):
+        raise NotImplementedError()
+
+    @property
+    def sign_in_count(self) -> int:
+        raise NotImplementedError()
+
+    @sign_in_count.setter
+    def sign_in_count(self, value: int):
+        raise NotImplementedError()
+
+    @property
+    def status(self) -> bool:
+        raise NotImplementedError()
+
+    @status.setter
+    def status(self, value: str):
+        raise NotImplementedError()
+
+    @property
+    def roles(self) -> _Tuple[RoleInterface]:
+        from ._api import get_role
+        if self.is_anonymous:
+            return get_role('anonymous'),
+        elif self.is_system:
+            return get_role('admin'),
+        else:
+            raise NotImplementedError()
+
+    @roles.setter
+    def roles(self, value: tuple):
+        raise NotImplementedError()
+
+    @property
+    def gender(self) -> str:
+        raise NotImplementedError()
+
+    @gender.setter
+    def gender(self, value: str):
+        raise NotImplementedError()
+
+    @property
+    def phone(self) -> int:
+        raise NotImplementedError()
+
+    @phone.setter
+    def phone(self, value: int):
+        raise NotImplementedError()
+
+    @property
+    def options(self) -> dict:
+        raise NotImplementedError()
+
+    @options.setter
+    def options(self, value: dict):
+        raise NotImplementedError()
+
+    @property
+    def picture(self):
+        """
+        :rtype: pytsite.image.model.Image
+        """
+        raise NotImplementedError()
+
+    @picture.setter
+    def picture(self, value):
+        raise NotImplementedError()
+
+    @property
+    def urls(self) -> tuple:
+        raise NotImplementedError()
+
+    @urls.setter
+    def urls(self, value: tuple):
+        raise NotImplementedError()
+
+    @property
+    def profile_is_public(self) -> bool:
+        raise NotImplementedError()
+
+    @profile_is_public.setter
+    def profile_is_public(self, value: bool):
+        raise NotImplementedError()
 
     @property
     def follows(self):
         """
         :return: _Iterable[User]
         """
-        return self.f_get('follows')
+        raise NotImplementedError()
+
+    @follows.setter
+    def follows(self, value):
+        raise NotImplementedError()
 
     @property
     def followers(self):
         """
         :return: _Iterable[User]
         """
-        return self.f_get('followers')
+        raise NotImplementedError()
+
+    @followers.setter
+    def followers(self, value):
+        raise NotImplementedError()
 
     @property
     def last_ip(self) -> str:
-        return self.f_get('last_ip')
+        raise NotImplementedError()
 
-    @property
-    def geo_ip(self) -> _geo_ip.model.GeoIP:
-        return self.f_get('geo_ip')
+    @last_ip.setter
+    def last_ip(self, value: str):
+        raise NotImplementedError()
 
     @property
     def country(self) -> str:
-        return self.f_get('country')
+        raise NotImplementedError()
+
+    @country.setter
+    def country(self, value: str):
+        raise NotImplementedError()
 
     @property
     def city(self) -> str:
-        return self.f_get('city')
+        raise NotImplementedError()
 
-    def _on_f_set(self, field_name: str, value, **kwargs):
-        """_on_f_set() hook.
-        """
-        if field_name == 'password':
-            from ._api import hash_password
-            if value:
-                value = hash_password(value)
-            else:
-                if self.is_new:
-                    # Set random password
-                    value = hash_password(_util.random_password())
-                else:
-                    # Keep old password
-                    value = self.password
+    @city.setter
+    def city(self, value: str):
+        raise NotImplementedError()
 
-        if field_name == 'status':
-            from ._api import get_user_statuses
-            if value not in [v[0] for v in get_user_statuses()]:
-                raise Exception("Invalid user status: '{}'.".format(value))
+    @property
+    def profile_view_url(self) -> str:
+        return _router.ep_url('pytsite.auth@profile_view', {'nickname': self.nickname})
 
-        if field_name == 'nickname':
-            from ._api import sanitize_nickname
-            value = sanitize_nickname(value)
+    @property
+    def profile_edit_url(self) -> str:
+        return _router.ep_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
 
-        return value
+    @_abstractmethod
+    def storage_save(self):
+        pass
 
-    def _pre_save(self):
-        """Hook.
-        """
-        if self.login == ANONYMOUS_USER_LOGIN:
-            raise RuntimeError('Anonymous user cannot be saved.')
+    @_abstractmethod
+    def storage_delete(self):
+        pass
 
-        if self.login == SYSTEM_USER_LOGIN:
-            raise RuntimeError('System user cannot be saved.')
+    @_abstractmethod
+    def get_profile_edit_form(self):
+        pass
 
-        if not self.password:
-            self.f_set('password', '')
+    @_abstractmethod
+    def add_follower(self, follower):
+        pass
 
-        if not self.nickname:
-            m = _hashlib.md5()
-            m.update(self.login.encode('UTF-8'))
-            self.f_set('nickname', m.hexdigest())
+    @_abstractmethod
+    def remove_follower(self, follower):
+        pass
 
-    def _after_save(self, first_save: bool = False):
-        if first_save:
-            _events.fire('pytsite.auth.user.create', user=self)
+    @_abstractmethod
+    def add_follows(self, user):
+        pass
 
-    def _pre_delete(self, **kwargs):
-        """Hook.
-        """
-        from . import _api
-
-        # Users cannot delete themselves
-        if _api.get_current_user() == self and self.is_admin:
-            raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
-
-        # Search for entities which user owns
-        for model in _odm.get_registered_models():
-            for entity in _odm.find(model).get():
-                for f_name in ('author', 'owner'):
-                    if entity.has_field(f_name) and entity.f_get(f_name) == self:
-                        # Skip user's avatar to avoid  deletion block
-                        if model == 'image' and self.picture == entity:
-                            continue
-
-                        raise _odm.error.ForbidEntityDelete(
-                            self.t('account_owns_entity', {'entity': entity.model + ':' + str(entity.id)}))
+    @_abstractmethod
+    def remove_follows(self, user):
+        pass
 
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role.
@@ -306,8 +348,8 @@ class User(_odm.model.Entity):
         # Checking for permission existence
         _permission.get_permission(name)
 
-        # Admin 'has' any role
-        if self.is_admin:
+        # System and admin users
+        if self.is_system or self.is_admin:
             return True
 
         for role in self.roles:
@@ -315,48 +357,3 @@ class User(_odm.model.Entity):
                 return True
 
         return False
-
-    def _on_f_get(self, field_name: str, value, **kwargs):
-        """Hook.
-        """
-        if field_name == 'picture_url':
-            size = kwargs.get('size', 256)
-            if self.picture:
-                value = self.picture.f_get('url', width=size, height=size)
-            else:
-                email = _hashlib.md5(self.f_get('email').encode('utf-8')).hexdigest()
-                value = _router.url('http://gravatar.com/avatar/' + email, query={'s': size})
-
-        elif field_name == 'is_online':
-            value = (_datetime.now() - self.last_activity).seconds < 180
-
-        elif field_name == 'full_name':
-            value = self.first_name
-            if self.last_name:
-                value += ' ' + self.last_name
-
-        elif field_name == 'geo_ip':
-            try:
-                value = _geo_ip.resolve(self.last_ip)
-            except _geo_ip.error.ResolveError:
-                value = _geo_ip.resolve('0.0.0.0')
-
-        elif field_name == 'roles':
-            from ._api import get_role
-            if self.is_anonymous:
-                value = (get_role('anonymous'),)
-            elif self.is_system:
-                value = (get_role('admin'),)
-
-        return value
-
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
-        # Never show user's password
-        r = super().as_dict([f for f in fields if f != 'password'], **kwargs)
-
-        if 'geo_ip' in r:
-            r['geo_ip'] = self.geo_ip.as_dict(('ip', 'asn', 'city', 'country', 'country_code', 'isp', 'longitude',
-                                               'latitude', 'location', 'organization', 'postal_code', 'region',
-                                               'region_name', 'timezone'))
-
-        return r

@@ -1,6 +1,7 @@
 """Event Handlers
 """
-from pytsite import form as _form, auth as _auth, auth_ui as _auth_ui, odm as _odm, lang as _lang, widget as _widget
+from pytsite import form as _form, auth as _auth, odm as _odm, lang as _lang, widget as _widget, \
+    auth_storage_odm as _auth_storage_odm
 from . import _widget as _currency_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -8,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_ui.model.UserUI):
+def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_storage_odm.model.User):
     cnt_wrapper = frm.get_widget('content-wrapper')  # type: _widget.Container
     cnt_wrapper.add_widget(_currency_widget.Select(
         uid='currency',
@@ -20,16 +21,5 @@ def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_ui.model.Use
     ))
 
 
-def odm_model_user_setup(entity: _auth.model.User):
+def odm_model_user_setup(entity: _auth_storage_odm.model.User):
     entity.define_field(_odm.field.String('currency', default=_api.get_main()))
-
-
-def _get_profile_form_user(frm: _form.Form) -> _auth.model.User:
-    if frm.get_widget('__odm_ui_model').value != 'user':
-        raise ValueError('Invalid model.')
-
-    user = _auth.get_user(uid=frm.get_widget('__odm_ui_entity_id').value)
-    if not user:
-        raise ValueError('User is not found.')
-
-    return user

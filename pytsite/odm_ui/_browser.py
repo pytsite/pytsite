@@ -2,9 +2,10 @@
 """
 from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, browser as _browser, \
-    odm as _odm, lang as _lang, http as _http, html as _html, http_api as _http_api, odm_perm as _odm_perm
+    odm as _odm, lang as _lang, http as _http, html as _html, http_api as _http_api, odm_auth as _odm_auth, \
+    odm_ui as _odm_ui
 from . import _api
-from ._model import UIEntity
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -29,7 +30,7 @@ class Browser:
         self._toolbar = _html.Div(uid='odm-ui-browser-toolbar')
 
         # Checking current user's permissions
-        if not _odm_perm.check_permissions('view', model):
+        if not _odm_auth.check_permissions('view', model):
             raise _http.error.Forbidden()
 
         # Model class and mock instance
@@ -277,7 +278,7 @@ class Browser:
         return r
 
     @staticmethod
-    def _get_entity_action_buttons(entity: UIEntity) -> _html.Div:
+    def _get_entity_action_buttons(entity: _odm_ui.model.UIEntity) -> _html.Div:
         """Get action buttons for entity.
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))

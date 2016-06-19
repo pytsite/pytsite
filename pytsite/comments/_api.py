@@ -71,8 +71,8 @@ def get_widget(widget_uid: str = 'comments', thread_id: str = None, driver_name:
     return get_driver(driver_name).get_widget(widget_uid, thread_id or _router.current_url())
 
 
-def create_comment(thread_id: str, body: str, author: _auth.model.User, status: str = 'published',
-                   driver_name: str = None) -> _model.Comment:
+def create_comment(thread_id: str, body: str, author: _auth.model.UserInterface, status: str = 'published',
+                   driver_name: str = None) -> _model.CommentInterface:
     """Create new comment.
     """
     return get_driver(driver_name).create_comment(thread_id, body, author, status)

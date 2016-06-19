@@ -36,8 +36,8 @@ class Db(_console.command.Abstract):
         """Get command options.
         """
         return (
-            ('dump', _validation.rule.Dummy()),
-            ('restore', _validation.rule.Dummy())
+            ('dump', _validation.rule.Pass()),
+            ('restore', _validation.rule.Pass())
         )
 
     def _dump(self):

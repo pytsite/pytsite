@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def create_account(title: str, currency: str, owner: _auth.model.User, balance=0.0) -> _Account:
+def create_account(title: str, currency: str, owner: _auth.model.UserInterface, balance=0.0) -> _Account:
     """Create new account.
     :type balance: int | float | str | decimal.Decimal
     """

@@ -1,16 +1,17 @@
 """PytSite ODM UI Entity.
 """
 from typing import Tuple as _Tuple, Dict as _Dict, Union as _Union, List as _List
-from pytsite import odm as _odm, odm_perm as _odm_perm, router as _router, form as _form
+from pytsite import odm as _odm, odm_auth as _odm_auth, router as _router, form as _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class UIMixin(_odm_perm.model.PermMixin):
-    """ODM Entity UI Mixin.
+class UIEntity(_odm_auth.model.AuthorizableEntity):
+    """ODM entity with UI related methods.
     """
+
     @classmethod
     def ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
@@ -92,7 +93,7 @@ class UIMixin(_odm_perm.model.PermMixin):
                     'ids': str(self.id)
                 })
         else:
-            raise RuntimeError('Not implemented yet.')
+            raise NotImplementedError('Not implemented yet.')
 
     def ui_m_form_url(self, args: dict = None):
         if hasattr(self, 'model') and hasattr(self, 'id'):
@@ -104,10 +105,10 @@ class UIMixin(_odm_perm.model.PermMixin):
             return _router.ep_url('pytsite.odm_ui@m_form', args)
 
         else:
-            raise RuntimeError('Not implemented yet.')
+            raise NotImplementedError('Not implemented yet.')
 
     def ui_view_url(self) -> str:
-        raise RuntimeError('Not implemented yet.')
+        return ''
 
     @property
     def url(self) -> str:
@@ -117,17 +118,13 @@ class UIMixin(_odm_perm.model.PermMixin):
     def edit_url(self) -> str:
         return self.ui_m_form_url()
 
-
-class UIEntity(_odm.model.Entity, UIMixin):
     def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> dict:
         r = super().as_dict(fields, **kwargs)
 
-        # View URL
         if 'url' in fields:
             r['url'] = self.url
 
-        # Edit URL
         if 'edit_url' in fields:
-            r['edit_url'] = self.edit_url
+            r['url'] = self.url
 
         return r

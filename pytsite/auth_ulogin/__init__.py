@@ -10,7 +10,7 @@ def _init():
     from pytsite import auth, tpl, assetman
     from ._driver import ULogin
 
-    auth.register_driver(ULogin())
+    auth.register_auth_driver(ULogin())
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 

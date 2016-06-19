@@ -23,7 +23,8 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
         cls = _util.get_class(cls)
 
     if not issubclass(cls, _model.Entity):
-        raise ValueError("Subclass of Model is expected.")
+        raise TypeError("Unable to register model '{}': subclass of pytsite.odm.model.Entity expected."
+                        .format(model))
 
     if is_model_registered(model) and not replace:
         raise _error.ModelAlreadyRegistered("Model '{}' already is registered.".format(model))

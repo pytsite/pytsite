@@ -8,7 +8,7 @@ from mimetypes import guess_extension as _guess_extension
 from urllib.request import urlopen as _urlopen
 from urllib.parse import urlparse as _urlparse
 from bson.dbref import DBRef as _DBRef
-from pytsite import reg as _reg, util as _util, odm as _odm, validation as _validation
+from pytsite import reg as _reg, util as _util, odm as _odm, validation as _validation, auth as _auth
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -16,7 +16,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
+def _build_store_path(mime: str, model: str = 'file', propose: str = None) -> str:
     """Build unique path to store file on the filesystem.
     """
     storage_dir = _os.path.join(_reg.get('paths.storage'), model)
@@ -49,8 +49,8 @@ def _build_store_path(mime: str, model: str='file', propose: str=None) -> str:
     return store_path
 
 
-def create(source_path: str, name: str=None, description: str=None, model='file', remove_source=False,
-           propose_store_path: str=None) -> _model.File:
+def create(source_path: str, name: str = None, description: str = None, model='file', remove_source=False,
+           propose_store_path: str = None, owner: _auth.model.UserInterface = None) -> _model.File:
     """Create a file from path or URL.
     """
 
@@ -114,15 +114,14 @@ def create(source_path: str, name: str=None, description: str=None, model='file'
     file_entity.f_set('length', _os.stat(abs_target_path).st_size)
 
     # Setting entity's owner
-    from pytsite import auth
-    user = auth.get_current_user()
-    if user and not user.is_anonymous:
+    user = _auth.get_current_user()
+    if user and not user.is_anonymous and not user.is_system:
         file_entity.f_set('owner', user)
 
     return file_entity.save()
 
 
-def get(uid: str=None, rel_path: str=None, model: str='file') -> _model.File:
+def get(uid: str = None, rel_path: str = None, model: str = 'file') -> _model.File:
     """Get file.
     """
     if not uid and not rel_path:

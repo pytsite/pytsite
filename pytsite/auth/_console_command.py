@@ -51,7 +51,8 @@ class Passwd(_console.command.Abstract):
             raise _console.error.Error(_lang.t('pytsite.auth@passwords_dont_match'))
 
         try:
-            user.f_set('password', pass_2).save()
+            user.password = pass_2
+            user.storage_save()
             _console.print_success(_lang.t('pytsite.auth@password_successfully_changed'))
         except Exception as e:
             raise _console.error.Error(str(e))

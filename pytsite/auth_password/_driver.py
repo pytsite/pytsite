@@ -34,7 +34,7 @@ class _SignInForm(_form.Form):
         self.get_widget('action-submit').value = _lang.t('pytsite.auth@login')
 
 
-class Password(_auth.driver.Abstract):
+class Password(_auth.driver.Authentication):
     """ULogin Driver.
     """
     def get_name(self) -> str:
@@ -55,7 +55,7 @@ class Password(_auth.driver.Abstract):
         # TODO
         pass
 
-    def sign_in(self, data: dict) -> _auth.model.User:
+    def sign_in(self, data: dict) -> _auth.model.UserInterface:
         """Authenticate user.
         """
         login = data.get('login')
@@ -74,8 +74,3 @@ class Password(_auth.driver.Abstract):
             raise _auth.error.AuthenticationError(_lang.t('pytsite.auth@authentication_error'))
 
         return user
-
-    def sign_out(self, user: _auth.model.User):
-        """End user's session.
-        """
-        pass

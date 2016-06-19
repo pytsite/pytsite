@@ -1,6 +1,6 @@
 """PytSite Wallet Forms
 """
-from pytsite import odm_ui as _odm_ui, odm_perm as _odm_perm, router as _router, metatag as _metatag, lang as _lang, \
+from pytsite import odm_ui as _odm_ui, odm_auth as _odm_auth, router as _router, metatag as _metatag, lang as _lang, \
     http as _http
 
 __author__ = 'Alexander Shepetko'
@@ -17,7 +17,7 @@ class TransactionsCancel(_odm_ui.forms.MassAction):
         super()._setup_form()
 
         # Check permissions
-        if not _odm_perm.check_permissions('cancel', self._model, self._eids):
+        if not _odm_auth.check_permissions('cancel', self._model, self._eids):
             raise _http.error.Unauthorized()
 
         # Action URL

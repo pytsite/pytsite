@@ -7,7 +7,7 @@ from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, auth_ui as _auth_ui, util as _util, form as _form, reg as _reg
+    tpl as _tpl, util as _util, form as _form, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -205,7 +205,7 @@ class Base(_odm_ui.model.UIEntity):
         return self.f_get('language')
 
     @property
-    def author(self) -> _auth.model.User:
+    def author(self) -> _auth.model.UserInterface:
         return self.f_get('author')
 
     @property
@@ -346,7 +346,7 @@ class Base(_odm_ui.model.UIEntity):
         if _auth.get_current_user().is_admin:
             # Author
             if self.has_field('author'):
-                frm.add_widget(_auth_ui.widget.UserSelect(
+                frm.add_widget(_auth.widget.UserSelect(
                     uid='author',
                     weight=1000,
                     label=self.t('author'),
@@ -419,7 +419,7 @@ class Content(Base):
 
     def ui_view_url(self) -> str:
         if self.is_new:
-            raise RuntimeError('Cannot generate view URL for non-saved entity.')
+            raise RuntimeError("Cannot generate view URL for non-saved entity of model '{}'.".format(self.model))
 
         target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)}, True)
         r_alias = _route_alias.find_by_target(target_path, self.language)
@@ -815,7 +815,7 @@ class Content(Base):
         return r
 
     def _send_waiting_status_notification(self):
-        for u in _auth.find_users().get():
+        for u in _auth.get_users():
             if u.has_permission('pytsite.odm_perm.modify.' + self.model):
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
                 m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current(), {

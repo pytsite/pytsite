@@ -1,0 +1,67 @@
+{% extends reg_get('output.base_tpl') %}
+
+{% block content %}
+    <div id="pytsite-auth-ui-profile-view" class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                {% block placeholder_1 %}{% endblock %}
+
+                {% block profile_widget %}
+                    {{ profile_widget }}
+                {% endblock %}
+
+                {% block placeholder_2 %}{% endblock %}
+
+                {% block followers %}
+                    {% if user.followers | length %}
+                        <div class="followers">
+                            <h2 class="block-title">{{ t('pytsite.auth@followers') }}</h2>
+
+                            <div class="row">
+                                {% for follower in user.followers %}
+                                    <div class="item col-xs-B-6 col-xs-6 col-sm-3 col-lg-2 text-center">
+                                        <a href="{{ follower.url }}">
+                                            <div class="image">
+                                                {{ follower.picture.get_responsive_html(aspect_ratio=1) }}
+                                            </div>
+                                            <div class="name">
+                                                {{ follower.full_name }}
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {% block placeholder_3 %}{% endblock %}
+
+                {% block follows %}
+                    {% if user.follows | length %}
+                        <div class="follows">
+                            <h2 class="block-title">{{ t('pytsite.auth@follows') }}</h2>
+
+                            <div class="row">
+                                {% for follower in user.follows %}
+                                    <div class="item col-xs-B-6 col-xs-6 col-sm-3 col-lg-2 text-center">
+                                        <a href="{{ follower.url }}">
+                                            <div class="image">
+                                                {{ follower.picture.get_responsive_html(aspect_ratio=1) }}
+                                            </div>
+                                            <div class="name">
+                                                {{ follower.full_name }}
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {% block placeholder_4 %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

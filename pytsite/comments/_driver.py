@@ -21,8 +21,8 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.User,
-                       status: str = 'published') -> _model.Comment:
+    def create_comment(self, thread_id: str, body: str, author: _auth.model.UserInterface,
+                       status: str = 'published') -> _model.CommentInterface:
         """Create new comment.
         """
         pass
@@ -34,7 +34,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_comments(self, thread_id: str) -> _Iterable[_model.Comment]:
+    def get_comments(self, thread_id: str) -> _Iterable[_model.CommentInterface]:
         pass
 
     @_abstractmethod

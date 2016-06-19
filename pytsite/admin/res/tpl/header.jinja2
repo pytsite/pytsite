@@ -124,7 +124,7 @@
                     <!-- Menu Toggle Button -->
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <!-- The user image in the navbar-->
-                        <img alt="{{ user.full_name | e }}" class="user-image" src="{{ user.picture_url }}">
+                        <img alt="{{ user.full_name | e }}" class="user-image" src="{{ user.picture.url }}">
                         <!-- hidden-xs hides the username on small devices so only the image appears. -->
                         <span class="hidden-xs">{{ user.full_name }}</span>
                     </a>

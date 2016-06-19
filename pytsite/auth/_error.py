@@ -17,6 +17,14 @@ class DriverNotRegistered(Exception):
     pass
 
 
+class RoleNotExist(Exception):
+    pass
+
+
+class RoleExists(Exception):
+    pass
+
+
 class UserNotExist(Exception):
     pass
 

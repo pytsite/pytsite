@@ -3,7 +3,7 @@
 from pytsite import console as _console
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
-from pytsite import reg as _reg, events as _events, lang as _lang
+from pytsite import reg as _reg, events as _events, lang as _lang, validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -24,11 +24,21 @@ class Setup(_console.command.Abstract):
         from pytsite.lang import t
         return t('pytsite.setup@setup_console_command_description')
 
+    def get_options_help(self) -> str:
+        """Get help for the command.
+        """
+        return '[--force]'
+
+    def get_options(self) -> tuple:
+        return (
+            ('force', _validation.rule.Pass()),
+        )
+
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
         """
         lock_path = _reg.get('paths.setup.lock')
-        if _path.exists(lock_path):
+        if _path.exists(lock_path) and not kwargs.get('force'):
             raise _console.error.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
         _events.fire('pytsite.setup')

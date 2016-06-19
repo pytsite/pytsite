@@ -31,8 +31,8 @@ class Maintenance(_console.command.Abstract):
         """Get command options.
         """
         return (
-            ('enable', _validation.rule.Dummy()),
-            ('disable', _validation.rule.Dummy())
+            ('enable', _validation.rule.Pass()),
+            ('disable', _validation.rule.Pass())
         )
 
     def execute(self, args: tuple=(), **kwargs):

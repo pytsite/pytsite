@@ -17,9 +17,12 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
     file_path = _path.join('image', args['p1'], args['p2'], args['filename'])
 
     image_entity = _api.get(rel_path=file_path)
+
+    # Checking existence
     if not image_entity:
         raise _http.error.NotFound()
 
+    # Checking permissions
     if not image_entity.perm_check('view'):
         return _http.error.Unauthorized()
 

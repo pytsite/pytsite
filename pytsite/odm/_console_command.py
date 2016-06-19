@@ -31,7 +31,7 @@ class ODM(_console.command.Abstract):
         """Get command options.
         """
         return (
-            ('reindex', _validation.rule.Dummy()),
+            ('reindex', _validation.rule.Pass()),
         )
 
     def _reindex(self):

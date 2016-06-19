@@ -787,8 +787,8 @@ class Entity(_ABC):
 
         return r
 
-    def as_dict(self, fields: _Union[_List, _Tuple] = (), **kwargs) -> _Dict:
-        """Get dictionary representation of the entity.
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> _Dict:
+        """Get JSONable dictionary representation of the entity.
         """
         r = {}
         for f_name in fields:

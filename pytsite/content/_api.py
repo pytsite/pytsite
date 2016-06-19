@@ -102,13 +102,13 @@ def get_model_title(model: str) -> str:
     return _lang.t(get_model(model)[1])
 
 
-def dispense(model: str) -> _model.Content:
+def dispense(model: str, eid: str = None) -> _model.Content:
     """Create content entity.
     """
     if not is_model_registered(model):
         raise KeyError("Model '{}' is not registered as content model.".format(model))
 
-    return _odm.dispense(model)
+    return _odm.dispense(model, eid)
 
 
 def find(model: str, **kwargs):

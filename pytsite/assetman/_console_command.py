@@ -38,8 +38,8 @@ class Assetman(_console.command.Abstract):
         """Get command options.
         """
         return (
-            ('build', _validation.rule.Dummy()),
-            ('no-maintenance', _validation.rule.Dummy()),
+            ('build', _validation.rule.Pass()),
+            ('no-maintenance', _validation.rule.Pass()),
         )
 
     def _build(self, maintenance=True):

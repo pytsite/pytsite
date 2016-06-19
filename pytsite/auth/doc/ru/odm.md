@@ -24,7 +24,6 @@
 * `followers` `pytsite.odm.field.RefsUniqueList`
 * `nickname` `pytsite.odm.field.String`
 * `picture` `pytsite.odm.field.Ref`
-* `picture_url` `pytsite.odm.field.Virtual`
 * `first_name` `pytsite.odm.field.String`
 * `last_name` `pytsite.odm.field.String`
 * `full_name` `pytsite.odm.field.Virtual`

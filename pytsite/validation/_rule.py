@@ -48,8 +48,8 @@ class Base(_ABC):
         pass
 
 
-class Dummy(Base):
-    """Rule which always pass.
+class Pass(Base):
+    """Rule which always passes.
     """
     def _do_validate(self):
         """Do actual validation of the rule.

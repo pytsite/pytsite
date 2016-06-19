@@ -317,7 +317,7 @@ def transform_str_2(s: str) -> str:
 
 
 def get_class(s: str) -> type:
-    """Get class by its fully qualified name.
+    """Get class by its dotted-notation name.
     """
     if not isinstance(s, str):
         raise ValueError('String expected.')

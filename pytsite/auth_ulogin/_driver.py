@@ -51,7 +51,7 @@ class _LoginForm(_form.Form):
         self.remove_widget('action-submit')
 
 
-class ULogin(_auth.driver.Abstract):
+class ULogin(_auth.driver.Authentication):
     """ULogin Driver.
     """
     def get_name(self) -> str:
@@ -69,7 +69,7 @@ class ULogin(_auth.driver.Abstract):
         """
         return self.get_sign_up_form(form_uid, **kwargs)
 
-    def sign_up(self, data: dict) -> _auth.model.User:
+    def sign_up(self, data: dict) -> _auth.model.UserInterface:
         # Searching for token in input data
         token = data.get('token')
         if not token:
@@ -92,15 +92,23 @@ class ULogin(_auth.driver.Abstract):
             raise _auth.error.AuthenticationError("Email '{}' is not verified by uLogin.".format(ulogin_data['email']))
 
         email = ulogin_data['email']
-        user = _auth.get_user(email)
 
-        # User is not exists and its creation is not allowed
-        if not user and not _reg.get('auth.signup.enabled'):
-            raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_ulogin@signup_is_disabled'))
+        try:
+            user = _auth.get_user(email)
 
-        # Create new user
-        if not user:
-            user = _auth.create_user(email)
+        except _auth.error.UserNotExist:
+            # User is not exists and its creation is not allowed
+            if not _reg.get('auth.signup.enabled'):
+                raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_ulogin@signup_is_disabled'))
+            else:
+                # New users can be created only by system user
+                _auth.switch_user(_auth.get_system_user())
+
+                # Create new user
+                user = _auth.create_user(email)
+
+        # As soon as user created or loaded, set it as current
+        _auth.switch_user(user)
 
         # Picture
         if not user.picture:
@@ -109,44 +117,39 @@ class ULogin(_auth.driver.Abstract):
                 picture_url = ulogin_data.get('photo')
             if picture_url:
                 from pytsite import image
-                user.f_set('picture', image.create(picture_url))
+                user.picture = image.create(picture_url)
 
         # Name
         if not user.first_name and 'first_name' in ulogin_data:
-            user.f_set('first_name', ulogin_data['first_name'])
+            user.first_name = ulogin_data['first_name']
         if not user.last_name and 'last_name' in ulogin_data:
-            user.f_set('last_name', ulogin_data['last_name'])
+            user.last_name = ulogin_data['last_name']
 
         # Alter nickname
         if user.is_new:
-            user.f_set('nickname', user.full_name)
+            user.nickname = user.full_name
 
         # Gender
-        if not user.gender and 'sex' in ulogin_data:
-            user.f_set('gender', int(ulogin_data['sex']))
+        if user.gender not in ('m', 'f') and 'sex' in ulogin_data:
+            user.gender = 'f' if int(ulogin_data['sex']) == 1 else 'm'
 
         # Birth date
         if 'bdate' in ulogin_data:
             b_date = _strptime(ulogin_data['bdate'], '%d.%m.%Y')
-            user.f_set('birth_date', _datetime(*b_date[0:5]))
+            user.birth_date = _datetime(*b_date[0:5])
 
         # Link to profile
         if 'profile' in ulogin_data and ulogin_data['profile']:
-            user.f_add('urls', ulogin_data['profile'])
+            user.urls = (ulogin_data['profile'],)
 
         # Options
         options = dict(user.options)
         options['ulogin'] = ulogin_data
-        user.f_set('options', options)
+        user.options = options
 
         return user
 
-    def sign_in(self, data: dict) -> _auth.model.User:
+    def sign_in(self, data: dict) -> _auth.model.UserInterface:
         """Authenticate user.
         """
         return self.sign_up(data)
-
-    def sign_out(self, user: _auth.model.User):
-        """End user's session.
-        """
-        pass

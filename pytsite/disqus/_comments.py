@@ -43,8 +43,8 @@ class Driver(_comments.driver.Abstract):
 
         return count
 
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.User,
-                       status: str = 'published') -> _comments.model.Comment:
+    def create_comment(self, thread_id: str, body: str, author: _auth.model.UserInterface,
+                       status: str = 'published') -> _comments.model.CommentInterface:
         """Create new comment.
         """
         raise NotImplementedError("Not implemented yet")

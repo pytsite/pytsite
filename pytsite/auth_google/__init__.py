@@ -12,6 +12,6 @@ def _init():
 
     lang.register_package(__name__)
     assetman.register_package(__name__)
-    auth.register_driver(_driver.Google())
+    auth.register_auth_driver(_driver.Google())
 
 _init()

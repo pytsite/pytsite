@@ -35,5 +35,17 @@ pytsite.httpApi = {
 
     post: function (endpoint, data) {
         return pytsite.httpApi.request('POST', endpoint, data)
+    },
+
+    put: function (endpoint, data) {
+        return pytsite.httpApi.request('PUT', endpoint, data)
+    },
+
+    patch: function (endpoint, data) {
+        return pytsite.httpApi.request('PATCH', endpoint, data)
+    },
+
+    delete: function (endpoint, data) {
+        return pytsite.httpApi.request('DELETE', endpoint, data)
     }
 };

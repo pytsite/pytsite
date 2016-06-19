@@ -1,6 +1,6 @@
 """PytSite Console.
 """
-from pytsite import reg as _reg, lang as _lang, validation as _validation, auth as _auth
+from pytsite import reg as _reg, lang as _lang, validation as _validation
 from . import _error, _command
 
 __author__ = 'Alexander Shepetko'
@@ -107,9 +107,6 @@ def run():
         if not path.exists(_reg.get('paths.setup.lock')) and argv[1] != 'setup':
             from pytsite.lang import t
             raise _error.Error(t('pytsite.setup@setup_is_not_completed'))
-
-        # Diable permissions checking
-        _auth.set_current_user(_auth.get_system_user())
 
         return run_command(cmd_name, args=tuple(cmd_args), **cmd_opts)
 

@@ -1,7 +1,7 @@
 """ODM UI Manager.
 """
 from typing import Iterable as _Iterable
-from pytsite import odm as _odm, form as _form
+from pytsite import odm as _odm, form as _form, odm_auth as _odm_auth
 from . import _model, _forms
 
 __author__ = 'Alexander Shepetko'
@@ -26,8 +26,11 @@ def get_model_class(model: str) -> _model.UIEntity:
     """Get ODM UI model class.
     """
     model_class = _odm.get_model_class(model)
-    if not issubclass(model_class, _model.UIMixin):
-        raise TypeError("Model '{}' must extend 'UIMixin'".format(model))
+    if not issubclass(model_class, _odm_auth.model.AuthorizableEntity):
+        raise TypeError("Model '{}' must extend 'pytsite.odm_perm.model.PermMixin'".format(model))
+
+    if not issubclass(model_class, _model.UIEntity):
+        raise TypeError("Model '{}' must extend 'pytsite.odm_ui.model.UIMixin'".format(model))
 
     return model_class
 
@@ -40,7 +43,7 @@ def dispense_entity(model: str, entity_id: str = None) -> _model.UIEntity:
 
     entity = _odm.dispense(model, entity_id)
 
-    if not isinstance(entity, _model.UIMixin):
-        raise TypeError("Model '{}' must extend 'UIMixin'".format(model))
+    if not isinstance(entity, _model.UIEntity):
+        raise TypeError("Model '{}' must extend 'pytsite.odm_ui.model.UIEntity'".format(model))
 
     return entity

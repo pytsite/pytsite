@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, widget as _widget, content as _content, \
-    auth_ui as _auth_ui, util as _util, router as _router, form as _form, lang as _lang, validation as _validation
+    util as _util, router as _router, form as _form, lang as _lang, validation as _validation
 from . import _widget as _content_import_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -45,11 +45,11 @@ class ContentImport(_odm_ui.model.UIEntity):
         return self.f_get('content_model')
 
     @property
-    def owner(self) -> _auth.model.User:
+    def owner(self) -> _auth.model.UserInterface:
         return self.f_get('owner')
 
     @property
-    def content_author(self) -> _auth.model.User:
+    def content_author(self) -> _auth.model.UserInterface:
         return self.f_get('content_author')
 
     @property
@@ -195,7 +195,7 @@ class ContentImport(_odm_ui.model.UIEntity):
             form_steps=(1,)
         ))
 
-        frm.add_widget(_auth_ui.widget.UserSelect(
+        frm.add_widget(_auth.widget.UserSelect(
             weight=70,
             uid='content_author',
             label=self.t('content_author'),

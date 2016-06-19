@@ -7,20 +7,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def view_count(inp: dict) -> int:
-    model = inp.get('model')
-    eid = inp.get('id')
-
-    if model and eid:
-        from . import _api
-        entity = _api.find(model).where('_id', '=', eid).first()
-        if entity:
-            entity.f_inc('views_count').save(skip_hooks=True, update_timestamp=False)
-            return entity.f_get('views_count')
-
-    return 0
-
-
 def search(inp: dict) -> dict:
     from . import _api
 

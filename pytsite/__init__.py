@@ -121,6 +121,7 @@ def __init():
     __import__('pytsite.form')
     __import__('pytsite.setup')
     __import__('pytsite.cleanup')
+    __import__('pytsite.auth')
 
     # Initializing automatically loaded required packages
     for module in reg.get('app.autoload', ()):

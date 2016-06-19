@@ -33,7 +33,7 @@ def transactions_cancel_submit(args: dict, inp: dict):
 
     for eid in ids:
         entity = _odm.dispense('wallet_transaction', eid)  # type: _model.Transaction
-        if not entity.perm_check('cancel'):
+        if not entity.authorize_action('cancel'):
             raise _http.error.Unauthorized()
 
         entity.cancel()

@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Comment:
+class CommentInterface:
     @property
     def thread_id(self) -> str:
         raise NotImplementedError("Not implemented yet")
@@ -26,5 +26,5 @@ class Comment:
         raise NotImplementedError("Not implemented yet")
 
     @property
-    def author(self) -> _auth.model.User:
+    def author(self) -> _auth.model.UserInterface:
         raise NotImplementedError("Not implemented yet")

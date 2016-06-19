@@ -302,6 +302,8 @@ def dispatch(env: dict, start_response: callable):
             _session_store.save(session())
             wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
 
+        events.fire('pytsite.router.response', response=wsgi_response)
+
         return wsgi_response(env, start_response)
 
     except Exception as e:

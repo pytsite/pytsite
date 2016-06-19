@@ -43,14 +43,14 @@ class Generate(_console.command.Abstract):
             ('title-len', _validation.rule.Integer()),
             ('description-len', _validation.rule.Integer()),
             ('lang', _validation.rule.Regex(pattern='^[a-z]{2}$')),
-            ('no-html', _validation.rule.Dummy()),
-            ('short', _validation.rule.Dummy()),
-            ('author', _validation.rule.Dummy()),
-            ('no-tags', _validation.rule.Dummy()),
-            ('no-sections', _validation.rule.Dummy()),
+            ('no-html', _validation.rule.Pass()),
+            ('short', _validation.rule.Pass()),
+            ('author', _validation.rule.Pass()),
+            ('no-tags', _validation.rule.Pass()),
+            ('no-sections', _validation.rule.Pass()),
         )
 
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self, args: tuple = (), **kwargs):
         """Execute teh command.
         """
         model = kwargs['model']
@@ -71,6 +71,8 @@ class Generate(_console.command.Abstract):
         if short:
             self.li_url += 'short/'
 
+        users = list(_auth.get_users(limit=10))
+
         # Generate content entities
         for m in range(0, num):
             entity = _api.dispense(model)
@@ -82,11 +84,10 @@ class Generate(_console.command.Abstract):
                     raise _console.error.Error("'{}' is not a registered user.".format(author_login))
                 entity.f_set('author', author)
             else:
-                user_finder = _auth.find_users()
-                users_count = user_finder.count()
-                if not users_count:
+                if not users:
                     raise _lang.t('pytsite.content@no_users_found')
-                entity.f_set('author', user_finder.skip(_randint(0, users_count - 1)).first())
+                rand = _randint(0, len(users) - 1)
+                entity.f_set('author', users[rand:rand + 1])
 
             # Title
             entity.f_set('title', self._generate_title(int(kwargs.get('title-len', 7))))

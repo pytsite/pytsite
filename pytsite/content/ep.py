@@ -1,6 +1,5 @@
-"""Content Plugin Endpoints.
+"""Pytsite Content Endpoints.
 """
-import re as _re
 from datetime import datetime as _datetime
 from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, \
     router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
@@ -46,12 +45,9 @@ def index(args: dict, inp: dict):
             raise _http.error.NotFound()
 
     # Filter by author
-    author_identifier = inp.get('author') or args.get('author')
-    if author_identifier:
-        if _re.match('^[a-f0-9]{24}$', author_identifier):
-            author = _auth.get_user(uid=author_identifier)
-        else:
-            author = _auth.get_user(nickname=author_identifier)
+    author_nickname = inp.get('author') or args.get('author')
+    if author_nickname:
+        author = _auth.get_user(nickname=author_nickname)
 
         if author:
             _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': author.full_name}))
@@ -100,7 +96,7 @@ def view(args: dict, inp: dict):
             raise _http.error.NotFound()
 
     # Update comments count
-    entity.f_set('comments_count', _comments.get_all_comments_count(entity.url)).save(True, False)
+    entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save(True, False)
 
     # Meta title
     if entity.has_field('title'):
