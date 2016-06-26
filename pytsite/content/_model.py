@@ -601,6 +601,7 @@ class Content(Base):
         # Sort field
         if mock.has_field('publish_time'):
             browser.default_sort_field = 'publish_time'
+            browser.default_sort_order = 'desc'
 
         # Title
         data_fields = ['title']

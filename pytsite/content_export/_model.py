@@ -83,6 +83,8 @@ class ContentExport(_odm_ui.model.UIEntity):
         """Hook.
         :type browser: pytsite.odm_ui._browser.Browser
         """
+        browser.default_sort_field = 'driver'
+
         browser.data_fields = (
             'content_model',
             'driver',

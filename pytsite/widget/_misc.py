@@ -16,7 +16,7 @@ class BootstrapTable(_base.Base):
 
         self._data_fields = []
         self._data_fields_titles = []
-        self._default_sort_field = kwargs.get('default_sort_fields')
+        self._default_sort_field = kwargs.get('default_sort_field')
         self._default_sort_order = 1
         self._toolbar = _html.Div(uid='bootstrap-table-toolbar')
         self._data_url = kwargs.get('data_url')
@@ -25,10 +25,11 @@ class BootstrapTable(_base.Base):
         self._assets.extend([
             'pytsite.widget@bootstrap-table/bootstrap-table.min.css',
             'pytsite.widget@bootstrap-table/bootstrap-table.min.js',
-            'pytsite.widget@bootstrap-table/extensions/cookie/bootstrap-table-cookie.min.js',
+            'pytsite.widget@bootstrap-table/extensions/cookie/bootstrap-table-cookie.js',
             'pytsite.widget@js/bootstrap-table.js',
         ])
 
+        # Localization
         current_lang = _lang.get_current()
         if current_lang != 'en':
             locale = current_lang + '-' + current_lang.upper()
@@ -99,7 +100,9 @@ class BootstrapTable(_base.Base):
             data_sort_name=self._default_sort_field,
             data_sort_order='asc' if self._default_sort_order == 1 else 'desc',
             data_cookie='true',
-            data_cookie_id_table='pytsite_widget_misc_bootstrap_table_' + self.uid,
+            data_cookie_id_table=self.uid,
+            data_cookies_enabled='["bs.table.sortOrder", "bs.table.sortName"]',
+            data_cookie_expire='1y',
         )
         t_head = _html.THead()
         t_body = _html.TBody()

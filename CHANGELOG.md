@@ -1,4 +1,12 @@
 # PytSite Changelog
+## 0.75.1 (2016-06-26)
+### Changed
+- `widget`: client library of `misc.BootstrapTable` updated from 1.9.1 to 1.10.1.
+
+### Fixed
+- `widget`: default sort field processing in `misc.BootstrapTable`.
+
+
 ## 0.75 (2016-06-26)
 Lots of undocumented work.
 

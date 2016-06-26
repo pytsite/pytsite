@@ -160,8 +160,8 @@ class Browser(_widget.misc.BootstrapTable):
         if sort_field:
             sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC
             finder.sort([(sort_field, sort_order)])
-        else:
-            finder.sort([(self.default_sort_field, self.default_sort_order)])
+        elif self._default_sort_field:
+            finder.sort([(self._default_sort_field, self._default_sort_order)])
 
         # Iterate over result and get content for table rows
         cursor = finder.skip(offset).get(limit)
