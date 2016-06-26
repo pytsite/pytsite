@@ -1,7 +1,7 @@
 """Pytsite Widgets Package Init.
 """
 # Public API
-from . import _button as button, _input as input, _select as select, _static as static
+from . import _button as button, _input as input, _select as select, _static as static, _misc as misc
 from ._base import Base, Container
 
 __author__ = 'Alexander Shepetko'

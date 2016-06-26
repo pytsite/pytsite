@@ -30,8 +30,9 @@ class Modify(_form.Form):
     def update_meta_title(self, value: bool):
         self._update_meta_title = value
 
-    def _setup_form(self):
+    def _setup_form(self, **kwargs):
         """Hook.
+        :param **kwargs:
         """
         from ._api import dispense_entity
 
@@ -131,8 +132,9 @@ class MassAction(_form.Form):
 
         super().__init__(uid, **kwargs)
 
-    def _setup_form(self):
+    def _setup_form(self, **kwargs):
         """Hook.
+        :param **kwargs:
         """
         if not self._redirect:
             self._redirect = _router.ep_url('pytsite.odm_ui@browse', {'model': self._model})
@@ -170,8 +172,9 @@ class Delete(MassAction):
     """Entities Delete Form.
     """
 
-    def _setup_form(self):
+    def _setup_form(self, **kwargs):
         """Hook.
+        :param **kwargs:
         """
         super()._setup_form()
 

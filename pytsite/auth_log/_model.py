@@ -26,7 +26,7 @@ class AuthLog(_odm_ui.model.UIEntity):
         self.define_index([('severity', _odm.I_ASC)])
 
     @property
-    def user(self) -> _auth.model.UserInterface:
+    def user(self) -> _auth.model.AbstractUser:
         return self.f_get('user')
 
     @property
@@ -61,11 +61,7 @@ class AuthLog(_odm_ui.model.UIEntity):
         """
         user = ''
         if self.user:
-            user_edit_url = _router.ep_url('pytsite.odm_ui@m_form', {
-                'model': 'user',
-                'id': str(self.user.id),
-            })
-            user = '<a href="{}">{}</a>'.format(user_edit_url, self.user.full_name)
+            user = '<a href="{}">{}</a>'.format(self.user.profile_view_url, self.user.full_name)
 
         ip = self.ip
         g_ip = self.geo_ip
@@ -87,6 +83,7 @@ class AuthLog(_odm_ui.model.UIEntity):
         return user, ip, geo, description, severity, modified
 
     def perm_check(self, action: str) -> bool:
+        # Authentication log can be created by anyone
         if action == 'create':
             return True
 

@@ -16,7 +16,7 @@ class ModelSelect(_widget.select.Select):
         self._check_perms = kwargs.get('check_perms', True)
 
         items = []
-        u = _auth.get_current_user()
+        u = _auth.current_user()
         for k, v in _api.get_models().items():
             if self._check_perms:
                 if u.has_permission('pytsite.odm_perm.view.' + k) or u.has_permission('pytsite.odm_perm.view_own.' + k):

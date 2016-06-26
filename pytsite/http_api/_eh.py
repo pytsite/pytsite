@@ -13,4 +13,5 @@ def router_dispatch():
 
 def router_response(response: _http.response.Response):
     # No cookies in HTTP API responses
-    response.headers.remove('Set-Cookie')
+    if False:
+        response.headers.remove('Set-Cookie')

@@ -21,7 +21,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.UserInterface,
+    def create_comment(self, thread_id: str, body: str, author: _auth.model.AbstractUser,
                        status: str = 'published') -> _model.CommentInterface:
         """Create new comment.
         """

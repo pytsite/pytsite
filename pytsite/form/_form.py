@@ -1,6 +1,7 @@
 """PytSite Base Form.
 """
 from typing import Dict as _Dict, Union as _Union
+from abc import ABC as _ABC
 from collections import OrderedDict as _OrderedDict
 from pytsite import util as _util, widget as _widget, html as _html, router as _router, validation as _validation, \
     tpl as _tpl, events as _events, lang as _lang, assetman as _assetman, browser as _browser
@@ -11,7 +12,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Form:
+class Form(_ABC):
     """Base Form.
     """
 
@@ -97,10 +98,11 @@ class Form:
         _assetman.add('pytsite.form@js/form.js')
 
         # Setup form
-        self._setup_form()
+        self._setup_form(**kwargs)
 
-    def _setup_form(self):
+    def _setup_form(self, **kwargs):
         """Hook.
+        :param **kwargs:
         """
         pass
 
@@ -492,7 +494,7 @@ class Form:
         return self.get_widget(widget_uid).get_html_em()
 
     def setup_widgets(self):
-        """Ensures that widgets is added.
+        """Should be called when widgets has to be added.
         """
         if self._widgets_added:
             return self

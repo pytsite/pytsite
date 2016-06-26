@@ -26,7 +26,7 @@ class Comment(_comments.model.CommentInterface, _odm_ui.model.UIEntity):
         return self.f_get('status')
 
     @property
-    def author(self) -> _auth.model.UserInterface:
+    def author(self) -> _auth.model.AbstractUser:
         return self.f_get('author')
 
     def _setup_fields(self):

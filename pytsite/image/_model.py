@@ -36,6 +36,8 @@ class Image(_file.model.File):
     def _pre_save(self):
         """Hook.
         """
+        super()._pre_save()
+
         # Read EXIF from file
         with open(self.f_get('abs_path'), 'rb') as f:
             exif = _exifread.process_file(f, details=False)

@@ -18,7 +18,7 @@ class Money(_odm.field.Abstract):
         """
         # Default value
         if not kwargs.get('default'):
-            u = _auth.get_current_user()
+            u = _auth.current_user()
             currency = u.f_get('currency') if u and u.has_field('currency') else _currency.get_main()
             kwargs['default'] = {'currency': currency, 'amount': _Decimal('0.0')}
 

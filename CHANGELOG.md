@@ -1,4 +1,8 @@
 # PytSite Changelog
+## 0.75 (2016-06-26)
+Lots of undocumented work.
+
+
 ## 0.74 (2016-06-19)
 Huge undocumented refactoring.
 

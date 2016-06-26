@@ -52,4 +52,4 @@ def _check_permissions(uid: str) -> bool:
     if section_def['perm_name'] == '*':
         return True
 
-    return _auth.get_current_user().has_permission(section_def['perm_name'])
+    return _auth.current_user().has_permission(section_def['perm_name'])

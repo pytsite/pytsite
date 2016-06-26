@@ -83,10 +83,6 @@ def view(args: dict, inp: dict):
     if not entity:
         raise _http.error.NotFound()
 
-    # Check view permissions for current user
-    if not entity.perm_check('view'):
-        raise _http.error.Forbidden()
-
     # Show non published entities only who can edit them
     if entity.has_field('publish_time') and entity.publish_time > _datetime.now():
         if not entity.perm_check('modify'):
@@ -94,9 +90,6 @@ def view(args: dict, inp: dict):
     if entity.has_field('status') and entity.status != 'published':
         if not entity.perm_check('modify'):
             raise _http.error.NotFound()
-
-    # Update comments count
-    entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save(True, False)
 
     # Meta title
     if entity.has_field('title'):
@@ -176,7 +169,6 @@ def propose(args: dict, inp: dict) -> str:
 
     frm = _odm_ui.get_m_form(model, redirect=_router.base_url())
     frm.title = None
-    frm.get_widget('action-cancel').href = _router.base_url()
 
     _metatag.t_set('title', _lang.t('pytsite.content@propose_content'))
 

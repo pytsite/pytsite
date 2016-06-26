@@ -43,7 +43,7 @@ class ContentExport(_odm_ui.model.UIEntity):
         return self.f_get('content_model')
 
     @property
-    def owner(self) -> _auth.model.UserInterface:
+    def owner(self) -> _auth.model.AbstractUser:
         return self.f_get('owner')
 
     @property
@@ -77,12 +77,6 @@ class ContentExport(_odm_ui.model.UIEntity):
     @property
     def add_tags(self) -> tuple:
         return self.f_get('add_tags')
-
-    def _pre_save(self):
-        """Hook.
-        """
-        if not self.f_get('owner'):
-            self.f_set('owner', _auth.get_current_user())
 
     @classmethod
     def ui_browser_setup(cls, browser):

@@ -1,18 +1,35 @@
 """PytSite ODM Permissions API Functions.
 """
 from typing import Iterable as _Iterable
-from pytsite import permission as _permission, auth as _auth, auth_storage_odm as _auth_storage_odm, odm as _odm
+from pytsite import permission as _permission, auth as _auth, auth_storage_odm as _auth_storage_odm, odm as _odm, \
+    threading as _threading
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+# Thread safe permission checking disable flag
+_disable_perm_check = {}
+
+
+def is_perm_check_enabled() -> bool:
+    return _threading.get_id() in _disable_perm_check
+
+
+def disable_perm_check():
+    _disable_perm_check[_threading.get_id()] = True
+
+
+def enable_perm_check():
+    if is_perm_check_enabled():
+        del _disable_perm_check[_threading.get_id()]
 
 
 def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
     # Get current user
-    current_user = _auth.get_current_user()  # type: _auth_storage_odm.model.User
+    current_user = _auth.current_user()  # type: _auth_storage_odm.model.User
 
     # Check ids type
     if ids and type(ids) not in (list, tuple):
@@ -50,8 +67,14 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
 
                     # Searching for author of the entity
                     for author_field in 'author', 'owner':
-                        if entity.has_field(author_field) and entity.f_get(author_field).uid == current_user.uid:
-                            return True
+                        if entity.has_field(author_field):
+                            author = entity.f_get(author_field)
+                            if isinstance(author, _auth.model.AbstractUser) and author.uid == current_user.uid:
+                                return True
+
+                            # Entity belongs to nobody
+                            elif author is None:
+                                return True
             else:
                 return True
 

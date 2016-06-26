@@ -19,7 +19,7 @@ class ODM(_comments.driver.Abstract):
         """
         return 'odm'
 
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.UserInterface,
+    def create_comment(self, thread_id: str, body: str, author: _auth.model.AbstractUser,
                        status: str = 'published') -> _model.Comment:
         """Create new comment.
         """

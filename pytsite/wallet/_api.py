@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def create_account(title: str, currency: str, owner: _auth.model.UserInterface, balance=0.0) -> _Account:
+def create_account(title: str, currency: str, owner: _auth.model.AbstractUser, balance=0.0) -> _Account:
     """Create new account.
     :type balance: int | float | str | decimal.Decimal
     """
@@ -170,6 +170,7 @@ def cancel_transactions_1():
             t.save().unlock()
             src.save().unlock()
             dst.save().unlock()
+
 
 def cancel_transactions_2():
     """Cancelling transactions, step two. Change state from 'cancelling' to 'cancelled'.

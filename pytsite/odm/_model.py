@@ -616,7 +616,7 @@ class Entity(_ABC):
 
         return self
 
-    def save(self, skip_hooks: bool = False, update_timestamp: bool = True):
+    def save(self, update_timestamp: bool = True):
         """Save the entity.
         """
         # Don't save entity if it wasn't changed
@@ -632,10 +632,9 @@ class Entity(_ABC):
 
         try:
             # Pre-save hook
-            if not skip_hooks:
-                self._pre_save()
-                _events.fire('pytsite.odm.entity.pre_save', entity=self)
-                _events.fire('pytsite.odm.entity.pre_save.' + self.model, entity=self)
+            self._pre_save()
+            _events.fire('pytsite.odm.entity.pre_save', entity=self)
+            _events.fire('pytsite.odm.entity.pre_save.' + self.model, entity=self)
 
             # Updating change timestamp
             if update_timestamp:
@@ -667,11 +666,10 @@ class Entity(_ABC):
                 first_save = False
 
             # After-save hook
-            if not skip_hooks:
-                self._cache_push(True)  # It is important to push cache before calling hook
-                self._after_save(first_save)
-                _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
-                _events.fire('pytsite.odm.entity.save.' + self.model, entity=self, first_save=first_save)
+            self._cache_push(True)  # It is important to push cache before calling hook
+            self._after_save(first_save)
+            _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
+            _events.fire('pytsite.odm.entity.save.' + self.model, entity=self, first_save=first_save)
 
             # Saved entity is not 'modified'
             self._is_modified = False
@@ -686,7 +684,7 @@ class Entity(_ABC):
             # Save children with updated '_parent' field
             for child in self.children:
                 if child.is_modified:
-                    child.save(True, False)
+                    child.save(False)
 
         finally:
             if not self._is_new:
@@ -781,7 +779,7 @@ class Entity(_ABC):
 
             # Required fields should be filled
             if check_required_fields and f.nonempty and f.is_empty:
-                raise _error.FieldEmpty("{}.{}: Value cannot be empty.".format(self.model, f_name))
+                raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty.".format(self.model, f_name))
 
             r[f_name] = f.get_storable_val()
 

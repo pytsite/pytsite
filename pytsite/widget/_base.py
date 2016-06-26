@@ -214,6 +214,12 @@ class Base(_ABC):
         """
         return self._title
 
+    @title.setter
+    def title(self, value: str) -> str:
+        """Set title of the widget.
+        """
+        self._title = value
+
     @property
     def placeholder(self):
         """Get placeholder of the widget.

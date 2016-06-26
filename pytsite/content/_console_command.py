@@ -71,7 +71,7 @@ class Generate(_console.command.Abstract):
         if short:
             self.li_url += 'short/'
 
-        users = list(_auth.get_users(limit=10))
+        users = list(_auth.get_users({'status': 'active'}, limit=10))
 
         # Generate content entities
         for m in range(0, num):

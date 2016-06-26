@@ -14,7 +14,7 @@ class Profile(_widget.Base):
     def __init__(self, uid: str, **kwargs):
         """Init.
 
-        :type user: pytsite.auth._model.UserInterface
+        :type user: pytsite.auth._model.AbstractUser
         """
         super().__init__(uid, **kwargs)
 
@@ -40,7 +40,7 @@ class Profile(_widget.Base):
         """Render the widget.
         :param **kwargs:
         """
-        current_user = _api.get_current_user()
+        current_user = _api.current_user()
 
         # Hidden profiles are visible only for owners and administrators
         if not self._user.profile_is_public and current_user.login != self._user.login and not current_user.is_admin:
@@ -70,15 +70,15 @@ class Follow(_widget.Base):
     def __init__(self, uid: str, **kwargs):
         """Init.
 
-        :type user: pytsite.auth._model.UserInterface
+        :type user: pytsite.auth._model.AbstractUser
         """
         super().__init__(uid, **kwargs)
 
-        self._user = kwargs.get('user')  # type: _model.UserInterface
+        self._user = kwargs.get('user')  # type: _model.AbstractUser
         if not self._user:
             raise ValueError('User is not specified.')
 
-        self._current_user = _api.get_current_user()
+        self._current_user = _api.current_user()
         self._tpl = kwargs.get('tpl', 'pytsite.auth@widget/follow')
         self._css += ' inline'
 
@@ -101,7 +101,7 @@ class Follow(_widget.Base):
             return _html.TagLessElement()
 
         content = _tpl.render(self._tpl, {
-            'current_user': _api.get_current_user(),
+            'current_user': _api.current_user(),
             'user': self._user,
             'follow_msg_id': self._data['follow-msg-id'],
             'unfollow_msg_id': self._data['unfollow-msg-id'],
@@ -117,15 +117,15 @@ class UserSelect(_widget.select.Select):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
-        c_user = _api.get_current_user()
-        if not c_user.has_permission('pytsite.odm_perm.view.user'):
+        c_user = _api.current_user()
+        if not c_user.has_permission('pytsite.auth.view.user'):
             self._items.append((c_user.login, '{} ({})'.format(c_user.full_name, c_user.login)))
         else:
-            for user in _api.get_users(sort_field='first_name'):
+            for user in _api.get_users({'status': 'active'}, sort_field='first_name'):
                 self._items.append((user.login, '{} ({})'.format(user.full_name, user.login)))
 
     def set_val(self, value, **kwargs):
-        if isinstance(value, _model.UserInterface):
+        if isinstance(value, _model.AbstractUser):
             value = value.login
         elif isinstance(value, str):
             # Check user existence
@@ -133,7 +133,7 @@ class UserSelect(_widget.select.Select):
 
         return super().set_val(value, **kwargs)
 
-    def get_val(self, **kwargs) -> _model.UserInterface:
+    def get_val(self, **kwargs) -> _model.AbstractUser:
         value = super().get_val(**kwargs)
         if value:
             value = _api.get_user(value)

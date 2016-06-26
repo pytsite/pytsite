@@ -88,10 +88,10 @@ odm_perm_modify_article: 'Зміна БУДЬ-ЯКИХ статей'
 odm_perm_delete_own_article: 'Видалення ВЛАСНИХ статей'
 odm_perm_delete_article: 'Видалення БУДЬ-ЯКИХ статей'
 
-content_permission_bypass_moderation_article: 'Публікація СТАТЕЙ без модерації'
-content_permission_set_localization_article: 'Управління локалізацією СТАТЕЙ'
-content_permission_set_publish_time_article: 'Управління часом публікації СТАТЕЙ'
-content_permission_set_starred_article: "Встановлювати прапор 'Закріплено' для СТАТЕЙ"
+content_perm_bypass_moderation_article: 'Публікація СТАТЕЙ без модерації'
+content_perm_set_localization_article: 'Управління локалізацією СТАТЕЙ'
+content_perm_set_publish_time_article: 'Управління часом публікації СТАТЕЙ'
+content_perm_set_starred_article: "Встановлювати прапор 'Закріплено' для СТАТЕЙ"
 
 odm_ui_browser_title_page: 'Сторінки'
 odm_ui_form_title_create_page: 'Нова сторінка'
@@ -106,7 +106,7 @@ odm_perm_modify_page: 'Зміна БУДЬ-ЯКИХ сторінок'
 odm_perm_delete_own_page: 'Видалення ВЛАСНИХ сторінок'
 odm_perm_delete_page: 'Видалення БУДЬ-ЯКИХ сторінок'
 
-content_permission_bypass_moderation_page: 'Публікація СТОРІНОК без модерації'
-content_permission_set_localization_page: 'Управління локалізацією СТОРІНОК'
-content_permission_set_publish_time_page: 'Управління часом публікації СТОРІНОК'
-content_permission_set_starred_page: "Встановлювати прапор 'Закріплено' для СТОРІНОК"
+content_perm_bypass_moderation_page: 'Публікація СТОРІНОК без модерації'
+content_perm_set_localization_page: 'Управління локалізацією СТОРІНОК'
+content_perm_set_publish_time_page: 'Управління часом публікації СТОРІНОК'
+content_perm_set_starred_page: "Встановлювати прапор 'Закріплено' для СТОРІНОК"

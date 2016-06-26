@@ -4,34 +4,37 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__listeners = {}
+_listeners = {}
 
 
-def listen(event: str, listener: callable, call_once: bool=False):
+def listen(event: str, listener: callable, call_once: bool = False, priority: int = 0):
     """Add an event listener.
     """
-    global __listeners
-    if event not in __listeners:
-        __listeners[event] = []
+    global _listeners
+    if event not in _listeners:
+        _listeners[event] = []
 
-    __listeners[event].append((listener, call_once))
+    _listeners[event].append((listener, call_once, priority))
+
+    # Sort listeners by priority
+    _listeners[event] = sorted(_listeners[event], key=lambda x: x[2])
 
 
-def fire(event: str, stop_after: int=None, **kwargs):
+def fire(event: str, stop_after: int = None, **kwargs):
     """Fires an event to listeners.
     """
-    if event not in __listeners:
+    if event not in _listeners:
         return
 
     count = 0
-    for handler, call_once in __listeners[event]:
+    for handler, call_once, priority in _listeners[event]:
         handler(**kwargs)
         count += 1
         if stop_after and count >= stop_after:
             break
 
     # Remove handlers which should be called once
-    __listeners[event] = [item for item in __listeners[event] if not item[1]]
+    _listeners[event] = [item for item in _listeners[event] if not item[1]]
 
 
 def first(event: str, **kwargs):

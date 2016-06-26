@@ -17,12 +17,7 @@ def __init():
 
     assetman.register_package(__name__)
 
-    router.add_rule(
-        '/file/upload/<string:model>',
-        'pytsite.file@upload',
-        filters=('pytsite.auth@filter_authorize',)
-    )
-
+    router.add_rule('/file/upload/<string:model>', 'pytsite.file@upload', filters='pytsite.auth@f_authorize')
     router.add_rule(
         '/file/download/<string:model>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',
         'pytsite.file@download',

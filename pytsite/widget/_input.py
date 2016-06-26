@@ -1,7 +1,7 @@
 """Input Widgets.
 """
 from pytsite import browser as _browser, html as _html, util as _util, tpl as _tpl, validation as _validation, \
-    router as _router, js_api as _js_api
+    router as _router
 from . import _base
 
 __author__ = 'Alexander Shepetko'

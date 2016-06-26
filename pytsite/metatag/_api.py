@@ -27,16 +27,21 @@ def t_set(tag: str, value: str=None, **kwargs):
     """
     tid = _threading.get_id()
 
-    if tag in ('link',):
-        if tag == 'link':
-            if not kwargs.get('rel'):
-                raise ValueError("<link> tag must contain 'rel' attribute")
-            if not kwargs.get('href'):
-                raise ValueError("<link> tag must contain 'href' attribute")
+    if tid not in _tags:
+        _tags[tid] = {tag: None}
+
+    if tag == 'link':
+        if not kwargs.get('rel'):
+            raise ValueError("<link> tag must contain 'rel' attribute")
+        if not kwargs.get('href'):
+            raise ValueError("<link> tag must contain 'href' attribute")
 
         value = ''
         for k, v in kwargs.items():
             value += ' {}="{}"'.format(k, v)
+
+        if _tags[tid]['link'] is None:
+            _tags[tid]['link'] = []
 
         _tags[tid]['link'].append(value)
     else:

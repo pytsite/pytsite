@@ -26,7 +26,6 @@ def __init():
     register('jquery-ui', _libs.jquery_ui)
     register('font-awesome', _libs.font_awesome)
     register('bootstrap', _libs.bootstrap)
-    register('bootstrap-table', _libs.bootstrap_table)
     register('imagesloaded', _libs.imagesloaded)
     register('inputmask', _libs.inputmask)
     register('typeahead', _libs.typeahead)

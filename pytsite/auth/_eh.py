@@ -14,7 +14,7 @@ def pytsite_setup():
     """'pytsite.setup' Event Handler
     """
     # Searching for an administrator
-    if len(list(_api.get_users(roles=(_api.get_role('admin'),)))):
+    if _api.count_users({'roles': [_api.get_role('admin')]}):
         return
 
     # Creating administrator
@@ -29,7 +29,7 @@ def pytsite_setup():
     admin_user.first_name = _lang.t('pytsite.auth@administrator')
     admin_user.nickname = _util.transform_str_2(admin_user.full_name)
     admin_user.roles = [_api.get_role('admin')]
-    admin_user.storage_save()
+    _api.update_entity(admin_user)
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.login}))
 
 
@@ -44,14 +44,13 @@ def pytsite_router_dispatch():
             user = _api.get_user(_router.session()['pytsite.auth.login'])
         except _error.UserNotExist:
             del _router.session()['pytsite.auth.login']
-            user = _api.get_anonymous_user()
 
     # Determine current user based on request's argument
     elif 'access_token' in _router.request().inp:
         try:
             user = _api.get_user(access_token=_router.request().inp['access_token'])
         except _error.UserNotExist:
-            user = _api.get_anonymous_user()
+            pass
 
     # Set current user
     _api.switch_user(user)
@@ -61,7 +60,7 @@ def pytsite_router_dispatch():
             # Update user's activity timestamp
             _router.set_no_cache(True)
             user.last_activity = _datetime.now()
-            user.storage_save()
+            _api.update_entity(user)
         else:
             # Sign out inactive user
             _api.sign_out(user)

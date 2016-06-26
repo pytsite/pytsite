@@ -174,9 +174,12 @@ def render() -> _html.Aside:
 
 
 def _check_permissions(item: dict) -> bool:
-    user = _auth.get_current_user()
+    user = _auth.current_user()
     if user.is_anonymous:
         return False
+
+    if isinstance(item['permissions'], str) and item['permissions'] == '*':
+        return True
 
     for p in item['permissions']:
         if p == '*':

@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _model as model
-from ._api import check_permissions
+from ._api import check_permissions, disable_perm_check, enable_perm_check, is_perm_check_enabled
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -10,11 +10,8 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import events, lang
+    from pytsite import events
     from . import _eh
-
-    # Resources
-    lang.register_package(__name__)
 
     # Event listeners
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)

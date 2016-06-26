@@ -14,7 +14,7 @@ def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
     return _admin.render(_tpl.render('pytsite.odm_ui@browser', {
-        'table': _browser.Browser(args.get('model')).get_table()
+        'table': _browser.Browser('odm-ui-browser', model=args.get('model')).render()
     }))
 
 

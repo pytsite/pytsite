@@ -14,7 +14,7 @@ class AccountSelect(_w.select.Select):
     """
 
     def __init__(self, uid: str, **kwargs):
-        u = _auth.get_current_user()
+        u = _auth.current_user()
         items = []
 
         if u.has_permission('pytsite.odm_perm.view.wallet_account') or \

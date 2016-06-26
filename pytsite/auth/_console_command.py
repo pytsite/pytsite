@@ -52,7 +52,7 @@ class Passwd(_console.command.Abstract):
 
         try:
             user.password = pass_2
-            user.storage_save()
+            _api.update_entity(user)
             _console.print_success(_lang.t('pytsite.auth@password_successfully_changed'))
         except Exception as e:
             raise _console.error.Error(str(e))

@@ -119,7 +119,7 @@ def is_translation_defined(msg_id: str, language: str = None, use_fallback=True)
     try:
         t(msg_id, None, language, True, use_fallback)
         return True
-    except _error.TranslationError:
+    except (_error.TranslationError, _error.PackageNotRegistered):
         return False
 
 

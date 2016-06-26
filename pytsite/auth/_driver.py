@@ -34,18 +34,18 @@ class Authentication(_ABC):
         pass
 
     @_abstractmethod
-    def sign_up(self, data: dict) -> _model.UserInterface:
+    def sign_up(self, data: dict) -> _model.AbstractUser:
         """Register new user.
         """
         pass
 
     @_abstractmethod
-    def sign_in(self, data: dict) -> _model.UserInterface:
+    def sign_in(self, data: dict) -> _model.AbstractUser:
         """Authenticate user.
         """
         pass
 
-    def sign_out(self, user: _model.UserInterface):
+    def sign_out(self, user: _model.AbstractUser):
         """End user's session.
         """
         pass
@@ -57,26 +57,51 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def create_role(self, name: str, description: str = '') -> _model.RoleInterface:
+    def create_role(self, name: str, description: str = '') -> _model.AbstractRole:
         pass
 
     @_abstractmethod
-    def get_role(self, name: str) -> _model.RoleInterface:
+    def get_role(self, name: str = None, uid: str = None) -> _model.AbstractRole:
         pass
 
     @_abstractmethod
-    def get_roles(self) -> _Iterable[_model.RoleInterface]:
+    def get_roles(self, flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = None,
+                  skip: int = 0) -> _Iterable[_model.AbstractRole]:
         pass
 
     @_abstractmethod
-    def create_user(self, login: str, password: str = None) -> _model.UserInterface:
+    def create_user(self, login: str, password: str = None) -> _model.AbstractUser:
         pass
 
     @_abstractmethod
-    def get_user(self, login: str = None, nickname: str = None, access_token: str = None) -> _model.UserInterface:
+    def get_user(self, login: str = None, nickname: str = None, access_token: str = None) -> _model.AbstractUser:
         pass
 
     @_abstractmethod
-    def get_users(self, active_only: bool = True, sort_field: str = None, sort_order: int = 1, limit: int = None,
-                  skip: int = None) -> _Iterable[_model.UserInterface]:
+    def get_users(self, flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = None,
+                  skip: int = 0) -> _Iterable[_model.AbstractUser]:
+        pass
+
+    @_abstractmethod
+    def count_users(self, flt: dict = None) -> int:
+        pass
+
+    @_abstractmethod
+    def count_roles(self, flt: dict = None) -> int:
+        pass
+
+    @_abstractmethod
+    def update_entity(self, user: _model.AuthEntity):
+        pass
+
+    @_abstractmethod
+    def delete_entity(self, user: _model.AuthEntity):
+        pass
+
+    @_abstractmethod
+    def get_user_modfy_form(self, user: _model.AbstractUser = None) -> _form.Form:
+        pass
+
+    @_abstractmethod
+    def get_role_modify_form(self, role: _model.AbstractRole = None) -> _form.Form:
         pass

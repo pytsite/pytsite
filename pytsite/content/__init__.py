@@ -36,9 +36,9 @@ def _init():
 
     # Propose route
     router.add_rule('/content/propose/<model>', 'pytsite.content@propose',
-                    filters='pytsite.auth@filter_authorize')
+                    filters='pytsite.auth@f_authorize')
     router.add_rule('/content/propose/<model>/submit', 'pytsite.content@propose_submit',
-                    filters='pytsite.auth@filter_authorize')
+                    filters='pytsite.auth@f_authorize')
 
     # Content subscription routes
     router.add_rule('/content/subscribe', 'pytsite.content@subscribe', methods='POST')

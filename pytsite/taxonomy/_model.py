@@ -76,6 +76,8 @@ class Term(_odm_ui.model.UIEntity):
     def _pre_save(self):
         """Hook.
         """
+        super()._pre_save()
+
         if not self.f_get('alias'):
             self.f_set('alias', self.f_get('title'))
 

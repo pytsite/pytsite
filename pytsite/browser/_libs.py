@@ -1,6 +1,6 @@
 """PytSite Browser Core Libraries.
 """
-from pytsite import assetman as _assetman, lang as _lang
+from pytsite import lang as _lang
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -36,24 +36,6 @@ def bootstrap() -> list:
         'pytsite.browser@bootstrap/css/add-ons.css',
         'pytsite.browser@bootstrap/js/bootstrap.min.js',
     ])
-
-    return r
-
-
-def bootstrap_table() -> list:
-    r = _api.get_assets('bootstrap')
-    r.extend([
-        'pytsite.browser@bootstrap-table/bootstrap-table.min.css',
-        'pytsite.browser@bootstrap-table/bootstrap-table.min.js',
-        'pytsite.browser@bootstrap-table/extensions/cookie/bootstrap-table-cookie.min.js',
-    ])
-
-    current_lang = _lang.get_current()
-    if current_lang != 'en':
-        locale = current_lang + '-' + current_lang.upper()
-        if current_lang == 'uk':
-            locale = 'uk-UA'
-        r.append('pytsite.browser@bootstrap-table/locale/bootstrap-table-{}.min.js'.format(locale))
 
     return r
 

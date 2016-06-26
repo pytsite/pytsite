@@ -1,8 +1,7 @@
 """Settings Plugin Functions
 """
 from typing import Callable as _Callable
-from pytsite import admin as _admin, auth as _auth, router as _router, odm as _odm, permission as _permission
-from . import _frm
+from pytsite import admin as _admin, router as _router, odm as _odm, permission as _permission
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

@@ -13,7 +13,7 @@ class SettingsForm(_form.Form):
 
         super().__init__(uid, **kwargs)
 
-    def _setup_form(self):
+    def _setup_form(self, **kwargs):
         self._action = _router.ep_url('pytsite.settings@form_submit', {'uid': self._setting_uid})
 
     def _setup_widgets(self):

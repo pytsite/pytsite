@@ -16,7 +16,7 @@ def search(inp: dict) -> dict:
         return {'results': ()}
 
     # Anonymous users cannot perform search
-    user = _auth.get_current_user()
+    user = _auth.current_user()
     if user.is_anonymous:
         raise _http.error.Forbidden()
 
@@ -40,23 +40,3 @@ def search(inp: dict) -> dict:
     r = [{'id': e.model + ':' + str(e.id), 'text': e.title} for e in f.get(20)]
 
     return {'results': r}
-
-
-def subscribe(inp: dict) -> str:
-    """Subscribe to digest endpoint.
-    """
-    email = inp.get('email')
-    _validation.rule.Email(value=email).validate()
-
-    lng = _lang.get_current()
-
-    s = _odm.find('content_subscriber').where('email', '=', email).where('language', '=', lng).first()
-    if s:
-        if not s.f_get('enabled'):
-            s.f_set('enabled', True)
-    else:
-        s = _odm.dispense('content_subscriber').f_set('email', email).f_set('language', lng)
-
-    s.save()
-
-    return _lang.t('pytsite.content@digest_subscription_success')

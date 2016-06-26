@@ -46,7 +46,7 @@ class Account(_odm_ui.model.UIEntity):
         return self.f_get('balance')
 
     @property
-    def owner(self) -> _auth.model.UserInterface:
+    def owner(self) -> _auth.model.AbstractUser:
         return self.f_get('owner')
 
     @property
@@ -210,6 +210,8 @@ class Transaction(_odm_ui.model.UIEntity):
     def _pre_save(self):
         """Hook.
         """
+        super()._pre_save()
+
         if self.is_new and self.exchange_rate == 1:
             self.f_set('exchange_rate', _currency.get_rate(self.source.currency, self.destination.currency))
 

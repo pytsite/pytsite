@@ -55,7 +55,7 @@ class Password(_auth.driver.Authentication):
         # TODO
         pass
 
-    def sign_in(self, data: dict) -> _auth.model.UserInterface:
+    def sign_in(self, data: dict) -> _auth.model.AbstractUser:
         """Authenticate user.
         """
         login = data.get('login')

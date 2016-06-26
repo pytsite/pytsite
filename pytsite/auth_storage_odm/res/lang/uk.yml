@@ -1,18 +1,11 @@
 about_yourself: 'Пара слів про себе'
-you_cannot_delete_yourself: "Ви не можете видалити свій обліковий запис, будучи адміністратором"
 account_owns_entity: "Обліковий запис є власником сутності ':entity'"
 role_used_by_user: "Роль використовується обліковим записом ':user'"
 email: 'Email'
 password: 'Пароль'
-security: 'Безпека'
-users: 'Користувачі'
-roles: 'Ролі'
 login: 'Логін'
 email: 'Email'
 nickname: 'Нікнейм'
-last_sign_in: 'Останній вхід'
-_created: 'Реєстрація'
-last_activity: 'Остання активність'
 picture: 'Аватар'
 name: "Ім'я"
 first_name: "Ім'я"
@@ -26,14 +19,13 @@ description: 'Опис'
 social_links: 'Посилання'
 add_link: 'Додати посилання'
 is_online: 'Онлайн'
-word_yes: 'Так'
-word_no: 'Ні'
 this_login_already_used: 'Цей логін вже зайнятий, спробуйте обрати інший'
 this_nickname_already_used: 'Цей нікнейм вже зайнятий, спробуйте обрати інший'
 this_email_already_used: 'Цей email вже зайнятий, спробуйте обрати інший'
 this_token_already_used: 'Цей токен вже зайнятий, спробуйте обрати інший'
 country: 'Країна'
 city: 'Місто'
+roles: 'Ролі'
 
 odm_perm_group_description: 'Безпека'
 
@@ -46,13 +38,3 @@ odm_perm_view_role: 'Перегляд ролей'
 odm_perm_create_role: 'Створення ролей'
 odm_perm_modify_role: 'Зміна ролей'
 odm_perm_delete_role: 'Видалення ролей'
-
-odm_ui_browser_title_user: 'Огляд користувачів'
-odm_ui_form_title_create_user: 'Створити нового користувача'
-odm_ui_form_title_modify_user: 'Зміна користувача'
-odm_ui_form_title_delete_user: 'Видалення користувачів'
-
-odm_ui_browser_title_role: 'Огляд ролей'
-odm_ui_form_title_create_role: 'Створення нової ролі'
-odm_ui_form_title_modify_role: 'Зміна ролі'
-odm_ui_form_title_delete_role: 'Видалення ролей'

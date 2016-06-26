@@ -111,7 +111,7 @@ def get_sign_in_form(auth_driver_name: str = None, uid: str = None, **kwargs) ->
     return form
 
 
-def create_user(login: str, password: str = None) -> _model.UserInterface:
+def create_user(login: str, password: str = None) -> _model.AbstractUser:
     """Create new user.
     """
     with _threading.get_r_lock():
@@ -139,7 +139,7 @@ def create_user(login: str, password: str = None) -> _model.UserInterface:
                     roles.append(role)
             user.roles = roles
 
-            user.storage_save()
+            update_entity(user)
 
         # Notify listeners about user creation
         _events.fire('pytsite.auth.user.create', user=user)
@@ -147,9 +147,27 @@ def create_user(login: str, password: str = None) -> _model.UserInterface:
         return user
 
 
+def update_entity(user: _model.AuthEntity):
+    """Update user.
+    """
+    with _threading.get_r_lock():
+        _events.fire('pytsite.auth.user.pre_update', user=user)
+        get_storage_driver().update_entity(user)
+        _events.fire('pytsite.auth.user.update', user=user)
+
+
+def delete_entity(entity: _model.AuthEntity):
+    """Delete user.
+    """
+    with _threading.get_r_lock():
+        _events.fire('pytsite.auth.pre_delete.' + entity.auth_entity_type, entity=entity)
+        get_storage_driver().delete_entity(entity)
+        _events.fire('pytsite.auth.delete.' + entity.auth_entity_type, entity=entity)
+
+
 def get_user(login: str = None, nickname: str = None, access_token: str = None, uid: str = None,
-             check_status: bool = True) -> _model.UserInterface:
-    """Get user by login, nickname or by uid.
+             check_status: bool = True) -> _model.AbstractUser:
+    """Get user by login, nickname, access token or UID.
     """
     with _threading.get_r_lock():
         user = get_storage_driver().get_user(login, nickname, access_token, uid)
@@ -165,7 +183,9 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
         return user
 
 
-def get_anonymous_user() -> _model.UserInterface:
+def get_anonymous_user() -> _model.AbstractUser:
+    """Get anonymous user.
+    """
     global _anonymous_user
     if not _anonymous_user:
         _anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
@@ -173,7 +193,9 @@ def get_anonymous_user() -> _model.UserInterface:
     return _anonymous_user
 
 
-def get_system_user() -> _model.UserInterface:
+def get_system_user() -> _model.AbstractUser:
+    """Get system user.
+    """
     global _system_user
     if not _system_user:
         _system_user = create_user(_model.SYSTEM_USER_LOGIN)
@@ -192,13 +214,13 @@ def create_role(name: str, description: str = ''):
         return get_storage_driver().create_role(name, description)
 
 
-def get_role(name: str) -> _model.RoleInterface:
-    """Get role by name or by UID.
+def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
+    """Get role by name or UID.
     """
-    return get_storage_driver().get_role(name)
+    return get_storage_driver().get_role(name, uid)
 
 
-def sign_in(auth_driver_name: str, data: dict) -> _model.UserInterface:
+def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Authenticate user.
     """
     with _threading.get_r_lock():
@@ -214,28 +236,27 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.UserInterface:
         # Generate new token or prolong existing one
         if not _access_tokens.has(user.access_token):
             user.access_token = create_access_token(user.uid, data.get('access_token_ttl', 3600))
-            user.storage_save()
+            update_entity(user)
         else:
             prolong_access_token(user.access_token)
-
-        # Set session marker
-        if _router.session() is not None:
-            _router.session()['pytsite.auth.login'] = user.login
 
         # Update statistics
         user.sign_in_count += 1
         user.last_sign_in = _datetime.now()
-        user.storage_save()
+        update_entity(user)
 
-        # Update IP address and geo data
         if _router.request():
+            # Set session marker
+            _router.session()['pytsite.auth.login'] = user.login
+
+            # Update IP address and geo data
             user.last_ip = _router.request().remote_addr
             if not user.country and user.geo_ip.country:
                 user.country = user.geo_ip.country
             if not user.city and user.geo_ip.city:
                 user.city = user.geo_ip.city
 
-            user.storage_save()
+            update_entity(user)
 
         # Login event
         _events.fire('pytsite.auth.sign_in', user=user)
@@ -281,7 +302,7 @@ def prolong_access_token(token: str):
         _access_tokens.put(token, token_info, token_info['ttl'])
 
 
-def sign_out(user: _model.UserInterface):
+def sign_out(user: _model.AbstractUser):
     """Sign out current user.
     """
     # Anonymous user cannot be signed out
@@ -307,10 +328,9 @@ def sign_out(user: _model.UserInterface):
     switch_user(get_anonymous_user())
 
 
-def get_current_user() -> _model.UserInterface:
-    """Get currently session-authorized user.
+def current_user() -> _model.AbstractUser:
+    """Get current user.
     """
-
     user = _current_user.get(_threading.get_id())
     if not user:
         raise RuntimeError('Current user is not set.')
@@ -318,12 +338,14 @@ def get_current_user() -> _model.UserInterface:
     return user
 
 
-def switch_user(user: _model.UserInterface):
+def switch_user(user: _model.AbstractUser):
+    """Switch current user.
+    """
     _current_user[_threading.get_id()] = user
 
 
 def get_user_statuses() -> tuple:
-    """Get available user statuses.
+    """Get valid user statuses.
     """
     return (
         ('active', _lang.t('pytsite.auth@status_active')),
@@ -342,7 +364,7 @@ def get_sign_in_url(auth_driver_name: str = None) -> str:
 
 
 def get_sign_out_url(auth_driver_name: str = None) -> str:
-    """Get logout URL.
+    """Get sign out URL.
     """
     if not auth_driver_name:
         auth_driver_name = list(_authentication_drivers)[-1]
@@ -350,6 +372,27 @@ def get_sign_out_url(auth_driver_name: str = None) -> str:
     return _router.ep_url('pytsite.auth@sign_out', {'driver': auth_driver_name, '__redirect': _router.current_url()})
 
 
-def get_users(active_only: bool = True, sort_field: str = None, sort_order: int = 1, limit: int = 0,
-              skip: int = 0, roles: tuple = ()) -> _Iterable[_model.UserInterface]:
-    return get_storage_driver().get_users(active_only, sort_field, sort_order, limit, skip, roles)
+def get_users(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
+              skip: int = 0) -> _Iterable[_model.AbstractUser]:
+    return get_storage_driver().get_users(flt, sort_field, sort_order, limit, skip)
+
+
+def get_roles(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
+              skip: int = 0) -> _Iterable[_model.AbstractRole]:
+    return get_storage_driver().get_roles(flt, sort_field, sort_order, limit, skip)
+
+
+def count_users(flt: dict = None) -> int:
+    return get_storage_driver().count_users(flt)
+
+
+def count_roles(flt: dict = None) -> int:
+    return get_storage_driver().count_roles(flt)
+
+
+def get_user_modify_form(user: _model.AbstractUser = None) -> _form.Form:
+    return get_storage_driver().get_user_modfy_form(user)
+
+
+def get_role_modify_form(role: _model.AbstractRole = None) -> _form.Form:
+    return get_storage_driver().get_role_modify_form(role)

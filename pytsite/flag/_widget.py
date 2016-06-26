@@ -46,14 +46,14 @@ class Like(_widget.Base):
 
     @property
     def flagged(self) -> int:
-        return _api.is_flagged(self._entity, _auth.get_current_user())
+        return _api.is_flagged(self._entity, _auth.current_user())
 
     @property
     def counter(self) -> bool:
         return self._counter
 
     def get_html_em(self, **kwargs) -> _html.Element:
-        current_user = _auth.get_current_user()
+        current_user = _auth.current_user()
 
         if self.flagged:
             self._css += ' flagged'

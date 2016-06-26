@@ -1,7 +1,7 @@
 """ODM UI Manager.
 """
 from pytsite import lang as _lang, odm as _odm, permission as _permission, logger as _logger, auth as _auth
-from . import _model
+from . import _model, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +13,7 @@ def odm_register_model(model: str, cls, replace: bool):
     """
 
     # Check if the model supports permissions
-    if not issubclass(cls, _model.AuthorizableEntity):
+    if not issubclass(cls, _model.PermissableEntity):
         return
 
     # Determining model's package name
@@ -43,40 +43,48 @@ def odm_register_model(model: str, cls, replace: bool):
                 _permission.define_permission(p_name, p_description, pkg_name)
 
 
-def odm_entity_pre_save(entity: _model.AuthorizableEntity):
+def odm_entity_pre_save(entity: _model.PermissableEntity):
     """'pytsite.odm.entity_pre_save' event handler.
     """
-    # Check if the model supports permissions
-    if not isinstance(entity, _model.AuthorizableEntity):
+    # Is permissions checking enabled
+    if not _api.is_perm_check_enabled():
         return
 
-    c_user = _auth.get_current_user()
+    # Check if the model supports permissions
+    if not isinstance(entity, _model.PermissableEntity):
+        return
+
+    c_user = _auth.current_user()
     if c_user.is_system or c_user.is_admin:
         return
 
     if entity.is_new and not entity.perm_check('create'):
-        _logger.info('Current user login: {}'.format(_auth.get_current_user().login), __name__)
+        _logger.info('Current user login: {}'.format(_auth.current_user().login), __name__)
         raise _odm.error.ForbidEntityCreate("Insufficient permissions to create entities of model '{}'.".
                                             format(entity.model))
 
     elif not entity.is_new and not entity.perm_check('modify'):
-        _logger.info('Current user login: {}'.format(_auth.get_current_user().login), __name__)
+        _logger.info('Current user login: {}'.format(_auth.current_user().login), __name__)
         raise _odm.error.ForbidEntityModify("Insufficient permissions to modify entity '{}:{}'.".
                                             format(entity.model, entity.id))
 
 
-def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
+def odm_entity_pre_delete(entity: _model.PermissableEntity):
     """'pytsite.odm.entity_pre_delete' event handler.
     """
-    # Check if the model supports permissions
-    if not isinstance(entity, _model.AuthorizableEntity):
+    # Is permissions checking enabled
+    if not _api.is_perm_check_enabled():
         return
 
-    c_user = _auth.get_current_user()
+    # Check if the model supports permissions
+    if not isinstance(entity, _model.PermissableEntity):
+        return
+
+    c_user = _auth.current_user()
     if c_user.is_system or c_user.is_admin:
         return
 
     if not entity.perm_check('delete'):
-        _logger.info('Current user login: {}'.format(_auth.get_current_user().login), __name__)
+        _logger.info('Current user login: {}'.format(_auth.current_user().login), __name__)
         raise _odm.error.ForbidEntityDelete("Insufficient permissions to delete entity '{}:{}'.".
                                             format(entity.model, entity.id))

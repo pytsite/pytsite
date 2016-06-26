@@ -69,7 +69,7 @@ class ULogin(_auth.driver.Authentication):
         """
         return self.get_sign_up_form(form_uid, **kwargs)
 
-    def sign_up(self, data: dict) -> _auth.model.UserInterface:
+    def sign_up(self, data: dict) -> _auth.model.AbstractUser:
         # Searching for token in input data
         token = data.get('token')
         if not token:
@@ -149,7 +149,7 @@ class ULogin(_auth.driver.Authentication):
 
         return user
 
-    def sign_in(self, data: dict) -> _auth.model.UserInterface:
+    def sign_in(self, data: dict) -> _auth.model.AbstractUser:
         """Authenticate user.
         """
         return self.sign_up(data)

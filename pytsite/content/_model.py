@@ -7,7 +7,7 @@ from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, util as _util, form as _form, reg as _reg
+    tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -193,7 +193,7 @@ class Base(_odm_ui.model.UIEntity):
         return self.f_get('body', process_tags=True)
 
     @property
-    def images(self) -> tuple:
+    def images(self) -> _Tuple[_image.model.Image]:
         return self.f_get('images')
 
     @property
@@ -205,7 +205,7 @@ class Base(_odm_ui.model.UIEntity):
         return self.f_get('language')
 
     @property
-    def author(self) -> _auth.model.UserInterface:
+    def author(self) -> _auth.model.AbstractUser:
         return self.f_get('author')
 
     @property
@@ -239,7 +239,9 @@ class Base(_odm_ui.model.UIEntity):
     def _pre_save(self):
         """Hook.
         """
-        current_user = _auth.get_current_user()
+        super()._pre_save()
+
+        current_user = _auth.current_user()
 
         # Language is required
         if not self.language or not self.f_get('language_db'):
@@ -267,8 +269,11 @@ class Base(_odm_ui.model.UIEntity):
         # Creating back links in images
         if self.has_field('images'):
             for img in self.images:
-                if not img.f_get('attached_to'):
-                    img.f_set('attached_to', self).f_set('owner', self.author).save()
+                if not img.attached_to:
+                    img.f_set('attached_to', self)
+                if not img.owner:
+                    img.f_set('owner', self.author)
+                img.save()
 
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
@@ -343,14 +348,14 @@ class Base(_odm_ui.model.UIEntity):
                 frm.add_rule('body', _validation.rule.NonEmpty())
 
         # Visible only for admins
-        if _auth.get_current_user().is_admin:
+        if _auth.current_user().is_admin:
             # Author
             if self.has_field('author'):
                 frm.add_widget(_auth.widget.UserSelect(
                     uid='author',
                     weight=1000,
                     label=self.t('author'),
-                    value=_auth.get_current_user() if self.is_new else self.author,
+                    value=_auth.current_user() if self.is_new else self.author,
                     h_size='col-sm-4',
                     required=True,
                 ))
@@ -378,7 +383,7 @@ class Content(Base):
         self.define_field(_odm.field.Ref('section', model='section'))
         self.define_field(_odm.field.Bool('starred'))
         self.define_field(_odm.field.Integer('views_count'))
-        self.define_field(_odm.field.Integer('comments_count'))
+        self.define_field(_odm.field.Virtual('comments_count'))
         self.define_field(_odm.field.StringList('ext_links'))
 
         for lng in _lang.langs():
@@ -505,6 +510,9 @@ class Content(Base):
         """
         if field_name == 'tags' and kwargs.get('as_string'):
             return ','.join([tag.title for tag in self.f_get('tags')])
+
+        elif field_name == 'comments_count':
+            return _comments.get_all_comments_count(self.ui_view_url())
 
         else:
             return super()._on_f_get(field_name, value, **kwargs)
@@ -680,7 +688,7 @@ class Content(Base):
         """
         super().ui_m_form_setup_widgets(frm)
 
-        current_user = _auth.get_current_user()
+        current_user = _auth.current_user()
 
         # Starred
         if self.has_field('starred') and current_user.has_permission('pytsite.content.set_starred.' + self.model):
@@ -786,7 +794,7 @@ class Content(Base):
                 ))
 
         # Visible only for admins
-        if _auth.get_current_user().is_admin:
+        if _auth.current_user().is_admin:
             # Route alias
             frm.add_widget(_widget.input.Text(
                 uid='route_alias',
@@ -795,7 +803,7 @@ class Content(Base):
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-    def as_dict(self, fields: _Union[_List, _Tuple] = (), **kwargs):
+    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
         """Get serializable representation of a product.
         """
         r = super().as_dict(fields)

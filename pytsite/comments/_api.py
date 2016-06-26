@@ -65,13 +65,13 @@ def get_driver(driver_name: str = None) -> _driver.Abstract:
     return _drivers[driver_name]
 
 
-def get_widget(widget_uid: str = 'comments', thread_id: str = None, driver_name: str = None) -> _widget.Base:
+def get_widget(widget_uid: str = 'comments', thread_id: str = None, driver: str = None) -> _widget.Base:
     """Get comments widget for particular driver.
     """
-    return get_driver(driver_name).get_widget(widget_uid, thread_id or _router.current_url())
+    return get_driver(driver).get_widget(widget_uid, thread_id or _router.current_url())
 
 
-def create_comment(thread_id: str, body: str, author: _auth.model.UserInterface, status: str = 'published',
+def create_comment(thread_id: str, body: str, author: _auth.model.AbstractUser, status: str = 'published',
                    driver_name: str = None) -> _model.CommentInterface:
     """Create new comment.
     """

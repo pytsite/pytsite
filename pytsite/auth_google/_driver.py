@@ -65,7 +65,7 @@ class Google(_auth.driver.Authentication):
 
         return _SignInForm(form_uid, client_id=self._client_id, **kwargs)
 
-    def sign_in(self, data: dict) -> _auth.model.UserInterface:
+    def sign_in(self, data: dict) -> _auth.model.AbstractUser:
         """Authenticate user.
         """
         token = data.get('id_token')
@@ -128,7 +128,7 @@ class Google(_auth.driver.Authentication):
 
         return user
 
-    def sign_up(self, data: dict) -> _auth.model.UserInterface:
+    def sign_up(self, data: dict) -> _auth.model.AbstractUser:
         """Register new user.
         """
         return self.sign_in(data)

@@ -2,14 +2,14 @@
 """
 from typing import Union as _Union, Tuple as _Tuple, List as _List
 from os import path as _path, unlink as _unlink
-from pytsite import odm as _odm, odm_auth as _odm_auth, reg as _reg, router as _router
+from pytsite import odm as _odm, odm_auth as _odm_auth, reg as _reg, router as _router, auth as _auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class File(_odm_auth.model.AuthorizableEntity):
+class File(_odm_auth.model.PermissableEntity):
     """File Model.
     """
 
@@ -32,6 +32,30 @@ class File(_odm_auth.model.AuthorizableEntity):
         return self.f_get('path')
 
     @property
+    def name(self) -> str:
+        return self.f_get('name')
+
+    @property
+    def description(self) -> str:
+        return self.f_get('description')
+
+    @property
+    def mime(self) -> str:
+        return self.f_get('mime')
+
+    @property
+    def length(self) -> int:
+        return self.f_get('length')
+
+    @property
+    def owner(self) -> _auth.model.AbstractUser:
+        return self.f_get('owner')
+
+    @property
+    def attached_to(self) -> _odm.model.Entity:
+        return self.f_get('attached_to')
+
+    @property
     def abs_path(self) -> str:
         return self.f_get('abs_path')
 
@@ -42,18 +66,6 @@ class File(_odm_auth.model.AuthorizableEntity):
     @property
     def thumb_url(self) -> str:
         return self.f_get('thumb_url')
-
-    @property
-    def name(self) -> str:
-        return self.f_get('name')
-
-    @property
-    def length(self) -> int:
-        return self.f_get('length')
-
-    @property
-    def mime(self) -> str:
-        return self.f_get('mime')
 
     def _after_delete(self):
         """_after_delete() hook.

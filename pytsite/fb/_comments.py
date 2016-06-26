@@ -1,6 +1,7 @@
 """Facebook Comments Driver.
 """
 import requests as _requests
+from typing import Iterable as _Iterable
 from pytsite import comments as _comments, logger as _logger, auth as _auth
 from ._widget import Comments as _CommentsWidget
 
@@ -45,8 +46,11 @@ class Driver(_comments.driver.Abstract):
 
         return count
 
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.UserInterface,
+    def create_comment(self, thread_id: str, body: str, author: _auth.model.AbstractUser,
                        status: str = 'published') -> _comments.model.CommentInterface:
         """Create new comment.
         """
+        raise NotImplementedError("Not implemented yet")
+
+    def get_comments(self, thread_id: str) -> _Iterable[_comments.model.CommentInterface]:
         raise NotImplementedError("Not implemented yet")

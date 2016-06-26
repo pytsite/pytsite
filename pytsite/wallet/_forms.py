@@ -11,8 +11,9 @@ __license__ = 'MIT'
 class TransactionsCancel(_odm_ui.forms.MassAction):
     """Transactions Cancel Form.
     """
-    def _setup_form(self):
+    def _setup_form(self, **kwargs):
         """Hook.
+        :param **kwargs:
         """
         super()._setup_form()
 

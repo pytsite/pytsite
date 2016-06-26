@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def like(inp: dict) -> dict:
-    current_user = _auth.get_current_user()
+    current_user = _auth.current_user()
     entity = _odm.get_by_ref(inp.get('entity'))
 
     if current_user.is_anonymous or not entity:

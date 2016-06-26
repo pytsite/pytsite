@@ -26,5 +26,5 @@ class CommentInterface:
         raise NotImplementedError("Not implemented yet")
 
     @property
-    def author(self) -> _auth.model.UserInterface:
+    def author(self) -> _auth.model.AbstractUser:
         raise NotImplementedError("Not implemented yet")

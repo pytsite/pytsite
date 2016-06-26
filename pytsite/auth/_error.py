@@ -35,3 +35,11 @@ class UserExists(Exception):
 
 class InvalidAccessToken(Exception):
     pass
+
+
+class UserDeletionForbidden(Exception):
+    pass
+
+
+class RoleDeletionForbidden(Exception):
+    pass

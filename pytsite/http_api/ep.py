@@ -1,6 +1,6 @@
 """PytSite HTTP API Endpoints.
 """
-from pytsite import router as _router, http as _http, logger as _logger, util as _util, reg as _reg
+from pytsite import router as _router, http as _http, logger as _logger, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -33,12 +33,24 @@ def entry(args: dict, inp: dict):
             code = r['code']
             r = r['response']
 
-        return _http.response.JSON(r, code)
+        # Simple string should be returned as text/html
+        if isinstance(r, str):
+            response = _http.response.Response(r, code)
+        else:
+            response = _http.response.JSON(r, code)
+
+        response.headers.add('PytSite-HTTP-API', version)
+
+        return response
 
     except _http.error.Base as e:
         _logger.warn(_router.current_path() + ': ' + str(e.description), __name__)
-        return _http.response.JSON({'error': str(e.description)}, e.code)
+        response = _http.response.JSON({'error': str(e.description)}, e.code)
+        response.headers.add('PytSite-HTTP-API', version)
+        return response
 
     except Exception as e:
         _logger.error(_router.current_path() + ': ' + str(e), __name__)
-        return _http.response.JSON({'error': str(e)}, 500)
+        response = _http.response.JSON({'error': str(e)}, 500)
+        response.headers.add('PytSite-HTTP-API', version)
+        return response

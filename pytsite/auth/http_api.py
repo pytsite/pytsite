@@ -1,7 +1,7 @@
 """PytSite Auth HTTP API.
 """
 from pytsite import http as _http, events as _events, util as _util, lang as _lang
-from . import _api, _error
+from . import _api, _error, _browser
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -23,7 +23,7 @@ def post_sign_out(inp: dict) -> dict:
     """Sign out user.
     """
     try:
-        _api.sign_out(_api.get_current_user())
+        _api.sign_out(_api.current_user())
 
     except _error.UserNotExist as e:
         raise _http.error.Unauthorized(e)
@@ -43,7 +43,7 @@ def get_user(inp: dict) -> dict:
     """Get information about user.
     """
     try:
-        current_user = _api.get_current_user()
+        current_user = _api.current_user()
 
         uid = inp.get('uid')
         if uid:
@@ -109,7 +109,7 @@ def patch_follow(inp: dict) -> bool:
         raise _http.error.InternalServerError('Insufficient arguments.')
 
     # Is current user authorized
-    current_user = _api.get_current_user()
+    current_user = _api.current_user()
     if current_user.is_anonymous:
         raise _http.error.Unauthorized()
 
@@ -118,11 +118,11 @@ def patch_follow(inp: dict) -> bool:
     if op == 'follow':
         _api.switch_user(user)
         user.add_follower(current_user)
-        user.storage_save()
+        _api.update_entity(user)
         _api.switch_user(current_user)
 
         current_user.add_follows(user)
-        current_user.storage_save()
+        _api.update_entity(current_user)
 
         _events.fire('pytsite.auth.follow', user=user, follower=current_user)
 
@@ -131,11 +131,11 @@ def patch_follow(inp: dict) -> bool:
     elif op == 'unfollow':
         _api.switch_user(user)
         user.remove_follower(current_user)
-        user.storage_save()
+        _api.update_entity(user)
         _api.switch_user(current_user)
 
         current_user.remove_follows(user)
-        current_user.storage_save()
+        _api.update_entity(current_user)
 
         _events.fire('pytsite.auth.unfollow', user=user, follower=current_user)
 
@@ -162,4 +162,14 @@ def get_login_form(inp: dict) -> dict:
 
 
 def is_anonymous(inp: dict) -> bool:
-    return _api.get_current_user().is_anonymous
+    return _api.current_user().is_anonymous
+
+
+def get_admin_browser_rows(inp: dict) -> list:
+    entity_type = inp.get('entity_type')
+    limit = int(inp.get('limit', 10))
+    offset = int(inp.get('offset', 0))
+    sort_field = inp.get('sort')
+    sort_order = inp.get('order')
+
+    return _browser.Browser(entity_type=entity_type).get_rows(offset, limit, sort_field, sort_order)

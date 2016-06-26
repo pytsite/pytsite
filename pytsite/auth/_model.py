@@ -9,9 +9,27 @@ ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 SYSTEM_USER_LOGIN = 'system@system.system'
 
 
-class RoleInterface(_ABC):
+class AuthEntity(_ABC):
+    @property
+    def uid(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    def auth_entity_type(self) -> str:
+        raise NotImplementedError()
+
+
+class AbstractRole(AuthEntity):
     """Role.
     """
+
+    @property
+    def uid(self) -> str:
+        return _util.md5_hex_digest(self.name)
+
+    @property
+    def auth_entity_type(self) -> str:
+        return 'role'
 
     @property
     def name(self) -> str:
@@ -38,12 +56,16 @@ class RoleInterface(_ABC):
         raise NotImplementedError()
 
 
-class UserInterface(_ABC):
+class AbstractUser(AuthEntity):
     """User ODM Model.
     """
     @property
     def uid(self) -> str:
         return _util.md5_hex_digest(self.login)
+
+    @property
+    def auth_entity_type(self) -> str:
+        return 'user'
 
     @property
     def is_anonymous(self) -> bool:
@@ -183,7 +205,7 @@ class UserInterface(_ABC):
         raise NotImplementedError()
 
     @property
-    def status(self) -> bool:
+    def status(self) -> str:
         raise NotImplementedError()
 
     @status.setter
@@ -191,7 +213,7 @@ class UserInterface(_ABC):
         raise NotImplementedError()
 
     @property
-    def roles(self) -> _Tuple[RoleInterface]:
+    def roles(self) -> _Tuple[AbstractRole]:
         from ._api import get_role
         if self.is_anonymous:
             return get_role('anonymous'),
@@ -308,18 +330,6 @@ class UserInterface(_ABC):
     @property
     def profile_edit_url(self) -> str:
         return _router.ep_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
-
-    @_abstractmethod
-    def storage_save(self):
-        pass
-
-    @_abstractmethod
-    def storage_delete(self):
-        pass
-
-    @_abstractmethod
-    def get_profile_edit_form(self):
-        pass
 
     @_abstractmethod
     def add_follower(self, follower):
