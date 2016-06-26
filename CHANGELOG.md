@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.75.3 (2016-06-26)
+### Fixed
+- `content`: performance issue while processing 'body''s `[img]` tags.
+
+
 ## 0.75.2 (2016-06-26)
 ### Fixed
 - `auth`: error while displaying non-existent permissions in admin roles browser.

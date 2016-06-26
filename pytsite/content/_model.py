@@ -22,6 +22,8 @@ def _process_tags(entity, inp: str) -> str:
 
     :type entity: _Union[Block, Content]
     """
+    entity_images = entity.images
+    entity_images_count = len(entity.images)
 
     def process_img_tag(match):
         """Converts single body [img] tag into HTML <img> tag.
@@ -30,10 +32,10 @@ def _process_tags(entity, inp: str) -> str:
         img_index = int(match.group(1))
 
         # Does image exist?
-        if len(entity.images) < img_index:
+        if entity_images_count < img_index:
             return ''
 
-        img = entity.images[img_index - 1]
+        img = entity_images[img_index - 1]
 
         # Additional parameters defaults
         link_orig = False
