@@ -54,6 +54,8 @@ class AuthLog(_odm_ui.model.UIEntity):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
+        browser.default_sort_field = '_created'
+        browser.default_sort_order = 'desc'
         browser.data_fields = ('user', 'ip', 'geo_data', 'description', 'severity', '_created')
 
     def ui_browser_get_row(self) -> tuple:

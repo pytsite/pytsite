@@ -1,4 +1,10 @@
 # PytSite Changelog
+## 0.75.2 (2016-06-26)
+### Fixed
+- `auth`: error while displaying non-existent permissions in admin roles browser.
+- `auth_log`: default sorting column in ODM browser.
+
+
 ## 0.75.1 (2016-06-26)
 ### Changed
 - `widget`: client library of `misc.BootstrapTable` updated from 1.9.1 to 1.10.1.

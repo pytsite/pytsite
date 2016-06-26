@@ -111,6 +111,10 @@ class Browser(_widget.misc.BootstrapTable):
 
                 perms = []
                 for perm_name in r.permissions:
+                    # If permission was renamed or deleted (sometimes it happens), juts ignore it
+                    if not _permission.is_permission_defined(perm_name):
+                        continue
+
                     perm = _permission.get_permission(perm_name)
                     cls = 'label label-default permission-' + perm[0]
                     if perm[0] == 'admin':
