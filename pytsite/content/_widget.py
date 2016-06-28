@@ -1,7 +1,7 @@
 """Content Widgets.
 """
 from pytsite import taxonomy as _taxonomy, auth as _auth, widget as _widget, html as _html, lang as _lang, \
-    router as _router, tpl as _tpl, odm as _odm
+    router as _router, tpl as _tpl, odm as _odm, http_api as _http_api
 from . import _model, _api
 
 __author__ = 'Alexander Shepetko'
@@ -36,10 +36,8 @@ class StatusSelect(_widget.select.Select):
 
 class EntitySelect(_widget.select.Select2):
     def __init__(self, uid: str, **kwargs):
-        kwargs['ajax_url'] = _router.ep_url('pytsite.content@ajax_search', {
-            'model': kwargs.get('model'),
-            'language': kwargs.get('language', _lang.get_current()),
-        })
+        kwargs['ajax_url'] = _http_api.url('pytsite.content@widget_entity_select_search', model=kwargs.get('model'),
+                                           language=kwargs.get('language', _lang.get_current()))
 
         super().__init__(uid, **kwargs)
 

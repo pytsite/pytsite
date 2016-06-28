@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.75.6 (2016-06-28)
+### Fixed
+- `content`: broken AJAX requests handling in `widget.EntitySelect`.
+
+
 ## 0.75.5 (2016-06-28)
 ### Fixed
 - `content`: comments count recalculation.
