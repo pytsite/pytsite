@@ -1,4 +1,10 @@
 # PytSite Changelog
+## 0.75.4 (2016-06-28)
+### Fixed
+- `content`: comments count recalculation.
+- `http_api`: response MIME type in case of simple string returned by endpoint.
+
+
 ## 0.75.3 (2016-06-26)
 ### Fixed
 - `content`: performance issue while processing 'body''s `[img]` tags.

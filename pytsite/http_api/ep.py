@@ -35,7 +35,7 @@ def entry(args: dict, inp: dict):
 
         # Simple string should be returned as text/html
         if isinstance(r, str):
-            response = _http.response.Response(r, code)
+            response = _http.response.Response(r, code, mimetype='text/html')
         else:
             response = _http.response.JSON(r, code)
 

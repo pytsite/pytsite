@@ -91,6 +91,9 @@ def view(args: dict, inp: dict):
         if not entity.perm_check('modify'):
             raise _http.error.NotFound()
 
+    # Update entity's comments count
+    entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url()))
+
     # Meta title
     if entity.has_field('title'):
         title = entity.title

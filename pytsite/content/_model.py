@@ -385,7 +385,7 @@ class Content(Base):
         self.define_field(_odm.field.Ref('section', model='section'))
         self.define_field(_odm.field.Bool('starred'))
         self.define_field(_odm.field.Integer('views_count'))
-        self.define_field(_odm.field.Virtual('comments_count'))
+        self.define_field(_odm.field.Integer('comments_count'))
         self.define_field(_odm.field.StringList('ext_links'))
 
         for lng in _lang.langs():
@@ -512,9 +512,6 @@ class Content(Base):
         """
         if field_name == 'tags' and kwargs.get('as_string'):
             return ','.join([tag.title for tag in self.f_get('tags')])
-
-        elif field_name == 'comments_count':
-            return _comments.get_all_comments_count(self.ui_view_url())
 
         else:
             return super()._on_f_get(field_name, value, **kwargs)
