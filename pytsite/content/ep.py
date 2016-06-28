@@ -92,7 +92,7 @@ def view(args: dict, inp: dict):
             raise _http.error.NotFound()
 
     # Update entity's comments count
-    entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url()))
+    entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save()
 
     # Meta title
     if entity.has_field('title'):

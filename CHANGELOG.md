@@ -1,4 +1,9 @@
 # PytSite Changelog
+## 0.75.5 (2016-06-28)
+### Fixed
+- `content`: comments count recalculation.
+
+
 ## 0.75.4 (2016-06-28)
 ### Fixed
 - `content`: comments count recalculation.
