@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Auth(_widget.Base):
+class Auth(_widget.Abstract):
     """Facebook Authorization Widget.
     """
     def __init__(self, uid: str, **kwargs):
@@ -124,7 +124,7 @@ class Auth(_widget.Base):
         return self._group_wrap(container.get_html_em())
 
 
-class Comments(_widget.Base):
+class Comments(_widget.Abstract):
     """Facebook Comments Widget.
     """
     def __init__(self, uid: str, **kwargs):

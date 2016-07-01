@@ -161,7 +161,7 @@ class Language(Select):
             self._items.append((code, _lang.lang_title(code)))
 
 
-class LanguageNav(_base.Base):
+class LanguageNav(_base.Abstract):
     """Language Nav Widget.
     """
 
@@ -275,7 +275,7 @@ class DateTime(_input.Text):
         return self._group_wrap(html_input)
 
 
-class Score(_base.Base):
+class Score(_base.Abstract):
     def __init__(self, uid: str, **kwargs):
         kwargs['default'] = kwargs.get('default', 3)
 

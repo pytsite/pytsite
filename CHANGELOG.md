@@ -1,4 +1,31 @@
 # PytSite Changelog
+## 0.76 (2016-07-01)
+
+### Added
+- `auth`:
+    - New API functions: `base_path()`, `first_admin_user()`, `get_user_select_widget()`.
+    - New exceptions: `RoleModifyForbidden`, `RoleDeleteForbidden`, `NoAdminUser`.
+- `content`: permission check in 'view' endpoint.
+- `http_api`: new function: `call_ep()`.
+- `router`: optional redirect instruction inside exceptions.
+- `image`: HTTP API endpoint for uploading.
+
+### Changed
+- `auth`: part of logic moved to `auth_storage_odm`. 
+- `widget`: `Base` renamed to `Abstract`.
+- `file`: file uploading via HTTP API slightly refactored.
+- `form`: fully moved from `js_api` to `http_api`.
+- `odm`: all arguments of `model.Entity.save()` are optional now.
+
+### Fixed
+- `admin`: automatic permission check and redirect for non-authenticated users.
+- `auth_google`, `auth_ulogin`: user picture downloading and nickname generation.
+- `content`: permissions issue while counting entity views.
+- `odm`: cache keys missing error in finder.
+- `odm_auth`: error in `is_perm_check_enabled()`. 
+- `widget`: language and cookies settings in `misc.BootstrapTable`.
+
+
 ## 0.75.6 (2016-06-28)
 ### Fixed
 - `content`: broken AJAX requests handling in `widget.EntitySelect`.

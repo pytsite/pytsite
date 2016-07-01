@@ -272,7 +272,7 @@ class Base(_odm_ui.model.UIEntity):
         if self.has_field('images'):
             for img in self.images:
                 if not img.attached_to:
-                    img.f_set('attached_to', self)
+                    img.attached_to = self
                 if not img.owner:
                     img.f_set('owner', self.author)
                 img.save()
@@ -295,7 +295,7 @@ class Base(_odm_ui.model.UIEntity):
         browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
 
         browser.default_sort_field = '_modified'
-        browser.data_fields = ('title',)
+        browser.insert_data_field('title', 'pytsite.content@title')
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -353,7 +353,7 @@ class Base(_odm_ui.model.UIEntity):
         if _auth.current_user().is_admin:
             # Author
             if self.has_field('author'):
-                frm.add_widget(_auth.widget.UserSelect(
+                frm.add_widget(_auth.get_user_select_widget(
                     uid='author',
                     weight=1000,
                     label=self.t('author'),
@@ -602,34 +602,29 @@ class Content(Base):
             browser.default_sort_field = 'publish_time'
             browser.default_sort_order = 'desc'
 
-        # Title
-        data_fields = ['title']
-
         # Section
         if mock.has_field('section'):
-            data_fields.append('section')
+            browser.insert_data_field('section', 'pytsite.content@section')
 
         # Starred
         if mock.has_field('starred'):
-            data_fields.append('starred')
+            browser.insert_data_field('starred', 'pytsite.content@starred')
 
         # Status
         if mock.has_field('status'):
-            data_fields.append('status')
+            browser.insert_data_field('status', 'pytsite.content@status')
 
         # Images
         if mock.has_field('images'):
-            data_fields.append('images')
+            browser.insert_data_field('images', 'pytsite.content@images')
 
         # Publish time
         if mock.has_field('publish_time'):
-            data_fields.append('publish_time')
+            browser.insert_data_field('publish_time', 'pytsite.content@publish_time')
 
         # Author
         if mock.has_field('author'):
-            data_fields.append('author')
-
-        browser.data_fields = data_fields
+            browser.insert_data_field('author', 'pytsite.content@author')
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.

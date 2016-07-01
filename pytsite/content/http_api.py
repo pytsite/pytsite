@@ -1,6 +1,7 @@
 """PytSite Content HTTP API.
 """
-from pytsite import http as _http, auth as _auth, lang as _lang, validation as _validation, odm as _odm
+from pytsite import http as _http, auth as _auth, lang as _lang, validation as _validation, odm as _odm, \
+    odm_auth as _odm_auth
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -21,7 +22,9 @@ def patch_view_count(inp: dict) -> int:
     if model and eid:
         entity = _api.dispense(model, eid)
         if entity:
-            entity.f_inc('views_count').save(False)
+            _odm_auth.disable_perm_check()
+            entity.f_inc('views_count').save(update_timestamp=False)
+            _odm_auth.enable_perm_check()
             return entity.views_count
 
     return 0

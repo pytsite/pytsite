@@ -1,8 +1,8 @@
-"""PytSIte Authentication ODM Storage Driver.
+"""PytSite Authentication ODM Storage Driver.
 """
 from typing import Iterable as _Iterable, Union as _Union
-from pytsite import auth as _auth, odm as _odm, form as _form, odm_ui as _odm_ui
-from . import _model
+from pytsite import auth as _auth, odm as _odm, form as _form, odm_ui as _odm_ui, widget as _widget
+from . import _model, _widget as _auth_storage_odm_widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -62,13 +62,11 @@ class Driver(_auth.driver.Storage):
         user.email = login
         user.password = password
 
-        if not user.is_anonymous and not user.is_system:
-            user.save()
-
         return user
 
     def get_user(self, login: str = None, nickname: str = None, access_token: str = None,
                  uid: str = None) -> _auth.model.AbstractUser:
+
         # Don't cache finder results due to frequent user updates in database
         f = _odm.find('user').cache(0)
         if login is not None:
@@ -152,8 +150,11 @@ class Driver(_auth.driver.Storage):
     def delete_entity(self, entity: _Union[_auth.model.AuthEntity, _model.User, _model.Role]):
         entity.delete()
 
-    def get_user_modfy_form(self, user: _auth.model.AbstractUser = None) -> _form.Form:
+    def get_user_modify_form(self, user: _auth.model.AbstractUser = None) -> _form.Form:
         return _odm_ui.get_m_form('user', user.uid) if user else _odm_ui.get_m_form('user')
 
     def get_role_modify_form(self, role: _auth.model.AbstractRole = None) -> _form.Form:
         return _odm_ui.get_m_form('role', role.uid) if role else _odm_ui.get_m_form('role')
+
+    def get_user_select_widget(self, uid: str, **kwargs) -> _widget.Abstract:
+        return _auth_storage_odm_widget.UserSelect(uid, **kwargs)

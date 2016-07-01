@@ -28,7 +28,7 @@ class Driver(_content_export.AbstractDriver):
         """
         return 'pytsite.fb@facebook'
 
-    def get_settings_widget(self, driver_options: _frozendict) -> _widget.Base:
+    def get_settings_widget(self, driver_options: _frozendict) -> _widget.Abstract:
         """Get settings widget.
         """
         return _FacebookAuthWidget(

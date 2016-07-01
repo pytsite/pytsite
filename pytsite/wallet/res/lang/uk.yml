@@ -1,7 +1,7 @@
 wallet: 'Wallet'
 accounts: 'Рахунки'
 transactions: 'Транзакції'
-_id: 'Id'
+id: 'Id'
 description: 'Опис'
 title: 'Назва'
 currency: 'Валюта'

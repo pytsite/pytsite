@@ -2,14 +2,14 @@
 """
 import requests as _requests
 from pytsite import auth as _auth, form as _form, widget as _widget, html as _html, reg as _reg, lang as _lang, \
-    browser as _browser
+    browser as _browser, image as _image
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class _SignInWidget(_widget.Base):
+class _SignInWidget(_widget.Abstract):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -97,6 +97,8 @@ class Google(_auth.driver.Authentication):
         # Try to load user
         try:
             user = _auth.get_user(google_data.get('email'))
+            is_new_user = False
+
         except _auth.error.UserNotExist:
             # Try to create new user
             if not _reg.get('auth.signup.enabled'):
@@ -107,14 +109,18 @@ class Google(_auth.driver.Authentication):
 
                 # Create new user
                 user = _auth.create_user(google_data.get('email'))
+                is_new_user = True
 
         # As soon as user created or loaded, set it as current
         _auth.switch_user(user)
 
         # Picture
-        if not user.picture:
-            from pytsite import image
-            user.picture = image.create(google_data.get('picture'))
+        if is_new_user and 'picture' in google_data and google_data['picture']:
+            current_pic = user.picture
+            user.picture = _image.create(google_data['picture'])
+            user.picture.attached_to = user
+            user.picture.save()
+            current_pic.delete()
 
         # Name
         if not user.first_name:
@@ -123,7 +129,7 @@ class Google(_auth.driver.Authentication):
             user.last_name = google_data.get('family_name')
 
         # Alter nickname
-        if user.is_new:
+        if is_new_user:
             user.nickname = user.full_name
 
         return user

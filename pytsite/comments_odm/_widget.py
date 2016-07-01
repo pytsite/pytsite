@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Comments(_pytsite_widget.Base):
+class Comments(_pytsite_widget.Abstract):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

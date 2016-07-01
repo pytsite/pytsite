@@ -55,6 +55,10 @@ class File(_odm_auth.model.PermissableEntity):
     def attached_to(self) -> _odm.model.Entity:
         return self.f_get('attached_to')
 
+    @attached_to.setter
+    def attached_to(self, value: _odm.model.Entity):
+        self.f_set('attached_to', value)
+
     @property
     def abs_path(self) -> str:
         return self.f_get('abs_path')

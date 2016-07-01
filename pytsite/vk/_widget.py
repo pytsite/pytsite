@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Auth(_widget.Base):
+class Auth(_widget.Abstract):
     """Twitter oAuth Widget.
     """
     def __init__(self, uid: str, **kwargs):

@@ -2,7 +2,7 @@
 """
 from typing import Iterable as _Iterable
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import form as _form
+from pytsite import form as _form, widget as _widget
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -99,9 +99,13 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def get_user_modfy_form(self, user: _model.AbstractUser = None) -> _form.Form:
+    def get_user_modify_form(self, user: _model.AbstractUser = None) -> _form.Form:
         pass
 
     @_abstractmethod
     def get_role_modify_form(self, role: _model.AbstractRole = None) -> _form.Form:
+        pass
+
+    @_abstractmethod
+    def get_user_select_widget(self, uid: str, **kwargs) -> _widget.Abstract:
         pass

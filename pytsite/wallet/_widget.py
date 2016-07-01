@@ -32,7 +32,7 @@ class AccountSelect(_w.select.Select):
         super().__init__(uid, items=items, **kwargs)
 
 
-class MoneyInput(_w.Base):
+class MoneyInput(_w.Abstract):
     """Money Input Widget
     """
 

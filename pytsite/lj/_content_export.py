@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class _SettingsWidget(_widget.Base):
+class _SettingsWidget(_widget.Abstract):
     """LiveJournal content_export Settings Widget.
      """
     def __init__(self, uid: str, **kwargs):
@@ -84,7 +84,7 @@ class Driver(_content_export.AbstractDriver):
         """
         return driver_options.get('username')
 
-    def get_settings_widget(self, driver_opts: _frozendict) -> _widget.Base:
+    def get_settings_widget(self, driver_opts: _frozendict) -> _widget.Abstract:
         """Add widgets to the settings form of the driver.
         """
         return _SettingsWidget(

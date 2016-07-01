@@ -5,14 +5,14 @@ from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, router as _router, \
-    html as _html, auth as _auth
+    html as _html, auth as _auth, image as _image
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class _LoginWidget(_widget.Base):
+class _LoginWidget(_widget.Abstract):
     """ULogin Widget.
     """
     def __init__(self, uid: str, **kwargs):
@@ -95,6 +95,7 @@ class ULogin(_auth.driver.Authentication):
 
         try:
             user = _auth.get_user(email)
+            is_new_user = False
 
         except _auth.error.UserNotExist:
             # User is not exists and its creation is not allowed
@@ -106,18 +107,23 @@ class ULogin(_auth.driver.Authentication):
 
                 # Create new user
                 user = _auth.create_user(email)
+                is_new_user = True
 
         # As soon as user created or loaded, set it as current
         _auth.switch_user(user)
 
         # Picture
-        if not user.picture:
+        if is_new_user:
+            current_pic = user.picture
             picture_url = ulogin_data.get('photo_big')
             if not picture_url:
                 picture_url = ulogin_data.get('photo')
+
             if picture_url:
-                from pytsite import image
-                user.picture = image.create(picture_url)
+                user.picture = _image.create(picture_url)
+                user.picture.attached_to = user
+                user.picture.save()
+                current_pic.delete()
 
         # Name
         if not user.first_name and 'first_name' in ulogin_data:
@@ -126,7 +132,7 @@ class ULogin(_auth.driver.Authentication):
             user.last_name = ulogin_data['last_name']
 
         # Alter nickname
-        if user.is_new:
+        if is_new_user:
             user.nickname = user.full_name
 
         # Gender

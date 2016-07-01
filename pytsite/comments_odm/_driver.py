@@ -25,7 +25,7 @@ class ODM(_comments.driver.Abstract):
         """
         pass
 
-    def get_widget(self, widget_uid: str, thread_id: str) -> _widget.Base:
+    def get_widget(self, widget_uid: str, thread_id: str) -> _widget.Abstract:
         """Get comments widget for particular thread.
         """
         return CommentsWidget(widget_uid, thread_id=thread_id)

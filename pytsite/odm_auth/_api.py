@@ -13,7 +13,7 @@ _disable_perm_check = {}
 
 
 def is_perm_check_enabled() -> bool:
-    return _threading.get_id() in _disable_perm_check
+    return _threading.get_id() not in _disable_perm_check
 
 
 def disable_perm_check():
@@ -21,8 +21,9 @@ def disable_perm_check():
 
 
 def enable_perm_check():
-    if is_perm_check_enabled():
-        del _disable_perm_check[_threading.get_id()]
+    tid = _threading.get_id()
+    if tid in _disable_perm_check:
+        del _disable_perm_check[tid]
 
 
 def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:

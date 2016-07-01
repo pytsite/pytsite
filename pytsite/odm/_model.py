@@ -616,9 +616,11 @@ class Entity(_ABC):
 
         return self
 
-    def save(self, update_timestamp: bool = True):
+    def save(self, **kwargs):
         """Save the entity.
         """
+        update_timestamp = kwargs.get('update_timestamp', True)
+
         # Don't save entity if it wasn't changed
         if not self._is_modified:
             return self
@@ -684,7 +686,7 @@ class Entity(_ABC):
             # Save children with updated '_parent' field
             for child in self.children:
                 if child.is_modified:
-                    child.save(False)
+                    child.save(update_timestamp=False)
 
         finally:
             if not self._is_new:

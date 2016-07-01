@@ -1,7 +1,7 @@
 """Pytsite Content Endpoints.
 """
 from datetime import datetime as _datetime
-from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, \
+from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, odm_auth as _odm_auth, \
     router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
     lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments
 
@@ -83,6 +83,10 @@ def view(args: dict, inp: dict):
     if not entity:
         raise _http.error.NotFound()
 
+    # Check permissions
+    if not entity.perm_check('view'):
+        raise _http.error.Forbidden()
+
     # Show non published entities only who can edit them
     if entity.has_field('publish_time') and entity.publish_time > _datetime.now():
         if not entity.perm_check('modify'):
@@ -92,7 +96,9 @@ def view(args: dict, inp: dict):
             raise _http.error.NotFound()
 
     # Update entity's comments count
+    _odm_auth.disable_perm_check()
     entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save()
+    _odm_auth.enable_perm_check()
 
     # Meta title
     if entity.has_field('title'):

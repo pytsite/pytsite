@@ -116,7 +116,7 @@ pytsite.form = {
             data['__form_data_step'] = self.currentStep;
             data['__form_data_location'] = formLocation;
 
-            return pytsite.jsApi.request(method, ep, data)
+            return pytsite.httpApi.request(method, ep, data)
                 .fail(function (resp) {
                     if ('responseJSON' in resp && 'error' in resp.responseJSON)
                         self.addMessage(resp.responseJSON.error, 'danger');

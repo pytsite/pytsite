@@ -1,7 +1,7 @@
 """PytSite Auth HTTP API.
 """
-from pytsite import http as _http, events as _events, util as _util, lang as _lang
-from . import _api, _error, _browser
+from pytsite import http as _http, events as _events, util as _util, assetman as _assetman
+from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -118,11 +118,11 @@ def patch_follow(inp: dict) -> bool:
     if op == 'follow':
         _api.switch_user(user)
         user.add_follower(current_user)
-        _api.update_entity(user)
+        user.save()
         _api.switch_user(current_user)
 
         current_user.add_follows(user)
-        _api.update_entity(current_user)
+        current_user.save()
 
         _events.fire('pytsite.auth.follow', user=user, follower=current_user)
 
@@ -131,11 +131,11 @@ def patch_follow(inp: dict) -> bool:
     elif op == 'unfollow':
         _api.switch_user(user)
         user.remove_follower(current_user)
-        _api.update_entity(user)
+        user.save()
         _api.switch_user(current_user)
 
         current_user.remove_follows(user)
-        _api.update_entity(current_user)
+        current_user.save()
 
         _events.fire('pytsite.auth.unfollow', user=user, follower=current_user)
 
@@ -161,15 +161,5 @@ def get_login_form(inp: dict) -> dict:
     }
 
 
-def is_anonymous(inp: dict) -> bool:
+def get_is_anonymous(inp: dict) -> bool:
     return _api.current_user().is_anonymous
-
-
-def get_admin_browser_rows(inp: dict) -> list:
-    entity_type = inp.get('entity_type')
-    limit = int(inp.get('limit', 10))
-    offset = int(inp.get('offset', 0))
-    sort_field = inp.get('sort')
-    sort_order = inp.get('order')
-
-    return _browser.Browser(entity_type=entity_type).get_rows(offset, limit, sort_field, sort_order)

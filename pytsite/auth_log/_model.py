@@ -56,7 +56,14 @@ class AuthLog(_odm_ui.model.UIEntity):
         """
         browser.default_sort_field = '_created'
         browser.default_sort_order = 'desc'
-        browser.data_fields = ('user', 'ip', 'geo_data', 'description', 'severity', '_created')
+        browser.data_fields = [
+            ('user', 'pytsite.auth_log@user'),
+            ('ip', 'pytsite.auth_log@ip'),
+            ('geo_data', 'pytsite.auth_log@geo_data', False),
+            ('description', 'pytsite.auth_log@description', False),
+            ('severity', 'pytsite.auth_log@severity'),
+            ('_created', 'pytsite.auth_log@created'),
+        ]
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.

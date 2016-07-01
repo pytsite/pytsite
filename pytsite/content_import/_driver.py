@@ -107,7 +107,7 @@ class RSS(Abstract):
                         entity.f_set('section', s)
                         break
 
-                # Set default section which has been chosen at the seetings form
+                # Set default section which has been chosen at the settings form
                 if not entity.section:
                     entity.f_set('section', o['content_section'])
 

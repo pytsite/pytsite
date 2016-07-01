@@ -13,6 +13,6 @@ pytsite.auth = {
     },
 
     isAnonymous: function () {
-        return pytsite.jsApi.get('pytsite.auth@is_anonymous');
+        return pytsite.httpApi.get('pytsite.auth@is_anonymous');
     }
 };

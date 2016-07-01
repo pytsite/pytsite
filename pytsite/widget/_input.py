@@ -9,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Input(_base.Base):
+class Input(_base.Abstract):
     """Abstract Input Widget.
     """
     def __init__(self, uid: str, **kwargs):
@@ -47,7 +47,7 @@ class Hidden(Input):
         )
 
 
-class TextArea(_base.Base):
+class TextArea(_base.Abstract):
     """Text Area Input Widget.
     """
     def __init__(self, uid: str, **kwargs):
@@ -243,7 +243,7 @@ class Decimal(Number):
         return super().set_val(float(value), **kwargs)
 
 
-class StringList(_base.Base):
+class StringList(_base.Abstract):
     """List of strings widget.
     """
     def __init__(self, uid: str, **kwargs):

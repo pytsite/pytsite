@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Button(_base.Base):
+class Button(_base.Abstract):
     """Button.
     """
 

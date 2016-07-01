@@ -1,9 +1,8 @@
 """PytSite ODM Entities Browser.
 """
-from typing import Callable as _Callable, Union as _Union
-from pytsite import auth, router as _router, assetman as _assetman, metatag as _metatag, \
-    odm as _odm, lang as _lang, http as _http, html as _html, http_api as _http_api, odm_auth as _odm_auth, \
-    odm_ui as _odm_ui, widget as _widget
+from typing import Callable as _Callable
+from pytsite import auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
+    html as _html, http_api as _http_api, odm_auth as _odm_auth, odm_ui as _odm_ui, widget as _widget
 from . import _api
 
 
@@ -93,28 +92,6 @@ class Browser(_widget.misc.BootstrapTable):
         """Get browser entities model.
         """
         return self._model
-
-    @property
-    def data_fields(self) -> list:
-        """Get browser data fields.
-        """
-        return self._data_fields
-
-    @data_fields.setter
-    def data_fields(self, value: _Union[tuple, list]):
-        """Set browser data fields.
-        """
-        if not isinstance(value, (tuple, list)):
-            raise TypeError('Tuple or list expected.')
-
-        self._data_fields = []
-        for f in value:
-            if isinstance(f, str):
-                self._data_fields.append((f, self._model_class.t(f)))
-            elif isinstance(f, tuple) and len(f) == 2:
-                self._data_fields.append((f[0], self._model_class.t(f[1])))
-            else:
-                raise TypeError('Invalid format of data field definition.')
 
     @property
     def finder_adjust(self) -> _Callable:

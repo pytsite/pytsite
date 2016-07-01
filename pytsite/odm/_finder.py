@@ -203,13 +203,16 @@ class Finder:
         query = self._query.compile()
 
         # Search for previous result in cache
-        if _reg.get('odm.cache.enabled', True) and self._cache_ttl and self._cache_pool.has(self.id):
-            ids = self._cache_pool.get(self.id)
-            if _dbg:
-                _logger.debug("GET cached query results: query: {}, {}, id: {}, entities: {}.".
-                              format(self.model, self.query.compile(), self.id, len(ids)), __name__)
+        if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
+            try:
+                ids = self._cache_pool.get(self.id)
+                if _dbg:
+                    _logger.debug("GET cached query results: query: {}, {}, id: {}, entities: {}.".
+                                  format(self.model, self.query.compile(), self.id, len(ids)), __name__)
+                return Result(self._model, ids=ids)
 
-            return Result(self._model, ids=ids)
+            except _cache.error.KeyNotExist:
+                pass
 
         cursor = self._mock.collection.find(
             filter=query,

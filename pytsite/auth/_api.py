@@ -3,9 +3,8 @@
 from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
 from datetime import datetime as _datetime
-from pytsite import reg as _reg, form as _form, lang as _lang, router as _router, cache as _cache, \
-    events as _events, validation as _validation, logger as _logger, util as _util, \
-    threading as _threading
+from pytsite import reg as _reg, form as _form, lang as _lang, router as _router, cache as _cache, widget as _widget, \
+    events as _events, validation as _validation, logger as _logger, util as _util, threading as _threading
 from . import _error, _model, _driver
 
 __author__ = 'Alexander Shepetko'
@@ -39,6 +38,10 @@ def verify_password(clear_text: str, hashed: str) -> bool:
     """
     from werkzeug.security import check_password_hash
     return check_password_hash(str(hashed), str(clear_text))
+
+
+def base_path() -> str:
+    return _reg.get('auth.routes.base_path', '/auth')
 
 
 def register_auth_driver(driver: _driver.Authentication):
@@ -139,30 +142,9 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
                     roles.append(role)
             user.roles = roles
 
-            update_entity(user)
-
-        # Notify listeners about user creation
-        _events.fire('pytsite.auth.user.create', user=user)
+            user.save()
 
         return user
-
-
-def update_entity(user: _model.AuthEntity):
-    """Update user.
-    """
-    with _threading.get_r_lock():
-        _events.fire('pytsite.auth.user.pre_update', user=user)
-        get_storage_driver().update_entity(user)
-        _events.fire('pytsite.auth.user.update', user=user)
-
-
-def delete_entity(entity: _model.AuthEntity):
-    """Delete user.
-    """
-    with _threading.get_r_lock():
-        _events.fire('pytsite.auth.pre_delete.' + entity.auth_entity_type, entity=entity)
-        get_storage_driver().delete_entity(entity)
-        _events.fire('pytsite.auth.delete.' + entity.auth_entity_type, entity=entity)
 
 
 def get_user(login: str = None, nickname: str = None, access_token: str = None, uid: str = None,
@@ -181,6 +163,17 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
             raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
 
         return user
+
+
+def first_admin_user() -> _model.AbstractUser:
+    """Get first created user which has 'admin' role.
+    """
+    users = list(get_users({'roles': [get_role('admin')]}, sort_field='created', limit=1))
+
+    if not users:
+        raise _error.NoAdminUser('No admin user created yet.')
+
+    return users[0]
 
 
 def get_anonymous_user() -> _model.AbstractUser:
@@ -236,14 +229,14 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
         # Generate new token or prolong existing one
         if not _access_tokens.has(user.access_token):
             user.access_token = create_access_token(user.uid, data.get('access_token_ttl', 3600))
-            update_entity(user)
+            user.save()
         else:
             prolong_access_token(user.access_token)
 
         # Update statistics
         user.sign_in_count += 1
         user.last_sign_in = _datetime.now()
-        update_entity(user)
+        user.save()
 
         if _router.request():
             # Set session marker
@@ -256,7 +249,7 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
             if not user.city and user.geo_ip.city:
                 user.city = user.geo_ip.city
 
-            update_entity(user)
+            user.save()
 
         # Login event
         _events.fire('pytsite.auth.sign_in', user=user)
@@ -374,25 +367,41 @@ def get_sign_out_url(auth_driver_name: str = None) -> str:
 
 def get_users(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
               skip: int = 0) -> _Iterable[_model.AbstractUser]:
+    """Get users iterable.
+    """
     return get_storage_driver().get_users(flt, sort_field, sort_order, limit, skip)
 
 
 def get_roles(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
               skip: int = 0) -> _Iterable[_model.AbstractRole]:
+    """Get roles iterable.
+    """
     return get_storage_driver().get_roles(flt, sort_field, sort_order, limit, skip)
 
 
 def count_users(flt: dict = None) -> int:
+    """Count users.
+    """
     return get_storage_driver().count_users(flt)
 
 
 def count_roles(flt: dict = None) -> int:
+    """Count roles.
+    """
     return get_storage_driver().count_roles(flt)
 
 
-def get_user_modify_form(user: _model.AbstractUser = None) -> _form.Form:
-    return get_storage_driver().get_user_modfy_form(user)
+def get_user_modify_form(user: _model.AbstractUser) -> _form.Form:
+    """Get user modification form.
+    """
+    return get_storage_driver().get_user_modify_form(user)
 
 
-def get_role_modify_form(role: _model.AbstractRole = None) -> _form.Form:
+def get_role_modify_form(role: _model.AbstractRole) -> _form.Form:
+    """Get role modification form.
+    """
     return get_storage_driver().get_role_modify_form(role)
+
+
+def get_user_select_widget(uid: str, **kwargs) -> _widget.Abstract:
+    return get_storage_driver().get_user_select_widget(uid, **kwargs)

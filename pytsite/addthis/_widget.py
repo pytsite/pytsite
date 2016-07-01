@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class AddThis(_widget.Base):
+class AddThis(_widget.Abstract):
     """AddThis Widget.
     """
     def __init__(self, uid: str, **kwargs):

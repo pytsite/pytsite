@@ -29,7 +29,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_settings_widget(self, driver_options: _frozendict) -> _widget.Base:
+    def get_settings_widget(self, driver_options: _frozendict) -> _widget.Abstract:
         """Add widgets to the settings form of the driver.
         """
         pass

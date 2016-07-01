@@ -103,6 +103,7 @@ class Image(_file.model.File):
 
         elif field_name == 'thumb_url':
             return self.f_get('url', width=int(kwargs.get('width', 450)), height=int(kwargs.get('height', 450)))
+
         else:
             return super()._on_f_get(field_name, value, **kwargs)
 

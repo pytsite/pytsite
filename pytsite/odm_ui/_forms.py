@@ -64,9 +64,7 @@ class Modify(_form.Form):
 
         # Default redirect
         if not self._redirect:
-            self._redirect = _router.request().inp.get('__redirect')
-            if not self._redirect:
-                self._redirect = 'ENTITY_VIEW'
+            self._redirect = 'ENTITY_VIEW'
 
         # Action URL
         self._action = _router.ep_url('pytsite.odm_ui@m_form_submit', {

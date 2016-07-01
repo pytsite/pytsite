@@ -1,6 +1,7 @@
 """PytSite HTTP API Endpoints.
 """
-from pytsite import router as _router, http as _http, logger as _logger, util as _util
+from pytsite import router as _router, http as _http, logger as _logger
+from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,34 +14,23 @@ def entry(args: dict, inp: dict):
     callback = args.pop('callback')
     method = _router.request().method.lower()
 
-    callback_obj = None
-
-    # Searching for callable endpoint
-    for v in ('v' + str(version) + '_', ''):
-        try:
-            callback_obj = _util.get_callable('{}.http_api.{}{}_{}'.format(package, v, method, callback))
-            break
-        except ImportError:
-            pass
-
     try:
-        if callback_obj is None:
-            raise _http.error.NotFound('Endpoint not found')
-
-        code = 200
-        r = callback_obj(inp)
-        if isinstance(r, dict) and 'code' in r and 'response' in r:
-            code = r['code']
-            r = r['response']
+        status, r = _api.call_ep('{}@{}'.format(package, callback), method, inp, version)
 
         # Simple string should be returned as text/html
         if isinstance(r, str):
-            response = _http.response.Response(r, code, mimetype='text/html')
+            response = _http.response.Response(r, status, mimetype='text/html')
         else:
-            response = _http.response.JSON(r, code)
+            response = _http.response.JSON(r, status)
 
         response.headers.add('PytSite-HTTP-API', version)
 
+        return response
+
+    except _error.EndpointNotFound as e:
+        _logger.warn(_router.current_path() + ': ' + str(e), __name__)
+        response = _http.response.JSON({'error': str(e)}, 404)
+        response.headers.add('PytSite-HTTP-API', version)
         return response
 
     except _http.error.Base as e:

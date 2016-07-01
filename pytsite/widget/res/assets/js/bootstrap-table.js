@@ -43,6 +43,8 @@ $(window).on('pytsite.widget.init:pytsite.widget._misc.BootstrapTable', function
         });
     });
 
+    browser.find('table').bootstrapTable();
+
     // Show/hide mass action buttons
     updateMassActionButtons();
     browser.on('check.bs.table', updateMassActionButtons);

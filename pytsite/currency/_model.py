@@ -48,7 +48,12 @@ class Rate(_odm_ui.model.UIEntity):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = ('date', 'source', 'destination', 'rate')
+        browser.data_fields = [
+            ('date', 'pytsite.currency@date'),
+            ('source', 'pytsite.currency@source'),
+            ('destination', 'pytsite.currency@destination'),
+            ('rate', 'pytsite.currency@rate'),
+        ]
         browser.default_sort_field = 'date'
 
     def ui_browser_get_row(self) -> tuple:

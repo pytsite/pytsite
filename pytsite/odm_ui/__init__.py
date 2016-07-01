@@ -27,14 +27,16 @@ def _init():
     router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form submit
-    router.add_rule(abp + '/odm_ui/<model>/modify/<id>/submit', 'pytsite.odm_ui@m_form_submit', methods='POST',
+    # IMPORTANT: admin path prefix is not used here.
+    router.add_rule('/odm_ui/<model>/modify/<id>/submit', 'pytsite.odm_ui@m_form_submit', methods='POST',
                     filters=auth_filter)
 
     # Route: 'delete' form show
     router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', filters=auth_filter)
 
     # Route: 'delete' form submit
-    router.add_rule(abp + '/odm_ui/<model>/delete/submit', 'pytsite.odm_ui@d_form_submit', filters=auth_filter)
+    # IMPORTANT: admin path prefix is not used here.
+    router.add_rule('/odm_ui/<model>/delete/submit', 'pytsite.odm_ui@d_form_submit', filters=auth_filter)
 
     # Resources
     lang.register_package(__name__)

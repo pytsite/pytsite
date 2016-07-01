@@ -15,8 +15,16 @@ class AuthEntity(_ABC):
         raise NotImplementedError()
 
     @property
-    def auth_entity_type(self) -> str:
+    def is_new(self) -> bool:
         raise NotImplementedError()
+
+    @_abstractmethod
+    def save(self):
+        pass
+
+    @_abstractmethod
+    def delete(self):
+        pass
 
 
 class AbstractRole(AuthEntity):
@@ -26,6 +34,10 @@ class AbstractRole(AuthEntity):
     @property
     def uid(self) -> str:
         return _util.md5_hex_digest(self.name)
+
+    @property
+    def is_new(self) -> bool:
+        raise NotImplementedError()
 
     @property
     def auth_entity_type(self) -> str:
@@ -64,6 +76,10 @@ class AbstractUser(AuthEntity):
         return _util.md5_hex_digest(self.login)
 
     @property
+    def is_new(self) -> bool:
+        raise NotImplementedError()
+
+    @property
     def auth_entity_type(self) -> str:
         return 'user'
 
@@ -95,10 +111,6 @@ class AbstractUser(AuthEntity):
             return _geo_ip.resolve(self.last_ip)
         except _geo_ip.error.ResolveError:
             return _geo_ip.resolve('0.0.0.0')
-
-    @property
-    def is_new(self) -> bool:
-        raise NotImplementedError()
 
     @property
     def created(self) -> _datetime:

@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class HTML(_base.Base):
+class HTML(_base.Abstract):
     """Wrapper widget for pytsite.html.Element instances.
     """
 
@@ -29,7 +29,7 @@ class HTML(_base.Base):
         return self._em
 
 
-class Text(_base.Base):
+class Text(_base.Abstract):
     """Static Text Widget.
     """
 
@@ -50,7 +50,7 @@ class Text(_base.Base):
         return self._group_wrap(container)
 
 
-class Tabs(_base.Base):
+class Tabs(_base.Abstract):
     """Tabs Widget.
     """
 
@@ -89,7 +89,7 @@ class Tabs(_base.Base):
         return self._group_wrap(wrapper)
 
 
-class VideoPlayer(_base.Base):
+class VideoPlayer(_base.Abstract):
     """Video player widget.
     """
 
@@ -148,7 +148,7 @@ class VideoPlayer(_base.Base):
         raise ValueError(_html.Div('Invalid video link: ' + url))
 
 
-class Pager(_base.Base):
+class Pager(_base.Abstract):
     """Pager Widget.
     """
 

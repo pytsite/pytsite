@@ -5,7 +5,7 @@ from typing import Iterable as _Iterable, Tuple as _Tuple, List as _List, Union 
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
-    admin as _admin, permission as _permission, http as _http, image as _image
+    admin as _admin, permission as _permission, http as _http, image as _image, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -16,6 +16,10 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
     @property
     def uid(self) -> str:
         return str(self.id)
+
+    @property
+    def is_new(self) -> bool:
+        return _odm_ui.model.UIEntity.is_new.fget(self)
 
     @property
     def name(self) -> str:
@@ -37,6 +41,24 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
     def permissions(self) -> _Iterable[str]:
         return self.f_get('permissions')
 
+    def save(self):
+        is_new = self.is_new
+
+        if is_new:
+            _events.fire('pytsite.auth.role.pre_create', role=self)
+
+        _events.fire('pytsite.auth.role.pre_save', role=self)
+        _odm_ui.model.UIEntity.save(self)
+        _events.fire('pytsite.auth.role.save', role=self)
+
+        if is_new:
+            _events.fire('pytsite.auth.role.create', role=self)
+
+    def delete(self):
+        _events.fire('pytsite.auth.role.pre_delete', role=self)
+        _odm_ui.model.UIEntity.delete(self)
+        _events.fire('pytsite.auth.role.delete', role=self)
+
     def _setup_fields(self):
         """Hook.
         """
@@ -56,6 +78,31 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
         for user in _auth.get_users():
             if user.has_role(self.name):
                 raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.login}))
+
+    @classmethod
+    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+        browser.data_fields = [
+            ('name', 'pytsite.auth_storage_odm@name'),
+            ('description', 'pytsite.auth_storage_odm@description'),
+            ('permissions', 'pytsite.auth_storage_odm@permissions', False),
+        ]
+
+        browser.default_sort_field = 'name'
+
+    def ui_browser_get_row(self) -> tuple:
+        perms = []
+        for perm_name in self.permissions:
+            # If permission was renamed or deleted (sometimes it happens), juts ignore it
+            if not _permission.is_permission_defined(perm_name):
+                continue
+
+            perm = _permission.get_permission(perm_name)
+            cls = 'label label-default permission-' + perm[0]
+            if perm[0] == 'admin':
+                cls += ' label-danger'
+            perms.append(str(_html.Span(_lang.t(perm[1]), cls=cls)))
+
+        return self.name, _lang.t(self.description), ' '.join(perms)
 
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
@@ -117,10 +164,10 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @property
     def is_new(self) -> bool:
-        return _odm.model.Entity.is_new.fget(self)
+        return _odm_ui.model.UIEntity.is_new.fget(self)
 
     @property
-    def created(self) -> bool:
+    def created(self) -> _datetime:
         return self.f_get('_created')
 
     @property
@@ -335,6 +382,28 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
     def city(self, value: str):
         self.f_set('city', value)
 
+    def save(self):
+        is_new = self.is_new
+
+        if is_new:
+            _events.fire('pytsite.auth.user.pre_create', user=self)
+
+        _events.fire('pytsite.auth.user.pre_save', user=self)
+        _odm_ui.model.UIEntity.save(self)
+        _events.fire('pytsite.auth.user.save', user=self)
+
+        if is_new:
+            _events.fire('pytsite.auth.user.create', user=self)
+
+    def _pre_delete(self, **kwargs):
+        if self == _auth.current_user():
+            raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
+
+    def delete(self):
+        _events.fire('pytsite.auth.user.pre_delete', user=self)
+        _odm_ui.model.UIEntity.delete(self)
+        _events.fire('pytsite.auth.user.delete', user=self)
+
     def _setup_fields(self):
         """_setup() hook.
         """
@@ -439,7 +508,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         # Load user picture from Gravatar
         if not self.picture:
             img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.email) + '?s=512'
-            self.picture = _image.create(img_url)
+            img_owner = self if not self.is_new else _auth.first_admin_user()
+            self.picture = _image.create(img_url, owner=img_owner)
             self.save()
 
     def _after_delete(self, **kwargs):
@@ -458,7 +528,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
         return value
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
+    def as_dict(self, fields: _Union[_List, _Tuple] = (), **kwargs):
         # Never show user's password
         r = super().as_dict([f for f in fields if f != 'password'], **kwargs)
 
@@ -469,15 +539,51 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
         return r
 
+    @classmethod
+    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+        browser.data_fields = [
+            ('login', 'pytsite.auth_storage_odm@login'),
+            ('full_name', 'pytsite.auth_storage_odm@full_name', False),
+            ('roles', 'pytsite.auth_storage_odm@roles', False),
+            ('status', 'pytsite.auth_storage_odm@status'),
+            ('profile_is_public', 'pytsite.auth_storage_odm@profile_is_public'),
+            ('is_online', 'pytsite.auth_storage_odm@is_online'),
+            ('created', 'pytsite.auth_storage_odm@created'),
+            ('last_activity', 'pytsite.auth_storage_odm@last_activity'),
+        ]
+
+        browser.default_sort_field = 'last_activity'
+        browser.default_sort_order = 'desc'
+
+    def ui_browser_get_row(self) -> dict:
+        yes = _lang.t('pytsite.auth_storage_odm@word_yes')
+
+        login = '<a href="' + self.profile_view_url + '">' + self.login + '</a>'
+
+        roles = ''
+        for role in sorted(self.roles, key=lambda role: role.name):
+            cls = 'label label-default'
+            if role.name == 'admin':
+                cls += ' label-danger'
+            roles += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
+
+        status_cls = 'info' if self.status == 'active' else 'default'
+        status_word = _lang.t('pytsite.auth@status_' + self.status)
+        status = '<span class="label label-{}">{}</span>'.format(status_cls, status_word)
+
+        p_is_public = '<span class="label label-info">{}</span>'.format(yes) if self.profile_is_public else '',
+        is_online = '<span class="label label-success">{}</span>'.format(yes) if self.is_online else ''
+        created = _lang.pretty_date_time(self.created)
+        last_activity = _lang.pretty_date_time(self.last_activity)
+
+        return login, self.full_name, roles, status, p_is_public, is_online, created, last_activity
+
     def ui_view_url(self) -> str:
         return _router.ep_url('pytsite.auth@profile_view', {'nickname': self.nickname})
 
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
-        if not _router.current_path().startswith(_admin.base_path()):
-            frm.redirect = 'ENTITY_VIEW'
-
         frm.area_footer_css += ' text-center'
         frm.area_body_css += ' row'
 
@@ -594,7 +700,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         content_wrapper.add_widget(_widget.input.Password(
             weight=80,
             uid='password',
-            label=self.t('password'),
+            label=self.t('new_password'),
         ))
 
         # Country
@@ -669,11 +775,14 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
             frm.add_rules('access_token', (
                 _validation.rule.Regex(pattern='^[a-f0-9]{32}$'),
                 _odm.validation.FieldUnique(
-                    msg_id='pytsite.auth@this_token_already_used',
+                    msg_id='pytsite.auth_storage_odm@this_token_already_used',
                     model=self.model,
                     field='access_token',
                     exclude_ids=self.id)
             ))
+
+    def ui_mass_action_get_entity_description(self) -> str:
+        return '{} ({})'.format(self.login, self.full_name)
 
     def add_follower(self, follower: _auth.model.AbstractUser):
         self.f_add('followers', follower)

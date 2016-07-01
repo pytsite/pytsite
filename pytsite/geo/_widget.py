@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Location(_widget.Base):
+class Location(_widget.Abstract):
     """Geo Address Input Widget.
     """
     def __init__(self, uid: str, **kwargs):

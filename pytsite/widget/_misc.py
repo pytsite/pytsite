@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class BootstrapTable(_base.Base):
+class BootstrapTable(_base.Abstract):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
@@ -54,7 +54,28 @@ class BootstrapTable(_base.Base):
         if not isinstance(value, (tuple, list)):
             raise TypeError('Tuple or list expected.')
 
-        self._data_fields = value
+        self._data_fields = []
+        for f in value:
+            if isinstance(f, str):
+                self._data_fields.append((f, _lang.t(f), True))
+            elif isinstance(f, (tuple, list)):
+                if len(f) == 2:
+                    self._data_fields.append((f[0], _lang.t(f[1]), True))
+                elif len(f) == 3:
+                    self._data_fields.append((f[0], _lang.t(f[1]), f[2]))
+                else:
+                    raise RuntimeError("Invalid format of data field definition: {}".format(f))
+
+            else:
+                raise TypeError("Invalid format of data field definition: {}".format(f))
+
+    def insert_data_field(self, name: str, title: str = None, sortable: bool = True, pos: int = None):
+        title = _lang.t(title) if title else _lang.t(name)
+
+        if not pos:
+            pos = len(self._data_fields)
+
+        self._data_fields.insert(pos, (name, title, sortable))
 
     @property
     def default_sort_field(self) -> str:
@@ -87,7 +108,6 @@ class BootstrapTable(_base.Base):
         """
         # Table skeleton
         table = _html.Table(
-            data_toggle='table',
             data_url=self._data_url,
             data_toolbar='#bootstrap-table-toolbar',
             data_show_refresh='true',
@@ -98,7 +118,7 @@ class BootstrapTable(_base.Base):
             data_click_to_select='false',
             data_striped='true',
             data_sort_name=self._default_sort_field,
-            data_sort_order='asc' if self._default_sort_order == 1 else 'desc',
+            data_sort_order=self._default_sort_order,
             data_cookie='true',
             data_cookie_id_table=self.uid,
             data_cookies_enabled='["bs.table.sortOrder", "bs.table.sortName"]',
@@ -122,7 +142,7 @@ class BootstrapTable(_base.Base):
         for f in self._data_fields:
             if not isinstance(f, (list, tuple)):
                 raise TypeError('List or tuple expected.')
-            th = _html.Th(f[1], data_field=f[0], data_sortable='true')
+            th = _html.Th(f[1], data_field=f[0], data_sortable='true' if f[2] else 'false')
             t_head_row.append(th)
 
         self._build_head_row(t_head_row)

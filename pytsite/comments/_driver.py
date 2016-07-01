@@ -28,7 +28,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_widget(self, widget_uid: str, thread_id: str) -> _widget.Base:
+    def get_widget(self, widget_uid: str, thread_id: str) -> _widget.Abstract:
         """Get comments widget for particular thread.
         """
         pass

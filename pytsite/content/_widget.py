@@ -95,7 +95,7 @@ class EntityTagCloud(_taxonomy.widget.Cloud):
         return self._entity.tags
 
 
-class Search(_widget.Base):
+class Search(_widget.Abstract):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

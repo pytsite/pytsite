@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Comments(_widget.Base):
+class Comments(_widget.Abstract):
     """Disqus Comments Widget.
     """
     def __init__(self, uid: str, **kwargs):

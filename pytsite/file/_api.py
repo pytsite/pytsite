@@ -29,7 +29,7 @@ def _build_store_path(mime: str, model: str = 'file', propose: str = None) -> st
         extension = '.jpg'
 
     # Possible (but not final) path
-    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str(16)) + extension
+    possible_target_path = _os.path.join(storage_dir, rnd_str(2), rnd_str(2), rnd_str()) + extension
 
     # Check if the proposed path suits the requirements
     if propose:
@@ -53,6 +53,8 @@ def create(source_path: str, name: str = None, description: str = None, model='f
            propose_store_path: str = None, owner: _auth.model.AbstractUser = None) -> _model.File:
     """Create a file from path or URL.
     """
+    if not owner:
+        owner = _auth.current_user()
 
     # Store remote file to the local if URL was specified
     try:
@@ -75,6 +77,12 @@ def create(source_path: str, name: str = None, description: str = None, model='f
         source_path = tmp_file_path
     except _validation.error.RuleError:
         pass
+
+    # Validation file size (in megabytes)
+    file_size = _os.stat(source_path).st_size
+    max_file_size_mb = float(_reg.get('file.upload_max_size', '10'))
+    if file_size > (max_file_size_mb * 1048576):
+        raise RuntimeError('File size exceeds {} MB'.format(max_file_size_mb))
 
     # Determining file's MIME type
     mime = _magic.from_file(source_path, True).decode()
@@ -106,17 +114,15 @@ def create(source_path: str, name: str = None, description: str = None, model='f
     storage_dir = _reg.get('paths.storage')
     file_entity = _odm.dispense(model)
     if not isinstance(file_entity, _model.File):
-        raise Exception('File entity expected.')
+        raise TypeError('File entity expected.')
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
     file_entity.f_set('name', name)
     file_entity.f_set('description', description)
     file_entity.f_set('mime', mime)
-    file_entity.f_set('length', _os.stat(abs_target_path).st_size)
+    file_entity.f_set('length', file_size)
 
-    # Setting entity's owner
-    user = _auth.current_user()
-    if user and not user.is_anonymous and not user.is_system:
-        file_entity.f_set('owner', user)
+    if not owner.is_anonymous and not owner.is_system:
+        file_entity.f_set('owner', owner)
 
     return file_entity.save()
 

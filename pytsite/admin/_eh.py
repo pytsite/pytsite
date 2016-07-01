@@ -10,8 +10,16 @@ __license__ = 'MIT'
 
 def router_dispatch():
     if _router.current_path(True).startswith(_api.base_path()):
-        # Check permissions ONLY for GET-requests
-        if _router.request().method == 'GET' and not _auth.current_user().has_permission('pytsite.admin.use'):
+        c_user = _auth.current_user()
+
+        if c_user.is_anonymous:
+            r_url = _router.ep_url('pytsite.auth@sign_in', {
+                'driver': _auth.get_auth_driver().get_name(),
+                '__redirect': _router.current_path()
+            })
+            raise _http.error.Forbidden(response=_http.response.Redirect(r_url))
+
+        if not c_user.has_permission('pytsite.admin.use'):
             raise _http.error.Forbidden()
 
         # Alternate languages

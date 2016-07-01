@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Like(_widget.Base):
+class Like(_widget.Abstract):
     """Flag Widget.
     """
     def __init__(self, uid: str, **kwargs):

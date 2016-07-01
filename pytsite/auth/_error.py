@@ -37,9 +37,21 @@ class InvalidAccessToken(Exception):
     pass
 
 
-class UserDeletionForbidden(Exception):
+class UserModifyForbidden(Exception):
     pass
 
 
-class RoleDeletionForbidden(Exception):
+class UserDeleteForbidden(Exception):
+    pass
+
+
+class RoleModifyForbidden(Exception):
+    pass
+
+
+class RoleDeleteForbidden(Exception):
+    pass
+
+
+class NoAdminUser(Exception):
     pass

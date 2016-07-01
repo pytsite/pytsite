@@ -1,7 +1,7 @@
 """Image manager.
 """
 from PIL import Image
-from pytsite import file as _file
+from pytsite import file as _file, auth as _auth
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -10,10 +10,10 @@ __license__ = 'MIT'
 
 
 def create(source: str, name: str=None, description: str=None, remove_source: bool=False,
-           propose_store_path: str=None) -> _model.Image:
+           propose_store_path: str=None, owner: _auth.model.AbstractUser = None) -> _model.Image:
     """Create an image from URL or local file.
     """
-    img_entity = _file.create(source, name, description, 'image', remove_source, propose_store_path)
+    img_entity = _file.create(source, name, description, 'image', remove_source, propose_store_path, owner)
 
     if not img_entity.mime.startswith('image'):
         img_entity.delete()

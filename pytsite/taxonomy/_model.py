@@ -87,7 +87,13 @@ class Term(_odm_ui.model.UIEntity):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = ('title', 'alias', 'weight', 'order')
+        browser.data_fields = [
+            ('title', 'pytsite.taxonomy@title'),
+            ('alias', 'pytsite.taxonomy@alias'),
+            ('weight', 'pytsite.taxonomy@weight'),
+            ('order', 'pytsite.taxonomy@order'),
+        ]
+
         browser.default_sort_field = 'order'
         browser.default_sort_order = _odm.I_ASC
 

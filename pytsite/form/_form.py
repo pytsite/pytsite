@@ -25,7 +25,7 @@ class Form(_ABC):
         self._widgets_added = False
 
         # Widgets
-        self._widgets = {}  # type: _Dict[str, _widget.Base]
+        self._widgets = {}  # type: _Dict[str, _widget.Abstract]
 
         # Form areas where widgets can be placed
         self._areas = ('hidden', 'header', 'body', 'footer')
@@ -53,7 +53,7 @@ class Form(_ABC):
         self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
 
         # AJAX endpoint to load form's widgets
-        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form@get_widgets')
+        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'pytsite.form@widgets')
 
         # AJAX endpoint to perform form validation
         self._validation_ep = kwargs.get('validation_ep', 'pytsite.form@validate')
@@ -372,7 +372,7 @@ class Form(_ABC):
         """
         return self.render()
 
-    def add_widget(self, widget: _widget.Base):
+    def add_widget(self, widget: _widget.Abstract):
         """Add a widget.
         """
         if widget.form_area not in self._areas:
@@ -385,7 +385,7 @@ class Form(_ABC):
 
         return self
 
-    def replace_widget(self, source_uid: str, replacement: _widget.Base):
+    def replace_widget(self, source_uid: str, replacement: _widget.Abstract):
         """Replace a widget with another one.
         """
         current = self.get_widget(source_uid)
@@ -399,7 +399,7 @@ class Form(_ABC):
 
         return self
 
-    def _search_widget(self, root, uid: str) -> _Union[_widget.Base, None]:
+    def _search_widget(self, root, uid: str) -> _Union[_widget.Abstract, None]:
         """Recursively search for widget.
         """
         if root is self and uid in self._widgets:
@@ -421,7 +421,7 @@ class Form(_ABC):
                     if r:
                         return r
 
-    def get_widget(self, uid: str) -> _widget.Base:
+    def get_widget(self, uid: str) -> _widget.Abstract:
         """Get a widget.
         """
         r = self._search_widget(self, uid)
@@ -447,7 +447,7 @@ class Form(_ABC):
         return self
 
     def get_widgets(self, area: str = None, step: int = None, recursive: bool = False,
-                    _container: _widget.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Base]:
+                    _container: _widget.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Abstract]:
         """Get widgets.
          """
         # Only if this is NOT recursive call

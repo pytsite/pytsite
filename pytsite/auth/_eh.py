@@ -29,7 +29,7 @@ def pytsite_setup():
     admin_user.first_name = _lang.t('pytsite.auth@administrator')
     admin_user.nickname = _util.transform_str_2(admin_user.full_name)
     admin_user.roles = [_api.get_role('admin')]
-    _api.update_entity(admin_user)
+    admin_user.save()
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.login}))
 
 
@@ -60,7 +60,7 @@ def pytsite_router_dispatch():
             # Update user's activity timestamp
             _router.set_no_cache(True)
             user.last_activity = _datetime.now()
-            _api.update_entity(user)
+            user.save()
         else:
             # Sign out inactive user
             _api.sign_out(user)

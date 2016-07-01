@@ -13,7 +13,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class AddressInput(_pytsite_widget.Base):
+class AddressInput(_pytsite_widget.Abstract):
     """Geo Address Input Widget.
     """
 
@@ -129,7 +129,7 @@ class AddressInput(_pytsite_widget.Base):
         return self._group_wrap(inputs)
 
 
-class StaticMap(_pytsite_widget.Base):
+class StaticMap(_pytsite_widget.Abstract):
     """Google Static Map.
 
     https://developers.google.com/maps/documentation/static-maps/intro

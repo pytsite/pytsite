@@ -90,13 +90,21 @@ class Account(_odm_ui.model.UIEntity):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = ('_id', 'title', 'currency', 'balance', 'owner')
+        browser.data_fields = [
+            ('_id',  'pytsite.wallet@id'),
+            ('title',  'pytsite.wallet@title'),
+            ('currency',  'pytsite.wallet@currency'),
+            ('balance',  'pytsite.wallet@balance'),
+            ('owner', 'pytsite.wallet@owner'),
+        ]
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         balance = _currency.fmt(self.currency, self.balance)
-        return str(self.id), self.title, self.currency, balance, self.owner.full_name
+        owner = self.owner if self.owner else _auth.first_admin_user()
+
+        return str(self.id), self.title, self.currency, balance, owner.full_name
 
     def ui_mass_action_get_entity_description(self) -> str:
         return '{} ({}, {})'.format(self.title, str(self.id), self.currency)
@@ -137,7 +145,7 @@ class Account(_odm_ui.model.UIEntity):
                 value=self.currency,
             ))
 
-        frm.add_widget(_auth.widget.UserSelect(
+        frm.add_widget(_auth.get_user_select_widget(
             uid='owner',
             weight=30,
             label=self.t('owner'),
@@ -236,7 +244,14 @@ class Transaction(_odm_ui.model.UIEntity):
 
         :type browser: pytsite.odm_ui._browser.Browser
         """
-        browser.data_fields = ('time', 'description', 'source', 'destination', 'amount', 'state')
+        browser.data_fields = [
+            ('time', 'pytsite.wallet@time'),
+            ('description',  'pytsite.wallet@description'),
+            ('source',  'pytsite.wallet@source'),
+            ('destination',  'pytsite.wallet@destination'),
+            ('amount',  'pytsite.wallet@amount'),
+            ('state',  'pytsite.wallet@state'),
+        ]
         browser.default_sort_field = 'time'
 
     @classmethod

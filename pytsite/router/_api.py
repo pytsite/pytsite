@@ -308,6 +308,9 @@ def dispatch(env: dict, start_response: callable):
 
     except Exception as e:
         if isinstance(e, _HTTPException):
+            if isinstance(e.response, _http.response.Redirect):
+                return e.response(env, start_response)
+
             code = e.code
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
         else:

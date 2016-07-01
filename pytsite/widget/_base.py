@@ -12,7 +12,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Base(_ABC):
+class Abstract(_ABC):
     """Abstract Base Widget.
     """
     def __init__(self, uid: str, **kwargs):
@@ -356,11 +356,11 @@ class Base(_ABC):
     def _group_wrap(self, content) -> _html.Element:
         """Wraps a widget, an HTML element or a string into 'form-group' container.
 
-        :type content: pytsite.widget._base.Base | pytsite.html.Element | str
+        :type content: pytsite.widget._base.Abstract | pytsite.html.Element | str
         """
         if isinstance(content, str):
             content = _html.TagLessElement(content)
-        elif isinstance(content, Base):
+        elif isinstance(content, Abstract):
             content = content.get_html_em()
 
         if self._h_size:
@@ -393,7 +393,7 @@ class Base(_ABC):
         return wrap
 
 
-class Container(Base):
+class Container(Abstract):
     """Container Widget.
     """
 
@@ -405,7 +405,7 @@ class Container(Base):
         self._css += ' widget-container'
         self._data['container'] = True
 
-    def get_widgets(self) -> _Dict[str, Base]:
+    def get_widgets(self) -> _Dict[str, Abstract]:
         """Get children widgets.
         """
         return _OrderedDict([(w.uid, w) for w in sorted(self._children.values(), key=lambda x: x.weight)])
@@ -413,7 +413,7 @@ class Container(Base):
     def has_widget(self, uid: str) -> bool:
         return uid in self._children
 
-    def add_widget(self, widget: Base):
+    def add_widget(self, widget: Abstract):
         """Append a child widget.
         """
         if self.has_widget(widget.uid):
@@ -426,7 +426,7 @@ class Container(Base):
 
         return self
 
-    def get_widget(self, uid: str) -> Base:
+    def get_widget(self, uid: str) -> Abstract:
         """Get child widget by uid.
         """
         if not self.has_widget(uid):

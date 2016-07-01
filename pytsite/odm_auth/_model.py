@@ -33,14 +33,7 @@ class PermissableEntity(_odm.model.Entity):
                         self.f_set(f_name, c_user)
                     else:
                         # User does not have necessary permissions, make first admin as author
-                        self.f_set(f_name, self._get_first_admin())
+                        self.f_set(f_name, _auth.first_admin_user())
                 else:
                     # Current user is anonymous, make first admin as author
-                    self.f_set(f_name, self._get_first_admin())
-
-    def _get_first_admin(self) -> _auth.model.AbstractUser:
-        user = list(_auth.get_users({'roles': [_auth.get_role('admin')]}, 'created', limit=1))[0]
-        if not user:
-            raise RuntimeError('No administrator was found.')
-
-        return user
+                    self.f_set(f_name, _auth.first_admin_user())

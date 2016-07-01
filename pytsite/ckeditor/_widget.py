@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class CKEditor(_widget.Base):
+class CKEditor(_widget.Abstract):
     """CKEditor Widget.
     """
     def __init__(self, uid: str, **kwargs):
