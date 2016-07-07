@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.77.1 (2016-07-07)
+### Added
+- `content`: 'author' field in `model.Base.as_jsonable()` return value.
+
+
 ## 0.77 (2016-07-07)
 ### Added
 - `auth`: new event: 'pytsite.auth.http_api.get_user'.

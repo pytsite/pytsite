@@ -385,6 +385,16 @@ class Base(_odm_ui.model.UIEntity):
         if self.has_field('body'):
             r['body'] = self.body
 
+        if self.has_field('author'):
+            r['author'] = {
+                'uid': self.author.uid,
+                'nickname': self.author.nickname,
+                'first_name': self.author.first_name,
+                'last_name': self.author.last_name,
+                'full_name': self.author.full_name,
+                'url': self.author.profile_view_url,
+            }
+
         return r
 
 
