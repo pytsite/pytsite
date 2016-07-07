@@ -15,13 +15,13 @@ def entry(args: dict, inp: dict):
     method = _router.request().method.lower()
 
     try:
-        status, r = _api.call_ep('{}@{}'.format(package, callback), method, inp, version)
+        status, body = _api.call_ep('{}@{}'.format(package, callback), method, inp, version)
 
         # Simple string should be returned as text/html
-        if isinstance(r, str):
-            response = _http.response.Response(r, status, mimetype='text/html')
+        if isinstance(body, str):
+            response = _http.response.Response(body, status, mimetype='text/html')
         else:
-            response = _http.response.JSON(r, status)
+            response = _http.response.JSON(body, status)
 
         response.headers.add('PytSite-HTTP-API', version)
 

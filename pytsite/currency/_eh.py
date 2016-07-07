@@ -1,12 +1,16 @@
 """Event Handlers
 """
-from pytsite import form as _form, auth as _auth, odm as _odm, lang as _lang, widget as _widget, \
+from pytsite import form as _form, odm as _odm, lang as _lang, widget as _widget, auth as _auth, \
     auth_storage_odm as _auth_storage_odm
 from . import _widget as _currency_widget, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+def odm_model_user_setup(entity: _auth_storage_odm.model.User):
+    entity.define_field(_odm.field.String('currency', default=_api.get_main()))
 
 
 def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_storage_odm.model.User):
@@ -21,5 +25,10 @@ def odm_ui_user_m_form_setup_widgets(frm: _form.Form, entity: _auth_storage_odm.
     ))
 
 
-def odm_model_user_setup(entity: _auth_storage_odm.model.User):
-    entity.define_field(_odm.field.String('currency', default=_api.get_main()))
+def auth_http_api_get_user(user: _auth_storage_odm.model.User, response: dict):
+    if not isinstance(user, _auth_storage_odm.model.User):
+        return
+
+    c_user = _auth.current_user()
+    if c_user == user or c_user.is_admin:
+        response['currency'] = user.f_get('currency')

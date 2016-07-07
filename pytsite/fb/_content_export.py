@@ -94,4 +94,4 @@ class Driver(_content_export.AbstractDriver):
             if 'id' in acc and acc['id'] == page_id:
                 return acc['access_token']
 
-        raise Exception('Cannot get access token for page with id == {}'.format(page_id))
+        raise RuntimeError('Cannot get access token for page with id == {}'.format(page_id))

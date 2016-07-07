@@ -70,7 +70,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
                     for author_field in 'author', 'owner':
                         if entity.has_field(author_field):
                             author = entity.f_get(author_field)
-                            if isinstance(author, _auth.model.AbstractUser) and author.uid == current_user.uid:
+                            if author == current_user:
                                 return True
 
                             # Entity belongs to nobody

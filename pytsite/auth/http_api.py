@@ -95,6 +95,8 @@ def get_user(inp: dict) -> dict:
             'roles': [role.name for role in user.roles],
         })
 
+    _events.fire('pytsite.auth.http_api.get_user', user=user, response=r)
+
     return r
 
 

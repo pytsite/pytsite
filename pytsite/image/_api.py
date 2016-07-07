@@ -1,6 +1,8 @@
 """Image manager.
 """
+from typing import Union as _Union
 from PIL import Image
+from bson.dbref import DBRef as _DBRef
 from pytsite import file as _file, auth as _auth
 from . import _model
 
@@ -27,6 +29,16 @@ def create(source: str, name: str=None, description: str=None, remove_source: bo
 
 
 def get(uid: str=None, rel_path: str=None) -> _model.Image:
-    """Get image.
+    """Get image by UID or by relative path.
     """
     return _file.get(uid, rel_path, 'image')
+
+
+def get_by_ref(ref: _Union[str, _DBRef]) -> _model.Image:
+    """Get image by reference.
+    """
+    file = _file.get_by_ref(ref)
+    if file.model != 'image':
+        raise RuntimeError('File is not an image.')
+
+    return file

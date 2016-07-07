@@ -10,7 +10,8 @@ $(window).on('pytsite.widget.init:pytsite.widget._input.TypeaheadText', function
 
     input.typeahead({
         highlight: true,
-        hint: true
+        hint: true,
+        minLength: widget.em.data('minLength')
     }, {
         source: new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.whitespace,

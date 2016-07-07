@@ -47,3 +47,14 @@ class RouteAlias(_odm.model.Entity):
         """Hook.
         """
         _router.remove_path_alias(self.alias)
+
+    def as_jsonable(self, **kwargs) -> dict:
+        r = super().as_jsonable(**kwargs)
+
+        r.update({
+            'language': self.language,
+            'alias': self.alias,
+            'target': self.target,
+        })
+
+        return r

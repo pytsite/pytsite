@@ -12,7 +12,7 @@ class PermissableEntity(_odm.model.Entity):
     """Entity which has owner and can be authorized to perform certain actions on it.
     """
 
-    def perm_check(self, action: str) -> bool:
+    def check_perm(self, action: str) -> bool:
         """Check current user's permissions.
         """
         return _api.check_permissions(action, self.model, self.id)

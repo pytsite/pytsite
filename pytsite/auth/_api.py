@@ -152,11 +152,11 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
     """Get user by login, nickname, access token or UID.
     """
     with _threading.get_r_lock():
-        user = get_storage_driver().get_user(login, nickname, access_token, uid)
-
         # Check if the access token is valid
         if access_token and not _access_tokens.has(access_token):
-            raise _error.InvalidAccessToken("Access token '{}' is invalid.".format(access_token))
+            raise _error.InvalidAccessToken('Invalid access token.')
+
+        user = get_storage_driver().get_user(login, nickname, access_token, uid)
 
         if check_status and user.status != 'active':
             sign_out(user)
@@ -228,7 +228,7 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
 
         # Generate new token or prolong existing one
         if not _access_tokens.has(user.access_token):
-            user.access_token = create_access_token(user.uid, data.get('access_token_ttl', 3600))
+            user.access_token = create_access_token(user.uid)
             user.save()
         else:
             prolong_access_token(user.access_token)
@@ -263,21 +263,13 @@ def get_access_token_info(token: str) -> dict:
     if not _access_tokens.has(token):
         raise _error.InvalidAccessToken('Invalid access token.')
 
-    r = _access_tokens.get(token)
-    r['expires'] = _access_tokens.ttl(token)
-
-    return r
+    return _access_tokens.get(token)
 
 
-def create_access_token(uid: str, ttl: int) -> str:
+def create_access_token(uid: str) -> str:
     """Generate new access token.
     """
-    try:
-        access_token_ttl = int(ttl)
-        if access_token_ttl <= 0:
-            raise ValueError()
-    except ValueError:
-        raise ValueError("'access_token_ttl' must be a positive integer.")
+    ttl = _reg.get('router.session.ttl', 21600)  # 6 hours
 
     with _threading.get_r_lock():
         while True:
@@ -308,7 +300,8 @@ def sign_out(user: _model.AbstractUser):
 
     # Remove access token
     _access_tokens.rm(user.access_token)
-    user.access_token = None
+    user.access_token = ''
+    user.save()
 
     # Remove session's data
     if _router.session().get('pytsite.auth.login'):

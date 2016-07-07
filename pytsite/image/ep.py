@@ -23,7 +23,7 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
         raise _http.error.NotFound()
 
     # Checking permissions
-    if not image_entity.perm_check('view'):
+    if not image_entity.check_perm('view'):
         return _http.error.Unauthorized()
 
     # Aligning side lengths

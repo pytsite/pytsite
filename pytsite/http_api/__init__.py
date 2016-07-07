@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import router, assetman, events, reg
+    from pytsite import router, assetman, events
     from . import _eh
 
     router.add_rule('/api/<int:version>/<package>/<callback>', 'pytsite.http_api@entry')

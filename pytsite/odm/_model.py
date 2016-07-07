@@ -1,7 +1,7 @@
 """ODM models.
 """
 import re as _re
-from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union
+from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Iterable as _Iterable
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
@@ -304,6 +304,10 @@ class Entity(_ABC):
             raise _error.EntityNotStored('Entity must be stored before you can get its ref.')
 
         return _DBRef(self.collection.name, self.id)
+
+    @property
+    def ref_str(self) -> str:
+        return '{}:{}'.format(self.model, self.id)
 
     @property
     def model(self) -> str:
@@ -783,61 +787,16 @@ class Entity(_ABC):
             if check_required_fields and f.nonempty and f.is_empty:
                 raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty.".format(self.model, f_name))
 
-            r[f_name] = f.get_storable_val()
+            r[f_name] = f.as_storable()
 
         return r
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> _Dict:
+    def as_jsonable(self, **kwargs) -> _Dict:
         """Get JSONable dictionary representation of the entity.
         """
-        r = {}
-        for f_name in fields:
-            f_name = _re.sub('\..+', '', f_name)
-            if self.has_field(f_name):
-                f = self.get_field(f_name)
-
-                # Reference to another entity
-                if isinstance(f, _field.Ref):
-                    f_val = f.get_val()
-                    if f_val:
-                        # Build list of sub-fields to include
-                        sub_fields = []
-                        for sub_f_name in fields:
-                            if sub_f_name.startswith(f_name + '.'):
-                                sub_fields.append(sub_f_name.replace(f_name + '.', ''))
-                        r[f_name] = f_val.as_dict(sub_fields, **kwargs)
-
-                # List of references
-                elif isinstance(f, _field.RefsList):
-                    r[f_name] = []
-
-                    # Build list of sub-fields to include
-                    sub_fields = []
-                    for sub_f_name in fields:
-                        if sub_f_name.startswith(f_name + '.'):
-                            sub_fields.append(sub_f_name.replace(f_name + '.', ''))
-
-                    for ref in f.get_val():
-                        r[f_name].append(ref.as_dict(sub_fields))
-
-                # Virtual field
-                elif isinstance(f, _field.Virtual):
-                    r[f_name] = self.f_get(f_name)
-
-                # Simply serializable field
-                else:
-                    r[f_name] = f.get_serializable_val()
-
-            elif f_name == 'id':
-                r[f_name] = str(self._id)
-
-            elif f_name == 'model':
-                r[f_name] = self._model
-
-            elif f_name == 'ref':
-                r[f_name] = self._model + ':' + str(self._id)
-
-        return r
+        return {
+            'uid': str(self.id),
+        }
 
     @classmethod
     def package_name(cls) -> str:

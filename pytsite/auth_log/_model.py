@@ -91,9 +91,9 @@ class AuthLog(_odm_ui.model.UIEntity):
 
         return user, ip, geo, description, severity, modified
 
-    def perm_check(self, action: str) -> bool:
+    def check_perm(self, action: str) -> bool:
         # Authentication log can be created by anyone
         if action == 'create':
             return True
 
-        return super().perm_check(action)
+        return super().check_perm(action)

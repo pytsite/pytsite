@@ -1,6 +1,6 @@
 """ODM API Functions.
 """
-from typing import Union as _Union
+from typing import Union as _Union, Iterable as _Iterable
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache
@@ -73,16 +73,16 @@ def get_registered_models() -> tuple:
     return tuple(_registered_models.keys())
 
 
-def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None]) -> _Union[_DBRef, None]:
+def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None], implied_model: str = None) -> _Union[_DBRef, None]:
     """Resolve DB object reference.
     """
     if isinstance(something, _DBRef) or something is None:
         return something
 
-    if isinstance(something, _model.Entity):
+    elif isinstance(something, _model.Entity):
         return something.ref
 
-    if isinstance(something, str):
+    elif isinstance(something, str):
         something = something.strip()
 
         if not something:
@@ -98,7 +98,29 @@ def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None]) -> _Union[_
 
         return _DBRef(dispense(model).collection.name, _ObjectId(uid))
 
+    elif isinstance(something, dict):
+        if 'uid' not in something:
+            raise ValueError('UID must be specified.')
+
+        if not implied_model and 'model' not in something:
+            raise ValueError('Model must be specified.')
+
+        if 'model' not in something and implied_model == '*':
+            raise ValueError('Model must be specified.')
+
+        model = implied_model if implied_model else something['model']
+
+        return resolve_ref('{}:{}'.format(model, something['uid']))
+
     raise ValueError('Cannot resolve reference.')
+
+
+def resolve_refs(something: _Iterable, implied_model: str = None) -> list:
+    r = []
+    for v in something:
+        r.append(resolve_ref(v, implied_model))
+
+    return r
 
 
 def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_model.Entity, None]:

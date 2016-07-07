@@ -35,7 +35,9 @@ def url(endpoint: str, version: int = None, **kwargs):
     return _router.ep_url('pytsite.http_api@entry', kwargs)
 
 
-def call_ep(endpoint: str, method, inp: dict, version: int = None) -> tuple:
+def call_ep(endpoint: str, method: str, inp: dict, version: int = None) -> tuple:
+    method = method.lower()
+
     if version is None:
         version = _reg.get('http_api.version', 1)
 
@@ -55,9 +57,9 @@ def call_ep(endpoint: str, method, inp: dict, version: int = None) -> tuple:
         raise _error.EndpointNotFound('Endpoint not found')
 
     status = 200
-    r = callback_obj(inp)
-    if isinstance(r, dict) and 'status' in r and 'response' in r:
-        status = r['status']
-        r = r['response']
+    body = callback_obj(inp)
+    if isinstance(body, tuple):
+        status = body[0]
+        body = body[1]
 
-    return status, r
+    return status, body

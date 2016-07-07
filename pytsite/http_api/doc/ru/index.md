@@ -1,28 +1,28 @@
 # PytSite HTTP API
 
-## Формат запросов
+## Запросы
 Все запросы к HTTP API должны выполняться по протоколу [HTTP 1.1](https://tools.ietf.org/html/rfc2616).
 
 URL любого запроса запроса миеет вид `/api/{VERSION}/{MODULE}/{ENDPOINT}`, где `{VERSION}` -- текущая версия API 
-приложения; `{MODULE}` -- модуль, которому направляется запрос; `{ENDPOINT}` -- конечная точка модуля. 
+приложения; `{MODULE}` -- модуль, которому направляется запрос; `{ENDPOINT}` -- метод модуля. 
 
-Каждая конечная точка поддерживает один или более [HTTP-методов](https://tools.ietf.org/html/rfc2616#section-9), что 
+Каждый метод поддерживает один или более [HTTP-методов](https://tools.ietf.org/html/rfc2616#section-9), что 
 должно быть описано в документации модуля. 
 
-Для передачи аргуметов конечным точкам используется HTTP query string в URL для GET-запросов, либо в теле POST-запросов, 
-совместно с заголовком `Content-Type: application/x-www-form-urlencoded`. 
+Для передачи аргуметов методам используется HTTP query string в URL для GET-запросов, либо тело POST-запросов, 
+совместно с заголовком `Content-Type: application/x-www-form-urlencoded`.
 
 
-## Формат ответов
-HTTP API всегда возвращает ответ в формтае JSON. Для анализа успешности/ошибочности запросов, используйте возвращаемые 
-[HTTP статус-коды](https://tools.ietf.org/html/rfc2616#section-10).
+## Ответы
+HTTP API **всегда** возвращает ответ в формтае JSON. Для анализа успешности/ошибочности запросов, используйте 
+возвращаемые [HTTP статус-коды](https://tools.ietf.org/html/rfc2616#section-10).
 
 
 ## Примеры
 
 ### GET-запрос
 
-GET запрос к модулю `pytsite.auth`, конечной точке `access_token_info` и аргументом `access_token`:
+GET запрос к модулю `pytsite.auth`, методу `access_token_info` и аргументом `access_token`:
 
 ```
 curl "http://test.com/api/1/pytsite.auth/access_token_info?access_token=46e0b2e9a83ddc18e3358802c6f18a09"

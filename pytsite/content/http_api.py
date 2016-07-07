@@ -10,6 +10,8 @@ __license__ = 'MIT'
 
 
 def patch_view_count(inp: dict) -> int:
+    """Increase content entity views counter by one.
+    """
     model = inp.get('model')
     eid = inp.get('id')
 
@@ -28,45 +30,6 @@ def patch_view_count(inp: dict) -> int:
             return entity.views_count
 
     return 0
-
-
-def get_entity(inp: dict) -> dict:
-    user = None
-    try:
-        user = _auth.current_user()
-    except _auth.error.AuthenticationError as e:
-        raise _http.error.Forbidden(e)
-
-    # Required arguments
-    model = inp.get('model')
-    eid = inp.get('id')
-    if not model or not eid:
-        raise _http.error.InternalServerError('Model or ID is not specified.')
-
-    entity = _api.find(model).where('_id', '=', eid).first()
-
-    return entity.as_dict([f.strip() for f in inp.get('fields', '').split(',')])
-
-
-def delete_entity(inp: dict):
-    model = inp.get('model')
-    ids = inp.get('ids')
-
-    if not model:
-        raise RuntimeError('Model is not specified.')
-
-    if not ids:
-        raise RuntimeError('IDs are not specified.')
-
-    if isinstance(ids, str):
-        ids = (ids,)
-
-    count = 0
-    for eid in ids:
-        _api.dispense(model, eid).delete()
-        count += 1
-
-    return count
 
 
 def post_subscribe(inp: dict) -> dict:

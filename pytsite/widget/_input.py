@@ -153,6 +153,7 @@ class TypeaheadText(Text):
         source_url = _router.url(source_url, query=source_url_q)
 
         self._data['source_url'] = source_url
+        self._data['min_length'] = kwargs.get('typeahead_min_length', 1)
 
 
 class Email(Text):

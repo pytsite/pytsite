@@ -12,6 +12,6 @@ def router_dispatch():
 
 
 def router_response(response: _http.response.Response):
-    # No cookies in HTTP API responses
-    if False:
+    # No cookies in responses from HTTP API
+    if 'PytSite-HTTP-API' in response.headers:
         response.headers.remove('Set-Cookie')

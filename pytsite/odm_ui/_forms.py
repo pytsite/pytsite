@@ -42,11 +42,11 @@ class Modify(_form.Form):
             raise _http.error.NotFound()
 
         # Check if entities of this model can be created
-        if not self._eid and not entity.perm_check('create'):
+        if not self._eid and not entity.check_perm('create'):
             raise _http.error.Forbidden()
 
         # Check if the entity can be modified
-        if self._eid and not entity.perm_check('modify'):
+        if self._eid and not entity.check_perm('modify'):
             raise _http.error.Forbidden()
 
         # Form title

@@ -2,7 +2,7 @@
 """
 from datetime import datetime as _datetime
 from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util, \
-    hreflang as _hreflang, reg as _reg
+    hreflang as _hreflang, reg as _reg, http as _http
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -38,27 +38,36 @@ def pytsite_router_dispatch():
     """
     user = _api.get_anonymous_user()
 
+    # Determine current user based on request's argument
+    if 'access_token' in _router.request().inp:
+        try:
+            user = _api.get_user(access_token=_router.request().inp['access_token'])
+        except (_error.AuthenticationError, _error.InvalidAccessToken) as e:
+            raise _http.error.Forbidden(response=_http.response.JSON({'error': str(e)}))
+
     # Determine current user based on session's data
-    if 'pytsite.auth.login' in _router.session():
+    elif 'pytsite.auth.login' in _router.session():
         try:
             user = _api.get_user(_router.session()['pytsite.auth.login'])
         except _error.UserNotExist:
+            # User has been deleted, so delete session information about it
             del _router.session()['pytsite.auth.login']
-
-    # Determine current user based on request's argument
-    elif 'access_token' in _router.request().inp:
-        try:
-            user = _api.get_user(access_token=_router.request().inp['access_token'])
-        except _error.UserNotExist:
-            pass
 
     # Set current user
     _api.switch_user(user)
 
     if not user.is_anonymous:
         if user.status == 'active':
-            # Update user's activity timestamp
+            # Disable page caching for signed in users
             _router.set_no_cache(True)
+
+            # Prolong access token or generate a new one
+            try:
+                _api.prolong_access_token(user.access_token)
+            except _error.InvalidAccessToken:
+                user.access_token = _api.create_access_token(user.uid)
+
+            # Update user's activity timestamp
             user.last_activity = _datetime.now()
             user.save()
         else:

@@ -4,12 +4,13 @@ import re as _re
 import os as _os
 import shutil as _shutil
 import magic as _magic
+from typing import Union as _Union
 from mimetypes import guess_extension as _guess_extension
 from urllib.request import urlopen as _urlopen
 from urllib.parse import urlparse as _urlparse
 from bson.dbref import DBRef as _DBRef
 from pytsite import reg as _reg, util as _util, odm as _odm, validation as _validation, auth as _auth
-from . import _model
+from . import _model, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -49,8 +50,9 @@ def _build_store_path(mime: str, model: str = 'file', propose: str = None) -> st
     return store_path
 
 
-def create(source_path: str, name: str = None, description: str = None, model='file', remove_source=False,
-           propose_store_path: str = None, owner: _auth.model.AbstractUser = None) -> _model.File:
+def create(source_path: str, name: str = None, description: str = None, model: str = 'file',
+           remove_source: bool = False, propose_store_path: str = None,
+           owner: _auth.model.AbstractUser = None) -> _model.File:
     """Create a file from path or URL.
     """
     if not owner:
@@ -114,7 +116,7 @@ def create(source_path: str, name: str = None, description: str = None, model='f
     storage_dir = _reg.get('paths.storage')
     file_entity = _odm.dispense(model)
     if not isinstance(file_entity, _model.File):
-        raise TypeError('File entity expected.')
+        raise TypeError('Entity does not extend pytsite.file.model.File.')
     file_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))
     file_entity.f_set('name', name)
     file_entity.f_set('description', description)
@@ -128,25 +130,29 @@ def create(source_path: str, name: str = None, description: str = None, model='f
 
 
 def get(uid: str = None, rel_path: str = None, model: str = 'file') -> _model.File:
-    """Get file.
+    """Get file by UID or relative path.
     """
-    if not uid and not rel_path:
-        raise Exception("Not enough arguments.")
-
     if uid:
-        return _odm.find(model).where('_id', '=', uid).first()
+        entity = _odm.find(model).where('_id', '=', uid).first()
     elif rel_path:
-        return _odm.find(model).where('path', '=', rel_path).first()
+        entity = _odm.find(model).where('path', '=', rel_path).first()
+    else:
+        raise RuntimeError('File UID or relative path should be specified')
+
+    if not entity:
+        raise _error.EntityNotFound('File entity is not found.')
+
+    return entity
 
 
-def get_by_ref(ref: _DBRef) -> _model.File:
-    """Get file by ref.
+def get_by_ref(ref: _Union[str, _DBRef]) -> _model.File:
+    """Get file by reference.
     """
     entity = _odm.get_by_ref(ref)
     if not entity:
-        return
+        raise _error.EntityNotFound('File entity is not found.')
 
     if not isinstance(entity, _model.File):
-        raise Exception('Entity is not File.')
+        raise TypeError('Entity does not extend pytsite.file.model.File.')
 
     return entity

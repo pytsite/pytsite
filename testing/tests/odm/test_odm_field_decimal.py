@@ -24,8 +24,8 @@ class TestFieldDecimal:
 
     def test_get_storable_val(self):
         f = odm.field.Decimal('t', default=1.234)
-        assert isinstance(f.get_storable_val(), float)
-        assert f.get_storable_val() == 1.234
+        assert isinstance(f.as_storable(), float)
+        assert f.as_storable() == 1.234
 
     def test_set_val(self):
         f = odm.field.Decimal('t')

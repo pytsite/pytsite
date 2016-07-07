@@ -1,6 +1,5 @@
 """File Model.
 """
-from typing import Union as _Union, Tuple as _Tuple, List as _List
 from os import path as _path, unlink as _unlink
 from pytsite import odm as _odm, odm_auth as _odm_auth, reg as _reg, router as _router, auth as _auth
 
@@ -100,8 +99,18 @@ class File(_odm_auth.model.PermissableEntity):
 
         return super()._on_f_get(field_name, value)
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
+    def as_jsonable(self, **kwargs):
         """Hook.
         """
-        # Never reveal absolute path on the filesystem
-        return super().as_dict([f for f in fields if f != 'abs_path'])
+        r = super().as_jsonable(**kwargs)
+
+        r.update({
+            'name': self.name,
+            'description': self.description,
+            'mime': self.mime,
+            'length': self.length,
+            'url': self.url,
+            'thumb_url': self.thumb_url,
+        })
+
+        return r

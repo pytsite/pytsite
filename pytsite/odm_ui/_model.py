@@ -118,13 +118,13 @@ class UIEntity(_odm_auth.model.PermissableEntity):
     def edit_url(self) -> str:
         return self.ui_m_form_url()
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs) -> dict:
-        r = super().as_dict(fields, **kwargs)
+    def as_jsonable(self, **kwargs) -> dict:
+        r = super().as_jsonable(**kwargs)
 
-        if 'url' in fields:
+        if self.check_perm('view'):
             r['url'] = self.url
 
-        if 'edit_url' in fields:
-            r['url'] = self.url
+        if self.check_perm('modify'):
+            r['edit_url'] = self.edit_url
 
         return r

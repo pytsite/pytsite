@@ -61,13 +61,13 @@ def odm_entity_pre_save(entity: _model.PermissableEntity):
         return
 
     # Check current user's permissions to MODIFY entities
-    if entity.is_new and not entity.perm_check('create'):
+    if entity.is_new and not entity.check_perm('create'):
         _logger.info('Current user login: {}'.format(_auth.current_user().login), __name__)
         raise _odm.error.ForbidEntityCreate("Insufficient permissions to create entities of model '{}'.".
                                             format(entity.model))
 
     # Check current user's permissions to MODIFY entities
-    elif not entity.is_new and not entity.perm_check('modify'):
+    elif not entity.is_new and not entity.check_perm('modify'):
         _logger.info('Current user login: {}'.format(_auth.current_user().login), __name__)
         raise _odm.error.ForbidEntityModify("Insufficient permissions to modify entity '{}:{}'.".
                                             format(entity.model, entity.id))
@@ -91,7 +91,7 @@ def odm_entity_pre_delete(entity: _model.PermissableEntity):
         return
 
     # Check current user's permissions to DELETE entities
-    if not entity.perm_check('delete'):
+    if not entity.check_perm('delete'):
         _logger.info('Current user login: {}'.format(_auth.current_user().login), __name__)
         raise _odm.error.ForbidEntityDelete("Insufficient permissions to delete entity '{}:{}'.".
                                             format(entity.model, entity.id))

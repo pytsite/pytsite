@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Money(_odm.field.Abstract):
+class Money(_odm.field.Dict):
     """PytSite Money ODM Field
     """
     def __init__(self, name: str, **kwargs):
@@ -75,13 +75,13 @@ class Money(_odm.field.Abstract):
 
         return v
 
-    def get_serializable_val(self):
+    def as_jsonable(self):
         v = self.get_val()
         v['amount'] = float(v['amount'])
 
         return v
 
-    def get_storable_val(self):
+    def as_storable(self):
         """Get storable value of the feld.
         """
         return {

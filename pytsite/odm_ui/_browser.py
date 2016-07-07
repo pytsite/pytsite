@@ -15,12 +15,12 @@ class Browser(_widget.misc.BootstrapTable):
     """ODM Entities Browser.
     """
 
-    def __init__(self, uid: str, **kwargs):
+    def __init__(self, model: str):
         """Init.
         """
-        super().__init__(uid, **kwargs)
+        super().__init__('odm-ui-browser-' + model)
 
-        self._model = kwargs.get('model')
+        self._model = model
         if not self._model:
             raise RuntimeError('No model has been specified.')
 
@@ -42,7 +42,7 @@ class Browser(_widget.misc.BootstrapTable):
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._mock.perm_check('create'):
+        if self._mock.check_perm('create'):
             create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': self._model,
                 'id': '0',
@@ -55,7 +55,7 @@ class Browser(_widget.misc.BootstrapTable):
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._mock.perm_check('delete'):
+        if self._mock.check_perm('delete'):
             delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='hidden btn btn-danger mass-action-button', title=title)
@@ -186,7 +186,7 @@ class Browser(_widget.misc.BootstrapTable):
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if entity.perm_check('modify'):
+        if entity.check_perm('modify'):
             m_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': entity.model,
                 'id': str(entity.id),
@@ -198,7 +198,7 @@ class Browser(_widget.misc.BootstrapTable):
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
-        if entity.perm_check('delete'):
+        if entity.check_perm('delete'):
             d_form_url = _router.ep_url('pytsite.odm_ui@d_form', {
                 'model': entity.model,
                 'ids': str(entity.id),

@@ -1,6 +1,35 @@
 # PytSite Changelog
-## 0.76 (2016-07-01)
 
+## 0.77 (2016-07-07)
+### Added
+- `auth`: new event: 'pytsite.auth.http_api.get_user'.
+- `currency`: HTTP API 'get_list' endpoint.
+- `file`: HTTP API 'get_file' endpoint.
+- `http_api`: cookies cleaning from responses.
+- `image`: 
+    - new function `get_by_ref()`.
+    - HTTP API endpoints: 'post_file', 'get_file'.
+- `odm`: 
+    - new function `resolve_refs()`.
+    - new property: `model.Entity.ref_str`.
+- `odm_auth`: HTTP API endpoints: 'get_entity', 'post_entity'.
+- `widget`: support for Twitter Tokenfield's 'min_length' option. 
+
+### Changed
+- `auth`: access token TTL determined by HTTP session TTL by default.
+- `odm_auth`: function `perm_check()` renamed to `check_perm()`.
+- `odm`:
+    - `model.Entity.as_dict()` renamed to `as_jsonable()`.
+    - `field.Abstract.get_storable_val()` renamed to `as_storable()`.
+    - `field.Abstract.get_serializable_val()` renamed to `as_jsonable()`.
+    - improved `resolve_ref()`. 
+- `file`: HTTP API endpoint 'post_upload' renamed to 'post_file'.
+
+### Fixed
+- `auth`: access token automatic prolongation while HTTP requests. 
+
+
+## 0.76 (2016-07-01)
 ### Added
 - `auth`:
     - New API functions: `base_path()`, `first_admin_user()`, `get_user_select_widget()`.

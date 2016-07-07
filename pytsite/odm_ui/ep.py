@@ -14,7 +14,7 @@ def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
     return _admin.render(_tpl.render('pytsite.odm_ui@browser', {
-        'table': _browser.Browser('odm-ui-browser', model=args.get('model')).render()
+        'table': _browser.Browser(args.get('model')).render()
     }))
 
 
@@ -110,7 +110,7 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
             entity = _api.dispense_entity(model, eid)
 
             # Check permissions
-            if not entity.perm_check('delete'):
+            if not entity.check_perm('delete'):
                 raise _odm.error.ForbidEntityDelete('User does not have sufficient permissions.')
 
             entity.delete()

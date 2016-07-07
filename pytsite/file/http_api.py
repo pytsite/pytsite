@@ -1,23 +1,27 @@
-"""File Plugin Endpoints.
+"""PytSite File HTTP API Endpoints.
 """
+from typing import List as _List
 from os import path, unlink
 from pytsite import reg as _reg, util as _util, router as _router, odm as _odm, http as _http
-from . import _api
+from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def post_upload(inp: dict) -> list:
+def post_file(inp: dict) -> _List[str]:
     """Upload file endpoint.
     """
     model = inp.get('model')
     if not model:
         raise RuntimeError('Model is not specified.')
 
-    r = []
     files = _router.request().files
+    if not files:
+        raise RuntimeError('No files received.')
+
+    r = []
     for field_name, f in files.items():
         # Save temporary file
         tmp_path = path.join(_reg.get('paths.tmp'), _util.random_str())
@@ -31,14 +35,35 @@ def post_upload(inp: dict) -> list:
             raise _http.error.Forbidden(e)
 
         r.append({
-            'fid': file_entity.model + ':' + str(file_entity.id),
-            'url': file_entity.url,
-            'thumb_url': file_entity.thumb_url,
-            'name': file_entity.name,
-            'description': file_entity.description,
-            'mime': file_entity.mime,
-            'length': file_entity.length,
+            'uid': str(file_entity.id),
         })
+
         unlink(tmp_path)
 
     return r
+
+
+def get_file(inp: dict) -> dict:
+    """Get information about file.
+    """
+    model = inp.get('model')
+    if not model:
+        raise RuntimeError('Model is not specified.')
+
+    uid = inp.get('uid')
+    if not uid:
+        raise RuntimeError('File UID is not specified.')
+
+    try:
+        entity = _api.get(uid, model=model)
+
+        if entity.model != model:
+            raise _http.error.NotFound('File not found.')
+
+        if not entity.check_perm('view'):
+            raise _http.error.Forbidden('Insufficient permissions.')
+
+        return entity.as_jsonable(**inp)
+
+    except _error.EntityNotFound:
+        raise _http.error.NotFound('File not found.')

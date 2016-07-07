@@ -528,16 +528,10 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
         return value
 
-    def as_dict(self, fields: _Union[_List, _Tuple] = (), **kwargs):
-        # Never show user's password
-        r = super().as_dict([f for f in fields if f != 'password'], **kwargs)
-
-        if 'geo_ip' in r:
-            r['geo_ip'] = self.geo_ip.as_dict(('ip', 'asn', 'city', 'country', 'country_code', 'isp', 'longitude',
-                                               'latitude', 'location', 'organization', 'postal_code', 'region',
-                                               'region_name', 'timezone'))
-
-        return r
+    def as_jsonable(self, **kwargs):
+        return {
+            'login': self.login,
+        }
 
     @classmethod
     def ui_browser_setup(cls, browser: _odm_ui.Browser):
@@ -796,9 +790,9 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
     def remove_follows(self, user: _auth.model.AbstractUser):
         self.f_sub('follows', user)
 
-    def perm_check(self, action: str) -> bool:
+    def check_perm(self, action: str) -> bool:
         # Users can modify themselves
         if action == 'modify' and _auth.current_user() == self:
             return True
 
-        return super().perm_check(action)
+        return super().check_perm(action)

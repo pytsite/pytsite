@@ -93,16 +93,22 @@ class Image(_file.model.File):
             from os import path
             p = str(self.path).split(path.sep)
 
+            try:
+                width = abs(int(kwargs.get('width', 0)))
+                height = abs(int(kwargs.get('height', 0)))
+            except ValueError:
+                raise ValueError('Width and height should be positive integers.')
+
             return _router.ep_url('pytsite.image@resize', {
-                'width': int(kwargs.get('width', 0)),
-                'height': int(kwargs.get('height', 0)),
+                'width': width,
+                'height': height,
                 'p1': p[1],
                 'p2': p[2],
                 'filename': p[3]
             }, strip_lang=True)
 
         elif field_name == 'thumb_url':
-            return self.f_get('url', width=int(kwargs.get('width', 450)), height=int(kwargs.get('height', 450)))
+            return self.f_get('url', width=kwargs.get('width', 450), height=kwargs.get('height', 450))
 
         else:
             return super()._on_f_get(field_name, value, **kwargs)
@@ -138,3 +144,15 @@ class Image(_file.model.File):
         return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}" ' \
                'data-width="{}" data-height="{}" data-enlarge="{}"></span>' \
             .format(css.strip(), path, alt, aspect_ratio, self.width, self.height, enlarge)
+
+    def as_jsonable(self, **kwargs) -> dict:
+        r = super().as_jsonable(**kwargs)
+
+        r.update({
+            'width': self.width,
+            'height': self.height,
+            'exif': dict(self.exif),
+            'thumb_url': self.get_url(kwargs.get('thumb_width', 450), kwargs.get('thumb_height', 450))
+        })
+
+        return r

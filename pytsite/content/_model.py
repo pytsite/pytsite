@@ -1,7 +1,7 @@
 """Content Models
 """
 import re as _re
-from typing import Tuple as _Tuple, Union as _Union, List as _List
+from typing import Tuple as _Tuple, Union as _Union
 from datetime import datetime as _datetime, timedelta as _timedelta
 from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
@@ -22,8 +22,8 @@ def _process_tags(entity, inp: str) -> str:
 
     :type entity: _Union[Block, Content]
     """
-    entity_images = entity.images
-    entity_images_count = len(entity.images)
+    entity_images = entity.images if entity.has_field('images') else ()
+    entity_images_count = len(entity_images)
 
     def process_img_tag(match):
         """Converts single body [img] tag into HTML <img> tag.
@@ -366,6 +366,26 @@ class Base(_odm_ui.model.UIEntity):
         """Get delete form description.
         """
         return self.title
+
+    def as_jsonable(self, **kwargs) -> dict:
+        r = super().as_jsonable()
+
+        r.update({
+            'title': self.title,
+            'language': self.language,
+            'options': dict(self.options),
+        })
+
+        if self.has_field('images'):
+            r['images'] = [img.as_jsonable() for img in self.images]
+
+        if self.has_field('video_links'):
+            r['video_links'] = self.video_links
+
+        if self.has_field('body'):
+            r['body'] = self.body
+
+        return r
 
 
 class Content(Base):
@@ -798,25 +818,6 @@ class Content(Base):
                 value=self.route_alias.alias if self.route_alias else '',
             ))
 
-    def as_dict(self, fields: _Union[_List, _Tuple]=(), **kwargs):
-        """Get serializable representation of a product.
-        """
-        r = super().as_dict(fields)
-
-        # Images
-        if self.has_field('images') and 'images' in fields:
-            r['images'] = []
-            for img in self.images:
-                img_dict = img.as_dict(('path', 'width', 'height', 'mime', 'length', 'name', 'description', 'url'))
-                img_dict['responsive_html'] = img.get_responsive_html(
-                    kwargs.get('images_responsive_html_alt', ''),
-                    kwargs.get('images_responsive_html_css', ''),
-                    kwargs.get('images_responsive_html_aspect_ratio', None),
-                    kwargs.get('images_responsive_html_enlarge', True))
-                r['images'].append(img_dict)
-
-        return r
-
     def _send_waiting_status_notification(self):
         for u in _auth.get_users():
             if u.has_permission('pytsite.odm_perm.modify.' + self.model):
@@ -846,6 +847,36 @@ class Content(Base):
                 raise RuntimeError('Cannot generate route alias because title is empty.')
 
         return orig_str
+
+    def as_jsonable(self, **kwargs):
+        r = super().as_jsonable(**kwargs)
+
+        if self.has_field('starred'):
+            r['starred'] = self.starred
+        if self.has_field('section'):
+            r['section'] = self.section
+        if self.has_field('description'):
+            r['description'] = self.description
+        if self.has_field('tags'):
+            r['tags'] = [tag.as_jsonable() for tag in self.tags]
+        if self.has_field('ext_links'):
+            r['ext_links'] = self.ext_links
+        if self.has_field('status'):
+            r['status'] = self.status
+        if self.has_field('publish_time'):
+            r['publish_time'] = _util.rfc822_datetime_str(self.publish_time)
+        if self.has_field('views_count'):
+            r['views_count'] = self.views_count
+        if self.has_field('comments_count'):
+            r['comments_count'] = self.comments_count
+
+        for lng in _lang.langs():
+            if self.has_field('localization_' + lng):
+                ref = self.f_get('localization_' + lng)
+                if ref:
+                    r['localization_' + lng] = ref.as_jsonable(**kwargs)
+
+        return r
 
 
 class Page(Content):

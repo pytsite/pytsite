@@ -2,6 +2,7 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
     var widgetEm = widget.em;
     var slotsEm = widgetEm.find('.slots');
     var widgetUid = widgetEm.data('uid');
+    var model = widgetEm.data('model');
     var addBtn = widgetEm.find('.add-button');
     var postUrl = widgetEm.data('url');
     var maxFiles = parseInt(widgetEm.data('maxFiles'));
@@ -49,8 +50,9 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
         return $(slot);
     }
 
-    function createSlot(fid, thumb_url) {
-        var slot = $('<div class="slot content sortable ' + slotCss + '" data-fid="' + fid + '">');
+    function createSlot(model, uid, thumb_url) {
+        var ref = model + ':' + uid;
+        var slot = $('<div class="slot content sortable ' + slotCss + '" data-ref="' + ref + '">');
         var inner = $('<div class="inner">');
 
         slot.append(inner);
@@ -58,7 +60,7 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
         inner.append($('<button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>'));
         if (showNumbers)
             inner.append($('<span class="number">'));
-        inner.append('<input type="hidden" name="' + widgetUid + '[]" value="' + fid + '">');
+        inner.append('<input type="hidden" name="' + widgetUid + '[]" value="' + ref + '">');
 
         return setupSlot(slot);
     }
@@ -93,13 +95,13 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
     }
 
     function removeSlot(slot, confirmDelete) {
-        var fid = $(slot).data('fid');
+        var ref = $(slot).data('ref');
 
         if (confirmDelete != false && !confirm(t('pytsite.file@really_delete')))
             return;
 
-        widgetEm.find('input[value="' + fid + '"]').remove();
-        widgetEm.append('<input type="hidden" name="' + widgetUid + '_to_delete" value="' + fid + '">');
+        widgetEm.find('input[value="' + ref + '"]').remove();
+        widgetEm.append('<input type="hidden" name="' + widgetUid + '_to_delete" value="' + ref + '">');
         $(slot.remove());
         renumberSlots();
 
@@ -170,9 +172,11 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
             }
         }).success(function (data, textStatus, jqXHR) {
             $.each(data, function (k, v) {
-                progressSlot.hide();
-                appendSlot(createSlot(v['fid'], v['thumb_url']));
-                $(widget).trigger('fileUploadSuccess', [v]);
+                pytsite.httpApi.get('pytsite.file@file', {uid: v['uid'], model: model}).done(function (r) {
+                    progressSlot.hide();
+                    appendSlot(createSlot(model, r['uid'], r['thumb_url']));
+                    $(widget).trigger('fileUploadSuccess', [v]);
+                });
             });
         }).fail(function (jqXHR, textStatus, errorThrown) {
             --filesCount;

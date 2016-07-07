@@ -60,15 +60,15 @@ class Abstract(_ABC):
         """
         return self._value
 
-    def get_storable_val(self):
+    def as_storable(self):
         """Get value suitable to store in the database.
         """
         return self._value
 
-    def get_serializable_val(self) -> _Union[int, str, float, bool, dict, tuple, list]:
+    def as_jsonable(self, **kwargs) -> _Union[int, str, float, bool, dict, tuple, list]:
         """Get serializable representation of field's value.
         """
-        return self.get_storable_val()
+        return self.as_storable()
 
     def set_val(self, value, **kwargs):
         """Set value of the field.
@@ -130,7 +130,7 @@ class ObjectId(Abstract):
 
         return super().set_val(value, **kwargs)
 
-    def get_serializable_val(self):
+    def as_jsonable(self):
         return str(self.get_val())
 
 
@@ -364,7 +364,7 @@ class Ref(Abstract):
 
             return referenced_entity
 
-    def get_serializable_val(self):
+    def as_jsonable(self):
         """Get serializable representation of the field's value.
         """
         v = self.get_val()
@@ -399,12 +399,17 @@ class RefsList(List):
         clean_value = []
         from ._model import Entity
         for item in value:
+            # Convert entity object to reference
             if isinstance(item, Entity):
                 if self._model != '*' and item.model != self._model:
                     raise TypeError("Instance of ODM model '{}' expected.".format(self._model))
                 clean_value.append(item.ref)
+
+            # Reference as is
             elif isinstance(item, _bson_DBRef):
                 clean_value.append(item)
+
+            # Unknown
             else:
                 raise TypeError("Field '{}': list of DBRefs or entities expected.".format(self.name))
 
@@ -465,8 +470,8 @@ class RefsList(List):
 
         return super().sub_val(value, **kwargs)
 
-    def get_serializable_val(self) -> list:
-        return [e.as_dict() for e in self.get_val()]
+    def as_jsonable(self) -> list:
+        return [e.as_jsonable() for e in self.get_val()]
 
 
 class RefsUniqueList(RefsList):
@@ -523,7 +528,7 @@ class DateTime(Abstract):
 
         return value
 
-    def get_serializable_val(self) -> str:
+    def as_jsonable(self) -> str:
         return _util.w3c_datetime_str(self.get_val())
 
 
@@ -654,7 +659,7 @@ class Decimal(Abstract):
         """
         return self._value
 
-    def get_storable_val(self) -> float:
+    def as_storable(self) -> float:
         """Get storable value of the field.
         """
         return float(self._value)
@@ -772,7 +777,7 @@ class DecimalList(List):
 
         return super().add_val(value, **kwargs)
 
-    def get_storable_val(self) -> _Iterable[float]:
+    def as_storable(self) -> _Iterable[float]:
         return [float(i) for i in self.get_val()]
 
 

@@ -17,7 +17,7 @@ def get_browser_rows(inp: dict) -> list:
     sort_field = inp.get('sort')
     sort_order = inp.get('order')
     search = inp.get('search')
-    browser = _browser.Browser('odm-ui-browser', model=model)
+    browser = _browser.Browser(model)
     rows = browser.get_rows(offset, limit, sort_field, sort_order, search)
 
     return rows

@@ -17,7 +17,7 @@ class BootstrapTable(_base.Abstract):
         self._data_fields = []
         self._data_fields_titles = []
         self._default_sort_field = kwargs.get('default_sort_field')
-        self._default_sort_order = 1
+        self._default_sort_order = kwargs.get('default_sort_order', 'asc')
         self._toolbar = _html.Div(uid='bootstrap-table-toolbar')
         self._data_url = kwargs.get('data_url')
 
