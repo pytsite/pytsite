@@ -1,5 +1,8 @@
 # PytSite Currency HTTP API
 
+Перед изучением этого документа убедитесь, что разобрались с [PytSite HTTP API](../../../http_api/doc/ru/index.md).
+
+
 ## GET pytsite.currency/list
 
 Получение списка валют.
