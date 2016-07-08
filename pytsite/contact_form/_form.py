@@ -18,7 +18,7 @@ class Form(_form.Form):
         self._css += ' pytsite-contact-form'
         self._prevent_submit = True
         self._area_footer_css += ' text-center'
-        _assetman.add('pytsite.contact_form@js/contact-form.js')
+        _assetman.add('pytsite.contact_form@js/contact-form.js', async=True, defer=True)
 
     def _setup_widgets(self):
         """Hook.

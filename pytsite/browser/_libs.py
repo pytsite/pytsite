@@ -89,7 +89,9 @@ def throttle() -> list:
 
 def responsive() -> list:
     r = _api.get_assets('throttle')
-    r.extend(['pytsite.browser@pytsite/js/responsive.js'])
+    r.extend([
+        ('pytsite.browser@pytsite/js/responsive.js', 'js', True, True)
+    ])
 
     return r
 

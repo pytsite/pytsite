@@ -192,9 +192,7 @@ def dump_css(html_escape: bool = True) -> str:
         if html_escape:
             loc_url = _util.escape_html(loc_url)
 
-        # For details see https://github.com/filamentgroup/loadCSS/
-        r += '<link rel="preload" href="{}" as="style" onload="this.rel=\'stylesheet\'">\n'.format(loc_url)
-        r += '<noscript><link rel="stylesheet" href="{}"></noscript>\n'.format(loc_url)
+        r += '<link rel="stylesheet" href="{}">\n'.format(loc_url)
 
     return r
 

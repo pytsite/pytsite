@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.77.3 (2016-07-08)
+### Fixed
+- `admin`, `form`, `contact_form`: async JS loading.
+- `browser`: async JS loading in 'responsive' library.
+
+### Removed
+- `browser`: asynchronous loading of CSS links.
+
+
 ## 0.77.2 (2016-07-08)
 ### Added
 - `assetman`: new arguments in `add()`: `async` and `defer`. 

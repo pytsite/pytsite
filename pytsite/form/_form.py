@@ -95,7 +95,7 @@ class Form(_ABC):
         # Assets
         _browser.include('scrollto')
         _assetman.add('pytsite.form@css/form.css')
-        _assetman.add('pytsite.form@js/form.js')
+        _assetman.add('pytsite.form@js/form.js', async=True, defer=True)
 
         # Setup form
         self._setup_form(**kwargs)
