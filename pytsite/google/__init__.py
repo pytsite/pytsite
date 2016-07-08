@@ -31,7 +31,7 @@ def _browser_library_maps() -> list:
         'pytsite.google@js/common.js',
         'pytsite.google@js/maps.js',
         'pytsite.google@css/maps.css',
-        (google_url, 'js'),
+        (google_url, 'js', True, True),
     ]
 
 
@@ -39,7 +39,7 @@ def _browser_library_platform() -> list:
     return [
         'pytsite.google@js/common.js',
         'pytsite.google@js/platform.js',
-        'https://apis.google.com/js/platform.js?onload=pytsiteGooglePlatformInitCallback',
+        ('https://apis.google.com/js/platform.js?onload=pytsiteGooglePlatformInitCallback', 'js', True, True)
     ]
 
 

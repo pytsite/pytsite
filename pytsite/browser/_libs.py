@@ -8,6 +8,13 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def load_css() -> list:
+    return [
+        'pytsite.browser@loadCSS/loadCSS.js',
+        'pytsite.browser@loadCSS/cssrelpreload.js',
+    ]
+
+
 def jquery() -> list:
     return ['pytsite.browser@js/jquery-2.1.4.min.js']
 

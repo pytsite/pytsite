@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.77.2 (2016-07-08)
+### Added
+- `assetman`: new arguments in `add()`: `async` and `defer`. 
+- `browser`: asynchronous loading of CSS links. 
+
+
 ## 0.77.1 (2016-07-07)
 ### Added
 - `content`: 'author' field in `model.Base.as_jsonable()` return value.

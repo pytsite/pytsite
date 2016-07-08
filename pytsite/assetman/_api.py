@@ -52,7 +52,8 @@ def detect_collection(location: str) -> str:
         raise ValueError("Cannot determine collection of location '{}'.".format(location))
 
 
-def add(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None):
+def add(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None,
+        async: bool = False, defer: bool = False):
     """Add an asset.
     """
     # Determine collection
@@ -78,7 +79,7 @@ def add(location: str, permanent: bool = False, collection: str = None, weight: 
             elif weight > _last_p_weight:
                 _last_p_weight = weight
 
-            _p_locations[location_hash] = (location, collection, weight, path_prefix)
+            _p_locations[location_hash] = (location, collection, weight, path_prefix, async, defer)
         else:
             if not weight:
                 _last_weight[tid] += 10
@@ -86,7 +87,7 @@ def add(location: str, permanent: bool = False, collection: str = None, weight: 
             elif weight > _last_weight[tid]:
                 _last_weight[tid] = weight
 
-            _locations[tid][location_hash] = (location, collection, weight, path_prefix)
+            _locations[tid][location_hash] = (location, collection, weight, path_prefix, async, defer)
 
 
 def add_inline(s: str, weight=0):
@@ -173,10 +174,12 @@ def dump_js(html_escape: bool = True) -> str:
     """Dump JS links.
     """
     r = ''
-    for loc_url in get_urls('js'):
-        if html_escape:
-            loc_url = _util.escape_html(loc_url)
-        r += '<script type="text/javascript" src="{}"></script>\n'.format(loc_url)
+    for loc in get_locations('js'):
+        l_url = url(_util.escape_html(loc[0])) if html_escape else url(loc[0])
+        l_async = ' async' if loc[4] else ''
+        l_defer = ' defer' if loc[5] else ''
+
+        r += '<script type="text/javascript" src="{}"{}{}></script>\n'.format(l_url, l_async, l_defer)
 
     return r
 
@@ -188,7 +191,10 @@ def dump_css(html_escape: bool = True) -> str:
     for loc_url in get_urls('css'):
         if html_escape:
             loc_url = _util.escape_html(loc_url)
-        r += '<link rel="stylesheet" href="{}">\n'.format(loc_url)
+
+        # For details see https://github.com/filamentgroup/loadCSS/
+        r += '<link rel="preload" href="{}" as="style" onload="this.rel=\'stylesheet\'">\n'.format(loc_url)
+        r += '<noscript><link rel="stylesheet" href="{}"></noscript>\n'.format(loc_url)
 
     return r
 

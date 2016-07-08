@@ -35,10 +35,17 @@ def include(lib: str, permanent=False, path_prefix: str = None, **kwargs):
     for asset in get_assets(lib, **kwargs):
         location = asset
 
+        async = False
+        defer = False
+
         if isinstance(asset, (list, tuple)):
             collection = asset[1]
             location = asset[0]
+            if len(asset) > 2:
+                async = asset[2]
+            if len(asset) > 3:
+                defer = asset[3]
         else:
             collection = _assetman.detect_collection(location)
 
-        _assetman.add(location, permanent, collection, path_prefix=path_prefix)
+        _assetman.add(location, permanent, collection, path_prefix=path_prefix, async=async, defer=defer)
