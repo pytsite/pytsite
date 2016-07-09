@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.77.5 (2016-07-09)
+### Fixed
+- `file`: updated to support latest `magic`'s update.
+
+
 ## 0.77.4 (2016-07-09)
 ### Changed
 - `content`: `body` field of `model.Page` now is required by default.

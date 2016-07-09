@@ -87,7 +87,7 @@ def create(source_path: str, name: str = None, description: str = None, model: s
         raise RuntimeError('File size exceeds {} MB'.format(max_file_size_mb))
 
     # Determining file's MIME type
-    mime = _magic.from_file(source_path, True).decode()
+    mime = _magic.from_file(source_path, True)
 
     # Generating unique file path in storage
     abs_target_path = _build_store_path(mime, model, propose_store_path)
