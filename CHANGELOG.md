@@ -1,5 +1,17 @@
 # PytSite Changelog
 
+## 0.77.4 (2016-07-09)
+### Changed
+- `content`: `body` field of `model.Page` now is required by default.
+
+
+### Fixed
+- `router`: processing embedded response in HTTP exceptions.
+- `assetman`:
+    - maintenance mode enable while working with 'update' command in console mode;
+    - showing help message instead of error if arguments has not been specified.  
+
+
 ## 0.77.3 (2016-07-08)
 ### Fixed
 - `admin`, `form`, `contact_form`: async JS loading.
@@ -27,10 +39,10 @@
 - `file`: HTTP API 'get_file' endpoint.
 - `http_api`: cookies cleaning from responses.
 - `image`: 
-    - new function `get_by_ref()`.
+    - new function `get_by_ref()`;
     - HTTP API endpoints: 'post_file', 'get_file'.
 - `odm`: 
-    - new function `resolve_refs()`.
+    - new function `resolve_refs()`;
     - new property: `model.Entity.ref_str`.
 - `odm_auth`: HTTP API endpoints: 'get_entity', 'post_entity'.
 - `widget`: support for Twitter Tokenfield's 'min_length' option. 
@@ -39,8 +51,8 @@
 - `auth`: access token TTL determined by HTTP session TTL by default.
 - `odm_auth`: function `perm_check()` renamed to `check_perm()`.
 - `odm`:
-    - `model.Entity.as_dict()` renamed to `as_jsonable()`.
-    - `field.Abstract.get_storable_val()` renamed to `as_storable()`.
+    - `model.Entity.as_dict()` renamed to `as_jsonable()`;
+    - `field.Abstract.get_storable_val()` renamed to `as_storable()`;
     - `field.Abstract.get_serializable_val()` renamed to `as_jsonable()`.
     - improved `resolve_ref()`. 
 - `file`: HTTP API endpoint 'post_upload' renamed to 'post_file'.
@@ -52,8 +64,8 @@
 ## 0.76 (2016-07-01)
 ### Added
 - `auth`:
-    - New API functions: `base_path()`, `first_admin_user()`, `get_user_select_widget()`.
-    - New exceptions: `RoleModifyForbidden`, `RoleDeleteForbidden`, `NoAdminUser`.
+    - new API functions: `base_path()`, `first_admin_user()`, `get_user_select_widget()`;
+    - new exceptions: `RoleModifyForbidden`, `RoleDeleteForbidden`, `NoAdminUser`.
 - `content`: permission check in 'view' endpoint.
 - `http_api`: new function: `call_ep()`.
 - `router`: optional redirect instruction inside exceptions.

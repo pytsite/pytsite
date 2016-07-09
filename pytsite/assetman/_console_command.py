@@ -18,6 +18,7 @@ __license__ = 'MIT'
 class Assetman(_console.command.Abstract):
     """assetman:build Console Command.
     """
+
     def get_name(self) -> str:
         """Get name of the command.
         """
@@ -129,11 +130,11 @@ class Assetman(_console.command.Abstract):
         if maintenance:
             _maintenance.disable()
 
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self, args: tuple = (), **kwargs):
         """Execute The Command.
         """
         if not kwargs:
-            raise _console.error.InsufficientArguments()
+            return _console.run_command('help', ('assetman',))
 
         if 'build' in kwargs:
             self._build(not kwargs.get('no-maintenance', False))

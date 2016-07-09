@@ -898,6 +898,8 @@ class Page(Content):
         """
         super()._setup_fields()
 
+        self.get_field('body').nonempty = True
+
         self.remove_field('section')
         self.remove_field('starred')
 
