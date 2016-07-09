@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.77.6 (2016-07-09)
+### Fixed
+- `content`: setting images' author while content generation from console.
+
+
 ## 0.77.5 (2016-07-09)
 ### Fixed
 - `file`: updated to support latest `magic`'s update.

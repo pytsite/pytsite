@@ -75,6 +75,7 @@ class Generate(_console.command.Abstract):
 
         # Generate content entities
         for m in range(0, num):
+            author = None
             entity = _api.dispense(model)
 
             # Author
@@ -82,12 +83,14 @@ class Generate(_console.command.Abstract):
                 author = _auth.get_user(author_login)
                 if not author:
                     raise _console.error.Error("'{}' is not a registered user.".format(author_login))
-                entity.f_set('author', author)
             else:
                 if not users:
                     raise _lang.t('pytsite.content@no_users_found')
                 rand = _randint(0, len(users) - 1)
-                entity.f_set('author', users[rand:rand + 1])
+                author = users[rand:rand + 1][0]
+
+            # Set author
+            entity.f_set('author', author)
 
             # Title
             entity.f_set('title', self._generate_title(int(kwargs.get('title-len', 7))))
@@ -136,7 +139,7 @@ class Generate(_console.command.Abstract):
             # Images
             if entity.has_field('images') and images_num:
                 for n in range(0, images_num):
-                    entity.f_add('images', _image.create(self.lp_url))
+                    entity.f_add('images', _image.create(self.lp_url, owner=author))
 
             entity.f_set('status', 'published')
             entity.f_set('views_count', int(_random() * 1000))

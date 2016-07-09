@@ -301,12 +301,17 @@ class Entity(_ABC):
         self._check_deletion()
 
         if self._is_new:
-            raise _error.EntityNotStored('Entity must be stored before you can get its ref.')
+            raise _error.EntityNotStored("Entity of model '{}' must be stored before you can get its ref."
+                                         .format(self.model))
 
         return _DBRef(self.collection.name, self.id)
 
     @property
     def ref_str(self) -> str:
+        if self._is_new:
+            raise _error.EntityNotStored("Entity of model '{}' must be stored before you can get its ref."
+                                         .format(self.model))
+
         return '{}:{}'.format(self.model, self.id)
 
     @property
