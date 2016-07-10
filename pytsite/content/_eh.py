@@ -63,24 +63,26 @@ def _mail_digest():
     if not model:
         return
 
+    app_name = _lang.t('app_name')
+    entities_num = _reg.get('content.digest.num', 10)
+
     for lng in _lang.langs():
         _logger.info("Weekly mail digest for language {} started.".format(lng), __name__)
+
+        m_subject = _lang.t('pytsite.content@weekly_digest_mail_subject', {'app_name': app_name}, lng)
         f = _odm.find('content_subscriber').where('enabled', '=', True).where('language', '=', lng)
         for subscriber in f.get():
             content_f = _api.find(model, language=lng)
             content_f.where('publish_time', '>', _datetime.now() - _timedelta(7))
             content_f.sort([('views_count', _odm.I_DESC)])
             m_body = _tpl.render(_reg.get('content.digest.tpl', 'mail/content/digest'), {
-                'entities': content_f.get(_reg.get('content.digest.num', 10)),
+                'entities': content_f.get(entities_num),
                 'subscriber': subscriber,
                 'language': lng,
             })
-            msg = _mail.Message(
-                subscriber.f_get('email'),
-                _lang.t('pytsite.content@weekly_digest_mail_subject', language=lng),
-                m_body
-            )
+            msg = _mail.Message(subscriber.f_get('email'), m_subject, m_body)
             msg.send()
+
         _logger.info("Weekly mail digest for language {} finished.".format(lng), __name__)
 
 
