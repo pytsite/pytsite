@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.77.8 (2016-07-10)
+### Added
+- `content`: new configuration parameter: `content.ep.index.per_page`.
+
+
 ## 0.77.7 (2016-07-10)
 ### Fixed
 - `image`: missing 'Forbidden' HTTP exception throwing,

@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, odm_auth as _odm_auth, \
     router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
-    lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments
+    lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -62,7 +62,8 @@ def index(args: dict, inp: dict):
         f.where_text(query)
         _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
 
-    pager = _widget.static.Pager('content-pager', total_items=f.count(), per_page=10)
+    per_page = _reg.get('content.ep.index.per_page', 10)
+    pager = _widget.static.Pager('content-pager', total_items=f.count(), per_page=per_page)
 
     args['entities'] = list(f.skip(pager.skip).get(pager.limit))
     args['pager'] = pager
