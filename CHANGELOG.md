@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.77.7 (2016-07-10)
+### Fixed
+- `image`: missing 'Forbidden' HTTP exception throwing,
+- `content`: english translations.
+- `auth_storage_odm`: hide 'admin' role in ODM admin browser.
+
+
 ## 0.77.6 (2016-07-09)
 ### Fixed
 - `content`: setting images' author while content generation from console.

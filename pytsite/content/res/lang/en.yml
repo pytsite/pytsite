@@ -55,23 +55,23 @@ uid: 'UID'
 
 odm_perm_group_description: 'Content'
 
-odm_ui_browser_title_section: 'Browse sections'
+odm_ui_browser_title_section: 'View sections'
 odm_ui_form_title_create_section: 'Create section'
 odm_ui_form_title_modify_section: 'Modify section'
 odm_ui_form_title_delete_section: 'Delete section(s)'
 
 odm_perm_create_section: 'Create section'
-odm_perm_view_section: 'Browse sections'
+odm_perm_view_section: 'View sections'
 odm_perm_modify_section: 'Modify sections'
 odm_perm_delete_section: 'Delete sections'
 
-odm_ui_browser_title_tag: 'Browse tags'
+odm_ui_browser_title_tag: 'View tags'
 odm_ui_form_title_create_tag: 'Create tag'
 odm_ui_form_title_modify_tag: 'Modify tag'
 odm_ui_form_title_delete_tag: 'Remove tag(s)'
 
 odm_perm_create_tag: 'Create tags'
-odm_perm_view_tag: 'Browse tags'
+odm_perm_view_tag: 'View tags'
 odm_perm_modify_tag: 'Edit tags'
 odm_perm_delete_tag: 'Delete tag'
 
@@ -82,7 +82,7 @@ odm_ui_form_title_delete_article: 'Delete article(s)'
 
 odm_perm_create_article: 'Create articles'
 odm_perm_view_own_article: 'View OWN articles'
-odm_perm_view_article: 'Browse ALL articles'
+odm_perm_view_article: 'View ALL articles'
 odm_perm_modify_own_article: 'Modify OWN articles'
 odm_perm_modify_article: 'Modify ANY articles'
 odm_perm_delete_own_article: 'Delete OWN articles'

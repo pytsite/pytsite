@@ -24,7 +24,7 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
 
     # Checking permissions
     if not image_entity.check_perm('view'):
-        return _http.error.Unauthorized()
+        raise _http.error.Forbidden()
 
     # Aligning side lengths
     aligned_width = _align_length(requested_width, int(_reg.get('image.resize_limit_width', 1200)))

@@ -90,6 +90,9 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
         browser.default_sort_field = 'name'
 
     def ui_browser_get_row(self) -> tuple:
+        if self.name == 'admin':
+            return
+
         perms = []
         for perm_name in self.permissions:
             # If permission was renamed or deleted (sometimes it happens), juts ignore it
