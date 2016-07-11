@@ -3,7 +3,8 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, widget as _widget, content as _content, \
-    util as _util, router as _router, form as _form, lang as _lang, validation as _validation
+    util as _util, router as _router, form as _form, lang as _lang, validation as _validation, \
+    auth_storage_odm as _auth_storage_odm
 from . import _widget as _content_import_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -95,17 +96,17 @@ class ContentImport(_odm_ui.model.UIEntity):
         """
         browser.default_sort_field = 'driver'
 
-        browser.data_fields = (
-            'content_model',
-            'driver',
-            'driver_opts',
-            'content_author',
-            'with_images_only',
-            'enabled',
-            'errors',
-            'paused_till',
-            'owner'
-        )
+        browser.data_fields = [
+            ('content_model', 'pytsite.content_import@content_model'),
+            ('driver', 'pytsite.content_import@driver'),
+            ('driver_opts', 'pytsite.content_import@driver_opts'),
+            ('content_author', 'pytsite.content_import@content_author'),
+            ('with_images_only', 'pytsite.content_import@with_images_only'),
+            ('enabled', 'pytsite.content_import@enabled'),
+            ('errors', 'pytsite.content_import@errors'),
+            ('paused_till', 'pytsite.content_import@paused_till'),
+            ('owner', 'pytsite.content_import@owner'),
+        ]
 
     def ui_browser_get_row(self) -> tuple:
         model = _content.get_model_title(self.content_model)
@@ -140,7 +141,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             uid='enabled',
             label=self.t('enabled'),
             value=self.enabled,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_widget.select.Checkbox(
@@ -148,7 +148,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             uid='with_images_only',
             label=self.t('with_images_only'),
             value=self.with_images_only,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_content.widget.ModelSelect(
@@ -158,7 +157,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             value=self.content_model,
             h_size='col-sm-4',
             required=True,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_widget.select.Language(
@@ -168,7 +166,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             value=self.content_language or _lang.get_current(),
             h_size='col-sm-4',
             required=True,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_content.widget.SectionSelect(
@@ -178,7 +175,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             value=self.content_section,
             h_size='col-sm-4',
             required=True,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_content.widget.StatusSelect(
@@ -188,17 +184,15 @@ class ContentImport(_odm_ui.model.UIEntity):
             value='waiting' if self.is_new else self.content_status,
             h_size='col-sm-4',
             required=True,
-            form_steps=(1,)
         ))
 
-        frm.add_widget(_auth.widget.UserSelect(
+        frm.add_widget(_auth_storage_odm.widget.UserSelect(
             weight=70,
             uid='content_author',
             label=self.t('content_author'),
             value=self.content_author if not self.is_new else _auth.current_user(),
             h_size='col-sm-4',
             required=True,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_content_import_widget.DriverSelect(
@@ -208,7 +202,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             value=self.driver,
             h_size='col-sm-4',
             required=True,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_widget.input.Tokens(
@@ -216,7 +209,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             uid='add_tags',
             label=self.t('additional_tags'),
             value=self.add_tags,
-            form_steps=(1,)
         ))
 
         frm.add_widget(_widget.select.DateTime(
@@ -225,7 +217,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             label=self.t('paused_till'),
             value=self.paused_till,
             h_size='col-sm-5 col-md-4 col-lg-3',
-            form_steps=(1,),
             hidden=self.is_new,
         ))
 
@@ -235,21 +226,24 @@ class ContentImport(_odm_ui.model.UIEntity):
             label=self.t('errors'),
             value=self.errors,
             h_size='col-sm-1',
-            form_steps=(1,),
             hidden=self.is_new or not self.errors,
-        ))
-
-        # Placeholder widget to give ability to save data while form submit
-        frm.add_widget(_widget.input.Hidden(
-            weight=120,
-            uid='driver_opts',
         ))
 
         # Replace placeholder widget with real widget provided from driver
         if frm.step == 2:
             driver = _api.get_driver(_router.request().inp.get('driver'))
             settings_widget = driver.get_settings_widget(self.driver_opts)
-            settings_widget.uid = 'driver_opts'
             settings_widget.form_step = 2
-            frm.replace_widget('driver_opts', settings_widget)
-            frm.add_rule('driver_opts', _validation.rule.NonEmpty())
+            frm.add_widget(settings_widget)
+
+    def ui_m_form_submit(self, frm: _form.Form):
+        """Hook.
+        """
+        driver_opts = {}
+        for k, widget in frm.get_widgets().items():
+            if not k.startswith('driver_opts_'):
+                continue
+
+            driver_opts[k.replace('driver_opts_', '')] = widget.value
+
+        self.f_set('driver_opts', driver_opts)

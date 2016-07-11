@@ -204,8 +204,8 @@ def find_tag_by_alias(alias: str, language: str = None) -> _model.Tag:
 
 
 def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str = None,
-                 finder_setup: _Callable[[_odm.Finder], None] = None,
-                 item_setup: _Callable[[_feed.rss.Item, _model.Content], None] = None,
+                 finder_setup: _Callable[[_odm.Finder], None]=None,
+                 item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
                  length: int = 20):
     """Generate RSS feeds.
     """
@@ -242,6 +242,12 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
             for tag in entity.tags:
                 item.append_child(_feed.rss.Tag(tag.title))
 
+        # Video links
+        if entity.has_field('video_links'):
+            for link_url in entity.video_links:
+                item.append_child(_feed.rss.VideoLink(link_url))
+
+        # Images
         if entity.has_field('images') and entity.images:
             # Attaching all the images as enclosures
             for img in entity.images:

@@ -85,18 +85,18 @@ class ContentExport(_odm_ui.model.UIEntity):
         """
         browser.default_sort_field = 'driver'
 
-        browser.data_fields = (
-            'content_model',
-            'driver',
-            'driver_opts',
-            'process_all_authors',
-            'with_images_only',
-            'max_age',
-            'enabled',
-            'errors',
-            'paused_till',
-            'owner'
-        )
+        browser.data_fields = [
+            ('content_model', 'pytsite.content_export@content_model'),
+            ('driver', 'pytsite.content_export@driver'),
+            ('driver_opts', 'pytsite.content_export@driver_opts'),
+            ('process_all_authors', 'pytsite.content_export@process_all_authors'),
+            ('with_images_only', 'pytsite.content_export@with_images_only'),
+            ('max_age', 'pytsite.content_export@max_age'),
+            ('enabled', 'pytsite.content_export@enabled'),
+            ('errors', 'pytsite.content_export@errors'),
+            ('paused_till', 'pytsite.content_export@paused_till'),
+            ('owner', 'pytsite.content_export@owner')
+        ]
 
     def ui_browser_get_row(self) -> tuple:
         """Hook.

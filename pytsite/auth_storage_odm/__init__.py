@@ -1,6 +1,6 @@
 """PytSIte Authentication ODM Storage Driver.
 """
-from . import _model as model
+from . import _model as model, _widget as widget
 from ._driver import Driver
 
 __author__ = 'Alexander Shepetko'

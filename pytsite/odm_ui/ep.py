@@ -37,6 +37,9 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     # Create the form
     frm = _api.get_m_form(model, entity_id)
 
+    # Switch form to tha last step, as some widgets can be added dynamically
+    frm.step = frm.steps
+
     # Fill the form in 'validation' mode
     frm.fill(inp, mode='validation')
 

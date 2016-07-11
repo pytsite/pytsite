@@ -43,17 +43,17 @@ class Abstract(_ABC):
         self._enabled = kwargs.get('enabled', True)
         self._parent = kwargs.get('parent')
 
-        if self.required:
-            self.add_rule(_validation.rule.NonEmpty())
-
         # Check validation rules
-        if type(self._rules) not in (list, tuple):
+        if not isinstance(self._rules, (list, tuple)):
             self._rules = [self._rules]
         if isinstance(self._rules, tuple):
             self._rules = list(self._rules)
         for rule in self._rules:
             if not isinstance(rule, _validation.rule.Base):
                 raise TypeError('Instance of pytsite.validation.rule.Base expected.')
+
+        if self.required:
+            self.add_rule(_validation.rule.NonEmpty())
 
         if 'value' in kwargs:
             # It is important to filter value through the setter-method
@@ -404,6 +404,20 @@ class Container(Abstract):
         self._children = {}
         self._css += ' widget-container'
         self._data['container'] = True
+
+    @property
+    def form_step(self) -> _Union[str, tuple]:
+        """Get current form step.
+        """
+        return self._form_step
+
+    @form_step.setter
+    def form_step(self, value: int):
+        """Set current form step.
+        """
+        self._form_step = value
+        for w in self.get_widgets().values():
+            w.form_step = value
 
     def get_widgets(self) -> _Dict[str, Abstract]:
         """Get children widgets.

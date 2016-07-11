@@ -74,7 +74,7 @@ class Tag(_abstract.Serializable):
         try:
             self._title = _validation.rule.NonEmpty(title).validate()
         except _validation.error.RuleError:
-            raise ValueError('Category title cannot be empty.')
+            raise ValueError('Tag title cannot be empty.')
 
     @property
     def title(self) -> str:
@@ -83,6 +83,30 @@ class Tag(_abstract.Serializable):
     def get_content(self):
         em = _etree.Element('{https://pytsite.shepetko.com}tag')
         em.text = self._title
+
+        return em
+
+
+class VideoLink(_abstract.Serializable):
+    def __init__(self, url: str):
+        super().__init__()
+        try:
+            self._url = _validation.rule.Url(url).validate()
+        except _validation.error.RuleError:
+            raise ValueError('Video link must be an URL.')
+
+        try:
+            self._url = _validation.rule.NonEmpty(url).validate()
+        except _validation.error.RuleError:
+            raise ValueError('Video link URL cannot be empty.')
+
+    @property
+    def url(self) -> str:
+        return self._url
+
+    def get_content(self):
+        em = _etree.Element('{https://pytsite.shepetko.com}video_link')
+        em.text = self._url
 
         return em
 
@@ -156,6 +180,10 @@ class Item(_xml.Item):
     @property
     def tags(self) -> _List[Tag]:
         return [i for i in self.children if i.get_content().tag == '{https://pytsite.shepetko.com}tag']
+
+    @property
+    def video_links(self) -> _List[VideoLink]:
+        return [i for i in self.children if i.get_content().tag == '{https://pytsite.shepetko.com}video_link']
 
     @property
     def enclosures(self) -> _List[Enclosure]:
@@ -377,6 +405,8 @@ class Reader(_xml.Reader):
                 item.append_child(Category(i.text, i.get('domain')))
             elif i.tag == '{https://pytsite.shepetko.com}tag':
                 item.append_child(Tag(i.text))
+            elif i.tag == '{https://pytsite.shepetko.com}video_link':
+                item.append_child(VideoLink(i.text))
             elif i.tag == 'enclosure':
                 mime = i.get('mime') or i.get('type') or ''
                 item.append_child(Enclosure(i.get('url'), i.get('length', 0), mime))

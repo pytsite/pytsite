@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.78 (2016-07-11)
+### Added
+- `feed`: new RSS item children: `rss.VideoLink`.
+
+### Fixed
+- `widget`: automatic form step update of children widgets in `base.Container`.
+- `odm_ui`: form step update while submitting. 
+- `content_import`: non-working entity form.
+- `content_export`: translations of ODM browser titles.
+
+
 ## 0.77.9 (2016-07-10)
 ### Fixed
 - `content`: mail digest subject string translations.

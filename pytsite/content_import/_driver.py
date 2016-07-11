@@ -55,19 +55,13 @@ class RSS(Abstract):
     def get_settings_widget(self, driver_opts: _frozendict):
         """Add widgets to the settings form of the driver.
         """
-        wrapper = _widget.Container(
-            uid='driver_opts',
-        )
-
-        wrapper.add_widget(_widget.input.Text(
-            uid='driver_opts[url]',
+        return _widget.input.Text(
+            uid='driver_opts_url',
             label=_lang.t('pytsite.content_import@url'),
             value=driver_opts.get('url', ''),
             rules=_validation.rule.Url(),
             required=True,
-        ))
-
-        return wrapper
+        )
 
     def get_entities(self, options: _frozendict) -> _Iterable[_content.model.Content]:
         """Returns entities which should be imported.
@@ -117,11 +111,16 @@ class RSS(Abstract):
                 for tag_title in rss_item.tags:
                     entity.f_add('tags', _content.dispense_tag(tag_title.title).save())
 
+            # Video links
+            if entity.has_field('video_links'):
+                for video_link in rss_item.video_links:
+                    entity.f_add('video_links', video_link.url)
+
             # Images
             if entity.has_field('images') and rss_item.enclosures:
                 for enc in rss_item.enclosures:
                     if enc.mime.startswith('image'):
-                        entity.f_add('images', _image.create(enc.url))
+                        entity.f_add('images', _image.create(enc.url, owner=o['content_author']))
 
             # Store information about content source
             entity.f_add('content_import', {
