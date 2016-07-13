@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.78.1 (2016-07-13)
+### Fixed
+- `browser`: iframes auto resizing in `responsive` library.
+
+
 ## 0.78 (2016-07-11)
 ### Added
 - `feed`: new RSS item children: `rss.VideoLink`.

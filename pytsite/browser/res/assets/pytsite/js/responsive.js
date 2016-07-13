@@ -15,7 +15,7 @@ pytsite.responsive = function () {
     }
 
     // Searches for closest container with non-zero width
-    function get_parent_width(child) {
+    function getParentWidth(child) {
         var parent_cont = $(child).parent();
         while (true) {
             if (parent_cont.width() > 0 && parent_cont.prop('tagName') != 'A')
@@ -25,7 +25,7 @@ pytsite.responsive = function () {
         }
     }
 
-    function get_img_container(cont) {
+    function getImgContainer(cont) {
         var img_path = cont.data('path');
         if (typeof img_path == 'undefined')
             return cont;
@@ -35,7 +35,7 @@ pytsite.responsive = function () {
         var css = cont.attr('class');
         var orig_width = parseInt(cont.data('width'));
         var orig_height = parseInt(cont.data('height'));
-        var new_width = align_length(get_parent_width(cont));
+        var new_width = align_length(getParentWidth(cont));
         var new_height = 0;
 
         var aspect_ratio = cont.data('aspectRatio');
@@ -51,10 +51,22 @@ pytsite.responsive = function () {
             'data-width="' + orig_width + '"' + 'data-height="' + orig_height + '"' + '>';
     }
 
+    // Replace images
     $('img.pytsite-img,span.pytsite-img').each(function () {
         $(this).replaceWith(function () {
-            return get_img_container($(this));
+            return getImgContainer($(this));
         });
+    });
+
+    // Replace iframes
+    $('iframe').each(function() {
+        var origWidth = parseInt($(this).width());
+        var origHeight = parseInt($(this).height());
+        var newWidth = getParentWidth(this);
+        var aspect = origWidth / origHeight;
+        var newHeight = newWidth / aspect;
+        $(this).attr('width', newWidth);
+        $(this).attr('height', newHeight);
     });
 };
 
