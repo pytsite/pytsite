@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.78.3 (2016-07-14)
+### Fixed
+- `odm_ui`: undefined sort field error in entities browser. 
+
+
 ## 0.78.2 (2016-07-14)
 ### Fixed
 - `odm`: manual collection's name definition. 

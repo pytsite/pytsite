@@ -1,10 +1,9 @@
 """PytSite ODM Entities Browser.
 """
-from typing import Callable as _Callable
+from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
     html as _html, http_api as _http_api, odm_auth as _odm_auth, odm_ui as _odm_ui, widget as _widget
 from . import _api
-
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -109,7 +108,7 @@ class Browser(_widget.misc.BootstrapTable):
         if self._model_class.ui_model_actions_enabled():
             row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
-    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: str = None,
+    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str] = None,
                  search: str = None) -> list:
         """Get browser rows.
         """
@@ -134,8 +133,13 @@ class Browser(_widget.misc.BootstrapTable):
         r['total'] = finder.count()
 
         # Sort
-        if sort_field:
-            sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC
+        if sort_field and finder.mock.has_field(sort_field):
+            if isinstance(sort_order, int):
+                sort_order = _odm.I_DESC if sort_order < 0 else _odm.I_ASC
+            elif isinstance(sort_order, str):
+                sort_order = _odm.I_DESC if sort_order.lower() == 'desc' else _odm.I_ASC
+            else:
+                sort_order = _odm.I_ASC
             finder.sort([(sort_field, sort_order)])
         elif self._default_sort_field:
             finder.sort([(self._default_sort_field, self._default_sort_order)])
