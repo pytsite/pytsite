@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.78.2 (2016-07-14)
+### Fixed
+- `odm`: manual collection's name definition. 
+
+
 ## 0.78.1 (2016-07-13)
 ### Fixed
 - `browser`: iframes auto resizing in `responsive` library.

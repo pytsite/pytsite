@@ -30,9 +30,11 @@ class Entity(_ABC):
     def __init__(self, model: str, obj_id: _Union[str, _ObjectId], cache_pool: _cache.driver.Abstract):
         """Init.
         """
-        if not hasattr(self, 'collection_name'):
+        # Let developer to specify collection name manually
+        if not hasattr(self, '_collection_name'):
             self._collection_name = None
 
+        # Define collection name if it wasn't specified
         if self._collection_name is None:
             if model[-1:] in ('s', 'h'):
                 self._collection_name = model + 'es'
