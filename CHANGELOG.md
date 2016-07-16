@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.79 (2016-07-16)
+### Changed
+- `feed`: totally refactored.
+
+### Fixed
+- `file`: URL escaping while loading file from remote source.
+
+
 ## 0.78.3 (2016-07-14)
 ### Fixed
 - `odm_ui`: undefined sort field error in entities browser. 

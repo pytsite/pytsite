@@ -386,6 +386,7 @@ def parse_rfc822_datetime_str(s: str) -> _datetime:
     try:
         # Year with century
         return _datetime.strptime(s, '%a, %d %b %Y %H:%M:%S %z')
+
     except ValueError:
         # Year without century
         return _datetime.strptime(s, '%a, %d %b %y %H:%M:%S %z')

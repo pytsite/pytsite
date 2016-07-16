@@ -8,9 +8,10 @@ __license__ = 'MIT'
 
 
 class RuleError(ValueError):
-    def __init__(self, msg_id: str, msg_args: dict=None):
+    def __init__(self, msg_id: str, msg_args: dict = None, value=None):
         self._msg_id = msg_id
         self._msg_args = msg_args
+        self._value = value
 
     @property
     def msg_id(self) -> str:
@@ -21,12 +22,16 @@ class RuleError(ValueError):
         return self._msg_args
 
     def __str__(self) -> str:
-        return _lang.t(self._msg_id, self._msg_args)
+        if self._value:
+            return '{}: {}'.format(_lang.t(self._msg_id, self._msg_args), self._value)
+        else:
+            return _lang.t(self._msg_id, self._msg_args)
 
 
 class ValidatorError(ValueError):
     """Validation Error Exception.
     """
+
     def __init__(self, errors: dict):
         """Init.
         """

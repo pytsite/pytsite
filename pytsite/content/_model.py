@@ -111,18 +111,27 @@ def _extract_images(entity) -> tuple:
 
     :type entity: _Union[Block, Content]
     """
+    if not entity.author:
+        raise RuntimeError('Entity author must be set before ')
+
     images = list(entity.images)
     img_index = len(images)
 
     def replace_func(match):
         nonlocal img_index, images
         img_index += 1
-        images.append(_image.create(match.group(1)))
+        images.append(_image.create(match.group(1), owner=entity.author))
         return '[img:{}]'.format(img_index)
 
     body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.f_get('body', process_tags=False))
 
     return body, images
+
+
+def _remove_tags(s: str) -> str:
+    s = _body_img_tag_re.sub('', s)
+    s = _body_vid_tag_re.sub('', s)
+    return s
 
 
 class Section(_taxonomy.model.Term):
@@ -217,8 +226,11 @@ class Base(_odm_ui.model.UIEntity):
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
-        if field_name == 'body' and kwargs.get('process_tags'):
-            value = _process_tags(self, value)
+        if field_name == 'body':
+            if kwargs.get('process_tags'):
+                value = _process_tags(self, value)
+            elif kwargs.get('remove_tags'):
+                value = _remove_tags(value)
 
         return value
 

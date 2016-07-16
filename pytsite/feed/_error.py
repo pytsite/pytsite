@@ -5,7 +5,15 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+class ElementNotFound(Exception):
+    pass
+
+
 class ElementRequired(Exception):
+    pass
+
+
+class UnsupportedElement(Exception):
     pass
 
 

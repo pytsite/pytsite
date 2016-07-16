@@ -243,7 +243,7 @@ class Regex(Base):
 
         elif isinstance(self.value, str):
             if not self._regex.match(self.value):
-                raise _error.RuleError(self._msg_id, {'pattern': self._pattern})
+                raise _error.RuleError(self._msg_id, {'pattern': self._pattern}, self.value)
 
         else:
             raise TypeError('List, dict or str expected.')
@@ -328,8 +328,13 @@ class DateTime(Base):
         from datetime import datetime
         if isinstance(self._value, str):
             self._value = self._value.strip()
-            if self._value and not _re.match(r'\d{2}\.\d{2}\.\d{4}\s\d{2}\.\d{2}', self._value):
-                raise _error.RuleError(self._msg_id)
+
+            try:
+                self._value = _util.parse_rfc822_datetime_str(self._value)
+            except ValueError:
+                if self._value and not _re.match('\d{2}\.\d{2}\.\d{4}\s\d{2}\.\d{2}', self._value):
+                    raise _error.RuleError(self._msg_id)
+
         elif not isinstance(self._value, datetime):
             raise _error.RuleError(self._msg_id)
 

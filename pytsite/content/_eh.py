@@ -4,8 +4,7 @@ from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, tpl as _tpl, \
-    mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
-    feed as _feed
+    mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -135,15 +134,9 @@ def _generate_sitemap():
 
 
 def _generate_feeds():
-    content_settings = _settings.get_setting('content')
-
     # For each language we have separate feed
-    for lang in _lang.langs():
-        title = content_settings.get('home_title_' + lang)
-        description = content_settings.get('home_description_' + lang)
-
+    for lng in _lang.langs():
         # Generate RSS feed for each model
         for model in _reg.get('content.feed.models', ()):
-            generator = _feed.rss.Generator(title, _router.base_url(lang), description)
             filename = 'rss-{}'.format(model)
-            _api.generate_rss(generator, model, filename, lang, length=_reg.get('content.feed.length', 20))
+            _api.generate_rss(model, filename, lng, length=_reg.get('content.feed.length', 20))

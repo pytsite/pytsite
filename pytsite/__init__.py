@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 core_name = 'PytSite'
-core_url = 'https://github.com/pytsite/'
+core_url = 'https://pytsite.xyz'
 __version = None  # type: tuple
 
 

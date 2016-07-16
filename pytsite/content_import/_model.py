@@ -26,7 +26,6 @@ class ContentImport(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.Ref('content_section', model='section'))
         self.define_field(_odm.field.String('content_status', nonempty=True))
         self.define_field(_odm.field.String('content_language', nonempty=True))
-        self.define_field(_odm.field.Bool('with_images_only', default=True))
         self.define_field(_odm.field.Bool('enabled', default=True))
         self.define_field(_odm.field.Integer('errors'))
         self.define_field(_odm.field.String('last_error'))
@@ -66,10 +65,6 @@ class ContentImport(_odm_ui.model.UIEntity):
         return self.f_get('content_language')
 
     @property
-    def with_images_only(self) -> bool:
-        return self.f_get('with_images_only')
-
-    @property
     def enabled(self) -> bool:
         return self.f_get('enabled')
 
@@ -101,7 +96,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             ('driver', 'pytsite.content_import@driver'),
             ('driver_opts', 'pytsite.content_import@driver_opts'),
             ('content_author', 'pytsite.content_import@content_author'),
-            ('with_images_only', 'pytsite.content_import@with_images_only'),
             ('enabled', 'pytsite.content_import@enabled'),
             ('errors', 'pytsite.content_import@errors'),
             ('paused_till', 'pytsite.content_import@paused_till'),
@@ -113,8 +107,6 @@ class ContentImport(_odm_ui.model.UIEntity):
         driver = _api.get_driver(self.driver).get_description()
         driver_options = str(dict(self.driver_opts))
         content_author = self.content_author.full_name
-        w_images = '<span class="label label-success">' + self.t('word_yes') + '</span>' \
-            if self.with_images_only else ''
         enabled = '<span class="label label-success">' + self.t('word_yes') + '</span>' if self.enabled else ''
         paused_till = self.f_get('paused_till', fmt='pretty_date_time') if _datetime.now() < self.paused_till else ''
         owner = self.owner.full_name
@@ -125,7 +117,7 @@ class ContentImport(_odm_ui.model.UIEntity):
         else:
             errors = ''
 
-        return model, driver, driver_options, content_author, w_images, enabled, errors, paused_till, owner
+        return model, driver, driver_options, content_author, enabled, errors, paused_till, owner
 
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
@@ -141,13 +133,6 @@ class ContentImport(_odm_ui.model.UIEntity):
             uid='enabled',
             label=self.t('enabled'),
             value=self.enabled,
-        ))
-
-        frm.add_widget(_widget.select.Checkbox(
-            weight=20,
-            uid='with_images_only',
-            label=self.t('with_images_only'),
-            value=self.with_images_only,
         ))
 
         frm.add_widget(_content.widget.ModelSelect(

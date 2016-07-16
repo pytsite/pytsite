@@ -3,7 +3,7 @@
 from typing import Callable as _Callable, Iterable as _Iterable, List as _List
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
-from pytsite import admin as _admin, taxonomy as _taxonomy, odm as _odm, util as _util, \
+from pytsite import admin as _admin, taxonomy as _taxonomy, odm as _odm, util as _util, settings as _settings, \
     router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permission as _permission
 from . import _model
 
@@ -203,10 +203,8 @@ def find_tag_by_alias(alias: str, language: str = None) -> _model.Tag:
     return _taxonomy.find_by_alias('tag', alias, language)
 
 
-def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng: str = None,
-                 finder_setup: _Callable[[_odm.Finder], None]=None,
-                 item_setup: _Callable[[_feed.rss.Item, _model.Content], None]=None,
-                 length: int = 20):
+def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Callable[[_odm.Finder], None]=None,
+                 item_setup: _Callable[[_feed.xml.Serializable, _model.Content], None]=None, length: int = 20):
     """Generate RSS feeds.
     """
     if not lng:
@@ -222,45 +220,79 @@ def generate_rss(generator: _feed.rss.Generator, model: str, filename: str, lng:
     if not _path.exists(output_dir):
         _makedirs(output_dir, 0o755, True)
 
-    for entity in finder.get(length):
-        item = generator.dispense_item()
-        item.title = entity.title
-        item.link = entity.url
-        item.description = entity.description if entity.description else entity.title
-        item.full_text = entity.f_get('body', process_tags=False)
-        item.pub_date = entity.publish_time
-        item.author = '{} ({})'.format(entity.author.email, entity.author.full_name)
+    # Create generator
+    content_settings = _settings.get_setting('content')
+    parser = _feed.rss.Parser()
 
-        # Category
+    # Get <channel> element
+    channel = parser.get_children('channel')[0]
+
+    # Channel title
+    channel.append_child(_feed.rss.em.Title(content_settings.get('home_title_' + lng)))
+
+    # Channel description
+    channel.append_child(_feed.rss.em.Description(content_settings.get('home_description_' + lng)))
+
+    # Channel link
+    channel.append_child(_feed.rss.em.Link(_router.base_url()))
+
+    # Channel language
+    channel.append_child(_feed.rss.em.Language(lng))
+
+    # Channel logo
+    logo_url = _router.url(_reg.get('content.rss.logo_url', 'assets/app/img/logo-rss.png'))
+    channel.append_child(_feed.rss.yandex.Logo(logo_url))
+    square_logo_url = _router.url(_reg.get('content.rss.square_logo_url', 'assets/app/img/logo-rss-square.png'))
+    channel.append_child(_feed.rss.yandex.Logo(square_logo_url, square=True))
+
+    # Append channel's items
+    for entity in finder.get(length):
+        item = _feed.rss.em.Item()
+        item.append_child(_feed.rss.em.Title(entity.title))
+        item.append_child(_feed.rss.em.Link(entity.url))
+        item.append_child(_feed.rss.em.Description(entity.description if entity.description else entity.title))
+        item.append_child(_feed.rss.em.PubDate(entity.publish_time))
+        item.append_child(_feed.rss.em.Author('{} ({})'.format(entity.author.email, entity.author.full_name)))
+
+        # Section
         if entity.has_field('section'):
-            item.append_child(_feed.rss.Category(entity.section.title))
-        elif entity.has_field('tags'):
-            item.append_child(_feed.rss.Category(entity.tags[0].title))
+            item.append_child(_feed.rss.em.Category(entity.section.title))
 
         # Tags
         if entity.has_field('tags'):
             for tag in entity.tags:
-                item.append_child(_feed.rss.Tag(tag.title))
-
-        # Video links
-        if entity.has_field('video_links'):
-            for link_url in entity.video_links:
-                item.append_child(_feed.rss.VideoLink(link_url))
+                item.append_child(_feed.rss.pytsite.Tag(tag.title))
 
         # Images
         if entity.has_field('images') and entity.images:
             # Attaching all the images as enclosures
             for img in entity.images:
-                item.append_child(_feed.rss.Enclosure(img.url, img.length, img.mime))
+                item.append_child(_feed.rss.em.Enclosure(url=img.url, length=img.length, mime=img.mime))
+
+        # Video links
+        if entity.has_field('video_links') and entity.video_links:
+            m_group = item.append_child(_feed.rss.media.Group())
+            for link_url in entity.video_links:
+                m_group.append_child(_feed.rss.media.Player(url=link_url))
+
+        # Comments count
+        if entity.has_field('comments_count'):
+            item.append_child(_feed.rss.slash.Comments(entity.comments_count))
+
+        # Body
+        if entity.has_field('body'):
+            item.append_child(_feed.rss.yandex.FullText(entity.f_get('body', process_tags=False, remove_tags=True)))
+            item.append_child(_feed.rss.content.Encoded(entity.f_get('body', process_tags=False, remove_tags=True)))
+            item.append_child(_feed.rss.pytsite.FullText(entity.f_get('body', process_tags=False)))
 
         if item_setup:
             item_setup(item, entity)
 
-        generator.append_item(item)
+        channel.append_child(item)
 
     # Write feed content
     out_path = _path.join(output_dir, '{}-{}.xml'.format(filename, lng))
     with open(out_path, 'wt', encoding='utf-8') as f:
-        f.write(generator.generate())
+        f.write(parser.generate())
 
     _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)

@@ -1,7 +1,5 @@
 """Abstract XML Based Feed.
 """
-from typing import Iterable as _Iterable
-from abc import abstractmethod as _abstractmethod
 from lxml import etree as _etree
 from . import _abstract
 
@@ -10,36 +8,44 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Item(_abstract.Serializable):
-    """XML Feed Item.
+class Serializable(_abstract.Serializable):
+    """XML Serializable.
     """
-    @_abstractmethod
-    def get_content(self) -> _etree.Element:
-        """Get object's content ready to serilization.
-        """
-        pass
 
-
-class Generator(_abstract.Generator):
-    """XML Feed Generator.
-    """
-    def __init__(self, nsmap: dict=None):
+    def __init__(self, text: str = '', **kwargs):
         super().__init__()
-        self._nsmap = nsmap or {}
-
-    @_abstractmethod
-    def dispense_item(self) -> Item:
-        pass
-
-    def append_item(self, item: Item):
-        super().append_item(item)
+        self._text = text
+        self._nsmap = kwargs.get('nsmap')
 
     @property
-    def items(self) -> _Iterable[Item]:
-        return self._items
+    def name(self) -> str:
+        raise NotImplementedError()
 
+    @property
+    def attributes(self) -> dict:
+        return None
 
-class Reader(_abstract.Reader):
-    """XML Feed Reader.
-    """
-    pass
+    @property
+    def text(self) -> str:
+        return self._text
+
+    def get_content(self) -> _etree.Element:
+        """Get object's content ready to serialization.
+        """
+        for r_child in self.required_children:
+            if r_child not in self._children_names:
+                raise KeyError("Element '{}' must have at least one '{}' child.".format(self.name, r_child))
+
+        try:
+            em = _etree.Element(self.name, self.attributes, self._nsmap)
+        except TypeError as e:
+            raise TypeError("Unexpected error while creating XML element '{}' with attributes '{}': {}".
+                            format(self.name, self.attributes, e))
+
+        if self.get_children():
+            for child in self.get_children():
+                em.append(child.get_content())
+        else:
+            em.text = self._text
+
+        return em

@@ -35,7 +35,6 @@ def cron_1min():
             'content_language': importer.content_language,
             'content_status': importer.content_status,
             'content_section': importer.content_section,
-            'with_images_only': importer.with_images_only,
         })
 
         driver = _api.get_driver(importer.driver)

@@ -89,6 +89,8 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
 
                         try:
                             _events.fire('pytsite.cron.' + evt)
+                        except RuntimeWarning as e:
+                            _logger.warn('{}'.format(str(e)), __name__)
                         except Exception as e:
                             _logger.error('{}'.format(str(e)), __name__)
                         finally:
