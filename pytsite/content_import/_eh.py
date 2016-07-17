@@ -43,27 +43,31 @@ def cron_1min():
         try:
             _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options), __name__)
 
-            for e in driver.get_entities(_frozendict(options)):
+            for entity in driver.get_entities(_frozendict(options)):
                 if items_imported == max_items:
                     break
 
-                # Append tags
-                for tag_title in importer.add_tags:
-                    e.f_add('tags', _content.dispense_tag(tag_title).save())
+                try:
+                    # Append additional tags
+                    if entity.has_field('tags'):
+                        for tag_title in importer.add_tags:
+                            entity.f_add('tags', _content.dispense_tag(tag_title).save())
 
-                # Save entity
-                e.save()
-                _logger.info("Content entity imported: '{}'".format(e.title), __name__)
-                items_imported += 1
+                    # Save entity
+                    entity.save()
+                    _logger.info("Content entity imported: '{}'".format(entity.f_get('title')), __name__)
+                    items_imported += 1
+                except Exception as e:
+                    _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)), __name__)
 
             _logger.info('Content import finished. Entities imported: {}.'.format(items_imported), __name__)
 
-        except _error.ContentImportError as e:
+        except _error.ContentImportError as entity:
             # Increment errors counter
             importer.f_inc('errors')
 
             # Store info about error
-            importer.f_set('last_error', str(e))
+            importer.f_set('last_error', str(entity))
 
             if importer.errors >= max_errors:
                 # Disable if maximum errors count reached
@@ -72,4 +76,4 @@ def cron_1min():
                 # Pausing importer
                 importer.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
-            _logger.error('Import error: {}.'.format(str(e)), __name__)
+            _logger.error('Import error: {}.'.format(str(entity)), __name__)

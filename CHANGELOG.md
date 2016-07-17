@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.79.2 (2016-07-17)
+### Fixed
+- `content_import`: errors processing.
+
+
 ## 0.79.1 (2016-07-17)
 ### Added
 - `content`: attaching 'pdalink' by `generate_rss()`.
