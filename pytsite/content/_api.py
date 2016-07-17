@@ -228,7 +228,7 @@ def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Call
     channel = parser.get_children('channel')[0]
 
     # Channel title
-    channel.append_child(_feed.rss.em.Title(content_settings.get('home_title_' + lng)))
+    channel.append_child(_feed.rss.em.Title(content_settings.get('home_title_' + lng) or 'UNTITLED'))
 
     # Channel description
     channel.append_child(_feed.rss.em.Description(content_settings.get('home_description_' + lng)))
@@ -250,6 +250,7 @@ def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Call
         item = _feed.rss.em.Item()
         item.append_child(_feed.rss.em.Title(entity.title))
         item.append_child(_feed.rss.em.Link(entity.url))
+        item.append_child(_feed.rss.em.PdaLink(entity.url))
         item.append_child(_feed.rss.em.Description(entity.description if entity.description else entity.title))
         item.append_child(_feed.rss.em.PubDate(entity.publish_time))
         item.append_child(_feed.rss.em.Author('{} ({})'.format(entity.author.email, entity.author.full_name)))

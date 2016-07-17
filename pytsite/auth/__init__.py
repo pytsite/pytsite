@@ -46,7 +46,8 @@ def __init():
 
     # Event handlers
     events.listen('pytsite.setup', _eh.pytsite_setup)
-    events.listen('pytsite.router.dispatch', _eh.pytsite_router_dispatch, priority=-9999)
+    events.listen('pytsite.router.dispatch', _eh.router_dispatch, priority=-9999)
+    events.listen('pytsite.router.response', _eh.router_response)
 
     # robots.txt rules
     robots.disallow(bp + '/')

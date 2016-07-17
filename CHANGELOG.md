@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.79.1 (2016-07-17)
+### Added
+- `content`: attaching 'pdalink' by `generate_rss()`.
+- `auth`: session cookie deletion for signed out users.
+
+### Fixed
+- `feed`: elements content string conversation.
+- `content`: empty RSS feed title issue.
+
+
 ## 0.79 (2016-07-16)
 ### Changed
 - `feed`: totally refactored.

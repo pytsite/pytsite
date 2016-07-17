@@ -33,7 +33,7 @@ def pytsite_setup():
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.login}))
 
 
-def pytsite_router_dispatch():
+def router_dispatch():
     """pytsite.router.dispatch Event Handler.
     """
     user = _api.get_anonymous_user()
@@ -80,3 +80,8 @@ def pytsite_router_dispatch():
         if base_path == _router.current_path(True):
             for lng in _lang.langs(False):
                 _hreflang.add(lng, _router.url(base_path, lang=lng))
+
+
+def router_response(response: _http.response.Response):
+    if 'PYTSITE_SESSION' in _router.request().cookies and _api.current_user().is_anonymous:
+        response.delete_cookie('PYTSITE_SESSION')

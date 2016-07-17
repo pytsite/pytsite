@@ -14,6 +14,10 @@ class Serializable(_abstract.Serializable):
 
     def __init__(self, text: str = '', **kwargs):
         super().__init__()
+
+        if not isinstance(text, str):
+            text = str(text)
+
         self._text = text
         self._nsmap = kwargs.get('nsmap')
 
