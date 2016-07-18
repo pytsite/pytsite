@@ -91,7 +91,7 @@ class RSS(Abstract):
 
             # Description
             if rss_item.has_children('description'):
-                entity.f_set('description', rss_item.get_children('description')[0].text)
+                entity.f_set('description', _util.strip_html_tags(rss_item.get_children('description')[0].text))
 
             # Section
             if entity.has_field('section') and rss_item.has_children('category'):
@@ -109,7 +109,7 @@ class RSS(Abstract):
             # Tags
             if entity.has_field('tags') and rss_item.has_children('{https://pytsite.xyz}tag'):
                 for tag in rss_item.get_children('{https://pytsite.xyz}tag'):
-                    entity.f_add('tags', _content.dispense_tag(tag.text).save())
+                    entity.f_add('tags', _content.dispense_tag(tag.text.capitalize()).save())
 
             # Video links
             if entity.has_field('video_links') and rss_item.has_children('{http://search.yahoo.com/mrss}group'):
@@ -126,8 +126,8 @@ class RSS(Abstract):
 
             # Body
             if entity.has_field('body'):
-                if rss_item.has_children('{https://pytsite.xyz}full-text'):
-                    entity.f_set('body', rss_item.get_children('{https://pytsite.xyz}full-text')[0].text)
+                if rss_item.has_children('{https://pytsite.xyz}fullText'):
+                    entity.f_set('body', rss_item.get_children('{https://pytsite.xyz}fullText')[0].text)
                 elif rss_item.has_children('{http://purl.org/rss/1.0/modules/content}encoded'):
                     body = rss_item.get_children('{http://purl.org/rss/1.0/modules/content}encoded')[0].text
                     entity.f_set('body', body)

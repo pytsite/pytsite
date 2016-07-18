@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.79.3 (2016-07-18)
+### Fixed
+- `content_import`: processing entity body's images, text and tags.
+
+
 ## 0.79.2 (2016-07-17)
 ### Fixed
 - `content_import`: errors processing.

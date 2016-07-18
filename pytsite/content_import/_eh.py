@@ -55,9 +55,20 @@ def cron_1min():
 
                     # Save entity
                     entity.save()
+
+                    # Remove first image from body
+                    if entity.has_field('body') and entity.has_field('images'):
+                        entity.f_set('body', entity.f_get('body', process_tags=False).replace('[img:1]', ''))
+
                     _logger.info("Content entity imported: '{}'".format(entity.f_get('title')), __name__)
                     items_imported += 1
+
                 except Exception as e:
+                    # Delete attached images
+                    if entity.has_field('images'):
+                        for img in entity.f_get('images'):
+                            img.delete()
+
                     _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)), __name__)
 
             _logger.info('Content import finished. Entities imported: {}.'.format(items_imported), __name__)
