@@ -49,7 +49,7 @@ class Driver(_content_export.AbstractDriver):
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
         """
-        _logger.info("Export started. '{}'".format(entity.title), __name__)
+        _logger.info("Export started. '{}'".format(entity.title))
 
         opts = exporter.driver_opts  # type: _frozendict
 
@@ -66,7 +66,7 @@ class Driver(_content_export.AbstractDriver):
             else:
                 r = s.wall_post(owner_id, message)
 
-            _logger.info("Export finished. '{}'. VK response: {}".format(entity.title, r), __name__)
+            _logger.info("Export finished. '{}'. VK response: {}".format(entity.title, r))
 
         except Exception as e:
             raise _content_export.error.ExportError(e)

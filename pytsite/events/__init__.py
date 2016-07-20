@@ -28,7 +28,10 @@ def fire(event: str, stop_after: int = None, **kwargs):
 
     count = 0
     for handler, call_once, priority in _listeners[event]:
+        # Call handler
         handler(**kwargs)
+
+        # Count called handler and stop if it is necessary
         count += 1
         if stop_after and count >= stop_after:
             break

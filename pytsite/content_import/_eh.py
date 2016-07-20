@@ -41,7 +41,7 @@ def cron_1min():
         max_items = 20
         items_imported = 0
         try:
-            _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options), __name__)
+            _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options))
 
             for entity in driver.get_entities(_frozendict(options)):
                 if items_imported == max_items:
@@ -60,7 +60,7 @@ def cron_1min():
                     if entity.has_field('body') and entity.has_field('images'):
                         entity.f_set('body', entity.f_get('body', process_tags=False).replace('[img:1]', ''))
 
-                    _logger.info("Content entity imported: '{}'".format(entity.f_get('title')), __name__)
+                    _logger.info("Content entity imported: '{}'".format(entity.f_get('title')))
                     items_imported += 1
 
                 except Exception as e:
@@ -69,16 +69,16 @@ def cron_1min():
                         for img in entity.f_get('images'):
                             img.delete()
 
-                    _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)), __name__)
+                    _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)))
 
-            _logger.info('Content import finished. Entities imported: {}.'.format(items_imported), __name__)
+            _logger.info('Content import finished. Entities imported: {}.'.format(items_imported))
 
-        except _error.ContentImportError as entity:
+        except _error.ContentImportError as e:
             # Increment errors counter
             importer.f_inc('errors')
 
             # Store info about error
-            importer.f_set('last_error', str(entity))
+            importer.f_set('last_error', str(e))
 
             if importer.errors >= max_errors:
                 # Disable if maximum errors count reached
@@ -87,4 +87,4 @@ def cron_1min():
                 # Pausing importer
                 importer.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
-            _logger.error('Import error: {}.'.format(str(entity)), __name__)
+            _logger.error(str(e), exc_info=e, stack_info=True)

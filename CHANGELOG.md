@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.80 (2016-07-20)
+### Added
+- New package `profiler`.
+
+### Changed
+- `mp` is now considered unsafe and not used anymore.
+- `logger`: refactored.
+
+### Fixed
+- `file`: remote source URL escaping while creating new files.
+- `widget`: delayed rendering issue in `BootstrapTable`. 
+
+
 ## 0.79.3 (2016-07-18)
 ### Fixed
 - `content_import`: processing entity body's images, text and tags.

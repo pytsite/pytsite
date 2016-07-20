@@ -35,7 +35,7 @@ def create_pool(uid: str, driver: str = None) -> _driver.Abstract:
     _pools[uid] = drv
 
     if _dbg:
-        _logger.debug("POOL CREATED: '{}', driver: '{}'.".format(uid, driver), __name__)
+        _logger.debug("POOL CREATED: '{}', driver: '{}'.".format(uid, driver))
 
     return drv
 
@@ -47,7 +47,7 @@ def get_pool(uid: str) -> _driver.Abstract:
         raise _error.PoolNotExist("Pool '{}' does not exist.".format(uid))
 
     if _dbg:
-        _logger.debug("POOL GET: '{}'.".format(uid), __name__)
+        _logger.debug("POOL GET: '{}'.".format(uid))
 
     return _pools[uid]
 
@@ -68,14 +68,14 @@ def delete_pool(uid: str):
     del _pools[uid]
 
     if _dbg:
-        _logger.debug("POOL DELETE: '{}'.".format(uid), __name__)
+        _logger.debug("POOL DELETE: '{}'.".format(uid))
 
 
 def cleanup_pool(uid: str):
     """Clear expired items in a pool.
     """
     if _dbg:
-        _logger.debug("POOL CLEANUP: {}.".format(uid), __name__)
+        _logger.debug("POOL CLEANUP: {}.".format(uid))
 
     get_pool(uid).cleanup()
 

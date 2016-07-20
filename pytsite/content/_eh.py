@@ -66,7 +66,7 @@ def _mail_digest():
     entities_num = _reg.get('content.digest.num', 10)
 
     for lng in _lang.langs():
-        _logger.info("Weekly mail digest for language {} started.".format(lng), __name__)
+        _logger.info("Weekly mail digest for language {} started.".format(lng))
 
         m_subject = _lang.t('pytsite.content@weekly_digest_mail_subject', {'app_name': app_name}, lng)
         f = _odm.find('content_subscriber').where('enabled', '=', True).where('language', '=', lng)
@@ -82,13 +82,13 @@ def _mail_digest():
             msg = _mail.Message(subscriber.f_get('email'), m_subject, m_body)
             msg.send()
 
-        _logger.info("Weekly mail digest for language {} finished.".format(lng), __name__)
+        _logger.info("Weekly mail digest for language {} finished.".format(lng))
 
 
 def _generate_sitemap():
     """Generate content sitemap.
     """
-    _logger.info('Sitemap generation start.', __name__)
+    _logger.info('Sitemap generation start.')
 
     output_dir = _path.join(_reg.get('paths.static'), 'sitemap')
     if _path.exists(output_dir):
@@ -104,7 +104,7 @@ def _generate_sitemap():
     for lang in _lang.langs():
         for model in _reg.get('content.sitemap.models', []):
             _logger.info("Sitemap generation started for model '{}', language '{}'.".
-                         format(model, _lang.lang_title(lang)), __name__)
+                         format(model, _lang.lang_title(lang)))
 
             for entity in _api.find(model, language=lang).get():
                 sitemap.add_url(entity.url, entity.publish_time)
@@ -115,7 +115,7 @@ def _generate_sitemap():
                     loop_count += 1
                     loop_links = 0
                     sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop_count), True)
-                    _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
+                    _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links))
                     sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
                     del sitemap
                     sitemap = _sitemap.Sitemap()
@@ -123,14 +123,14 @@ def _generate_sitemap():
     # If non-flushed sitemap exist
     if len(sitemap):
         sitemap_path = sitemap.write(_path.join(output_dir, 'data-%02d.xml' % loop_count), True)
-        _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links), __name__)
+        _logger.info("'{}' successfully written with {} links.".format(sitemap_path, loop_links))
         sitemap_index.add_url(_router.url('/sitemap/{}'.format(_path.basename(sitemap_path))))
 
     if len(sitemap_index):
         sitemap_index_path = sitemap_index.write(_path.join(output_dir, 'index.xml'))
-        _logger.info("'{}' successfully written.".format(sitemap_index_path), __name__)
+        _logger.info("'{}' successfully written.".format(sitemap_index_path))
 
-    _logger.info('Sitemap generation stop.', __name__)
+    _logger.info('Sitemap generation stop.')
 
 
 def _generate_feeds():

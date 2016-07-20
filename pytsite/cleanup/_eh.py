@@ -17,12 +17,12 @@ def cron_hourly():
 def _clean_tmp_files():
     tmp_dir = _reg.get('paths.tmp')
 
-    _logger.info('Cleaning up temporary files in {}'.format(tmp_dir), __name__)
+    _logger.info('Cleaning up temporary files in {}'.format(tmp_dir))
 
     for file_name in _listdir(tmp_dir):
         file_path = _path.join(tmp_dir, file_name)
         if _path.isfile(file_path) and (_time.time() - _path.getmtime(file_path)) >= 1800:  # 30 min
-            _logger.info('Removing {}'.format(file_path), __name__)
+            _logger.info('Removing {}'.format(file_path))
             _unlink(file_path)
 
 
@@ -30,10 +30,10 @@ def _clean_sessions():
     session_path = _reg.get('paths.session')
     ttl = int(_reg.get('router.session.ttl', 21600))  # 6 hours
 
-    _logger.info('Cleaning up session data older {} seconds in {}'.format(ttl, session_path), __name__)
+    _logger.info('Cleaning up session data older {} seconds in {}'.format(ttl, session_path))
 
     for file_name in _listdir(session_path):
         file_path = _path.join(session_path, file_name)
         if _path.isfile(file_path) and (_time.time() - _path.getmtime(file_path)) >= ttl:
-            _logger.info('Removing {}'.format(file_path), __name__)
+            _logger.info('Removing {}'.format(file_path))
             _unlink(file_path)

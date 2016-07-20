@@ -69,7 +69,7 @@ def get_collection(name: str) -> _Collection:
         global __client, __database
         __client = None
         __database = None
-        _logger.error('Connection lost.', __name__)
+        _logger.error('Connection to the database lost.')
         return get_collection(name)
 
 
@@ -82,5 +82,5 @@ def get_collection_names(include_system: bool=False) -> list:
         global __client, __database
         __client = None
         __database = None
-        _logger.error('Connection lost.', __name__)
+        _logger.error('Connection to the database lost.')
         return get_collection_names(include_system)

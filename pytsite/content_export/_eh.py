@@ -45,7 +45,7 @@ def cron_1min():
                 msg = "Content export started. Model: '{}', title: '{}', driver: '{}', options: '{}'" \
                     .format(entity.model, entity.title, exporter.driver,
                             driver.get_options_description(exporter.driver_opts))
-                _logger.info(msg, __name__)
+                _logger.info(msg)
 
                 # Ask driver to perform export
                 driver.export(entity=entity, exporter=exporter)
@@ -69,7 +69,7 @@ def cron_1min():
 
                 # Store info about error
                 exporter.f_set('last_error', str(e))
-                _logger.error(str(e), __name__)
+                _logger.error(str(e), exc_info=e, stack_info=True)
 
                 if exporter.errors >= max_errors:
                     # Disable if maximum errors count reached

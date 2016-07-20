@@ -21,4 +21,4 @@ def cron_daily():
     out_path = path.join(_reg.get('paths.static'), 'robots.txt')
     with open(out_path, 'w') as f:
         f.write(content)
-        _logger.info('File successfully written into {}'.format(out_path), __name__)
+        _logger.info('File successfully written into {}'.format(out_path))

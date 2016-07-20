@@ -63,7 +63,7 @@ def create(source_path: str, name: str = None, description: str = None, model: s
         _validation.rule.Url(source_path).validate()
 
         # Copying remote file to the temporary local file
-        with _urlopen(_util.url_quote(source_path, safe='/:?&')) as src:
+        with _urlopen(_util.url_quote(source_path, safe='/:?&%')) as src:
             data = src.read()
 
         tmp_file_fd, tmp_file_path = _util.mk_tmp_file()

@@ -40,7 +40,7 @@ class ODM(_console.command.Abstract):
         for model in _api.get_registered_models():
             msg = _lang.t('pytsite.odm@reindex_model', {'model': model})
             _console.print_info(msg)
-            _logger.info(msg, __name__)
+            _logger.info(msg)
             _api.dispense(model).reindex()
 
         _maintenance.disable()

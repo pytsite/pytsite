@@ -55,7 +55,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
         }))
 
     except Exception as e:
-        _logger.error(str(e))
+        _logger.error(str(e), exc_info=e, stack_info=True)
         _router.session().add_error(str(e))
         return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
             'driver': driver,

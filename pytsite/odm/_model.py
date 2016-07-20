@@ -1,7 +1,6 @@
 """ODM models.
 """
-import re as _re
-from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Iterable as _Iterable
+from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
@@ -12,8 +11,8 @@ from bson import errors as _bson_errors
 from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, mp as _mp, lang as _lang, logger as _logger, cache as _cache, \
-    reg as _reg
+from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, cache as _cache, reg as _reg, \
+    threading as _threading
 from . import _error, _field
 
 __author__ = 'Alexander Shepetko'
@@ -71,27 +70,26 @@ class Entity(_ABC):
         # Loading fields data from collection
         if obj_id:
             # Fill fields with data
+            if _dbg:
+                _logger.debug("'{}:{}' fields data will be loaded from the database or cache.".
+                              format(self.model, obj_id))
             self._load_fields_data(obj_id)
         else:
             # Filling fields with initial values
+            if _dbg:
+                _logger.debug("Creating new '{}', setting '_created' and '_modified' values.".format(self.model))
             self.f_set('_created', _datetime.now())
             self.f_set('_modified', _datetime.now())
 
-    def _get_lock(self):
-        if self._is_new:
-            raise RuntimeError('Non-saved entities cannot be locked.')
-
-        return _mp.get_lock('pytsite.odm.{}.{}'.format(self.model, self.id), True)
-
-    def lock(self, ttl: int = 10):
+    def lock(self):
         """Lock the entity.
         """
-        self._get_lock().lock(ttl)
+        _threading.get_r_lock().acquire()
 
     def unlock(self):
         """Unlock the entity.
         """
-        self._get_lock().unlock()
+        _threading.get_r_lock().release()
 
     def _load_fields_data(self, eid: _Union[str, _ObjectId], skip_cache=False):
         """Load fields data from the cache or the database.
@@ -106,7 +104,7 @@ class Entity(_ABC):
                 data = self._cache_get(eid)
                 data_from_cache = True
                 if _dbg:
-                    _logger.debug('Entity data LOADED from cache: {}:{}'.format(self._model, eid), __name__)
+                    _logger.debug('Entity data LOADED from cache: {}:{}'.format(self._model, eid))
             else:
                 raise _error.NoCachedData()
 
@@ -126,7 +124,7 @@ class Entity(_ABC):
         if not data_from_cache:
             self._cache_push()
             if _dbg:
-                _logger.debug('Entity data SAVED into cache: {}:{}'.format(self._model, eid), __name__)
+                _logger.debug('Entity data SAVED into cache: {}:{}'.format(self._model, eid))
 
     def _fill_fields_data(self, data: dict):
         """Fill fields with data.
@@ -370,7 +368,7 @@ class Entity(_ABC):
         """Set field's value.
         """
         if _dbg:
-            _logger.debug("{}.f_set('{}'): {}".format(self.model, field_name, value), __name__)
+            _logger.debug("{}.f_set('{}'): {}".format(self.model, field_name, value))
 
         try:
             if not self._is_new:
@@ -403,7 +401,7 @@ class Entity(_ABC):
         """Get field's value.
         """
         if _dbg:
-            _logger.debug("{}.f_get('{}')".format(self.model, field_name), __name__)
+            _logger.debug("{}.f_get('{}')".format(self.model, field_name))
 
         try:
             if not self._is_new:
@@ -433,7 +431,7 @@ class Entity(_ABC):
         """Add a value to the field.
         """
         if _dbg:
-            _logger.debug("{}.f_add('{}'): {}".format(self.model, field_name, value), __name__)
+            _logger.debug("{}.f_add('{}'): {}".format(self.model, field_name, value))
 
         try:
             if not self._is_new:
@@ -464,7 +462,7 @@ class Entity(_ABC):
         """Subtract value from the field.
         """
         if _dbg:
-            _logger.debug("{}.f_sub('{}'): {}".format(self.model, field_name, value), __name__)
+            _logger.debug("{}.f_sub('{}'): {}".format(self.model, field_name, value))
 
         try:
             # Lock and load actual data from cache
@@ -500,7 +498,7 @@ class Entity(_ABC):
         """Increment value of the field.
         """
         if _dbg:
-            _logger.debug("{}.f_inc('{}')".format(self.model, field_name), __name__)
+            _logger.debug("{}.f_inc('{}')".format(self.model, field_name))
 
         try:
             if not self._is_new:
@@ -531,7 +529,7 @@ class Entity(_ABC):
         """Decrement value of the field
         """
         if _dbg:
-            _logger.debug("{}.f_dec('{}')".format(self.model, field_name), __name__)
+            _logger.debug("{}.f_dec('{}')".format(self.model, field_name))
 
         try:
             if not self._is_new:
@@ -562,7 +560,7 @@ class Entity(_ABC):
         """Clear field.
         """
         if _dbg:
-            _logger.debug("{}.f_clr('{}')".format(self.model, field_name), __name__)
+            _logger.debug("{}.f_clr('{}')".format(self.model, field_name))
 
         try:
             if not self._is_new:
@@ -591,11 +589,11 @@ class Entity(_ABC):
     def f_is_empty(self, field_name: str) -> bool:
         """Checks if the field is empty.
         """
-        if not self._is_new:
-            self.lock()
-            self._cache_pull()
-
         try:
+            if not self._is_new:
+                self.lock()
+                self._cache_pull()
+
             return self.get_field(field_name).is_empty
         finally:
             if not self._is_new:
@@ -607,7 +605,7 @@ class Entity(_ABC):
         :type child: Entity
         """
         if _dbg:
-            _logger.debug('{}.append_child(): {}'.format(self.model, child), __name__)
+            _logger.debug('{}.append_child(): {}'.format(self.model, child))
 
         child.f_set('_parent', self)
         self.f_add('_children', child)
@@ -620,7 +618,7 @@ class Entity(_ABC):
         :type child: Entity
         """
         if _dbg:
-            _logger.debug('{}.remove_child(): {}'.format(self.model, child), __name__)
+            _logger.debug('{}.remove_child(): {}'.format(self.model, child))
 
         self.f_sub('_children', child)
         child.f_clr('_parent')
@@ -637,13 +635,13 @@ class Entity(_ABC):
             return self
 
         if _dbg:
-            _logger.debug('{}.save()'.format(self.model), __name__)
-
-        if not self.is_new:
-            self._check_deletion()
-            self.lock()
+            _logger.debug('{}.save()'.format(self.model))
 
         try:
+            if not self.is_new:
+                self._check_deletion()
+                self.lock()
+
             # Pre-save hook
             self._pre_save()
             _events.fire('pytsite.odm.entity.pre_save', entity=self)
@@ -667,7 +665,7 @@ class Entity(_ABC):
                 else:
                     self.collection.replace_one({'_id': data['_id']}, data)
             except _bson_errors.BSONError as e:
-                _logger.error('BSON error: {}. Document dump: {}'.format(e, data), __name__)
+                _logger.error('BSON error: {}. Document dump: {}'.format(e, data), exc_info=e, stack_info=True)
                 raise e
 
             # Saved entity is not 'new'
@@ -700,7 +698,7 @@ class Entity(_ABC):
                     child.save(update_timestamp=False)
 
         finally:
-            if not self._is_new:
+            if not self._is_new and not first_save:
                 self.unlock()
 
         return self
@@ -722,7 +720,7 @@ class Entity(_ABC):
             raise _error.ForbidEntityDelete('New entities cannot be deleted.')
 
         if _dbg:
-            _logger.debug('{}.delete()'.format(self.model), __name__)
+            _logger.debug('{}.delete()'.format(self.model))
 
         self._check_deletion()
 

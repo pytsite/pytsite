@@ -74,7 +74,7 @@ class Update(_console.command.Abstract):
                             continue
 
                         # Notify listeners
-                        _logger.info('pytsite.update event, version={}'.format(major_minor_rev), __name__)
+                        _logger.info('pytsite.update event, version={}'.format(major_minor_rev))
                         _events.fire('pytsite.update', version=major_minor_rev)
 
                         # Saving number as applied update
@@ -82,7 +82,7 @@ class Update(_console.command.Abstract):
 
             self._save_state(state)
 
-            _logger.info('pytsite.update.after event', __name__)
+            _logger.info('pytsite.update.after event')
             _events.fire('pytsite.update.after')
 
             _maintenance.disable()

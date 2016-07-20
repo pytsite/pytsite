@@ -30,7 +30,7 @@ def get_lock():
 
 
 def get_r_lock():
-    """Get reentrant lock.
+    """Get re-entrant lock.
     """
     return _r_lock
 

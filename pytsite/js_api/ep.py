@@ -20,13 +20,13 @@ def entry(args: dict, inp: dict) -> _http.response.JSON:
         return r if isinstance(r, _http.response.JSON) else _http.response.JSON(r)
 
     except ImportError as e:
-        _logger.warn("Endpoint '" + ep_name + '": ' + str(e), __name__)
+        _logger.warn("Endpoint '" + ep_name + '": ' + str(e))
         raise _http.error.NotFound()
 
     except _http.error.Base as e:
-        _logger.warn("Endpoint '" + ep_name + '": ' + str(e), __name__)
+        _logger.warn("Endpoint '" + ep_name + '": ' + str(e))
         return _http.response.JSON({'error': e.description}, status=e.code)
 
     except Exception as e:
-        _logger.error("Endpoint '" + ep_name + '": ' + str(e), __name__)
+        _logger.error("Endpoint '" + ep_name + '": ' + str(e), exc_info=e, stack_info=True)
         return _http.response.JSON({'error': str(e)}, status=500)

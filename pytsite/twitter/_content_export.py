@@ -44,7 +44,7 @@ class Driver(_content_export.AbstractDriver):
     def export(self, entity: _content.model.Content, exporter=_content_export.model.ContentExport):
         """Export data.
         """
-        _logger.info("Export started. '{}'".format(entity.title), __name__)
+        _logger.info("Export started. '{}'".format(entity.title))
 
         opts = exporter.driver_opts  # type: _frozendict
 
@@ -77,4 +77,4 @@ class Driver(_content_export.AbstractDriver):
                 if not attempts:
                     raise _content_export.error.ExportError(str(e))
 
-        _logger.info("Export finished. '{}'".format(entity.title), __name__)
+        _logger.info("Export finished. '{}'".format(entity.title))

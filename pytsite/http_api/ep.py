@@ -28,19 +28,19 @@ def entry(args: dict, inp: dict):
         return response
 
     except _error.EndpointNotFound as e:
-        _logger.warn(_router.current_path() + ': ' + str(e), __name__)
+        _logger.warn(_router.current_path() + ': ' + str(e))
         response = _http.response.JSON({'error': str(e)}, 404)
         response.headers.add('PytSite-HTTP-API', version)
         return response
 
     except _http.error.Base as e:
-        _logger.warn(_router.current_path() + ': ' + str(e.description), __name__)
+        _logger.warn(_router.current_path() + ': ' + str(e.description))
         response = _http.response.JSON({'error': str(e.description)}, e.code)
         response.headers.add('PytSite-HTTP-API', version)
         return response
 
     except Exception as e:
-        _logger.error(_router.current_path() + ': ' + str(e), __name__)
+        _logger.error(_router.current_path() + ': ' + str(e), exc_info=e, stack_info=True)
         response = _http.response.JSON({'error': str(e)}, 500)
         response.headers.add('PytSite-HTTP-API', version)
         return response

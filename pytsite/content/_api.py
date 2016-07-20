@@ -296,4 +296,4 @@ def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Call
     with open(out_path, 'wt', encoding='utf-8') as f:
         f.write(parser.generate())
 
-    _logger.info("RSS feed successfully written to '{}'.".format(out_path), __name__)
+    _logger.info("RSS feed successfully written to '{}'.".format(out_path))

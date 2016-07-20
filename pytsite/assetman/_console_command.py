@@ -95,7 +95,7 @@ class Assetman(_console.command.Abstract):
                     bundle = _Bundle(src, filters=filters)
                     env.register('bundle', bundle, output=dst)
 
-                    _logger.info('Compiling {} -> {}'.format(src, dst), __name__)
+                    _logger.info('Compiling {} -> {}'.format(src, dst))
                     cmd = _CommandLineEnvironment(env, _logger)
                     cmd.invoke('build', {})
 
@@ -112,7 +112,7 @@ class Assetman(_console.command.Abstract):
         for lang_code in _lang.langs():
             translations[lang_code] = {}
             for pkg_name, info in _lang.get_packages().items():
-                _logger.info("Compiling translations for {} ({})".format(pkg_name, lang_code), __name__)
+                _logger.info("Compiling translations for {} ({})".format(pkg_name, lang_code))
                 translations[lang_code][pkg_name] = _lang.load_lang_file(pkg_name, lang_code)
 
         str_output = 'pytsite.lang.langs={};'.format(_json.dumps(_lang.langs()))
@@ -122,7 +122,7 @@ class Assetman(_console.command.Abstract):
         if not _path.exists(output_dir):
             _makedirs(output_dir, 0o755, True)
         with open(output_file, 'wt', encoding='utf-8') as f:
-            _logger.info("Writing translations into '{}'".format(output_file), __name__)
+            _logger.info("Writing translations into '{}'".format(output_file))
             f.write(str_output)
 
         _events.fire('pytsite.assetman.build.after')

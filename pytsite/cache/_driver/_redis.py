@@ -42,9 +42,9 @@ class Redis(_Abstract):
             r = self._client.exists(self._get_fq_key(key))
             if _dbg:
                 if r:
-                    _logger.debug("Pool '{}' HAS '{}'.".format(self.name, key), __name__)
+                    _logger.debug("Pool '{}' HAS '{}'.".format(self.name, key))
                 else:
-                    _logger.debug("Pool '{}' DOES NOT HAVE '{}'.".format(self.name, key), __name__)
+                    _logger.debug("Pool '{}' DOES NOT HAVE '{}'.".format(self.name, key))
 
             return r
 
@@ -64,7 +64,7 @@ class Redis(_Abstract):
             item = _pickle.loads(item)
 
             if _reg.get('cache.debug'):
-                _logger.debug("GET '{}' from pool '{}'.".format(key, self.name), __name__)
+                _logger.debug("GET '{}' from pool '{}'.".format(key, self.name))
 
             return item
 
@@ -80,7 +80,7 @@ class Redis(_Abstract):
             self._client.set(self._get_fq_key(key), _pickle.dumps(value), ttl)
 
             if _reg.get('cache.debug'):
-                _logger.debug("PUT '{}' into the pool '{}' with TTL {}.".format(key, self.name, ttl), __name__)
+                _logger.debug("PUT '{}' into the pool '{}' with TTL {}.".format(key, self.name, ttl))
 
             return value
 
@@ -116,7 +116,7 @@ class Redis(_Abstract):
             self._client.rename(key, new_key)
 
             if _reg.get('cache.debug'):
-                _logger.debug("RENAME '{}' to '{}' in the pool '{}'.".format(key, new_key, self.name), __name__)
+                _logger.debug("RENAME '{}' to '{}' in the pool '{}'.".format(key, new_key, self.name))
 
         finally:
             _threading.get_r_lock().release()
@@ -130,7 +130,7 @@ class Redis(_Abstract):
             self._client.delete(self._get_fq_key(key))
 
             if _reg.get('cache.debug'):
-                _logger.debug("REMOVE '{}' from the pool '{}'.".format(key, self.name), __name__)
+                _logger.debug("REMOVE '{}' from the pool '{}'.".format(key, self.name))
 
         finally:
             _threading.get_r_lock().release()
@@ -145,7 +145,7 @@ class Redis(_Abstract):
                 self._client.delete(key)
 
             if _reg.get('cache.debug'):
-                _logger.debug("Pool '{}' CLEARED.".format(self.name), __name__)
+                _logger.debug("Pool '{}' CLEARED.".format(self.name))
 
         finally:
             _threading.get_r_lock().release()
@@ -156,4 +156,4 @@ class Redis(_Abstract):
         # Do nothing. Redis maintains garbage collection by itself
 
         if _reg.get('cache.debug'):
-            _logger.debug("Pool '{}' CLEANED UP.".format(self.name), __name__)
+            _logger.debug("Pool '{}' CLEANED UP.".format(self.name))

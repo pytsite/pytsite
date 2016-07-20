@@ -40,7 +40,7 @@ class Driver(_comments.driver.Abstract):
                 count = r['response'][0]['posts']
 
         except Exception as e:
-            _logger.error(str(e), __name__)
+            _logger.error(str(e), exc_info=e, stack_info=True)
 
         return count
 

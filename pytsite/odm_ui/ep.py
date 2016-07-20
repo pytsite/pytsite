@@ -71,7 +71,7 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
 
     except Exception as e:
         _router.session().add_error(str(e))
-        _logger.error(str(e), __name__)
+        _logger.error(str(e), exc_info=e, stack_info=True)
         raise e
 
     # Process 'special' redirect endpoint

@@ -208,7 +208,7 @@ class Finder:
                 ids = self._cache_pool.get(self.id)
                 if _dbg:
                     _logger.debug("GET cached query results: query: {}, {}, id: {}, entities: {}.".
-                                  format(self.model, self.query.compile(), self.id, len(ids)), __name__)
+                                  format(self.model, self.query.compile(), self.id, len(ids)))
                 return Result(self._model, ids=ids)
 
             except _cache.error.KeyNotExist:
@@ -229,8 +229,7 @@ class Finder:
         if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
             if _dbg:
                 _logger.debug("STORE query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".
-                              format(self.model, self.query.compile(), self.id, result.count(), self._cache_ttl),
-                              __name__)
+                              format(self.model, self.query.compile(), self.id, result.count(), self._cache_ttl))
 
             self._cache_pool.put(self.id, result.ids, self._cache_ttl)
 

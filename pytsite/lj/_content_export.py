@@ -101,7 +101,7 @@ class Driver(_content_export.AbstractDriver):
         :type exporter: pytsite.content_export._model.ContentExport
         """
         try:
-            _logger.info("Export started. '{}'".format(entity.title), __name__)
+            _logger.info("Export started. '{}'".format(entity.title))
 
             tags = exporter.add_tags + tuple([tag.title for tag in entity.tags])
             opts = exporter.driver_opts
@@ -124,7 +124,7 @@ class Driver(_content_export.AbstractDriver):
             s = _Session(opts['username'], opts['password'])
             r = s.post_event(entity.title[:255], msg, tags, entity.publish_time)
 
-            _logger.info("Export finished. '{}'. LJ response: {}".format(entity.title, r), __name__)
+            _logger.info("Export finished. '{}'. LJ response: {}".format(entity.title, r))
 
         except Exception as e:
             raise _content_export.error.ExportError(e)
