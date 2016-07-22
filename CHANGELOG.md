@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.4 (2016-07-23)
+### Fixed
+- `taxonomy`: new terms lock while saving.
+
+
 ## 0.80.3 (2016-07-22)
 ### Fixed
 - `auth_storage_odm`: ODM object proper locking.
