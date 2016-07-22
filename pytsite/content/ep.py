@@ -27,8 +27,8 @@ def index(args: dict, inp: dict):
 
     # Filter by term
     term_field = args.get('term_field')
-    if term_field:
-        term_model = f.mock.get_field(term_field).model
+    term_model = args.get('term_model')
+    if term_field and term_model:
         term_alias = args.get('term_alias')
         if term_alias:
             term = _taxonomy.find(term_model).where('alias', '=', term_alias).first()

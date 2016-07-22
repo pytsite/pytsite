@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.2 (2016-07-22)
+### Fixed
+- `content`: passing taxonomy term model to 'index' route. 
+
+
 ## 0.80.1 (2016-07-22)
 ### Changed
 - Work in multiprocess mode is now considered unsafe and should be fixed in the future.
