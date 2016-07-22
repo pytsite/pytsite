@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.3 (2016-07-22)
+### Fixed
+- `auth_storage_odm`: ODM object proper locking.
+
+
 ## 0.80.2 (2016-07-22)
 ### Fixed
 - `content`: passing taxonomy term model to 'index' route. 

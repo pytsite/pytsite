@@ -48,7 +48,10 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
             _events.fire('pytsite.auth.role.pre_create', role=self)
 
         _events.fire('pytsite.auth.role.pre_save', role=self)
-        _odm_ui.model.UIEntity.save(self)
+
+        with self:
+            _odm_ui.model.UIEntity.save(self)
+
         _events.fire('pytsite.auth.role.save', role=self)
 
         if is_new:
@@ -58,7 +61,10 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
 
     def delete(self):
         _events.fire('pytsite.auth.role.pre_delete', role=self)
-        _odm_ui.model.UIEntity.delete(self)
+
+        with self:
+            _odm_ui.model.UIEntity.delete(self)
+
         _events.fire('pytsite.auth.role.delete', role=self)
 
         return self
@@ -396,7 +402,10 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
             _events.fire('pytsite.auth.user.pre_create', user=self)
 
         _events.fire('pytsite.auth.user.pre_save', user=self)
-        _odm_ui.model.UIEntity.save(self)
+
+        with self:
+            _odm_ui.model.UIEntity.save(self)
+
         _events.fire('pytsite.auth.user.save', user=self)
 
         if is_new:
@@ -410,7 +419,10 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     def delete(self):
         _events.fire('pytsite.auth.user.pre_delete', user=self)
-        _odm_ui.model.UIEntity.delete(self)
+
+        with self:
+            _odm_ui.model.UIEntity.delete(self)
+
         _events.fire('pytsite.auth.user.delete', user=self)
 
         return self
