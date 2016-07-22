@@ -43,15 +43,21 @@ def cron_1min():
         try:
             _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options))
 
+            importer.lock()
+
             for entity in driver.get_entities(_frozendict(options)):
                 if items_imported == max_items:
                     break
 
                 try:
+                    entity.lock()
+
                     # Append additional tags
                     if entity.has_field('tags'):
                         for tag_title in importer.add_tags:
-                            entity.f_add('tags', _content.dispense_tag(tag_title).save())
+                            with _content.dispense_tag(tag_title) as tag:
+                                tag.save()
+                                entity.f_add('tags', tag)
 
                     # Save entity
                     entity.save()
@@ -67,9 +73,13 @@ def cron_1min():
                     # Delete attached images
                     if entity.has_field('images'):
                         for img in entity.f_get('images'):
-                            img.delete()
+                            with img:
+                                img.delete()
 
                     _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)))
+
+                finally:
+                    entity.unlock()
 
             _logger.info('Content import finished. Entities imported: {}.'.format(items_imported))
 
@@ -88,3 +98,6 @@ def cron_1min():
                 importer.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
             _logger.error(str(e), exc_info=e, stack_info=True)
+
+        finally:
+            importer.unlock()

@@ -117,10 +117,13 @@ class Google(_auth.driver.Authentication):
         # Picture
         if is_new_user and 'picture' in google_data and google_data['picture']:
             current_pic = user.picture
-            user.picture = _image.create(google_data['picture'])
-            user.picture.attached_to = user
-            user.picture.save()
-            current_pic.delete()
+            with user.picture:
+                user.picture = _image.create(google_data['picture'])
+                user.picture.attached_to = user
+                user.picture.save()
+
+            with current_pic:
+                current_pic.delete()
 
         # Name
         if not user.first_name:

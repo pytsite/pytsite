@@ -102,7 +102,8 @@ def delete_entity(inp: dict):
 
     count = 0
     for eid in ids:
-        _odm.dispense(model, eid).delete()
+        with _odm.dispense(model, eid) as entity:
+            entity.delete()
         count += 1
 
     return count

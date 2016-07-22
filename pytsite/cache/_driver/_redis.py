@@ -38,7 +38,7 @@ class Redis(_Abstract):
         """Check whether an item exists in the pool.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
             r = self._client.exists(self._get_fq_key(key))
             if _dbg:
                 if r:
@@ -49,13 +49,13 @@ class Redis(_Abstract):
             return r
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def get(self, key: str) -> _Union[_Any, None]:
         """Get an item from the pool.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
 
             item = self._client.get(self._get_fq_key(key))
             if item is None:
@@ -69,13 +69,13 @@ class Redis(_Abstract):
             return item
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def put(self, key: str, value: _Any, ttl: int = None) -> _Any:
         """Put an item into the pool.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
 
             self._client.set(self._get_fq_key(key), _pickle.dumps(value), ttl)
 
@@ -85,13 +85,13 @@ class Redis(_Abstract):
             return value
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def ttl(self, key: str) -> int:
         """Get key's expiration time.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
 
             r = self._client.ttl(self._get_fq_key(key))
             if r == -1:
@@ -102,13 +102,13 @@ class Redis(_Abstract):
             return r
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def rnm(self, key: str, new_key: str):
         """Rename a key.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
 
             if not self.has(key):
                 raise KeyError("Item '{}' does not exist in pool '{}'.".format(key, self._name))
@@ -119,13 +119,13 @@ class Redis(_Abstract):
                 _logger.debug("RENAME '{}' to '{}' in the pool '{}'.".format(key, new_key, self.name))
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def rm(self, key: str):
         """Remove a single item from the pool.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
 
             self._client.delete(self._get_fq_key(key))
 
@@ -133,13 +133,13 @@ class Redis(_Abstract):
                 _logger.debug("REMOVE '{}' from the pool '{}'.".format(key, self.name))
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def clear(self):
         """Clear entire pool.
         """
         try:
-            _threading.get_r_lock().acquire()
+            _threading.get_shared_r_lock().acquire()
 
             for key in self._client.keys(_server_name + ':' + self._name + ':*'):
                 self._client.delete(key)
@@ -148,7 +148,7 @@ class Redis(_Abstract):
                 _logger.debug("Pool '{}' CLEARED.".format(self.name))
 
         finally:
-            _threading.get_r_lock().release()
+            _threading.get_shared_r_lock().release()
 
     def cleanup(self):
         """Cleanup outdated items from the cache.

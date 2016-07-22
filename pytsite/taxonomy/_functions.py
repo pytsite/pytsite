@@ -66,7 +66,7 @@ def dispense(model: str, title: str, alias: str=None, language: str=None) -> _Te
     """Create new term or dispense existing.
     """
     if not is_model_registered(model):
-        raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
+        raise RuntimeError("Model '{}' is not registered as taxonomy model.". format(model))
 
     if not language:
         language = _lang.get_current()

@@ -87,12 +87,15 @@ def unflag(entity: _odm.model.Entity, user: _auth.model.AbstractUser, flag_type:
         return
 
     f = _odm.find('flag').where('entity', '=', entity).where('author', '=', user).where('type', '=', flag_type)
-    f.first().delete()
+    fl = f.first()
+    with fl:
+        fl.delete()
 
     _events.fire('pytsite.flag.unflag', entity=entity, user=user, flag_type=flag_type)
 
 
-def toggle(entity: _odm.model.Entity, author: _auth.model.AbstractUser, flag_type: str = 'default', score: float = 1.0) -> bool:
+def toggle(entity: _odm.model.Entity, author: _auth.model.AbstractUser, flag_type: str = 'default',
+           score: float = 1.0) -> bool:
     """Toggle flag.
     """
     if author.is_anonymous:
@@ -111,7 +114,8 @@ def delete(entity: _odm.model.Entity) -> int:
     """
     r = 0
     for flag_entity in _odm.find('flag').where('entity', '=', entity).get():
-        flag_entity.delete()
+        with flag_entity:
+            flag_entity.delete()
         r += 1
 
     return r

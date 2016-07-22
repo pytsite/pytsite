@@ -56,6 +56,8 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     # Dispense entity
     entity = _api.dispense_entity(model, entity_id)
 
+    entity.lock()
+
     # Let entity know about form submission
     entity.ui_m_form_submit(frm)
 
@@ -73,6 +75,9 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
         _router.session().add_error(str(e))
         _logger.error(str(e), exc_info=e, stack_info=True)
         raise e
+
+    finally:
+        entity.unlock()
 
     # Process 'special' redirect endpoint
     if frm.redirect == 'ENTITY_VIEW':
@@ -116,7 +121,8 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
             if not entity.check_perm('delete'):
                 raise _odm.error.ForbidEntityDelete('User does not have sufficient permissions.')
 
-            entity.delete()
+            with entity:
+                entity.delete()
 
         _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
 

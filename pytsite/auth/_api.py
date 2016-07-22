@@ -117,7 +117,7 @@ def get_sign_in_form(auth_driver_name: str = None, uid: str = None, **kwargs) ->
 def create_user(login: str, password: str = None) -> _model.AbstractUser:
     """Create new user.
     """
-    with _threading.get_r_lock():
+    with _threading.get_shared_r_lock():
         if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
             # Check user existence
             try:
@@ -151,7 +151,7 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
              check_status: bool = True) -> _model.AbstractUser:
     """Get user by login, nickname, access token or UID.
     """
-    with _threading.get_r_lock():
+    with _threading.get_shared_r_lock():
         # Check if the access token is valid
         if access_token and not _access_tokens.has(access_token):
             raise _error.InvalidAccessToken('Invalid access token.')
@@ -216,7 +216,7 @@ def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
 def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Authenticate user.
     """
-    with _threading.get_r_lock():
+    with _threading.get_shared_r_lock():
         try:
             # Get user from driver
             user = get_auth_driver(auth_driver_name).sign_in(data)
@@ -271,7 +271,7 @@ def create_access_token(uid: str) -> str:
     """
     ttl = _reg.get('router.session.ttl', 21600)  # 6 hours
 
-    with _threading.get_r_lock():
+    with _threading.get_shared_r_lock():
         while True:
             token = _util.random_str(32)
             if not _access_tokens.has(token):
@@ -282,7 +282,7 @@ def create_access_token(uid: str) -> str:
 def prolong_access_token(token: str):
     """Prolong user's access token.
     """
-    with _threading.get_r_lock():
+    with _threading.get_shared_r_lock():
         token_info = get_access_token_info(token)
         _access_tokens.put(token, token_info, token_info['ttl'])
 

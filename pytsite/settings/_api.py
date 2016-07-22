@@ -61,4 +61,5 @@ def set_setting(uid, value: dict):
     if not entity:
         entity = _odm.dispense('setting').f_set('uid', uid)
 
-    entity.f_set('value', value).save()
+    with entity:
+        entity.f_set('value', value).save()

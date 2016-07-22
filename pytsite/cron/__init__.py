@@ -44,7 +44,6 @@ def _update_stats(part: str) -> dict:
 if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
     from uwsgidecorators import timer as _uwsgi_timer
 
-
     @_uwsgi_timer(60)
     def _cron_worker(num):
         """Cron worker.

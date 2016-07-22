@@ -283,11 +283,12 @@ class Base(_odm_ui.model.UIEntity):
         # Creating back links in images
         if self.has_field('images'):
             for img in self.images:
-                if not img.attached_to:
-                    img.attached_to = self
-                if not img.owner:
-                    img.f_set('owner', self.author)
-                img.save()
+                with img:
+                    if not img.attached_to:
+                        img.attached_to = self
+                    if not img.owner:
+                        img.f_set('owner', self.author)
+                    img.save()
 
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
@@ -297,7 +298,8 @@ class Base(_odm_ui.model.UIEntity):
         """
         if self.has_field('images'):
             for img in self.images:
-                img.delete()
+                with img:
+                    img.delete()
 
     @classmethod
     def ui_browser_setup(cls, browser: _odm_ui.Browser):
@@ -532,7 +534,8 @@ class Content(Base):
 
             # Existing route alias is attached and its value needs to be changed
             elif self.route_alias and self.route_alias.alias != route_alias_str:
-                self.route_alias.delete()
+                with self.route_alias:
+                    self.route_alias.delete()
                 value = _route_alias.create(route_alias_str, 'NONE', self.language).save()
 
             # Keep old route alias
@@ -572,7 +575,8 @@ class Content(Base):
             # Attach section to tags
             if self.has_field('section') and self.section and self.tags:
                 for tag in self.tags:
-                    tag.f_add('sections', self.section).save()
+                    with tag:
+                        tag.f_add('sections', self.section).save()
 
     def _after_save(self, first_save: bool = False):
         """Hook.
@@ -581,15 +585,17 @@ class Content(Base):
 
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
-            target = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': self.id}, True)
-            self.route_alias.f_set('target', target).save()
+            with self.route_alias:
+                target = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': self.id}, True)
+                self.route_alias.f_set('target', target).save()
 
         if first_save:
             # Clean up not fully filled route aliases
             f = _route_alias.find()
             f.where('target', '=', 'NONE').where('_created', '<', _datetime.now() - _timedelta(1))
             for ra in f.get():
-                ra.delete()
+                with ra:
+                    ra.delete()
 
             # Notify content moderators about waiting content
             if self.status == 'waiting' and _reg.get('content.send_waiting_notifications', True):
@@ -599,10 +605,11 @@ class Content(Base):
         from . import _api
         if self.has_field('tags'):
             for tag in self.tags:
-                weight = 0
-                for model in _api.get_models().keys():
-                    weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
-                tag.f_set('weight', weight).save()
+                with tag:
+                    weight = 0
+                    for model in _api.get_models().keys():
+                        weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
+                    tag.f_set('weight', weight).save()
 
         # Updating localization entities references.
         # For each language except current one
@@ -615,21 +622,23 @@ class Content(Base):
             if isinstance(localization, Content):
                 # If localized entity hasn't reference to this entity, set it
                 if localization.f_get('localization_' + self.language) != self:
-                    localization.f_set('localization_' + self.language, self).save()
+                    with localization:
+                        localization.f_set('localization_' + self.language, self).save()
 
             # If localization is not set
             elif localization is None:
                 # Clear references from localized entities
                 f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
                 for referenced in f.get():
-                    referenced.f_set('localization_' + self.language, None).save()
+                    with referenced:
+                        referenced.f_set('localization_' + self.language, None).save()
 
     def _after_delete(self):
         """Hook.
         """
         super()._after_delete()
-
-        self.route_alias.delete()
+        with self.route_alias:
+            self.route_alias.delete()
 
     @classmethod
     def ui_browser_setup(cls, browser: _odm_ui.Browser):

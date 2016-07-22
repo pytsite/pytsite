@@ -24,9 +24,11 @@ def patch_view_count(inp: dict) -> int:
     if model and eid:
         entity = _api.dispense(model, eid)
         if entity:
-            _odm_auth.disable_perm_check()
-            entity.f_inc('views_count').save(update_timestamp=False)
-            _odm_auth.enable_perm_check()
+            with entity:
+                _odm_auth.disable_perm_check()
+                entity.f_inc('views_count').save(update_timestamp=False)
+                _odm_auth.enable_perm_check()
+
             return entity.views_count
 
     return 0
@@ -43,11 +45,10 @@ def post_subscribe(inp: dict) -> dict:
     s = _odm.find('content_subscriber').where('email', '=', email).where('language', '=', lng).first()
     if s:
         if not s.f_get('enabled'):
-            s.f_set('enabled', True)
+            s.lock().f_set('enabled', True).save().unlock()
     else:
-        s = _odm.dispense('content_subscriber').f_set('email', email).f_set('language', lng)
-
-    s.save()
+        # Create new
+        _odm.dispense('content_subscriber').f_set('email', email).f_set('language', lng).save()
 
     return {'message': _lang.t('pytsite.content@digest_subscription_success')}
 

@@ -41,6 +41,10 @@ class EntityDeleted(Exception):
     pass
 
 
+class EntityNotLocked(Exception):
+    pass
+
+
 class FieldEmpty(Exception):
     pass
 

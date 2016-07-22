@@ -96,10 +96,11 @@ def view(args: dict, inp: dict):
         if not entity.check_perm('modify'):
             raise _http.error.NotFound()
 
-    # Update entity's comments count
-    _odm_auth.disable_perm_check()
-    entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save()
-    _odm_auth.enable_perm_check()
+    with entity:
+        # Update entity's comments count
+        _odm_auth.disable_perm_check()
+        entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save()
+        _odm_auth.enable_perm_check()
 
     # Meta title
     if entity.has_field('title'):
@@ -192,7 +193,8 @@ def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
     """
     s = _odm.dispense('content_subscriber', args.get('id'))
     if s:
-        s.f_set('enabled', False).save()
+        with s:
+            s.f_set('enabled', False).save()
         _router.session().add_success(_lang.t('pytsite.content@unsubscription_successful'))
 
     return _http.response.Redirect(_router.base_url())

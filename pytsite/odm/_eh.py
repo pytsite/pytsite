@@ -7,7 +7,6 @@ def pytsite_update_after():
 
 
 def pytsite_db_restore():
-    _api.get_entities_cache().clear()
     _console.print_info(_lang.t('pytsite.odm@entities_cache_cleared'))
 
     for model in _api.get_registered_models():

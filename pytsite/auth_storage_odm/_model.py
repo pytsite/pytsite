@@ -54,10 +54,14 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
         if is_new:
             _events.fire('pytsite.auth.role.create', role=self)
 
+        return self
+
     def delete(self):
         _events.fire('pytsite.auth.role.pre_delete', role=self)
         _odm_ui.model.UIEntity.delete(self)
         _events.fire('pytsite.auth.role.delete', role=self)
+
+        return self
 
     def _setup_fields(self):
         """Hook.
@@ -398,6 +402,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         if is_new:
             _events.fire('pytsite.auth.user.create', user=self)
 
+        return self
+
     def _pre_delete(self, **kwargs):
         if self == _auth.current_user():
             raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
@@ -406,6 +412,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         _events.fire('pytsite.auth.user.pre_delete', user=self)
         _odm_ui.model.UIEntity.delete(self)
         _events.fire('pytsite.auth.user.delete', user=self)
+
+        return self
 
     def _setup_fields(self):
         """_setup() hook.
@@ -519,7 +527,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         """Hook.
         """
         if self.picture:
-            self.picture.delete()
+            with self.picture:
+                self.picture.delete()
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.

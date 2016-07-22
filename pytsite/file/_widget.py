@@ -168,6 +168,7 @@ class FilesUpload(_widget.Abstract):
             for ref in to_delete:
                 file = _api.get_by_ref(ref)
                 if file:
-                    file.delete()
+                    with file:
+                        file.delete()
 
         super().set_val(clean_val, **kwargs)

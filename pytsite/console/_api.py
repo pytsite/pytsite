@@ -1,6 +1,6 @@
 """PytSite Console.
 """
-from pytsite import reg as _reg, lang as _lang, validation as _validation
+from pytsite import reg as _reg, lang as _lang, validation as _validation, logger as _logger
 from . import _error, _command
 
 __author__ = 'Alexander Shepetko'
@@ -58,7 +58,11 @@ def run_command(name: str, args: tuple=(), **kwargs):
         if k not in valid_options:
             raise _error.InvalidOption('Invalid option: --{}'.format(k))
 
-    return cmd.execute(args, **kwargs)
+    try:
+        return cmd.execute(args, **kwargs)
+    except Exception as e:
+        _logger.error(str(e), exc_info=e)
+        raise e
 
 
 def usage():

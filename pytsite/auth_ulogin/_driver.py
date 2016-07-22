@@ -121,9 +121,12 @@ class ULogin(_auth.driver.Authentication):
 
             if picture_url:
                 user.picture = _image.create(picture_url)
-                user.picture.attached_to = user
-                user.picture.save()
-                current_pic.delete()
+                with user.picture:
+                    user.picture.attached_to = user
+                    user.picture.save()
+
+                with current_pic:
+                    current_pic.delete()
 
         # Name
         if not user.first_name and 'first_name' in ulogin_data:

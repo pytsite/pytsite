@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.80.1 (2016-07-22)
+### Changed
+- Work in multiprocess mode is now considered unsafe and should be fixed in the future.
+
+### Fixed
+- Work in multithreaded mode.
+
+
 ## 0.80 (2016-07-20)
 ### Added
 - New package `profiler`.

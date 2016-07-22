@@ -1,8 +1,0 @@
-db:
-  ssl: false
-  database: test_com
-
-lang:
-  languages:
-    - ru
-    - en

@@ -18,14 +18,18 @@ def create(source: str, name: str=None, description: str=None, remove_source: bo
     img_entity = _file.create(source, name, description, 'image', remove_source, propose_store_path, owner)
 
     if not img_entity.mime.startswith('image'):
-        img_entity.delete()
+        with img_entity:
+            img_entity.delete()
         raise ValueError("'{}' is not a acceptable type for image.".format(img_entity.mime))
 
     img_obj = Image.open(img_entity.abs_path)
     size = img_obj.size
     img_obj.close()
 
-    return img_entity.f_set('width', size[0]).f_set('height', size[1]).save()
+    with img_entity:
+        img_entity.f_set('width', size[0]).f_set('height', size[1]).save()
+
+    return img_entity
 
 
 def get(uid: str=None, rel_path: str=None) -> _model.Image:
