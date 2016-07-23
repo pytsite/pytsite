@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.80.5 (2016-07-23)
+### Fixed
+- `content_export`: exporter's entity proper locking.
+- `odm`: support for `model` argument in `field.Ref` and `field.RefsList`.
+- `odm_auth`: entities deletion via HTTP API.
+
+
 ## 0.80.4 (2016-07-23)
 ### Fixed
 - `taxonomy`: new terms lock while saving.

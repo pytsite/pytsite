@@ -1,10 +1,9 @@
 """ODM Fields.
 """
-from typing import Any as _Any, Iterable as _Iterable, Union as _Union, Tuple as _Tuple
+from typing import Any as _Any, Iterable as _Iterable, Union as _Union
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
-from bson.objectid import ObjectId as _bson_ObjectID
 from bson.dbref import DBRef as _bson_DBRef
 from copy import deepcopy as _deepcopy
 from frozendict import frozendict as _frozendict
@@ -383,9 +382,10 @@ class Ref(Abstract):
         """Init.
         """
         super().__init__(name, **kwargs)
+        self._model = kwargs.get('model', '*')
 
     def _on_set(self, value, **kwargs):
-        """Set value of the field.
+        """Hook.
 
         :type value: pytsite.odm._model.Entity | _bson_DBRef | str | None
         """
@@ -404,9 +404,14 @@ class Ref(Abstract):
         return value
 
     def _on_get(self, internal_value, **kwargs):
+        """Hook.
+        """
         if internal_value is not None:
             from ._api import get_by_ref
-            return get_by_ref(internal_value)
+            entity = get_by_ref(internal_value)
+            if self._model != '*' and entity.model != self._model:
+                raise TypeError("Entity of model '{}' expected.".format(self._model))
+            internal_value = entity
 
         return internal_value
 
@@ -419,11 +424,11 @@ class Ref(Abstract):
 class RefsList(List):
     """List of DBRefs field.
     """
-    def __init__(self, name: str, model: str, **kwargs):
+    def __init__(self, name: str, **kwargs):
         """Init.
         """
         from ._model import Entity
-        self._model = model
+        self._model = kwargs.get('model', '*')
 
         super().__init__(name, allowed_types=(Entity,), **kwargs)
 
@@ -462,6 +467,8 @@ class RefsList(List):
         for dbref in internal_value:
             entity = get_by_ref(dbref)
             if entity:
+                if self._model != '*' and entity.model != self._model:
+                    raise TypeError("Entity of model '{}' expected.".format(self._model))
                 r.append(entity)
 
         sort_by = kwargs.get('sort_by')

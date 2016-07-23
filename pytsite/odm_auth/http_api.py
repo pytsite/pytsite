@@ -88,6 +88,8 @@ def post_entity(inp: dict):
 
 
 def delete_entity(inp: dict):
+    """Delete one or more entities.
+    """
     model = inp.get('model')
     ids = inp.get('ids')
 
@@ -102,7 +104,8 @@ def delete_entity(inp: dict):
 
     count = 0
     for eid in ids:
-        with _odm.dispense(model, eid) as entity:
+        entity = _odm.dispense(model, eid)
+        with entity:
             entity.delete()
         count += 1
 

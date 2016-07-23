@@ -24,6 +24,8 @@ def cron_1min():
     exporters_f.cache(0)
 
     for exporter in exporters_f.get():
+        exporter.lock()
+
         # Search for content entities which are hasn't been exported yet
         content_f = _content.find(exporter.content_model) \
             .where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age)) \
@@ -82,5 +84,5 @@ def cron_1min():
                 break
 
             finally:
-                exporter.save()
+                exporter.save().unlock()
                 entity.unlock()
