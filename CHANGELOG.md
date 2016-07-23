@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.80.9 (2016-07-23)
+### Fixed
+- `content`: improper MIME type of images in RSS enclosures.
+- `feed`: typo while parsing arguments in `feed.rss.em.Enclosure`.
+
+
 ## 0.80.8 (2016-07-23)
 ### Fixed
 Improper entities locking in various places.

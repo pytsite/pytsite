@@ -268,7 +268,7 @@ def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Call
         if entity.has_field('images') and entity.images:
             # Attaching all the images as enclosures
             for img in entity.images:
-                item.append_child(_feed.rss.em.Enclosure(url=img.url, length=img.length, mime=img.mime))
+                item.append_child(_feed.rss.em.Enclosure(url=img.url, length=img.length, type=img.mime))
 
         # Video links
         if entity.has_field('video_links') and entity.video_links:

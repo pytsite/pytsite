@@ -225,7 +225,7 @@ class Enclosure(_xml.Serializable):
         self._url = _validation.rule.Url(kwargs.get('url')).validate()
         self._url = _validation.rule.NonEmpty(self._url).validate()
         self._length = str(kwargs.get('length', 0))
-        self._mime = _validation.rule.Regex(kwargs.get('type', 'text/html'), pattern='\w+/\w+').validate()
+        self._type = _validation.rule.Regex(kwargs.get('type', 'text/html'), pattern='\w+/\w+').validate()
 
     @property
     def name(self) -> str:
@@ -236,7 +236,7 @@ class Enclosure(_xml.Serializable):
         return {
             'url': self._url,
             'length': self._length,
-            'type': self._mime,
+            'type': self._type,
         }
 
     @property
