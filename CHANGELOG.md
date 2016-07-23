@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.7 (2016-07-23)
+### Fixed
+- `widget`: `None` value processing in `input.Integer` and `input.Decimal`.
+
+
 ## 0.80.6 (2016-07-23)
 ### Fixed
 - `content_export`: exporter's entity proper locking.

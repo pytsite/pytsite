@@ -214,6 +214,8 @@ class Integer(Number):
             value = value.strip()
             if not value:
                 value = self._default
+        elif value is None:
+            value = self._default
 
         return super().set_val(int(value), **kwargs)
 
@@ -240,6 +242,8 @@ class Decimal(Number):
             value = value.strip()
             if not value:
                 value = self._default
+        elif value is None:
+            value = self._default
 
         return super().set_val(float(value), **kwargs)
 
