@@ -24,8 +24,6 @@ def cron_1min():
     exporters_f.cache(0)
 
     for exporter in exporters_f.get():
-        exporter.lock()
-
         # Search for content entities which are hasn't been exported yet
         content_f = _content.find(exporter.content_model) \
             .where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age)) \
@@ -42,6 +40,8 @@ def cron_1min():
 
         for entity in content_f.get():
             try:
+                exporter.lock()
+
                 driver = _api.get_driver(exporter.driver)
 
                 msg = "Content export started. Model: '{}', title: '{}', driver: '{}', options: '{}'" \
@@ -53,13 +53,13 @@ def cron_1min():
                 driver.export(entity=entity, exporter=exporter)
 
                 # Saving information that entity was exported
-                entity.lock()
-                entity_opts = dict(entity.options)
-                if 'content_export' not in entity_opts:
-                    entity_opts['content_export'] = []
-                entity_opts['content_export'].append(str(exporter.id))
-                entity.f_set('options', entity_opts)
-                entity.save()
+                with entity:
+                    entity_opts = dict(entity.options)
+                    if 'content_export' not in entity_opts:
+                        entity_opts['content_export'] = []
+                    entity_opts['content_export'].append(str(exporter.id))
+                    entity.f_set('options', entity_opts)
+                    entity.save()
 
                 # Reset errors count to zero after each successful export
                 if exporter.errors:
@@ -84,7 +84,4 @@ def cron_1min():
                 break
 
             finally:
-                exporter.save()
-                entity.unlock()
-
-        exporter.unlock()
+                exporter.save().unlock()

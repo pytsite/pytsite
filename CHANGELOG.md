@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.10 (2016-07-23)
+### Fixed
+- `content_export`: exporter's entity improper locking.
+
+
 ## 0.80.9 (2016-07-23)
 ### Fixed
 - `content`: improper MIME type of images in RSS enclosures.
@@ -18,7 +23,7 @@ Improper entities locking in various places.
 
 ## 0.80.6 (2016-07-23)
 ### Fixed
-- `content_export`: exporter's entity proper locking.
+- `content_export`: exporter's entity improper locking.
 
 
 ## 0.80.5 (2016-07-23)
