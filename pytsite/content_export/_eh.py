@@ -84,5 +84,7 @@ def cron_1min():
                 break
 
             finally:
-                exporter.save().unlock()
+                exporter.save()
                 entity.unlock()
+
+        exporter.unlock()

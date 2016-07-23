@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.6 (2016-07-23)
+### Fixed
+- `content_export`: exporter's entity proper locking.
+
+
 ## 0.80.5 (2016-07-23)
 ### Fixed
 - `content_export`: exporter's entity proper locking.
