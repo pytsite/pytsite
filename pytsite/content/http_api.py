@@ -45,7 +45,8 @@ def post_subscribe(inp: dict) -> dict:
     s = _odm.find('content_subscriber').where('email', '=', email).where('language', '=', lng).first()
     if s:
         if not s.f_get('enabled'):
-            s.lock().f_set('enabled', True).save().unlock()
+            with s:
+                s.f_set('enabled', True).save()
     else:
         # Create new
         _odm.dispense('content_subscriber').f_set('email', email).f_set('language', lng).save()

@@ -104,7 +104,8 @@ class Generate(_console.command.Abstract):
                 tags = list(_api.get_tags(language=language))
                 if len(tags) < 10:
                     for n in range(0, 10):
-                        with _api.dispense_tag(self._generate_title(1), language=language) as tag:
+                        tag = _api.dispense_tag(self._generate_title(1), language=language)
+                        with tag:
                             tag.save()
                             tags.append(tag)
 
@@ -118,10 +119,11 @@ class Generate(_console.command.Abstract):
                 if not len(sections):
                     for i in range(0, 3):
                         title = self._generate_title(1)
-                        with _api.dispense_section(title, language=language) as section:
+                        section = _api.dispense_section(title, language=language)
+                        with section:
                             section.save()
                             sections.append(section)
-                            _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
+                        _console.print_info(_lang.t('pytsite.content@new_section_created', {'title': title}))
 
                 _shuffle(sections)
                 entity.f_set('section', sections[0])

@@ -55,7 +55,8 @@ def cron_1min():
                     # Append additional tags
                     if entity.has_field('tags'):
                         for tag_title in importer.add_tags:
-                            with _content.dispense_tag(tag_title) as tag:
+                            tag = _content.dispense_tag(tag_title)
+                            with tag:
                                 tag.save()
                                 entity.f_add('tags', tag)
 

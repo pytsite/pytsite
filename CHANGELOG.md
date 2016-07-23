@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.8 (2016-07-23)
+### Fixed
+Improper entities locking in various places.
+
+
 ## 0.80.7 (2016-07-23)
 ### Fixed
 - `widget`: `None` value processing in `input.Integer` and `input.Decimal`.

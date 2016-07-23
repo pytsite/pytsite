@@ -234,10 +234,8 @@ class Transaction(_odm_ui.model.UIEntity):
         if self.state != 'committed':
             raise _error.ImproperTransactionState('It is possible to cancel only committed transactions.')
 
-        try:
-            self.lock().f_set('state', 'cancel').save()
-        finally:
-            self.unlock()
+        with self:
+            self.f_set('state', 'cancel').save()
 
         return self
 

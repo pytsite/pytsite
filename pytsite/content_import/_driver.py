@@ -109,9 +109,10 @@ class RSS(Abstract):
             # Tags
             if entity.has_field('tags') and rss_item.has_children('{https://pytsite.xyz}tag'):
                 for tag in rss_item.get_children('{https://pytsite.xyz}tag'):
-                    with _content.dispense_tag(tag.text.capitalize()) as tag_obj:
+                    tag_obj = _content.dispense_tag(tag.text.capitalize())
+                    with tag_obj:
                         tag_obj.save()
-                        entity.f_add('tags', tag_obj)
+                    entity.f_add('tags', tag_obj)
 
             # Video links
             if entity.has_field('video_links') and rss_item.has_children('{http://search.yahoo.com/mrss}group'):

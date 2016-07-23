@@ -384,6 +384,10 @@ class Ref(Abstract):
         super().__init__(name, **kwargs)
         self._model = kwargs.get('model', '*')
 
+    @property
+    def model(self) -> str:
+        return self._model
+
     def _on_set(self, value, **kwargs):
         """Hook.
 
