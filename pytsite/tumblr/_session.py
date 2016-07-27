@@ -29,11 +29,11 @@ class AuthSession:
                 self._oauth_session = _OAuthSession(self._app_key, self._app_secret,
                                                     self._request_token, self._request_secret, self._callback_uri)
             else:
-                raise Exception('Cannot find token secret corresponding to the specified token.')
+                raise RuntimeError('Cannot find token secret corresponding to the specified token.')
 
     def fetch_request_token(self):
         if self._oauth_session:
-            raise Exception('Request token already fetched.')
+            raise RuntimeError('Request token already fetched.')
 
         s = _OAuthSession(self._app_key, self._app_secret, callback_uri=self._callback_uri)
         r = s.fetch_request_token('https://tumblr.com/oauth/request_token')
@@ -48,13 +48,13 @@ class AuthSession:
 
     def get_authorization_url(self) -> str:
         if not self._oauth_session:
-            raise Exception('fetch_request_token() must be called before this method.')
+            raise RuntimeError('fetch_request_token() must be called before this method.')
 
         return self._oauth_session.authorization_url('https://www.tumblr.com/oauth/authorize')
 
     def get_access_token(self, authorization_response_url: str) -> dict:
         if not self._oauth_session:
-            raise Exception('fetch_request_token() must be called before this method.')
+            raise RuntimeError('fetch_request_token() must be called before this method.')
         auth_data = self._oauth_session.parse_authorization_response(authorization_response_url)
 
         return self._oauth_session.fetch_access_token('https://www.tumblr.com/oauth/access_token',
@@ -68,9 +68,9 @@ class Session:
 
     def request(self, endpoint: str, method='GET', **kwargs):
         if method.upper() == 'POST':
-            r = self._client.post(_API_BASE_URL + endpoint, data=kwargs)
+            r = self._client.post(_API_BASE_URL + endpoint, data=kwargs, timeout=30)
         else:
-            r = self._client.get(_API_BASE_URL + endpoint, data=kwargs)
+            r = self._client.get(_API_BASE_URL + endpoint, data=kwargs, timeout=30)
 
         r = r.json()
         status = r['meta']['status']

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 744.09448819 1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="pytsite-logo.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="4"
+     inkscape:cx="228.67659"
+     inkscape:cy="438.47868"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1760"
+     inkscape:window-height="964"
+     inkscape:window-x="78"
+     inkscape:window-y="1054"
+     inkscape:window-maximized="0">
+    <sodipodi:guide
+       position="200,400.00001"
+       orientation="0,1"
+       id="guide4152"
+       inkscape:label=""
+       inkscape:color="rgb(0,0,255)" />
+    <sodipodi:guide
+       position="200,500.00001"
+       orientation="0,1"
+       id="guide4154"
+       inkscape:label=""
+       inkscape:color="rgb(0,0,255)" />
+    <sodipodi:guide
+       position="200.17188,442.79688"
+       orientation="1,0"
+       id="guide4156" />
+    <sodipodi:guide
+       position="300,500.00001"
+       orientation="1,0"
+       id="guide4158"
+       inkscape:label=""
+       inkscape:color="rgb(0,0,255)" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
+       id="rect4145"
+       width="99.834274"
+       height="100"
+       x="200.16573"
+       y="552.36218"
+       inkscape:export-xdpi="899.08002"
+       inkscape:export-ydpi="899.08002" />
+    <g
+       transform="matrix(0.84694733,0,0,1.2599441,-20.137785,0)"
+       style="font-style:normal;font-weight:normal;font-size:25.20558167px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#373748;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text4148"
+       inkscape:export-xdpi="899.08002"
+       inkscape:export-ydpi="899.08002">
+      <path
+         d="m 260.12985,481.49247 0,-43.10155 117.84872,0 0,41.85359 -88.24476,14.065 0,23.479 -29.60396,0 0,-18.48829 z m 29.60396,-4.99071 58.6408,-9.86798 0,-12.13649 -58.6408,0 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:113.42513275px;font-family:'Stalin One';-inkscape-font-specification:'Stalin One';fill:#373748"
+         id="path4198"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccccccccccc" />
+    </g>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
+       id="rect4214"
+       width="47.272049"
+       height="13.868561"
+       x="252.6967"
+       y="605.20319"
+       inkscape:export-xdpi="899.08002"
+       inkscape:export-ydpi="899.08002" />
+    <g
+       transform="scale(0.82272812,1.2154684)"
+       style="font-style:normal;font-weight:normal;font-size:49.20991516px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#373748;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="text4210">
+      <path
+         d="m 314.03467,536.83936 0,-11.31829 12.84378,1.86998 0,2.4605 24.90022,0 0,-4.33048 -37.744,-5.95439 0,-17.17427 50.58779,0 0,11.95801 -12.84379,-1.96839 0,-3.00181 -24.90022,0 0,4.67494 37.74401,5.9544 0,16.8298 -50.58779,0 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Stalin One';-inkscape-font-specification:'Stalin One';fill:#373748"
+         id="path4217" />
+    </g>
+  </g>
+</svg>

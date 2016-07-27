@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.80.11 (2016-07-27)
+### Added
+- Project's logo images.
+
+### Fixed
+- `content_import`: limit maximum imported items per run to 1 because of moving to single-process work model.
+- `fb`, `tumblr`, `vk`: session requests timeout.
+
+
 ## 0.80.10 (2016-07-23)
 ### Fixed
 - `content_export`: exporter's entity improper locking.

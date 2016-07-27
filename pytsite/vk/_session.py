@@ -24,7 +24,7 @@ class Session:
         """Perform a request to the VK API.
         """
         kwargs['access_token'] = self._access_token
-        r = _requests.get(self._method_base_url + method, kwargs)
+        r = _requests.get(self._method_base_url + method, kwargs, timeout=30)
 
         if r.status_code != 200:
             raise _error.RequestError(r.content)
@@ -36,7 +36,7 @@ class Session:
         return r['response']
 
     def get_users_info(self, users_ids: tuple, fields: tuple=None) -> list:
-        """Get info anout multiple users.
+        """Get info about multiple users.
         """
         return self.request('users.get', users_ids=users_ids, fields=fields)
 

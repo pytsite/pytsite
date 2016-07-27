@@ -77,7 +77,7 @@ def cron_1min():
                     # Disable if maximum errors count reached
                     exporter.f_set('enabled', False)
                 else:
-                    # Pausing exporter
+                    # Pause exporter
                     exporter.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
                 # Stop iterating over entities and go on with new exporter
