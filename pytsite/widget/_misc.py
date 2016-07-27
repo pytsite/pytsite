@@ -122,7 +122,7 @@ class BootstrapTable(_base.Abstract):
             data_sort_order=self._default_sort_order,
             data_cookie='true',
             data_cookie_id_table=self.uid,
-            data_cookies_enabled='["bs.table.sortOrder", "bs.table.sortName"]',
+            data_cookies_enabled='["bs.table.sortOrder", "bs.table.sortName", "bs.table.pageList"]',
             data_cookie_expire='1y',
         )
         t_head = _html.THead()

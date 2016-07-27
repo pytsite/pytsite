@@ -38,12 +38,11 @@ def cron_1min():
         })
 
         driver = _api.get_driver(importer.driver)
-        max_items = 20
+        max_items = 1
         items_imported = 0
         try:
-            _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options))
-
             importer.lock()
+            _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options))
 
             for entity in driver.get_entities(_frozendict(options)):
                 if items_imported == max_items:
@@ -79,12 +78,14 @@ def cron_1min():
 
                     _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)))
 
+                    raise e
+
                 finally:
                     entity.unlock()
 
             _logger.info('Content import finished. Entities imported: {}.'.format(items_imported))
 
-        except _error.ContentImportError as e:
+        except Exception as e:
             # Increment errors counter
             importer.f_inc('errors')
 
@@ -95,10 +96,14 @@ def cron_1min():
                 # Disable if maximum errors count reached
                 importer.f_set('enabled', False)
             else:
-                # Pausing importer
+                # Pause importer
                 importer.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
             _logger.error(str(e), exc_info=e, stack_info=True)
 
+            # Continue to the next importer
+            continue
+
         finally:
+            importer.save()
             importer.unlock()
