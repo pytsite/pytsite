@@ -68,9 +68,9 @@ class Session:
 
     def request(self, endpoint: str, method='GET', **kwargs):
         if method.upper() == 'POST':
-            r = self._client.post(_API_BASE_URL + endpoint, data=kwargs, timeout=30)
+            r = self._client.post(_API_BASE_URL + endpoint, data=kwargs, timeout=15)
         else:
-            r = self._client.get(_API_BASE_URL + endpoint, data=kwargs, timeout=30)
+            r = self._client.get(_API_BASE_URL + endpoint, data=kwargs, timeout=15)
 
         r = r.json()
         status = r['meta']['status']

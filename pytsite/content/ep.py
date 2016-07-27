@@ -27,10 +27,11 @@ def index(args: dict, inp: dict):
 
     # Filter by term
     term_field = args.get('term_field')
-    term_model = f.mock.get_field(term_field).model
-    if term_field and term_model != '*':
+
+    if term_field and f.mock.has_field(term_field):
+        term_model = f.mock.get_field(term_field).model
         term_alias = args.get('term_alias')
-        if term_alias:
+        if term_alias and term_model != '*':
             term = _taxonomy.find(term_model).where('alias', '=', term_alias).first()
             if term:
                 args['term'] = term

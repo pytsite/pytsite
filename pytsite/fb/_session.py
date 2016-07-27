@@ -79,10 +79,10 @@ class Session:
         """
         if method.upper() == 'POST':
             params = {'access_token': self._access_token}
-            return _requests.post(_API_REQUEST_URL + endpoint, params=params, data=kwargs, timeout=30).json()
+            return _requests.post(_API_REQUEST_URL + endpoint, params=params, data=kwargs, timeout=15).json()
         else:
             kwargs['access_token'] = self._access_token
-            return _requests.get(_API_REQUEST_URL + endpoint, params=kwargs, timeout=30).json()
+            return _requests.get(_API_REQUEST_URL + endpoint, params=kwargs, timeout=15).json()
 
     def paginated_request(self, endpoint, **kwargs) -> _Generator:
         """Perform paginated request.

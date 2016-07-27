@@ -24,7 +24,7 @@ class Session:
         """Perform a request to the VK API.
         """
         kwargs['access_token'] = self._access_token
-        r = _requests.get(self._method_base_url + method, kwargs, timeout=30)
+        r = _requests.get(self._method_base_url + method, kwargs, timeout=15)
 
         if r.status_code != 200:
             raise _error.RequestError(r.content)

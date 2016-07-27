@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.80.12  (2016-07-27)
+### Fixed
+- `file`: error logging.
+- `content`: inde endpoint arguments checking.
+- `fb`, `tumblr`, `vk`: session requests timeout.
+  
+
 ## 0.80.11 (2016-07-27)
 ### Added
 - Project's logo images.

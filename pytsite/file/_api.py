@@ -140,7 +140,11 @@ def get(uid: str = None, rel_path: str = None, model: str = 'file') -> _model.Fi
         raise RuntimeError('File UID or relative path should be specified')
 
     if not entity:
-        raise _error.EntityNotFound('File entity is not found.')
+        raise _error.EntityNotFound('File entity is not found for {}.'.format({
+            'uid': uid,
+            'rel_path': rel_path,
+            'model': model,
+        }))
 
     return entity
 
@@ -150,7 +154,7 @@ def get_by_ref(ref: _Union[str, _DBRef]) -> _model.File:
     """
     entity = _odm.get_by_ref(ref)
     if not entity:
-        raise _error.EntityNotFound('File entity is not found.')
+        raise _error.EntityNotFound('File entity is not found for ref {}.'.format(ref))
 
     if not isinstance(entity, _model.File):
         raise TypeError('Entity does not extend pytsite.file.model.File.')
