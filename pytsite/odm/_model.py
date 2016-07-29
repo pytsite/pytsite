@@ -320,6 +320,7 @@ class Entity(_ABC):
     @property
     def parent(self):
         """Get parent entity.
+        :rtype: Entity
         """
         return self.f_get('_parent')
 

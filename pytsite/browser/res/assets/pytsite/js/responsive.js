@@ -18,7 +18,8 @@ pytsite.responsive = function () {
     function getParentWidth(child) {
         var parent_cont = $(child).parent();
         while (true) {
-            if (parent_cont.width() > 0 && parent_cont.prop('tagName') != 'A')
+            var parentTag = parent_cont.prop('tagName');
+            if (parent_cont.width() > 0 && (parentTag == 'P' || parentTag == 'DIV'))
                 return parent_cont.width();
 
             parent_cont = parent_cont.parent();

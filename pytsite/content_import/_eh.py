@@ -2,8 +2,8 @@
 """
 from datetime import datetime as _datetime, timedelta as _timedelta
 from frozendict import frozendict as _frozendict
-from pytsite import odm as _odm, logger as _logger, content as _content, reg as _reg
-from . import _api, _model, _error
+from pytsite import odm as _odm, logger as _logger, content as _content, reg as _reg, events as _events
+from . import _api, _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -44,6 +44,7 @@ def cron_1min():
             importer.lock()
             _logger.info('Content import started. Driver: {}. Options: {}'.format(driver.get_name(), options))
 
+            # Get entities from driver and save them
             for entity in driver.get_entities(_frozendict(options)):
                 if items_imported == max_items:
                     break
@@ -59,24 +60,27 @@ def cron_1min():
                                 tag.save()
                                 entity.f_add('tags', tag)
 
+                    # Notify listeners
+                    _events.fire('pytsite.content_import.import', driver=driver, entity=entity)
+
                     # Save entity
                     entity.save()
-
-                    # Remove first image from body
-                    if entity.has_field('body') and entity.has_field('images'):
-                        entity.f_set('body', entity.f_get('body', process_tags=False).replace('[img:1]', ''))
 
                     _logger.info("Content entity imported: '{}'".format(entity.f_get('title')))
                     items_imported += 1
 
+                    # Mark that driver made its work without errors
+                    importer.f_set('errors', 0)
+
+                # Entity save was not successfully finished
                 except Exception as e:
-                    # Delete attached images
+                    # Delete already attached images to free space
                     if entity.has_field('images'):
                         for img in entity.f_get('images'):
                             with img:
                                 img.delete()
 
-                    _logger.warn("Error while saving entity '{}'. {}".format(entity.title, str(e)))
+                    _logger.warn("Error while importing entity '{}'. {}".format(entity.title, str(e)))
 
                     raise e
 

@@ -123,7 +123,7 @@ def _extract_images(entity) -> tuple:
         images.append(_image.create(match.group(1), owner=entity.author))
         return '[img:{}]'.format(img_index)
 
-    body = _re.sub('<img.*src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.f_get('body', process_tags=False))
+    body = _re.sub('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.f_get('body'))
 
     return body, images
 
@@ -184,7 +184,7 @@ class Base(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('title', nonempty=True))
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
-        self.define_field(_odm.field.String('body'))
+        self.define_field(_odm.field.String('body', tidyfy_html=True))
         self.define_field(_odm.field.Ref('author', nonempty=True, model='user'))
         self.define_field(_odm.field.RefsUniqueList('images', model='image'))
         self.define_field(_odm.field.StringList('video_links'))
@@ -273,6 +273,9 @@ class Base(_odm_ui.model.UIEntity):
             body, images = _extract_images(self)
             self.f_set('body', body)
             self.f_set('images', images)
+
+            # Remove first image from the body
+            self.f_set('body', self.f_get('body').replace('[img:1]', ''))
 
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
@@ -423,7 +426,7 @@ class Content(Base):
 
         self.define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
         self.define_field(_odm.field.String('status', nonempty=True, default='waiting'))
-        self.define_field(_odm.field.String('description'))
+        self.define_field(_odm.field.String('description', strip_html=True))
         self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now()))
         self.define_field(_odm.field.RefsUniqueList('tags', model='tag'))
         self.define_field(_odm.field.Ref('section', model='section'))
@@ -557,7 +560,6 @@ class Content(Base):
         """
         if field_name == 'tags' and kwargs.get('as_string'):
             return ','.join([tag.title for tag in self.f_get('tags')])
-
         else:
             return super()._on_f_get(field_name, value, **kwargs)
 

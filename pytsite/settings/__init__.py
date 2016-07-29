@@ -11,7 +11,7 @@ __license__ = 'MIT'
 # Init wrapper
 def __init():
     import sys
-    from pytsite import odm, tpl, lang, router, admin, js_api
+    from pytsite import odm, tpl, lang, router, admin
     from ._model import Setting
 
     # Language package

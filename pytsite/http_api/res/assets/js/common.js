@@ -22,6 +22,7 @@ pytsite.httpApi = {
     },
 
     request: function (method, endpoint, data) {
+        data = data || {};
         data['__user_agent'] = navigator.userAgent;
 
         return $.ajax({

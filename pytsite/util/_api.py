@@ -3,58 +3,91 @@
 import random as _random
 import re as _re
 import pytz as _pytz
+from lxml import html as _lxml_html, etree as _lxml_etree
 from importlib import import_module as _import_module
-from typing import Iterable as _Iterable, Callable as _Callable
+from typing import Iterable as _Iterable
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
 from datetime import datetime as _datetime
-from html import parser as _html_parser
+from html import parser as _python_html_parser
 from hashlib import md5 as _md5
 from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
 
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _html_script_re = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
+_html_single_tags = ('br', 'img', 'input')
+_html_allowed_empty_tags = ('iframe',)
+_lxml_etree_html_parser = _lxml_etree.HTMLParser(encoding='utf-8', remove_blank_text=True, remove_comments=True)
 
 
-class _HTMLStripTagsParser(_html_parser.HTMLParser):
-    def __init__(self):
+class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
+    def __init__(self, safe_tags: str = None):
+        """
+        :param safe_tags: safe tags and attributes, i. e. 'a:href,rel|img:src,alt|p:class,lang'
+        """
         super().__init__(convert_charrefs=False)
-        self._data = []
+        self._safe_tags = None
+        self._content = []
+
+        if safe_tags:
+            self._safe_tags = {}
+            for safe_tag_data in safe_tags.split('|'):
+                safe_tag_data_split = safe_tag_data.split(':')
+                if len(safe_tag_data_split) == 1:
+                    self._safe_tags[safe_tag_data_split[0]] = []
+                else:
+                    self._safe_tags[safe_tag_data_split[0]] = safe_tag_data_split[1].split(',')
 
     def error(self, message):
-        raise Exception(message)
+        raise RuntimeError(message)
+
+    def handle_starttag(self, tag, attrs):
+        if not self._safe_tags or tag not in self._safe_tags:
+            return
+
+        attrs_to_add = []
+        for attr in attrs:
+            if attr[0] not in self._safe_tags[tag]:
+                continue
+            if attr[1]:
+                attrs_to_add.append('{}="{}"'.format(attr[0], attr[1]))
+            else:
+                attrs_to_add.append('{}'.format(attr[0]))
+
+        if attrs_to_add:
+            self._content.append('<{} {}>'.format(tag, ' '.join(attrs_to_add)))
+        else:
+            self._content.append('<{}>'.format(tag))
+
+    def handle_endtag(self, tag):
+        if self._safe_tags and tag in self._safe_tags and tag not in _html_single_tags:
+            self._content.append('</{}>'.format(tag))
 
     def handle_data(self, data: str):
-        data = _re.sub(r'\n', ' ', data, flags=_re.MULTILINE)
-        data = _re.sub(r'\s{2,}', ' ', data)
-
-        self._data.append(data)
+        self._content.append(_re.sub(r'(\n|\r\n)', ' ', data, flags=_re.MULTILINE))
 
     def __str__(self) -> str:
         self.close()
 
-        return ' '.join(self._data)
+        return _re.sub(r'\s{2,}', ' ', ' '.join(self._content))
 
 
-class _HTMLTrimParser(_html_parser.HTMLParser):
-    def __init__(self, limit: int, count_bytes: bool=False, single_tags: tuple=()):
+class _HTMLTrimParser(_python_html_parser.HTMLParser):
+    def __init__(self, limit: int, count_bytes: bool = False):
         super().__init__(convert_charrefs=False)
 
         self._limit = limit
         self._count_bytes = count_bytes
         self._str = ''
         self._tags_stack = []
-        self._single_tags = ('img', 'input') + single_tags
 
     def error(self, message):
-        raise Exception(message)
+        raise RuntimeError(message)
 
     def handle_starttag(self, tag: str, attrs: list):
         if not self._get_available_len():
@@ -75,7 +108,7 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
         tag_str_len = len(tag_str.encode()) if self._count_bytes else len(tag_str)
         if self._get_available_len() >= tag_str_len:
             self._str += tag_str
-            if tag not in self._single_tags:
+            if tag not in _html_single_tags:
                 self._tags_stack.append(tag)
 
     def handle_endtag(self, tag: str):
@@ -126,19 +159,63 @@ class _HTMLTrimParser(_html_parser.HTMLParser):
         return self._str
 
 
-def strip_html_tags(s: str) -> str:
+def strip_html_tags(s: str, safe_tags: str = None) -> str:
     """Strips HTML tags from a string.
     """
-    parser = _HTMLStripTagsParser()
+    parser = _HTMLStripTagsParser(safe_tags)
     parser.feed(s)
 
     return str(parser)
 
 
-def trim_str(s: str, limit: int=140, count_bytes: bool=False, single_tags: tuple=()) -> str:
+def tidyfy_html(s: str, remove_empty_tags: bool = True) -> str:
+    """Remove tags and attributes except safe_tags and empty tags is necessary.
+    """
+    safe_tags = 'a:href:target:rel|abbr|b|br|cite|code|dd|del|dfn|dl|dt|em|h1|h2|h3|h4|h5|h6|i|' \
+                'iframe:src:width:height|img:src:alt|li|ol|p|pre|q|s|samp|small|span|strong|sub|sup|table|' \
+                'tbody|td|tfoot|th|thead|tr|ul|var'
+
+    def _empty_tags_cleaner(item):
+        # If the element has children, deep into it and parse children
+        if len(item):
+            for child in item:
+                _empty_tags_cleaner(child)
+        # If the element has NO children, check its text content
+        else:
+            if item.tag not in _html_single_tags and item.tag not in _html_allowed_empty_tags and item.text:
+                item_text = item.text.replace('&nbsp;', '').strip()
+                if not item_text:
+                    # Remove item with no text
+                    item.getparent().remove(item)
+                else:
+                    # Put tidy text back to item
+                    item.text = item_text
+
+        return item
+
+    s = strip_html_tags(s, safe_tags)
+
+    if remove_empty_tags:
+        # Remove tags while they present
+        while True:
+            s_xml = _empty_tags_cleaner(_lxml_html.fromstring(s, parser=_lxml_etree_html_parser))
+            s_cleaned = _lxml_html.tostring(s_xml, encoding='utf-8').decode('utf-8')
+            if s_cleaned == s:
+                break
+
+            s = s_cleaned
+
+        # Remove root '<div>' tag which adds by lxml
+        if s.startswith('<div>'):
+            s = s[5:-6]
+
+    return s
+
+
+def trim_str(s: str, limit: int = 140, count_bytes: bool = False) -> str:
     """Trims ordinary or HTML string to the specified length.
     """
-    parser = _HTMLTrimParser(limit, count_bytes, single_tags)
+    parser = _HTMLTrimParser(limit, count_bytes)
     parser.feed(s)
 
     return str(parser)
@@ -153,6 +230,7 @@ def escape_html(s: str) -> str:
 def minify_html(s: str) -> str:
     """Minify an HTML string.
     """
+
     def sub_f(m):
         g = m.groups()
         return ''.join((g[0], _jsmin(g[1]), g[2])).replace('\n', '')
@@ -199,7 +277,7 @@ def mk_tmp_file() -> tuple:
     return mkstemp(dir=tmp_dir)
 
 
-def random_str(size=16, alphabet='0123456789abcdef', exclude: _Iterable=None):
+def random_str(size=16, alphabet='0123456789abcdef', exclude: _Iterable = None):
     """Generate random string.
     """
     while True:
@@ -215,13 +293,13 @@ def random_password(size=16):
     return random_str(size, alphabet)
 
 
-def weight_sort(inp: list, key: str='weight') -> list:
+def weight_sort(inp: list, key: str = 'weight') -> list:
     """Sort list by weight.
     """
     return sorted(inp, key=lambda x: getattr(x, key) if hasattr(x, key) else x[key])
 
 
-def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
+def html_attrs_str(attrs: dict, replace_keys: dict = None) -> str:
     """Format dictionary as XML attributes string.
     """
     single_attrs = 'checked', 'selected', 'required', 'allowfullscreen', 'hidden'
@@ -243,7 +321,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict=None) -> str:
     return r
 
 
-def transliterate(text: str)->str:
+def transliterate(text: str) -> str:
     """Transliterate a string.
     """
     cyrillic = [
@@ -363,7 +441,7 @@ def cleanup_dict(inp: dict) -> dict:
     return r
 
 
-def nav_link(url: str, anchor: str, icon: str=None, **kwargs) -> str:
+def nav_link(url: str, anchor: str, icon: str = None, **kwargs) -> str:
     """Generate Bootstrap compatible navigation item link.
     """
     from pytsite import html, router
@@ -392,7 +470,7 @@ def parse_rfc822_datetime_str(s: str) -> _datetime:
         return _datetime.strptime(s, '%a, %d %b %y %H:%M:%S %z')
 
 
-def rfc822_datetime_str(dt: _datetime=None) -> str:
+def rfc822_datetime_str(dt: _datetime = None) -> str:
     """Format date/time string according to RFC-822.
     """
     if not dt:
@@ -404,7 +482,7 @@ def rfc822_datetime_str(dt: _datetime=None) -> str:
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
 
 
-def w3c_datetime_str(dt: _datetime=None, date_only: bool=False) -> str:
+def w3c_datetime_str(dt: _datetime = None, date_only: bool = False) -> str:
     """Format date/time string according to W3C.
     """
     if not dt:

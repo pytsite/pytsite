@@ -28,6 +28,7 @@ def __init():
     assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@css/custom.css', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix=bp, async=True, defer=True)
+    assetman.add('pytsite.admin@js/admin.js', permanent=True, path_prefix=bp, async=True, defer=True)
 
     # Permissions
     permission.define_permission_group('admin', 'pytsite.admin@admin')

@@ -121,21 +121,25 @@ class RSS(Abstract):
                         m_player = m_group.get_children('{http://search.yahoo.com/mrss}player')[0]
                         entity.f_add('video_links', m_player.attributes['url'])
 
-            # Images
-            if entity.has_field('images') and rss_item.has_children('enclosure'):
+            # Body
+            if entity.has_field('body'):
+                body = None
+
+                if rss_item.has_children('{https://pytsite.xyz}fullText'):
+                    body = rss_item.get_children('{https://pytsite.xyz}fullText')[0].text
+                elif rss_item.has_children('{http://purl.org/rss/1.0/modules/content}encoded'):
+                    body = rss_item.get_children('{http://purl.org/rss/1.0/modules/content}encoded')[0].text
+                elif rss_item.has_children('{http://news.yandex.ru}full-text'):
+                    body = rss_item.get_children('{http://news.yandex.ru}full-text')[0].text
+
+                if body:
+                    entity.f_set('body', body)
+
+            # Images from enclosures ONLY IF entity does not contain image links in the body
+            if entity.has_field('images') and rss_item.has_children('enclosure') and '<img' not in entity.body:
                 for enc in rss_item.get_children('enclosure'):
                     if enc.attributes['type'].startswith('image'):
                         entity.f_add('images', _image.create(enc.attributes['url'], owner=o['content_author']))
-
-            # Body
-            if entity.has_field('body'):
-                if rss_item.has_children('{https://pytsite.xyz}fullText'):
-                    entity.f_set('body', rss_item.get_children('{https://pytsite.xyz}fullText')[0].text)
-                elif rss_item.has_children('{http://purl.org/rss/1.0/modules/content}encoded'):
-                    body = rss_item.get_children('{http://purl.org/rss/1.0/modules/content}encoded')[0].text
-                    entity.f_set('body', body)
-                elif rss_item.has_children('{http://news.yandex.ru}full-text'):
-                    entity.f_set('body', rss_item.get_children('{http://news.yandex.ru}full-text')[0].text)
 
             # Store information about content source
             if rss_item.has_children('link'):

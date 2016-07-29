@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.80.13  (2016-07-30)
+### Added
+- `odm`: new arguments in `field.String`: `strip_html`, `tidyfy_html`, `remove_empty_html_tags`.
+- `content_import`: new event: `pytsite.content_import.import`.
+- `util`: new function: `tidyfy_html()`.
+
+### Fixed
+- `browser`: parent width detection in `responsive`.
+- `content`: images extraction from body while saving entity.
+- `lang`: months names in English.
+- `http_api`: arguments processing in JS methods.
+- `content_import`: logic.
+
+### Removed
+- `js_api`: totally replaced by `http_api`.
+
+
 ## 0.80.12  (2016-07-27)
 ### Fixed
 - `file`: error logging.

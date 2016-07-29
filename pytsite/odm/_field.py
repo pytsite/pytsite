@@ -572,24 +572,36 @@ class String(Abstract):
         """
         kwargs['default'] = kwargs.get('default', '')
         self._max_length = kwargs.get('max_length')
+        self._strip_html = kwargs.get('strip_html')
+        self._tidyfy_html = kwargs.get('tidyfy_html')
+        self._remove_empty_html_tags = kwargs.get('remove_empty_html_tags', True)
 
         super().__init__(name, **kwargs)
 
     @property
     def max_length(self) -> int:
+        """Get maximum field's length.
+        """
         return self._max_length
 
     @max_length.setter
     def max_length(self, val: int):
+        """Set maximum field's length.
+        """
         self._max_length = val
 
     def _on_set(self, value: str, **kwargs):
-        """Set value of the field.
+        """Hook.
         """
-        value = '' if value is None else str(value).strip()
+        value = str(value).strip()
 
         if self._max_length is not None:
             value = value[:self._max_length]
+
+        if self._strip_html:
+            value = _util.strip_html_tags(value)
+        elif self._tidyfy_html:
+            value = _util.tidyfy_html(value, self._remove_empty_html_tags)
 
         return value
 

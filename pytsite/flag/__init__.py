@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, odm, tpl, lang, events, js_api
+    from pytsite import assetman, odm, tpl, lang, events
     from . import _model, _eh
 
     # ODM models
