@@ -1,6 +1,14 @@
 # PytSite Changelog
 
-## 0.80.13  (2016-07-30)
+## 0.80.14 (2016-07-30)
+### Added
+- `util`: new arguments in `tidyfy_html()`: `add_safe_tags` and `remove_tags`.
+
+### Fixed
+- `auth_ulogin`: `lang`'s package registration.
+
+
+## 0.80.13 (2016-07-30)
 ### Added
 - `odm`: new arguments in `field.String`: `strip_html`, `tidyfy_html`, `remove_empty_html_tags`.
 - `content_import`: new event: `pytsite.content_import.import`.
@@ -17,7 +25,7 @@
 - `js_api`: totally replaced by `http_api`.
 
 
-## 0.80.12  (2016-07-27)
+## 0.80.12 (2016-07-27)
 ### Fixed
 - `file`: error logging.
 - `content`: inde endpoint arguments checking.
