@@ -803,16 +803,20 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         return '{} ({})'.format(self.login, self.full_name)
 
     def add_follower(self, follower: _auth.model.AbstractUser):
-        self.f_add('followers', follower)
+        with self:
+            self.f_add('followers', follower)
 
     def remove_follower(self, follower: _auth.model.AbstractUser):
-        self.f_sub('followers', follower)
+        with self:
+            self.f_sub('followers', follower)
 
     def add_follows(self, user: _auth.model.AbstractUser):
-        self.f_add('follows', user)
+        with self:
+            self.f_add('follows', user)
 
     def remove_follows(self, user: _auth.model.AbstractUser):
-        self.f_sub('follows', user)
+        with self:
+            self.f_sub('follows', user)
 
     def check_perm(self, action: str) -> bool:
         # Users can modify themselves

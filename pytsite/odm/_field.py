@@ -598,10 +598,11 @@ class String(Abstract):
         if self._max_length is not None:
             value = value[:self._max_length]
 
-        if self._strip_html:
-            value = _util.strip_html_tags(value)
-        elif self._tidyfy_html:
-            value = _util.tidyfy_html(value, self._remove_empty_html_tags)
+        if value:
+            if self._strip_html:
+                value = _util.strip_html_tags(value)
+            elif self._tidyfy_html:
+                value = _util.tidyfy_html(value, self._remove_empty_html_tags)
 
         return value
 

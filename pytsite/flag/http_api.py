@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def like(inp: dict) -> dict:
+def post_flag(inp: dict) -> dict:
     current_user = _auth.current_user()
     entity = _odm.get_by_ref(inp.get('entity'))
 

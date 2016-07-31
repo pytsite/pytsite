@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.80.15 (2016-07-31)
+### Fixed
+- `odm`: processing of setting empty string in `field.String`.  
+- `auth_storage_odm`: user entity locking while changing followers and following.
+- `flag`: JS code and HTTP endpoint.
+
+
 ## 0.80.14 (2016-07-30)
 ### Added
 - `util`: new arguments in `tidyfy_html()`: `add_safe_tags` and `remove_tags`.
