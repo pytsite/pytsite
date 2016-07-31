@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _model as model, _widget as widget
-from ._api import create
+from ._api import create, get, get_by_ref, get_resize_limit_height, get_resize_limit_width, get_resize_step
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

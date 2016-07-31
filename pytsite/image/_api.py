@@ -1,14 +1,19 @@
 """Image manager.
 """
 from typing import Union as _Union
-from PIL import Image
+from PIL import Image as _Image
 from bson.dbref import DBRef as _DBRef
-from pytsite import file as _file, auth as _auth
+from pytsite import file as _file, auth as _auth, reg as _reg
 from . import _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_resize_limit_width = int(_reg.get('image.resize_limit_width', 1200))
+_resize_limit_height = int(_reg.get('image.resize_limit_height', 1200))
+_resize_step = int(_reg.get('image.resize_step', 50))
 
 
 def create(source: str, name: str=None, description: str=None, remove_source: bool=False,
@@ -22,7 +27,7 @@ def create(source: str, name: str=None, description: str=None, remove_source: bo
             img_entity.delete()
         raise ValueError("'{}' is not a acceptable type for image.".format(img_entity.mime))
 
-    img_obj = Image.open(img_entity.abs_path)
+    img_obj = _Image.open(img_entity.abs_path)
     size = img_obj.size
     img_obj.close()
 
@@ -46,3 +51,15 @@ def get_by_ref(ref: _Union[str, _DBRef]) -> _model.Image:
         raise RuntimeError('File is not an image.')
 
     return file
+
+
+def get_resize_limit_width() -> int:
+    return _resize_limit_width
+
+
+def get_resize_limit_height() -> int:
+    return _resize_limit_height
+
+
+def get_resize_step() -> int:
+    return _resize_step

@@ -56,6 +56,10 @@ http://test.com/api/1/pytsite.image/file
 * *optional* **int** `thumb_width`. Ширина изображения предварительного просмотра.
 * *optional* **int** `thumb_height`. Высота изображения предварительного просмотра.
 
+Аргументы `thumb_width` и `thumb_height` должны иметь значение в пределах от 0 до значений, определённых в [параметрах 
+конфигурации](reg.md) `image.resize_limit_width` и `image.resize_limit_height` соответственно. В случае превышения 
+значения будут автоматически скорректированы до максимально-возможных.
+
 
 ### Формат ответа
 
@@ -81,6 +85,8 @@ http://test.com/api/1/pytsite.image/file
 curl -v -X GET \
 -d access_token=b81de38b9b9589f9a0ec569416e75a25 \
 -d uid=5775fa3b523af5338fe839f3 \
+-d thumb_width=800 \
+-d thumb_height=600 \
 http://test.com/api/1/pytsite.image/file
 ```
 
@@ -97,6 +103,6 @@ http://test.com/api/1/pytsite.image/file
     "height": 768,
     "exif": {},
     "url": "http://test.com/image/resize/0/0/3c/ae/6ebfbdfb3dca5996.jpg",
-    "thumb_url": "http://test.com/image/resize/450/450/3c/ae/6ebfbdfb3dca5996.jpg"
+    "thumb_url": "http://test.com/image/resize/800/600/3c/ae/6ebfbdfb3dca5996.jpg"
 }
 ```

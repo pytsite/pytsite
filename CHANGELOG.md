@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.80.16 (2016-07-31)
+### Added
+- `odm`: new field: `Enum`.
+
+### Fixed
+- `image`: lengths aligning while resizing.
+
+
 ## 0.80.15 (2016-07-31)
 ### Fixed
 - `odm`: processing of setting empty string in `field.String`.  

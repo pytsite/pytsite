@@ -375,6 +375,40 @@ class Dict(Abstract):
         return r
 
 
+class Enum(Abstract):
+    """Enumerated field.
+    """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+
+        :param default: dict
+        :param keys: tuple
+        :param nonempty_keys: tuple
+        """
+        super().__init__(name, **kwargs)
+
+        self._valid_types = (int, float, str)
+
+        self._valid_values = kwargs.get('valid_values')
+        if not self._valid_values or not isinstance(self._valid_values, tuple):
+            raise RuntimeError("You must specify a tuple of valid values for enumerated field '{}'.".format(self.name))
+
+        for v in self._valid_values:
+            if not isinstance(v, self._valid_types):
+                raise TypeError("Value of argument 'valid_values' of the field '{}' should be one of these types: {}".
+                                format(self.name, self._valid_types))
+
+    def _on_set(self, value, **kwargs):
+        if not isinstance(value, self._valid_values):
+            raise TypeError("Value of the field '{}' should be one of these types: {}".
+                            format(self.name, self._valid_types))
+
+        if value not in self._valid_values:
+            raise ValueError("Value of the field '{}' can be only one of these: {}".format(self._valid_values))
+
+        return value
+
+
 class Ref(Abstract):
     """Ref Field.
     """
@@ -595,10 +629,10 @@ class String(Abstract):
         """
         value = str(value).strip()
 
-        if self._max_length is not None:
-            value = value[:self._max_length]
-
         if value:
+            if self._max_length and len(value) > self._max_length:
+                raise ValueError("Value of the field '{}' exceeds {} characters.".format(self.name, self._max_length))
+
             if self._strip_html:
                 value = _util.strip_html_tags(value)
             elif self._tidyfy_html:

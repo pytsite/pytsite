@@ -343,10 +343,11 @@ def get_user_statuses() -> tuple:
 def get_sign_in_url(auth_driver_name: str = None) -> str:
     """Get login URL.
     """
+    # Get default authentication driver
     if not auth_driver_name:
         auth_driver_name = list(_authentication_drivers)[-1]
 
-    return _router.ep_url('pytsite.auth@sign_in', {'driver': auth_driver_name})
+    return _router.ep_url('pytsite.auth@sign_in', {'driver': auth_driver_name, '__redirect': _router.current_url()})
 
 
 def get_sign_out_url(auth_driver_name: str = None) -> str:

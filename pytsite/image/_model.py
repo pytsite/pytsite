@@ -114,7 +114,7 @@ class Image(_file.model.File):
             return super()._on_f_get(field_name, value, **kwargs)
 
     def get_url(self, width: int = 0, height: int = 0) -> str:
-        """Shortcut to use in Jinja templates.
+        """Shortcut.
         """
         return self.f_get('url', width=width, height=height)
 
