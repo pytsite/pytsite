@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.80.17 (2016-07-31)
+### Added
+- `content`: new arguments in `model.Base.as_jsonable()`: `images_thumb_width`, `images_thumb_height`. 
+- `image`: new function `align_length()`.
+
+### Fixed
+- `image`: automatic side aligning while resizing in `model.Image`.
+- `odm_auth`: anonymous user checking in `check_permissions()`. 
+
+
 ## 0.80.16 (2016-07-31)
 ### Added
 - `odm`: new field: `Enum`.

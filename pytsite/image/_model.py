@@ -96,6 +96,12 @@ class Image(_file.model.File):
             try:
                 width = abs(int(kwargs.get('width', 0)))
                 height = abs(int(kwargs.get('height', 0)))
+                if width or height:
+                    from . import _api
+                    if width:
+                        width = _api.align_length(width, _api.get_resize_limit_width())
+                    if height:
+                        width = _api.align_length(width, _api.get_resize_limit_height())
             except ValueError:
                 raise ValueError('Width and height should be positive integers.')
 

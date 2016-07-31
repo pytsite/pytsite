@@ -63,3 +63,23 @@ def get_resize_limit_height() -> int:
 
 def get_resize_step() -> int:
     return _resize_step
+
+
+def align_length(l: int, max_length: int, step: int = None) -> int:
+    if not step:
+        step = get_resize_step()
+
+    if l <= 0:
+        return 0
+
+    if step in (0, 1):
+        return l
+
+    if l >= max_length:
+        return max_length
+
+    for n in range(0, max_length, step):
+        if n >= l:
+            return n
+
+    return max_length

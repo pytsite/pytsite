@@ -27,8 +27,8 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
         raise _http.error.Forbidden()
 
     # Aligning side lengths
-    aligned_width = _align_length(requested_width, _api.get_resize_limit_width(), _api.get_resize_step())
-    aligned_height = _align_length(requested_height, _api.get_resize_limit_height(), _api.get_resize_step())
+    aligned_width = _api.align_length(requested_width, _api.get_resize_limit_width())
+    aligned_height = _api.align_length(requested_height, _api.get_resize_limit_height())
     if aligned_width != requested_width or aligned_height != requested_height:
         redirect = _router.ep_url('pytsite.image@resize', {
             'width': aligned_width,
@@ -108,20 +108,3 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
         image.close()
 
     return _http.response.Redirect(image_entity.f_get('url', width=requested_width, height=requested_height))
-
-
-def _align_length(l: int, max_length: int, step: int):
-    if l <= 0:
-        return 0
-
-    if step in (0, 1):
-        return l
-
-    if l >= max_length:
-        return max_length
-
-    for n in range(0, max_length, step):
-        if n >= l:
-            return n
-
-    return max_length

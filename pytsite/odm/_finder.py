@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _pool_prefix = 'pytsite.odm.finder:'
-_dbg = _reg.get('odm.debug')
+_dbg = _reg.get('odm.debug.finder')
 
 
 class Result:

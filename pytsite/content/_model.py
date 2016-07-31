@@ -394,7 +394,11 @@ class Base(_odm_ui.model.UIEntity):
         })
 
         if self.has_field('images'):
-            r['images'] = [img.as_jsonable() for img in self.images]
+            img_jsonable_args = {
+                'thumb_width': kwargs.get('images_thumb_width', 450),
+                'thumb_height': kwargs.get('images_thumb_height', 450),
+            }
+            r['images'] = [img.as_jsonable(**img_jsonable_args) for img in self.images]
 
         if self.has_field('video_links'):
             r['video_links'] = self.video_links
