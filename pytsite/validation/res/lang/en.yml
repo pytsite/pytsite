@@ -18,3 +18,7 @@ validation_videohostingurl: 'Incorrect video hosting URL'
 validation_videohostingurl_row: 'Incorrect video hosting URL (row :row)'
 validation_regex: 'Does not matches pattern :pattern'
 validation_regex_row: 'Does not matches pattern :pattern (row :row)'
+
+list_expected: 'List expected, got :got'
+dict_expected: 'Dict expected, got :got'
+list_dict_str_expected: 'List, dict or str expected, got :got'

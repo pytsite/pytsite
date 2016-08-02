@@ -41,9 +41,7 @@ class Request(_Request):
 
                 # Convert some well-known strings to types
                 if isinstance(v, str):
-                    if v.isdigit():
-                        v = int(v)
-                    elif v in ('True', 'true'):
+                    if v in ('True', 'true'):
                         v = True
                     elif v in ('False', 'false'):
                         v = False

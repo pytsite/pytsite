@@ -13,6 +13,7 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
     """
     args = {}
     for k, v in inp.items():
+        # Extract all input start from '__form_data_' to args variable
         if k.startswith('__form_data_'):
             k = _util.to_snake_case(k.replace('__form_data_', ''))
 

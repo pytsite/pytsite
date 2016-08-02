@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.80.18 (2016-08-02)
+### Fixed
+- `validation`: exceptions throwing.
+- `auth_storage_odm`: 'access_token' field name clash while processing user's form. 
+
+### Removed
+- `http`: automatic integers detection in request parameters.
+
+
 ## 0.80.17 (2016-07-31)
 ### Added
 - `content`: new arguments in `model.Base.as_jsonable()`: `images_thumb_width`, `images_thumb_height`. 

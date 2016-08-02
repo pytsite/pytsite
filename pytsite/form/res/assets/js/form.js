@@ -215,8 +215,10 @@ pytsite.form = {
             // Progress bar smooth update
             var progressBarInt = setInterval(function () {
                 var percents = parseInt(progressBar.attr('aria-valuenow')) + 1;
-                progressBar.width(percents + '%');
-                progressBar.attr('aria-valuenow', percents);
+                if (percents <= 100) {
+                    progressBar.width(percents + '%');
+                    progressBar.attr('aria-valuenow', percents);
+                }
             }, 250);
 
             self._request('POST', self.getWidgetsEp)

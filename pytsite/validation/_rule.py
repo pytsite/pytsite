@@ -93,7 +93,7 @@ class DictPartsNonEmpty(Base):
             return
 
         if not isinstance(self._value, dict):
-            raise ValueError('Dict expected.')
+            raise _error.RuleError('pytsite.validation@dict_expected', {'got': self.value.__class__.__name__})
 
         # Nothing to validate
         if not self._keys:
@@ -217,7 +217,7 @@ class Regex(Base):
         self._ignore_case = ignore_case
 
         if not self._pattern or not isinstance(self._pattern, str):
-            raise ValueError('Pattern must be a nonempty string.')
+            raise _error.RuleError('Pattern must be a nonempty string.')
 
         self._regex = _re.compile(self._pattern, _re.IGNORECASE) if self._ignore_case else _re.compile(self._pattern)
 
@@ -246,7 +246,7 @@ class Regex(Base):
                 raise _error.RuleError(self._msg_id, {'pattern': self._pattern}, self.value)
 
         else:
-            raise TypeError('List, dict or str expected.')
+            raise _error.RuleError('pytsite.validation@list_dict_str_expected', {'got': self.value.__class__.__name__})
 
 
 class Url(Regex):
@@ -286,7 +286,7 @@ class VideoHostingUrl(Url):
             if not self._validate_str(self.value):
                 raise _error.RuleError(self._msg_id)
         else:
-            raise ValueError('List, dict or str expected.')
+            raise _error.RuleError('pytsite.validation@list_dict_str_expected', {'got': self.value.__class__.__name__})
 
     def _validate_str(self, inp: str):
         for re in self._get_re():
@@ -353,11 +353,11 @@ class ListListItemNotEmpty(Base):
             return
 
         if not isinstance(self.value, list):
-            raise ValueError('List expected.')
+            raise _error.RuleError('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
 
         for row, sub_list in enumerate(self.value):
             if not isinstance(sub_list, list):
-                raise ValueError('List expected.')
+                raise _error.RuleError('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
 
             if self._index + 1 > len(sub_list):
                 raise _error.RuleError(self._msg_id, {'row': row + 1, 'col': self._index + 1})
@@ -374,11 +374,11 @@ class ListListItemUrl(ListListItemNotEmpty):
             return
 
         if not isinstance(self.value, list):
-            raise ValueError('List expected.')
+            raise _error.RuleError('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
 
         for row, sub_list in enumerate(self.value):
             if not isinstance(sub_list, list):
-                raise ValueError('List expected.')
+                raise _error.RuleError('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
 
             if self._index + 1 > len(sub_list):
                 raise _error.RuleError(self._msg_id, {'row': row + 1, 'col': self._index + 1})

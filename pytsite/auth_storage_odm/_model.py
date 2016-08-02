@@ -1,11 +1,11 @@
 """PytSite Authorization ODM Storage Models.
 """
 import hashlib as _hashlib
-from typing import Iterable as _Iterable, Tuple as _Tuple, List as _List, Union as _Union
+from typing import Iterable as _Iterable, Tuple as _Tuple
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
-    admin as _admin, permission as _permission, http as _http, image as _image, events as _events
+    permission as _permission, http as _http, image as _image, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -217,11 +217,11 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @property
     def access_token(self) -> str:
-        return self.f_get('access_token')
+        return self.f_get('acs_token')
 
     @access_token.setter
     def access_token(self, value: str):
-        self.f_set('access_token', value)
+        self.f_set('acs_token', value)
 
     @property
     def first_name(self) -> str:
@@ -435,7 +435,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('email', nonempty=True))
         self.define_field(_odm.field.String('password', nonempty=True))
         self.define_field(_odm.field.String('nickname', nonempty=True))
-        self.define_field(_odm.field.String('access_token'))
+        self.define_field(_odm.field.String('acs_token'))
         self.define_field(_odm.field.Bool('profile_is_public', default=False))
         self.define_field(_odm.field.String('first_name'))
         self.define_field(_odm.field.String('last_name'))
@@ -462,7 +462,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         """
         self.define_index([('login', _odm.I_ASC)], unique=True)
         self.define_index([('nickname', _odm.I_ASC)], unique=True)
-        self.define_index([('access_token', _odm.I_ASC)])
+        self.define_index([('acs_token', _odm.I_ASC)])
         self.define_index([('last_sign_in', _odm.I_DESC)])
 
     def _on_f_set(self, field_name: str, value, **kwargs):
@@ -786,16 +786,16 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         if not self.is_new and current_user.has_permission('pytsite.odm_perm.modify.user'):
             content_wrapper.add_widget(_widget.input.Text(
                 weight=150,
-                uid='access_token',
+                uid='acs_token',
                 value=self.access_token,
                 label=self.t('token'),
             ))
-            frm.add_rules('access_token', (
+            frm.add_rules('acs_token', (
                 _validation.rule.Regex(pattern='^[a-f0-9]{32}$'),
                 _odm.validation.FieldUnique(
                     msg_id='pytsite.auth_storage_odm@this_token_already_used',
                     model=self.model,
-                    field='access_token',
+                    field='acs_token',
                     exclude_ids=self.id)
             ))
 

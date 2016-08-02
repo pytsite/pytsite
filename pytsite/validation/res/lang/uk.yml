@@ -18,3 +18,7 @@ validation_videohostingurl: 'Некоректний URL відеохостинг
 validation_videohostingurl_row: 'Некоректний URL відеохостингу (рядок :row)'
 validation_regex: 'Не відповідає шаблону :pattern'
 validation_regex_row: 'Не відповідає шаблону :pattern (рядок :row)'
+
+list_expected: 'Очикувалось list, отримано :got'
+dict_expected: 'Очикувалось list, отримано :got'
+list_dict_str_expected: 'Очикувалось list, dict или str, отримано :got'
