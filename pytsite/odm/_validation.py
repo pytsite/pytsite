@@ -12,7 +12,8 @@ __license__ = 'MIT'
 class ODMEntitiesList(_pytsite_validation.rule.Base):
     """Check if the value is a list of references.
     """
-    def __init__(self, value=None, msg_id: str=None, model: str=None):
+
+    def __init__(self, value=None, msg_id: str = None, model: str = None):
         """Init.
         """
         super().__init__(value, msg_id)
@@ -37,7 +38,7 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
 
 
 class FieldUnique(_pytsite_validation.rule.Base):
-    def __init__(self, value=None, msg_id: str=None, model: str=None, field: str=None, exclude_ids=None):
+    def __init__(self, value=None, msg_id: str = None, model: str = None, field: str = None, exclude_ids=None):
         """Init.
 
         :param exclude_ids: tuple | _ObjectId | str
@@ -56,7 +57,11 @@ class FieldUnique(_pytsite_validation.rule.Base):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        f = _api.find(self._model).where(self._field, '=', self._value)
+        # Empty values should be checked by 'NonEmpty' rule, if necessary
+        if not self.value:
+            return
+
+        f = _api.find(self._model).where(self._field, '=', self.value)
 
         if self._exclude_ids:
             f.where('_id', 'nin', self._exclude_ids)

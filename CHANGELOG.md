@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.19 (2016-08-02)
+### Fixed
+- `odm`: empty values processing in `validation.FieldUnique` rule.
+
+
 ## 0.80.18 (2016-08-02)
 ### Fixed
 - `validation`: exceptions throwing.
