@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.20 (2016-08-02)
+### Fixed
+- `widget`: current page number detection in `static.Pager`.
+
+
 ## 0.80.19 (2016-08-02)
 ### Fixed
 - `odm`: empty values processing in `validation.FieldUnique` rule.
