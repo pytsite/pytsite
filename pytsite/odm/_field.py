@@ -399,12 +399,13 @@ class Enum(Abstract):
                                 format(self.name, self._valid_types))
 
     def _on_set(self, value, **kwargs):
-        if not isinstance(value, self._valid_values):
+        if not isinstance(value, self._valid_types):
             raise TypeError("Value of the field '{}' should be one of these types: {}".
                             format(self.name, self._valid_types))
 
         if value not in self._valid_values:
-            raise ValueError("Value of the field '{}' can be only one of these: {}".format(self._valid_values))
+            raise ValueError(
+                "Value of the field '{}' can be only one of these: {}".format(self.name, self._valid_values))
 
         return value
 

@@ -10,8 +10,9 @@ __license__ = 'MIT'
 
 
 class ModelSelect(_widget.select.Select):
-    """Content Model Select Widget.
+    """Content Model Select.
     """
+
     def __init__(self, uid: str, **kwargs):
         self._check_perms = kwargs.get('check_perms', True)
 
@@ -28,13 +29,17 @@ class ModelSelect(_widget.select.Select):
 
 
 class StatusSelect(_widget.select.Select):
-    """Content Status Select Widget.
+    """Content Status Select.
     """
+
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, items=_api.get_statuses(), **kwargs)
 
 
 class EntitySelect(_widget.select.Select2):
+    """Entity Select.
+    """
+
     def __init__(self, uid: str, **kwargs):
         kwargs['ajax_url'] = _http_api.url('pytsite.content@widget_entity_select_search', model=kwargs.get('model'),
                                            language=kwargs.get('language', _lang.get_current()))
@@ -61,8 +66,9 @@ class EntitySelect(_widget.select.Select2):
 
 
 class SectionSelect(_taxonomy.widget.TermSelect):
-    """Content Section Select Widget.
+    """Content Section Select.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -70,8 +76,9 @@ class SectionSelect(_taxonomy.widget.TermSelect):
 
 
 class TagCloud(_taxonomy.widget.Cloud):
-    """Tags Cloud Widget.
+    """Tags Cloud.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -79,8 +86,9 @@ class TagCloud(_taxonomy.widget.Cloud):
 
 
 class EntityTagCloud(_taxonomy.widget.Cloud):
-    """Tags Cloud of the Entity Widget.
+    """Tags Cloud of the Entity.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -96,6 +104,9 @@ class EntityTagCloud(_taxonomy.widget.Cloud):
 
 
 class Search(_widget.Abstract):
+    """Content Search Input.
+    """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -105,13 +116,14 @@ class Search(_widget.Abstract):
         if not self._model:
             raise ValueError('Model is not specified.')
 
-        self._value = _router.request().inp.get('search', '')
+        self._value = _router.request().inp.get('search', '') if _router.request() else ''
         self._title_tag = kwargs.get('title_tag', 'h3')
         self._title_css = kwargs.get('title_css', 'title')
 
         self._form = _html.Form(cls='wrapper form-inline', method='GET')
-        self._form.append(_html.Input(type='text', cls='form-control', name='search',  required=True, value=self.value,
-                          placeholder=_lang.t('pytsite.content@search_input_placeholder')))
+        placeholder = _lang.t('pytsite.content@search_input_placeholder', language=self._language)
+        self._form.append(_html.Input(type='text', cls='form-control', name='search', required=True, value=self.value,
+                                      placeholder=placeholder))
         self._form.set_attr('action', _router.ep_url('pytsite.content@search', {'model': self._model}))
 
         btn = _html.Button(type='submit', cls='btn btn-default')

@@ -37,7 +37,7 @@ home_page_title: 'Title of the main page (:lang_code)'
 home_page_description: 'Description of the home page (:lang_code)'
 home_page_keywords: 'Keywords of the main page (:lang_code)'
 search: 'Search :query'
-search_input_placeholder: 'Search'
+search_input_placeholder: 'Search...'
 manage_content_settings_permission: 'Manage content settings'
 additional_js_code: 'Extra JS code (Google Analytics, etc)'
 articles_of_author: 'Content by :name'
@@ -88,10 +88,10 @@ odm_perm_modify_article: 'Modify ANY articles'
 odm_perm_delete_own_article: 'Delete OWN articles'
 odm_perm_delete_article: 'Delete ANY articles'
 
-content_perm_bypass_moderation_article: 'Publish ARTICLES without moderation'
-content_perm_set_localization_article: 'Manage localizations of ARTICLES'
-content_perm_set_publish_time_article: 'Manage publish time of ARTICLES'
-content_perm_set_starred_article: "Set 'Starred' flag of ARTICLES"
+content_perm_bypass_moderation_article: 'Publish articles without moderation'
+content_perm_set_localization_article: 'Manage localizations of articles'
+content_perm_set_publish_time_article: 'Manage publish time of articles'
+content_perm_set_starred_article: "Set 'Starred' flag of articles"
 
 odm_ui_browser_title_page: 'Pages'
 odm_ui_form_title_create_page: 'Create page'
@@ -106,7 +106,7 @@ odm_perm_modify_page: 'Modify ANY pages'
 odm_perm_delete_own_page: 'Delete OWN pages'
 odm_perm_delete_page: 'Delete ANY pages'
 
-content_perm_bypass_moderation_page: 'Publish PAGES without moderation'
-content_perm_set_localization_page: 'Manage localizations of PAGES'
-content_perm_set_publish_time_page: 'Manage publish time of PAGES'
-content_perm_set_starred_page: "Set 'Starred' flag of PAGES"
+content_perm_bypass_moderation_page: 'Publish pages without moderation'
+content_perm_set_localization_page: 'Manage localizations of pages'
+content_perm_set_publish_time_page: 'Manage publish time of pages'
+content_perm_set_starred_page: "Set 'Starred' flag of pages"

@@ -5,7 +5,7 @@ from json import dumps as _json_dumps
 from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union, Dict as _Dict
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
-from pytsite import html as _html, validation as _validation, assetman as _assetman
+from pytsite import html as _html, validation as _validation, assetman as _assetman, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,6 +21,7 @@ class Abstract(_ABC):
         self._uid = uid
         self._wrap_em = _html.Div()
         self._name = kwargs.get('name', uid)
+        self._language = kwargs.get('language', _lang.get_current())
         self._weight = kwargs.get('weight', 0)
         self._default = kwargs.get('default')
         self._value = None  # Wil be set later
@@ -187,6 +188,14 @@ class Abstract(_ABC):
     @name.setter
     def name(self, value: str):
         self._name = value
+
+    @property
+    def language(self) -> str:
+        return self._language
+
+    @language.setter
+    def language(self, value: str):
+        self._language = value
 
     @property
     def weight(self) -> int:

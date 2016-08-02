@@ -32,3 +32,5 @@ month_9_plural_two: 'сентября'
 month_10_plural_two: 'октября'
 month_11_plural_two: 'ноября'
 month_12_plural_two: 'декабря'
+
+just_now: 'Только что'

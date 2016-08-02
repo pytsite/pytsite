@@ -256,7 +256,10 @@ def time_ago(time: _datetime) -> str:
             minutes = diff.seconds // 60
             return '{} {}'.format(minutes, t_plural('pytsite.lang@minute', minutes))
         else:
-            return '{} {}'.format(diff.seconds, t_plural('pytsite.lang@second', diff.seconds))
+            if diff.seconds:
+                return '{} {}'.format(diff.seconds, t_plural('pytsite.lang@second', diff.seconds))
+            else:
+                return t('pytsite.lang@just_now')
 
 
 def pretty_date(time: _datetime) -> str:

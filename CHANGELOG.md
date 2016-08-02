@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.80.21 (2016-08-02)
+### Added
+- `widget`:new constructor's argument `language` in `base.Abstract`.
+ 
+### Changed
+- `http`: `inp` is cached property now.
+- `lang`: writing 'Just now' instead of '0 seconds' in `time_ago()`.
+ 
+### Fixed
+- `odm`: valid types checking in `field.Enum`.
+- `content`: permissions checking while processing `ep.index`. 
+
+
 ## 0.80.20 (2016-08-02)
 ### Fixed
 - `widget`: current page number detection in `static.Pager`.

@@ -66,7 +66,12 @@ def index(args: dict, inp: dict):
     per_page = _reg.get('content.ep.index.per_page', 10)
     pager = _widget.static.Pager('content-pager', total_items=f.count(), per_page=per_page)
 
-    args['entities'] = list(f.skip(pager.skip).get(pager.limit))
+    entities = []
+    for entity in f.skip(pager.skip).get(pager.limit):
+        if entity.check_perm('view'):
+            entities.append(entity)
+
+    args['entities'] = entities
     args['pager'] = pager
 
     return _router.call_ep('$theme@content_' + model + '_index', args, inp)

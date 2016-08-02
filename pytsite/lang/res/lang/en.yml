@@ -32,3 +32,5 @@ month_9_plural_two: 'September'
 month_10_plural_two: 'October'
 month_11_plural_two: 'November'
 month_12_plural_two: 'December'
+
+just_now: 'Just now'
