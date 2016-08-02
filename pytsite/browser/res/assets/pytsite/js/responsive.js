@@ -17,9 +17,16 @@ pytsite.responsive = function () {
     // Searches for closest container with non-zero width
     function getParentWidth(child) {
         var parent_cont = $(child).parent();
+        var tries = 0;
+        var maxTries = 10;
         while (true) {
             var parentTag = parent_cont.prop('tagName');
             if (parent_cont.width() > 0 && (parentTag == 'P' || parentTag == 'DIV'))
+                return parent_cont.width();
+
+            ++tries;
+
+            if (tries >= maxTries)
                 return parent_cont.width();
 
             parent_cont = parent_cont.parent();

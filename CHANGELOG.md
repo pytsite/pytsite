@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.22 (2016-08-02)
+### Fixed
+- `browser`: iterations limit in `responsive` library.
+
+
 ## 0.80.21 (2016-08-02)
 ### Added
 - `widget`:new constructor's argument `language` in `base.Abstract`.
