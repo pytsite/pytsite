@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.23 (2016-08-03)
+### Fixed
+- `util`: processing XML charrefs in `tidyfy_html()`.
+
+
 ## 0.80.22 (2016-08-02)
 ### Fixed
 - `browser`: iterations limit in `responsive` library.

@@ -71,10 +71,16 @@ class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
     def handle_data(self, data: str):
         self._content.append(_re.sub(r'(\n|\r\n)', ' ', data, flags=_re.MULTILINE))
 
+    def handle_entityref(self, name: str):
+        self._content.append('&{};'.format(name))
+
+    def handle_charref(self, name: str):
+        self._content.append('&#{};'.format(name))
+
     def __str__(self) -> str:
         self.close()
 
-        return _re.sub(r'\s{2,}', ' ', ' '.join(self._content))
+        return _re.sub('\s{2,}', ' ', ''.join(self._content))
 
 
 class _HTMLTrimParser(_python_html_parser.HTMLParser):
@@ -171,9 +177,10 @@ def strip_html_tags(s: str, safe_tags: str = None) -> str:
 def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = None, remove_tags: str = None) -> str:
     """Remove tags and attributes except safe_tags and empty tags is necessary.
     """
-    safe_tags = 'a:href:target:rel|abbr|b|br|cite|code|dd|del|dfn|dl|dt|em|h1|h2|h3|h4|h5|h6|i|' \
-                'iframe:src:width:height|img:src:alt|li|ol|p|pre|q|s|samp|small|span|strong|sub|sup|table|' \
-                'tbody|td|tfoot|th|thead|tr|ul|var'
+    safe_tags = 'a:href:target:rel|abbr|address|b|blockquote|br|cite|code|col|colgroup|dd|del|details|dfn|dl|dt|em|' \
+                'figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src:width:height|img:src:alt|ins|kbd|li|mark|ol|' \
+                'output|p|param|pre|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|tfoot|th|thead|' \
+                'time|tr|u|ul|var|wbr'
 
     if add_safe_tags:
         safe_tags += '|' + add_safe_tags
@@ -191,7 +198,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
         # If the element has NO children, check its text content
         else:
             if item.tag not in _html_single_tags and item.tag not in _html_allowed_empty_tags and item.text:
-                item_text = item.text.replace('&nbsp;', '').strip()
+                item_text = item.text.strip()
                 if not item_text:
                     # Remove item with no text
                     item.getparent().remove(item)
@@ -212,6 +219,8 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
                 break
 
             s = s_cleaned
+
+        s = _re.sub('\s{2,}', ' ', s)
 
         # Remove root '<div>' tag which adds by lxml
         if s.startswith('<div>'):
