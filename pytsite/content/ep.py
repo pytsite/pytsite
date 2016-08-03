@@ -141,10 +141,12 @@ def view(args: dict, inp: dict):
 
     # Other metatags
     _metatag.t_set('og:type', 'article')
-    _metatag.t_set('author', entity.author.full_name)
-    _metatag.t_set('article:author', entity.author.full_name)
     _metatag.t_set('og:url', entity.url)
     _metatag.t_set('article:publisher', entity.url)
+
+    if entity.has_field('author') and entity.author:
+        _metatag.t_set('author', entity.author.full_name)
+        _metatag.t_set('article:author', entity.author.full_name)
 
     # Alternate languages URLs
     for lng in _lang.langs(False):

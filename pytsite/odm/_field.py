@@ -448,9 +448,12 @@ class Ref(Abstract):
         if internal_value is not None:
             from ._api import get_by_ref
             entity = get_by_ref(internal_value)
-            if self._model != '*' and entity.model != self._model:
-                raise TypeError("Entity of model '{}' expected.".format(self._model))
-            internal_value = entity
+            if entity:
+                if self._model != '*' and entity.model != self._model:
+                    raise TypeError("Entity of model '{}' expected.".format(self._model))
+                internal_value = entity
+            else:
+                internal_value = None
 
         return internal_value
 

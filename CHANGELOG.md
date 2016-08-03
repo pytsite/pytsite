@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.24 (2016-08-03)
+### Fixed
+- `odm`: return value of `field.Ref` in case of entity deletion.
+
+
 ## 0.80.23 (2016-08-03)
 ### Fixed
 - `util`: processing XML charrefs in `tidyfy_html()`.
