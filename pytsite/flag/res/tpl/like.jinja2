@@ -3,7 +3,10 @@
 {% endif %}
 
 <i class="icon {{ widget.icon }}"></i>
-{% if widget.counter %}<span class="count">{{ widget.count }}</span>{% endif %}
+
+{% if widget.counter %}
+    <span class="count">{{ widget.count }}</span>
+{% endif %}
 
 {% if not current_user.is_anonymous and widget.enabled %}
     </a>

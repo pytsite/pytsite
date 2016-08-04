@@ -309,6 +309,7 @@ def dispatch(env: dict, start_response: callable):
     except Exception as e:
         if isinstance(e, _HTTPException):
             if isinstance(e.response, _http.response.Response):
+                e.response.status_code = e.code
                 return e.response(env, start_response)
 
             code = e.code

@@ -27,7 +27,7 @@
 Запрос:
 
 ```
-curl -v \
+curl \
 -F access_token=b81de38b9b9589f9a0ec569416e75a25 \
 -F file1=@/home/user/Documents/HelloWorld.jpg \
 -F file2=@/home/user/Documents/HereWeGo.png \

@@ -21,15 +21,19 @@ class EntityNotStored(Exception):
     pass
 
 
-class ForbidEntityCreate(Exception):
+class ForbidEntityOperation(Exception):
     pass
 
 
-class ForbidEntityModify(Exception):
+class ForbidEntityCreate(ForbidEntityOperation):
     pass
 
 
-class ForbidEntityDelete(Exception):
+class ForbidEntityModify(ForbidEntityOperation):
+    pass
+
+
+class ForbidEntityDelete(ForbidEntityOperation):
     pass
 
 

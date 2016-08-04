@@ -56,57 +56,78 @@ def average(entity: _odm.model.Entity, flag_type: str = 'default') -> float:
     return _cache_p.put(c_key, v, _CACHE_TTL)
 
 
-def is_flagged(entity: _odm.model.Entity, user: _auth.model.AbstractUser, flag_type: str = 'default') -> bool:
+def is_flagged(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, flag_type: str = 'default') -> bool:
     """Check if an entity is flagged by a user.
     """
-    if user.is_anonymous:
-        return False
+    if not author:
+        author = _auth.current_user()
 
-    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', user).where('type', '=', flag_type)
+    if author.is_anonymous:
+        raise RuntimeError("Flag's author cannot be anonymous.")
+
+    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', author).where('type', '=', flag_type)
 
     return bool(f.count())
 
 
-def flag(entity: _odm.model.Entity, user: _auth.model.AbstractUser, flag_type: str = 'default', score: float = 1.0):
+def flag(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, flag_type: str = 'default',
+         score: float = 1.0) -> int:
     """Flag the entity.
     """
-    if user.is_anonymous or is_flagged(entity, user):
+    if not author:
+        author = _auth.current_user()
+
+    if author.is_anonymous:
+        raise RuntimeError("Flag's author cannot be anonymous.")
+
+    if is_flagged(entity, author):
         return
 
     e = _odm.dispense('flag')
-    e.f_set('entity', entity).f_set('author', user).f_set('type', flag_type).f_set('score', score)
+    e.f_set('entity', entity).f_set('author', author).f_set('type', flag_type).f_set('score', score)
     e.save()
 
-    _events.fire('pytsite.flag.flag', entity=entity, user=user, flag_type=flag_type, score=score)
+    _events.fire('pytsite.flag.flag', entity=entity, user=author, flag_type=flag_type, score=score)
+
+    return count(entity, flag_type)
 
 
-def unflag(entity: _odm.model.Entity, user: _auth.model.AbstractUser, flag_type: str = 'default'):
+def unflag(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, flag_type: str = 'default') -> int:
     """Remove flag.
     """
-    if user.is_anonymous or not is_flagged(entity, user):
+    if not author:
+        author = _auth.current_user()
+
+    if author.is_anonymous:
+        raise RuntimeError("Flag's author cannot be anonymous.")
+
+    if not is_flagged(entity, author):
         return
 
-    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', user).where('type', '=', flag_type)
+    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', author).where('type', '=', flag_type)
     fl = f.first()
     with fl:
         fl.delete()
 
-    _events.fire('pytsite.flag.unflag', entity=entity, user=user, flag_type=flag_type)
+    _events.fire('pytsite.flag.unflag', entity=entity, user=author, flag_type=flag_type)
+
+    return count(entity, flag_type)
 
 
-def toggle(entity: _odm.model.Entity, author: _auth.model.AbstractUser, flag_type: str = 'default',
-           score: float = 1.0) -> bool:
+def toggle(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, flag_type: str = 'default',
+           score: float = 1.0) -> int:
     """Toggle flag.
     """
+    if not author:
+        author = _auth.current_user()
+
     if author.is_anonymous:
-        return False
+        raise RuntimeError("Flag's author cannot be anonymous.")
 
     if is_flagged(entity, author, flag_type):
-        unflag(entity, author, flag_type)
-        return False
+        return unflag(entity, author, flag_type)
     else:
-        flag(entity, author, flag_type, score)
-        return True
+        return flag(entity, author, flag_type, score)
 
 
 def delete(entity: _odm.model.Entity) -> int:

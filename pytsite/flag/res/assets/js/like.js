@@ -2,24 +2,25 @@ $(window).on('pytsite.widget.init:pytsite.flag._widget.Like', function (e, widge
     widget.em.find('a').click(function (e) {
         e.preventDefault();
 
+        var em = widget.em;
+
         if (widget.em.hasClass('flagged') && !confirm(t('pytsite.flag@dislike_confirmation')))
             return;
 
-        pytsite.httpApi.post('pytsite.flag@flag', {
-                entity: widget.em.data('entity')
-            })
-            .done(function (data) {
-                if (data['status']) {
-                    widget.em.addClass('flagged');
-                    widget.em.find('a').attr('title', t('pytsite.flag@dislike'));
-                }
+        pytsite.httpApi.patch('pytsite.flag@toggle', {
+            model: em.data('model'),
+            uid: em.data('uid')
+        }).done(function (data) {
+            if (data['status']) {
+                em.addClass('flagged');
+                em.find('a').attr('title', t('pytsite.flag@dislike'));
+            }
+            else {
+                em.removeClass('flagged');
+                em.find('a').attr('title', t('pytsite.flag@like'));
+            }
 
-                else {
-                    widget.em.removeClass('flagged');
-                    widget.em.find('a').attr('title', t('pytsite.flag@like'));
-                }
-
-                widget.em.find('.count').text(data['count']);
-            });
+            em.find('.count').text(data['count']);
+        });
     });
 });

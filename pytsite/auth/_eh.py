@@ -42,7 +42,9 @@ def router_dispatch():
     if 'access_token' in _router.request().inp:
         try:
             user = _api.get_user(access_token=_router.request().inp['access_token'])
-        except (_error.AuthenticationError, _error.InvalidAccessToken) as e:
+        except (_error.InvalidAccessToken, _error.UserNotExist) as e:
+            raise _http.error.Unauthorized(response=_http.response.JSON({'error': str(e)}))
+        except _error.AuthenticationError as e:
             raise _http.error.Forbidden(response=_http.response.JSON({'error': str(e)}))
 
     # Determine current user based on session's data

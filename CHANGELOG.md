@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.80.26 (2016-08-04)
+
+### Added
+- `flag`: documentation for HTTP API.
+
+### Changed
+- `flag`: refactored.
+
+### Fixed
+- `auth`: processing `UserNotExist` exception in `pytsite.router.dispatch` event handler.
+- `router`: processing exceptions with embedded responses. 
+
+
 ## 0.80.25 (2016-08-04)
 ### Fixed
 - `auth_storage_odm`: search user by access token.

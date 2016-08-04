@@ -1,13 +1,13 @@
 """Flag Package Models.
 """
-from pytsite import odm as _odm
+from pytsite import odm as _odm, odm_auth as _odm_auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Flag(_odm.model.Entity):
+class Flag(_odm_auth.model.PermissableEntity):
     """Flag ODM Model.
     """
     def _setup_fields(self):

@@ -32,6 +32,9 @@ class Like(_widget.Abstract):
             'pytsite.flag@js/like.js',
         ])
 
+        self._data['model'] = self._entity.model
+        self._data['uid'] = str(self._entity.id)
+
     @property
     def entity(self) -> _odm.model.Entity:
         return self._entity
@@ -57,8 +60,6 @@ class Like(_widget.Abstract):
 
         if self.flagged:
             self._css += ' flagged'
-
-        self._data['entity'] = '{}:{}'.format(self._entity.model, self._entity.id)
 
         return _html.TagLessElement(_tpl.render('pytsite.flag@like', {
             'widget': self,

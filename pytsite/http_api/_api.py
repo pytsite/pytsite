@@ -54,7 +54,7 @@ def call_ep(endpoint: str, method: str, inp: dict, version: int = None) -> tuple
             pass
 
     if callback_obj is None:
-        raise _error.EndpointNotFound('Endpoint not found')
+        raise _error.EndpointNotFound('Endpoint not found.')
 
     status = 200
     body = callback_obj(inp)

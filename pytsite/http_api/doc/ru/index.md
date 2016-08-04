@@ -29,7 +29,7 @@ HTTP API **всегда** возвращает ответ в формтае JSON
 GET запрос к модулю `pytsite.auth`, методу `access_token_info` с аргументом `access_token`:
 
 ```
-curl -X GET \
+curl -vX GET \
 -d access_token=46e0b2e9a83ddc18e3358802c6f18a09 \
 http://test.com/api/1/pytsite.auth/access_token_info
 ```
