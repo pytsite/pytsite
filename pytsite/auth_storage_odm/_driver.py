@@ -76,7 +76,7 @@ class Driver(_auth.driver.Storage):
             f.where('nickname', '=', nickname)
 
         elif access_token is not None:
-            f.where('access_token', '=', access_token)
+            f.where('acs_token', '=', access_token)
 
         elif uid is not None:
             f.where('_id', '=', uid)

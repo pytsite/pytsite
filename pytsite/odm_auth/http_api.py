@@ -20,16 +20,16 @@ def get_entity(inp: dict) -> dict:
     if not uid:
         raise _http.error.InternalServerError('UID is not specified.')
 
-    # Load entity
+    # Search for entity
     entity = _odm.find(model).where('_id', '=', uid).first()  # type: _model.PermissableEntity
-
     if not entity:
         raise _http.error.NotFound('Entity not found.')
 
+    # Check for entity's class
     if not isinstance(entity, _model.PermissableEntity):
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
-    # Permissions check
+    # Check for permissions
     if not entity.check_perm('view'):
         raise _http.error.Forbidden('Insufficient permissions.')
 

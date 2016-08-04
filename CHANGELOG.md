@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.25 (2016-08-04)
+### Fixed
+- `auth_storage_odm`: search user by access token.
+
+
 ## 0.80.24 (2016-08-03)
 ### Fixed
 - `odm`: return value of `field.Ref` in case of entity deletion.
