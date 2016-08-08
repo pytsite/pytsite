@@ -14,7 +14,7 @@
     - logging, caching;
     - processing values in `field.RefsUniqueList`;
 
-
+## 0.80.26 (2016-08-04)
 ### Added
 - `flag`: documentation for HTTP API.
 
