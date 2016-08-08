@@ -129,10 +129,10 @@ class ULogin(_auth.driver.Authentication):
                     current_pic.delete()
 
         # Name
-        if not user.first_name and 'first_name' in ulogin_data:
-            user.first_name = ulogin_data['first_name']
-        if not user.last_name and 'last_name' in ulogin_data:
-            user.last_name = ulogin_data['last_name']
+        if not user.first_name:
+            user.first_name = ulogin_data.get('first_name')
+        if not user.last_name:
+            user.last_name = ulogin_data.get('last_name')
 
         # Alter nickname
         if is_new_user:
@@ -155,6 +155,9 @@ class ULogin(_auth.driver.Authentication):
         options = dict(user.options)
         options['ulogin'] = ulogin_data
         user.options = options
+
+        with user:
+            user.save()
 
         return user
 

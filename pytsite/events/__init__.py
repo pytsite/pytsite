@@ -1,10 +1,13 @@
 """Event Subsystem.
 """
+from pytsite import reg as _reg, logger as _logger
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _listeners = {}
+_dbg = _reg.get('events.debug', False)
 
 
 def listen(event: str, listener: callable, call_once: bool = False, priority: int = 0):
@@ -18,6 +21,9 @@ def listen(event: str, listener: callable, call_once: bool = False, priority: in
 
     # Sort listeners by priority
     _listeners[event] = sorted(_listeners[event], key=lambda x: x[2])
+
+    if _dbg:
+        _logger.debug("Listener attached to event '{}': {}.{}()".format(event, listener.__module__, listener.__name__))
 
 
 def fire(event: str, stop_after: int = None, **kwargs):

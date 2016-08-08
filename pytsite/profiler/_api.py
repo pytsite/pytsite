@@ -13,6 +13,8 @@ _profilers = {}
 
 
 def enable(subcalls: bool = True, builtins: bool = True):
+    """Start profiling.
+    """
     tid = _threading.get_id()
     if tid not in _profilers:
         _profilers[tid] = _cProfile.Profile()
@@ -21,6 +23,8 @@ def enable(subcalls: bool = True, builtins: bool = True):
 
 
 def disable():
+    """Stop profiling.
+    """
     tid = _threading.get_id()
     if tid not in _profilers:
         raise RuntimeError('Unknown profiler.')
@@ -29,6 +33,8 @@ def disable():
 
 
 def clear():
+    """Clear collected information.
+    """
     tid = _threading.get_id()
     if tid not in _profilers:
         raise RuntimeError('Unknown profiler.')
@@ -37,6 +43,8 @@ def clear():
 
 
 def print_stats(filename: str, mode: str = 'w', header: str = None, sort_by: str = 'cumtime'):
+    """Print collected statistic into file.
+    """
     tid = _threading.get_id()
     if tid not in _profilers:
         raise RuntimeError('Unknown profiler.')

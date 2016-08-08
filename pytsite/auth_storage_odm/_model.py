@@ -403,6 +403,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
         _events.fire('pytsite.auth.user.pre_save', user=self)
 
+        # Do actual save into storage
         with self:
             _odm_ui.model.UIEntity.save(self)
 

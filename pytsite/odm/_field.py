@@ -7,15 +7,14 @@ from decimal import Decimal as _Decimal
 from bson.dbref import DBRef as _bson_DBRef
 from copy import deepcopy as _deepcopy
 from frozendict import frozendict as _frozendict
-from pytsite import lang as _lang, util as _util, cache as _cache, reg as _reg, logger as _logger
+from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
 _dbg = _reg.get('odm.debug.field')
-_cache_pool = _cache.create_pool('pytsite.odm.fields')
-_cache_storage_ttl = 600
 
 
 class Abstract(_ABC):
@@ -68,10 +67,7 @@ class Abstract(_ABC):
         self._uid = uid
 
         if _dbg:
-            _logger.debug("Field's UID changed: {} -> {}".format(prev_uid, uid))
-
-        # Update cached value after UID set/change
-        _cache_pool.put(self._uid, self._value, _cache_storage_ttl)
+            _logger.debug("[FIELD UID CHANGED] {} -> {}".format(prev_uid, uid))
 
     def _on_get(self, internal_value, **kwargs):
         """Hook. Transforms internal value to external one.
@@ -81,20 +77,12 @@ class Abstract(_ABC):
     def get_val(self, **kwargs) -> _Any:
         """Get value of the field.
         """
-        # Get value from the cache if field has an UID
-        if self._uid:
-            try:
-                self._value = _cache_pool.get(self._uid)
-                if _dbg:
-                    _logger.debug("[CACHED FIELD] {}.get_val() -> {}".format(self._uid, repr(self._value)))
-            except _cache.error.KeyNotExist:
-                # Update cached value if it expired or removed
-                _cache_pool.put(self._uid, self._value)
-        else:
-            if _dbg:
-                _logger.debug("[NON-CACHED FIELD] {}.get_val() -> {}".format(self.__class__, repr(self._value)))
+        value = self._on_get(self._value, **kwargs)
 
-        return self._on_get(self._value, **kwargs)
+        if _dbg:
+            _logger.debug("[FIELD] {}.{}.get_val() -> {}".format(self._uid, self._name, repr(value)))
+
+        return value
 
     def _on_get_storable(self, internal_value, **kwargs):
         """Hook.
@@ -125,29 +113,22 @@ class Abstract(_ABC):
         """Set value of the field.
         """
         if value is None:
-            value = _deepcopy(self._default)
+            self._value = _deepcopy(self._default)
         else:
             # Pass value through the hook
-            value = self._on_set(value, **kwargs)
+            self._value = self._on_set(value, **kwargs)
 
-        # Always store internal value
-        self._value = value
-
-        # Store value to the cache if field has UID
-        if self._uid:
-            if _dbg:
-                _logger.debug("[CACHED FIELD] {}.set_val({})".format(self._uid, repr(value)))
-            _cache_pool.put(self._uid, self._value, _cache_storage_ttl)
-        else:
-            if _dbg:
-                _logger.debug("[NON-CACHED FIELD] {}.{}.set_val({})".format(self.__class__, self.name, repr(value)))
+        if _dbg:
+            _logger.debug("[FIELD] {}.{}.set_val({})".format(self._uid, self._name, repr(self._value)))
 
         return self
 
-    def clr_val(self, **kwargs):
+    def clr_val(self):
         """Reset field's value to default.
         """
-        return self.set_val(None, **kwargs)
+        self._value = _deepcopy(self._default)
+
+        return self
 
     def _on_add(self, internal_value, value_to_add, **kwargs):
         """Hook.
@@ -489,12 +470,18 @@ class RefsList(List):
         r = []
         for item in value:
             if isinstance(item, _bson_DBRef):
-                r.append(item)
+                pass
             elif isinstance(item, Entity):
-                r.append(item.ref)
+                item = item.ref
             else:
                 raise TypeError("Field '{}': list of entities or DBRefs expected. Got: {}".
                                 format(self.name, repr(value)))
+
+            if self._unique:
+                if item not in r:
+                    r.append(item)
+            else:
+                r.append(item)
 
         return r
 

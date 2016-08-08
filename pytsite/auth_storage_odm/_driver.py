@@ -71,16 +71,12 @@ class Driver(_auth.driver.Storage):
         f = _odm.find('user').cache(0)
         if login is not None:
             f.where('login', '=', login)
-
         elif nickname is not None:
             f.where('nickname', '=', nickname)
-
         elif access_token is not None:
             f.where('acs_token', '=', access_token)
-
         elif uid is not None:
             f.where('_id', '=', uid)
-
         else:
             raise RuntimeError('User search criteria was not specified.')
 

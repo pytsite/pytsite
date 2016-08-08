@@ -135,6 +135,9 @@ class Google(_auth.driver.Authentication):
         if is_new_user:
             user.nickname = user.full_name
 
+        with user:
+            user.save()
+
         return user
 
     def sign_up(self, data: dict) -> _auth.model.AbstractUser:

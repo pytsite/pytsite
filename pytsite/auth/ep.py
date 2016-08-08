@@ -87,7 +87,7 @@ def profile_view(args: dict, inp: dict) -> str:
         tpl_name = 'pytsite.auth@profile-view'
 
     # Non-public profiles cannot be viewed
-    if not profile_owner.profile_is_public and c_user.login != profile_owner.login and not not c_user.is_admin:
+    if not profile_owner.profile_is_public and c_user.login != profile_owner.login and not c_user.is_admin:
         raise _http.error.NotFound()
 
     # Page title

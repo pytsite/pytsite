@@ -3,14 +3,15 @@
 import random as _random
 import re as _re
 import pytz as _pytz
-from lxml import html as _lxml_html, etree as _lxml_etree
-from importlib import import_module as _import_module
 from typing import Iterable as _Iterable
+from importlib import import_module as _import_module
+from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
 from datetime import datetime as _datetime
 from html import parser as _python_html_parser
 from hashlib import md5 as _md5
+from traceback import extract_stack as _extract_stack
 from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
@@ -550,3 +551,13 @@ def get_callable(s: str) -> callable:
         raise ImportError("Object '{}' of module '{}' is not callable".format(callable_name, module_name))
 
     return callable_obj
+
+
+def format_call_stack_str(sep: str = '\n', skip: int = 1, limit: int = None) -> str:
+    """Format call stack as string.
+    """
+    r = []
+    for frame_sum in _extract_stack(limit=limit)[:-skip]:
+        r.append(':'.join([str(item) for item in frame_sum[:3]]))
+
+    return sep.join(r)

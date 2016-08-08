@@ -151,18 +151,17 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
              check_status: bool = True) -> _model.AbstractUser:
     """Get user by login, nickname, access token or UID.
     """
-    with _threading.get_shared_r_lock():
-        # Check if the access token is valid
-        if access_token and not _access_tokens.has(access_token):
-            raise _error.InvalidAccessToken('Invalid access token.')
+    # Check if the access token is valid
+    if access_token and not _access_tokens.has(access_token):
+        raise _error.InvalidAccessToken('Invalid access token.')
 
-        user = get_storage_driver().get_user(login, nickname, access_token, uid)
+    user = get_storage_driver().get_user(login, nickname, access_token, uid)
 
-        if check_status and user.status != 'active':
-            sign_out(user)
-            raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
+    if check_status and user.status != 'active':
+        sign_out(user)
+        raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
 
-        return user
+    return user
 
 
 def first_admin_user() -> _model.AbstractUser:

@@ -1,6 +1,5 @@
 """ODM models.
 """
-import inspect as _inspect
 from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
@@ -12,19 +11,15 @@ from bson import errors as _bson_errors
 from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, threading as _threading
-from . import _error, _field
+from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, \
+    threading as _threading, util as _util
+from . import _error, _field, _cache as _e_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _dbg = _reg.get('odm.debug.entity')
-
-
-def _get_caller_str(frames: list, depth: int = 2) -> str:
-    frames = frames[1: depth + 1]
-    return ', '.join(['{}:{}'.format(f[1], f[2]) for f in frames])
 
 
 class Entity(_ABC):
@@ -60,8 +55,8 @@ class Entity(_ABC):
         # Define 'system' fields
         self.define_field(_field.Ref('_parent', model=model))
         self.define_field(_field.RefsList('_children', model=model))
-        self.define_field(_field.DateTime('_created'))
-        self.define_field(_field.DateTime('_modified'))
+        self.define_field(_field.DateTime('_created', default=_datetime.now()))
+        self.define_field(_field.DateTime('_modified', default=_datetime.now()))
 
         # Delegate fields setup process to the hook method
         self._setup_fields()
@@ -73,14 +68,9 @@ class Entity(_ABC):
         _events.fire('pytsite.odm.model.setup_indexes', entity=self)
         _events.fire('pytsite.odm.model.{}.setup_indexes'.format(model), entity=self)
 
-        # Loading fields data from collection
+        # Loading fields data from database
         if obj_id:
-            # Fill fields with data
-            self._load_db_data(obj_id)
-        else:
-            # Filling fields with initial values
-            self.f_set('_created', _datetime.now())
-            self.f_set('_modified', _datetime.now())
+            self._load_data_from_db(obj_id)
 
     @property
     def locked(self) -> bool:
@@ -95,12 +85,12 @@ class Entity(_ABC):
         self._lock_depth += 1
 
         if _dbg:
-            caller = _get_caller_str(_inspect.getouterframes(_inspect.currentframe()))
+            caller = _util.format_call_stack_str(' > ', 2)
             if self._lock_depth > 1:
-                _logger.debug("[LOCK INCREASED to {}] for '{}:{}' by {}.".
+                _logger.debug("[ENTITY LOCK INCREASED to {}] for '{}:{}', called by {}.".
                               format(self._lock_depth, self._model, self._id, caller))
             else:
-                _logger.debug("[LOCKED] '{}:{}' by {}.".format(self._model, self._id, caller))
+                _logger.debug("[ENTITY LOCKED] '{}:{}' by {}.".format(self._model, self._id, caller))
 
         return self
 
@@ -114,16 +104,16 @@ class Entity(_ABC):
         self._lock_depth -= 1
 
         if _dbg:
-            caller = _get_caller_str(_inspect.getouterframes(_inspect.currentframe()))
+            caller = _util.format_call_stack_str(' > ', 2)
             if self._lock_depth > 0:
-                _logger.debug("[LOCK DECREASED to {}] for '{}:{}' by {}.".
+                _logger.debug("[ENTITY LOCK DECREASED to {}] for '{}:{}', called by {}.".
                               format(self._lock_depth, self._model, self._id, caller))
             else:
-                _logger.debug("[UNLOCKED] '{}:{}' by {}.".format(self._model, self._id, caller))
+                _logger.debug("[ENTITY UNLOCKED] '{}:{}' by {}.".format(self._model, self._id, caller))
 
         return self
 
-    def _load_db_data(self, eid: _Union[str, _ObjectId]):
+    def _load_data_from_db(self, eid: _Union[str, _ObjectId]):
         """Load fields data from the the database.
         """
         if isinstance(eid, str):
@@ -147,7 +137,7 @@ class Entity(_ABC):
         self._is_new = False
 
         if _dbg:
-            _logger.debug("{}'s fields data has been loaded from the database.".format(self.ref_str))
+            _logger.debug("[ENTITY DATA LOADED FROM DB] {}: {}.".format(self.ref_str, data))
 
     def define_index(self, definition: _List[_Tuple], unique=False):
         """Define an index.
@@ -228,14 +218,6 @@ class Entity(_ABC):
             pass
 
         self.create_indexes()
-
-    def reload(self):
-        """Reload entity data from database.
-        """
-        if self._is_new:
-            raise RuntimeError('Non saved entity cannot be reloaded.')
-
-        self._load_db_data(self._id)
 
     @_abstractmethod
     def _setup_fields(self):
@@ -366,10 +348,13 @@ class Entity(_ABC):
         """Set field's value.
         """
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW ENTITY] {}.f_set('{}', {})".format(self._model, field_name, repr(value)))
+                _logger.debug("[NON-STORED ENTITY] {}.f_set('{}', {}), called by {}.".
+                              format(self._model, field_name, repr(value), caller))
             else:
-                _logger.debug("[STORED ENTITY] {}.f_set('{}', {})".format(self.ref_str, field_name, repr(value)))
+                _logger.debug("[STORED ENTITY] {}.f_set('{}', {}), called by {}.".
+                              format(self.ref_str, field_name, repr(value), caller))
 
         hooked_val = self._on_f_set(field_name, value, **kwargs)
         if value is not None and hooked_val is None:
@@ -399,10 +384,13 @@ class Entity(_ABC):
             raise RuntimeWarning("_on_f_get() for field '{}.{}' returned None.".format(self._model, field_name))
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW ENTITY] {}.f_get('{}') -> {}".format(self._model, field_name, hooked_val))
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_get('{}') -> '{}', called by {}.".
+                              format(self._model, field_name, hooked_val, caller))
             else:
-                _logger.debug("[STORED ENTITY] {}.f_get('{}') -> {}".format(self.ref_str, field_name, hooked_val))
+                _logger.debug("[ODM STORED ENTITY] {}.f_get('{}') -> '{}', called by {}.".
+                              format(self.ref_str, field_name, hooked_val, caller))
 
         return hooked_val
 
@@ -417,10 +405,13 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW] {}.f_add('{}', {})".format(self._model, field_name, repr(value)))
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_add('{}', {}), called by {}.".
+                              format(self._model, field_name, repr(value), caller))
             else:
-                _logger.debug("{}.f_add('{}', {})".format(self.ref_str, field_name, repr(value)))
+                _logger.debug("[ODM STORED ENTITY] {}.f_add('{}', {}), called by {}.".
+                              format(self.ref_str, field_name, repr(value), caller))
 
         value = self._on_f_add(field_name, value, **kwargs)
         self.get_field(field_name).add_val(value, **kwargs)
@@ -441,10 +432,13 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW] {}.f_sub('{}', {})".format(self._model, field_name, repr(value)))
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_sub('{}', {}), called by {}.".
+                              format(self._model, field_name, repr(value), caller))
             else:
-                _logger.debug("{}.f_sub('{}', {})".format(self.ref_str, field_name, repr(value)))
+                _logger.debug("[ODM STORED ENTITY] {}.f_sub('{}', {}), called by {}.".
+                              format(self.ref_str, field_name, repr(value), caller))
 
         # Call hook
         value = self._on_f_sub(field_name, value, **kwargs)
@@ -468,10 +462,13 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW] {}.f_inc('{}')".format(self._model, field_name))
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_inc('{}'), called by {}.".
+                              format(self._model, field_name, caller))
             else:
-                _logger.debug("{}.f_inc('{}')".format(self.ref_str, field_name))
+                _logger.debug("[ODM STORED ENTITY] {}.f_inc('{}'), called by {}.".
+                              format(self.ref_str, field_name, caller))
 
         self._on_f_inc(field_name, **kwargs)
         self.get_field(field_name).inc_val(**kwargs)
@@ -492,10 +489,13 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW] {}.f_dec('{}')".format(self._model, field_name))
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_dec('{}'), called by {}.".
+                              format(self._model, field_name, caller))
             else:
-                _logger.debug("{}.f_dec('{}')".format(self.ref_str, field_name))
+                _logger.debug("[ODM STORED ENTITY] {}.f_dec('{}'), called by {}.".
+                              format(self.ref_str, field_name, caller))
 
         self._on_f_dec(field_name, **kwargs)
         self.get_field(field_name).dec_val(**kwargs)
@@ -516,13 +516,14 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NEW] {}.f_clr('{}')".format(self._model, field_name))
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_clr(), called by {}.".format(self._model, field_name, caller))
             else:
-                _logger.debug("{}.f_clr('{}')".format(self.ref_str, field_name))
+                _logger.debug("[ODM STORED ENTITY] {}.f_clr(), called by {}.".format(self.ref_str, field_name, caller))
 
         self._on_f_clr(field_name, **kwargs)
-        self.get_field(field_name).clr_val(**kwargs)
+        self.get_field(field_name).clr_val()
 
         if update_state:
             self._is_modified = True
@@ -547,10 +548,13 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug('[NEW] {}.append_child({})'.format(self._model, repr(child)))
+                _logger.debug('[ODM NON-STORED ENTITY] {}.append_child({}), called by {}.'.
+                              format(self._model, repr(child), caller))
             else:
-                _logger.debug('{}.append_child({})'.format(self.ref_str, repr(child)))
+                _logger.debug('[ODM STORED ENTITY] {}.append_child({}), called by {}.'.
+                              format(self.ref_str, repr(child), caller))
 
         child.f_set('_parent', self)
         self.f_add('_children', child)
@@ -565,10 +569,13 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug('[NEW] {}.remove_child({})'.format(self._model, repr(child)))
+                _logger.debug('[ODM NON-STORED ENTITY] {}.remove_child({}), called by {}.'.
+                              format(self._model, repr(child)), caller)
             else:
-                _logger.debug('{}.remove_child({})'.format(self.ref_str, repr(child)))
+                _logger.debug('[ODM STORED ENTITY] {}.remove_child({}), called by {}.'.
+                              format(self.ref_str, repr(child)), caller)
 
         self.f_sub('_children', child)
         child.f_clr('_parent')
@@ -587,10 +594,11 @@ class Entity(_ABC):
             return self
 
         if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug('{}.save()'.format(self._model))
+                _logger.debug("[ODM NON-STORED ENTITY SAVE STARTED] {}, called by {}.".format(self._model, caller))
             else:
-                _logger.debug('{}.save()'.format(self.ref_str))
+                _logger.debug('[ODM STORED ENTITY SAVE STARTED] {}, called by {}.'.format(self.ref_str, caller))
 
         # Pre-save hook
         self._pre_save()
@@ -612,21 +620,35 @@ class Entity(_ABC):
         try:
             if self._is_new:
                 self.collection.insert_one(data)
+                if _dbg:
+                    caller = _util.format_call_stack_str(' > ', 2)
+                    _logger.debug('[ODM ENTITY DATA DB INSERT] {}: {}, called by {}.'.
+                                  format(self._model, data, caller))
             else:
                 self.collection.replace_one({'_id': data['_id']}, data)
+                if _dbg:
+                    caller = _util.format_call_stack_str(' > ', 2)
+                    _logger.debug('[ODM ENTITY DATA DB REPLACE] {}: {}, called by {}.'.
+                                  format(self.ref_str, data, caller))
+
         except _bson_errors.BSONError as e:
             _logger.error('BSON error: {}. Document dump: {}'.format(e, data), exc_info=e, stack_info=True)
             raise e
 
         # Update fields' UID so they can store values into shared cache
-        for f_name, f in self.fields.items():
-            f.uid = '{}.{}.{}'.format(self._model, data['_id'], f_name)
+        if self._is_new:
+            for f_name, f in self.fields.items():
+                f.uid = '{}.{}.{}'.format(self._model, data['_id'], f_name)
 
         # Saved entity cannot be 'new'
         if self._is_new:
             first_save = True
             self._id = data['_id']
             self._is_new = False
+
+            # As soon as new entity stored into the DB, we should cache it, because it could be changed from
+            # outer world in after-save hooks
+            _e_cache.put(self)
         else:
             first_save = False
 
@@ -643,11 +665,15 @@ class Entity(_ABC):
         _api.get_finder_cache(self._model).clear()
 
         # Save children with updated '_parent' field
-        with self:
-            for child in self.children:
-                if child.is_modified:
+        if self.children:
+            with self:
+                for child in self.children:
                     with child:
                         child.save(update_timestamp=False)
+
+        if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
+            _logger.debug('[ODM ENTITY SAVE FINISHED] {}.save() finished, called by {}.'.format(self.ref_str, caller))
 
         return self
 
@@ -670,7 +696,8 @@ class Entity(_ABC):
             raise _error.ForbidEntityDelete('New entities cannot be deleted.')
 
         if _dbg:
-            _logger.debug('{}.delete()'.format(self.ref_str))
+            caller = _util.format_call_stack_str(' > ', 2)
+            _logger.debug('[ENTITY DELETE STARTED] {}, caller {}'.format(self.ref_str, caller))
 
         self._check_is_not_deleted()
 
@@ -703,9 +730,13 @@ class Entity(_ABC):
         # Clear finder cache
         from . import _api
         _api.get_finder_cache(self._model).clear()
-        _api.remove_from_cache(self)
+        _e_cache.remove(self)
 
         self._is_deleted = True
+
+        if _dbg:
+            caller = _util.format_call_stack_str(' > ', 2)
+            _logger.debug('[ENTITY DELETE FINISHED] {}, caller {}'.format(self.ref_str, caller))
 
         return self
 

@@ -4,7 +4,7 @@ from typing import Union as _Union, Iterable as _Iterable
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache, logger as _logger
-from . import _model, _error, _finder
+from . import _model, _error, _finder, _cache as _e_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +13,6 @@ __license__ = 'MIT'
 _registered_models = {}
 _cache_driver = _reg.get('odm.cache.driver', 'redis')
 _finder_cache = {}
-_dispensed_entities = {}
 _dbg = _reg.get('odm.debug.api')
 
 
@@ -141,37 +140,18 @@ def dispense(model: str, eid=None) -> _model.Entity:
     model_class = get_model_class(model)
 
     if eid:
-        c_key = '{}:{}'.format(model, eid)
-        if c_key in _dispensed_entities:
-            if _dbg:
-                _logger.debug("Object of entity '{}' will be returned from the cache.".format(c_key))
-            return _dispensed_entities[c_key]
-        else:
+        try:
+            # Get entity from cache
+            return _e_cache.get(model, eid)
+        except KeyError:
             # Instantiate entity
-            entity = model_class(model, eid)
-            _dispensed_entities[c_key] = entity
-            if _dbg:
-                _logger.debug("Object of entity '{}' stored in the cache.".format(c_key))
-                _logger.debug("Entity cache size: {}.".format(len(_dispensed_entities)))
+            return _e_cache.put(model_class(model, eid))
     else:
         entity = model_class(model)
         if _dbg:
-            _logger.debug("New entity of model '{}' dispensed.".format(model))
+            _logger.debug("[ODM DISPENSE NEW ENTITY] '{}'.".format(model))
 
     return entity
-
-
-def remove_from_cache(entity: _model.Entity):
-    if entity.is_new:
-        raise RuntimeError('You cannot remove non-stored entities.')
-
-    c_key = '{}:{}'.format(entity.model, entity.id)
-    if c_key in _dispensed_entities:
-        del _dispensed_entities[c_key]
-
-        if _dbg:
-            _logger.debug("Object of the entity '{}' has been removed from the cache".format(entity.ref_str))
-            _logger.debug("Entity cache size: {}.".format(len(_dispensed_entities)))
 
 
 def find(model: str):

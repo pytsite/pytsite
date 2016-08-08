@@ -1,6 +1,19 @@
 # PytSite Changelog
 
-## 0.80.26 (2016-08-04)
+## 0.80.27 (2016-08-08)
+### Added
+- `util`: new function `format_call_stack_str()`.
+
+### Fixed
+- `auth`: 
+    - unnecessary entity locking in `get_user()`;
+    - double negation in `ep.profile_view()`.
+- `auth_google`:
+    - missed user locking.
+- `odm`: 
+    - logging, caching;
+    - processing values in `field.RefsUniqueList`;
+
 
 ### Added
 - `flag`: documentation for HTTP API.
