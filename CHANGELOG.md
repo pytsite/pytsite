@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.80.28 (2016-08-09)
+### Fixed
+- `router`: processing exception-embedded responses. 
+
+
 ## 0.80.27 (2016-08-08)
 ### Added
 - `util`: new function `format_call_stack_str()`.
@@ -13,6 +18,7 @@
 - `odm`: 
     - logging, caching;
     - processing values in `field.RefsUniqueList`;
+
 
 ## 0.80.26 (2016-08-04)
 ### Added

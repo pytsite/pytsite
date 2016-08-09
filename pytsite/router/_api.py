@@ -15,7 +15,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 # Routes map
 _routes = _Map()
 
@@ -41,6 +40,7 @@ _no_cache = {}  # type: _Dict[int, bool]
 class Rule(_Rule):
     """Routing Rule.
     """
+
     def __init__(self, url_path: str, **kwargs):
         self.call = kwargs.pop('call')
         self.filters = kwargs.pop('filters', ())
@@ -308,8 +308,12 @@ def dispatch(env: dict, start_response: callable):
 
     except Exception as e:
         if isinstance(e, _HTTPException):
+            # If exception has embedded response in its body
             if isinstance(e.response, _http.response.Response):
-                e.response.status_code = e.code
+                # For non-redirect embedded responses use original status code from exception
+                if not isinstance(e.response, _http.response.Redirect):
+                    e.response.status_code = e.code
+
                 return e.response(env, start_response)
 
             code = e.code
@@ -368,11 +372,12 @@ def base_path(lang: str = None) -> str:
 def server_name():
     """Get server's name.
     """
-    from pytsite import reg
-    name = reg.get('server.name', 'localhost')
     tid = _threading.get_id()
     if tid in _map_adapters:
         name = _map_adapters[tid].server_name
+    else:
+        from pytsite import reg
+        name = reg.get('server.name', 'localhost')
 
     return name
 
@@ -380,12 +385,9 @@ def server_name():
 def scheme():
     """Get current URL scheme.
     """
-    r = 'http'
     tid = _threading.get_id()
-    if tid in _map_adapters:
-        r = _map_adapters[_threading.get_id()].url_scheme
 
-    return r
+    return _map_adapters[_threading.get_id()].url_scheme if tid in _map_adapters else 'http'
 
 
 def base_url(lang: str = None, query: dict = None):
@@ -487,12 +489,13 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: s
     return r
 
 
-def current_url(strip_query: bool=False, resolve_alias: bool=True, lang: str=None, add_query: dict=None) -> str:
+def current_url(strip_query: bool = False, resolve_alias: bool = True, lang: str = None, add_query: dict = None,
+                add_fragment: str = None) -> str:
     """Get current URL.
     """
     r = scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False, lang)
-    if add_query:
-        r = url(r, query=add_query)
+    if add_query or add_fragment:
+        r = url(r, query=add_query, fragment=add_fragment)
 
     return r
 
