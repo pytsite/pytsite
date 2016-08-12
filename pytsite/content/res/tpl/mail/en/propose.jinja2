@@ -1,7 +1,7 @@
 <h1>Hello, {{ user.full_name }}!</h1>
 <p>
     The <a href="{{ base_url() }}">{{ t('app_name') }}</a> received a new content proposition
-    "{{ entity.title }}" from user {{ entity.author.full_name }}.
+    "{{ entity.title }}" from <b>{{ entity.author.full_name }}</b>.
     Please <a href="{{ entity.edit_url }}">don't forget to review this content.</a>.
 </p>
 <p>

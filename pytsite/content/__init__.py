@@ -55,6 +55,7 @@ def _init():
 
     # Event handlers
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    events.listen('pytsite.setup', _eh.setup)
     events.listen('pytsite.cron.hourly', _eh.cron_hourly)
     events.listen('pytsite.cron.daily', _eh.cron_daily)
     events.listen('pytsite.cron.weekly', _eh.cron_weekly)

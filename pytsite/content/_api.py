@@ -13,7 +13,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__models = {}
+_models = {}
 
 
 def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str = 'fa fa-file-text-o', replace=False):
@@ -34,7 +34,7 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
     _odm.register_model(model, cls, replace)
 
     # Saving info about registered _content_ model
-    __models[model] = (cls, title)
+    _models[model] = (cls, title)
 
     mock = dispense(model)
 
@@ -70,8 +70,11 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
         icon=icon,
         weight=menu_weight,
         permissions=(
-            'pytsite.odm_perm.view.' + model,
-            'pytsite.odm_perm.view_own.' + model,
+            'pytsite.odm_perm.create.' + model,
+            'pytsite.odm_perm.modify.' + model,
+            'pytsite.odm_perm.modify_own.' + model,
+            'pytsite.odm_perm.delete.' + model,
+            'pytsite.odm_perm.delete_own.' + model,
         ),
         replace=replace
     )
@@ -80,13 +83,13 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
 def is_model_registered(model: str) -> bool:
     """Check if the content model is registered.
     """
-    return model in __models
+    return model in _models
 
 
 def get_models() -> dict:
     """Get registered content models.
     """
-    return __models
+    return _models
 
 
 def get_model(model: str) -> tuple:
@@ -95,7 +98,7 @@ def get_model(model: str) -> tuple:
     if not is_model_registered(model):
         raise KeyError("Model '{}' is not registered as content model.".format(model))
 
-    return __models[model]
+    return _models[model]
 
 
 def get_model_title(model: str) -> str:

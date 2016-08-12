@@ -52,7 +52,6 @@ http://test.com/api/1/pytsite.image/file
 ### Аргументы
 
 * *required* **str** `uid`. Уникальный идентификатор изображения.  
-* *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
 * *optional* **int** `thumb_width`. Ширина изображения предварительного просмотра.
 * *optional* **int** `thumb_height`. Высота изображения предварительного просмотра.
 

@@ -51,8 +51,8 @@ def _build_store_path(mime: str, model: str = 'file', propose: str = None) -> st
 
 
 def create(source_path: str, name: str = None, description: str = None, model: str = 'file',
-           remove_source: bool = False, propose_store_path: str = None,
-           owner: _auth.model.AbstractUser = None) -> _model.File:
+           remove_source: bool = False, propose_store_path: str = None, owner: _auth.model.AbstractUser = None,
+           attached_to: _odm.model.Entity = None) -> _model.File:
     """Create a file from path or URL.
     """
     if not owner:
@@ -122,6 +122,7 @@ def create(source_path: str, name: str = None, description: str = None, model: s
     file_entity.f_set('description', description)
     file_entity.f_set('mime', mime)
     file_entity.f_set('length', file_size)
+    file_entity.f_set('attached_to', attached_to)
 
     if not owner.is_anonymous and not owner.is_system:
         file_entity.f_set('owner', owner)

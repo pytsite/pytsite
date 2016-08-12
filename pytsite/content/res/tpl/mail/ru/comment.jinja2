@@ -1,0 +1,15 @@
+<h1>Привет, {{ entity.author.full_name }}!</h1>
+
+<p>
+    К вашему <a href="{{ comment.url }}">материалу</a> был оставлен комментарий пользователем
+    <b>{{ comment.author.full_name }}</b>:
+</p>
+
+<blockquote>
+    {{ comment.body | e }}
+</blockquote>
+
+<p>
+    --<br/>
+    С наилучшими пожеланиями, {{ t('app_name') }}.
+</p>

@@ -20,6 +20,7 @@ def _init():
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
+    events.listen('pytsite.setup', _eh.setup)
     events.listen('pytsite.comments.report_comment', _eh.comments_report_comment)
 
 

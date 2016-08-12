@@ -3,7 +3,7 @@
 from typing import Union as _Union
 from PIL import Image as _Image
 from bson.dbref import DBRef as _DBRef
-from pytsite import file as _file, auth as _auth, reg as _reg
+from pytsite import file as _file, auth as _auth, reg as _reg, odm as _odm
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -17,10 +17,11 @@ _resize_step = int(_reg.get('image.resize_step', 50))
 
 
 def create(source: str, name: str=None, description: str=None, remove_source: bool=False,
-           propose_store_path: str=None, owner: _auth.model.AbstractUser = None) -> _model.Image:
+           propose_store_path: str=None, owner: _auth.model.AbstractUser = None,
+           attached_to: _odm.model.Entity = None) -> _model.Image:
     """Create an image from URL or local file.
     """
-    img_entity = _file.create(source, name, description, 'image', remove_source, propose_store_path, owner)
+    img_entity = _file.create(source, name, description, 'image', remove_source, propose_store_path, owner, attached_to)
 
     if not img_entity.mime.startswith('image'):
         with img_entity:

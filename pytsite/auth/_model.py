@@ -60,9 +60,10 @@ class AbstractRole(AuthEntity):
         raise NotImplementedError()
 
     @property
-    def permissions(self) -> _Union[_List, _Tuple]:
-        if self.name in ('system', 'admin'):
-            return [p[0] for p in _permission.get_permissions()]
+    def permissions(self) -> _Tuple:
+        if self.name == 'admin':
+            # Admins have all permissions
+            return tuple([p[0] for p in _permission.get_permissions()])
         else:
             raise NotImplementedError()
 
@@ -90,13 +91,13 @@ class AbstractUser(AuthEntity):
     def is_anonymous(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.has_role('anonymous')
+        return self.login == ANONYMOUS_USER_LOGIN
 
     @property
     def is_system(self) -> bool:
         """Check if the user is anonymous.
         """
-        return self.has_role('system')
+        return self.login == SYSTEM_USER_LOGIN
 
     @property
     def is_admin(self) -> bool:

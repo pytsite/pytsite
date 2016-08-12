@@ -303,6 +303,15 @@ class Base(_odm_ui.model.UIEntity):
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
 
+    def _pre_delete(self, **kwargs):
+        """Hook.
+        """
+        # Check if the all attached images could be deleted after entity deletion
+        if self.has_field('images'):
+            for img in self.images:
+                if not img.check_permissions('delete'):
+                    raise _odm.error.ForbidEntityDelete('One or more images attached to entity cannot be deleted.')
+
     def _after_delete(self):
         """Hook.
         """
@@ -590,7 +599,10 @@ class Content(Base):
             if self.has_field('section') and self.section and self.tags:
                 for tag in self.tags:
                     with tag:
+                        c_user = _auth.get_current_user()
+                        _auth.switch_user(_auth.get_system_user())
                         tag.f_add('sections', self.section).save()
+                        _auth.switch_user(c_user)
 
     def _after_save(self, first_save: bool = False):
         """Hook.
@@ -615,15 +627,19 @@ class Content(Base):
             if self.status == 'waiting' and _reg.get('content.send_waiting_notifications', True):
                 self._send_waiting_status_notification()
 
-        # Recalculate tags weights
-        from . import _api
-        if self.has_field('tags'):
-            for tag in self.tags:
-                with tag:
-                    weight = 0
-                    for model in _api.get_models().keys():
-                        weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
-                    tag.f_set('weight', weight).save()
+            # Recalculate tags weights
+            from . import _api
+            if self.has_field('tags'):
+                for tag in self.tags:
+                    with tag:
+                        weight = 0
+                        for model in _api.get_models().keys():
+                            weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
+
+                        c_user = _auth.get_current_user()
+                        _auth.switch_user(_auth.get_system_user())
+                        tag.f_set('weight', weight).save()
+                        _auth.switch_user(c_user)
 
         # Updating localization entities references.
         # For each language except current one

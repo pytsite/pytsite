@@ -3,7 +3,7 @@
 import exifread as _exifread
 import os as _os
 from typing import List as _List
-from pytsite import file as _file, odm as _odm, router as _router, util as _util
+from pytsite import file as _file, odm as _odm, router as _router, util as _util, auth as _auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

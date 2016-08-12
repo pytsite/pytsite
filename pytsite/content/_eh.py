@@ -5,12 +5,35 @@ from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, tpl as _tpl, \
     mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
-    comments as _comments
+    comments as _comments, auth as _auth
 from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+def setup():
+    """`pytsite.setup` event handler.
+    """
+    user_role = _auth.get_role('user')
+    anon_role = _auth.get_role('anonymous')
+
+    # Allow ordinary users to create tags
+    user_role.permissions = list(user_role.permissions) + ['pytsite.odm_perm.create.tag']
+
+    # Allow all to view content
+    for model in _api.get_models():
+        user_role.permissions = list(user_role.permissions) + [
+            'pytsite.odm_perm.view.{}'.format(model),
+            'pytsite.odm_perm.view_own.{}'.format(model),
+        ]
+        anon_role.permissions = list(anon_role.permissions) + [
+            'pytsite.odm_perm.view.{}'.format(model),
+        ]
+
+    user_role.save()
+    anon_role.save()
 
 
 def cron_hourly():

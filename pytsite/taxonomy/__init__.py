@@ -1,8 +1,8 @@
 """Taxonomy Package Init
 """
 # Public API
-from . import _functions, _model as model, _widget as widget
-from ._functions import register_model, is_model_registered, find, dispense, build_alias_str, find_by_title, \
+from . import _api, _model as model, _widget as widget
+from ._api import register_model, is_model_registered, find, dispense, build_alias_str, find_by_title, \
     find_by_alias
 
 __author__ = 'Alexander Shepetko'

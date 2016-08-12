@@ -11,12 +11,12 @@ __license__ = 'MIT'
 __models = []
 
 
-def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_icon: str='fa fa-tags'):
+def register_model(model: str, cls, menu_title: str, menu_weight: int = 0, menu_icon: str = 'fa fa-tags'):
     """Register taxonomy model.
     :param cls: str|type
     """
     if is_model_registered(model):
-        raise Exception("Model '{}' is already registered as taxonomy model.". format(model))
+        raise Exception("Model '{}' is already registered as taxonomy model.".format(model))
 
     if isinstance(cls, str):
         cls = _util.get_class(cls)
@@ -28,8 +28,14 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int=0, menu_ic
     __models.append(model)
 
     menu_url = _router.ep_url('pytsite.odm_ui@browse', {'model': model})
-    _admin.sidebar.add_menu('taxonomy', model, menu_title, menu_url, menu_icon, weight=menu_weight,
-                            permissions='pytsite.odm_perm.view.' + model)
+    _admin.sidebar.add_menu(
+        'taxonomy', model, menu_title, menu_url, menu_icon, weight=menu_weight,
+        permissions=(
+            'pytsite.odm_perm.create.' + model,
+            'pytsite.odm_perm.modify.' + model,
+            'pytsite.odm_perm.delete.' + model,
+        )
+    )
 
 
 def is_model_registered(model: str) -> bool:
@@ -38,11 +44,11 @@ def is_model_registered(model: str) -> bool:
     return model in __models
 
 
-def find(model: str, language: str=None):
+def find(model: str, language: str = None):
     """Get finder for the taxonomy model.
     """
     if not is_model_registered(model):
-        raise Exception("Model '{}' is not registered as taxonomy model.". format(model))
+        raise RuntimeError("Model '{}' is not registered as taxonomy model.".format(model))
 
     if not language:
         language = _lang.get_current()
@@ -50,23 +56,23 @@ def find(model: str, language: str=None):
     return _odm.find(model).where('language', '=', language).sort([('weight', _odm.I_DESC)])
 
 
-def find_by_title(model: str, title: str, language: str=None) -> _Term:
+def find_by_title(model: str, title: str, language: str = None) -> _Term:
     """Find term by title.
     """
     return find(model, language).where('title', 'regex_i', '^{}$'.format(title)).first()
 
 
-def find_by_alias(model: str, alias: str, language: str=None) -> _Term:
+def find_by_alias(model: str, alias: str, language: str = None) -> _Term:
     """Find term by alias.
     """
     return find(model, language).where('alias', '=', alias).first()
 
 
-def dispense(model: str, title: str, alias: str=None, language: str=None) -> _Term:
+def dispense(model: str, title: str, alias: str = None, language: str = None) -> _Term:
     """Create new term or dispense existing.
     """
     if not is_model_registered(model):
-        raise RuntimeError("Model '{}' is not registered as taxonomy model.". format(model))
+        raise RuntimeError("Model '{}' is not registered as taxonomy model.".format(model))
 
     if not language:
         language = _lang.get_current()

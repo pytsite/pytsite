@@ -87,6 +87,6 @@ def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
 
     # Check current user's permissions to DELETE entities
     if not entity.check_permissions('delete'):
-        _logger.info('Current user login: {}'.format(_auth.get_current_user().login))
+        _logger.debug('Current user login: {}'.format(_auth.get_current_user().login))
         raise _odm.error.ForbidEntityDelete("Insufficient permissions to delete entity '{}:{}'.".
                                             format(entity.model, entity.id))

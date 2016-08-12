@@ -27,6 +27,9 @@ class Term(_odm_ui.model.UIEntity):
         self.define_index([('weight', _odm.I_ASC)])
         self.define_index([('order', _odm.I_ASC)])
 
+    def get_permissions(self):
+        return ['create', 'modify', 'delete']
+
     @property
     def title(self) -> str:
         return self.f_get('title')
@@ -51,7 +54,7 @@ class Term(_odm_ui.model.UIEntity):
         """Hook.
         """
         if field_name == 'alias':
-            from . import _functions
+            from . import _api
 
             if value is None:
                 value = ''
@@ -61,11 +64,11 @@ class Term(_odm_ui.model.UIEntity):
 
             value = value.strip()
             if not self.is_new:
-                term = _functions.find(self.model).where('alias', '=', value).first()
+                term = _api.find(self.model).where('alias', '=', value).first()
                 if not term or term.id != self.id:
-                    value = _functions.sanitize_alias_string(self.model, value)
+                    value = _api.sanitize_alias_string(self.model, value)
             else:
-                value = _functions.sanitize_alias_string(self.model, value)
+                value = _api.sanitize_alias_string(self.model, value)
 
         if field_name == 'language':
             if value not in _lang.langs():

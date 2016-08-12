@@ -27,7 +27,7 @@ class AuthLog(_odm_ui.model.UIEntity):
         self.define_index([('severity', _odm.I_ASC)])
 
     def get_permissions(self) -> _List[str]:
-        return ['view', 'delete']
+        return ['delete']
 
     @property
     def user(self) -> _auth.model.AbstractUser:

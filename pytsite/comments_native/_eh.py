@@ -7,6 +7,19 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def setup():
+    """`pytsite.setup` event handler.
+    """
+    # Allow ordinary users to create, modify and delete comments
+    user_role = _auth.get_role('user')
+    user_role.permissions = list(user_role.permissions) + [
+        'pytsite.odm_perm.create.comment',
+        'pytsite.odm_perm.modify_own.comment',
+        'pytsite.odm_perm.delete_own.comment',
+    ]
+    user_role.save()
+
+
 def comments_report_comment(uid: str):
     try:
         comment = _comments.get_comment(uid, 'native')

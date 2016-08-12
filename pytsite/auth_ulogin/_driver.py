@@ -119,10 +119,10 @@ class ULogin(_auth.driver.Authentication):
             if not picture_url:
                 picture_url = ulogin_data.get('photo')
 
+            # Replace existing picture with provide by uLogin
             if picture_url:
-                user.picture = _image.create(picture_url)
+                user.picture = _image.create(picture_url, owner=user, attached_to=user)
                 with user.picture:
-                    user.picture.attached_to = user
                     user.picture.save()
 
                 with current_pic:

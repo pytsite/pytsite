@@ -1,7 +1,7 @@
 """Taxonomy Endpoints.
 """
 from pytsite import http as _http
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -19,7 +19,7 @@ def search_terms(args: dict, inp: dict) -> _http.response.JSON:
         exclude = [exclude]
 
     r = []
-    finder = _functions.find(model).where('title', 'nin', exclude)
+    finder = _api.find(model).where('title', 'nin', exclude)
 
     for word in query.split(' '):
         finder.where('title', 'regex_i', word.strip())

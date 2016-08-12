@@ -2,7 +2,8 @@
 """
 from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
-    html as _html, http_api as _http_api, odm_auth as _odm_auth, odm_ui as _odm_ui, widget as _widget
+    html as _html, http_api as _http_api, odm_auth as _odm_auth, odm_ui as _odm_ui, widget as _widget, \
+    permission as _permission
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -24,7 +25,9 @@ class Browser(_widget.misc.BootstrapTable):
             raise RuntimeError('No model has been specified.')
 
         # Checking current user's permissions
-        if not _odm_auth.check_permissions('view', self._model):
+        if not _odm_auth.check_permissions('create', self._model) and \
+                not _odm_auth.check_permissions('modify', self._model) and \
+                not _odm_auth.check_permissions('delete', self._model):
             raise _http.error.Forbidden()
 
         self._data_url = _http_api.url('pytsite.odm_ui@browser_rows', model=self._model)
@@ -108,7 +111,7 @@ class Browser(_widget.misc.BootstrapTable):
         if self._model_class.ui_model_actions_enabled():
             row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
-    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str] = None,
+    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str]=None,
                  search: str = None) -> list:
         """Get browser rows.
         """
@@ -118,8 +121,15 @@ class Browser(_widget.misc.BootstrapTable):
         finder = _odm.find(self._model)
         self._finder_adjust(finder)
 
-        # Permissions based limitations if current user can browse only OWN entities
-        if not self._current_user.has_permission('pytsite.odm_perm.view.' + self._model):
+        # Permission based limitations if current user can work with only its OWN entities
+        show_all = False
+        for perm_prefix in ('pytsite.odm_perm.modify.', 'pytsite.odm_perm.delete.'):
+            perm_name = perm_prefix + self._model
+            if _permission.is_permission_defined(perm_name) and self._current_user.has_permission(perm_name):
+                show_all = True
+                break
+
+        if not show_all:
             if finder.mock.has_field('author'):
                 finder.where('author', '=', self._current_user)
             elif finder.mock.has_field('owner'):

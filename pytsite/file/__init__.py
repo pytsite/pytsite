@@ -10,16 +10,16 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import assetman, odm, tpl, lang
-    from ._model import File
+    from pytsite import assetman, odm, tpl, lang, events
+    from . import _model, _eh
 
     # ODM model
-    odm.register_model('file', File)
+    odm.register_model('file', _model.File)
 
     # Resources
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
-
+    events.listen('pytsite.setup', _eh.setup)
 
 _init()

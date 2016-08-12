@@ -1,7 +1,7 @@
 """PytSite Authorization ODM Storage Models.
 """
 import hashlib as _hashlib
-from typing import Iterable as _Iterable, Tuple as _Tuple
+from typing import Tuple as _Tuple
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
@@ -27,7 +27,8 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
 
     @name.setter
     def name(self, value: str):
-        self.f_set('name', value)
+        with self:
+            self.f_set('name', value)
 
     @property
     def description(self) -> str:
@@ -35,14 +36,20 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
 
     @description.setter
     def description(self, value: str):
-        self.f_set('description', value)
+        with self:
+            self.f_set('description', value)
 
     @property
-    def permissions(self) -> _Iterable[str]:
+    def permissions(self) -> _Tuple[str]:
         try:
             return super().permissions
         except NotImplementedError:
             return self.f_get('permissions')
+
+    @permissions.setter
+    def permissions(self, value: _Tuple[str]):
+        with self:
+            self.f_set('permissions', value)
 
     def save(self):
         is_new = self.is_new
@@ -103,7 +110,7 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
         browser.default_sort_field = 'name'
 
     def ui_browser_get_row(self) -> tuple:
-        if self.name in ('admin', 'system'):
+        if self.name == 'admin':
             return
 
         perms = []
@@ -123,7 +130,7 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
-        if self.name in ('admin', 'system'):
+        if self.name == 'admin':
             raise _http.error.Forbidden()
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):
@@ -610,7 +617,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         roles = ''
         for role in sorted(self.roles, key=lambda role: role.name):
             cls = 'label label-default'
-            if role.name in ('admin', 'system'):
+            if role.name == 'admin':
                 cls += ' label-danger'
             roles += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
 
@@ -806,7 +813,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
                 label=self.t('roles'),
                 model='role',
                 caption_field='description',
-                exclude=(_auth.get_role('anonymous'), _auth.get_role('system')),
+                exclude=(_auth.get_role('anonymous'),),
                 value=self.f_get('roles'),
             ))
             frm.add_rule('roles', _odm.validation.ODMEntitiesList(model='role'))

@@ -2,7 +2,7 @@
 """
 from pytsite import widget as _widget, html as _html, odm as _odm, router as _router, tpl as _tpl, odm_ui as _odm_ui, \
     lang as _lang
-from . import _functions
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -62,7 +62,7 @@ class TokensInput(_widget.input.Tokens):
             if isinstance(v, _odm.model.Entity):
                 clean_value.append(v)
             elif isinstance(v, str) and v:
-                term = _functions.dispense(self._model, v)
+                term = _api.dispense(self._model, v)
                 with term:
                     clean_value.append(term.save())
 
@@ -94,7 +94,7 @@ class Cloud(_widget.Abstract):
         self._model = kwargs.get('model')
         if not self._model:
             raise ValueError('Model is not specified.')
-        if not _functions.is_model_registered(self._model):
+        if not _api.is_model_registered(self._model):
             raise ValueError("'{}' is not a registered taxonomy model.".format(self._model))
 
         self._tpl = kwargs.get('tpl', 'pytsite.taxonomy@widget/cloud')
@@ -135,7 +135,7 @@ class Cloud(_widget.Abstract):
 
     @property
     def terms(self) -> list:
-        return list(_functions.find(self._model).get(self._num))
+        return list(_api.find(self._model).get(self._num))
 
     @property
     def wrap(self) -> bool:

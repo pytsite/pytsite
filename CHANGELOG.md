@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.81.2 (2016-08-13)
+
+### Changed
+- `auth_log`: removed 'view' permission for ODM model.
+- Initial permissions setup in various packages.
+
+### Fixed
+- `auth`: removed usage of 'system' role.
+- `auth_storage_odm`: entity locking in property setters. 
+- `content`: 
+    - permissions check for images deletion before content entity deletion;
+    - disabling permissions check while updating taxonomy related entities.
+
+### Removed
+- `image`: 'view' permission.
+
+
 ## 0.81.1 (2016-08-12)
 ### Fixed
 - `auth`: 'system' role creation point.

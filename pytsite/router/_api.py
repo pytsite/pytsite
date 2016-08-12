@@ -321,7 +321,7 @@ def dispatch(env: dict, start_response: callable):
         else:
             code = 500
             title = _lang.t('pytsite.router@error', {'code': '500'})
-            _logger.error(str(e), exc_info=e, stack_info=True)
+            _logger.error(str(e), exc_info=e)
 
         _metatag.t_set('title', title)
 

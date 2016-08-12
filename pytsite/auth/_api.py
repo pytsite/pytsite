@@ -183,7 +183,6 @@ def get_anonymous_user() -> _model.AbstractUser:
     global _anonymous_user
     if not _anonymous_user:
         _anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
-        _anonymous_user.roles = (get_role('anonymous'),)
 
     return _anonymous_user
 
@@ -194,7 +193,6 @@ def get_system_user() -> _model.AbstractUser:
     global _system_user
     if not _system_user:
         _system_user = create_user(_model.SYSTEM_USER_LOGIN)
-        _system_user.roles = (get_role('system'),)
 
     return _system_user
 
