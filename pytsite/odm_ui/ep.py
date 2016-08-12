@@ -118,7 +118,7 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
             entity = _api.dispense_entity(model, eid)
 
             # Check permissions
-            if not entity.check_perm('delete'):
+            if not entity.check_permissions('delete'):
                 raise _odm.error.ForbidEntityDelete('User does not have sufficient permissions.')
 
             with entity:

@@ -21,8 +21,8 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.AbstractUser,
-                       status: str = 'published') -> _model.CommentInterface:
+    def create_comment(self, thread_uid: str, body: str, author: _auth.model.AbstractUser,
+                       status: str = 'published', parent_uid: str = None) -> _model.AbstractComment:
         """Create new comment.
         """
         pass
@@ -34,11 +34,31 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_comments(self, thread_id: str) -> _Iterable[_model.CommentInterface]:
+    def get_comments(self, thread_uid: str, limit: int = 0, skip: int = 0) -> _Iterable[_model.AbstractComment]:
+        """Get comments.
+        """
+        pass
+
+    @_abstractmethod
+    def get_comment(self, uid: str) -> _model.AbstractComment:
+        """Get single comment by UID.
+        """
         pass
 
     @_abstractmethod
     def get_comments_count(self, thread_id: str) -> int:
         """Get comments count for particular thread.
+        """
+        pass
+
+    @_abstractmethod
+    def delete_comment(self, uid: str):
+        """Mark comment as deleted.
+        """
+        pass
+
+    @_abstractmethod
+    def get_permissions(self, user: _auth.model.AbstractUser = None) -> dict:
+        """Get permissions definition for user.
         """
         pass

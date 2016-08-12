@@ -1,0 +1,92 @@
+.comments-native {
+  .no-comments-yet {
+    font-size: 90%;
+  }
+
+  .comment-item {
+    display: flex;
+
+    .left {
+      width: 25px;
+      margin: 0 5px 0 0;
+    }
+
+    .right {
+      flex-grow: 1;
+    }
+
+    .author-picture img {
+      text-align: center;
+      height: 25px;
+    }
+
+    .header {
+      line-height: 25px;
+      font-size: 80%;
+      background: #eee;
+      padding: 0 1em;
+
+      .author, .publish-time {
+        display: inline-block;
+        margin-right: 1em;
+      }
+
+      .author {
+        font-weight: bold;
+      }
+
+      .publish-time {
+        opacity: .75;
+      }
+
+      .reply, .report, .delete {
+        display: inline-block;
+        float: right;
+        margin-left: 10px;
+
+        a {
+          text-decoration: none;
+        }
+      }
+    }
+
+    .body {
+      margin: 4px 0 15px;
+      font-size: 90%;
+    }
+  }
+
+  .comment-form {
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+
+  .form {
+    display: flex;
+
+    .user-picture {
+      margin-right: 5px;
+    }
+
+    .messages {
+      .alert {
+        font-size: 80%;
+        margin: 0 0 10px;
+        padding: 3px 5px;
+      }
+    }
+
+    .input {
+      flex-grow: 1;
+
+      textarea {
+        resize: none;
+        margin-bottom: 10px;
+      }
+
+      .actions {
+        text-align: right;
+      }
+    }
+  }
+}

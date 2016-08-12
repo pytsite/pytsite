@@ -1,0 +1,14 @@
+<h1>Hello, {{ comment.author.full_name | e }}!</h1>
+<p>
+    You received a new reply to your <a href="{{ comment.url }}">comment</a> from
+    <b>{{ reply.author.full_name | e }}</b>:
+</p>
+
+<blockquote>
+    {{ reply.body | e }}
+</blockquote>
+
+<p>
+    --<br/>
+    Sincerely yours, {{ t('app_name') }}.
+</p>

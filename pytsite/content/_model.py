@@ -177,10 +177,12 @@ class Tag(_taxonomy.model.Term):
 
 
 class Base(_odm_ui.model.UIEntity):
-    """Base Content Entity.
+    """Base Content Model.
     """
 
     def _setup_fields(self):
+        """Hook.
+        """
         self.define_field(_odm.field.String('title', nonempty=True))
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
@@ -191,9 +193,14 @@ class Base(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.Dict('options'))
 
     def _setup_indexes(self):
+        """Hook.
+        """
         self.define_index([('_created', _odm.I_DESC)])
         self.define_index([('_modified', _odm.I_DESC)])
         self.define_index([('title', _odm.I_ASC)])
+
+        if self.has_field('author'):
+            self.define_index([('author', _odm.I_ASC)])
 
     @property
     def title(self) -> str:
@@ -255,7 +262,7 @@ class Base(_odm_ui.model.UIEntity):
         """
         super()._pre_save()
 
-        current_user = _auth.current_user()
+        current_user = _auth.get_current_user()
 
         # Language is required
         if not self.language or not self.f_get('language_db'):
@@ -367,14 +374,14 @@ class Base(_odm_ui.model.UIEntity):
                 frm.add_rule('body', _validation.rule.NonEmpty())
 
         # Visible only for admins
-        if _auth.current_user().is_admin:
+        if _auth.get_current_user().is_admin:
             # Author
             if self.has_field('author'):
                 frm.add_widget(_auth.get_user_select_widget(
                     uid='author',
                     weight=1000,
                     label=self.t('author'),
-                    value=_auth.current_user() if self.is_new else self.author,
+                    value=_auth.get_current_user() if self.is_new else self.author,
                     h_size='col-sm-4',
                     required=True,
                 ))
@@ -473,6 +480,7 @@ class Content(Base):
         return _router.ep_url('pytsite.content@modify', {
             'model': self.model,
             'id': '0' if self.is_new else str(self.id),
+            '__redirect': 'ENTITY_VIEW',
         })
 
     def ui_view_url(self) -> str:
@@ -480,7 +488,7 @@ class Content(Base):
             raise RuntimeError("Cannot generate view URL for non-saved entity of model '{}'.".format(self.model))
 
         target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)}, True)
-        r_alias = _route_alias.find_by_target(target_path, self.language)
+        r_alias = _route_alias.get_by_target(target_path, self.language)
         value = r_alias.alias if r_alias else target_path
 
         return _router.url(value, lang=self.language)
@@ -740,7 +748,7 @@ class Content(Base):
         """
         super().ui_m_form_setup_widgets(frm)
 
-        current_user = _auth.current_user()
+        current_user = _auth.get_current_user()
 
         # Starred
         if self.has_field('starred') and current_user.has_permission('pytsite.content.set_starred.' + self.model):
@@ -846,20 +854,21 @@ class Content(Base):
                 ))
 
         # Visible only for admins
-        if _auth.current_user().is_admin:
+        if _auth.get_current_user().is_admin:
             # Route alias
             frm.add_widget(_widget.input.Text(
                 uid='route_alias',
                 weight=1400,
                 label=self.t('path'),
                 value=self.route_alias.alias if self.route_alias else '',
+                enabled=not self.comments_count,
             ))
 
     def _send_waiting_status_notification(self):
         for u in _auth.get_users():
             if u.has_permission('pytsite.odm_perm.modify.' + self.model):
                 m_subject = _lang.t('pytsite.content@content_waiting_mail_subject', {'app_name': _lang.t('app_name')})
-                m_body = _tpl.render('pytsite.content@mail/propose-' + _lang.get_current(), {
+                m_body = _tpl.render('pytsite.content@mail/{}/propose'.format(_lang.get_current()), {
                     'user': u,
                     'entity': self,
                 })

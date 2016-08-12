@@ -11,21 +11,21 @@ class LocationNonEmpty(_validation.rule.DictPartsNonEmpty):
     """Check if the location structure is not empty.
     """
 
-    def __init__(self, value: dict = None, msg_id: str = None):
+    def __init__(self, value: dict = None, msg_id: str = None, msg_args: dict = None):
         if not msg_id:
             msg_id = 'pytsite.geo@validation_geolocationnotempty'
 
-        super().__init__(value, msg_id, ('lng', 'lat'))
+        super().__init__(value, msg_id, msg_args, keys=('lng', 'lat'))
 
 
 class AddressNonEmpty(_validation.rule.DictPartsNonEmpty):
     """Check if an address structure is empty.
     """
 
-    def __init__(self, value: dict = None, msg_id: str = None):
+    def __init__(self, value: dict = None, msg_id: str = None, msg_args: dict = None):
         """Init.
         """
         if not msg_id:
             msg_id = 'pytsite.geo@validation_geoaddressnotempty'
 
-        super().__init__(value, msg_id, ('address', 'lng', 'lat'))
+        super().__init__(value, msg_id, msg_args, keys=('address', 'lng', 'lat'))

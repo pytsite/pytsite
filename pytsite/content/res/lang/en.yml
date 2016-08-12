@@ -52,6 +52,7 @@ word_yes: 'Yes'
 model_is_required: 'Model is required'
 blocks: 'Blocks'
 uid: 'UID'
+mail_subject_new_comment: 'New comment to your post on {app_name}'
 
 odm_perm_group_description: 'Content'
 

@@ -8,8 +8,9 @@ __license__ = 'MIT'
 
 
 class RouteAlias(_odm.model.Entity):
-    """Taxonomy Term Model.
+    """Route Alias Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """

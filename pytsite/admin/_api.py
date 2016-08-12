@@ -16,7 +16,7 @@ def base_path() -> str:
 def render(content: str) -> str:
     """Render admin page with content.
     """
-    if not _auth.current_user().has_permission('pytsite.admin.use'):
+    if not _auth.get_current_user().has_permission('pytsite.admin.use'):
         raise _http.error.Forbidden()
 
     return _tpl.render('pytsite.admin@html', {

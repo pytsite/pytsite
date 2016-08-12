@@ -1,5 +1,6 @@
 """PytSite ODM Permissions Models.
 """
+from typing import List as _List
 from pytsite import odm as _odm, auth as _auth
 from . import _api
 
@@ -8,11 +9,20 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class PermissableEntity(_odm.model.Entity):
+class AuthorizableEntity(_odm.model.Entity):
     """Entity which has owner and can be authorized to perform certain actions on it.
     """
+    def get_permissions(self) -> _List[str]:
+        """Get a list of all permissions supported by this model.
+        """
+        r = ['create', 'view', 'modify', 'delete']
 
-    def check_perm(self, action: str) -> bool:
+        if self.has_field('author') or self.has_field('owner'):
+            r.extend(['view_own', 'modify_own', 'delete_own'])
+
+        return r
+
+    def check_permissions(self, action: str) -> bool:
         """Check current user's permissions.
         """
         return _api.check_permissions(action, self.model, self.id)
@@ -23,7 +33,7 @@ class PermissableEntity(_odm.model.Entity):
         # If entity's owner was deleted, set it to first administrator
         for f_name in 'author', 'owner':
             if self.has_field(f_name) and not self.f_get(f_name):
-                c_user = _auth.current_user()
+                c_user = _auth.get_current_user()
                 if not c_user.is_anonymous:
                     if self.is_new and c_user.has_permission('pytsite.odm_perm.create.' + self.model):
                         # Entity is new and user has permission to create it
@@ -33,7 +43,7 @@ class PermissableEntity(_odm.model.Entity):
                         self.f_set(f_name, c_user)
                     else:
                         # User does not have necessary permissions, make first admin as author
-                        self.f_set(f_name, _auth.first_admin_user())
+                        self.f_set(f_name, _auth.get_first_admin_user())
                 else:
                     # Current user is anonymous, make first admin as author
-                    self.f_set(f_name, _auth.first_admin_user())
+                    self.f_set(f_name, _auth.get_first_admin_user())

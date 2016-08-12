@@ -7,7 +7,7 @@ from decimal import Decimal as _Decimal
 from bson.dbref import DBRef as _bson_DBRef
 from copy import deepcopy as _deepcopy
 from frozendict import frozendict as _frozendict
-from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger
+from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger, validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -596,12 +596,25 @@ class String(Abstract):
         """Init.
         """
         kwargs['default'] = kwargs.get('default', '')
+        self._min_length = kwargs.get('min_length')
         self._max_length = kwargs.get('max_length')
         self._strip_html = kwargs.get('strip_html')
         self._tidyfy_html = kwargs.get('tidyfy_html')
         self._remove_empty_html_tags = kwargs.get('remove_empty_html_tags', True)
 
         super().__init__(name, **kwargs)
+
+    @property
+    def min_length(self) -> int:
+        """Get minimum field's length.
+        """
+        return self._min_length
+
+    @min_length.setter
+    def min_length(self, val: int):
+        """Set minimum field's length.
+        """
+        self._min_length = val
 
     @property
     def max_length(self) -> int:
@@ -621,13 +634,23 @@ class String(Abstract):
         value = str(value).strip()
 
         if value:
-            if self._max_length and len(value) > self._max_length:
-                raise ValueError("Value of the field '{}' exceeds {} characters.".format(self.name, self._max_length))
-
+            # Strip HTML
             if self._strip_html:
                 value = _util.strip_html_tags(value)
+
+            # Tidyfy HTML
             elif self._tidyfy_html:
                 value = _util.tidyfy_html(value, self._remove_empty_html_tags)
+
+        if self._min_length:
+            v_msg_id = 'pytsite.odm@validation_field_string_min_length'
+            v_msg_args = {'field': self.name}
+            _validation.rule.MinLength(value, v_msg_id, v_msg_args, min_length=self._min_length).validate()
+
+        if self._max_length:
+            v_msg_id = 'pytsite.odm@validation_field_string_max_length'
+            v_msg_args = {'field': self.name}
+            _validation.rule.MinLength(value, v_msg_id, v_msg_args, max_length=self._max_length).validate()
 
         return value
 
@@ -659,6 +682,10 @@ class Integer(Abstract):
         """Increment field's value.
         """
         return 1
+
+    @property
+    def is_empty(self) -> bool:
+        return self.get_val() is None
 
 
 class Decimal(Abstract):

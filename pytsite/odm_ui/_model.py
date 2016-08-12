@@ -1,6 +1,6 @@
 """PytSite ODM UI Entity.
 """
-from typing import Tuple as _Tuple, Dict as _Dict, Union as _Union, List as _List
+from typing import Tuple as _Tuple, Dict as _Dict
 from pytsite import odm as _odm, odm_auth as _odm_auth, router as _router, form as _form
 
 __author__ = 'Alexander Shepetko'
@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class UIEntity(_odm_auth.model.PermissableEntity):
+class UIEntity(_odm_auth.model.AuthorizableEntity):
     """ODM entity with UI related methods.
     """
 
@@ -100,7 +100,11 @@ class UIEntity(_odm_auth.model.PermissableEntity):
             if not args:
                 args = {}
 
-            args.update({'model': self.model, 'id': str(self.id)})
+            args.update({
+                'model': self.model,
+                'id': str(self.id),
+                '__redirect': 'ENTITY_VIEW',
+            })
 
             return _router.ep_url('pytsite.odm_ui@m_form', args)
 
@@ -121,10 +125,10 @@ class UIEntity(_odm_auth.model.PermissableEntity):
     def as_jsonable(self, **kwargs) -> dict:
         r = super().as_jsonable(**kwargs)
 
-        if self.check_perm('view'):
+        if self.check_permissions('view'):
             r['url'] = self.url
 
-        if self.check_perm('modify'):
+        if self.check_permissions('modify'):
             r['edit_url'] = self.edit_url
 
         return r

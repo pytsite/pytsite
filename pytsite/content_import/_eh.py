@@ -69,9 +69,6 @@ def cron_1min():
                     _logger.info("Content entity imported: '{}'".format(entity.f_get('title')))
                     items_imported += 1
 
-                    # Mark that driver made its work without errors
-                    importer.f_set('errors', 0)
-
                 # Entity save was not successfully finished
                 except Exception as e:
                     # Delete already attached images to free space
@@ -86,6 +83,9 @@ def cron_1min():
 
                 finally:
                     entity.unlock()
+
+            # Mark that driver made its work without errors
+            importer.f_set('errors', 0)
 
             _logger.info('Content import finished. Entities imported: {}.'.format(items_imported))
 

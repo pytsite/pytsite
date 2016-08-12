@@ -2,9 +2,11 @@
 """
 from typing import Callable as _Callable, Iterable as _Iterable, List as _List
 from datetime import datetime as _datetime
+from urllib import parse as _urllib_parse
 from os import path as _path, makedirs as _makedirs
 from pytsite import admin as _admin, taxonomy as _taxonomy, odm as _odm, util as _util, settings as _settings, \
-    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permission as _permission
+    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permission as _permission, \
+    route_alias as _route_alias
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -145,6 +147,20 @@ def find(model: str, **kwargs):
             f.where('status', '=', 'published')
 
     return f
+
+
+def find_by_url(url: str) -> _model.Content:
+    parsed_url = _urllib_parse.urlsplit(url, allow_fragments=False)
+
+    try:
+        r_alias = _route_alias.get_by_alias(parsed_url[2])
+
+        # Path should have format `/content/view/{model}/{id}`
+        parsed_path = r_alias.target.split('/')
+        if len(parsed_path) == 5:
+            return dispense(parsed_path[3], parsed_path[4])
+    except _route_alias.error.RouteAliasNotFound:
+        pass
 
 
 def get_statuses() -> _List[str]:

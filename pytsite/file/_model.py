@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class File(_odm_auth.model.PermissableEntity):
+class File(_odm_auth.model.AuthorizableEntity):
     """File Model.
     """
 

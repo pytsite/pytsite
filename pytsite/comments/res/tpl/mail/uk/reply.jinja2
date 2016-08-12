@@ -1,0 +1,14 @@
+<h1>Привіт, {{ comment.author.full_name | e }}!</h1>
+<p>
+    Ви отримали нову відповідь на ваш <a href="{{ comment.url }}">коментар</a> від
+    <b>{{ reply.author.full_name | e }}</b>:
+</p>
+
+<blockquote>
+    {{ reply.body | e }}
+</blockquote>
+
+<p>
+    --<br/>
+    З найкращими побажаннями, {{ t('app_name') }}.
+</p>

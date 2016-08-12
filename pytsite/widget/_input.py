@@ -108,6 +108,9 @@ class Text(Input):
             required=self._required
         )
 
+        if not self._enabled:
+            inp.set_attr('disabled', True)
+
         if self._max_length:
             inp.set_attr('maxlength', self._max_length)
 

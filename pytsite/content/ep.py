@@ -68,7 +68,7 @@ def index(args: dict, inp: dict):
 
     entities = []
     for entity in f.skip(pager.skip).get(pager.limit):
-        if entity.check_perm('view'):
+        if entity.check_permissions('view'):
             entities.append(entity)
 
     args['entities'] = entities
@@ -91,15 +91,15 @@ def view(args: dict, inp: dict):
         raise _http.error.NotFound()
 
     # Check permissions
-    if not entity.check_perm('view'):
+    if not entity.check_permissions('view'):
         raise _http.error.Forbidden()
 
     # Show non published entities only who can edit them
     if entity.has_field('publish_time') and entity.publish_time > _datetime.now():
-        if not entity.check_perm('modify'):
+        if not entity.check_permissions('modify'):
             raise _http.error.NotFound()
     if entity.has_field('status') and entity.status != 'published':
-        if not entity.check_perm('modify'):
+        if not entity.check_permissions('modify'):
             raise _http.error.NotFound()
 
     with entity:

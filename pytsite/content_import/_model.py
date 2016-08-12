@@ -175,7 +175,7 @@ class ContentImport(_odm_ui.model.UIEntity):
             weight=70,
             uid='content_author',
             label=self.t('content_author'),
-            value=self.content_author if not self.is_new else _auth.current_user(),
+            value=self.content_author if not self.is_new else _auth.get_current_user(),
             h_size='col-sm-4',
             required=True,
         ))

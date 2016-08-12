@@ -52,6 +52,7 @@ word_yes: 'Так'
 model_is_required: 'Потрібно вказати модель'
 blocks: 'Блоки'
 uid: 'UID'
+mail_subject_new_comment: 'Новий коментар на ваш пост на {app_name}'
 
 odm_perm_group_description: 'Контент'
 

@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Flag(_odm_auth.model.PermissableEntity):
+class Flag(_odm_auth.model.AuthorizableEntity):
     """Flag ODM Model.
     """
     def _setup_fields(self):

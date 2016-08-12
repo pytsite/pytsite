@@ -56,7 +56,7 @@ def create(source_path: str, name: str = None, description: str = None, model: s
     """Create a file from path or URL.
     """
     if not owner:
-        owner = _auth.current_user()
+        owner = _auth.get_current_user()
 
     # Store remote file to the local if URL was specified
     try:

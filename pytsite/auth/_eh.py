@@ -86,5 +86,5 @@ def router_dispatch():
 
 
 def router_response(response: _http.response.Response):
-    if 'PYTSITE_SESSION' in _router.request().cookies and _api.current_user().is_anonymous:
+    if 'PYTSITE_SESSION' in _router.request().cookies and _api.get_current_user().is_anonymous:
         response.delete_cookie('PYTSITE_SESSION')

@@ -29,6 +29,6 @@ def auth_http_api_get_user(user: _auth_storage_odm.model.User, response: dict):
     if not isinstance(user, _auth_storage_odm.model.User):
         return
 
-    c_user = _auth.current_user()
+    c_user = _auth.get_current_user()
     if c_user == user or c_user.is_admin:
         response['currency'] = user.f_get('currency')

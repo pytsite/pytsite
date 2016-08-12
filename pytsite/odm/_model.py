@@ -55,6 +55,7 @@ class Entity(_ABC):
         # Define 'system' fields
         self.define_field(_field.Ref('_parent', model=model))
         self.define_field(_field.RefsList('_children', model=model))
+        self.define_field(_field.Integer('_depth', nonempty=True, default=0))
         self.define_field(_field.DateTime('_created', default=_datetime.now()))
         self.define_field(_field.DateTime('_modified', default=_datetime.now()))
 
@@ -315,6 +316,12 @@ class Entity(_ABC):
         return self.f_get('_children')
 
     @property
+    def depth(self) -> int:
+        """Get depth of the entity in children tree.
+        """
+        return self.f_get('_depth')
+
+    @property
     def created(self) -> _datetime:
         """Get created date/time.
         """
@@ -347,6 +354,8 @@ class Entity(_ABC):
     def f_set(self, field_name: str, value, update_state=True, **kwargs):
         """Set field's value.
         """
+        self._check_is_locked()
+
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
@@ -545,6 +554,9 @@ class Entity(_ABC):
 
         :type child: Entity
         """
+        if child.is_new:
+            raise RuntimeError('Child entity should be saved.')
+
         self._check_is_locked()
 
         if _dbg:
@@ -556,7 +568,10 @@ class Entity(_ABC):
                 _logger.debug('[ODM STORED ENTITY] {}.append_child({}), called by {}.'.
                               format(self.ref_str, repr(child), caller))
 
-        child.f_set('_parent', self)
+        with child:
+            child.f_set('_parent', self)
+            child.f_set('_depth', self.depth + 1)
+
         self.f_add('_children', child)
 
         return self
@@ -666,10 +681,13 @@ class Entity(_ABC):
 
         # Save children with updated '_parent' field
         if self.children:
-            with self:
+            try:
+                self.lock()
                 for child in self.children:
                     with child:
                         child.save(update_timestamp=False)
+            finally:
+                self.unlock()
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)

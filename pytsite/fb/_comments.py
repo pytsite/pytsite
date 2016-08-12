@@ -46,11 +46,27 @@ class Driver(_comments.driver.Abstract):
 
         return count
 
-    def create_comment(self, thread_id: str, body: str, author: _auth.model.AbstractUser,
-                       status: str = 'published') -> _comments.model.CommentInterface:
+    def create_comment(self, thread_uid: str, body: str, author: _auth.model.AbstractUser,
+                       status: str = 'published', parent_uid: str = None) -> _comments.model.AbstractComment:
         """Create new comment.
         """
-        raise NotImplementedError("Not implemented yet")
+        raise NotImplementedError("Not implemented yet.")
 
-    def get_comments(self, thread_id: str) -> _Iterable[_comments.model.CommentInterface]:
-        raise NotImplementedError("Not implemented yet")
+    def get_comments(self, thread_uid: str, limit: int = 0, skip: int = 0) \
+            -> _Iterable[_comments.model.AbstractComment]:
+        raise NotImplementedError("Not implemented yet.")
+
+    def get_comment(self, uid: str) -> _comments.model.AbstractComment:
+        """Get single comment by UID.
+        """
+        raise NotImplementedError("Not implemented yet.")
+
+    def delete_comment(self, uid: str):
+        """Mark comment as deleted.
+        """
+        raise NotImplementedError("Not implemented yet.")
+
+    def get_permissions(self, user: _auth.model.AbstractUser = None) -> dict:
+        """Get permissions definition for user.
+        """
+        raise NotImplementedError("Not implemented yet.")

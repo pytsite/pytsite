@@ -30,7 +30,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
     # Get current user
-    current_user = _auth.current_user()  # type: _auth_storage_odm.model.User
+    current_user = _auth.get_current_user()  # type: _auth_storage_odm.model.User
 
     # Check ids type
     if ids and type(ids) not in (list, tuple):

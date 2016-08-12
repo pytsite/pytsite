@@ -103,7 +103,7 @@ def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None
         methods = (methods,)
 
     if not isinstance(filters, list) and not isinstance(filters, tuple):
-        raise Exception('Filters must be a string, list or tuple. {} given.'.format(repr(filters)))
+        raise TypeError('Filters must be a string, list or tuple. {} given.'.format(repr(filters)))
 
     if not name:
         name = _util.random_str(32)
@@ -360,7 +360,7 @@ def base_path(lang: str = None) -> str:
     if not lang:
         lang = _lang.get_current()
     if lang not in available_langs:
-        raise Exception("Language '{}' is not supported.".format(lang))
+        raise RuntimeError("Language '{}' is not supported.".format(lang))
 
     r = '/'
     if lang != available_langs[0]:

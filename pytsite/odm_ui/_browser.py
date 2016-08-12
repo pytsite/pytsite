@@ -28,7 +28,7 @@ class Browser(_widget.misc.BootstrapTable):
             raise _http.error.Forbidden()
 
         self._data_url = _http_api.url('pytsite.odm_ui@browser_rows', model=self._model)
-        self._current_user = auth.current_user()
+        self._current_user = auth.get_current_user()
         self._finder_adjust = self._default_finder_adjust
 
         # Model class and mock instance
@@ -41,7 +41,7 @@ class Browser(_widget.misc.BootstrapTable):
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._mock.check_perm('create'):
+        if self._mock.check_permissions('create'):
             create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': self._model,
                 'id': '0',
@@ -54,7 +54,7 @@ class Browser(_widget.misc.BootstrapTable):
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._mock.check_perm('delete'):
+        if self._mock.check_permissions('delete'):
             delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='hidden btn btn-danger mass-action-button', title=title)
@@ -190,7 +190,7 @@ class Browser(_widget.misc.BootstrapTable):
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if entity.check_perm('modify'):
+        if entity.check_permissions('modify'):
             m_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': entity.model,
                 'id': str(entity.id),
@@ -202,7 +202,7 @@ class Browser(_widget.misc.BootstrapTable):
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
-        if entity.check_perm('delete'):
+        if entity.check_permissions('delete'):
             d_form_url = _router.ep_url('pytsite.odm_ui@d_form', {
                 'model': entity.model,
                 'ids': str(entity.id),

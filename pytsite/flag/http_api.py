@@ -12,7 +12,7 @@ def patch_toggle(inp: dict) -> dict:
     """Set/remove flag.
     """
     # Check for permissions
-    if _auth.current_user().is_anonymous:
+    if _auth.get_current_user().is_anonymous:
         raise _http.error.Unauthorized('Anonymous users are not allowed here.')
 
     # Check for entity model

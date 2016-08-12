@@ -1,16 +1,36 @@
 """Comments Models.
 """
-from typing import Tuple as _Tuple
-from pytsite import image as _image, auth as _auth
+from datetime import datetime as _datetime
+from pytsite import auth as _auth, util as _util, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class CommentInterface:
+class AbstractComment:
     @property
-    def thread_id(self) -> str:
+    def uid(self) -> str:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def parent_uid(self) -> str:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def thread_uid(self) -> str:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def depth(self) -> int:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def created(self) -> _datetime:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
+    def url(self) -> str:
         raise NotImplementedError("Not implemented yet")
 
     @property
@@ -18,7 +38,7 @@ class CommentInterface:
         raise NotImplementedError("Not implemented yet")
 
     @property
-    def images(self) -> _Tuple[_image.model.Image]:
+    def publish_time(self) -> _datetime:
         raise NotImplementedError("Not implemented yet")
 
     @property
@@ -28,3 +48,36 @@ class CommentInterface:
     @property
     def author(self) -> _auth.model.AbstractUser:
         raise NotImplementedError("Not implemented yet")
+
+    @property
+    def is_reply(self) -> bool:
+        return bool(self.parent_uid)
+
+    def as_jsonable(self) -> dict:
+        r = {
+            'uid': self.uid,
+            'parent_uid': self.parent_uid,
+            'thread_uid': self.thread_uid,
+            'status': self.status,
+            'depth': self.depth,
+        }
+
+        if self.status == 'published':
+            author = self.author
+            r.update({
+                'body': self.body,
+                'publish_time': {
+                    'w3c': _util.w3c_datetime_str(self.publish_time),
+                    'pretty': _lang.pretty_date_time(self.publish_time),
+                    'ago': _lang.time_ago(self.publish_time),
+                },
+                'author': {
+                    'uid': author.uid,
+                    'nickname': author.nickname,
+                    'full_name': author.full_name,
+                    'picture_url': author.picture.get_url(width=50, height=50),
+                    'profile_url': author.profile_view_url if author.profile_is_public else None,
+                },
+            })
+
+        return r

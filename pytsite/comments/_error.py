@@ -15,3 +15,15 @@ class DriverNotRegistered(Exception):
 
 class InvalidCommentStatus(Exception):
     pass
+
+
+class CommentNotExist(Exception):
+    pass
+
+
+class CommentTooShort(Exception):
+    pass
+
+
+class CommentTooLong(Exception):
+    pass

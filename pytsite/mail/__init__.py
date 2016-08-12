@@ -7,24 +7,35 @@ from smtplib import SMTP as _SMTP
 from email.mime.multipart import MIMEMultipart as _MIMEMultipart
 from email.mime.image import MIMEImage as _MIMEImage
 from email.mime.text import MIMEText as _MIMEText
-from pytsite import reg as _reg, logger as _logger, router as _router
+from pytsite import reg as _reg, logger as _logger, router as _router, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def mail_from() -> tuple:
+    """Get default mail sender's address and name.
+    """
+    return _lang.t('app_name'), _reg.get('mail.from', 'info@' + _router.server_name())
+
+
 class Message(_MIMEMultipart):
     """Mail Message.
     """
-    def __init__(self, to_addrs, subject: str, body: str='', from_addr: str=None, reply_to: str=None):
+
+    def __init__(self, to_addrs, subject: str, body: str = '', from_addr: str = None, reply_to: str = None):
         """Init.
         """
         super().__init__()
 
         self._from_addr = self._to_addrs = self._subject = self._body = self._reply_to = None
 
-        self.from_addr = from_addr if from_addr else _reg.get('mail.from', 'info@' + _router.server_name())
+        if from_addr:
+            self.from_addr = from_addr
+        else:
+            self.from_addr = '{} <{}>'.format(*mail_from())
+
         self.to_addrs = to_addrs
         self.subject = subject
         self.body = body
@@ -54,7 +65,7 @@ class Message(_MIMEMultipart):
         if isinstance(value, str):
             value = (value,)
         elif not isinstance(value, tuple):
-            raise ValueError('String ot tuple expected as recipient(s) address.')
+            raise ValueError('String or tuple expected as recipient(s) address.')
         self['To'] = self._to_addrs = ', '.join(value)
 
     @property
@@ -83,7 +94,7 @@ class Message(_MIMEMultipart):
 
     def attach(self, file_path: str):
         if not _path.isfile(file_path):
-            raise Exception("'{}' is not a file.".format(file_path))
+            raise RuntimeError("'{}' is not a file.".format(file_path))
 
         ctype, encoding = _guess_mime_type(file_path)
         if ctype:
@@ -94,13 +105,14 @@ class Message(_MIMEMultipart):
                     attachment.add_header('Content-Disposition', 'attachment', filename=_path.basename(file_path))
                     self._attachments.append(attachment)
             else:
-                raise Exception("Unsupported MIME type '{}', file '{}'.".format(repr(ctype), file_path))
+                raise RuntimeError("Unsupported MIME type '{}', file '{}'.".format(repr(ctype), file_path))
         else:
-            raise Exception("Cannot guess MIME type for '{}'.".format(file_path))
+            raise RuntimeError("Cannot guess MIME type for '{}'.".format(file_path))
 
     def send(self):
         """Send message.
         """
+
         def do_send(msg: Message):
             try:
                 engine = _SMTP('localhost')

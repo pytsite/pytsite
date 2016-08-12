@@ -11,5 +11,5 @@ def pytsite_update(version: str):
     """'pytsite.update' event handler.
     """
     if version == '0.73.0':
-        # No needed anymore
+        # Not needed anymore
         _db.get_collection('comments_counts').drop()

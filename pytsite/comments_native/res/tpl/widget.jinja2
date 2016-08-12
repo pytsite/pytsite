@@ -1,0 +1,37 @@
+{% if widget.title %}
+    <h3 class="title">{{ widget.title }}</h3>
+{% endif %}
+
+<div class="comments-list" id="{{ widget.uid }}-list">
+    {{ t('pytsite.comments_native@loading') }}
+</div>
+
+<div class="comment-form">
+    {% if not auth_current_user().is_anonymous %}
+        {% if auth_current_user().has_permission('pytsite.odm_perm.create.comment') %}
+            <form class="form">
+                <input class="reply-to" type="hidden">
+                <div class="user-picture">
+                    <img src="{{ current_user.picture.get_url(width=50, height=50) }}"
+                         alt="{{ current_user.full_name }}">
+                </div>
+
+                <div class="input">
+                    <label for="{{ widget.uid }}-textarea"
+                           class="sr-only">{{ t('pytsite.comments_native@comment_body') }}</label>
+                <textarea required name="{{ widget.uid }}" class="form-control comment-body"
+                          placeholder="{{ t('pytsite.comments_native@enter_your_comment') }}"
+                          maxlength="{{ widget.comment_body_max_length }}"></textarea>
+                    <div class="messages"></div>
+                    <div class="actions">
+                        <button class="btn btn-primary btn-submit">{{ t('pytsite.comments_native@post_comment') }}</button>
+                    </div>
+                </div>
+            </form>
+        {% else %}
+            {{ t('pytsite.comments_native@no_permissions_to_create_comments') }}
+        {% endif %}
+    {% else %}
+        {{ t('pytsite.comments_native@sign_in_to_post_comments', {'url': auth_sign_in_url(add_fragment=widget.uid~'-list')}) }}
+    {% endif %}
+</div>

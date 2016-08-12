@@ -1,5 +1,49 @@
 # PytSite Changelog
 
+## 0.81 (2016-08-12)
+### Added
+- `auth`: new arguments in `get_sign_in_url()`: `add_query`, `add_fragment`.
+- New package `comments_native`. 
+- `comments`: 
+    - base HTTP API functions;
+    - email notifications about replies.
+- `content`: 
+    - email notifications about new comments;
+    - new function: `find_by_url()`.
+- `html`: support for 'disabled' argument in `Input`.
+- `lang`: processing references to other message IDs in `t()`.
+- `mail`: new function: `mail_from()`.
+- `odm`:
+    - `min_length` argument in `field.String`;
+    - new field in `model.Entity`: `_depth`.
+- `permission`: new event: `pytsite.permission.define`. 
+- `route_alias`: new sub-module: `error`.
+
+### Changed
+- `auth`: 
+    - `current_user()` renamed to `get_current_user()`;
+    - `first_admin_user()` renamed to `get_first_admin_user()`.
+- `odm_auth`: 
+    `model.PermissableEntity` renamed to `model.AuthorizableEntity`;
+    `model.AuthorizableEntity.check_perm()` renamed to `check_permissions()`
+- `validation`: partly refactored.
+
+### Fixed
+- `auth_log`: disable permission check while creating ODM entities.
+- `auth_storage_odm`: locking entities in property setters.
+- `content`: exception raising in 'content:generate' console command.
+- `content_import`: missed reset errors counter.
+- `odm`:
+    - lock check while setting field's value;
+    - incorrect `is_empty()` work of `field.Integer`.
+- `odm_ui`: href of 'Cancel' button in modification form.
+- `widget`: processing `enabled` property in `input.Text`.
+
+### Removed
+- `comments_odm` in favour of `comments_native`.
+- `image`: `odm_auth`'s `view` permission support.
+
+
 ## 0.80.28 (2016-08-09)
 ### Fixed
 - `router`: processing exception-embedded responses. 

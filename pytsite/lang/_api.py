@@ -1,6 +1,7 @@
 """PytSite Language Support
 """
 import yaml as _yaml
+import re as _re
 from typing import List as _List
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
@@ -16,6 +17,7 @@ _languages = []
 _current = {}  # Thread safe current language store
 _fallback = None
 _packages = {}
+_sub_trans_re = _re.compile('\{([_a-z0-9]+)\}')
 
 _default_regions = {
     'en': 'US',
@@ -155,6 +157,9 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, us
     if args:
         for k, v in args.items():
             msg = msg.replace(':' + str(k), str(v))
+
+    # Replacing sub-translations
+    msg = _sub_trans_re.sub(lambda match: t(match.group(1)), msg)
 
     return msg
 

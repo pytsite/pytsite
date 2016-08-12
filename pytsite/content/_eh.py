@@ -4,7 +4,8 @@ from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, tpl as _tpl, \
-    mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman
+    mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
+    comments as _comments
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -53,6 +54,18 @@ def router_dispatch():
                 if s_key in ['title', 'description']:
                     _metatag.t_set('og:' + s_key, s_val)
                     _metatag.t_set('twitter:' + s_key, s_val)
+
+
+def comments_create_comment(comment: _comments.model.AbstractComment):
+    entity = _api.find_by_url(comment.thread_uid)
+    if comment.is_reply or not entity or comment.author == entity.author:
+        return
+
+    tpl_name = 'pytsite.content@mail/{}/comment'.format(_lang.get_current())
+    subject = _lang.t('pytsite.content@mail_subject_new_comment')
+    body = _tpl.render(tpl_name, {'comment': comment, 'entity': entity})
+    m_from = '{} <{}>'.format(comment.author.full_name, _mail.mail_from()[1])
+    _mail.Message(entity.author.email, subject, body, m_from).send()
 
 
 def _mail_digest():

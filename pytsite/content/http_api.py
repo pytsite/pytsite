@@ -61,7 +61,7 @@ def get_widget_entity_select_search(inp: dict) -> dict:
         return {'results': ()}
 
     # Anonymous users cannot perform search
-    user = _auth.current_user()
+    user = _auth.get_current_user()
     if user.is_anonymous:
         raise _http.error.Forbidden()
 

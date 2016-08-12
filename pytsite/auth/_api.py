@@ -41,6 +41,8 @@ def verify_password(clear_text: str, hashed: str) -> bool:
 
 
 def base_path() -> str:
+    """Get module routes base path.
+    """
     return _reg.get('auth.routes.base_path', '/auth')
 
 
@@ -133,7 +135,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         user = get_storage_driver().create_user(login, password)
 
         # Do some actions with non-anonymous users
-        if not user.is_anonymous and not user.is_system:
+        if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
             # Automatic roles for new users
             roles = []
             for role_name in _reg.get('auth.signup.roles', ['user']):
@@ -164,7 +166,7 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
     return user
 
 
-def first_admin_user() -> _model.AbstractUser:
+def get_first_admin_user() -> _model.AbstractUser:
     """Get first created user which has 'admin' role.
     """
     users = list(get_users({'roles': [get_role('admin')]}, sort_field='created', limit=1))
@@ -181,6 +183,7 @@ def get_anonymous_user() -> _model.AbstractUser:
     global _anonymous_user
     if not _anonymous_user:
         _anonymous_user = create_user(_model.ANONYMOUS_USER_LOGIN)
+        _anonymous_user.roles = (get_role('anonymous'),)
 
     return _anonymous_user
 
@@ -191,6 +194,7 @@ def get_system_user() -> _model.AbstractUser:
     global _system_user
     if not _system_user:
         _system_user = create_user(_model.SYSTEM_USER_LOGIN)
+        _system_user.roles = (get_role('system'),)
 
     return _system_user
 
@@ -313,7 +317,7 @@ def sign_out(user: _model.AbstractUser):
     switch_user(get_anonymous_user())
 
 
-def current_user() -> _model.AbstractUser:
+def get_current_user() -> _model.AbstractUser:
     """Get current user.
     """
     user = _current_user.get(_threading.get_id())
@@ -339,14 +343,17 @@ def get_user_statuses() -> tuple:
     )
 
 
-def get_sign_in_url(auth_driver_name: str = None) -> str:
+def get_sign_in_url(auth_driver_name: str = None, add_query: dict = None, add_fragment: str = None) -> str:
     """Get login URL.
     """
     # Get default authentication driver
     if not auth_driver_name:
         auth_driver_name = list(_authentication_drivers)[-1]
 
-    return _router.ep_url('pytsite.auth@sign_in', {'driver': auth_driver_name, '__redirect': _router.current_url()})
+    return _router.ep_url('pytsite.auth@sign_in', {
+        'driver': auth_driver_name,
+        '__redirect': _router.current_url(add_query=add_query, add_fragment=add_fragment)
+    })
 
 
 def get_sign_out_url(auth_driver_name: str = None) -> str:

@@ -26,7 +26,7 @@ def get_model_class(model: str) -> _model.UIEntity:
     """Get ODM UI model class.
     """
     model_class = _odm.get_model_class(model)
-    if not issubclass(model_class, _odm_auth.model.PermissableEntity):
+    if not issubclass(model_class, _odm_auth.model.AuthorizableEntity):
         raise TypeError("Model '{}' must extend 'pytsite.odm_perm.model.PermMixin'".format(model))
 
     if not issubclass(model_class, _model.UIEntity):

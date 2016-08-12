@@ -23,7 +23,7 @@ def post_sign_out(inp: dict) -> dict:
     """Sign out user.
     """
     try:
-        _api.sign_out(_api.current_user())
+        _api.sign_out(_api.get_current_user())
 
     except _error.UserNotExist as e:
         raise _http.error.Unauthorized(e)
@@ -43,7 +43,7 @@ def get_user(inp: dict) -> dict:
     """Get information about user.
     """
     try:
-        current_user = _api.current_user()
+        current_user = _api.get_current_user()
 
         uid = inp.get('uid')
         if uid:
@@ -111,7 +111,7 @@ def patch_follow(inp: dict) -> bool:
         raise _http.error.InternalServerError('Insufficient arguments.')
 
     # Is current user authorized
-    current_user = _api.current_user()
+    current_user = _api.get_current_user()
     if current_user.is_anonymous:
         raise _http.error.Unauthorized()
 
@@ -164,4 +164,4 @@ def get_login_form(inp: dict) -> dict:
 
 
 def get_is_anonymous(inp: dict) -> bool:
-    return _api.current_user().is_anonymous
+    return _api.get_current_user().is_anonymous

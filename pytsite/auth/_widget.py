@@ -40,7 +40,7 @@ class Profile(_widget.Abstract):
         """Render the widget.
         :param **kwargs:
         """
-        current_user = _api.current_user()
+        current_user = _api.get_current_user()
 
         # Hidden profiles are visible only for owners and administrators
         if not self._user.profile_is_public and current_user.login != self._user.login and not current_user.is_admin:
@@ -78,7 +78,7 @@ class Follow(_widget.Abstract):
         if not self._user:
             raise ValueError('User is not specified.')
 
-        self._current_user = _api.current_user()
+        self._current_user = _api.get_current_user()
         self._tpl = kwargs.get('tpl', 'pytsite.auth@widget/follow')
         self._css += ' inline'
 
@@ -101,7 +101,7 @@ class Follow(_widget.Abstract):
             return _html.TagLessElement()
 
         content = _tpl.render(self._tpl, {
-            'current_user': _api.current_user(),
+            'current_user': _api.get_current_user(),
             'user': self._user,
             'follow_msg_id': self._data['follow-msg-id'],
             'unfollow_msg_id': self._data['unfollow-msg-id'],

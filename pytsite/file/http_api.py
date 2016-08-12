@@ -60,7 +60,7 @@ def get_file(inp: dict) -> dict:
         if entity.model != model:
             raise _http.error.NotFound('File not found.')
 
-        if not entity.check_perm('view'):
+        if not entity.check_permissions('view'):
             raise _http.error.Forbidden('Insufficient permissions.')
 
         return entity.as_jsonable(**inp)

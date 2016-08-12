@@ -174,7 +174,7 @@ def render() -> _html.Aside:
 
 
 def _check_permissions(item: dict) -> bool:
-    user = _auth.current_user()
+    user = _auth.get_current_user()
     if user.is_anonymous:
         return False
 

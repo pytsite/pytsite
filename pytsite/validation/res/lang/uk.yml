@@ -18,6 +18,9 @@ validation_videohostingurl: 'Некоректний URL відеохостинг
 validation_videohostingurl_row: 'Некоректний URL відеохостингу (рядок :row)'
 validation_regex: 'Не відповідає шаблону :pattern'
 validation_regex_row: 'Не відповідає шаблону :pattern (рядок :row)'
+validation_length: 'Довжина значення має знаходитися між :min_length і :max_length'
+validation_minlength: 'Значення повинно бути довшим ніж :min_length'
+validation_maxlength: 'Значення повинно бути коротше ніж :max_length'
 
 list_expected: 'Очикувалось list, отримано :got'
 dict_expected: 'Очикувалось list, отримано :got'

@@ -15,7 +15,7 @@ def sign_in(args: dict, inp: dict) -> str:
     """Page with login form.
     """
     # Redirect user if it already authorized
-    if not _api.current_user().is_anonymous:
+    if not _api.get_current_user().is_anonymous:
         redirect_url = _router.base_url()
         if 'redirect' in inp:
             redirect_url = _router.url(inp['redirect'])
@@ -55,7 +55,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
         }))
 
     except Exception as e:
-        _logger.error(str(e), exc_info=e, stack_info=True)
+        _logger.error(str(e), exc_info=e)
         _router.session().add_error(str(e))
         return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
             'driver': driver,
@@ -66,7 +66,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
 def sign_out(args: dict, inp: dict) -> _http.response.Redirect:
     """Logout endpoint.
     """
-    _api.sign_out(_api.current_user())
+    _api.sign_out(_api.get_current_user())
 
     return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 
@@ -79,7 +79,7 @@ def profile_view(args: dict, inp: dict) -> str:
     except _error.UserNotExist:
         raise _http.error.NotFound()
 
-    c_user = _api.current_user()
+    c_user = _api.get_current_user()
 
     if _tpl.tpl_exists('app@auth/profile-view'):
         tpl_name = 'app@auth/profile-view'
@@ -145,7 +145,7 @@ def profile_edit(args: dict, inp: dict) -> str:
 def f_authorize(args: dict, inp: dict) -> _http.response.Redirect:
     """Authorization filter.
     """
-    user = _api.current_user()
+    user = _api.get_current_user()
 
     # If user already authenticated, check its permissions
     if not user.is_anonymous:

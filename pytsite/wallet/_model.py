@@ -102,7 +102,7 @@ class Account(_odm_ui.model.UIEntity):
         """Get single UI browser row hook.
         """
         balance = _currency.fmt(self.currency, self.balance)
-        owner = self.owner if self.owner else _auth.first_admin_user()
+        owner = self.owner if self.owner else _auth.get_first_admin_user()
 
         return str(self.id), self.title, self.currency, balance, owner.full_name
 

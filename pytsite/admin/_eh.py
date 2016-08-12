@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 def router_dispatch():
     if _router.current_path(True).startswith(_api.base_path()):
-        c_user = _auth.current_user()
+        c_user = _auth.get_current_user()
 
         if c_user.is_anonymous:
             r_url = _router.ep_url('pytsite.auth@sign_in', {

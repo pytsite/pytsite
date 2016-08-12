@@ -4,7 +4,7 @@
 from . import _model as model, _widget as widget
 from ._api import register_model, get_models, find, get_model, get_model_title, dispense, get_sections, \
     dispense_section, get_tags, dispense_tag, get_statuses, is_model_registered, generate_rss, find_section_by_title, \
-    find_section_by_alias, find_tag_by_alias, find_tag_by_title
+    find_section_by_alias, find_tag_by_alias, find_tag_by_title, find_by_url
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -58,6 +58,7 @@ def _init():
     events.listen('pytsite.cron.hourly', _eh.cron_hourly)
     events.listen('pytsite.cron.daily', _eh.cron_daily)
     events.listen('pytsite.cron.weekly', _eh.cron_weekly)
+    events.listen('pytsite.comments.create_comment', _eh.comments_create_comment)
 
     # Settings
     settings.define('content', _settings.form_widgets_setup, __name__ + '@content', 'fa fa-file-o',

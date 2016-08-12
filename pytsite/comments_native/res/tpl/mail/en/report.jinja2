@@ -1,0 +1,14 @@
+<h1>Hello, {{ recipient.full_name | e }}!</h1>
+<p>
+    Please review following <a href="{{ comment.url }}">comment</a> posted by <b>{{ comment.author.full_name | e }}</b>
+    on {{ comment.created | date('pretty_date_time') }}:
+</p>
+
+<blockquote>
+    {{ comment.body | e }}
+</blockquote>
+
+<p>
+    --<br/>
+    Sincerely yours, {{ t('app_name') }}.
+</p>

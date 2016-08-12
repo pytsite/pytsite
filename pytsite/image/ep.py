@@ -22,10 +22,6 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
     if not image_entity:
         raise _http.error.NotFound()
 
-    # Checking permissions
-    if not image_entity.check_perm('view'):
-        raise _http.error.Forbidden()
-
     # Aligning side lengths
     aligned_width = _api.align_length(requested_width, _api.get_resize_limit_width())
     aligned_height = _api.align_length(requested_height, _api.get_resize_limit_height())

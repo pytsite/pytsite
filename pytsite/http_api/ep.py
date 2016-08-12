@@ -40,7 +40,7 @@ def entry(args: dict, inp: dict):
         return response
 
     except Exception as e:
-        _logger.error(_router.current_path() + ': ' + str(e), exc_info=e, stack_info=True)
+        _logger.error(_router.current_path() + ': ' + str(e), exc_info=e)
         response = _http.response.JSON({'error': str(e)}, 500)
         response.headers.add('PytSite-HTTP-API', version)
         return response

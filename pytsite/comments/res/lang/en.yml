@@ -1,0 +1,4 @@
+comment_body_cannot_be_empty: 'Comment cannot be empty.'
+error_body_too_long: 'Comment is too long.'
+error_body_too_short: 'Comment is too short.'
+mail_subject_new_reply: 'New reply to your comment on {app_name}'

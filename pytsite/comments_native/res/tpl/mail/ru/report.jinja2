@@ -1,0 +1,14 @@
+<h1>Привет, {{ recipient.full_name | e }}!</h1>
+<p>
+    Поступила жалоба на <a href="{{ comment.url }}">комментарий</a> пользователя
+     <b>{{ comment.author.full_name | e }}</b>, оставленный {{ comment.created | date('pretty_date_time') }}:
+</p>
+
+<blockquote>
+    {{ comment.body | e }}
+</blockquote>
+
+<p>
+    --<br/>
+    С наилучшими пожеланиями, {{ t('app_name') }}.
+</p>

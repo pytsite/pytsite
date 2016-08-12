@@ -84,7 +84,7 @@ class Generate(_console.command.Abstract):
                     raise _console.error.Error("'{}' is not a registered user.".format(author_login))
             else:
                 if not users:
-                    raise _lang.t('pytsite.content@no_users_found')
+                    raise _console.error.Error(_lang.t('pytsite.content@no_users_found'))
                 rand = _randint(0, len(users) - 1)
                 author = users[rand:rand + 1][0]
 

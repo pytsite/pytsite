@@ -42,11 +42,11 @@ class Modify(_form.Form):
             raise _http.error.NotFound()
 
         # Check if entities of this model can be created
-        if not self._eid and not entity.check_perm('create'):
+        if not self._eid and not entity.check_permissions('create'):
             raise _http.error.Forbidden()
 
         # Check if the entity can be modified
-        if self._eid and not entity.check_perm('modify'):
+        if self._eid and not entity.check_permissions('modify'):
             raise _http.error.Forbidden()
 
         # Form title
@@ -87,7 +87,7 @@ class Modify(_form.Form):
         cancel_href = '#'
         if not self.modal:
             cancel_href = _router.request().inp.get('__redirect')
-            if not cancel_href:
+            if not cancel_href or cancel_href == 'ENTITY_VIEW':
                 if not entity.is_new and entity.ui_view_url():
                     cancel_href = entity.ui_view_url()
                 else:

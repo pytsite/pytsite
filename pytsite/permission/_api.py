@@ -1,6 +1,7 @@
 """PytSite Permissions API.
 """
 from frozendict import frozendict as _frozendict
+from pytsite import events as _events
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -33,8 +34,20 @@ def get_permission_groups() -> _frozendict:
     return _frozendict(_groups)
 
 
+def get_permissions(group: str = None) -> list:
+    """Get defined permissions spec.
+    """
+    r = []
+    for perm in _permissions:
+        if group and perm[2] != group:
+            continue
+        r.append(perm)
+
+    return r
+
+
 def get_permission(name: str) -> tuple:
-    """Get permission spec.
+    """Get single permission spec.
     """
     for perm in _permissions:
         if perm[0] == name:
@@ -64,15 +77,4 @@ def define_permission(name: str, description: str, group: str):
         raise _error.PermissionAlreadyDefined("Permission '{}' is already defined.".format(name))
     except _error.PermissionNotDefined:
         _permissions.append((name, description, group))
-
-
-def get_permissions(group: str = None) -> list:
-    """Get permissions.
-    """
-    r = []
-    for perm in _permissions:
-        if group and perm[2] != group:
-            continue
-        r.append(perm)
-
-    return r
+        _events.fire('pytsite.permission.define', name=name)

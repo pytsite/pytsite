@@ -39,7 +39,10 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
 
     @property
     def permissions(self) -> _Iterable[str]:
-        return self.f_get('permissions')
+        try:
+            return super().permissions
+        except NotImplementedError:
+            return self.f_get('permissions')
 
     def save(self):
         is_new = self.is_new
@@ -100,7 +103,7 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
         browser.default_sort_field = 'name'
 
     def ui_browser_get_row(self) -> tuple:
-        if self.name == 'admin':
+        if self.name in ('admin', 'system'):
             return
 
         perms = []
@@ -120,7 +123,7 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
     def ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
-        if self.name == 'admin':
+        if self.name in ('admin', 'system'):
             raise _http.error.Forbidden()
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):
@@ -189,7 +192,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @login.setter
     def login(self, value: str):
-        self.f_set('login', value)
+        with self:
+            self.f_set('login', value)
 
     @property
     def email(self) -> str:
@@ -197,7 +201,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @email.setter
     def email(self, value: str):
-        self.f_set('email', value)
+        with self:
+            self.f_set('email', value)
 
     @property
     def password(self) -> str:
@@ -205,7 +210,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @password.setter
     def password(self, value: str):
-        self.f_set('password', value)
+        with self:
+            self.f_set('password', value)
 
     @property
     def nickname(self) -> str:
@@ -213,7 +219,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @nickname.setter
     def nickname(self, value: str):
-        self.f_set('nickname', value)
+        with self:
+            self.f_set('nickname', value)
 
     @property
     def access_token(self) -> str:
@@ -221,7 +228,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @access_token.setter
     def access_token(self, value: str):
-        self.f_set('acs_token', value)
+        with self:
+            self.f_set('acs_token', value)
 
     @property
     def first_name(self) -> str:
@@ -229,7 +237,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @first_name.setter
     def first_name(self, value: str):
-        self.f_set('first_name', value)
+        with self:
+            self.f_set('first_name', value)
 
     @property
     def last_name(self) -> str:
@@ -237,7 +246,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @last_name.setter
     def last_name(self, value: str):
-        self.f_set('last_name', value)
+        with self:
+            self.f_set('last_name', value)
 
     @property
     def description(self) -> str:
@@ -245,7 +255,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @description.setter
     def description(self, value: str):
-        self.f_set('description', value)
+        with self:
+            self.f_set('description', value)
 
     @property
     def birth_date(self) -> _datetime:
@@ -253,7 +264,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @birth_date.setter
     def birth_date(self, value: _datetime):
-        self.f_set('birth_date', value)
+        with self:
+            self.f_set('birth_date', value)
 
     @property
     def last_sign_in(self) -> _datetime:
@@ -261,7 +273,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @last_sign_in.setter
     def last_sign_in(self, value: _datetime):
-        self.f_set('last_sign_in', value)
+        with self:
+            self.f_set('last_sign_in', value)
 
     @property
     def last_activity(self) -> _datetime:
@@ -269,7 +282,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @last_activity.setter
     def last_activity(self, value: _datetime):
-        self.f_set('last_activity', value)
+        with self:
+            self.f_set('last_activity', value)
 
     @property
     def sign_in_count(self) -> int:
@@ -277,7 +291,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @sign_in_count.setter
     def sign_in_count(self, value: int):
-        self.f_set('sign_in_count', value)
+        with self:
+            self.f_set('sign_in_count', value)
 
     @property
     def status(self) -> str:
@@ -285,7 +300,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @status.setter
     def status(self, value: str):
-        self.f_set('status', value)
+        with self:
+            self.f_set('status', value)
 
     @property
     def roles(self) -> _Tuple[Role]:
@@ -296,7 +312,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @roles.setter
     def roles(self, value: tuple):
-        self.f_set('roles', value)
+        with self:
+            self.f_set('roles', value)
 
     @property
     def gender(self) -> str:
@@ -304,7 +321,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @gender.setter
     def gender(self, value: str):
-        self.f_set('gender', value)
+        with self:
+            self.f_set('gender', value)
 
     @property
     def phone(self) -> int:
@@ -312,7 +330,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @phone.setter
     def phone(self, value: int):
-        self.f_set('phone', value)
+        with self:
+            self.f_set('phone', value)
 
     @property
     def options(self) -> dict:
@@ -320,7 +339,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @options.setter
     def options(self, value: dict):
-        self.f_set('options', value)
+        with self:
+            self.f_set('options', value)
 
     @property
     def picture(self):
@@ -331,7 +351,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @picture.setter
     def picture(self, value):
-        self.f_set('picture', value)
+        with self:
+            self.f_set('picture', value)
 
     @property
     def urls(self) -> tuple:
@@ -339,7 +360,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @urls.setter
     def urls(self, value: tuple):
-        self.f_set('urls', value)
+        with self:
+            self.f_set('urls', value)
 
     @property
     def profile_is_public(self) -> bool:
@@ -347,7 +369,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @profile_is_public.setter
     def profile_is_public(self, value: bool):
-        self.f_set('profile_is_public', value)
+        with self:
+            self.f_set('profile_is_public', value)
 
     @property
     def follows(self):
@@ -358,7 +381,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @follows.setter
     def follows(self, value):
-        self.f_set('follows', value)
+        with self:
+            self.f_set('follows', value)
 
     @property
     def followers(self):
@@ -369,7 +393,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @followers.setter
     def followers(self, value):
-        self.f_set('followers', value)
+        with self:
+            self.f_set('followers', value)
 
     @property
     def last_ip(self) -> str:
@@ -377,7 +402,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @last_ip.setter
     def last_ip(self, value: str):
-        self.f_set('last_ip', value)
+        with self:
+            self.f_set('last_ip', value)
 
     @property
     def country(self) -> str:
@@ -385,7 +411,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @country.setter
     def country(self, value: str):
-        self.f_set('country', value)
+        with self:
+            self.f_set('country', value)
 
     @property
     def city(self) -> str:
@@ -393,7 +420,8 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
 
     @city.setter
     def city(self, value: str):
-        self.f_set('city', value)
+        with self:
+            self.f_set('city', value)
 
     def save(self):
         is_new = self.is_new
@@ -415,7 +443,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         return self
 
     def _pre_delete(self, **kwargs):
-        if self == _auth.current_user():
+        if self == _auth.get_current_user():
             raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
 
     def delete(self):
@@ -532,7 +560,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         # Load user picture from Gravatar
         if not self.picture:
             img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.email) + '?s=512'
-            img_owner = self if not self.is_new else _auth.first_admin_user()
+            img_owner = self if not self.is_new else _auth.get_first_admin_user()
             self.picture = _image.create(img_url, owner=img_owner)
             self.save()
 
@@ -582,7 +610,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         roles = ''
         for role in sorted(self.roles, key=lambda role: role.name):
             cls = 'label label-default'
-            if role.name == 'admin':
+            if role.name in ('admin', 'system'):
                 cls += ' label-danger'
             roles += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
 
@@ -611,7 +639,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
     def ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
-        current_user = _auth.current_user()
+        current_user = _auth.get_current_user()
 
         # Picture wrapper
         pic_wrapper = _widget.Container(
@@ -778,7 +806,7 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
                 label=self.t('roles'),
                 model='role',
                 caption_field='description',
-                exclude=(_auth.get_role('anonymous'),),
+                exclude=(_auth.get_role('anonymous'), _auth.get_role('system')),
                 value=self.f_get('roles'),
             ))
             frm.add_rule('roles', _odm.validation.ODMEntitiesList(model='role'))
@@ -819,9 +847,9 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         with self:
             self.f_sub('follows', user)
 
-    def check_perm(self, action: str) -> bool:
+    def check_permissions(self, action: str) -> bool:
         # Users can modify themselves
-        if action == 'modify' and _auth.current_user() == self:
+        if action == 'modify' and _auth.get_current_user() == self:
             return True
 
-        return super().check_perm(action)
+        return super().check_permissions(action)

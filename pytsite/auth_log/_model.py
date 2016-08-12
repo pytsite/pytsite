@@ -1,6 +1,7 @@
 """Auth Log ODM Models.
 """
-from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang, router as _router
+from typing import List as _List
+from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -24,6 +25,9 @@ class AuthLog(_odm_ui.model.UIEntity):
         self.define_index([('user', _odm.I_ASC)])
         self.define_index([('ip', _odm.I_ASC)])
         self.define_index([('severity', _odm.I_ASC)])
+
+    def get_permissions(self) -> _List[str]:
+        return ['view', 'delete']
 
     @property
     def user(self) -> _auth.model.AbstractUser:
@@ -90,10 +94,3 @@ class AuthLog(_odm_ui.model.UIEntity):
         severity = '<span class="label label-{}">{}</span>'.format(severity_class, severity_name)
 
         return user, ip, geo, description, severity, modified
-
-    def check_perm(self, action: str) -> bool:
-        # Authentication log can be created by anyone
-        if action == 'create':
-            return True
-
-        return super().check_perm(action)

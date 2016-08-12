@@ -14,7 +14,7 @@ class UserSelect(_widget.select.Select):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
-        c_user = _auth.current_user()
+        c_user = _auth.get_current_user()
         if not c_user.has_permission('pytsite.odm_perm.view.user'):
             self._items.append((c_user.login, '{} ({})'.format(c_user.full_name, c_user.login)))
         else:

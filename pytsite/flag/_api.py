@@ -60,7 +60,7 @@ def is_flagged(entity: _odm.model.Entity, author: _auth.model.AbstractUser = Non
     """Check if an entity is flagged by a user.
     """
     if not author:
-        author = _auth.current_user()
+        author = _auth.get_current_user()
 
     if author.is_anonymous:
         raise RuntimeError("Flag's author cannot be anonymous.")
@@ -75,7 +75,7 @@ def flag(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, fla
     """Flag the entity.
     """
     if not author:
-        author = _auth.current_user()
+        author = _auth.get_current_user()
 
     if author.is_anonymous:
         raise RuntimeError("Flag's author cannot be anonymous.")
@@ -96,7 +96,7 @@ def unflag(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, f
     """Remove flag.
     """
     if not author:
-        author = _auth.current_user()
+        author = _auth.get_current_user()
 
     if author.is_anonymous:
         raise RuntimeError("Flag's author cannot be anonymous.")
@@ -119,7 +119,7 @@ def toggle(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, f
     """Toggle flag.
     """
     if not author:
-        author = _auth.current_user()
+        author = _auth.get_current_user()
 
     if author.is_anonymous:
         raise RuntimeError("Flag's author cannot be anonymous.")
