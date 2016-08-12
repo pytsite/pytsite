@@ -52,15 +52,15 @@ def __init():
     driver_class = util.get_class(reg.get('auth.storage_driver', 'pytsite.auth_storage_odm.Driver'))
     register_storage_driver(driver_class())
 
-    # Set system user as current
-    switch_user(get_system_user())
-
     # Check if required roles exist
     for r_name in ('anonymous', 'user', 'admin', 'system'):
         try:
             _api.get_role(r_name)
         except error.RoleNotExist:
             _api.create_role(r_name, 'pytsite.auth@{}_role_description'.format(r_name)).save()
+
+    # Set system user as current
+    switch_user(get_system_user())
 
     # robots.txt rules
     robots.disallow(bp + '/')

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.81.1 (2016-08-12)
+### Fixed
+- `auth`: 'system' role creation point.
+
+
 ## 0.81 (2016-08-12)
 ### Added
 - `auth`: new arguments in `get_sign_in_url()`: `add_query`, `add_fragment`.
