@@ -1,6 +1,6 @@
 pytsite.auth = {
     getLoginForm: function (driver, title, uid, css, modal, success) {
-        pytsite.httpApi.get('pytsite.auth.get_login_form', {
+        pytsite.httpApi.get('auth/login_form', {
             driver: driver,
             title: title,
             uid: uid,
@@ -13,6 +13,6 @@ pytsite.auth = {
     },
 
     isAnonymous: function () {
-        return pytsite.httpApi.get('pytsite.auth@is_anonymous');
+        return pytsite.httpApi.get('auth/is_anonymous');
     }
 };

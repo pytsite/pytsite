@@ -10,8 +10,10 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, router, assetman, events
+    from pytsite import odm, router, assetman, events, http_api, permission
     from . import _eh
+
+    permission.define_group('image', 'pytsite.image@images')
 
     odm.register_model('image', model.Image)
 
@@ -20,6 +22,7 @@ def _init():
         'pytsite.image@resize'
     )
 
+    http_api.register_package_alias('image', __name__)
     assetman.register_package(__name__)
     events.listen('pytsite.setup', _eh.setup)
 

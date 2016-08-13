@@ -180,6 +180,10 @@ class Base(_odm_ui.model.UIEntity):
     """Base Content Model.
     """
 
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'content'
+
     def _setup_fields(self):
         """Hook.
         """

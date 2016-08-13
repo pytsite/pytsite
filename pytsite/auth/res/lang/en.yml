@@ -1,3 +1,4 @@
+security: 'Security'
 authentication: 'Аuthentication'
 authentication_error: 'Authentication error'
 enter_admin_email: "Enter administrator's email"

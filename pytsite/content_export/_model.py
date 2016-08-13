@@ -14,6 +14,7 @@ __license__ = 'MIT'
 class ContentExport(_odm_ui.model.UIEntity):
     """oAuth Account Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """

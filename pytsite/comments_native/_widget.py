@@ -22,8 +22,8 @@ class Comments(_pytsite_widget.Abstract):
             raise RuntimeError("Widget '{}': not thread_id was specified.".format(self.name))
 
         self._css = 'comments-native'
-        self._data['comments_load_ep'] = 'pytsite.comments@comments'
-        self._data['comment_submit_ep'] = 'pytsite.comments@comment'
+        self._data['comments_load_ep'] = 'comments/comments'
+        self._data['comment_submit_ep'] = 'comments/comment'
         self._data['thread_id'] = self._thread_id
         self._data['max_depth'] = _comments.get_comment_max_depth()
 

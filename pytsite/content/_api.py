@@ -22,7 +22,7 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
     """
     # Resolve class
     if isinstance(cls, str):
-        cls = _util.get_class(cls)
+        cls = _util.get_class(cls)  # type: _model.Base
 
     if not issubclass(cls, _model.Base):
         raise TypeError('Subclass of content model expected.')
@@ -36,31 +36,32 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
     # Saving info about registered _content_ model
     _models[model] = (cls, title)
 
+    perm_group = cls.get_permission_group()
     mock = dispense(model)
 
     # Define 'bypass_moderation' permission
     if mock.has_field('status'):
         perm_name = 'pytsite.content.bypass_moderation.' + model
         perm_description = cls.resolve_partly_msg_id('content_perm_bypass_moderation_' + model)
-        _permission.define_permission(perm_name, perm_description, cls.package_name())
+        _permission.define_permission(perm_name, perm_description, perm_group)
 
     # Define 'set_localization' permission
     if mock.has_field('localization_' + _lang.get_current()):
         perm_name = 'pytsite.content.set_localization.' + model
         perm_description = cls.resolve_partly_msg_id('content_perm_set_localization_' + model)
-        _permission.define_permission(perm_name, perm_description, cls.package_name())
+        _permission.define_permission(perm_name, perm_description,  perm_group)
 
     # Define 'set_date' permission
     if mock.has_field('publish_time'):
         perm_name = 'pytsite.content.set_publish_time.' + model
         perm_description = cls.resolve_partly_msg_id('content_perm_set_publish_time_' + model)
-        _permission.define_permission(perm_name, perm_description, cls.package_name())
+        _permission.define_permission(perm_name, perm_description,  perm_group)
 
     # Define 'set_starred' permission
     if mock.has_field('starred'):
         perm_name = 'pytsite.content.set_starred.' + model
         perm_description = cls.resolve_partly_msg_id('content_perm_set_starred_' + model)
-        _permission.define_permission(perm_name, perm_description, cls.package_name())
+        _permission.define_permission(perm_name, perm_description,  perm_group)
 
     _admin.sidebar.add_menu(
         sid='content',

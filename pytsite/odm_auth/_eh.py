@@ -16,26 +16,25 @@ def odm_register_model(model: str, cls, replace: bool):
         return
 
     # Determining model's package name
-    pkg_name = cls.package_name()
+    pkg_name = cls.get_package_name()
 
     # Registering package's language resources
     if not _lang.is_package_registered(pkg_name):
         _lang.register_package(pkg_name)
 
-    # Registering permission group if it doesn't already registered
-    if not _permission.is_permission_group_defined(pkg_name):
-        _permission.define_permission_group(pkg_name, pkg_name + '@odm_perm_group_description')
+    # Register permissions
+    perm_group = cls.get_permission_group()
+    if perm_group:
+        # Registering permissions
+        mock = _odm.dispense(model)  # type: _model.AuthorizableEntity
+        for perm_name in mock.get_permissions():
+            if perm_name.endswith('_own') and not mock.has_field('author') and not mock.has_field('owner'):
+                continue
 
-    # Registering permissions
-    mock = _odm.dispense(model)  # type: _model.AuthorizableEntity
-    for perm_name in mock.get_permissions():
-        if perm_name.endswith('_own') and not mock.has_field('author') and not mock.has_field('owner'):
-            continue
-
-        p_name = 'pytsite.odm_perm.' + perm_name + '.' + model
-        if not _permission.is_permission_defined(p_name):
-            p_description = cls.resolve_partly_msg_id('odm_perm_' + perm_name + '_' + model)
-            _permission.define_permission(p_name, p_description, pkg_name)
+            p_name = 'pytsite.odm_perm.' + perm_name + '.' + model
+            if not _permission.is_permission_defined(p_name):
+                p_description = cls.resolve_partly_msg_id('odm_perm_' + perm_name + '_' + model)
+                _permission.define_permission(p_name, p_description, perm_group)
 
 
 def odm_entity_pre_save(entity: _model.AuthorizableEntity):

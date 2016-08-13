@@ -1,6 +1,6 @@
 """Auth Log ODM Models.
 """
-from typing import List as _List
+from typing import Tuple as _Tuple
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang
 from . import _api
 
@@ -26,8 +26,13 @@ class AuthLog(_odm_ui.model.UIEntity):
         self.define_index([('ip', _odm.I_ASC)])
         self.define_index([('severity', _odm.I_ASC)])
 
-    def get_permissions(self) -> _List[str]:
-        return ['delete']
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'security'
+
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
+        return 'delete',
 
     @property
     def user(self) -> _auth.model.AbstractUser:

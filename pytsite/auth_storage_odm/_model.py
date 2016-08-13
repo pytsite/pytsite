@@ -79,6 +79,10 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
 
         return self
 
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'security'
+
     def _setup_fields(self):
         """Hook.
         """
@@ -462,6 +466,10 @@ class User(_auth.model.AbstractUser, _odm_ui.model.UIEntity):
         _events.fire('pytsite.auth.user.delete', user=self)
 
         return self
+
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'security'
 
     def _setup_fields(self):
         """_setup() hook.

@@ -1,20 +1,12 @@
 pytsite.httpApi = {
     url: function (endpoint, data) {
-        var pkg = 'app';
-        var callback = endpoint;
         var version = $('meta[name="pytsite-http-api-version"]').attr('content');
 
         var url_prefix = '/';
         if (pytsite.lang.current() != pytsite.lang.fallback())
             url_prefix += pytsite.lang.current() + '/';
 
-        if (endpoint.indexOf('@') > 0) {
-            var epSplit = endpoint.split('@');
-            pkg = epSplit[0];
-            callback = epSplit[1];
-        }
-
-        var r = url_prefix + 'api/' + version + '/' + pkg + '/' + callback;
+        var r = url_prefix + 'api/' + version + '/' + endpoint;
         if (data instanceof Object)
             r += '?' + $.param(data);
 

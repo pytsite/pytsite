@@ -15,12 +15,14 @@ __license__ = 'MIT'
 def _init():
     """Init wrapper.
     """
-    from pytsite import events, lang, tpl
+    from pytsite import events, lang, tpl, http_api, permission
     from . import _eh
 
     events.listen('pytsite.update', _eh.pytsite_update)
+    permission.define_group('comments', 'pytsite.comments@comments')
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
+    http_api.register_package_alias('comments', __name__)
 
 _init()

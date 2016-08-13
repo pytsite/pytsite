@@ -10,12 +10,11 @@ __license__ = 'MIT'
 
 def entry(args: dict, inp: dict):
     version = args.pop('version')
-    package = args.pop('package')
-    callback = args.pop('callback')
+    endpoint = args.pop('endpoint')  # type: str
     method = _router.request().method.lower()
 
     try:
-        status, body = _api.call_ep('{}@{}'.format(package, callback), method, inp, version)
+        status, body = _api.call_ep(endpoint, method, inp, version)
 
         # Simple string should be returned as text/html
         if isinstance(body, str):

@@ -12,7 +12,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import assetman, tpl, lang, router, admin
+    from pytsite import assetman, tpl, lang, router, admin, http_api
 
     abp = admin.base_path()
     auth_filter = 'pytsite.auth@f_authorize'
@@ -42,6 +42,7 @@ def _init():
     lang.register_package(__name__)
     tpl.register_package(__name__)
     assetman.register_package(__name__)
+    http_api.register_package_alias('odm_ui', __name__)
 
 
 _init()

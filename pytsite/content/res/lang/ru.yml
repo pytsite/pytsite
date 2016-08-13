@@ -62,7 +62,6 @@ odm_ui_form_title_modify_section: 'Изменение раздела'
 odm_ui_form_title_delete_section: 'Удаление разделов'
 
 odm_perm_create_section: 'Создание разделов'
-odm_perm_view_section: 'Просмотр разделов'
 odm_perm_modify_section: 'Изменение разделов'
 odm_perm_delete_section: 'Удаление разделов'
 
@@ -72,7 +71,6 @@ odm_ui_form_title_modify_tag: 'Изменение тега'
 odm_ui_form_title_delete_tag: 'Удаление тегов'
 
 odm_perm_create_tag: 'Создание тегов'
-odm_perm_view_tag: 'Просмотр тегов'
 odm_perm_modify_tag: 'Изменение тегов'
 odm_perm_delete_tag: 'Удаление тегов'
 

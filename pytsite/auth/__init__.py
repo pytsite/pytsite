@@ -16,13 +16,18 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, events, tpl, lang, router, robots, console, util
+    from pytsite import reg, assetman, events, tpl, lang, router, robots, console, util, http_api, permission
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh
 
-    # Resources
     tpl.register_package(__name__)
     lang.register_package(__name__)
+    http_api.register_package_alias('auth', __name__)
+
+    # Permissions
+    permission.define_group('security', 'pytsite.auth@security')
+
+    # Resources
     assetman.register_package(__name__)
     assetman.add('pytsite.auth@js/auth.js', permanent=True)
 

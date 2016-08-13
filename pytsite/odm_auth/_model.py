@@ -1,6 +1,6 @@
 """PytSite ODM Permissions Models.
 """
-from typing import List as _List
+from typing import Tuple as _Tuple
 from pytsite import odm as _odm, auth as _auth
 from . import _api
 
@@ -12,15 +12,16 @@ __license__ = 'MIT'
 class AuthorizableEntity(_odm.model.Entity):
     """Entity which has owner and can be authorized to perform certain actions on it.
     """
-    def get_permissions(self) -> _List[str]:
+
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return cls.get_package_name().split('.')[-1]
+
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
         """Get a list of all permissions supported by this model.
         """
-        r = ['create', 'view', 'modify', 'delete']
-
-        if self.has_field('author') or self.has_field('owner'):
-            r.extend(['view_own', 'modify_own', 'delete_own'])
-
-        return r
+        return 'create', 'view', 'modify', 'delete', 'view_own', 'modify_own', 'delete_own'
 
     def check_permissions(self, action: str) -> bool:
         """Check current user's permissions.

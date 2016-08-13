@@ -16,7 +16,7 @@ $(function () {
         var model = $(this).data('model');
         var id = $(this).data('entityId');
         if (model && id) {
-            pytsite.httpApi.patch('pytsite.content@view_count', {
+            pytsite.httpApi.patch('content/view_count', {
                 model: model,
                 id: id
             });

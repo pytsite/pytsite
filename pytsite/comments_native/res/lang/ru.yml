@@ -16,7 +16,6 @@ no_comments_yet: 'Здесь пока ещё нет комментариев. Б
 mail_subject_report_comment: 'Жалоба на комментарий на {app_name}'
 comment_report_confirmed: 'Спасибо за вашу помощь. Мы займёмся этим в ближайшее время.'
 
-odm_perm_group_description: 'Комментарии'
 odm_perm_create_comment: 'Создание комментариев'
 odm_perm_modify_comment: 'Изменение ЛЮБЫХ комментариев'
 odm_perm_modify_own_comment: 'Изменение СВОИХ комментариев'

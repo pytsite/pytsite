@@ -1,4 +1,4 @@
-odm_perm_group_description: 'Images'
+images: 'Images'
 odm_perm_create_image: 'Create images'
 odm_perm_view_image: 'View ALL images'
 odm_perm_view_own_image: 'View OWN images'

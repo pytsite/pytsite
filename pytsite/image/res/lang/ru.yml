@@ -1,4 +1,4 @@
-odm_perm_group_description: 'Изображения'
+images: 'Изображения'
 odm_perm_create_image: 'Создание изображений'
 odm_perm_view_image: 'Просмотр ВСЕХ изображений'
 odm_perm_view_own_image: 'Просмотр СВОИХ изображений'

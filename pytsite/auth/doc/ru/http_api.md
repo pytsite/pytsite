@@ -3,7 +3,7 @@
 Перед изучением этого документа убедитесь, что разобрались с [PytSite HTTP API](../../../http_api/doc/ru/index.md).
 
 
-## POST pytsite.auth/sign_in
+## POST auth/sign_in
 
 Аутентификация учётной записи.
 
@@ -30,7 +30,7 @@ curl \
 -d "driver=password" \
 -d "login=vasya@pupkeen.com" \
 -d "password=Very5tr0ngP@ssw0rd" \
-'https://test.com/api/1/pytsite.auth/sign_in'
+'https://test.com/api/1/auth/sign_in'
 ```
 
 Ответ:
@@ -42,7 +42,7 @@ curl \
 ```
 
 
-## GET pytsite.auth/access_token_info
+## GET auth/access_token_info
 
 Получение информации о токене доступа.
 
@@ -66,7 +66,7 @@ curl \
 ```
 curl -X GET \
 -d access_token=0dc80160c916e629a712132d17880831 \
-https://test.com/api/1/pytsite.auth/access_token_info
+https://test.com/api/1/auth/access_token_info
 ```
 
 Ответ:
@@ -79,7 +79,7 @@ https://test.com/api/1/pytsite.auth/access_token_info
 ```
 
 
-## GET pytsite.auth/user
+## GET auth/user
 
 Информация об учётной записи пользователя.
 
@@ -88,7 +88,7 @@ https://test.com/api/1/pytsite.auth/access_token_info
 
 **При выполнении данного запроса обязательно передавать как минимум один из двух аргументов.**
 
-- *optional* **str** `access_token`. Токен доступа, полученный в результате вызова `pytsite.auth/sign_in`. Если не 
+- *optional* **str** `access_token`. Токен доступа, полученный в результате вызова `auth/sign_in`. Если не 
   указан, запрос будет выполняться от имени анонимной учётной записи.
 - *optional* **str** `uid`. UID учётной записи, информацию о которой необходимо получить. Если не указан, будет 
   использоваться учётная запись, от имени которой выполняется запрос, то есть, в этом случа передача аргумента 
@@ -148,7 +148,7 @@ https://test.com/api/1/pytsite.auth/access_token_info
 ```
 curl -X GET \
 -d access_token=0dc80160c916e629a712132d17880831 \
-https://test.com/api/1/pytsite.auth/user
+https://test.com/api/1/auth/user
 ```
 
 Ответ:
@@ -193,7 +193,7 @@ https://test.com/api/1/pytsite.auth/user
 ```
 
 
-## POST pytsite.auth/sign_out
+## POST auth/sign_out
 
 Удаление ранее выданного токена доступа.
 
@@ -212,5 +212,5 @@ https://test.com/api/1/pytsite.auth/user
 Запрос:
 
 ```
-curl -d access_token=0dc80160c916e629a712132d17880831 https://test.com/api/1/pytsite.auth/sign_out
+curl -d access_token=0dc80160c916e629a712132d17880831 https://test.com/api/1/auth/sign_out
 ```

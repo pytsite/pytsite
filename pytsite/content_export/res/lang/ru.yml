@@ -1,3 +1,4 @@
+content_export: 'Экспорт контента'
 export: 'Экспорт'
 driver: 'Драйвер'
 driver_opts: 'Параметры'
@@ -15,12 +16,11 @@ with_images_only: 'Только с картинками'
 paused_till: 'Пауза до'
 additional_tags: 'Дополнительные теги'
 
-odm_ui_browser_title_content_export: 'Экспорт контента'
+odm_ui_browser_title_content_export: 'Обзор экспорта контента'
 odm_ui_form_title_create_content_export: 'Новый экспорт контента'
 odm_ui_form_title_modify_content_export: 'Изменение экспорта контента'
 odm_ui_form_title_delete_content_export: 'Удаление экспорта контента'
 
-odm_perm_group_description: 'Экспорт контента'
 odm_perm_create_content_export: 'Создание экспорта контента'
 odm_perm_view_content_export: 'Просмотр ВСЕГО экспорта контента'
 odm_perm_view_own_content_export: 'Просмотр СВОЕГО экспорта контента'

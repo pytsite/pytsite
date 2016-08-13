@@ -1,6 +1,6 @@
 """Comments Models.
 """
-from typing import List as _List
+from typing import Tuple as _Tuple
 from datetime import datetime as _datetime
 from pytsite import odm as _odm, odm_ui as _odm_ui, comments as _comments, auth as _auth, router as _router
 
@@ -10,6 +10,7 @@ __license__ = 'MIT'
 
 
 class Comment(_comments.model.AbstractComment, _odm_ui.model.UIEntity):
+
     def _setup_fields(self):
         """Setup fields.
         """
@@ -31,8 +32,13 @@ class Comment(_comments.model.AbstractComment, _odm_ui.model.UIEntity):
         self.define_index([('publish_time', _odm.I_ASC)])
         self.define_index([('author', _odm.I_ASC)])
 
-    def get_permissions(self) -> _List[str]:
-        return ['create', 'modify', 'delete', 'modify_own', 'delete_own']
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'comments'
+
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
+        return 'create', 'modify', 'delete', 'modify_own', 'delete_own'
 
     @property
     def uid(self) -> str:

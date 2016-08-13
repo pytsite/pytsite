@@ -2,8 +2,8 @@
 """
 import exifread as _exifread
 import os as _os
-from typing import List as _List
-from pytsite import file as _file, odm as _odm, router as _router, util as _util, auth as _auth
+from typing import Tuple as _Tuple
+from pytsite import file as _file, odm as _odm, router as _router, util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,8 +22,13 @@ class Image(_file.model.File):
         self.define_field(_odm.field.Integer('height'))
         self.define_field(_odm.field.Dict('exif'))
 
-    def get_permissions(self) -> _List[str]:
-        return ['create', 'modify', 'delete', 'modify_own', 'delete_own']
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'image'
+
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
+        return 'create', 'modify', 'delete', 'modify_own', 'delete_own'
 
     @property
     def width(self) -> int:

@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, odm, tpl, lang, events
+    from pytsite import assetman, odm, tpl, lang, events, http_api
     from . import _model, _eh
 
     # ODM models
@@ -20,6 +20,7 @@ def __init():
     lang.register_package(__name__)
     tpl.register_package(__name__)
     assetman.register_package(__name__)
+    http_api.register_package_alias('flag', __name__)
 
     # Event listeners
     events.listen('pytsite.odm.entity.delete', _eh.pytsite_odm_entity_delete)

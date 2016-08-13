@@ -74,3 +74,5 @@ def post_report(inp: dict) -> dict:
         raise RuntimeError("'uid' argument is not specified.")
 
     _events.fire('pytsite.comments.report_comment', uid=uid)
+
+    return {'status': True}

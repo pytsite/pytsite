@@ -1,3 +1,4 @@
+comments: 'Коментарі'
 comment_body_cannot_be_empty: 'Коментар не може бути порожнім.'
 error_body_too_long: 'Коментар занадто довгий.'
 error_body_too_short: 'Коментар занадто короткий.'

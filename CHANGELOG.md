@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.82 (2016-08-13)
+### Added
+- `http_api`: endpoints aliasing.
+
+### Changed
+- `permission`: huge refactoring of many things.
+- `http_api`: processing of endpoints.
+
+
 ## 0.81.3 (2016-08-13)
 ### Fixed
 - `auth`: roles list for anonymous user.

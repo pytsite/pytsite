@@ -12,6 +12,10 @@ class File(_odm_auth.model.AuthorizableEntity):
     """File Model.
     """
 
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return None
+
     def _setup_fields(self):
         """_setup() hook.
         """

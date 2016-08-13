@@ -1,3 +1,4 @@
+security: 'Безпека'
 authentication: 'Аутентифікація'
 authentication_error: 'Помилка аутентифікації'
 enter_admin_email: 'Email адміністратора'

@@ -172,7 +172,7 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
             }
         }).success(function (data, textStatus, jqXHR) {
             $.each(data, function (k, v) {
-                pytsite.httpApi.get('pytsite.file@file', {uid: v['uid'], model: model}).done(function (r) {
+                pytsite.httpApi.get('file/file', {uid: v['uid'], model: model}).done(function (r) {
                     progressSlot.hide();
                     appendSlot(createSlot(model, r['uid'], r['thumb_url']));
                     $(widget).trigger('fileUploadSuccess', [v]);

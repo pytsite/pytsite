@@ -13,8 +13,10 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import admin, odm, events, lang, router
+    from pytsite import admin, odm, events, lang, router, permission
     from . import _model, _eh
+
+    permission.define_group('content_export', 'pytsite.content_export@content_export')
 
     # Resources
     lang.register_package(__name__)

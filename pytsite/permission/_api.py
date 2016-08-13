@@ -19,7 +19,7 @@ def is_permission_group_defined(name: str) -> bool:
     return name in _groups
 
 
-def define_permission_group(name: str, description: str):
+def define_group(name: str, description: str):
     """Define permission group.
     """
     if name in _groups:

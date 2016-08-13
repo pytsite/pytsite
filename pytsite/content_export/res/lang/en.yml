@@ -1,3 +1,4 @@
+content_export: 'Content export'
 export: 'Export'
 driver: 'Driver'
 driver_opts: 'Options'
@@ -15,12 +16,11 @@ with_images_only: 'Only with images'
 paused_till: 'Paused till'
 additional_tags: 'Addtitional tags'
 
-odm_ui_browser_title_content_export: 'Content export'
+odm_ui_browser_title_content_export: 'Browse content export'
 odm_ui_form_title_create_content_export: 'Create content export'
 odm_ui_form_title_modify_content_export: 'Modify content export'
 odm_ui_form_title_delete_content_export: 'Delete content export'
 
-odm_perm_group_description: 'Content export'
 odm_perm_create_content_export: 'Create content export'
 odm_perm_view_content_export: 'View ALL content export'
 odm_perm_view_own_content_export: 'View OWN content export'

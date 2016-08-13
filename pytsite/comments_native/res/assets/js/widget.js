@@ -58,7 +58,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
 
     function onBtnDeleteClick(btn, commentSlot) {
         if (confirm(t('pytsite.comments_native@confirm_comment_deletion'))) {
-            pytsite.httpApi.delete('pytsite.comments@comment', {
+            pytsite.httpApi.delete('comments/comment', {
                 uid: commentSlot.data('uid')
             }).done(function (r) {
                 if (r['status']) {
@@ -73,7 +73,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
 
     function onBtnReportClick(commentUid) {
         if (confirm(t('pytsite.comments_native@confirm_comment_report')))
-            pytsite.httpApi.post('pytsite.comments@report', {uid: commentUid}).done(function () {
+            pytsite.httpApi.post('comments/report', {uid: commentUid}).done(function () {
                 alert(t('pytsite.comments_native@comment_report_confirmed'));
             });
     }

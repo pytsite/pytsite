@@ -16,7 +16,6 @@ no_comments_yet: 'There is no comments yet. Be the first who post comment here!'
 mail_subject_report_comment: 'Comment on the {app_name} needs your attention'
 comment_report_confirmed: "Thank you for your attention. We'll review your report shortly."
 
-odm_perm_group_description: 'Comments'
 odm_perm_create_comment: 'Create comments'
 odm_perm_modify_comment: 'Modify ANY comments'
 odm_perm_modify_own_comment: 'Modify OWN comments'

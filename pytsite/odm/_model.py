@@ -796,7 +796,7 @@ class Entity(_ABC):
         }
 
     @classmethod
-    def package_name(cls) -> str:
+    def get_package_name(cls) -> str:
         """Get instance's package name.
         """
         return '.'.join(cls.__module__.split('.')[:-1])
@@ -818,11 +818,11 @@ class Entity(_ABC):
         # Searching for translation up in hierarchy
         for super_cls in cls.__mro__:
             if issubclass(super_cls, Entity):
-                full_msg_id = super_cls.package_name() + '@' + partly_msg_id
+                full_msg_id = super_cls.get_package_name() + '@' + partly_msg_id
                 if _lang.is_translation_defined(full_msg_id):
                     return full_msg_id
 
-        return cls.package_name() + '@' + partly_msg_id
+        return cls.get_package_name() + '@' + partly_msg_id
 
     def __eq__(self, other) -> bool:
         """__eq__ overloading.

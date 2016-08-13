@@ -3,7 +3,7 @@
 Перед изучением этого документа убедитесь, что разобрались с [PytSite HTTP API](../../../http_api/doc/ru/index.md).
 
 
-## POST pytsite.image/file
+## POST image/file
 
 Загрузка изображения. Для работы с этим методом **должен** использоваться 
 [HTTP Multipart Content-Type](https://www.ietf.org/rfc/rfc2388.txt)
@@ -31,7 +31,7 @@ curl \
 -F access_token=b81de38b9b9589f9a0ec569416e75a25 \
 -F file1=@/home/user/Documents/HelloWorld.jpg \
 -F file2=@/home/user/Documents/HereWeGo.png \
-http://test.com/api/1/pytsite.image/file
+http://test.com/api/1/image/file
 ```
 
 Ответ:
@@ -44,7 +44,7 @@ http://test.com/api/1/pytsite.image/file
 ```
 
 
-## GET pytsite.image/file
+## GET image/file
 
 Получение информации об изображении.
 
@@ -86,7 +86,7 @@ curl -v -X GET \
 -d uid=5775fa3b523af5338fe839f3 \
 -d thumb_width=800 \
 -d thumb_height=600 \
-http://test.com/api/1/pytsite.image/file
+http://test.com/api/1/image/file
 ```
 
 Ответ:

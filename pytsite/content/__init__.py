@@ -14,13 +14,18 @@ __license__ = 'MIT'
 def _init():
     """Module Init Wrapper.
     """
-    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser
+    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
+        http_api, permission
     from . import _eh, _settings
     from ._model import Tag, Section, ContentSubscriber
     from ._console_command import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
+    http_api.register_package_alias('content', __name__)
+
+    # Permission groups
+    permission.define_group('content', 'pytsite.content@content')
 
     # Assets
     assetman.register_package(__name__)

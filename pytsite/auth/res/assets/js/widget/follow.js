@@ -28,7 +28,7 @@ $(window).on('pytsite.widget.init:pytsite.auth._widget.Follow', function (e, wid
             if (!confirm(t('pytsite.auth@unfollow_confirmation')))
                 return;
 
-            pytsite.httpApi.patch('pytsite.auth@follow', {
+            pytsite.httpApi.patch('auth/follow', {
                 op: 'unfollow',
                 uid: em.data('userId')
             }).done(function (data) {
@@ -40,7 +40,7 @@ $(window).on('pytsite.widget.init:pytsite.auth._widget.Follow', function (e, wid
             });
         }
         else if (btn.hasClass('non-following')) {
-            pytsite.httpApi.patch('pytsite.auth@follow', {
+            pytsite.httpApi.patch('auth/follow', {
                 op: 'follow',
                 uid: em.data('userId')
             }).done(function (r) {

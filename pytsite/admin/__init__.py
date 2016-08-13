@@ -31,8 +31,7 @@ def __init():
     assetman.add('pytsite.admin@js/admin.js', permanent=True, path_prefix=bp, async=True, defer=True)
 
     # Permissions
-    permission.define_permission_group('admin', 'pytsite.admin@admin')
-    permission.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'admin')
+    permission.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
 
     # Dashboard route
     router.add_rule(bp, __name__ + '@dashboard')

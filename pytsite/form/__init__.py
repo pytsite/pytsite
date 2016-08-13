@@ -11,11 +11,12 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import assetman, tpl, lang
+    from pytsite import assetman, tpl, lang, http_api
 
     lang.register_package(__name__)
     assetman.register_package(__name__)
     tpl.register_package(__name__)
+    http_api.register_package_alias('form', __name__)
 
 
 _init()

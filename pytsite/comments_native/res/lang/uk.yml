@@ -16,7 +16,6 @@ no_comments_yet: 'Тут поки ще немає коментарів. Будь
 mail_subject_report_comment: 'Скарга на коментар на {app_name}'
 comment_report_confirmed: 'Дякуємо за вашу допомогу. Ми займемося цим найближчим часом.'
 
-odm_perm_group_description: 'Коментарі'
 odm_perm_create_comment: 'Створення коментарів'
 odm_perm_modify_comment: 'Зміна БУДЬ-ЯКИХ коментарів'
 odm_perm_modify_own_comment: 'Редагування СВОЇХ коментарів'

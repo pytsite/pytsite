@@ -4,7 +4,7 @@ $(window).on('pytsite.widget.init:pytsite.ckeditor._widget.CKEditor', function (
             title: false,
             extraPlugins: 'youtube,codesnippet,stylescombo',
             language: pytsite.lang.current(),
-            filebrowserUploadUrl: pytsite.httpApi.url('pytsite.image@file'),
+            filebrowserUploadUrl: pytsite.httpApi.url('image/file'),
             height: 500,
             toolbar: [
                 ['Bold', 'Italic', '-', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'Format', 'RemoveFormat'],

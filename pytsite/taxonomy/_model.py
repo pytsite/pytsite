@@ -1,5 +1,6 @@
 """Taxonomy Models.
 """
+from typing import Tuple as _Tuple
 from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form
 
 __author__ = 'Alexander Shepetko'
@@ -10,6 +11,7 @@ __license__ = 'MIT'
 class Term(_odm_ui.model.UIEntity):
     """Taxonomy Term Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """
@@ -27,8 +29,13 @@ class Term(_odm_ui.model.UIEntity):
         self.define_index([('weight', _odm.I_ASC)])
         self.define_index([('order', _odm.I_ASC)])
 
-    def get_permissions(self):
-        return ['create', 'modify', 'delete']
+    @classmethod
+    def get_permission_group(cls) -> str:
+        return 'taxonomy'
+
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
+        return 'create', 'modify', 'delete'
 
     @property
     def title(self) -> str:
@@ -102,6 +109,7 @@ class Term(_odm_ui.model.UIEntity):
 
         def finder_adjust(finder: _odm.Finder):
             finder.where('language', '=', _lang.get_current())
+
         browser.finder_adjust = finder_adjust
 
     def ui_browser_get_row(self) -> tuple:
