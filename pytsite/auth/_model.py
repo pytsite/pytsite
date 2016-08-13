@@ -230,6 +230,9 @@ class AbstractUser(AuthEntity):
 
     @property
     def roles(self) -> _Tuple[AbstractRole]:
+        if self.is_anonymous:
+            from . import _api
+            return _api.get_role('anonymous'),
         raise NotImplementedError()
 
     @roles.setter

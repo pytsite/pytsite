@@ -1,7 +1,11 @@
 # PytSite Changelog
 
-## 0.81.2 (2016-08-13)
+## 0.81.3 (2016-08-13)
+### Fixed
+- `auth`: roles list for anonymous user.
 
+
+## 0.81.2 (2016-08-13)
 ### Changed
 - `auth_log`: removed 'view' permission for ODM model.
 - Initial permissions setup in various packages.
