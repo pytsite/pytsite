@@ -13,8 +13,11 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, tpl, lang, admin, router, odm, events
+    from pytsite import reg, tpl, lang, admin, router, odm, events, permission
     from . import _api, _model, _eh
+
+    # Permission group
+    permission.define_group('currency', 'pytsite.currency@currency')
 
     # Language package
     lang.register_package(__name__)

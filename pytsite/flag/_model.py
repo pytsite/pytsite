@@ -1,5 +1,6 @@
 """Flag Package Models.
 """
+from typing import Tuple as _Tuple
 from pytsite import odm as _odm, odm_auth as _odm_auth
 
 __author__ = 'Alexander Shepetko'
@@ -10,6 +11,10 @@ __license__ = 'MIT'
 class Flag(_odm_auth.model.AuthorizableEntity):
     """Flag ODM Model.
     """
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
+        return 'create', 'delete', 'delete_own'
+
     def _setup_fields(self):
         """Hook.
         """

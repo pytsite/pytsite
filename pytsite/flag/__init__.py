@@ -10,8 +10,11 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, odm, tpl, lang, events, http_api
+    from pytsite import assetman, odm, tpl, lang, events, http_api, permission
     from . import _model, _eh
+
+    # Permission group
+    permission.define_group('flag', 'pytsite.flag@flag')
 
     # ODM models
     odm.register_model('flag', _model.Flag)
@@ -23,7 +26,8 @@ def __init():
     http_api.register_package_alias('flag', __name__)
 
     # Event listeners
-    events.listen('pytsite.odm.entity.delete', _eh.pytsite_odm_entity_delete)
+    events.listen('pytsite.setup', _eh.setup)
+    events.listen('pytsite.odm.entity.delete', _eh.odm_entity_delete)
 
 
 __init()

@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.82.1 (2016-08-13)
+### Fixed
+- `currency`: HTTP API endpoint alias, ODM permissions.
+- `flag`: HTTP API endpoint alias, ODM permissions.
+- `wallet`: ODM permissions.
+
+
 ## 0.82 (2016-08-13)
 ### Added
 - `http_api`: endpoints aliasing.

@@ -27,8 +27,6 @@ currency_title_LKR: 'Sri Lankan rupee'
 currency_short_title_LKR: 'rup'
 currency_symbol_LKR: 'රු'
 
-odm_perm_group_description: 'Currency'
-
 odm_ui_browser_title_currency_rate: 'Exchange rates'
 odm_ui_form_title_create_currency_rate: "Create exchange rate"
 odm_ui_form_title_modify_currency_rate: 'Modify exchange rate'

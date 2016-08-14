@@ -13,8 +13,11 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import odm, admin, router, events, assetman
+    from pytsite import odm, admin, router, events, assetman, permission
     from . import _eh
+
+    # Permission group
+    permission.define_group('wallet', 'pytsite.wallet@wallet')
 
     # ODM models
     odm.register_model('wallet_account', model.Account)

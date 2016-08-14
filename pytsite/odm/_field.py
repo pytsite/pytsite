@@ -628,6 +628,42 @@ class String(Abstract):
         """
         self._max_length = val
 
+    @property
+    def strip_html(self) -> int:
+        """Get maximum field's length.
+        """
+        return self._strip_html
+
+    @strip_html.setter
+    def strip_html(self, val: bool):
+        """Set maximum field's length.
+        """
+        self._strip_html = val
+
+    @property
+    def tidyfy_html(self) -> int:
+        """Get maximum field's length.
+        """
+        return self._tidyfy_html
+
+    @tidyfy_html.setter
+    def tidyfy_html(self, val: bool):
+        """Set maximum field's length.
+        """
+        self._tidyfy_html = val
+
+    @property
+    def remove_empty_html_tags(self) -> int:
+        """Get maximum field's length.
+        """
+        return self._remove_empty_html_tags
+
+    @remove_empty_html_tags.setter
+    def remove_empty_html_tags(self, val: bool):
+        """Set maximum field's length.
+        """
+        self._remove_empty_html_tags = val
+
     def _on_set(self, value: str, **kwargs):
         """Hook.
         """

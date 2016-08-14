@@ -1,3 +1,8 @@
+flag: 'Отметки'
 like: 'Нравится'
 dislike: 'Не нравится'
 dislike_confirmation: 'Вы действительно хотите удалить вашу оценку?'
+
+odm_perm_create_flag: 'Создание отметок'
+odm_perm_delete_flag: 'Удаление ЛЮБЫХ отметок'
+odm_perm_delete_own_flag: 'Удаление СВОИХ отметок'

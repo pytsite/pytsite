@@ -27,8 +27,6 @@ currency_title_LKR: 'Шри-ланкийская рупия'
 currency_short_title_LKR: 'руп'
 currency_symbol_LKR: 'රු'
 
-odm_perm_group_description: 'Валюта'
-
 odm_ui_browser_title_currency_rate: 'Обменные курсы'
 odm_ui_form_title_create_currency_rate: 'Создание обменного курса'
 odm_ui_form_title_modify_currency_rate: 'Изменение обменного курса'
