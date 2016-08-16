@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.82.4 (2016-08-13)
+### Fixed
+- `comments_native`: 
+    - widget's layout on small screens;
+    - UI error after comment delete.
+
+
 ## 0.82.3 (2016-08-13)
 ### Fixed
 - `comments_native`: widget's layout on small screens. 

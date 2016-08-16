@@ -63,10 +63,9 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
                 uid: commentSlot.data('uid')
             }).done(function (r) {
                 if (r['status']) {
-                    commentSlot.find('> .left > .author-picture').remove();
-                    commentSlot.find('> .right > .body').html('');
-                    commentSlot.find('> .right > .header').html(t('pytsite.comments_native@comment_was_deleted'));
-                    commentSlot.find('> .right > .reply-form form').remove();
+                    commentSlot.find('> .content').html('');
+                    commentSlot.find('> .header').html(t('pytsite.comments_native@comment_was_deleted'));
+                    commentSlot.find('> .footer > .right > .reply-form form').remove();
                 }
             });
         }
@@ -108,7 +107,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
             header.append($('<div class="author">' + comment['author']['full_name'] + '</div>'));
 
             // Publish time
-            header.append($('<div class="publish-time">' + comment['publish_time']['ago'] + '</div>'));
+            header.append($('<div class="publish-time hidden-xs">' + comment['publish_time']['ago'] + '</div>'));
 
             // 'Report' button
             var btnReport = $('<div class="report"><a class="report-btn" href="#" title="' +
@@ -118,7 +117,6 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
                 e.preventDefault();
                 return onBtnReportClick(comment['uid']);
             });
-
 
             // 'Delete' button
             if (comment['permissions']['delete']) {

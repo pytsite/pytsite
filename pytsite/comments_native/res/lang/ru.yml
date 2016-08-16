@@ -11,7 +11,7 @@ sign_in_to_post_comments: 'Вам необходимо <a href=":url">автор
 no_permissions_to_create_comments: 'Вы не можете оставлять комментарии здесь.'
 confirm_comment_deletion: 'Вы действительно желаете удалить этот комментарий?'
 confirm_comment_report: 'Вы действительно хотите пожаловаться на этот комментарий?'
-comment_was_deleted: 'Комментарий был удалён.'
+comment_was_deleted: 'Комментарий удалён.'
 no_comments_yet: 'Здесь пока ещё нет комментариев. Будьте первым!'
 mail_subject_report_comment: 'Жалоба на комментарий на {app_name}'
 comment_report_confirmed: 'Спасибо за вашу помощь. Мы займёмся этим в ближайшее время.'

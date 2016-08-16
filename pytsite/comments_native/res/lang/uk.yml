@@ -11,7 +11,7 @@ sign_in_to_post_comments: 'Вам необхідно <a href=":url">увійти
 no_permissions_to_create_comments: 'Ви не можете залишати коментарі тут.'
 confirm_comment_deletion: 'Ви дійсно бажаєте видалити цей коментар?'
 confirm_comment_report: 'Ви дійсно хочете поскаржитися на цей коментар?'
-comment_was_deleted: 'Коментар було видалено.'
+comment_was_deleted: 'Коментар видалено.'
 no_comments_yet: 'Тут поки ще немає коментарів. Будьте першим!'
 mail_subject_report_comment: 'Скарга на коментар на {app_name}'
 comment_report_confirmed: 'Дякуємо за вашу допомогу. Ми займемося цим найближчим часом.'
