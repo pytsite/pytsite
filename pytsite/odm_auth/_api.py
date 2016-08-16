@@ -26,11 +26,12 @@ def enable_perm_check():
         del _disable_perm_check[tid]
 
 
-def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
+def check_permissions(action: str, model: str, ids: _Iterable = None, user: _auth.model.AbstractUser = None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
     # Get current user
-    current_user = _auth.get_current_user()  # type: _auth_storage_odm.model.User
+    if not user:
+        user = _auth.get_current_user()
 
     # Check ids type
     if ids and type(ids) not in (list, tuple):
@@ -38,7 +39,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
 
     if action == 'create':
         create_perm_name = 'pytsite.odm_perm.create.' + model
-        if _permission.is_permission_defined(create_perm_name) and current_user.has_permission(create_perm_name):
+        if _permission.is_permission_defined(create_perm_name) and user.has_permission(create_perm_name):
             return True
     else:
         # If 'global' permission was not defined
@@ -47,7 +48,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
             return False
 
         # If user has 'global' permissions for model
-        if current_user.has_permission(global_perm_name):
+        if user.has_permission(global_perm_name):
             return True
 
         # If 'personal' permission was not defined
@@ -56,7 +57,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
             return False
 
         # Else check user's personal permission
-        if current_user.has_permission(personal_perm_name):
+        if user.has_permission(personal_perm_name):
             if ids:
                 # Check each entity
                 for eid in ids:
@@ -70,7 +71,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None) -> bool:
                     for author_field in 'author', 'owner':
                         if entity.has_field(author_field):
                             author = entity.f_get(author_field)
-                            if not current_user.is_anonymous and author == current_user:
+                            if not user.is_anonymous and author == user:
                                 return True
 
                             # Entity belongs to nobody

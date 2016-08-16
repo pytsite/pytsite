@@ -63,7 +63,7 @@ def is_flagged(entity: _odm.model.Entity, author: _auth.model.AbstractUser = Non
         author = _auth.get_current_user()
 
     if author.is_anonymous:
-        raise RuntimeError("Flag's author cannot be anonymous.")
+        return False
 
     f = _odm.find('flag').where('entity', '=', entity).where('author', '=', author).where('type', '=', flag_type)
 

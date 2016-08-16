@@ -50,6 +50,10 @@ class AbstractComment:
         raise NotImplementedError("Not implemented yet")
 
     @property
+    def permissions(self) -> dict:
+        raise NotImplementedError("Not implemented yet")
+
+    @property
     def is_reply(self) -> bool:
         return bool(self.parent_uid)
 
@@ -60,17 +64,18 @@ class AbstractComment:
             'thread_uid': self.thread_uid,
             'status': self.status,
             'depth': self.depth,
+            'permissions': self.permissions,
+            'publish_time': {
+                'w3c': _util.w3c_datetime_str(self.publish_time),
+                'pretty': _lang.pretty_date_time(self.publish_time),
+                'ago': _lang.time_ago(self.publish_time),
+            },
         }
 
         if self.status == 'published':
             author = self.author
             r.update({
                 'body': self.body,
-                'publish_time': {
-                    'w3c': _util.w3c_datetime_str(self.publish_time),
-                    'pretty': _lang.pretty_date_time(self.publish_time),
-                    'ago': _lang.time_ago(self.publish_time),
-                },
                 'author': {
                     'uid': author.uid,
                     'nickname': author.nickname,

@@ -11,7 +11,7 @@
         {% if auth_current_user().has_permission('pytsite.odm_perm.create.comment') %}
             <form class="form">
                 <input class="reply-to" type="hidden">
-                <div class="user-picture">
+                <div class="author-picture">
                     <img src="{{ current_user.picture.get_url(width=50, height=50) }}"
                          alt="{{ current_user.full_name }}">
                 </div>

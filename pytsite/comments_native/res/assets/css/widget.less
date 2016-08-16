@@ -4,31 +4,18 @@
   }
 
   .comment-item {
-    display: flex;
-
-    .left {
-      width: 25px;
-      margin: 0 5px 0 0;
-    }
-
-    .right {
-      flex-grow: 1;
-    }
-
-    .author-picture img {
-      text-align: center;
-      height: 25px;
-    }
-
     .header {
-      line-height: 25px;
-      font-size: 80%;
+      font-size: 90%;
       background: #eee;
-      padding: 0 1em;
+      padding: 5px 10px;
 
-      .author, .publish-time {
+      .author-picture, .author, .publish-time {
         display: inline-block;
         margin-right: 1em;
+      }
+
+      .author-picture img {
+        height: 15px;
       }
 
       .author {
@@ -50,9 +37,23 @@
       }
     }
 
-    .body {
-      margin: 4px 0 15px;
-      font-size: 90%;
+    .content {
+      .body {
+        margin: 4px 10px 15px;
+      }
+    }
+
+    .footer {
+      display: flex;
+
+      .left {
+        width: 25px;
+        margin: 0 5px 0 0;
+      }
+
+      .right {
+        flex-grow: 1;
+      }
     }
   }
 
@@ -63,9 +64,14 @@
 
   .form {
     display: flex;
+    margin-bottom: 20px;
 
-    .user-picture {
+    .author-picture {
       margin-right: 5px;
+
+      img {
+        width: 25px;
+      }
     }
 
     .messages {

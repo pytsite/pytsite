@@ -49,7 +49,7 @@ def get_comment_statuses() -> dict:
     """
     return {
         'published': _lang.t('pytsite.comments@status_published'),
-        'on_moderation': _lang.t('pytsite.comments@status_on_moderation'),
+        'waiting': _lang.t('pytsite.comments@status_waiting'),
         'spam': _lang.t('pytsite.comments@status_spam'),
         'deleted': _lang.t('pytsite.comments@status_deleted'),
     }

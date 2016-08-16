@@ -8,6 +8,22 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def get_settings(inp: dict) -> dict:
+    """Get comments settings.
+    """
+    user = _auth.get_current_user()
+    if user.is_anonymous:
+        raise _http.error.Forbidden('Anonymous users are not allowed here.')
+
+    return {
+        'body_min_length': _api.get_comment_body_min_length(),
+        'body_max_length': _api.get_comment_body_max_length(),
+        'max_depth': _api.get_comment_max_depth(),
+        'statuses': _api.get_comment_statuses(),
+        'permissions': _api.get_permissions(user, inp.get('driver')),
+    }
+
+
 def post_comment(inp: dict) -> dict:
     """Create new comment.
     """
@@ -29,23 +45,19 @@ def post_comment(inp: dict) -> dict:
 
 
 def get_comments(inp: dict) -> dict:
+    """Get comments.
+    """
     driver = inp.get('driver')
 
     thread_uid = inp.get('thread_uid')
     if not thread_uid:
         raise RuntimeError("'thread_uid' is not specified")
 
-    limit = int(inp.get('limit', 100))
-    if limit > 100:
-        limit = 100
-
+    limit = abs(int(inp.get('limit', 0)))
     skip = abs(int(inp.get('skip', 0)))
     comments = list(_api.get_driver(driver).get_comments(thread_uid, limit, skip))
 
     return {
-        'permissions': _api.get_permissions(_auth.get_current_user(), driver),
-        'remains': _api.get_comments_count(thread_uid, driver) - skip - len(comments),
-        'max_depth': _api.get_comment_max_depth(),
         'items': [comment.as_jsonable() for comment in comments],
     }
 

@@ -10,8 +10,11 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import events
+    from pytsite import events, http_api
     from . import _eh
+
+    # HTTP API aliases
+    http_api.register_package_alias('odm_auth', __name__)
 
     # Event listeners
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)

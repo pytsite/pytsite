@@ -23,6 +23,8 @@ def __init():
     lang.register_package(__name__)
     tpl.register_package(__name__)
     assetman.register_package(__name__)
+
+    # HTTP API aliases
     http_api.register_package_alias('flag', __name__)
 
     # Event listeners

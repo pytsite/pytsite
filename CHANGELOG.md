@@ -1,5 +1,21 @@
 # PytSite Changelog
 
+## 0.82.2 (2016-08-13)
+### Added
+- `comments`:
+    - russian HTTP API documentation;
+    - new property: `model.permissions`;
+    - new HTTP API endpoint: `GET comments/settings`.
+- `http_api`: new global argument: `language`. 
+- `odm_auth`: HTTP API package alias.
+
+### Fixed
+- `flag`:
+    - work of `is_flagged()` function for anonymous user;
+    - typo in english translation;
+    - russian HTTP API documentation.
+
+
 ## 0.82.1 (2016-08-13)
 ### Fixed
 - `currency`: HTTP API endpoint alias, ODM permissions.

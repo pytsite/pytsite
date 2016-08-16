@@ -26,6 +26,7 @@ class Comments(_pytsite_widget.Abstract):
         self._data['comment_submit_ep'] = 'comments/comment'
         self._data['thread_id'] = self._thread_id
         self._data['max_depth'] = _comments.get_comment_max_depth()
+        self._data['create_permission'] = _comments.get_permissions(driver_name='native')['create']
 
         self._assets.extend([
             'pytsite.comments_native@css/widget.css',

@@ -4,14 +4,19 @@
 
 Все запросы к HTTP API должны выполняться по протоколу [HTTP 1.1](https://tools.ietf.org/html/rfc2616).
 
-URL любого запроса запроса миеет вид `/api/{VERSION}/{MODULE}/{ENDPOINT}`, где `{VERSION}` -- текущая версия API 
-приложения; `{MODULE}` -- модуль, которому направляется запрос; `{ENDPOINT}` -- метод модуля. 
+URL любого запроса запроса миеет вид `/api/{VERSION}/{ENDPOINT}`, где `{VERSION}` -- текущая версия API 
+приложения; `{ENDPOINT}` -- конечная точка обработчика запроса. 
 
 Каждый метод поддерживает один или более [HTTP-методов](https://tools.ietf.org/html/rfc2616#section-9), что 
-должно быть описано в документации модуля. 
+должно быть описано в документации соответствующего модуля. 
 
 Для передачи аргуметов методам используется HTTP query string в URL для GET-запросов, либо тело POST-запросов, 
 совместно с заголовком `Content-Type: application/x-www-form-urlencoded`.
+
+
+## Общие параметры для всех запросов
+
+- *optional* **str** `language`. Переключение локализации.
 
 
 ## Ответы
@@ -24,22 +29,22 @@ HTTP API **всегда** возвращает ответ в формтае JSON
 
 ## Примеры
 
-### GET-запрос
-
-GET запрос к модулю `pytsite.auth`, методу `access_token_info` с аргументом `access_token`:
+GET-запрос
 
 ```
-curl -vX GET \
+curl -v -X GET \
+-d language=ru \
 -d access_token=46e0b2e9a83ddc18e3358802c6f18a09 \
-http://test.com/api/1/pytsite.auth/access_token_info
+http://test.com/api/1/auth/access_token_info
 ```
 
 ```
-> GET /api/1/pytsite.auth/access_token_info?access_token=46e0b2e9a83ddc18e3358802c6f18a09 HTTP/1.1
+> GET /api/1/auth/access_token_info?language=ru&access_token=46e0b2e9a83ddc18e3358802c6f18a09 HTTP/1.1
 > Host: test.com
 > User-Agent: curl/7.49.1
 > Accept: */*
 ```
+
 
 Ответ:
 
@@ -58,15 +63,15 @@ http://test.com/api/1/pytsite.auth/access_token_info
 ```
 
 
-### POST запрос
-
-POST запрос к модулю `pytsite.auth`, конечной точке `sign_in` и аргументами `driver`, `login` и `password`:
+POST запрос
 
 ```
-curl -v \
--H "Content-Type: application/x-www-form-urlencoded" \
--d 'driver=password&login=vasya&password=123' \
-"http://test.com/api/1/pytsite.auth/sign_in"
+curl -v -X POST \
+-d language=ru \
+-d driver=password \
+-d login=vasya \
+-d password=123 \
+http://test.com/api/1/pytsite.auth/sign_in
 ```
 
 ```
@@ -77,6 +82,7 @@ curl -v \
 > Content-Type: application/x-www-form-urlencoded
 > Content-Length: 63
 ```
+
 
 Ответ:
 

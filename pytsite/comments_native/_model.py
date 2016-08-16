@@ -10,7 +10,6 @@ __license__ = 'MIT'
 
 
 class Comment(_comments.model.AbstractComment, _odm_ui.model.UIEntity):
-
     def _setup_fields(self):
         """Setup fields.
         """
@@ -80,13 +79,9 @@ class Comment(_comments.model.AbstractComment, _odm_ui.model.UIEntity):
     def author(self) -> _auth.model.AbstractUser:
         return self.f_get('author')
 
-    def as_jsonable(self):
-        r = super().as_jsonable()
-
-        if self.status == 'published':
-            r['permissions'] = {
-                'modify': self.check_permissions('modify'),
-                'delete': self.check_permissions('delete'),
-            }
-
-        return r
+    @property
+    def permissions(self) -> dict:
+        return {
+            'modify': self.check_permissions('modify'),
+            'delete': self.check_permissions('delete'),
+        }

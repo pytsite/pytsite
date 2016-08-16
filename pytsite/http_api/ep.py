@@ -1,6 +1,6 @@
 """PytSite HTTP API Endpoints.
 """
-from pytsite import router as _router, http as _http, logger as _logger
+from pytsite import router as _router, http as _http, logger as _logger, lang as _lang
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -14,6 +14,9 @@ def entry(args: dict, inp: dict):
     method = _router.request().method.lower()
 
     try:
+        if 'language' in inp:
+            _lang.set_current(inp['language'])
+
         status, body = _api.call_ep(endpoint, method, inp, version)
 
         # Simple string should be returned as text/html

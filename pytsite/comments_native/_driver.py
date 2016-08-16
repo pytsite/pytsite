@@ -85,9 +85,6 @@ class Native(_comments.driver.Abstract):
     def get_permissions(self, user: _auth.model.AbstractUser = None) -> dict:
         """Get permissions definition for user.
         """
-        if not user:
-            user = _auth.get_current_user()
-
         return {
-            'create': _odm_auth.check_permissions('create', 'comment')
+            'create': _odm_auth.check_permissions('create', 'comment', user)
         }

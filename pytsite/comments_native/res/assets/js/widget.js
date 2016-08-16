@@ -7,6 +7,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
     var commentsLoadOffset = 0;
     var commentsLoadRemains = 0;
     var commentMaxDepth = em.data('maxDepth');
+    var commentCreatePermission = em.data('createPermission') == 'True';
 
     function createReplyForm(parentCommentUid) {
         var form = commentForm.clone();
@@ -31,7 +32,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
             parent_uid: form.find('.reply-to').val(),
             body: commentBodyInput.val()
         }).done(function (r) {
-            createCommentSlot(r, {create: true});
+            createCommentSlot(r);
             commentBodyInput.val('');
             if (form.parent().hasClass('reply-form')) {
                 form.remove();
@@ -52,7 +53,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
             e.preventDefault();
             onFormSubmit(e, $(this));
         });
-        commentSlot.find('> .right').first().find(' > .reply-form').first().append(replyForm);
+        commentSlot.find('> .footer').first().find('> .right').first().find(' > .reply-form').first().append(replyForm);
         replyForm.find('.comment-body').focus();
     }
 
@@ -78,7 +79,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
             });
     }
 
-    function createCommentSlot(comment, createPermission) {
+    function createCommentSlot(comment) {
         var slot = $('<div class="comment-item">');
         slot.attr('id', 'comment-' + comment['uid']);
         slot.attr('data-uid', comment['uid']);
@@ -93,24 +94,16 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
         if (comment['status'] == 'deleted')
             slot.addClass('deleted');
 
-        // Left container
-        var left = $('<div class="left"></div>');
-        slot.append(left);
-
-        // Right container
-        var right = $('<div class="right"></div>');
-        slot.append(right);
-
-        // User picture
-        if (comment['status'] == 'published') {
-            var userPic = $('<div class="author-picture"><img src="' + comment['author']['picture_url'] + '">');
-            left.append(userPic);
-        }
-
         // Comment header
         var header = $('<div class="header"></div>');
-        right.append(header);
+        slot.append(header);
         if (comment['status'] == 'published') {
+            // User picture
+            if (comment['status'] == 'published') {
+                var userPic = $('<div class="author-picture"><img src="' + comment['author']['picture_url'] + '">');
+                header.append(userPic);
+            }
+
             // Author
             header.append($('<div class="author">' + comment['author']['full_name'] + '</div>'));
 
@@ -139,7 +132,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
             }
 
             // 'Reply' button
-            if (comment['status'] != 'deleted' && createPermission && comment['depth'] != commentMaxDepth) {
+            if (comment['status'] != 'deleted' && commentCreatePermission && comment['depth'] != commentMaxDepth) {
                 var btnReply = $('<div class="reply"><a class="reply-btn" href="#"><i class="fa fa-fw fa-reply"></i>&nbsp;' +
                     t('pytsite.comments_native@reply') + '</a></div>');
                 header.append(btnReply);
@@ -154,18 +147,34 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
             header.html(t('pytsite.comments_native@comment_was_deleted'));
         }
 
+        // Content
+        var content = $('<div class="content"></div>');
+        slot.append(content);
+
         // Comment body
         var body = $('<div class="body">');
-        right.append(body);
+        content.append(body);
         if (comment['status'] == 'published') {
             body.html(comment['body']);
         }
 
-        // Placeholder for replies
-        right.append($('<div class="replies">'));
+        // Left container
+        var footer = $('<div class="footer"></div>');
+        slot.append(footer);
+
+        // Footer left
+        var left = $('<div class="left"></div>');
+        footer.append(left);
+
+        // Footer right
+        var right = $('<div class="right"></div>');
+        footer.append(right);
 
         // Placeholder for reply form
         right.append($('<div class="reply-form">'));
+
+        // Placeholder for replies
+        right.append($('<div class="replies">'));
 
         // Place comment slot to the right place
         var parentUid = comment['parent_uid'];
@@ -196,7 +205,7 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
 
         // Create slots and place them to their positions
         for (var i = 0; i < r['items'].length; i++) {
-            createCommentSlot(r['items'][i], r['permissions']['create']);
+            createCommentSlot(r['items'][i]);
         }
     });
 
