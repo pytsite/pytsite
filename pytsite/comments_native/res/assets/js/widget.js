@@ -130,18 +130,6 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
                     return onBtnDeleteClick($(this).find('.delete-btn'), slot);
                 });
             }
-
-            // 'Reply' button
-            if (comment['status'] != 'deleted' && commentCreatePermission && comment['depth'] != commentMaxDepth) {
-                var btnReply = $('<div class="reply"><a class="reply-btn" href="#"><i class="fa fa-fw fa-reply"></i>&nbsp;' +
-                    t('pytsite.comments_native@reply') + '</a></div>');
-                header.append(btnReply);
-
-                btnReply.click(function (e) {
-                    e.preventDefault();
-                    onBtnReplyClick($(this).find('.reply-btn'), slot);
-                });
-            }
         }
         else if (comment['status'] == 'deleted') {
             header.html(t('pytsite.comments_native@comment_was_deleted'));
@@ -156,6 +144,21 @@ $(window).on('pytsite.widget.init:pytsite.comments_native._widget.Comments', fun
         content.append(body);
         if (comment['status'] == 'published') {
             body.html(comment['body']);
+        }
+
+        if (comment['status'] != 'deleted' && commentCreatePermission && comment['depth'] != commentMaxDepth) {
+            var actions = $('<div class="actions">');
+            content.append(actions);
+
+            // 'Reply' button
+            var btnReply = $('<div class="reply"><a class="reply-btn" href="#"><i class="fa fa-fw fa-reply"></i>&nbsp;' +
+                t('pytsite.comments_native@reply') + '</a></div>');
+            actions.append(btnReply);
+
+            btnReply.click(function (e) {
+                e.preventDefault();
+                onBtnReplyClick($(this).find('.reply-btn'), slot);
+            });
         }
 
         // Left container

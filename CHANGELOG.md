@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.82.3 (2016-08-13)
+### Fixed
+- `comments_native`: widget's layout on small screens. 
+
+
 ## 0.82.2 (2016-08-13)
 ### Added
 - `comments`:
