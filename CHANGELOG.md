@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.82.5 (2016-08-18)
+### Added
+- `google`: new method `addMarker()` in JS object `pytsite.google.maps.Map`.
+
+### Changed
+- `comments`: HTTP API.
+
+### Fixed
+- `comments`: reply notification email recipient.
+
+
 ## 0.82.4 (2016-08-13)
 ### Fixed
 - `comments_native`: 

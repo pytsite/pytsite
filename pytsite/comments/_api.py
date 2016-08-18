@@ -117,10 +117,10 @@ def create_comment(thread_id: str, body: str, author: _auth.model.AbstractUser, 
     comment = driver.create_comment(thread_id, body, author, status, parent_uid)
     _events.fire('pytsite.comments.create_comment', comment=comment)
 
-    # Send email notification about reply
+    # Send email notification about REPLY
     if _reg.get('comments.email.notify', True) and comment.is_reply:
-        reply_to = get_comment(comment.parent_uid)
-        if comment.author != reply_to.author:
+        parent_comment = get_comment(comment.parent_uid)
+        if comment.author != parent_comment.author:
             tpl_name = 'pytsite.comments@mail/{}/reply'.format(_lang.get_current())
             m_subject = _lang.t('pytsite.comments@mail_subject_new_reply')
             m_body = _tpl.render(tpl_name, {
@@ -129,7 +129,7 @@ def create_comment(thread_id: str, body: str, author: _auth.model.AbstractUser, 
             })
             m_from = '{} <{}>'.format(author.full_name, _mail.mail_from()[1])
 
-            _mail.Message(comment.author.email, m_subject, m_body, m_from).send()
+            _mail.Message(parent_comment.author.email, m_subject, m_body, m_from).send()
 
     return comment
 

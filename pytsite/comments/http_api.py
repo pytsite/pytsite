@@ -11,16 +11,12 @@ __license__ = 'MIT'
 def get_settings(inp: dict) -> dict:
     """Get comments settings.
     """
-    user = _auth.get_current_user()
-    if user.is_anonymous:
-        raise _http.error.Forbidden('Anonymous users are not allowed here.')
-
     return {
         'body_min_length': _api.get_comment_body_min_length(),
         'body_max_length': _api.get_comment_body_max_length(),
         'max_depth': _api.get_comment_max_depth(),
         'statuses': _api.get_comment_statuses(),
-        'permissions': _api.get_permissions(user, inp.get('driver')),
+        'permissions': _api.get_permissions(_auth.get_current_user(), inp.get('driver')),
     }
 
 
@@ -59,6 +55,7 @@ def get_comments(inp: dict) -> dict:
 
     return {
         'items': [comment.as_jsonable() for comment in comments],
+        'settings': get_settings(inp),
     }
 
 

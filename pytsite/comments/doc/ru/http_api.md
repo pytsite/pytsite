@@ -10,7 +10,7 @@
 
 ### Аргументы
 
-- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
+- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
 - *optional* **str** `driver`. Дравйер.
 
 
@@ -164,7 +164,8 @@ http://test.com/api/1/comments/comment
 - **array[object]** `items`. Информация о комментариях. Структура какждого элемента полностью совпадает со структурой 
   ответа метода `POST comments/comment` за исключением того, что если комментарий имеет статус, отличный от `published`,
   то поля `body` и `author` будут отсутствовать.
-  
+- **object** `settings`. Параметры конфигурации комментариев. В точности совпадают с форматом ответа 
+  `GET comments/settings`.  
 
 ### Примеры
 
