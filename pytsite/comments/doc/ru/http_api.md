@@ -208,7 +208,21 @@ http://test.com/api/1/comments/comments
                 "delete": true
             }
         }
-    ]
+    ],
+    "settings": {
+        "body_min_length": 2, 
+        "body_max_length": 2048,
+        "max_depth": 4,
+        "statuses": {
+            "published": "Опубликован",
+            "waiting": "На модерации",
+            "spam": "Спам",
+            "deleted": "Удалён"
+        },
+        "permissions": {
+            "create": true
+        }
+    }
 }
 ```
 
