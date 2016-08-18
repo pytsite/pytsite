@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.82.6 (2016-08-18)
+### Fixed
+- `image`: non working HTTP API endpoints.
+
+
 ## 0.82.5 (2016-08-18)
 ### Added
 - `google`: new method `addMarker()` in JS object `pytsite.google.maps.Map`.

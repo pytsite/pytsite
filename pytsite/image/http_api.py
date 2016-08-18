@@ -16,7 +16,7 @@ def post_file(inp: dict) -> tuple:
     })
 
     # Delegate file creation to the pytsite.file package
-    status, body = _http_api.call_ep('pytsite.file@file', 'post', inp)
+    status, body = _http_api.call_ep('file/file', 'post', inp)
 
     # Request was from CKEditor
     if inp.get('CKEditor') and inp.get('CKEditorFuncNum'):
@@ -37,4 +37,4 @@ def get_file(inp: dict) -> tuple:
         'model': 'image',
     })
 
-    return _http_api.call_ep('pytsite.file@file', 'get', inp)
+    return _http_api.call_ep('file/file', 'get', inp)
