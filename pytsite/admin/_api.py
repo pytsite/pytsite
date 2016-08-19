@@ -1,7 +1,8 @@
 """Admin API Functions
 """
 from pytsite import tpl as _tpl, widget as _widget, core_version_str as _version_str, core_url as _core_url, \
-    core_name as _core_name, form as _form, assetman as _assetman, auth as _auth, http as _http, reg as _reg
+    core_name as _core_name, form as _form, assetman as _assetman, auth as _auth, http as _http, reg as _reg, \
+    router as _router
 from . import _sidebar
 
 __author__ = 'Alexander Shepetko'
@@ -26,6 +27,7 @@ def render(content: str) -> str:
         'core_name': _core_name,
         'core_url': _core_url,
         'core_version': _version_str(),
+        'sidebar_collapsed': _router.request().cookies.get('adminSidebarCollapsed') is not None
     })
 
 

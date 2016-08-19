@@ -8,13 +8,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def load_css() -> list:
-    return [
-        'pytsite.browser@loadCSS/loadCSS.js',
-        'pytsite.browser@loadCSS/cssrelpreload.js',
-    ]
-
-
 def jquery() -> list:
     return ['pytsite.browser@js/jquery-2.1.4.min.js']
 
@@ -161,4 +154,10 @@ def magnific_popup():
     return [
         'pytsite.browser@magnific-popup/magnific-popup.css',
         'pytsite.browser@magnific-popup/jquery.magnific-popup.min.js',
+    ]
+
+
+def js_cookie():
+    return [
+        'pytsite.browser@js/js.cookie.js'
     ]

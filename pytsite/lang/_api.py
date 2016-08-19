@@ -17,7 +17,7 @@ _languages = []
 _current = {}  # Thread safe current language store
 _fallback = None
 _packages = {}
-_sub_trans_re = _re.compile('\{([_a-z0-9]+)\}')
+_sub_trans_re = _re.compile('\{:([_a-z0-9]+)\}')
 
 _default_regions = {
     'en': 'US',
@@ -100,11 +100,11 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang') -> str:
 
     spec = _find_spec(pkg_name)
     if not spec or not spec.loader:
-        raise Exception("Package '{}' is not found.".format(pkg_name))
+        raise RuntimeError("Package '{}' is not found.".format(pkg_name))
 
     lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)
     if not _path.isdir(lng_dir):
-        raise Exception("Directory '{}' is not exists.".format(lng_dir))
+        raise RuntimeError("Directory '{}' is not exists.".format(lng_dir))
 
     _packages[pkg_name] = {'__path': lng_dir}
 

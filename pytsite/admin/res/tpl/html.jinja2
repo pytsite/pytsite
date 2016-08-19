@@ -24,7 +24,7 @@ desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini{% if sidebar_collapsed %} sidebar-collapse{% endif %}">
 <div class="wrapper">
     {% include 'pytsite.admin@header' %}
     {% include 'pytsite.admin@sidebar' %}

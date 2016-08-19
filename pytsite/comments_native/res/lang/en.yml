@@ -13,7 +13,7 @@ confirm_comment_deletion: 'Do you really want to delete this comment?'
 confirm_comment_report: 'Do you really want to report about this comment?'
 comment_was_deleted: 'Comment is deleted.'
 no_comments_yet: 'There is no comments yet. Be the first who post comment here!'
-mail_subject_report_comment: 'Comment on the {app_name} needs your attention'
+mail_subject_report_comment: 'Comment on the {:app_name} needs your attention'
 comment_report_confirmed: "Thank you for your attention. We'll review your report shortly."
 
 odm_perm_create_comment: 'Create comments'

@@ -257,10 +257,12 @@ class StringList(_base.Abstract):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(uid, **kwargs)
         self._add_btn_label = kwargs.get('add_btn_label', '')
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
         self._max_values = kwargs.get('max_values', 10)
+        self._unique = kwargs.get('unique', False)
+
+        super().__init__(uid, **kwargs)
 
         self._css = ' '.join((self._css, 'widget-string-list'))
         self._data['max_values'] = self._max_values
@@ -287,7 +289,7 @@ class StringList(_base.Abstract):
         if type(value) not in (list, tuple):
             raise ValueError('List or tuple expected.')
 
-        return super().set_val(_util.cleanup_list(value), **kwargs)
+        return super().set_val(_util.cleanup_list(value, self._unique), **kwargs)
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.

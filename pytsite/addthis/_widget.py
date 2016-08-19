@@ -1,7 +1,6 @@
 """AddThis Widget.
 """
-from pytsite import reg as _reg, assetman as _assetman, html as _html
-from pytsite import widget as _widget
+from pytsite import reg as _reg, assetman as _assetman, html as _html, settings as _settings, widget as _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -16,14 +15,14 @@ class AddThis(_widget.Abstract):
         """
         super().__init__(uid, **kwargs)
 
-        self._pub_id = _reg.get('addthis.pub_id')
+        self._pub_id = _settings.get('addthis.pub_id')
         if not self._pub_id:
-            raise Exception("Configuration parameter 'addthis.pub_id' is not defined.")
+            raise RuntimeError("Configuration parameter 'addthis.pub_id' is not defined.")
 
         self._valid_types = ('sharing_toolbox', 'recommended_horizontal')
         self._box_type = kwargs.get('box_type', 'sharing_toolbox')
         if self._box_type not in self._valid_types:
-            raise Exception("Invalid type: '{}'. Valid types are: {}.".format(self._box_type, str(self._valid_types)))
+            raise RuntimeError("Invalid type: '{}'. Valid types are: {}.".format(self._box_type, str(self._valid_types)))
 
         self._url = kwargs.get('url')
 

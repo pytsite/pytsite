@@ -1,0 +1,3 @@
+mail: 'Почта'
+default_sender_address: 'Email приложения'
+manage_mail_settings: 'Управление настройками почты'

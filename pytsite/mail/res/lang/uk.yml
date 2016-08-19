@@ -1,0 +1,3 @@
+mail: 'Пошта'
+default_sender_address: 'Email додатка'
+manage_mail_settings: 'Керування налаштуваннями пошти'

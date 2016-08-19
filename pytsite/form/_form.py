@@ -315,7 +315,6 @@ class Form(_ABC):
         for field_name, field_value in values.items():
             try:
                 self.get_widget(field_name).set_val(field_value, **kwargs)
-
             except error.WidgetNotFound:
                 pass
 

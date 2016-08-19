@@ -241,7 +241,7 @@ def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Call
         _makedirs(output_dir, 0o755, True)
 
     # Create generator
-    content_settings = _settings.get_setting('content')
+    content_settings = _settings.get('content')
     parser = _feed.rss.Parser()
 
     # Get <channel> element

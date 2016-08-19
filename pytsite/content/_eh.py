@@ -57,7 +57,7 @@ def cron_weekly():
 def router_dispatch():
     """'pytsite.router.dispatch' Event Handler.
     """
-    settings = _settings.get_setting('content')
+    settings = _settings.get('content')
 
     # Add inline JS code
     if 'add_js' in settings and settings['add_js']:
@@ -138,7 +138,7 @@ def _generate_sitemap():
     sitemap = _sitemap.Sitemap()
     sitemap.add_url(_router.base_url(), _datetime.now(), 'always', 1)
     for lang in _lang.langs():
-        for model in _reg.get('content.sitemap.models', []):
+        for model in _settings.get('content.sitemap_models', ()):
             _logger.info("Sitemap generation started for model '{}', language '{}'.".
                          format(model, _lang.lang_title(lang)))
 
@@ -173,6 +173,6 @@ def _generate_feeds():
     # For each language we have separate feed
     for lng in _lang.langs():
         # Generate RSS feed for each model
-        for model in _reg.get('content.feed.models', ()):
+        for model in _settings.get('content.rss_models', ()):
             filename = 'rss-{}'.format(model)
             _api.generate_rss(model, filename, lng, length=_reg.get('content.feed.length', 20))

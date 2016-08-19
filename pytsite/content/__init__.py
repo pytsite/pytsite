@@ -16,7 +16,7 @@ def _init():
     """
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
         http_api, permission
-    from . import _eh, _settings
+    from . import _eh, _settings_form
     from ._model import Tag, Section, ContentSubscriber
     from ._console_command import Generate as GenerateConsoleCommand
 
@@ -26,6 +26,7 @@ def _init():
 
     # Permission groups
     permission.define_group('content', 'pytsite.content@content')
+    permission.define_permission('content.settings.manage', __name__ + '@manage_content_settings_permission', 'content')
 
     # Assets
     assetman.register_package(__name__)
@@ -67,9 +68,7 @@ def _init():
     events.listen('pytsite.comments.create_comment', _eh.comments_create_comment)
 
     # Settings
-    settings.define('content', _settings.form_widgets_setup, __name__ + '@content', 'fa fa-file-o',
-                    perm_name='pytsite.content.settings',
-                    perm_description=__name__ + '@manage_content_settings_permission')
+    settings.define('content', _settings_form.Form, __name__ + '@content', 'fa fa-file-o', 'content.settings.manage')
 
     # Console commands
     console.register_command(GenerateConsoleCommand())

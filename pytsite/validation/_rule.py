@@ -321,7 +321,7 @@ class VideoHostingUrl(Url):
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        if self._value is None:
+        if self.value is None:
             return
 
         super()._do_validate()

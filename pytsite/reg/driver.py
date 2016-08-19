@@ -16,13 +16,13 @@ class Abstract(_ABC):
     _storage = {}
 
     @_abstractmethod
-    def set_val(self, key: str, value):
+    def put(self, key: str, value):
         """Set value of the registry.
         """
         pass
 
     @_abstractmethod
-    def get_val(self, key: str, default):
+    def get(self, key: str, default):
         """Get value from the registry.
         """
         pass
@@ -33,14 +33,14 @@ class Abstract(_ABC):
         """
         pass
 
-    def get_all(self)->dict:
+    def get_all(self) -> dict:
         """Get all registry's content.
         """
         return self._storage
 
 
 class Memory(Abstract):
-    def set_val(self, key: str, value):
+    def put(self, key: str, value):
         """Set value of the registry.
         """
         current = self._storage
@@ -55,13 +55,13 @@ class Memory(Abstract):
                 elif k in current and isinstance(current[k], dict):
                     current = current[k]
                 else:
-                    raise TypeError('Cannot overwrite {0}', key)
+                    raise TypeError('Cannot overwrite key {}'.format(key))
             else:
                 current[k] = value
 
             i += 1
 
-    def get_val(self, key, default=None):
+    def get(self, key, default=None):
         """Get value from the registry.
         """
         current = self._storage
@@ -93,6 +93,7 @@ class File(Memory):
         self.root_dir = root_dir
         self.env_name = env_name
 
+        # Cascade load data from files
         for name in ('default.yml', env_name + '.yml'):
             file_path = _path.join(root_dir, name)
             if _path.isfile(file_path):
@@ -101,8 +102,3 @@ class File(Memory):
                     if isinstance(f_data, dict):
                         self.merge(f_data)
                     f.close()
-
-    def get_val(self, key: str, default=None):
-        """Get value from the registry.
-        """
-        return super().get_val(key, default)

@@ -11,6 +11,7 @@ severity_info: 'Info'
 severity_warning: 'Warning'
 severity_error: 'Error'
 
+odm_ui_browser_title_auth_log: 'Authentication log'
 odm_ui_form_title_delete_auth_log: 'Delete auth log(s)'
 
 odm_perm_group_description: 'Auth Log'

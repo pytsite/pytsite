@@ -193,7 +193,7 @@ class Base(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('body', tidyfy_html=True))
         self.define_field(_odm.field.Ref('author', nonempty=True, model='user'))
         self.define_field(_odm.field.RefsUniqueList('images', model='image'))
-        self.define_field(_odm.field.StringList('video_links'))
+        self.define_field(_odm.field.StringList('video_links', unique=True))
         self.define_field(_odm.field.Dict('options'))
 
     def _setup_indexes(self):
@@ -371,7 +371,8 @@ class Base(_odm_ui.model.UIEntity):
                 weight=600,
                 label=self.t('video'),
                 add_btn_label=self.t('add_link'),
-                value=self.video_links
+                value=self.video_links,
+                unique=True,
             ))
             frm.add_rule('video_links', _validation.rule.VideoHostingUrl())
 
@@ -457,7 +458,7 @@ class Content(Base):
         self.define_field(_odm.field.Bool('starred'))
         self.define_field(_odm.field.Integer('views_count'))
         self.define_field(_odm.field.Integer('comments_count'))
-        self.define_field(_odm.field.StringList('ext_links'))
+        self.define_field(_odm.field.StringList('ext_links', unique=True))
 
         for lng in _lang.langs():
             self.define_field(_odm.field.Ref('localization_' + lng, model=self.model))
@@ -817,7 +818,8 @@ class Content(Base):
                 weight=900,
                 label=self.t('external_links'),
                 add_btn_label=self.t('add_link'),
-                value=self.ext_links
+                value=self.ext_links,
+                unique=True,
             ))
             frm.add_rule('ext_links', _validation.rule.Url())
 

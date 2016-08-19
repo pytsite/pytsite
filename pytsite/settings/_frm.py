@@ -1,30 +1,40 @@
 """PytSite Base Settings Form.
 """
 from pytsite import form as _form, router as _router, widget as _widget, lang as _lang
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class SettingsForm(_form.Form):
+class Form(_form.Form):
+    """Base settings form.
+    """
+
     def __init__(self, uid: str = None, **kwargs):
+        """Init.
+        """
         self._setting_uid = kwargs.get('setting_uid')
 
         super().__init__(uid, **kwargs)
 
+        self._data.update({
+            'setting-uid': self._setting_uid
+        })
+
     def _setup_form(self, **kwargs):
+        """Hook.
+        """
         self._action = _router.ep_url('pytsite.settings@form_submit', {'uid': self._setting_uid})
 
     def _setup_widgets(self):
-        from ._api import get_definition, get_setting
-
-        setting_def = get_definition(self._setting_uid)
-        setting_def['form_widgets_setup'](self, get_setting(self._setting_uid))
-
-        self.data.update({
-            'setting-uid': self._setting_uid
-        })
+        # Fill form widgets with values
+        for k, v in _api.get(self._setting_uid).items():
+            try:
+                self.get_widget('setting_' + k).value = v
+            except _form.error.WidgetNotFound:
+                pass
 
         self.add_widget(_widget.button.Link(
             uid='action-cancel',

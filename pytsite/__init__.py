@@ -44,10 +44,10 @@ def __init():
     from . import reg
 
     # Environment type
-    reg.set_val('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
+    reg.put('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
 
     # Environment name
-    reg.set_val('env.name', getuser() + '@' + gethostname())
+    reg.put('env.name', getuser() + '@' + gethostname())
 
     # Detecting application directory path
     if 'PYTSITE_APP_ROOT' in environ:
@@ -55,34 +55,34 @@ def __init():
     elif path.exists(path.join(getcwd(), 'app')):
         root_path = getcwd()
     else:
-        raise Exception('Cannot find application directory.')
+        raise RuntimeError('Cannot find application directory.')
 
     # Check root
     if not path.exists(root_path) or not path.isdir(root_path):
-        raise Exception("{} is not exists or it is not a directory.".format(root_path))
+        raise RuntimeError("{} is not exists or it is not a directory.".format(root_path))
 
     # Base filesystem paths
     app_path = path.join(root_path, 'app')
-    reg.set_val('paths.root', root_path)
-    reg.set_val('paths.app', app_path)
-    reg.set_val('paths.static', path.join(root_path, 'static'))
+    reg.put('paths.root', root_path)
+    reg.put('paths.app', app_path)
+    reg.put('paths.static', path.join(root_path, 'static'))
     for n in ['config', 'log', 'storage', 'tmp', 'themes']:
-        reg.set_val('paths.' + n, path.join(app_path, n))
+        reg.put('paths.' + n, path.join(app_path, n))
 
     # Additional filesystem paths
-    reg.set_val('paths.session', path.join(reg.get('paths.tmp'), 'session'))
-    reg.set_val('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
-    reg.set_val('paths.maintenance.lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
+    reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))
+    reg.put('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
+    reg.put('paths.maintenance.lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
 
     # Output parameters
-    reg.set_val('output', {
+    reg.put('output', {
         'minify': True,
         'theme': 'default',
         'base_tpl': 'app@html',
     })
 
     # Debug is disabled by default
-    reg.set_val('debug', False)
+    reg.put('debug', False)
 
     # Switching registry to the file driver
     file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'))
@@ -135,7 +135,7 @@ def __init():
     __import__('app.themes.' + theme)
 
     # Settings favicon href
-    reg.set_val('metatag.favicon.href', 'img/favicon.png')
+    reg.put('metatag.favicon.href', 'img/favicon.png')
 
 
 __init()

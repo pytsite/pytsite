@@ -44,9 +44,9 @@ def _init():
     register('gotop', _libs.gotop)
     register('highlight', _libs.highlight)
     register('magnific-popup', _libs.magnific_popup)
-    register('loadCSS', _libs.load_css)
+    register('js-cookie', _libs.js_cookie)
 
-    # loadCSS and jQuery is ultimately required
+    # jQuery is ultimately required
     include('jquery', permanent=True)
 
 

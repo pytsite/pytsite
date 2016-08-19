@@ -24,7 +24,7 @@ def get_section(sid: str) -> dict:
             return s
 
 
-def add_section(sid: str, title: str, weight: int=0, permissions='*'):
+def add_section(sid: str, title: str, weight: int = 0, permissions='*'):
     """Add a section.
     :param permissions: str|tuple
     """
@@ -60,8 +60,8 @@ def get_menu(sid: str, mid: str) -> dict:
             return m
 
 
-def add_menu(sid: str, mid: str, title: str, href: str='#', icon: str=None,
-             label: str=None, label_class: str='primary', weight: int=0, permissions=(), replace=False):
+def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, label: str = None,
+             label_class: str = 'primary', weight: int = 0, permissions=(), replace=False):
     """Add a menu to a section.
     :type permissions: str|tuple
     """

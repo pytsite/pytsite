@@ -2,12 +2,20 @@
 """
 import re as _re
 from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http, \
-    form as _form, admin as _admin
+    form as _form, admin as _admin, widget as _widget
 from . import _api, _frm
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+def _build_form(setting_uid: str) -> _frm.Form:
+    """Internal helper.
+    """
+    # Load setting definition
+    setting_def = _api.get_definition(setting_uid)
+    return setting_def['form']('settings-form', setting_uid=setting_uid)  # type: _frm.Form
 
 
 def form(args: dict, inp: dict) -> str:
@@ -18,12 +26,16 @@ def form(args: dict, inp: dict) -> str:
     if not _check_permissions(uid):
         raise _http.error.Forbidden()
 
+    # Load setting definition
     setting_def = _api.get_definition(uid)
+
+    # Update page's title
     _metatag.t_set('title', _lang.t(setting_def['title']))
 
-    frm = _frm.SettingsForm('settings-form', setting_uid=uid)
+    # Instantiate form
+    frm = _build_form(uid)
 
-    return _admin.render(_tpl.render('pytsite.settings@form', {'form': frm}))
+    return _admin.render_form(frm)
 
 
 def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
@@ -33,7 +45,7 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     if not _check_permissions(uid):
         raise _http.error.Forbidden()
 
-    frm = _frm.SettingsForm(setting_uid=uid).fill(inp)
+    frm = _build_form(uid).fill(inp)
 
     value = {}
     for k, v in frm.values.items():
@@ -41,7 +53,7 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
             k = _re.sub('^setting_', '', k)
             value[k] = v
 
-    _api.set_setting(uid, value)
+    _api.put(uid, value)
     _router.session().add_success(_lang.t('pytsite.settings@settings_has_been_saved'))
 
     return _http.response.Redirect(_router.ep_url('pytsite.settings@form', {'uid': uid}))

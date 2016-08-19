@@ -11,7 +11,7 @@ validation_float: 'Ожидается число с плавающей запя�
 validation_greater: 'Должно быть больше :than'
 validation_greaterorequal: 'Должно быть больше или равно :than'
 validation_less: 'Должно быть меньше :than'
-validation_lessorequals: 'Дольжно быть меньше или равно :than'
+validation_lessorequal: 'Должно быть меньше или равно :than'
 validation_listlistitemnotempty: 'Обязательно для заполнения (строка :row, колонка :col)'
 validation_listlistitemurl: 'Некорректный URL (строка :row, колонка :col)'
 validation_videohostingurl: 'Некорректный URL видеохостинга'

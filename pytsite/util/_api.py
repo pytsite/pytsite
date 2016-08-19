@@ -429,16 +429,15 @@ def get_class(s: str) -> type:
     return getattr(module, class_name)
 
 
-def cleanup_list(inp: list) -> list:
-    """Remove empty strings from a list.
+def cleanup_list(inp: list, uniquize: bool = False) -> list:
+    """Remove empty values from a list.
     """
     r = []
     for v in inp:
         if isinstance(v, str):
             v = v.strip()
-            if v:
-                r.append(v)
-        else:
+
+        if v and ((uniquize and v not in r) or not uniquize):
             r.append(v)
 
     return r

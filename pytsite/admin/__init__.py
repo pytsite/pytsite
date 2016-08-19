@@ -24,6 +24,7 @@ def __init():
     bp = base_path()
     browser.include('bootstrap', permanent=True, path_prefix=bp)
     browser.include('font-awesome', permanent=True, path_prefix=bp)
+    browser.include('js-cookie', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@AdminLTE/css/AdminLTE.min.css', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@css/custom.css', permanent=True, path_prefix=bp)

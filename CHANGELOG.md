@@ -1,5 +1,28 @@
 # PytSite Changelog
 
+## 0.83 (2016-08-19)
+### Added
+- `addthis`: settings form.
+- `admin`: store of collapsed state of sidebar. 
+- `browser`: new JS library: `js-cookie`.
+- `content`: part of the reg-settings moved to settings form.
+- `mail`: settings form.
+- `util`: new argument in `cleanup_list`: `uniquize`.
+- `widget`: new constructor's argument and property in `input.StringList`: `unique`. 
+
+### Changed
+- `settings`: refactored.
+- `lang`: syntax of sub-translation placeholders from `{term}` to `{:term}`.
+- `reg`: method names.
+
+### Fixed
+- `auth_log`: missed translations.
+- `validation`: typo in translations.
+
+### Removed
+- `browser`: `laodCSS` JS library.
+
+
 ## 0.82.6 (2016-08-18)
 ### Fixed
 - `image`: non working HTTP API endpoints.
