@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.83.3 (2016-08-22)
+### Fixed
+- `validation`: processing empty string in `rule.Regex`.
+
+
 ## 0.83.2 (2016-08-22)
 ### Fixed
 - `util`: processing `remove_tags` argument in `tidyfy_html()`.

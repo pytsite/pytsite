@@ -291,7 +291,8 @@ class Regex(Base):
                     raise _error.RuleError(self._msg_id, dict(self._msg_args, row=k + 1))
 
         elif isinstance(self.value, str):
-            if not self._regex.match(self.value):
+            value = self.value.strip()
+            if value and not self._regex.match(value):
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
         else:
