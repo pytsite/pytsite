@@ -183,13 +183,13 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
                 'output|p|param|pre|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|tfoot|th|thead|' \
                 'time|tr|u|ul|var|wbr'
 
-    if add_safe_tags:
-        safe_tags += '|' + add_safe_tags
-
     if remove_tags:
         for remove_tag in remove_tags.split('|'):
-            r_exp = remove_tag + '[^|]*|'
-            safe_tags = _re.sub(r_exp, '', safe_tags)
+            st = [v for v in safe_tags.split('|') if v != remove_tag and not v.startswith(remove_tag + ':')]
+            safe_tags = '|'.join(st)
+
+    if add_safe_tags:
+        safe_tags += '|' + add_safe_tags
 
     def _empty_tags_cleaner(item):
         # If the element has children, deep into it and parse children

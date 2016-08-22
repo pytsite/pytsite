@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.83.2 (2016-08-22)
+### Fixed
+- `util`: processing `remove_tags` argument in `tidyfy_html()`.
+
+
 ## 0.83.1 (2016-08-22)
 ### Added
 - `widget`: new argument `unique` in `select.Checkboxes`.
