@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.83.1 (2016-08-22)
+### Added
+- `widget`: new argument `unique` in `select.Checkboxes`.
+- `util`: default value of argument `anchor` in `nav_link()`. 
+
+### Fixed
+- `widget`:
+    - `base.Abstract`: check for `None` in `set_val()` instead of emptiness.
+    - `select.Checkboxes` filtering empty values.
+
+
 ## 0.83 (2016-08-19)
 ### Added
 - `addthis`: settings form.

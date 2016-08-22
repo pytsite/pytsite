@@ -3,7 +3,7 @@
 import random as _random
 import re as _re
 import pytz as _pytz
-from typing import Iterable as _Iterable
+from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
 from importlib import import_module as _import_module
 from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
@@ -167,7 +167,7 @@ class _HTMLTrimParser(_python_html_parser.HTMLParser):
 
 
 def strip_html_tags(s: str, safe_tags: str = None) -> str:
-    """Strips HTML tags from a string.
+    """Strip HTML tags from a string.
     """
     parser = _HTMLStripTagsParser(safe_tags)
     parser.feed(s)
@@ -223,7 +223,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
 
         s = _re.sub('\s{2,}', ' ', s)
 
-        # Remove root '<div>' tag which adds by lxml
+        # Remove root '<div>' tag which can be added by lxml
         if s.startswith('<div>'):
             s = s[5:-6]
 
@@ -265,7 +265,7 @@ def dict_merge(a: dict, b: dict) -> dict:
     https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
 
     if not isinstance(a, dict) or not isinstance(b, dict):
-        raise ValueError('Expected both dictionaries as arguments.')
+        raise TypeError('Expected both dictionaries as arguments.')
 
     result = _deepcopy(a)
 
@@ -287,7 +287,7 @@ def mk_tmp_file() -> tuple:
 
     tmp_dir = reg.get('paths.tmp')
     if not tmp_dir:
-        raise Exception("Cannot determine temporary directory location.")
+        raise RuntimeError("Cannot determine temporary directory location.")
 
     if not path.exists(tmp_dir):
         mkdir(tmp_dir)
@@ -429,9 +429,12 @@ def get_class(s: str) -> type:
     return getattr(module, class_name)
 
 
-def cleanup_list(inp: list, uniquize: bool = False) -> list:
+def cleanup_list(inp: _Union[_List, _Tuple], uniquize: bool = False) -> list:
     """Remove empty values from a list.
     """
+    if not isinstance(inp, (list, tuple)):
+        TypeError('List or tuple expected.')
+
     r = []
     for v in inp:
         if isinstance(v, str):
@@ -458,7 +461,7 @@ def cleanup_dict(inp: dict) -> dict:
     return r
 
 
-def nav_link(url: str, anchor: str, icon: str = None, **kwargs) -> str:
+def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
     """Generate Bootstrap compatible navigation item link.
     """
     from pytsite import html, router
@@ -478,6 +481,8 @@ def nav_link(url: str, anchor: str, icon: str = None, **kwargs) -> str:
 
 
 def parse_rfc822_datetime_str(s: str) -> _datetime:
+    """Parse date/time string according to RFC-822.
+    """
     try:
         # Year with century
         return _datetime.strptime(s, '%a, %d %b %Y %H:%M:%S %z')

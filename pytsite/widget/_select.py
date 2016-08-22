@@ -1,7 +1,8 @@
 """PytSite Select Widgets.
 """
+from typing import Union as _Union, List as _List, Tuple as _Tuple
 from datetime import datetime as _datetime
-from pytsite import browser as _browser, html as _html, lang as _lang, validation as _validation, \
+from pytsite import browser as _browser, html as _html, lang as _lang, validation as _validation, util as _util, \
     hreflang as _hreflang, router as _router
 from . import _input, _base
 
@@ -109,34 +110,33 @@ class Checkboxes(Select):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        if 'default' not in kwargs:
+            kwargs['default'] = ()
+
         super().__init__(uid, **kwargs)
 
-        self.set_val(kwargs.get('value', []))
+        self._selected_items = kwargs.get('selected_items', self.get_val())
+        self._unique = kwargs.get('unique', False)
 
-        if not isinstance(self._value, list):
-            raise TypeError("List expected.")
-
-        self._selected_items = kwargs.get('selected_items', self._value)
-
-    def set_val(self, value: list, **kwargs):
+    def set_val(self, value: _Union[_List, _Tuple], **kwargs):
         """Set value of the widget.
         """
+        if not isinstance(value, (list, tuple)):
+            raise TypeError('List or tuple expected.')
 
-        if not isinstance(value, list):
-            raise TypeError('List expected')
+        super().set_val(_util.cleanup_list(value, self._unique))
 
-        self._value = value
-        self._selected_items = value
+        self._selected_items = self.get_val()
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
-        div = _html.Div()
-        div.append(_html.Input(type='hidden', name=self.uid + '[]'))
+        container = _html.TagLessElement()
+        container.append(_html.Input(type='hidden', name=self.uid + '[]'))
         for item in self._items:
             checked = True if item[0] in self._selected_items else False
-            div.append(
+            container.append(
                 _html.Div(cls='checkbox').append(
                     _html.Label(item[1]).append(
                         _html.Input(type='checkbox', name=self.uid + '[]', value=item[0], checked=checked)
@@ -144,7 +144,7 @@ class Checkboxes(Select):
                 )
             )
 
-        return self._group_wrap(div)
+        return self._group_wrap(container)
 
 
 class Language(Select):
