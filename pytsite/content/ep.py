@@ -64,7 +64,7 @@ def index(args: dict, inp: dict):
         _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
 
     per_page = _reg.get('content.ep.index.per_page', 10)
-    pager = _widget.static.Pager('content-pager', total_items=f.count(), per_page=per_page)
+    pager = _widget.select.Pager('content-pager', total_items=f.count(), per_page=per_page)
 
     entities = []
     for entity in f.skip(pager.skip).get(pager.limit):

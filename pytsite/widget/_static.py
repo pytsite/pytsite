@@ -1,9 +1,7 @@
 """Static Widgets.
 """
 import re as _re
-from math import ceil as _ceil
-
-from pytsite import html as _html, lang as _lang, router as _router
+from pytsite import html as _html
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -146,95 +144,3 @@ class VideoPlayer(_base.Abstract):
                                 cls='iframe-responsive')
 
         raise ValueError(_html.Div('Invalid video link: ' + url))
-
-
-class Pager(_base.Abstract):
-    """Pager Widget.
-    """
-
-    def __init__(self, uid: str, **kwargs):
-        """Init.
-        """
-        super().__init__(uid, **kwargs)
-
-        inp = _router.request().inp
-
-        self._total_items = int(kwargs.get('total_items'))
-        self._items_per_page = int(kwargs.get('per_page', 100))
-        self._total_pages = _ceil(self._total_items / self._items_per_page)
-        self._visible_numbers = int(kwargs.get('visible_numbers', 5)) - 1
-
-        # Detect current page
-        try:
-            self._current_page = int(inp.get('page', 1))
-        except ValueError:
-            self._current_page = 1
-
-        if self._current_page < 1:
-            self._current_page = 1
-        if self._current_page > self._total_pages:
-            self._current_page = self._total_pages
-
-    def get_html_em(self, **kwargs) -> _html.Element:
-        """Render the widget.
-        :param **kwargs:
-        """
-        if self._total_pages == 1:
-            return _html.TagLessElement()
-
-        start_visible_num = self._current_page - _ceil(self._visible_numbers / 2)
-        if start_visible_num < 1:
-            start_visible_num = 1
-        end_visible_num = start_visible_num + self._visible_numbers
-
-        if end_visible_num > self._total_pages:
-            end_visible_num = self._total_pages
-
-        ul = _html.Ul(cls='pagination')
-        if start_visible_num > 1:
-            li = _html.Li(cls='first-page')
-            a = _html.A('«', title=_lang.t('pytsite.widget@first_page'),
-                        href=_router.url(_router.current_url(), query={'page': 1}))
-            ul.append(li.append(a))
-
-            li = _html.Li(cls='previous-page')
-            a = _html.A('‹', title=_lang.t('pytsite.widget@previous_page'),
-                        href=_router.url(_router.current_url(), query={'page': self._current_page - 1}))
-            ul.append(li.append(a))
-
-        for num in range(start_visible_num, end_visible_num + 1):
-            li = _html.Li()
-            if self._current_page == num:
-                li.set_attr('cls', 'active')
-            a = _html.A(str(num), href=_router.url(_router.current_url(), query={'page': num}))
-            ul.append(li.append(a))
-
-        if end_visible_num < self.total_pages:
-            li = _html.Li(cls='next-page')
-            a = _html.A('›', title=_lang.t('pytsite.widget@next_page'),
-                        href=_router.url(_router.current_url(), query={'page': self._current_page + 1}))
-            ul.append(li.append(a))
-
-            li = _html.Li(cls='last-page')
-            a = _html.A('»', title=_lang.t('pytsite.widget@last_page'),
-                        href=_router.url(_router.current_url(), query={'page': self.total_pages}))
-            ul.append(li.append(a))
-
-        return ul
-
-    @property
-    def skip(self):
-        skip = (self._current_page - 1) * self._items_per_page
-        return skip if skip >= 0 else 0
-
-    @property
-    def limit(self):
-        return self._items_per_page
-
-    @property
-    def total_items(self):
-        return self._total_items
-
-    @property
-    def total_pages(self):
-        return self._total_pages

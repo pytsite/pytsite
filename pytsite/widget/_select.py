@@ -1,9 +1,10 @@
 """PytSite Select Widgets.
 """
 from typing import Union as _Union, List as _List, Tuple as _Tuple
+from math import ceil as _ceil
 from datetime import datetime as _datetime
 from pytsite import browser as _browser, html as _html, lang as _lang, validation as _validation, util as _util, \
-    hreflang as _hreflang, router as _router
+    hreflang as _hreflang, router as _router, http_api as _http_api
 from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
@@ -282,6 +283,112 @@ class DateTime(_input.Text):
         )
 
         return self._group_wrap(html_input)
+
+
+class Pager(_base.Abstract):
+    """Pager Widget.
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, **kwargs)
+
+        self._total_items = int(kwargs.get('total_items'))
+        self._items_per_page = int(kwargs.get('per_page', 100))
+        self._total_pages = _ceil(self._total_items / self._items_per_page)
+        self._visible_numbers = int(kwargs.get('visible_numbers', 5)) - 1
+        self._ajax = kwargs.get('ajax', '')
+
+        # Detect current page
+        try:
+            self._current_page = int(_router.request().inp.get('page', 1))
+        except ValueError:
+            self._current_page = 1
+
+        if self._current_page < 1:
+            self._current_page = 1
+        if self._current_page > self._total_pages:
+            self._current_page = self._total_pages
+
+        self._data['ajax'] = self._ajax
+        self._data['current_page'] = self._current_page
+        self._data['per_page'] = self._items_per_page
+
+        self.assets.extend([
+            'pytsite.widget@js/pager.js'
+        ])
+
+    def get_html_em(self, **kwargs) -> _html.Element:
+        """Render the widget.
+        :param **kwargs:
+        """
+        if self._total_pages == 1:
+            return _html.TagLessElement()
+
+        start_visible_num = self._current_page - _ceil(self._visible_numbers / 2)
+        if start_visible_num < 1:
+            start_visible_num = 1
+        end_visible_num = start_visible_num + self._visible_numbers
+
+        if end_visible_num > self._total_pages:
+            end_visible_num = self._total_pages
+
+        ul = _html.Ul(cls='pagination')
+        links_url = _http_api.url(self._ajax) if self._ajax else _router.current_url()
+
+        if start_visible_num > 1:
+            # Link to the first page
+            li = _html.Li(cls='first-page')
+            a = _html.A('«', title=_lang.t('pytsite.widget@first_page'), data_page=1,
+                        href=_router.url(links_url, query={'page': 1}))
+            ul.append(li.append(a))
+
+            # Link to the previous page
+            li = _html.Li(cls='previous-page')
+            a = _html.A('‹', title=_lang.t('pytsite.widget@previous_page'), data_page=self._current_page - 1,
+                        href=_router.url(links_url, query={'page': self._current_page - 1}))
+            ul.append(li.append(a))
+
+        # Links to visible pages
+        for num in range(start_visible_num, end_visible_num + 1):
+            li = _html.Li()
+            if self._current_page == num:
+                li.set_attr('cls', 'active')
+            a = _html.A(str(num), data_page=num, href=_router.url(links_url, query={'page': num}))
+            ul.append(li.append(a))
+
+        if end_visible_num < self._total_pages:
+            # Link to the next page
+            li = _html.Li(cls='next-page')
+            a = _html.A('›', title=_lang.t('pytsite.widget@next_page'), data_page=self._current_page + 1,
+                        href=_router.url(links_url, query={'page': self._current_page + 1}))
+            ul.append(li.append(a))
+
+            # Link to the last page
+            li = _html.Li(cls='last-page')
+            a = _html.A('»', title=_lang.t('pytsite.widget@last_page'), data_page=self._total_pages,
+                        href=_router.url(links_url, query={'page': self._total_pages}))
+            ul.append(li.append(a))
+
+        return ul
+
+    @property
+    def skip(self):
+        skip = (self._current_page - 1) * self._items_per_page
+        return skip if skip >= 0 else 0
+
+    @property
+    def limit(self):
+        return self._items_per_page
+
+    @property
+    def total_items(self):
+        return self._total_items
+
+    @property
+    def total_pages(self):
+        return self._total_pages
 
 
 class Score(_base.Abstract):

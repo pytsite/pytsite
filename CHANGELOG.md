@@ -1,8 +1,16 @@
 # PytSite Changelog
 
+## 0.84 (2016-08-23)
+### Changed
+- `widget`: `static.pager` moved to `select.pager`.
+
+### Added
+- `widget`: support for AJAX requests in `select.pager`.
+
+
 ## 0.83.3 (2016-08-22)
 ### Fixed
-- `validation`: processing empty string in `rule.Regex`.
+- `validation`: processing of empty string in `rule.Regex`.
 
 
 ## 0.83.2 (2016-08-22)
