@@ -306,10 +306,10 @@ class Pager(_base.Abstract):
         except ValueError:
             self._current_page = 1
 
-        if self._current_page < 1:
-            self._current_page = 1
         if self._current_page > self._total_pages:
             self._current_page = self._total_pages
+        if self._current_page < 1:
+            self._current_page = 1
 
         self._data['ajax'] = self._ajax
         self._data['current_page'] = self._current_page

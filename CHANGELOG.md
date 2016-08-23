@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.84.1 (2016-08-23)
+### Fixed
+- `widget`: calculations in `select.pager`.
+
+
 ## 0.84 (2016-08-23)
 ### Changed
 - `widget`: `static.pager` moved to `select.pager`.
