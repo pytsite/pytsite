@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.84.2 (2016-08-23)
+### Added
+- `content`: index for `video_links` in `model.Base`.
+- `widget`: required arguments checking in `select.pager`.
+
+
 ## 0.84.1 (2016-08-23)
 ### Fixed
 - `widget`: calculations in `select.pager`.

@@ -295,6 +295,9 @@ class Pager(_base.Abstract):
         super().__init__(uid, **kwargs)
 
         self._total_items = int(kwargs.get('total_items'))
+        if self._total_items is None:
+            raise ValueError("'total_items' is required argument.")
+
         self._items_per_page = int(kwargs.get('per_page', 100))
         self._total_pages = _ceil(self._total_items / self._items_per_page)
         self._visible_numbers = int(kwargs.get('visible_numbers', 5)) - 1

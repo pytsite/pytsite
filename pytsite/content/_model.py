@@ -206,6 +206,9 @@ class Base(_odm_ui.model.UIEntity):
         if self.has_field('author'):
             self.define_index([('author', _odm.I_ASC)])
 
+        if self.has_field('video_links'):
+            self.define_index([('video_links', _odm.I_ASC)])
+
     @property
     def title(self) -> str:
         return self.f_get('title')
