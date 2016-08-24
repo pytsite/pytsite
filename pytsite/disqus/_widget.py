@@ -1,6 +1,6 @@
 """Disqus Widgets.
 """
-from pytsite import widget as _widget, html as _html, reg as _reg, tpl as _tpl
+from pytsite import widget as _widget, html as _html, reg as _reg, tpl as _tpl, settings as _settings
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,7 +15,10 @@ class Comments(_widget.Abstract):
         """
         super().__init__(uid, **kwargs)
 
-        self._short_name = _reg.get('disqus.short_name')
+        self._short_name = _settings.get('disqus.short_name')
+
+        if not self._short_name:
+            RuntimeError('Disqus short name is not specified.')
 
     @property
     def short_name(self) -> str:

@@ -68,7 +68,7 @@ def _init():
     events.listen('pytsite.comments.create_comment', _eh.comments_create_comment)
 
     # Settings
-    settings.define('content', _settings_form.Form, __name__ + '@content', 'fa fa-file-o', 'content.settings.manage')
+    settings.define('content', _settings_form.Form, __name__ + '@content', 'fa fa-glass', 'content.settings.manage')
 
     # Console commands
     console.register_command(GenerateConsoleCommand())

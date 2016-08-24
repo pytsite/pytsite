@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.85 (2016-08-24)
+### Changed
+- `disqus`: settings moved from registry to UI settings form.
+- `widget`: `static.tabs` moved to `select.tabs`.
+
+### Fixed
+- `addthis`: typo.
+- `auth_storage_odm`: displaying empty permissions tab on the role administration page.
+
+
 ## 0.84.2 (2016-08-23)
 ### Added
 - `content`: index for `video_links` in `model.Base`.

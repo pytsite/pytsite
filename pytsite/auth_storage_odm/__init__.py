@@ -23,12 +23,12 @@ def _init():
 
     # 'Users' admin sidebar menu
     url = router.ep_url('pytsite.odm_ui@browse', {'model': 'user'})
-    admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_storage_odm@users', url, 'fa fa-user', weight=10,
+    admin.sidebar.add_menu('auth', 'users', 'pytsite.auth_storage_odm@users', url, 'fa fa-users', weight=10,
                            permissions='pytsite.odm_perm.view.user')
 
     # 'Roles' admin sidebar menu
     url = router.ep_url('pytsite.odm_ui@browse', {'model': 'role'})
-    admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_storage_odm@roles', url, 'fa fa-users', weight=20,
+    admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_storage_odm@roles', url, 'fa fa-key', weight=20,
                            permissions='pytsite.odm_perm.view.role')
 
 _init()

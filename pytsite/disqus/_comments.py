@@ -2,7 +2,7 @@
 """
 import requests as _requests
 from typing import Iterable as _Iterable
-from pytsite import reg as _reg, logger as _logger, comments as _comments, auth as _auth
+from pytsite import logger as _logger, comments as _comments, auth as _auth, settings as _settings
 from ._widget import Comments as _DisqusWidget
 
 __author__ = 'Alexander Shepetko'
@@ -30,8 +30,8 @@ class Driver(_comments.driver.Abstract):
 
         try:
             r = _requests.get('https://disqus.com/api/3.0/forums/listThreads.json', {
-                'api_secret': _reg.get('disqus.api_secret'),
-                'forum': _reg.get('disqus.short_name'),
+                'api_secret': _settings.get('disqus.api_secret'),
+                'forum': _settings.get('disqus.short_name'),
                 'thread': 'link:' + thread_id,
                 'limit': 1,
             }).json()
@@ -40,7 +40,7 @@ class Driver(_comments.driver.Abstract):
                 count = r['response'][0]['posts']
 
         except Exception as e:
-            _logger.error(str(e), exc_info=e, stack_info=True)
+            _logger.error(str(e), exc_info=e)
 
         return count
 

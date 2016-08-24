@@ -157,13 +157,17 @@ class Role(_auth.model.AbstractRole, _odm_ui.model.UIEntity):
         ))
 
         # Permissions tabs
-        perms_tabs = _widget.static.Tabs('permissions-tabs', weight=30, label=self.t('permissions'))
+        perms_tabs = _widget.select.Tabs('permissions-tabs', weight=30, label=self.t('permissions'))
         for g_name, g_desc in sorted(_permission.get_permission_groups().items(), key=lambda x: x[0]):
             if g_name == 'auth':
                 continue
 
+            perms = _permission.get_permissions(g_name)
+            if not perms:
+                continue
+
             tab_content = _html.Div()
-            for perm in _permission.get_permissions(g_name):
+            for perm in perms:
                 p_name = perm[0]
                 tab_content.append(
                     _html.Div(cls='checkbox').append(

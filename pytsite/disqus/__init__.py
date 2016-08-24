@@ -5,22 +5,19 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     """Init wrapper.
     """
-    from pytsite import comments, tpl, reg, events
-    from . import _eh
-    from ._comments import Driver
+    from pytsite import comments, tpl, lang, events, permission, settings
+    from . import _eh, _comments, _settings_form
 
-    if not reg.get('disqus.short_name'):
-        raise ValueError("Configuration parameter 'disqus.short_name' is not defined.")
-
-    if not reg.get('disqus.api_secret'):
-        raise ValueError("Configuration parameter 'disqus.api_secret' is not defined.")
-
+    lang.register_package(__name__)
     tpl.register_package(__name__)
-    comments.register_driver(Driver())
+    comments.register_driver(_comments.Driver())
+
+    permission.define_permission('disqus.settings.manage', 'pytsite.disqus@manage_disqus_settings', 'app')
+    settings.define('disqus', _settings_form.Form, 'pytsite.disqus@disqus', 'fa fa-comments', 'disqus.settings.manage')
 
     events.listen('pytsite.update', _eh.pytsite_update)
 
-__init()
+_init()

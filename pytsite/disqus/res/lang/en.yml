@@ -1,0 +1,6 @@
+disqus: 'Disqus'
+manage_disqus_settings: 'Manage Disqus settings'
+short_name: 'Short name'
+short_name_setup_help: 'You should acquire your short name <a href="https://disqus.com/admin/create/" target="_blank">here</a>.'
+secret_key: 'App sercret key'
+secret_key_setup_help: 'You can acquire your secret key <a href="https://disqus.com/api/applications/" target="_blank">here</a>.'
