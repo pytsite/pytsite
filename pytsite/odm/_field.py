@@ -413,13 +413,17 @@ class Ref(Abstract):
 
         # Get first item from the iterable value
         if type(value) in (list, tuple):
-            value = value[0] if len(value) else None
+            if len(value):
+                value = value[0]
+            else:
+                return
 
         if isinstance(value, (_bson_DBRef, str, Entity)):
             from ._api import resolve_ref
             value = resolve_ref(value)
         else:
-            raise TypeError('String, DB reference or entity expected.')
+            raise TypeError("Error while setting value of the field '{}': "
+                            "string, DB reference or entity expected, got '{}'.".format(self._name, repr(value)))
 
         return value
 

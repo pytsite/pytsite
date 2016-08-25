@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.85.2 (2016-08-25)
+### Fixed
+- `odm`: processing empty list/tuple values in `field.Ref()`.
+
+
 ## 0.85.1 (2016-08-25)
 ### Added
 - `disqus`: support of renamed Disqus block with inline buttons. 
