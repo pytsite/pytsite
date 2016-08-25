@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.85.1 (2016-08-25)
+### Added
+- `disqus`: support of renamed Disqus block with inline buttons. 
+
+
 ## 0.85 (2016-08-24)
 ### Changed
 - `disqus`: settings moved from registry to UI settings form.

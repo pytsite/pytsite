@@ -1,10 +1,17 @@
-"""AddThis Widget.
+"""PytSite AddThis Widget.
 """
 from pytsite import reg as _reg, assetman as _assetman, html as _html, settings as _settings, widget as _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_valid_box_types = (
+    'inline_share_toolbox', 'addthis_inline_share_toolbox',
+    'sharing_toolbox', 'addthis_sharing_toolbox',
+    'recommended_horizontal', 'addthis_recommended_horizontal',
+)
 
 
 class AddThis(_widget.Abstract):
@@ -19,10 +26,16 @@ class AddThis(_widget.Abstract):
         if not self._pub_id:
             raise RuntimeError("Configuration parameter 'addthis.pub_id' is not defined.")
 
-        self._valid_types = ('sharing_toolbox', 'recommended_horizontal')
-        self._box_type = kwargs.get('box_type', 'sharing_toolbox')
-        if self._box_type not in self._valid_types:
-            raise RuntimeError("Invalid type: '{}'. Valid types are: {}.".format(self._box_type, str(self._valid_types)))
+        self._box_type = kwargs.get('box_type', _valid_box_types[0])
+        if self._box_type not in _valid_box_types:
+            raise RuntimeError("Invalid type: '{}'. Valid types are: {}.".format(self._box_type, str(_valid_box_types)))
+
+        if not self._box_type.startswith('addthis_'):
+            self._box_type = 'addthis_' + self._box_type
+
+        # To support previous version of AddThis container naming convention
+        if self._box_type == 'addthis_inline_share_toolbox':
+            self._box_type += ' addthis_sharing_toolbox'
 
         self._url = kwargs.get('url')
 
@@ -34,7 +47,7 @@ class AddThis(_widget.Abstract):
         """Render the widget.
         :param **kwargs:
         """
-        div = _html.Div(cls='addthis_' + self._box_type)
+        div = _html.Div(cls=self._box_type)
 
         if self._url:
             div.set_attr('data_url', self._url)
