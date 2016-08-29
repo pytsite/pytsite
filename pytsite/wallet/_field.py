@@ -1,6 +1,5 @@
 """PytSite Money ODM Field
 """
-from copy import deepcopy as _deepcopy
 from frozendict import frozendict as _frozendict
 from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, currency as _currency, auth as _auth
@@ -13,6 +12,7 @@ __license__ = 'MIT'
 class Money(_odm.field.Dict):
     """PytSite Money ODM Field
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -59,18 +59,13 @@ class Money(_odm.field.Dict):
 
         return value
 
-    def _on_get(self, internal_value, **kwargs) -> dict:
-        """Get value of the field.
-        """
+    def _on_get_jsonable(self, internal_value: dict, **kwargs):
         internal_value.update({
+            'amount': float(internal_value['amount']),
             'currency_symbol': _currency.get_symbol(internal_value['currency']),
             'currency_title': _currency.get_title(internal_value['currency']),
+            'currency_short_title': _currency.get_title(internal_value['currency'], True),
         })
-
-        return internal_value
-
-    def _on_get_jsonable(self, internal_value, **kwargs):
-        internal_value['amount'] = float(internal_value['amount'])
 
         return internal_value
 

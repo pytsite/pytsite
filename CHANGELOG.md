@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.85.3 (2016-08-29)
+### Fixed
+- `wallet`: JSONable value building in `field.Money`. 
+
+
 ## 0.85.2 (2016-08-25)
 ### Fixed
 - `odm`: processing empty list/tuple values in `field.Ref()`.
