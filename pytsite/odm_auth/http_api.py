@@ -86,7 +86,7 @@ def post_entity(inp: dict):
     _fill_entity_fields(entity, inp)
     entity.save()
 
-    return {'uid': str(entity.id)}
+    return entity.as_jsonable()
 
 
 def patch_entity(inp: dict) -> dict:

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.86.1 (2016-08-30)
+### Changed
+- `odm_auth`: format of the response of the `POST odm_auth/entity` HTTP API endpoint.
+
+
 ## 0.86 (2016-08-30)
 ### Added
 - `odm_auth`: 
