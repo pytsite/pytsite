@@ -1,8 +1,8 @@
 """PytSite ODM Permissions API Functions.
 """
 from typing import Iterable as _Iterable
-from pytsite import permission as _permission, auth as _auth, auth_storage_odm as _auth_storage_odm, odm as _odm, \
-    threading as _threading
+from pytsite import permission as _permission, auth as _auth, odm as _odm, threading as _threading
+from . import _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -10,6 +10,15 @@ __license__ = 'MIT'
 
 # Thread safe permission checking disable flag
 _disable_perm_check = {}
+
+
+def dispense(model: str, uid=None) -> _model.AuthorizableEntity:
+    entity = _odm.dispense(model, uid)
+
+    if not isinstance(entity, _model.AuthorizableEntity):
+        raise TypeError("Entity of model '{}' is not an instance of AuthorizableEntity.")
+
+    return entity
 
 
 def is_perm_check_enabled() -> bool:

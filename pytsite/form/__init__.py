@@ -16,7 +16,7 @@ def _init():
     lang.register_package(__name__)
     assetman.register_package(__name__)
     tpl.register_package(__name__)
-    http_api.register_package_alias('form', __name__)
+    http_api.register_package('form', 'pytsite.form.http_api')
 
 
 _init()

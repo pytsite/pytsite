@@ -22,7 +22,7 @@ def _init():
         'pytsite.image@resize'
     )
 
-    http_api.register_package_alias('image', __name__)
+    http_api.register_package('image', 'pytsite.image.http_api')
     assetman.register_package(__name__)
     events.listen('pytsite.setup', _eh.setup)
 

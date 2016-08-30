@@ -2,7 +2,6 @@
 """
 from typing import Tuple as _Tuple
 from pytsite import odm as _odm, auth as _auth
-from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -26,6 +25,7 @@ class AuthorizableEntity(_odm.model.Entity):
     def check_permissions(self, action: str) -> bool:
         """Check current user's permissions.
         """
+        from . import _api
         return _api.check_permissions(action, self.model, self.id)
 
     def _pre_save(self):

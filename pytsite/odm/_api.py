@@ -131,7 +131,7 @@ def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_model.Entity, None]:
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def dispense(model: str, eid=None) -> _model.Entity:
+def dispense(model: str, uid=None) -> _model.Entity:
     """Dispense an entity.
     """
     if not is_model_registered(model):
@@ -139,13 +139,13 @@ def dispense(model: str, eid=None) -> _model.Entity:
 
     model_class = get_model_class(model)
 
-    if eid:
+    if uid:
         try:
             # Get entity from cache
-            return _e_cache.get(model, eid)
+            return _e_cache.get(model, uid)
         except KeyError:
             # Instantiate entity
-            return _e_cache.put(model_class(model, eid))
+            return _e_cache.put(model_class(model, uid))
     else:
         entity = model_class(model)
         if _dbg:

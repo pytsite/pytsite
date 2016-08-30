@@ -1,4 +1,4 @@
-"""
+""" PytSite ODM Auth HTTP API
 """
 from json import loads as _json_loads, JSONDecodeError as _JSONDecodeError
 from pytsite import http as _http, odm as _odm
@@ -7,6 +7,37 @@ from . import _model, _api
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+def _fill_entity_fields(entity: _model.AuthorizableEntity, inp: dict):
+    for k, v in inp.items():
+        # Fields to skip
+        if k in ('access_token', 'model', 'uid') or k.startswith('_'):
+            continue
+
+        field = entity.get_field(k)
+
+        # Convert JSON string to object
+        if isinstance(field, (_odm.field.List, _odm.field.Dict)):
+            if isinstance(v, str):
+                try:
+                    v = _json_loads(v)
+                except _JSONDecodeError as e:
+                    raise _http.error.InternalServerError("JSON decoding error at field '{}': {}".format(k, e))
+            else:
+                raise _http.error.InternalServerError("Field '{}' is not properly JSON-encoded".format(k))
+
+        # Resolve references
+        if isinstance(field, _odm.field.Ref):
+            v = _odm.resolve_ref(v, field.model)
+        elif isinstance(field, _odm.field.RefsList):
+            v = _odm.resolve_refs(v, field.model)
+
+        # Set field's value
+        try:
+            entity.f_set(k, v)
+        except (TypeError, ValueError):
+            raise _http.error.InternalServerError("Invalid format of field '{}'".format(k))
 
 
 def get_entity(inp: dict) -> dict:
@@ -49,42 +80,41 @@ def post_entity(inp: dict):
         raise _http.error.Forbidden("Insufficient permissions.")
 
     # Dispense new entity
-    entity = _odm.dispense(model)
+    entity = _api.dispense(model)
 
     # Fill fields with values
-    for k, v in inp.items():
-        # Fields to skip
-        if k in ('access_token', 'model') or k.startswith('_'):
-            continue
-
-        field = entity.get_field(k)
-
-        # Convert JSON string to object
-        if isinstance(field, (_odm.field.List, _odm.field.Dict)):
-            if isinstance(v, str):
-                try:
-                    v = _json_loads(v)
-                except _JSONDecodeError as e:
-                    raise _http.error.InternalServerError("JSON decoding error at field '{}': {}".format(k, e))
-            else:
-                raise _http.error.InternalServerError("Field '{}' is not properly JSON-encoded".format(k))
-
-        # Resolve references
-        if isinstance(field, _odm.field.Ref):
-            v = _odm.resolve_ref(v, field.model)
-        elif isinstance(field, _odm.field.RefsList):
-            v = _odm.resolve_refs(v, field.model)
-
-        # Set field's value
-        try:
-            entity.f_set(k, v)
-        except (TypeError, ValueError):
-            raise _http.error.InternalServerError("Invalid format of field '{}'".format(k))
-
-    # Save entity
+    _fill_entity_fields(entity, inp)
     entity.save()
 
     return {'uid': str(entity.id)}
+
+
+def patch_entity(inp: dict) -> dict:
+    """Update entity.
+    """
+    # Model is required
+    model = inp.get('model')
+    if not model:
+        raise RuntimeError('Model is not specified.')
+
+    # Entity ID is required
+    uid = inp.get('uid')
+    if not uid:
+        raise RuntimeError('UID is not specified.')
+
+    # Dispense existing entity
+    entity = _api.dispense(model, uid)
+
+    # Check permissions
+    if not entity.check_permissions('modify'):
+        raise _http.error.Forbidden("Insufficient permissions.")
+
+    # Fill fields with values
+    with entity:
+        _fill_entity_fields(entity, inp)
+        entity.save()
+
+    return entity.as_jsonable()
 
 
 def delete_entity(inp: dict):

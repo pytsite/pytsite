@@ -10,31 +10,25 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_package_aliases = {}
+_packages = {}
 
 
 def _get_endpoint_struct(endpoint: str) -> _Tuple[str, str]:
     """Convert endpoint string representation into a tuple.
     """
     ep_split = endpoint.split('/')
-    package = 'app'
+    package_alias = 'app'
 
     if len(ep_split) > 1:
-        package = '.'.join(ep_split[:-1])
+        package_alias = '.'.join(ep_split[:-1])
         callback = ep_split[-1]
     else:
         callback = ep_split[0]
 
-    if package in _package_aliases:
-        package = _package_aliases[package]
+    if package_alias not in _packages:
+        raise RuntimeError("Package '{}' is not registered as HTTP handler.".format(package_alias))
 
-    if package.startswith('app') and len(package) > 3:
-        p_split = package.split('.')
-        package = p_split[0] + '.http_api.' + '.'.join(p_split[1:])
-    else:
-        package += '.http_api'
-
-    return package, callback
+    return _packages[package_alias], callback
 
 
 def url(endpoint: str, version: int = None, **kwargs):
@@ -57,7 +51,6 @@ def call_ep(endpoint: str, method: str, inp: dict, version: int = None) -> tuple
         version = _reg.get('http_api.version', 1)
 
     package, callback = _get_endpoint_struct(endpoint)
-
     callback_obj = None
 
     # Searching for callable endpoint
@@ -80,15 +73,15 @@ def call_ep(endpoint: str, method: str, inp: dict, version: int = None) -> tuple
     return status, body
 
 
-def register_package_alias(alias: str, package: str):
+def register_package(alias: str, package: str):
     """Register an alias name for package.
     """
-    if alias in _package_aliases:
-        raise RuntimeError("Alias '{}' is already registered.".format(alias))
+    if alias in _packages:
+        raise RuntimeError("Alias '{}' is already registered for package '{}'.".format(alias, _packages[alias]))
 
     try:
         _import_module(package)
     except ImportError:
-        raise RuntimeError("Package '{}' does not exist.".format(package))
+        raise RuntimeError("Package '{}' is not found.".format(package))
 
-    _package_aliases[alias] = package
+    _packages[alias] = package

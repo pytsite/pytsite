@@ -20,7 +20,7 @@ def _init():
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    http_api.register_package_alias('file', __name__)
+    http_api.register_package('file', 'pytsite.file.http_api')
 
     events.listen('pytsite.setup', _eh.setup)
 

@@ -22,7 +22,7 @@ def __init():
 
     tpl.register_package(__name__)
     lang.register_package(__name__)
-    http_api.register_package_alias('auth', __name__)
+    http_api.register_package('auth', 'pytsite.auth.http_api')
 
     # Permissions
     permission.define_group('security', 'pytsite.auth@security')

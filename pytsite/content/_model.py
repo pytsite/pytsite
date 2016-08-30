@@ -187,7 +187,7 @@ class Base(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('title', nonempty=True))
+        self.define_field(_odm.field.String('title', nonempty=True, strip_html=True))
         self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', nonempty=True))
         self.define_field(_odm.field.String('body', tidyfy_html=True))

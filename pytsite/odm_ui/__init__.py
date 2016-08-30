@@ -42,7 +42,7 @@ def _init():
     lang.register_package(__name__)
     tpl.register_package(__name__)
     assetman.register_package(__name__)
-    http_api.register_package_alias('odm_ui', __name__)
+    http_api.register_package('odm_ui', 'pytsite.odm_ui.http_api')
 
 
 _init()

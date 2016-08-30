@@ -25,7 +25,7 @@ def __init():
     assetman.register_package(__name__)
 
     # HTTP API aliases
-    http_api.register_package_alias('flag', __name__)
+    http_api.register_package('flag', 'pytsite.flag.http_api')
 
     # Event listeners
     events.listen('pytsite.setup', _eh.setup)

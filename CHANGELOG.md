@@ -1,5 +1,18 @@
 # PytSite Changelog
 
+## 0.86 (2016-08-30)
+### Added
+- `odm_auth`: 
+    - new function: `dispense()`;
+    - new HTTP API endpoint: `PATCH odm_auth/entity`.
+
+### Changed
+- `http_api`: explicit package registration is necessary now.
+
+### Fixed
+- `content`: stripping HTML in `model.Base.title` field.
+
+
 ## 0.85.3 (2016-08-29)
 ### Fixed
 - `wallet`: JSONable value building in `field.Money`. 
