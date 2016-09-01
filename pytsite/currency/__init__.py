@@ -10,10 +10,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     """Init wrapper.
     """
-    from pytsite import reg, tpl, lang, admin, router, odm, events, permission
+    from pytsite import reg, tpl, lang, admin, router, odm, events, permission, http_api
     from . import _api, _model, _eh
 
     # Permission group
@@ -23,7 +23,7 @@ def __init():
     lang.register_package(__name__)
 
     # Loading currencies from registry config
-    for code in reg.get('currency.currencies', ('USD',)):
+    for code in reg.get('currency.list', ('USD',)):
         _api.define(code)
 
     # Tpl globals
@@ -43,6 +43,9 @@ def __init():
     events.listen('pytsite.odm_ui.user.m_form_setup_widgets', _eh.odm_ui_user_m_form_setup_widgets)
     events.listen('pytsite.auth.http_api.get_user', _eh.auth_http_api_get_user)
 
+    # HTTP API handlers
+    http_api.register_package('currency', 'pytsite.currency.http_api')
+
 
 # Package initialization
-__init()
+_init()

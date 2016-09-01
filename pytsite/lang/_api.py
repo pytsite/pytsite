@@ -14,7 +14,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _languages = []
-_current = {}  # Thread safe current language store
+_current = {}  # Thread safe current language
 _fallback = None
 _packages = {}
 _sub_trans_re = _re.compile('\{:([_a-z0-9]+)\}')
@@ -31,6 +31,7 @@ def define(languages: list):
     """
     global _languages
     _languages = languages
+
     set_current(_languages[0])
     set_fallback(_languages[0])
 
@@ -68,7 +69,7 @@ def get_current() -> str:
     """Get current language.
     """
     if not _languages:
-        raise Exception("No languages are defined.")
+        raise RuntimeError("No languages are defined.")
 
     tid = _threading.get_id()
     if tid not in _current:
@@ -81,7 +82,7 @@ def get_fallback() -> str:
     """Get fallback language.
     """
     if not _languages:
-        raise Exception("No languages are defined.")
+        raise RuntimeError("No languages are defined.")
 
     return _fallback
 

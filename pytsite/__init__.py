@@ -90,7 +90,7 @@ def __init():
 
     # Initializing language subsystem
     from . import lang
-    lang.define(reg.get('lang.languages', ['en']))
+    lang.define(reg.get('languages', ['en']))
 
     # Initializing template subsystem
     from . import tpl

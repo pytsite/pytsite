@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.86.2 (2016-09-01)
+### Changed
+- Configuration parameter `lang.languages` shortcuted to `languages`. 
+- Configuration parameter `currency.currencies` renamed to `currency.list`. 
+
+### Fixed
+- `currency`: unregistered HTTP API handler. 
+
+
 ## 0.86.1 (2016-08-30)
 ### Changed
 - `odm_auth`: format of the response of the `POST odm_auth/entity` HTTP API endpoint.
