@@ -163,6 +163,12 @@ pytsite.browser = {
         }
 
         return {
+            href: window.location.href,
+            origin: window.location.origin,
+            protocol: window.location.protocol,
+            host: window.location.host,
+            port: window.location.port,
+            pathname: window.location.pathname,
             query: split(window.location.search.replace(/^\?/, '')),
             hash: split(window.location.hash.replace(/^#/, ''))
         };
@@ -184,4 +190,3 @@ pytsite.browser = {
         return r.join("&");
     }
 };
-

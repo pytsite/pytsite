@@ -1,4 +1,4 @@
-@media (max-width: 480px) {
+@media (max-width: 479px) {
     .col-xs-B-1, .col-xs-B-2, .col-xs-B-3, .col-xs-B-4, .col-xs-B-5, .col-xs-B-6, .col-xs-B-7, .col-xs-B-8, .col-xs-B-9, .col-xs-B-10, .col-xs-B-11, .col-xs-B-12 {
         float: left;
     }

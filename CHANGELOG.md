@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.86.3 (2016-09-02)
+### Added
+- `browser`:
+    - Bootstrap's columns add-ons;
+    - `costo.browser.parseLocation()` fields of returned value.
+
+
 ## 0.86.2 (2016-09-01)
 ### Changed
 - Configuration parameter `lang.languages` shortcuted to `languages`. 
