@@ -438,6 +438,10 @@ class Base(_odm_ui.model.UIEntity):
                 'last_name': self.author.last_name,
                 'full_name': self.author.full_name,
                 'url': self.author.profile_view_url,
+                'picture': self.author.picture.as_jsonable(
+                    thumb_width=kwargs.get('author_picture_size', 100),
+                    thumb_height=kwargs.get('author_picture_size', 100),
+                ),
             }
 
         return r
@@ -537,6 +541,10 @@ class Content(Base):
     @property
     def publish_date_pretty(self) -> str:
         return self.f_get('publish_time', fmt='pretty_date')
+
+    @property
+    def publish_time_ago(self) -> str:
+        return self.f_get('publish_time', fmt='ago')
 
     @property
     def starred(self) -> bool:
@@ -935,7 +943,12 @@ class Content(Base):
         if self.has_field('status'):
             r['status'] = self.status
         if self.has_field('publish_time'):
-            r['publish_time'] = _util.rfc822_datetime_str(self.publish_time)
+            r['publish_time'] = {
+                'rfc822': _util.rfc822_datetime_str(self.publish_time),
+                'pretty_date': self.publish_date_pretty,
+                'pretty_date_time': self.publish_date_time_pretty,
+                'ago': self.publish_time_ago,
+            }
         if self.has_field('views_count'):
             r['views_count'] = self.views_count
         if self.has_field('comments_count'):

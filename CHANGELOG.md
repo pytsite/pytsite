@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.87 (2016-09-04)
+### Added
+- `browser`: Font Awesome upgraded from 4.4.0 to 4.6.3.
+- `content`: new field `author.picture` in `model.Base.as_jsonable()` return value.
+
+### Changed
+- `content`: format of `publish_time` field in `model.Content.as_jsonable()` return value. 
+
+
 ## 0.86.4 (2016-09-04)
 ### Changed
 - `odm_auth`: argument renamed in `delete_entity()` HTTP API endpoint.
