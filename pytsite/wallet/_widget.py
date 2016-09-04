@@ -129,9 +129,8 @@ class MoneyInput(_w.Abstract):
 
             for code in _currency.get_all():
                 if not code.startswith('_'):
-                    cur_title = _currency.get_symbol(code)
                     selected = True if code == self._value['currency'] else False
-                    sel.append(_html.Option(cur_title, value=code, selected=selected))
+                    sel.append(_html.Option(code, value=code, selected=selected))
 
             r.append(sel)
         else:

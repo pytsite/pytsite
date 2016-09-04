@@ -481,10 +481,7 @@ class RefsList(List):
                 raise TypeError("Field '{}': list of entities or DBRefs expected. Got: {}".
                                 format(self.name, repr(value)))
 
-            if self._unique:
-                if item not in r:
-                    r.append(item)
-            else:
+            if not self._unique or (self._unique and item not in r):
                 r.append(item)
 
         return r

@@ -121,7 +121,7 @@ def delete_entity(inp: dict):
     """Delete one or more entities.
     """
     model = inp.get('model')
-    ids = inp.get('ids')
+    ids = inp.get('uid')
 
     if not model:
         raise RuntimeError('Model is not specified.')

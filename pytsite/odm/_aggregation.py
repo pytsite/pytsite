@@ -21,6 +21,8 @@ class Aggregator:
         """
         self._group.append(expression)
 
+        return self
+
     def _compile(self) -> dict:
         """Compile pipeline expression.
         """

@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.86.4 (2016-09-04)
+### Changed
+- `odm_auth`: argument renamed in `delete_entity()` HTTP API endpoint.
+- `wallet`: currency title format in `widget.MoneyInput`. 
+
+### Fixed
+- `odm`: return `self` in `Aggregator.group()`.
+- `odm_ui`: required input argument checking in `widget.EntitySelect`. 
+
+
 ## 0.86.3 (2016-09-02)
 ### Added
 - `browser`:
