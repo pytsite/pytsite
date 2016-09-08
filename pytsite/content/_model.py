@@ -7,12 +7,14 @@ from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, util as _util, form as _form, reg as _reg
+    tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+
+_localization_enabled = _reg.get('content.localization', True)
 _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 
@@ -178,6 +180,8 @@ class Tag(_taxonomy.model.Term):
 
 class Base(_odm_ui.model.UIEntity):
     """Base Content Model.
+
+    Just minimum amount of fields.
     """
 
     @classmethod
@@ -188,12 +192,12 @@ class Base(_odm_ui.model.UIEntity):
         """Hook.
         """
         self.define_field(_odm.field.String('title', nonempty=True, strip_html=True))
-        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
-        self.define_field(_odm.field.String('language_db', nonempty=True))
         self.define_field(_odm.field.String('body', tidyfy_html=True))
-        self.define_field(_odm.field.Ref('author', nonempty=True, model='user'))
         self.define_field(_odm.field.RefsUniqueList('images', model='image'))
         self.define_field(_odm.field.StringList('video_links', unique=True))
+        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_primary()))
+        self.define_field(_odm.field.String('language_db', nonempty=True))
+        self.define_field(_odm.field.Ref('author', nonempty=True, model='user'))
         self.define_field(_odm.field.Dict('options'))
 
     def _setup_indexes(self):
@@ -211,30 +215,44 @@ class Base(_odm_ui.model.UIEntity):
 
     @property
     def title(self) -> str:
+        """Title getter.
+        """
         return self.f_get('title')
 
     @property
     def body(self) -> str:
+        """Body getter.
+        """
         return self.f_get('body', process_tags=True)
 
     @property
     def images(self) -> _Tuple[_image.model.Image]:
+        """Images getter.
+        """
         return self.f_get('images')
 
     @property
     def video_links(self) -> tuple:
+        """Video links getter.
+        """
         return self.f_get('video_links')
 
     @property
     def language(self) -> str:
+        """Language getter.
+        """
         return self.f_get('language')
 
     @property
     def author(self) -> _auth.model.AbstractUser:
+        """Author getter.
+        """
         return self.f_get('author')
 
     @property
     def options(self) -> _frozendict:
+        """Options getter.
+        """
         return self.f_get('options')
 
     def _on_f_get(self, field_name: str, value, **kwargs):
@@ -322,6 +340,7 @@ class Base(_odm_ui.model.UIEntity):
     def _after_delete(self):
         """Hook.
         """
+        # Delete all attached images
         if self.has_field('images'):
             for img in self.images:
                 with img:
@@ -332,7 +351,8 @@ class Base(_odm_ui.model.UIEntity):
         """Setup ODM UI browser hook.
         """
         # Filter by language
-        browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
+        if _localization_enabled:
+            browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
 
         browser.default_sort_field = '_modified'
         browser.insert_data_field('title', 'pytsite.content@title')
@@ -508,7 +528,7 @@ class Content(Base):
         if self.is_new:
             raise RuntimeError("Cannot generate view URL for non-saved entity of model '{}'.".format(self.model))
 
-        target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)}, True)
+        target_path = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': str(self.id)})
         r_alias = _route_alias.get_by_target(target_path, self.language)
         value = r_alias.alias if r_alias else target_path
 
@@ -615,10 +635,9 @@ class Content(Base):
             if self.has_field('section') and self.section and self.tags:
                 for tag in self.tags:
                     with tag:
-                        c_user = _auth.get_current_user()
-                        _auth.switch_user(_auth.get_system_user())
+                        _auth.switch_user_to_system()
                         tag.f_add('sections', self.section).save()
-                        _auth.switch_user(c_user)
+                        _auth.restore_user()
 
     def _after_save(self, first_save: bool = False):
         """Hook.
@@ -628,7 +647,7 @@ class Content(Base):
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
             with self.route_alias:
-                target = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': self.id}, True)
+                target = _router.ep_path('pytsite.content@view', {'model': self.model, 'id': self.id})
                 self.route_alias.f_set('target', target).save()
 
         if first_save:
@@ -652,10 +671,9 @@ class Content(Base):
                         for model in _api.get_models().keys():
                             weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
 
-                        c_user = _auth.get_current_user()
-                        _auth.switch_user(_auth.get_system_user())
+                        _auth.switch_user_to_system()
                         tag.f_set('weight', weight).save()
-                        _auth.switch_user(c_user)
+                        _auth.restore_user()
 
         # Updating localization entities references.
         # For each language except current one
@@ -683,6 +701,17 @@ class Content(Base):
         """Hook.
         """
         super()._after_delete()
+
+        # Disable permissions check
+        _auth.switch_user_to_system()
+
+        # Delete comments
+        _comments.delete_thread(self.route_alias.alias)
+
+        # Enable permissions check
+        _auth.restore_user()
+
+        # Delete linked route alias
         with self.route_alias:
             self.route_alias.delete()
 
@@ -859,7 +888,7 @@ class Content(Base):
                 ))
 
         # Language settings
-        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
+        if _localization_enabled and current_user.has_permission('pytsite.content.set_localization.' + self.model):
             # Current language
             if self.is_new:
                 lang_title = _lang.t('lang_title_' + _lang.get_current())
@@ -930,6 +959,8 @@ class Content(Base):
     def as_jsonable(self, **kwargs):
         r = super().as_jsonable(**kwargs)
 
+        r['route_alias'] = self.route_alias.as_jsonable()
+
         if self.has_field('starred'):
             r['starred'] = self.starred
         if self.has_field('section'):
@@ -944,7 +975,7 @@ class Content(Base):
             r['status'] = self.status
         if self.has_field('publish_time'):
             r['publish_time'] = {
-                'rfc822': _util.rfc822_datetime_str(self.publish_time),
+                'w3c': _util.w3c_datetime_str(self.publish_time),
                 'pretty_date': self.publish_date_pretty,
                 'pretty_date_time': self.publish_date_time_pretty,
                 'ago': self.publish_time_ago,
@@ -954,11 +985,12 @@ class Content(Base):
         if self.has_field('comments_count'):
             r['comments_count'] = self.comments_count
 
-        for lng in _lang.langs():
-            if self.has_field('localization_' + lng):
-                ref = self.f_get('localization_' + lng)
-                if ref:
-                    r['localization_' + lng] = ref.as_jsonable(**kwargs)
+        if _localization_enabled:
+            for lng in _lang.langs():
+                if self.has_field('localization_' + lng):
+                    ref = self.f_get('localization_' + lng)
+                    if ref:
+                        r['localization_' + lng] = ref.as_jsonable(**kwargs)
 
         return r
 

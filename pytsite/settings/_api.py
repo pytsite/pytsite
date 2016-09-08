@@ -23,7 +23,7 @@ def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permission
         'perm_name': permissions,
     }
 
-    url = _router.ep_url('pytsite.settings@form', {'uid': uid})
+    url = _router.ep_path('pytsite.settings@form', {'uid': uid})
     _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, weight=menu_weight, permissions=permissions)
 
 

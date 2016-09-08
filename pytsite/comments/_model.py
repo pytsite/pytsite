@@ -67,7 +67,8 @@ class AbstractComment:
             'permissions': self.permissions,
             'publish_time': {
                 'w3c': _util.w3c_datetime_str(self.publish_time),
-                'pretty': _lang.pretty_date_time(self.publish_time),
+                'pretty_date': _lang.pretty_date(self.publish_time),
+                'pretty_date_time': _lang.pretty_date_time(self.publish_time),
                 'ago': _lang.time_ago(self.publish_time),
             },
         }

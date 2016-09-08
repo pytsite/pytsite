@@ -32,11 +32,11 @@ def index(args: dict, inp: dict):
         term_model = f.mock.get_field(term_field).model
         term_alias = args.get('term_alias')
         if term_alias and term_model != '*':
-            term = _taxonomy.find(term_model).where('alias', '=', term_alias).first()
+            term = _taxonomy.find(term_model).eq('alias', term_alias).first()
             if term:
                 args['term'] = term
                 if isinstance(f.mock.fields[term_field], _odm.field.Ref):
-                    f.where(term_field, '=', term)
+                    f.eq(term_field, term)
                 elif isinstance(f.mock.fields[term_field], _odm.field.RefsList):
                     f.where(term_field, 'in', [term])
                 _metatag.t_set('title', term.title)
@@ -52,7 +52,7 @@ def index(args: dict, inp: dict):
 
         if author:
             _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': author.full_name}))
-            f.where('author', '=', author)
+            f.eq('author', author)
             args['author'] = author
         else:
             raise _http.error.NotFound()
@@ -83,7 +83,9 @@ def view(args: dict, inp: dict):
     from . import _api
 
     model = args.get('model')
-    entity = _api.find(model, status=None, check_publish_time=False).where('_id', '=', args.get('id')).first()
+    f = _api.find(model, status=None, check_publish_time=False).eq('_id', args.get('id'))
+
+    entity = f.first()
     """:type: pytsite.content._model.Content"""
 
     # Check entity existence
@@ -104,9 +106,9 @@ def view(args: dict, inp: dict):
 
     with entity:
         # Update entity's comments count
-        _odm_auth.disable_perm_check()
+        _auth.switch_user_to_system()
         entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save()
-        _odm_auth.enable_perm_check()
+        _auth.restore_user()
 
     # Meta title
     if entity.has_field('title'):

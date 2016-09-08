@@ -2,6 +2,7 @@
 """
 from typing import Iterable as _Iterable
 from pytsite import widget as _widget, auth as _auth, comments as _comments, odm as _odm, odm_auth as _odm_auth
+from . import _model
 from ._widget import Comments as _CommentsWidget
 
 __author__ = 'Alexander Shepetko'
@@ -37,30 +38,28 @@ class Native(_comments.driver.Abstract):
                 raise RuntimeError('Comment max depth exceeded.')
 
             with parent:
-                c_user = _auth.get_current_user()
-                _auth.switch_user(_auth.get_system_user())
+                _auth.switch_user_to_system()
                 parent.append_child(comment).save()
-                _auth.switch_user(c_user)
+                _auth.restore_user()
 
         return comment
 
-    def get_widget(self, widget_uid: str, thread_id: str) -> _widget.Abstract:
-        """Get comments widget for particular thread.
+    def get_widget(self, widget_uid: str, thread_uid: str) -> _widget.Abstract:
+        """Get comments widget.
         """
-        return _CommentsWidget(widget_uid, thread_id=thread_id)
+        return _CommentsWidget(widget_uid, thread_id=thread_uid)
 
-    def get_comments(self, thread_uid: str, limit: int = 0, skip: int = 0) \
-            -> _Iterable[_comments.model.AbstractComment]:
+    def get_comments(self, thread_uid: str, limit: int = 0, skip: int = 0) -> _Iterable[_model.Comment]:
         """Get comments.
         """
-        f = _odm.find('comment').where('thread_uid', '=', thread_uid)
+        f = _odm.find('comment').eq('thread_uid', thread_uid)
 
         return f.sort([('publish_time', _odm.I_ASC)]).skip(skip).get(limit)
 
     def get_comment(self, uid: str) -> _comments.model.AbstractComment:
         """Get single comment by UID.
         """
-        comment = _odm.find('comment').where('_id', '=', uid).first()
+        comment = _odm.find('comment').eq('_id', uid).first()
 
         if not comment:
             raise _comments.error.CommentNotExist("Comment '{}' not exist.".format(uid))
@@ -70,17 +69,24 @@ class Native(_comments.driver.Abstract):
     def get_comments_count(self, thread_uid: str) -> int:
         """Get comments count for particular thread.
         """
-        return _odm.find('comment').where('thread_uid', '=', thread_uid).where('status', '=', 'published').count()
+        return _odm.find('comment').eq('thread_uid', thread_uid).eq('status', 'published').count()
 
     def delete_comment(self, uid: str):
         """Mark comment as deleted.
         """
-        comment = _odm.find('comment').where('_id', '=', uid).first()
+        comment = _odm.find('comment').eq('_id', uid).first()
         if not comment:
             raise _comments.error.CommentNotExist("Comment '{}' does not exist.".format(uid))
 
         with comment:
             comment.f_set('status', 'deleted').save()
+
+    def delete_thread(self, thread_uid: str):
+        """Physically remove comments for particular thread.
+        """
+        for comment in self.get_comments(thread_uid):
+            with comment:
+                comment.delete()
 
     def get_permissions(self, user: _auth.model.AbstractUser = None) -> dict:
         """Get permissions definition for user.

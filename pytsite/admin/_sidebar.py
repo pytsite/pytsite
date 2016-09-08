@@ -144,7 +144,7 @@ def render() -> _html.Aside:
         # Building top level menu item
         for menu in render_menus[section['sid']]:
             # Link
-            href = _router.url(menu['href'], relative=True)
+            href = _router.url(menu['href'])
             a = _html.A(href=href)
 
             # Icon

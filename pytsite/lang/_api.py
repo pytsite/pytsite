@@ -78,6 +78,15 @@ def get_current() -> str:
     return _current[_threading.get_id()]
 
 
+def get_primary() -> str:
+    """Get primary language.
+    """
+    if not _languages:
+        raise RuntimeError("No languages are defined.")
+
+    return _languages[0]
+
+
 def get_fallback() -> str:
     """Get fallback language.
     """

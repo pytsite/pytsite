@@ -1,12 +1,15 @@
 """Route Paths API.
 """
 import re
-from pytsite import util as _util, odm as _odm, lang as _lang
+from pytsite import util as _util, odm as _odm, lang as _lang, reg as _reg
 from . import _model, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_localization_enabled = _reg.get('route_alias.localization', True)
 
 
 def create(alias: str, target: str, language: str = None) -> _model.RouteAlias:
@@ -30,14 +33,14 @@ def sanitize_alias_string(s: str, language: str = None) -> str:
         language = _lang.get_current()
 
     if not s:
-        raise Exception('Alias cannot be empty.')
+        raise RuntimeError('Alias cannot be empty.')
 
     if not s.startswith('/'):
         s = '/' + s
 
     itr = 0
     while True:
-        if not _odm.find('route_alias').where('alias', '=', s).where('language', '=', language).first():
+        if not _odm.find('route_alias').eq('alias', s).eq('language', language).first():
             return s
 
         itr += 1
@@ -47,19 +50,22 @@ def sanitize_alias_string(s: str, language: str = None) -> str:
             s = re.sub('-\d+$', '-' + str(itr), s)
 
 
-def find() -> _odm.Finder:
+def find(language: str = None) -> _odm.Finder:
     """Get route alias finder.
     """
-    return _odm.find('route_alias').where('language', '=', _lang.get_current())
+    f = _odm.find('route_alias')
+    if _localization_enabled:
+        if not language:
+            language = _lang.get_current()
+        f.eq('language', language)
+
+    return f
 
 
 def get_by_alias(alias: str, language: str = None) -> _model.RouteAlias:
     """Find route alias by target.
     """
-    if not language:
-        language = _lang.get_current()
-
-    r_alias = _odm.find('route_alias').where('alias', '=', alias).where('language', '=', language).first()
+    r_alias = find(language).eq('alias', alias).first()
     if not r_alias:
         raise _error.RouteAliasNotFound("Route alias for alias '{}', language '{}' not found.".format(alias, language))
 
@@ -69,10 +75,7 @@ def get_by_alias(alias: str, language: str = None) -> _model.RouteAlias:
 def get_by_target(target: str, language: str = None) -> _model.RouteAlias:
     """Find route alias by target.
     """
-    if not language:
-        language = _lang.get_current()
-
-    r_alias = _odm.find('route_alias').where('target', '=', target).where('language', '=', language).first()
+    r_alias = find(language).eq('target', target).first()
     if not r_alias:
         raise _error.RouteAliasNotFound("Route alias for target '{}', language '{}' not found.".
                                         format(target, language))

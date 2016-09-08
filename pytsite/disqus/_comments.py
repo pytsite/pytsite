@@ -18,12 +18,12 @@ class Driver(_comments.driver.Abstract):
         """
         return 'disqus'
 
-    def get_widget(self, widget_uid: str, thread_id: str) -> _DisqusWidget:
-        """Get comments widget for particular thread.
+    def get_widget(self, widget_uid: str, thread_uid: str) -> _DisqusWidget:
+        """Get comments widget.
         """
-        return _DisqusWidget(widget_uid)
+        return _DisqusWidget(widget_uid, thread_uid=thread_uid)
 
-    def get_comments_count(self, thread_id: str) -> int:
+    def get_comments_count(self, thread_uid: str) -> int:
         """Get comments count for particular thread.
         """
         count = 0
@@ -32,11 +32,11 @@ class Driver(_comments.driver.Abstract):
             r = _requests.get('https://disqus.com/api/3.0/forums/listThreads.json', {
                 'api_secret': _settings.get('disqus.api_secret'),
                 'forum': _settings.get('disqus.short_name'),
-                'thread': 'link:' + thread_id,
+                'thread': 'link:' + thread_uid,
                 'limit': 1,
             }).json()
 
-            if r['code'] == 0 and r['response'] and r['response'][0]['link'] == thread_id:
+            if r['code'] == 0 and r['response'] and r['response'][0]['link'] == thread_uid:
                 count = r['response'][0]['posts']
 
         except Exception as e:
@@ -61,6 +61,11 @@ class Driver(_comments.driver.Abstract):
 
     def delete_comment(self, uid: str):
         """Mark comment as deleted.
+        """
+        raise NotImplementedError("Not implemented yet.")
+
+    def delete_thread(self, thread_uid: str):
+        """Physically remove comments for particular thread.
         """
         raise NotImplementedError("Not implemented yet.")
 

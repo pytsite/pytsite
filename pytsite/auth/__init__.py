@@ -6,7 +6,8 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
     register_auth_driver, user_nickname_rule, sign_in, get_auth_driver, create_role, get_sign_in_url, get_sign_out_url,\
     verify_password, hash_password, sign_out, get_access_token_info, switch_user, get_anonymous_user, \
     get_system_user, get_users, get_storage_driver, register_storage_driver, count_users, count_roles, \
-    get_first_admin_user, get_roles, get_role_modify_form, get_user_modify_form, base_path, get_user_select_widget
+    get_first_admin_user, get_roles, get_role_modify_form, get_user_modify_form, base_path, get_user_select_widget, \
+    switch_user_to_system, switch_user_to_anonymous, restore_user
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -58,7 +59,7 @@ def __init():
     register_storage_driver(driver_class())
 
     # Set system user as current
-    switch_user(get_system_user())
+    switch_user_to_system()
 
     # Check if required roles exist
     for r_name in ('anonymous', 'user', 'admin'):

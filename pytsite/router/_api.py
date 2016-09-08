@@ -454,8 +454,8 @@ def url(s: str, **kwargs) -> str:
         # Attaching additional fragment
         r[5] = fragment
 
-    # Adding language suffix
-    if not strip_lang:
+    # Adding language suffix (only for relative links as source argument)
+    if not bool(parsed_url[0]) and not strip_lang:
         lang_re = '^/({})/'.format('|'.join(_lang.langs()))
         if not _re.search(lang_re, parsed_url[2]):
             r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
@@ -500,19 +500,17 @@ def current_url(strip_query: bool = False, resolve_alias: bool = True, lang: str
     return r
 
 
-def ep_path(endpoint: str, args: dict = None, strip_lang=False) -> str:
-    tid = _threading.get_id()
-    if tid not in _map_adapters:
-        _map_adapters[tid] = _routes.bind(server_name())
-
-    return url(_map_adapters[tid].build(endpoint, args), relative=True, strip_lang=strip_lang)
-
-
-def ep_url(ep_name: str, args: dict = None, **kwargs) -> str:
-    """Get URL for endpoint.
+def ep_path(endpoint: str, args: dict = None) -> str:
+    """Get path of endpoint.
     """
     tid = _threading.get_id()
     if tid not in _map_adapters:
         _map_adapters[tid] = _routes.bind(server_name())
 
-    return url(_map_adapters[tid].build(ep_name, args), relative=False, **kwargs)
+    return _map_adapters[tid].build(endpoint, args)
+
+
+def ep_url(ep_name: str, args: dict = None, **kwargs) -> str:
+    """Get URL of endpoint.
+    """
+    return url(ep_path(ep_name, args), **kwargs)

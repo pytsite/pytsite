@@ -2,6 +2,9 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = '{{ widget.short_name }}';
+    var disqus_config = function () {
+        this.page.identifier = '{{ widget.thread_uid }}';
+    };
 
     /* * * DON'T EDIT BELOW THIS LINE * * */
     (function () {

@@ -40,10 +40,6 @@ def odm_register_model(model: str, cls, replace: bool):
 def odm_entity_pre_save(entity: _model.AuthorizableEntity):
     """'pytsite.odm.entity_pre_save' event handler.
     """
-    # Is permissions checking enabled
-    if not _api.is_perm_check_enabled():
-        return
-
     # Check if the model supports permissions
     if not isinstance(entity, _model.AuthorizableEntity):
         return
@@ -70,10 +66,6 @@ def odm_entity_pre_save(entity: _model.AuthorizableEntity):
 def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
     """'pytsite.odm.entity_pre_delete' event handler.
     """
-    # Is permissions checking enabled
-    if not _api.is_perm_check_enabled():
-        return
-
     # Check if the model supports permissions
     if not isinstance(entity, _model.AuthorizableEntity):
         return

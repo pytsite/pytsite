@@ -26,10 +26,10 @@ def __init():
     # Admin sidebar entries
     admin.sidebar.add_section('wallet', 'pytsite.wallet@wallet', 250)
     admin.sidebar.add_menu('wallet', 'accounts', 'pytsite.wallet@accounts',
-                           router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_account'}),
+                           router.ep_path('pytsite.odm_ui@browse', {'model': 'wallet_account'}),
                            'fa fa-credit-card', weight=10, permissions='pytsite.odm_perm.view.wallet_account')
     admin.sidebar.add_menu('wallet', 'transactions', 'pytsite.wallet@transactions',
-                           router.ep_url('pytsite.odm_ui@browse', {'model': 'wallet_transaction'}),
+                           router.ep_path('pytsite.odm_ui@browse', {'model': 'wallet_transaction'}),
                            'fa fa-exchange', weight=20, permissions='pytsite.odm_perm.view.wallet_transaction')
 
     # Cron event dispatcher

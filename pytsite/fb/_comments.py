@@ -22,12 +22,12 @@ class Driver(_comments.driver.Abstract):
         """
         return 'fb'
 
-    def get_widget(self, widget_uid: str, thread_id: str) -> _CommentsWidget:
-        """Get comments widget for particular thread.
+    def get_widget(self, widget_uid: str, thread_uid: str) -> _CommentsWidget:
+        """Get comments widget.
         """
-        return _CommentsWidget(widget_uid, href=thread_id)
+        return _CommentsWidget(widget_uid, href=thread_uid)
 
-    def get_comments_count(self, thread_id: str) -> int:
+    def get_comments_count(self, thread_uid: str) -> int:
         """Get comments count for particular thread.
         """
         count = 0
@@ -35,7 +35,7 @@ class Driver(_comments.driver.Abstract):
         try:
             r = _requests.get('https://graph.facebook.com/v2.4', {
                 'fields': 'share{comment_count}',
-                'id':  thread_id,
+                'id':  thread_uid,
             }).json()
 
             if 'share' in r:
@@ -63,6 +63,11 @@ class Driver(_comments.driver.Abstract):
 
     def delete_comment(self, uid: str):
         """Mark comment as deleted.
+        """
+        raise NotImplementedError("Not implemented yet.")
+
+    def delete_thread(self, thread_uid: str):
+        """Physically remove comments for particular thread.
         """
         raise NotImplementedError("Not implemented yet.")
 

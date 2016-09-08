@@ -19,7 +19,8 @@ _permissions = []
 _anonymous_user = None
 _system_user = None
 _access_tokens = _cache.create_pool('pytsite.auth.access_tokens')
-_current_user = {}  # user object per thread
+_current_user = {}  # user object, per thread
+_previous_user = {}  # user object, per thread
 
 user_login_rule = _validation.rule.Email()
 user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
@@ -312,7 +313,7 @@ def sign_out(user: _model.AbstractUser):
     _events.fire('pytsite.auth.sign_out', user=user)
 
     # Set anonymous user as current
-    switch_user(get_anonymous_user())
+    switch_user_to_anonymous()
 
 
 def get_current_user() -> _model.AbstractUser:
@@ -328,7 +329,32 @@ def get_current_user() -> _model.AbstractUser:
 def switch_user(user: _model.AbstractUser):
     """Switch current user.
     """
-    _current_user[_threading.get_id()] = user
+    tid = _threading.get_id()
+    _previous_user[tid] = _current_user[tid] if tid in _current_user else get_anonymous_user()
+    _current_user[tid] = user
+
+    return user
+
+
+def restore_user() -> _model.AbstractUser:
+    """Switch to previous user.
+    """
+    tid = _threading.get_id()
+    _current_user[tid] = _previous_user[tid] if tid in _previous_user else get_anonymous_user()
+
+    return _current_user[tid]
+
+
+def switch_user_to_system() -> _model.AbstractUser:
+    """Shortcut.
+    """
+    return switch_user(get_system_user())
+
+
+def switch_user_to_anonymous() -> _model.AbstractUser:
+    """Shortcut.
+    """
+    return switch_user(get_anonymous_user())
 
 
 def get_user_statuses() -> tuple:

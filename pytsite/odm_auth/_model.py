@@ -14,19 +14,21 @@ class AuthorizableEntity(_odm.model.Entity):
 
     @classmethod
     def get_permission_group(cls) -> str:
+        """Get model permission group name.
+        """
         return cls.get_package_name().split('.')[-1]
 
     @classmethod
     def get_permissions(cls) -> _Tuple[str]:
-        """Get a list of all permissions supported by this model.
+        """Get permissions supported by model.
         """
         return 'create', 'view', 'modify', 'delete', 'view_own', 'modify_own', 'delete_own'
 
-    def check_permissions(self, action: str) -> bool:
-        """Check current user's permissions.
+    def check_permissions(self, action: str, user: _auth.model.AbstractUser = None) -> bool:
+        """Check user's permissions.
         """
         from . import _api
-        return _api.check_permissions(action, self.model, self.id)
+        return _api.check_permissions(action, self.model, self.id, user)
 
     def _pre_save(self):
         super()._pre_save()

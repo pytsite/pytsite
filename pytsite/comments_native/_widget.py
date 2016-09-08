@@ -19,7 +19,7 @@ class Comments(_pytsite_widget.Abstract):
 
         self._thread_id = kwargs.get('thread_id')
         if not self._thread_id:
-            raise RuntimeError("Widget '{}': not thread_id was specified.".format(self.name))
+            raise RuntimeError("Widget '{}': thread_id is not specified.".format(self.name))
 
         self._css = 'comments-native'
         self._data['comments_load_ep'] = 'comments/comments'

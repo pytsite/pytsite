@@ -1,14 +1,16 @@
 """Taxonomy Functions.
 """
 import re
-from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm
+from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm, reg as _reg
 from ._model import Term as _Term
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-__models = []
+
+_models = []
+_localization_enabled = _reg.get('taxonomy.localization', True)
 
 
 def register_model(model: str, cls, menu_title: str, menu_weight: int = 0, menu_icon: str = 'fa fa-tags'):
@@ -16,7 +18,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int = 0, menu_
     :param cls: str|type
     """
     if is_model_registered(model):
-        raise Exception("Model '{}' is already registered as taxonomy model.".format(model))
+        raise RuntimeError("Model '{}' is already registered as taxonomy model.".format(model))
 
     if isinstance(cls, str):
         cls = _util.get_class(cls)
@@ -25,9 +27,9 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int = 0, menu_
         raise TypeError('Subclass of AbstractTerm expected.')
 
     _odm.register_model(model, cls)
-    __models.append(model)
+    _models.append(model)
 
-    menu_url = _router.ep_url('pytsite.odm_ui@browse', {'model': model})
+    menu_url = _router.ep_path('pytsite.odm_ui@browse', {'model': model})
     _admin.sidebar.add_menu(
         'taxonomy', model, menu_title, menu_url, menu_icon, weight=menu_weight,
         permissions=(
@@ -41,7 +43,7 @@ def register_model(model: str, cls, menu_title: str, menu_weight: int = 0, menu_
 def is_model_registered(model: str) -> bool:
     """Check if the model is registered as taxonomy model.
     """
-    return model in __models
+    return model in _models
 
 
 def find(model: str, language: str = None):
@@ -50,10 +52,12 @@ def find(model: str, language: str = None):
     if not is_model_registered(model):
         raise RuntimeError("Model '{}' is not registered as taxonomy model.".format(model))
 
-    if not language:
-        language = _lang.get_current()
+    f = _odm.find(model).sort([('weight', _odm.I_DESC)])
 
-    return _odm.find(model).where('language', '=', language).sort([('weight', _odm.I_DESC)])
+    if _localization_enabled:
+        f.where('language', '=', language or _lang.get_current())
+
+    return f
 
 
 def find_by_title(model: str, title: str, language: str = None) -> _Term:
@@ -74,9 +78,6 @@ def dispense(model: str, title: str, alias: str = None, language: str = None) ->
     if not is_model_registered(model):
         raise RuntimeError("Model '{}' is not registered as taxonomy model.".format(model))
 
-    if not language:
-        language = _lang.get_current()
-
     title = title.strip()
 
     if not alias:
@@ -92,7 +93,7 @@ def dispense(model: str, title: str, alias: str = None, language: str = None) ->
     # If term is not found, create it
     if not term:
         term = _odm.dispense(model)
-        term.f_set('title', title).f_set('language', language)
+        term.f_set('title', title).f_set('language', language or _lang.get_current())
         if alias:
             term.f_set('alias', alias)
 

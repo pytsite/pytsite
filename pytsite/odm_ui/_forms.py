@@ -97,7 +97,7 @@ class Modify(_form.Form):
             weight=10,
             uid='action-cancel',
             value=_lang.t('pytsite.odm_ui@cancel'),
-            icon='fa fa-remove',
+            icon='remove',
             href=cancel_href,
             dismiss='modal',
             form_area='footer',

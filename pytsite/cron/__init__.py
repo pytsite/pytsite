@@ -48,8 +48,8 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
     def _cron_worker(num):
         """Cron worker.
         """
-        # Disable permissions check
-        _auth.switch_user(_auth.get_system_user())
+        # Disable permissions checking
+        _auth.switch_user_to_system()
 
         # Starting worker
         stats = _get_stats()
@@ -78,3 +78,6 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
                         _update_stats(evt)
             else:
                 _update_stats(evt)
+
+        # Enable permissions checking
+        _auth.restore_user()

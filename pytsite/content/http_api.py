@@ -25,9 +25,9 @@ def patch_view_count(inp: dict) -> int:
         entity = _api.dispense(model, eid)
         if entity:
             with entity:
-                _odm_auth.disable_perm_check()
+                _auth.switch_user_to_system()
                 entity.f_inc('views_count').save(update_timestamp=False)
-                _odm_auth.enable_perm_check()
+                _auth.restore_user()
 
             return entity.views_count
 

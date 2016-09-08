@@ -1,5 +1,6 @@
 """PytSite Currency Models
 """
+from typing import Tuple as _Tuple
 from decimal import Decimal as _Decimal
 from datetime import datetime as _datetime
 from pytsite import odm as _odm, odm_ui as _odm_ui, widget as _widget, form as _form
@@ -25,6 +26,12 @@ class Rate(_odm_ui.model.UIEntity):
         """Hook.
         """
         self.define_index([('date', _odm.I_DESC), ('source', _odm.I_ASC), ('destination', _odm.I_ASC)])
+
+    @classmethod
+    def get_permissions(cls) -> _Tuple[str]:
+        """Get permissions supported by model.
+        """
+        return 'create', 'modify', 'delete'
 
     @property
     def date(self) -> _datetime:

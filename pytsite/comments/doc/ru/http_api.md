@@ -32,6 +32,7 @@
 
 ```
 curl -X GET \
+-d language=ru \
 -d access_token=227912317f4439e6b5ba496f183947f8 \
 http://test.com/api/1/comments/settings
 ```
@@ -65,8 +66,9 @@ http://test.com/api/1/comments/settings
 ### Аргументы
 
 - *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
-- *required* **str** `thread_uid`. Уникальный идентификатор ветки комментариев. Как правило, это URL страницы, на 
-  которой будет отображаться данная ветка.
+- *required* **str** `thread_uid`. Уникальный идентификатор ветки комментариев. Как правило, это путь страницы, на 
+  которой будет отображаться данная ветка, без учёта суффикса локализации. Абсолютный URL использовать не рекомендуется, 
+  поскольку это усложнит перенос сайта на другой домен.
 - *required* **str** `body`. Текст сообщения. HTML и лишние пробелы будут автоматически удалены. Минимальная длина по 
   умолчанию: 2 символа, максимальная длина по умолчанию: 2048 символов. Минимальная и максимальная длины вычисляются
   *после* очистки текста от лишних пробелов и HTML.
@@ -92,10 +94,11 @@ http://test.com/api/1/comments/settings
     - **str** `picture_url`. URL изображения.
     - **str** `profile_url`. URL профиля.
 - **object** `publish_time`. Дата и время публикации.
-    - **str** `w3c`. В формате W3C.
-    - **str** `pretty`. В "человеческом" формате.
-    - **str** `ago`. В формате "N минут/часов/etc назад". 
-- **object** `permissions`. Права учётной записи.
+    - **str** `w3c`. В формате W3C (https://www.w3.org/TR/NOTE-datetime).
+    - **str** `pretty_date`. Дата в "человеческом" формате, например "4 сентября".
+    - **str** `pretty_date_time`. Дата и время в "человеческом" формате, например "3 мая, 15:32".
+    - **str** `ago`. Дата и время в формате "тому назад", например "2 недели". 
+- **object** `permissions`. Права учётной записи в контексте комментария.
     - **bool** `modify`. Право на удаление комментария.
     - **bool** `delete`. Право на изменение комментария.
  
@@ -107,7 +110,7 @@ http://test.com/api/1/comments/settings
 ```
 curl -X POST \
 -d access_token=227912317f4439e6b5ba496f183947f8 \
--d thread_uid=http://test.com/hello/world \
+-d thread_uid=/hello/world \
 -d parent_uid=57b0b315523af525a269a02a \
 -d body='Привет, Мир!' \
 http://test.com/api/1/comments/comment
@@ -120,13 +123,14 @@ http://test.com/api/1/comments/comment
 {
     "uid": "57b25223523af558d54f33ad", 
     "parent_uid": "57b0b315523af525a269a02a", 
-    "thread_uid": "http://test.com/hello/world",
+    "thread_uid": "/hello/world",
     "status": "published",
     "depth": 2,
     "body": "Привет, Мир!",
     "publish_time": {
-        "pretty": "16 августа, 02:37",
         "w3c": "2016-08-16T02:37:07+0300",
+        "pretty_date": "16 августа",
+        "pretty_date_time": "16 августа, 02:37",
         "ago": "Только что"
     }, 
     "author": {
@@ -151,8 +155,7 @@ http://test.com/api/1/comments/comment
 
 ### Аргументы
 
-- *required* **str** `thread_uid`. Уникальный идентификатор ветки комментариев. Как правило, это URL страницы, на 
-  которой будет отображаться данная ветка.
+- *required* **str** `thread_uid`. Уникальный идентификатор ветки комментариев.
 - *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
 - *optional* **str** `driver`. Дравйер.
 
@@ -173,8 +176,9 @@ http://test.com/api/1/comments/comment
 
 ```
 curl -X GET \
+-d language=ru,
 -d access_token=227912317f4439e6b5ba496f183947f8 \
--d thread_uid=http://test.com/hello/world \
+-d thread_uid=/hello/world \
 http://test.com/api/1/comments/comments
 ```
 
@@ -187,14 +191,15 @@ http://test.com/api/1/comments/comments
         {
             "uid": "57b25223523af558d54f33ad", 
             "parent_uid": "57b0b315523af525a269a02a", 
-            "thread_uid": "http://test.com/hello/world",
+            "thread_uid": "/hello/world",
             "status": "published",
             "depth": 2,
             "body": "Привет, Мир!",
             "publish_time": {
-                "pretty": "16 августа, 02:37",
                 "w3c": "2016-08-16T02:37:07+0300",
-                "ago": "Только что"
+                "pretty_date": "16 августа",
+                "pretty_date_time": "16 августа, 02:37",
+                "ago": "15 минут"
             }, 
             "author": {
                 "uid": "579178ed523af5473134aed6",
@@ -274,6 +279,7 @@ http://test.com/api/1/comments/comment
 
 ### Аргументы
 
+- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
 - *required* **str** `uid`. Уникальный идентификатор комментария.
 
 
@@ -290,6 +296,7 @@ http://test.com/api/1/comments/comment
 
 ```
 curl -X POST \
+-d access_token=227912317f4439e6b5ba496f183947f8 \
 -d uid=57b25223523af558d54f33ad \
 http://test.com/api/1/comments/report
 ```

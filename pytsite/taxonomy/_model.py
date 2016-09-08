@@ -1,11 +1,14 @@
 """Taxonomy Models.
 """
 from typing import Tuple as _Tuple
-from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form
+from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+_localization_enabled = _reg.get('taxonomy.localization', True)
 
 
 class Term(_odm_ui.model.UIEntity):
@@ -15,9 +18,9 @@ class Term(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('title', nonempty=True))
-        self.define_field(_odm.field.String('alias', nonempty=True))
-        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_current()))
+        self.define_field(_odm.field.String('title', nonempty=True, strip_html=True))
+        self.define_field(_odm.field.String('alias', nonempty=True, strip_html=True))
+        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_primary()))
         self.define_field(_odm.field.Integer('weight'))
         self.define_field(_odm.field.Integer('order'))
 
@@ -71,7 +74,7 @@ class Term(_odm_ui.model.UIEntity):
 
             value = value.strip()
             if not self.is_new:
-                term = _api.find(self.model).where('alias', '=', value).first()
+                term = _api.find(self.model).eq('alias', value).first()
                 if not term or term.id != self.id:
                     value = _api.sanitize_alias_string(self.model, value)
             else:
@@ -92,10 +95,8 @@ class Term(_odm_ui.model.UIEntity):
             self.f_set('alias', self.f_get('title'))
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Hook.
-
-        :type browser: pytsite.odm_ui._browser.Browser
         """
         browser.data_fields = [
             ('title', 'pytsite.taxonomy@title'),
@@ -107,10 +108,8 @@ class Term(_odm_ui.model.UIEntity):
         browser.default_sort_field = 'order'
         browser.default_sort_order = _odm.I_ASC
 
-        def finder_adjust(finder: _odm.Finder):
-            finder.where('language', '=', _lang.get_current())
-
-        browser.finder_adjust = finder_adjust
+        if _localization_enabled:
+            browser.finder_adjust = lambda finder: finder.eq('language', _lang.get_current())
 
     def ui_browser_get_row(self) -> tuple:
         """Get single UI browser row hook.
@@ -158,18 +157,19 @@ class Term(_odm_ui.model.UIEntity):
         ))
 
         # Language
-        if self.is_new:
-            lang_title = _lang.t('lang_title_' + _lang.get_current())
-        else:
-            lang_title = _lang.t('lang_title_' + self.language)
+        if _localization_enabled:
+            if self.is_new:
+                lang_title = _lang.t('lang_title_' + _lang.get_current())
+            else:
+                lang_title = _lang.t('lang_title_' + self.language)
 
-        frm.add_widget(_widget.static.Text(
-            uid='language',
-            weight=900,
-            label=self.t('language'),
-            title=lang_title,
-            value=self.language if self.language else _lang.get_current(),
-        ))
+            frm.add_widget(_widget.static.Text(
+                uid='language',
+                weight=900,
+                label=self.t('language'),
+                title=lang_title,
+                value=self.language if self.language else _lang.get_current(),
+            ))
 
     def ui_mass_action_get_entity_description(self) -> str:
         """Hook.

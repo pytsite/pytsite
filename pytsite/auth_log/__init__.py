@@ -22,7 +22,7 @@ def __init():
         admin.sidebar.add_section('auth', 'pytsite.auth@security', 1000,
                                   permissions=('pytsite.odm_perm.view.user', 'pytsite.odm_perm.view.role'))
 
-    admin_href = router.ep_url('pytsite.odm_ui@browse', {'model': 'auth_log'})
+    admin_href = router.ep_path('pytsite.odm_ui@browse', {'model': 'auth_log'})
     admin.sidebar.add_menu('auth', 'auth_log', 'pytsite.auth_log@log', admin_href, 'fa fa-history',
                            weight=30, permissions='pytsite.odm_perm.delete.auth_log')
 

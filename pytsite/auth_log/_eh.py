@@ -27,8 +27,7 @@ def auth_sign_in_error(exception, user: _auth.model.AbstractUser):
 
 
 def _create_odm_entity(user: _auth.model.AbstractUser, description: str, severity=_api.SEVERITY_INFO):
-    c_user = _auth.get_current_user()
-    _auth.switch_user(_auth.get_system_user())
+    _auth.switch_user_to_system()
 
     e = _odm.dispense('auth_log')
     e.f_set('user', user)
@@ -37,6 +36,6 @@ def _create_odm_entity(user: _auth.model.AbstractUser, description: str, severit
     e.f_set('description', description)
     e.save()
 
-    _auth.switch_user(c_user)
+    _auth.restore_user()
 
     return e

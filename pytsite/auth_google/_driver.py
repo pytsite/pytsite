@@ -105,7 +105,7 @@ class Google(_auth.driver.Authentication):
                 raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_driver_google@signup_is_disabled'))
             else:
                 # New users can be created only by system user
-                _auth.switch_user(_auth.get_system_user())
+                _auth.switch_user_to_system()
 
                 # Create new user
                 user = _auth.create_user(google_data.get('email'))

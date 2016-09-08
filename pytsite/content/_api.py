@@ -14,6 +14,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _models = {}
+_localization_enabled = _reg.get('content.localization', True)
 
 
 def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str = 'fa fa-file-text-o', replace=False):
@@ -46,7 +47,7 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
         _permission.define_permission(perm_name, perm_description, perm_group)
 
     # Define 'set_localization' permission
-    if mock.has_field('localization_' + _lang.get_current()):
+    if _localization_enabled and mock.has_field('localization_' + _lang.get_current()):
         perm_name = 'pytsite.content.set_localization.' + model
         perm_description = cls.resolve_partly_msg_id('content_perm_set_localization_' + model)
         _permission.define_permission(perm_name, perm_description,  perm_group)
@@ -67,7 +68,7 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
         sid='content',
         mid=model,
         title=title,
-        href=_router.ep_url('pytsite.odm_ui@browse', {'model': model}),
+        href=_router.ep_path('pytsite.odm_ui@browse', {'model': model}),
         icon=icon,
         weight=menu_weight,
         permissions=(
@@ -135,7 +136,7 @@ def find(model: str, **kwargs):
         f.sort([('_modified', _odm.I_DESC)])
 
     # Language
-    if f.mock.has_field('language'):
+    if _localization_enabled and f.mock.has_field('language'):
         if 'language' in kwargs:
             if kwargs['language'] is not None:
                 f.where('language', '=', kwargs['language'])

@@ -1,5 +1,32 @@
 # PytSite Changelog
 
+## 0.88 (2016-09-08)
+### Added
+- `auth`: new functions: `switch_user_to_system()`, `switch_user_to_anonymous()`, `restore_user()`.
+- `comments`: new function: `delete_thread()`.
+- `content`:
+    - new configuration option `content.localization` and related behaviour;
+    - comments deletion on content entity deletion.
+- `lang`: new function: `get_primary()`.
+- `odm`: new methods in `Finder`: `eq()`, `or_eq()`.
+- `route_alias`: new configuration option `route_alias.localization` and related behaviour;
+- `taxonomy`: new configuration option `taxonomy.localization` and related behaviour;
+
+### Changed
+- `comments`: format of `model.AbstractComment.as_jsonable()` response.
+- `content`: format of `model.Content.as_jsonable()` response.
+- `disqus`: thread IDs now is relative path by default.
+
+### Fixed
+- `admin`: processing sidebar URLs.
+- `form`: default submit button icon.
+- `odm_ui`: default cancel button icon.
+
+### Removed
+- `odm_auth`: functions `disable_perm_check`, `enable_perm_check`, `is_perm_check_enabled`.
+- `json`: package removed.
+
+
 ## 0.87 (2016-09-04)
 ### Added
 - `browser`: Font Awesome upgraded from 4.4.0 to 4.6.3.

@@ -10,7 +10,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _last_registered_driver_name = None  # type: str
 _drivers = {}  # type: _Dict[str, _driver.Abstract]
 _comments_count = _cache.create_pool('pytsite.comments.count')
@@ -20,7 +19,7 @@ _comment_body_max_length = int(_reg.get('comments.body_max_length', 2048))
 
 
 def register_driver(driver: _driver.Abstract):
-    """Registers a driver.
+    """Registers a comments driver.
     """
     global _drivers
 
@@ -39,7 +38,7 @@ def register_driver(driver: _driver.Abstract):
 
 
 def get_drivers() -> _frozendict:
-    """Returns all registered drivers.
+    """Get all registered drivers.
     """
     return _frozendict(_drivers)
 
@@ -74,7 +73,7 @@ def get_comment_body_max_length() -> int:
 
 
 def get_driver(driver_name: str = None) -> _driver.Abstract:
-    """Get registered driver instance.
+    """Get driver instance.
     """
     if not driver_name:
         driver_name = _reg.get('comments.default_driver', _last_registered_driver_name)
@@ -89,9 +88,9 @@ def get_driver(driver_name: str = None) -> _driver.Abstract:
 
 
 def get_widget(widget_uid: str = 'comments', thread_id: str = None, driver_name: str = None) -> _widget.Abstract:
-    """Get comments widget from the driver.
+    """Get comments widget.
     """
-    return get_driver(driver_name).get_widget(widget_uid, thread_id or _router.current_url())
+    return get_driver(driver_name).get_widget(widget_uid, thread_id or _router.current_path(True))
 
 
 def create_comment(thread_id: str, body: str, author: _auth.model.AbstractUser, status: str = 'published',
@@ -145,6 +144,12 @@ def get_comments(thread_id: str, limit: int = 0, skip: int = 0, status: str = 'p
     """Get comments for a thread.
     """
     return get_driver(driver_name).get_comments(thread_id, limit, skip, status)
+
+
+def delete_thread(thread_uid: str, driver_name: str = None):
+    """Physically delete comments for particular thread.
+    """
+    get_driver(driver_name).delete_thread(thread_uid)
 
 
 def get_comments_count(thread_uid: str, driver_name: str = None) -> int:

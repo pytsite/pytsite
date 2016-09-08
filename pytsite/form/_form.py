@@ -87,7 +87,7 @@ class Form(_ABC):
             uid='action-submit',
             value=_lang.t('pytsite.form@save'),
             color='primary',
-            icon='fa fa-save',
+            icon='save',
             form_area='footer',
             css='form-action-submit',
         ))

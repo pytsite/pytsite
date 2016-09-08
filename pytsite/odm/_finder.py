@@ -3,7 +3,7 @@
 from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef
 from pymongo.cursor import Cursor as _Cursor, CursorType as _CursorType
-from pytsite import util as _util, reg as _reg, cache as _cache, logger as _logger, threading as _threading
+from pytsite import util as _util, reg as _reg, cache as _cache, logger as _logger
 from . import _model, _api, _query
 
 __author__ = 'Alexander Shepetko'
@@ -127,9 +127,16 @@ class Finder:
         return self
 
     def where(self, field_name: str, comparison_op: str, arg):
-        """Add '$and' criteria.
+        """Add an '$and' criteria.
         """
         self._query.add_criteria('$and', field_name, comparison_op, arg)
+
+        return self
+
+    def eq(self, field_name: str, arg):
+        """Add an '$and $eq' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$eq', arg)
 
         return self
 
@@ -137,6 +144,13 @@ class Finder:
         """Add '$or' criteria.
         """
         self._query.add_criteria('$or', field_name, comparison_op, arg)
+
+        return self
+
+    def or_eq(self, field_name: str, arg):
+        """Add an '$or $eq' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$eq', arg)
 
         return self
 

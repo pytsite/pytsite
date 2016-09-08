@@ -4,7 +4,7 @@
 from . import _driver as driver, _error as error, _model as model
 from ._api import register_driver, get_driver, get_widget, get_comments_count, get_all_comments_count, get_drivers, \
     create_comment, get_comment_statuses, get_comment_max_depth, get_comment_body_min_length, get_comment, \
-    get_comment_body_max_length, get_comments, get_permissions
+    get_comment_body_max_length, get_comments, get_permissions, delete_thread
 
 
 __author__ = 'Alexander Shepetko'

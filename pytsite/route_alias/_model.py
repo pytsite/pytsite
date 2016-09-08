@@ -1,6 +1,6 @@
 """Route Alias Model.
 """
-from pytsite import odm as _odm, router as _router
+from pytsite import odm as _odm, router as _router, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -16,7 +16,7 @@ class RouteAlias(_odm.model.Entity):
         """
         self.define_field(_odm.field.String('alias', nonempty=True))
         self.define_field(_odm.field.String('target', nonempty=True))
-        self.define_field(_odm.field.String('language', nonempty=True))
+        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_primary()))
 
     def _setup_indexes(self):
         """Hook.

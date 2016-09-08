@@ -28,8 +28,8 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_widget(self, widget_uid: str, thread_id: str) -> _widget.Abstract:
-        """Get comments widget for particular thread.
+    def get_widget(self, widget_uid: str, thread_uid: str) -> _widget.Abstract:
+        """Get comments widget.
         """
         pass
 
@@ -46,7 +46,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_comments_count(self, thread_id: str) -> int:
+    def get_comments_count(self, thread_uid: str) -> int:
         """Get comments count for particular thread.
         """
         pass
@@ -54,6 +54,12 @@ class Abstract(_ABC):
     @_abstractmethod
     def delete_comment(self, uid: str):
         """Mark comment as deleted.
+        """
+        pass
+
+    @_abstractmethod
+    def delete_thread(self, thread_uid: str):
+        """Physically remove comments for particular thread.
         """
         pass
 

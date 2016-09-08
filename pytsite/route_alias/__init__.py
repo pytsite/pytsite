@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     from pytsite import odm, events
     from . import _eh
 
@@ -18,4 +18,4 @@ def __init():
     events.listen('pytsite.router.pre_dispatch', _eh.router_pre_dispatch)
 
 
-__init()
+_init()

@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _model as model
-from ._api import check_permissions, disable_perm_check, enable_perm_check, is_perm_check_enabled
+from ._api import check_permissions
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
