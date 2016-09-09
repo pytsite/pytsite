@@ -513,7 +513,7 @@ class Form(_ABC):
                     form_area='footer',
                     form_step=i,
                     color='primary',
-                    icon='fa fa-forward',
+                    icon='forward',
                     css='form-action-forward',
                     data={
                         'to-step': i + 1,
@@ -528,7 +528,7 @@ class Form(_ABC):
                     value=_lang.t('pytsite.form@backward'),
                     form_area='footer',
                     form_step=i,
-                    icon='fa fa-backward',
+                    icon='backward',
                     css='form-action-backward',
                     data={
                         'to-step': i - 1,

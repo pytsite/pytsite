@@ -9,13 +9,16 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 744.09448819 1052.3622047"
+   width="440"
+   height="440"
+   viewBox="0 0 440.00002 440.00002"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="pytsite-logo.svg">
+   sodipodi:docname="pytsite-logo.svg"
+   inkscape:export-filename="/home/ashep/src/my/pytsite-application/lib/resources/pytsite-logo-transparent.png"
+   inkscape:export-xdpi="104.73"
+   inkscape:export-ydpi="104.73">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -23,44 +26,29 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="228.67659"
-     inkscape:cy="438.47868"
+     inkscape:zoom="1.4"
+     inkscape:cx="249.4735"
+     inkscape:cy="184.55142"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1760"
-     inkscape:window-height="964"
-     inkscape:window-x="78"
-     inkscape:window-y="1054"
-     inkscape:window-maximized="0">
-    <sodipodi:guide
-       position="200,400.00001"
-       orientation="0,1"
-       id="guide4152"
-       inkscape:label=""
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="200,500.00001"
-       orientation="0,1"
-       id="guide4154"
-       inkscape:label=""
-       inkscape:color="rgb(0,0,255)" />
-    <sodipodi:guide
-       position="200.17188,442.79688"
-       orientation="1,0"
-       id="guide4156" />
-    <sodipodi:guide
-       position="300,500.00001"
-       orientation="1,0"
-       id="guide4158"
-       inkscape:label=""
-       inkscape:color="rgb(0,0,255)" />
-  </sodipodi:namedview>
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="1050"
+     inkscape:window-maximized="1"
+     fit-margin-top="5"
+     fit-margin-left="5"
+     fit-margin-right="5"
+     fit-margin-bottom="5"
+     inkscape:showpageshadow="true"
+     borderlayer="false"
+     units="px"
+     showborder="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -69,53 +57,57 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect4145"
-       width="99.834274"
-       height="100"
-       x="200.16573"
-       y="552.36218"
-       inkscape:export-xdpi="899.08002"
-       inkscape:export-ydpi="899.08002" />
-    <g
-       transform="matrix(0.84694733,0,0,1.2599441,-20.137785,0)"
-       style="font-style:normal;font-weight:normal;font-size:25.20558167px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#373748;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       id="text4148"
-       inkscape:export-xdpi="899.08002"
-       inkscape:export-ydpi="899.08002">
-      <path
-         d="m 260.12985,481.49247 0,-43.10155 117.84872,0 0,41.85359 -88.24476,14.065 0,23.479 -29.60396,0 0,-18.48829 z m 29.60396,-4.99071 58.6408,-9.86798 0,-12.13649 -58.6408,0 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:113.42513275px;font-family:'Stalin One';-inkscape-font-specification:'Stalin One';fill:#373748"
-         id="path4198"
-         inkscape:connector-curvature="0"
-         sodipodi:nodetypes="cccccccccccccc" />
-    </g>
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect4214"
-       width="47.272049"
-       height="13.868561"
-       x="252.6967"
-       y="605.20319"
-       inkscape:export-xdpi="899.08002"
-       inkscape:export-ydpi="899.08002" />
-    <g
-       transform="scale(0.82272812,1.2154684)"
-       style="font-style:normal;font-weight:normal;font-size:49.20991516px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#373748;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       id="text4210">
-      <path
-         d="m 314.03467,536.83936 0,-11.31829 12.84378,1.86998 0,2.4605 24.90022,0 0,-4.33048 -37.744,-5.95439 0,-17.17427 50.58779,0 0,11.95801 -12.84379,-1.96839 0,-3.00181 -24.90022,0 0,4.67494 37.74401,5.9544 0,16.8298 -50.58779,0 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Stalin One';-inkscape-font-specification:'Stalin One';fill:#373748"
-         id="path4217" />
-    </g>
-  </g>
+     id="layer1"
+     transform="translate(4.3062592,11.839881)">
+    <path
+       style="fill:#535d6c;fill-rule:evenodd;stroke:#535d6c;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 216.07143,316.29078 c -120.164072,-92.20079 -74.93863,-266.969995 0,-303.558405 86.80094,47.85745 106.65308,232.570995 0,303.558405 z"
+       id="path4174"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:#535d6c;fill-rule:evenodd;stroke:#535d6c;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 187.5,316.29078 C 147.85165,284.01126 104.08625,239.03074 126.07143,109.50507 112.1045,101.26126 98.772977,92.959945 61.785718,101.29078 9.379998,206.22152 100.12724,311.21563 187.5,316.29078 Z"
+       id="path4176"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:#535d6c;fill-rule:evenodd;stroke:#535d6c;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 191.07143,338.07649 C 90.341238,337.4027 69.899828,272.34496 47.857138,244.14792 c -20.67457,12.85714 -31.31265,25.71429 -36.78571,38.57143 17.28023,97.34354 117.813132,115.15158 180.000002,55.35714 z"
+       id="path4178"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:#535d6c;fill-rule:evenodd;stroke:#535d6c;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 244.78157,319.61707 c 39.64835,-32.27952 83.41375,-77.26004 61.42857,-206.78571 13.96693,-8.24381 27.29845,-16.545125 64.28571,-8.21429 52.40572,104.93074 -38.34152,209.92485 -125.71428,215 z"
+       id="path4176-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="fill:#535d6c;fill-rule:evenodd;stroke:#535d6c;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 241.21014,341.40278 c 100.73019,-0.67379 121.1716,-65.73153 143.21429,-93.92857 20.67457,12.85714 31.31265,25.71429 36.78571,38.57143 -17.28023,97.34354 -117.81313,115.15158 -180,55.35714 z"
+       id="path4178-6"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot4253"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:125%;font-family:'Denk One';-inkscape-font-specification:'Denk One';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#535d6c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       transform="translate(117.85469,313.70559)"><flowRegion
+         id="flowRegion4255"><rect
+           id="rect4257"
+           width="162.14285"
+           height="62.142857"
+           x="38.57143"
+           y="44.330635"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Denk One';-inkscape-font-specification:'Denk One';fill:#535d6c" /></flowRegion><flowPara
+         id="flowPara4259"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Denk One';-inkscape-font-specification:'Denk One';fill:#535d6c">PytSite</flowPara></flowRoot>  </g>
 </svg>

@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.88.1 (2016-09-10)
+### Added
+- `content`: converting HTML YouTube's iframes ino `[vid]` tags.
+
+### Changed
+- Logo.
+- `widget`: `static.VideoPlayer` moved to `misc.VideoPlayer`.
+
+### Fixed
+- `content`: first image tag deletion while saving entities.
+- `form`: forward and backward icons on multi-step forms.
+- `settings`: form cancel icon.
+
+
 ## 0.88 (2016-09-08)
 ### Added
 - `auth`: new functions: `switch_user_to_system()`, `switch_user_to_anonymous()`, `restore_user()`.

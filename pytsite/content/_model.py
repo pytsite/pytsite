@@ -13,10 +13,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _localization_enabled = _reg.get('content.localization', True)
 _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
+_html_img_tag_re = _re.compile('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>')
+_html_video_youtube_re = _re.compile(
+    '<iframe.*?src\s*=["\']https?://www\.youtube\.com/embed/([a-zA-Z0-9]+)([^"\']+)["\'].+?</iframe>')
 
 
 def _process_tags(entity, inp: str) -> str:
@@ -99,8 +101,8 @@ def _process_tags(entity, inp: str) -> str:
         vid_index = int(match.group(1))
         if len(entity.video_links) < vid_index:
             return ''
-        return str(_widget.static.VideoPlayer('content-video-' + str(vid_index),
-                                              value=entity.video_links[vid_index - 1]))
+
+        return str(_widget.misc.VideoPlayer('content-video-' + str(vid_index), value=entity.video_links[vid_index - 1]))
 
     inp = _body_img_tag_re.sub(process_img_tag, inp)
     inp = _body_vid_tag_re.sub(process_vid_tag, inp)
@@ -111,23 +113,52 @@ def _process_tags(entity, inp: str) -> str:
 def _extract_images(entity) -> tuple:
     """Transforms inline HTML <img> tags into [img] tags.
 
-    :type entity: _Union[Block, Content]
+    :type entity: Base
     """
     if not entity.author:
         raise RuntimeError('Entity author must be set before ')
 
-    images = list(entity.images)
-    img_index = len(images)
+    # Existing images count
+    img_index = len(entity.images)
+
+    # Extracted images
+    images = []
 
     def replace_func(match):
         nonlocal img_index, images
         img_index += 1
         images.append(_image.create(match.group(1), owner=entity.author))
+
         return '[img:{}]'.format(img_index)
 
-    body = _re.sub('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>', replace_func, entity.f_get('body'))
+    body = _html_img_tag_re.sub(replace_func, entity.body)
 
     return body, images
+
+
+def _extract_video_links(entity) -> tuple:
+    """Transforms embedded video players code into [vid] tags.
+
+    :type entity: Base
+    """
+    # Existing video links count
+    vid_index = len(entity.video_links)
+
+    vid_links = []
+
+    def replace_func(match):
+        nonlocal vid_index, vid_links
+        vid_index += 1
+
+        if 'youtube' in match.group(0):
+            vid_links.append('https://youtu.be/' + match.group(1))
+
+        return '[vid:{}]'.format(vid_index)
+
+    body = entity.body
+    body = _html_video_youtube_re.sub(replace_func, body)
+
+    return body, vid_links
 
 
 def _remove_tags(s: str) -> str:
@@ -303,11 +334,20 @@ class Base(_odm_ui.model.UIEntity):
         # Extract inline images from the body
         if self.has_field('body') and self.has_field('images'):
             body, images = _extract_images(self)
-            self.f_set('body', body)
-            self.f_set('images', images)
 
-            # Remove first image from the body
-            self.f_set('body', self.f_get('body').replace('[img:1]', ''))
+            # If new images has been extracted
+            if images:
+                self.f_set('body', body)
+                self.f_set('images', list(self.images) + images)
+
+        # Extract inline videos from the body
+        if self.has_field('body') and self.has_field('video_links'):
+            body, video_links = _extract_video_links(self)
+
+            # If new video links has been extracted
+            if video_links:
+                self.f_set('body', body)
+                self.f_set('video_links', list(self.video_links) + video_links)
 
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
@@ -706,7 +746,10 @@ class Content(Base):
         _auth.switch_user_to_system()
 
         # Delete comments
-        _comments.delete_thread(self.route_alias.alias)
+        try:
+            _comments.delete_thread(self.route_alias.alias)
+        except NotImplementedError:
+            pass
 
         # Enable permissions check
         _auth.restore_user()
