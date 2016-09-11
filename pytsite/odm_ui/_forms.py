@@ -97,7 +97,7 @@ class Modify(_form.Form):
             weight=10,
             uid='action-cancel',
             value=_lang.t('pytsite.odm_ui@cancel'),
-            icon='remove',
+            icon='fa fa-fw fa-remove',
             href=cancel_href,
             dismiss='modal',
             form_area='footer',
@@ -161,7 +161,7 @@ class MassAction(_form.Form):
             weight=10,
             value=_lang.t('pytsite.odm_ui@cancel'),
             href=self.redirect,
-            icon='ban',
+            icon='fa fa-fw fa-ban',
             form_area='footer'
         ))
 

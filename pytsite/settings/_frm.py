@@ -40,7 +40,7 @@ class Form(_form.Form):
             uid='action-cancel',
             weight=10,
             value=_lang.t('pytsite.settings@cancel'),
-            icon='ban',
+            icon='fa fa-fw fa-ban',
             href=_router.ep_url('pytsite.admin@dashboard'),
             form_area='footer'
         ))

@@ -2,6 +2,7 @@ validation_nonempty: "Обов'язкове поле"
 validation_number: 'Повинно бути числом'
 validation_integer: 'Повинно бути цілим числом'
 validation_email: 'Некоректний email'
+validation_email_row: 'Некоректний email (рядок :row)'
 validation_datetime: 'Некоректна дата'
 validation_odmentitieslist: ':detail'
 validation_odmfieldunique: 'Повинно бути унікальним'

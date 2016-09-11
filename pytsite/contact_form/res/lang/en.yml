@@ -1,3 +1,4 @@
+contact_form: 'Contact Form'
 your_name: 'Your name'
 sender_name: "Sender's name"
 your_email: 'Your email'
@@ -7,3 +8,5 @@ send_message: 'Send'
 message_successfully_sent: 'Your message was succesfully sent. Thank you.'
 error_occurred: 'Error occurred'
 message_from_site: 'Message from site :name'
+recipient_emails: 'Recipient emails'
+add_recipient: 'Add a recipient'

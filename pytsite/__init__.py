@@ -124,7 +124,7 @@ def __init():
     __import__('pytsite.auth')
 
     # Initializing automatically loaded required packages
-    for module in reg.get('app.autoload', ()):
+    for module in reg.get('autoload', ()):
         __import__(module)
 
     # Initializing 'app' package parts

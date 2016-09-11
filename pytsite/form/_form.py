@@ -87,7 +87,7 @@ class Form(_ABC):
             uid='action-submit',
             value=_lang.t('pytsite.form@save'),
             color='primary',
-            icon='save',
+            icon='fa fa-fw fa-save',
             form_area='footer',
             css='form-action-submit',
         ))
@@ -513,7 +513,7 @@ class Form(_ABC):
                     form_area='footer',
                     form_step=i,
                     color='primary',
-                    icon='forward',
+                    icon='fa fa-fw fa-forward',
                     css='form-action-forward',
                     data={
                         'to-step': i + 1,
@@ -528,7 +528,7 @@ class Form(_ABC):
                     value=_lang.t('pytsite.form@backward'),
                     form_area='footer',
                     form_step=i,
-                    icon='backward',
+                    icon='fa fa-fw fa-backward',
                     css='form-action-backward',
                     data={
                         'to-step': i - 1,

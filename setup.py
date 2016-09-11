@@ -35,7 +35,6 @@ setup(
         'PyYAML',
         'Werkzeug',
         'Jinja2',
-        'pylibmc',
         'pymongo',
         'webassets',
         'Pillow',

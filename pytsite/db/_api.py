@@ -21,7 +21,7 @@ def get_config() -> dict:
     default = {
         'host': 'localhost',
         'port': 27017,
-        'ssl': True,
+        'ssl': False,
         'database': 'test',
         'user': None,
         'password': None,

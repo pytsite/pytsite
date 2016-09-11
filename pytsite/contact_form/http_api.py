@@ -1,6 +1,6 @@
 """PytSite Contact Endpoints.
 """
-from pytsite import lang as _lang, reg as _reg, mail as _mail, tpl as _tpl
+from pytsite import lang as _lang, reg as _reg, mail as _mail, tpl as _tpl, router as _router, settings as _settings
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,7 +14,7 @@ def post_submit(inp: dict) -> dict:
         if field not in inp:
             raise ValueError("'{}' is not in input parameters".format(field))
 
-    recipients = _reg.get('contact_form.recipients', 'info@{}'.format(_reg.get('server.name')))
+    recipients = _settings.get('contact_form.recipients', 'info@{}'.format(_router.server_name()))
     if isinstance(recipients, str):
         recipients = (recipients,)
 

@@ -35,23 +35,23 @@ class Form(_settings.Form):
 
         self.add_widget(_widget.input.TextArea(
             uid='setting_add_js',
+            weight=1000,
             label=_lang.t('pytsite.content@additional_js_code'),
             rows=10,
-            weight=i,
         ))
 
         model_items = [(k, _api.get_model_title(k)) for k in sorted(_api.get_models().keys())]
 
         self.add_widget(_widget.select.Checkboxes(
             uid='setting_rss_models',
-            weight=100,
+            weight=1010,
             label=_lang.t('pytsite.content@generate_rss_feed_for'),
             items=model_items,
         ))
 
         self.add_widget(_widget.select.Checkboxes(
             uid='setting_sitemap_models',
-            weight=120,
+            weight=1020,
             label=_lang.t('pytsite.content@generate_sitemap_for'),
             items=model_items,
         ))

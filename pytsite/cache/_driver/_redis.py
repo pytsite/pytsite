@@ -3,7 +3,7 @@
 import pickle as _pickle
 from typing import Any as _Any, Union as _Union
 from redis import StrictRedis as _StrictRedis
-from pytsite import reg as _reg, logger as _logger, threading as _threading
+from pytsite import reg as _reg, logger as _logger, threading as _threading, router as _router
 from ._abstract import Abstract as _Abstract
 from .._error import KeyNotExist as _KeyNotExist, KeyNeverExpires as _KeyNeverExpires
 
@@ -12,7 +12,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-_server_name = _reg.get('server.name')
+_server_name = _router.server_name()
 _dbg = _reg.get('cache.debug')
 
 

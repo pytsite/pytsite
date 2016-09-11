@@ -377,7 +377,7 @@ def server_name():
         name = _map_adapters[tid].server_name
     else:
         from pytsite import reg
-        name = reg.get('server.name', 'localhost')
+        name = reg.get('server_name', 'localhost')
 
     return name
 

@@ -1,5 +1,23 @@
 # PytSite Changelog
 
+## 0.89
+### Added
+- `contact_form`: settings form.
+
+### Changed
+- Configuration parameter `app.autoload` renamed to `autoload`.
+- Configuration parameter `server.name` renamed to `server_name`.
+
+### Fixed
+- `content`: settings form.
+- `widget`: icon definition in buttons.
+- `validation`: missed translations.
+
+### Removed
+- `pylibmc` dependency.
+- `contact_form`: configuration parameter `contact_form.recipients`.
+
+
 ## 0.88.1 (2016-09-10)
 ### Added
 - `content`: converting HTML YouTube's iframes ino `[vid]` tags.
