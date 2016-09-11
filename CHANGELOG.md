@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.89.1
+### Fixed
+- `content`: processing YouTube embedded videos.
+
+
+
 ## 0.89
 ### Added
 - `contact_form`: settings form.

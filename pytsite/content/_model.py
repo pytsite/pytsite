@@ -18,7 +18,7 @@ _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 _html_img_tag_re = _re.compile('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>')
 _html_video_youtube_re = _re.compile(
-    '<iframe.*?src\s*=["\']https?://www\.youtube\.com/embed/([a-zA-Z0-9]+)([^"\']+)["\'].+?</iframe>')
+    '<iframe.*?src\s*=["\']https?://www\.youtube\.com/embed/([a-zA-Z0-9\-_]{11})([^"\']+)["\'].+?</iframe>')
 
 
 def _process_tags(entity, inp: str) -> str:

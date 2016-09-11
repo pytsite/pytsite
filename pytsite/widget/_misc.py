@@ -182,7 +182,7 @@ class VideoPlayer(_base.Abstract):
     def _get_embed_youtube(url, width: int = 640, height: int = 360) -> _html.Element:
         """Get YouTube player embed code.
         """
-        match = _re.search('(youtube\.com/watch.+v=|youtu.be/)(.{11})', url)
+        match = _re.search('(youtube\.com/watch.+v=|youtu.be/)([a-zA-Z0-9\-_]{11})', url)
         if match:
             src = '//www.youtube.com/embed/{}?html5=1'.format(match.group(2))
             return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
