@@ -56,48 +56,32 @@ def get_user(inp: dict) -> dict:
     except _error.UserNotExist:
         raise _http.error.Unauthorized()
 
-    r = {
-        'uid': user.uid,
-    }
 
-    if user.profile_is_public:
-        r.update({
-            'profile_url': user.profile_view_url,
-            'nickname': user.nickname,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'full_name': user.full_name,
-            'birth_date': _util.rfc822_datetime_str(user.birth_date),
-            'gender': user.gender,
-            'phone': user.phone,
-            'follows': [f.uid for f in user.follows],
-            'followers': [f.uid for f in user.followers],
-            'picture': {
-                'url': user.picture.url,
-                'width': user.picture.width,
-                'height': user.picture.height,
-                'length':  user.picture.length,
-                'mime':  user.picture.mime,
-            },
-            'urls': user.urls,
-        })
-
-    if current_user.uid == user.uid or current_user.is_admin:
-        r.update({
-            'created': _util.rfc822_datetime_str(user.created),
-            'login': user.login,
-            'email': user.email,
-            'last_sign_in': _util.rfc822_datetime_str(user.last_sign_in),
-            'last_activity': _util.rfc822_datetime_str(user.last_activity),
-            'sign_in_count': user.sign_in_count,
-            'status': user.status,
-            'profile_is_public': user.profile_is_public,
-            'roles': [role.name for role in user.roles],
-        })
 
     _events.fire('pytsite.auth.http_api.get_user', user=user, response=r)
 
-    return r
+    return user.as_jsonable()
+
+
+def patch_user(inp: dict) -> dict:
+    """Update user.
+    """
+    allowed_fields = ('login', 'email', 'password', 'nickname', 'first_name', 'last_name', 'description', 'birth_date',
+                      'gender', 'phone', 'urls', 'profile_is_public', 'country', 'city')
+    c_user = _api.get_current_user()
+
+    # Check permissions
+    if c_user.is_anonymous:
+        raise _http.error.Forbidden('Insufficient permissions')
+
+    # By default we'll work with current user
+    user = c_user
+
+    # Change user to work with
+    if 'uid' in inp:
+        user = _api.get_user(uid=inp.pop('uid'))
+
+    return user.as_jsonable()
 
 
 def patch_follow(inp: dict) -> bool:

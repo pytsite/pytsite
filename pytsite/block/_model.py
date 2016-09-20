@@ -13,7 +13,7 @@ class Block(_content.model.Base):
         """
         super()._setup_fields()
 
-        self.define_field(_odm.field.String('uid', nonempty=True))
+        self.define_field(_odm.field.String('uid', required=True))
 
     def _setup_indexes(self):
         super()._setup_indexes()
@@ -29,7 +29,7 @@ class Block(_content.model.Base):
         _content.model.Base.ui_browser_setup(browser)
         browser.data_fields = ('title', 'uid', 'author')
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         return self.title, self.uid, self.author.full_name
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):

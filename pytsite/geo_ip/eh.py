@@ -20,7 +20,7 @@ def pytsite_cron_weekly():
     """'pytsite.cron.weekly' event handler.
     """
     # Delete expired entities
-    f = _odm.find('geo_ip').where('_created', '<=', _datetime.now() - _timedelta(weeks=1))
+    f = _odm.find('geo_ip').lte('_created', _datetime.now() - _timedelta(weeks=1))
     for e in f.get():
         with e:
             e.delete()

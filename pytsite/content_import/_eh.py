@@ -23,8 +23,8 @@ def cron_1min():
     delay_errors = _reg.get('content_export.delay_errors', 120)
 
     importer_finder = _odm.find('content_import') \
-        .where('enabled', '=', True) \
-        .where('paused_till', '<', _datetime.now()) \
+        .eq('enabled', True) \
+        .lt('paused_till', _datetime.now()) \
         .sort([('errors', _odm.I_ASC)])
 
     for importer in importer_finder.get():  # type: _model.ContentImport

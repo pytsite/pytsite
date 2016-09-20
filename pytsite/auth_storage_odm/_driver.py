@@ -1,8 +1,8 @@
 """PytSite Authentication ODM Storage Driver.
 """
-from typing import Iterable as _Iterable, Union as _Union
-from pytsite import auth as _auth, odm as _odm, form as _form, odm_ui as _odm_ui, widget as _widget
-from . import _model, _widget as _auth_storage_odm_widget
+from typing import Iterable as _Iterable
+from pytsite import auth as _auth, odm as _odm, form as _form, odm_ui as _odm_ui
+from . import _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,31 +11,33 @@ __license__ = 'MIT'
 
 class Driver(_auth.driver.Storage):
     def get_name(self) -> str:
+        """Get driver's name.
+        """
         return 'odm'
 
     def create_role(self, name: str, description: str = '') -> _auth.model.AbstractRole:
-        role = _odm.dispense('role')  # type: _model.Role
-        role.name = name
-        role.description = description
-        role.save()
+        """Create a new role.
+        """
+        role_entity = _odm.dispense('role')  # type: _model.ODMRole
+        role_entity.f_set('name', name).f_set('description', description).save()
 
-        return role
+        return _model.Role(role_entity)
 
     def get_role(self, name: str = None, uid: str = None) -> _auth.model.AbstractRole:
         f = _odm.find('role')
 
         if name:
-            f.where('name', '=', name)
+            f.eq('name', name)
         elif uid:
-            f.where('_id', '=', uid)
+            f.eq('_id', uid)
         else:
             raise RuntimeError("Either role's name or UID should be specified.")
 
-        role = f.first()
-        if not role:
+        role_entity = f.first()
+        if not role_entity:
             raise _auth.error.RoleNotExist("Role '{}' does not exist.".format(name))
 
-        return role
+        return _model.Role(role_entity)
 
     def get_roles(self, flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = None,
                   skip: int = 0) -> _Iterable[_auth.model.AbstractRole]:
@@ -52,17 +54,19 @@ class Driver(_auth.driver.Storage):
                 if not f.mock.has_field(k):
                     RuntimeError("Role doesn't have field '{}'.".format(k))
 
-                f.where(k, '=', v)
+                f.eq(k, v)
 
-        return f.get(limit)
+        # Return generator
+        return (_model.Role(role_entity) for role_entity in f.get(limit))
 
     def create_user(self, login: str, password: str = None) -> _auth.model.AbstractUser:
-        user = _odm.dispense('user')  # type: _model.User
-        user.login = login
-        user.email = login
-        user.password = password
+        user_entity = _odm.dispense('user')  # type: _model.ODMUser
+        user_entity.f_set('login', login).f_set('email', login).f_set('password', password)
 
-        return user
+        if login not in (_auth.model.SYSTEM_USER_LOGIN, _auth.model.ANONYMOUS_USER_LOGIN):
+            user_entity.save()
+
+        return _model.User(user_entity)
 
     def get_user(self, login: str = None, nickname: str = None, access_token: str = None,
                  uid: str = None) -> _auth.model.AbstractUser:
@@ -70,22 +74,22 @@ class Driver(_auth.driver.Storage):
         # Don't cache finder results due to frequent user updates in database
         f = _odm.find('user').cache(0)
         if login is not None:
-            f.where('login', '=', login)
+            f.eq('login', login)
         elif nickname is not None:
-            f.where('nickname', '=', nickname)
+            f.eq('nickname', nickname)
         elif access_token is not None:
-            f.where('acs_token', '=', access_token)
+            f.eq('acs_token', access_token)
         elif uid is not None:
-            f.where('_id', '=', uid)
+            f.eq('_id', uid)
         else:
             raise RuntimeError('User search criteria was not specified.')
 
-        user = f.first()  # type: _model.User
-        if not user:
+        user_entity = f.first()  # type: _model.ODMUser
+        if not user_entity:
             raise _auth.error.UserNotExist("User not exist: login={}, nickname={}, access_token={}, uid={}"
                                            .format(login, nickname, access_token, uid))
 
-        return user
+        return _model.User(user_entity)
 
     def get_users(self, flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = None,
                   skip: int = 0) -> _Iterable[_auth.model.AbstractUser]:
@@ -109,11 +113,12 @@ class Driver(_auth.driver.Storage):
                     RuntimeError("User doesn't have field '{}'.".format(k))
 
                 if isinstance(v, (tuple, list)):
-                    f.where(k, 'in', v)
+                    f.inc(k, v)
                 else:
-                    f.where(k, '=', v)
+                    f.eq(k, v)
 
-        return f.get(limit)
+            # Return generator
+            return (_model.User(user_entity) for user_entity in f.get(limit))
 
     def count_users(self, flt: dict = None) -> int:
         f = _odm.find('user')
@@ -123,9 +128,9 @@ class Driver(_auth.driver.Storage):
                     RuntimeError("User doesn't have field '{}'.".format(k))
 
                 if isinstance(v, (tuple, list)):
-                    f.where(k, 'in', v)
+                    f.inc(k, v)
                 else:
-                    f.where(k, '=', v)
+                    f.eq(k, v)
 
         return f.count()
 
@@ -136,21 +141,9 @@ class Driver(_auth.driver.Storage):
                 if not f.mock.has_field(k):
                     RuntimeError("Role doesn't have field '{}'.".format(k))
 
-                f.where(k, '=', v)
+                f.eq(k, v)
 
         return f.count()
 
-    def update_entity(self, entity: _Union[_auth.model.AuthEntity, _model.User, _model.Role]):
-        entity.save()
-
-    def delete_entity(self, entity: _Union[_auth.model.AuthEntity, _model.User, _model.Role]):
-        entity.delete()
-
     def get_user_modify_form(self, user: _auth.model.AbstractUser = None) -> _form.Form:
         return _odm_ui.get_m_form('user', user.uid) if user else _odm_ui.get_m_form('user')
-
-    def get_role_modify_form(self, role: _auth.model.AbstractRole = None) -> _form.Form:
-        return _odm_ui.get_m_form('role', role.uid) if role else _odm_ui.get_m_form('role')
-
-    def get_user_select_widget(self, uid: str, **kwargs) -> _widget.Abstract:
-        return _auth_storage_odm_widget.UserSelect(uid, **kwargs)

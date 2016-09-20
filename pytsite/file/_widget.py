@@ -3,7 +3,7 @@
 from typing import Iterable as _Iterable
 from pytsite import widget as _widget, tpl as _tpl, browser as _browser, html as _html, router as _router, \
     http_api as _http_api
-from . import _api
+from . import _api, _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -40,7 +40,7 @@ class FilesUpload(_widget.Abstract):
             'pytsite.file@css/upload-widget.css',
             'pytsite.file@js/load-image.all.min.js',
             'pytsite.file@js/canvas-to-blob.min.js',
-            'pytsite.file@js/upload-widget.js',
+            'pytsite.file@js/widget-files-upload.js',
         ])
 
     @property
@@ -125,8 +125,7 @@ class FilesUpload(_widget.Abstract):
 
     def get_html_em(self, **kwargs) -> _html.Element:
         self._data.update({
-            'url': _http_api.url('file/file', model=self._model),
-            'model': self._model,
+            'url': _http_api.url('file/file'),
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,
             'accept_files': self._accept_files,
@@ -147,7 +146,7 @@ class FilesUpload(_widget.Abstract):
         if value is None:
             return
 
-        # Value
+        # Convert single
         if type(value) not in (list, tuple):
             value = (value,)
 
@@ -155,9 +154,10 @@ class FilesUpload(_widget.Abstract):
         for val in value:
             if not val:
                 continue
-            entity = _api.get_by_ref(val)
-            if entity:
-                clean_val.append(entity)
+            elif isinstance(val, _model.AbstractFile):
+                clean_val.append(val)
+            elif isinstance(val, str):
+                clean_val.append(_api.get(val))
 
         # Delete files which are has been removed from the widget on the browser's side,
         # ONLY if the form is not in validation mode
@@ -165,10 +165,16 @@ class FilesUpload(_widget.Abstract):
         if to_delete and kwargs.get('mode') not in ('init', 'validation'):
             if isinstance(to_delete, str):
                 to_delete = [to_delete]
-            for ref in to_delete:
-                file = _api.get_by_ref(ref)
-                if file:
-                    with file:
-                        file.delete()
+            for uid in to_delete:
+                _api.get(uid).delete()
 
         super().set_val(clean_val, **kwargs)
+
+
+class ImagesUpload(FilesUpload):
+    """Images Upload Widget.
+    """
+    def __init__(self, uid: str, **kwargs):
+        super().__init__(uid, model='image', accept_files='image/*', **kwargs)
+        self.add_btn_icon = 'fa fa-fw fa-camera'
+        self.assets.append('pytsite.file@js/widget-images-upload.js')

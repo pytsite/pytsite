@@ -12,7 +12,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import assetman, tpl, lang, router, robots, events, browser, permission
+    from pytsite import assetman, tpl, lang, router, robots, events, browser, permissions
     from . import _eh
 
     # Resources
@@ -32,7 +32,7 @@ def __init():
     assetman.add('pytsite.admin@js/admin.js', permanent=True, path_prefix=bp, async=True, defer=True)
 
     # Permissions
-    permission.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
+    permissions.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
 
     # Dashboard route
     router.add_rule(bp, __name__ + '@dashboard')

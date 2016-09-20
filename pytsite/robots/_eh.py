@@ -1,4 +1,4 @@
-"""PytSite Robots Events Handlers.
+"""PytSite robots.txt Event Handlers.
 """
 from os import path
 from pytsite import reg as _reg, logger as _logger
@@ -10,6 +10,8 @@ __license__ = 'MIT'
 
 
 def cron_daily():
+    """'pytsite.cron.daily' event handler.
+    """
     content = ''
     for user_agent, rules in _api.get_rules().items():
         if rules:

@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def pytsite_setup():
+def setup():
     """'pytsite.setup' Event Handler
     """
     # Searching for an administrator
@@ -63,16 +63,15 @@ def router_dispatch():
             # Disable page caching for signed in users
             _router.set_no_cache(True)
 
-            with user:
-                # Prolong access token or generate a new one
-                try:
-                    _api.prolong_access_token(user.access_token)
-                except _error.InvalidAccessToken:
-                    user.access_token = _api.create_access_token(user.uid)
+            # Prolong access token or generate a new one
+            try:
+                _api.prolong_access_token(user.access_token)
+            except _error.InvalidAccessToken:
+                user.access_token = _api.create_access_token(user.uid)
 
-                # Update user's activity timestamp
-                user.last_activity = _datetime.now()
-                user.save()
+            # Update user's activity timestamp
+            user.last_activity = _datetime.now()
+            user.save()
         else:
             # Sign out inactive user
             _api.sign_out(user)

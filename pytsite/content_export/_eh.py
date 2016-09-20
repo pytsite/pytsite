@@ -16,8 +16,8 @@ def cron_1min():
     delay_errors = _reg.get('content_export.delay_errors', 120)
 
     exporters_f = _odm.find('content_export') \
-        .where('enabled', '=', True) \
-        .where('paused_till', '<', _datetime.now()) \
+        .eq('enabled', True) \
+        .lt('paused_till', _datetime.now()) \
         .sort([('errors', _odm.I_ASC)])
 
     # It has no sense to cache such queries because argument is different every time
@@ -26,17 +26,17 @@ def cron_1min():
     for exporter in exporters_f.get():
         # Search for content entities which are hasn't been exported yet
         content_f = _content.find(exporter.content_model) \
-            .where('publish_time', '>=', _datetime.now() - _timedelta(exporter.max_age)) \
-            .where('options.content_export', 'nin', [str(exporter.id)]) \
+            .gte('publish_time', _datetime.now() - _timedelta(exporter.max_age)) \
+            .ninc('options.content_export', [str(exporter.id)]) \
             .sort([('publish_time', _odm.I_ASC)])
 
         # Get content only with images
         if exporter.with_images_only:
-            content_f.where('images', '!=', [])
+            content_f.ne('images', [])
 
         # Filter by content owner
         if not exporter.process_all_authors:
-            content_f.where('author', '=', exporter.owner)
+            content_f.eq('author', exporter.owner.uid)
 
         for entity in content_f.get():
             try:

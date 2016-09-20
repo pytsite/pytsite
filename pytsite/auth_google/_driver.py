@@ -2,7 +2,7 @@
 """
 import requests as _requests
 from pytsite import auth as _auth, form as _form, widget as _widget, html as _html, reg as _reg, lang as _lang, \
-    browser as _browser, image as _image
+    browser as _browser, file as _file
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -117,13 +117,8 @@ class Google(_auth.driver.Authentication):
         # Picture
         if is_new_user and 'picture' in google_data and google_data['picture']:
             current_pic = user.picture
-            with user.picture:
-                user.picture = _image.create(google_data['picture'])
-                user.picture.attached_to = user
-                user.picture.save()
-
-            with current_pic:
-                current_pic.delete()
+            user.picture = _file.create(google_data['picture'])
+            current_pic.delete()
 
         # Name
         if not user.first_name:
@@ -135,8 +130,7 @@ class Google(_auth.driver.Authentication):
         if is_new_user:
             user.nickname = user.full_name
 
-        with user:
-            user.save()
+        user.save()
 
         return user
 

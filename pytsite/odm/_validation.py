@@ -70,10 +70,10 @@ class FieldUnique(_pytsite_validation.rule.Base):
         if not self.value:
             return
 
-        f = _api.find(self._model).where(self._field, '=', self.value)
+        f = _api.find(self._model).eq(self._field, self.value)
 
         if self._exclude_ids:
-            f.where('_id', 'nin', self._exclude_ids)
+            f.ninc('_id', self._exclude_ids)
 
         if f.count():
             raise _pytsite_validation.error.RuleError(self._msg_id, self._msg_args)

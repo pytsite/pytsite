@@ -1,8 +1,10 @@
 """Auth Log ODM Models.
 """
 from typing import Tuple as _Tuple
-from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang
+from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, geo_ip as _geo_ip, lang as _lang, \
+    auth_storage_odm as _auth_storage_odm
 from . import _api
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,8 +15,8 @@ class AuthLog(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.Ref('user', model='user'))
-        self.define_field(_odm.field.String('ip', nonempty=True))
+        self.define_field(_auth_storage_odm.field.User('user'))
+        self.define_field(_odm.field.String('ip', required=True))
         self.define_field(_odm.field.Integer('severity', default=_api.SEVERITY_INFO))
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.Virtual('geo_ip'))
@@ -27,11 +29,11 @@ class AuthLog(_odm_ui.model.UIEntity):
         self.define_index([('severity', _odm.I_ASC)])
 
     @classmethod
-    def get_permission_group(cls) -> str:
+    def odm_auth_permissions_group(cls) -> str:
         return 'security'
 
     @classmethod
-    def get_permissions(cls) -> _Tuple[str]:
+    def odm_auth_permissions(cls) -> _Tuple[str]:
         return 'delete',
 
     @property
@@ -74,7 +76,7 @@ class AuthLog(_odm_ui.model.UIEntity):
             ('_created', 'pytsite.auth_log@created'),
         ]
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         user = ''

@@ -42,7 +42,7 @@ def post_subscribe(inp: dict) -> dict:
 
     lng = _lang.get_current()
 
-    s = _odm.find('content_subscriber').where('email', '=', email).where('language', '=', lng).first()
+    s = _odm.find('content_subscriber').eq('email', email).eq('language', lng).first()
     if s:
         if not s.f_get('enabled'):
             with s:
@@ -75,7 +75,7 @@ def get_widget_entity_select_search(inp: dict) -> dict:
     # User can browse only its OWN entities
     elif user.has_permission('pytsite.odm_perm.view_own.' + model):
         f = _api.find(model, status=None, check_publish_time=None, language=language)
-        f.where('author', '=', user)
+        f.eq('author', user.uid)
 
     # User cannot browse entities, so its rights equals to the anonymous user
     else:

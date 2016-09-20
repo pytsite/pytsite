@@ -75,25 +75,32 @@ def get_auth_driver(name: str = None) -> _driver.Authentication:
     return _authentication_drivers[name]
 
 
-def register_storage_driver(driver: _driver.Storage):
-    """Register storage driver.
-    """
-    global _storage_driver
-
-    if not isinstance(driver, _driver.Storage):
-        raise TypeError('Instance of pytsite.driver.Storage expected.')
-
-    if _storage_driver:
-        raise RuntimeError('Only one storage driver can be registered.')
-
-    _storage_driver = driver
-
-
 def get_storage_driver() -> _driver.Storage:
     """Get driver instance.
     """
+    # Load storage driver if it is not loaded yet
+    global _storage_driver
     if not _storage_driver:
-        raise _error.DriverNotRegistered('No storage driver registered.')
+        driver_class = _util.get_class(_reg.get('auth.storage_driver', 'pytsite.auth_storage_odm.Driver'))
+        driver = driver_class()
+
+        if not isinstance(driver, _driver.Storage):
+            raise TypeError('Instance of pytsite.driver.Storage expected.')
+
+        _storage_driver = driver
+
+        # Set system user as current
+        switch_user_to_system()
+
+        # Check if required roles exist
+        for r_name in ('anonymous', 'user', 'admin'):
+            try:
+                get_role(r_name)
+            except _error.RoleNotExist:
+                create_role(r_name, 'pytsite.auth@{}_role_description'.format(r_name)).save()
+
+        # Set system user as anonymous
+        switch_user_to_anonymous()
 
     return _storage_driver
 
@@ -320,10 +327,10 @@ def get_current_user() -> _model.AbstractUser:
     """Get current user.
     """
     user = _current_user.get(_threading.get_id())
-    if not user:
-        raise RuntimeError('Current user is not set.')
+    if user:
+        return user
 
-    return user
+    return switch_user_to_anonymous()
 
 
 def switch_user(user: _model.AbstractUser):
@@ -419,13 +426,3 @@ def get_user_modify_form(user: _model.AbstractUser) -> _form.Form:
     """Get user modification form.
     """
     return get_storage_driver().get_user_modify_form(user)
-
-
-def get_role_modify_form(role: _model.AbstractRole) -> _form.Form:
-    """Get role modification form.
-    """
-    return get_storage_driver().get_role_modify_form(role)
-
-
-def get_user_select_widget(uid: str, **kwargs) -> _widget.Abstract:
-    return get_storage_driver().get_user_select_widget(uid, **kwargs)

@@ -112,7 +112,7 @@ def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None], implied_mod
 
         return resolve_ref('{}:{}'.format(model, something['uid']))
 
-    raise ValueError('Cannot resolve reference.')
+    raise ValueError("Cannot resolve DB reference: '{}'.".format(something))
 
 
 def resolve_refs(something: _Iterable, implied_model: str = None) -> list:

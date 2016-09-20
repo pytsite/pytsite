@@ -11,8 +11,13 @@ class Query:
     def __init__(self, entity_mock: _model.Entity):
         """Init.
         """
+        # Mock entity to determine field types, etc
         self._entity_mock = entity_mock
+
+        # 'Compiled' search criteria
         self._criteria = {}
+
+        # To support __len__()
         self._len = 0
 
     @staticmethod
@@ -79,39 +84,18 @@ class Query:
         logical_op = self._resolve_logical_op(logical_op)
         comparison_op = self._resolve_comparison_op(comparison_op)
 
-        # If not sub document
+        # It is possible to perform checks only for top-level fields
         if field_name.find('.') < 0:
             if field_name == '_id':
                 # Convert str to ObjectId
                 if isinstance(arg, str):
                     arg = _ObjectId(arg)
             else:
+                # Get field object to perform check
                 field = self._entity_mock.get_field(field_name)
 
-                # Convert instance(s) to DBRef(s)
-                if isinstance(field, _field.Ref):
-                    if isinstance(arg, _model.Entity):
-                        arg = arg.ref
-                    elif isinstance(arg, (list, tuple)):
-                        clean_arg = []
-                        for v in arg:
-                            if isinstance(v, _model.Entity):
-                                clean_arg.append(v.ref)
-                            else:
-                                clean_arg.append(v)
-                        arg = clean_arg
-
-                # Convert list of instances to list of DBRefs
-                if isinstance(field, _field.RefsList):
-                    if not isinstance(arg, _Iterable):
-                        arg = (arg,)
-
-                    clean_arg = []
-                    for v in arg:
-                        if isinstance(v, _model.Entity):
-                            v = v.ref
-                        clean_arg.append(v)
-                    arg = clean_arg
+                # Convert arg to searchable form
+                arg = field.sanitize_finder_arg(arg)
 
         # Checking for argument type
         if comparison_op == '$near':

@@ -3,7 +3,7 @@
 from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \
     html as _html, http_api as _http_api, odm_auth as _odm_auth, odm_ui as _odm_ui, widget as _widget, \
-    permission as _permission
+    permissions as _permission
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -131,9 +131,9 @@ class Browser(_widget.misc.BootstrapTable):
 
         if not show_all:
             if finder.mock.has_field('author'):
-                finder.where('author', '=', self._current_user)
+                finder.eq('author', self._current_user.uid)
             elif finder.mock.has_field('owner'):
-                finder.where('owner', '=', self._current_user)
+                finder.eq('owner', self._current_user.uid)
 
         # Search
         if search:
@@ -157,7 +157,7 @@ class Browser(_widget.misc.BootstrapTable):
         # Iterate over result and get content for table rows
         cursor = finder.skip(offset).get(limit)
         for entity in cursor:
-            row = entity.ui_browser_get_row()
+            row = entity.ui_browser_row()
 
             if row is None:
                 continue
@@ -175,7 +175,7 @@ class Browser(_widget.misc.BootstrapTable):
             # Action buttons
             if self._model_class.ui_model_actions_enabled():
                 actions = self._get_entity_action_buttons(entity)
-                for btn_data in entity.ui_browser_get_entity_actions():
+                for btn_data in entity.ui_browser_entity_actions():
                     color = 'btn btn-xs btn-' + btn_data.get('color', 'default')
                     title = btn_data.get('title', '')
                     ep = btn_data.get('ep')

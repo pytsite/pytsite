@@ -136,7 +136,7 @@ https://test.com/api/1/auth/access_token_info
 - **int** `sign_in_count`. Общее количество успешных аутентификации.
 - **str** `status`. Статус учётной записи: 'active', 'waiting' или 'disabled'.
 - **bool** `profile_is_public`. Доступность профиля для всех пользователей.
-- **array[str]** `roles`. Назначенные роли.
+- **array[str]** `roles`. UID назначенных ролей.
 
 Также возможно добавление дополнительных полей сторонними модулями.
 
@@ -168,27 +168,30 @@ https://test.com/api/1/auth/user
   "first_name": "Vasily",
   "last_name": "Pupkeen",
   "full_name": "Vasily Pupkeen",
-  "birth_date": "Thu, 05 Jul 1984 00:00:00 +0300",
+  "birth_date": "1984-07-05T11:19:18+0300",
   "gender": "m",
   "phone": "+380501234567",
   "follows": [],
-  "followers": [
-    "576562d9523af52985715b6b"
-  ]
-  "urls": [
-    "https://plus.google.com/+Vasyok"
+  "followers":
+  [
+      "576562d9523af52985715b6b"
   ],
-  "created": "Sat, 18 Jun 2016 18:08:31 +0300",
+  "urls":
+  [
+      "https://plus.google.com/+Vasyok"
+  ],
+  "created": "2010-03-17T11:19:18+0300",
   "login": "vasya@pupkeen.com",
-  "email": "vasya@pupkeen.com",
-  "last_sign_in": "Sun, 19 Jun 2016 15:58:17 +0300",
-  "last_activity": "Sun, 19 Jun 2016 16:04:05 +0300",
+  "email": "vasya.p@gmail.com",
+  "last_sign_in": "2016-09-12T01:22:56+0300",
+  "last_activity": "2016-09-12T11:19:18+0300",
   "sign_in_count": 14,
   "status": "active",
   "profile_is_public": true,
-  "roles": [
-    "user"
-  ],
+  "roles":
+  [
+      "57d665063e7d8960ed762231"
+  ]
 }
 ```
 

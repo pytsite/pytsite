@@ -3,8 +3,7 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm as _odm, odm_ui as _odm_ui, auth as _auth, widget as _widget, content as _content, \
-    util as _util, router as _router, form as _form, lang as _lang, validation as _validation, \
-    auth_storage_odm as _auth_storage_odm
+    util as _util, router as _router, form as _form, lang as _lang, auth_storage_odm as _auth_storage_odm
 from . import _widget as _content_import_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -19,14 +18,14 @@ class ContentImport(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('driver', nonempty=True))
+        self.define_field(_odm.field.String('driver', required=True))
         self.define_field(_odm.field.Dict('driver_opts'))
-        self.define_field(_odm.field.String('content_model', nonempty=True))
-        self.define_field(_odm.field.Ref('owner', model='user', nonempty=True))
-        self.define_field(_odm.field.Ref('content_author', model='user', nonempty=True))
+        self.define_field(_odm.field.String('content_model', required=True))
+        self.define_field(_auth_storage_odm.field.User('owner', required=True))
+        self.define_field(_auth_storage_odm.field.User('content_author', required=True))
         self.define_field(_odm.field.Ref('content_section', model='section'))
-        self.define_field(_odm.field.String('content_status', nonempty=True))
-        self.define_field(_odm.field.String('content_language', nonempty=True))
+        self.define_field(_odm.field.String('content_status', required=True))
+        self.define_field(_odm.field.String('content_language', required=True))
         self.define_field(_odm.field.Bool('enabled', default=True))
         self.define_field(_odm.field.Integer('errors'))
         self.define_field(_odm.field.String('last_error'))
@@ -103,7 +102,7 @@ class ContentImport(_odm_ui.model.UIEntity):
             ('owner', 'pytsite.content_import@owner'),
         ]
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         model = _content.get_model_title(self.content_model)
         driver = _api.get_driver(self.driver).get_description()
         driver_options = str(dict(self.driver_opts))
@@ -172,7 +171,7 @@ class ContentImport(_odm_ui.model.UIEntity):
             required=True,
         ))
 
-        frm.add_widget(_auth_storage_odm.widget.UserSelect(
+        frm.add_widget(_auth.widget.UserSelect(
             weight=70,
             uid='content_author',
             label=self.t('content_author'),
@@ -233,3 +232,4 @@ class ContentImport(_odm_ui.model.UIEntity):
             driver_opts[k.replace('driver_opts_', '')] = widget.value
 
         self.f_set('driver_opts', driver_opts)
+

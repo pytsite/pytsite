@@ -1,17 +1,16 @@
 <div class="files-upload-wrapper">
     <div class="slots row">
-        {# Thumbs #}
+        {# Slots #}
         {% if widget.get_val() %}
             {% for item in widget.get_val() %}
-                {% set fid = item.model~':'~item.id %}
-                <div class="slot content sortable {{ widget.slot_css }}" data-fid="{{ fid }}">
+                <div class="slot content sortable {{ widget.slot_css }}" data-uid="{{ item.uid }}">
                     <div class="inner">
-                        <div class="thumb"><img class="img-responsive" src="{{ item.thumb_url }}"></div>
+                        <div class="thumb"><img class="img-responsive" src="{{ item.get_thumb_url() }}"></div>
                         <button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>
                         {% if widget.show_numbers %}
                             <span class="number"></span>
                         {% endif %}
-                        <input type="hidden" name="{{ widget.uid }}[]" value="{{ fid }}">
+                        <input type="hidden" name="{{ widget.uid }}[]" value="{{ item.uid }}">
                     </div>
                 </div>
             {% endfor %}

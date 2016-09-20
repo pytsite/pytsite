@@ -10,11 +10,11 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, odm, tpl, lang, events, http_api, permission
+    from pytsite import assetman, odm, tpl, lang, events, http_api, permissions
     from . import _model, _eh
 
     # Permission group
-    permission.define_group('flag', 'pytsite.flag@flag')
+    permissions.define_group('flag', 'pytsite.flag@flag')
 
     # ODM models
     odm.register_model('flag', _model.Flag)

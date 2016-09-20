@@ -3,13 +3,13 @@
 from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
-from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, widget as _widget
+from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, widget as _widget, \
+    auth_storage_odm as _auth_storage_odm
 from . import _error, _widget as _wallet_widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
 
 _main_currency = _currency.get_main()
 
@@ -17,13 +17,14 @@ _main_currency = _currency.get_main()
 class Account(_odm_ui.model.UIEntity):
     """Wallet ODM Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('currency', nonempty=True))
-        self.define_field(_odm.field.String('title', nonempty=True))
+        self.define_field(_odm.field.String('currency', required=True))
+        self.define_field(_odm.field.String('title', required=True))
         self.define_field(_odm.field.Decimal('balance', round=8))
-        self.define_field(_odm.field.Ref('owner', model='user', nonempty=True))
+        self.define_field(_odm.field.String('owner', required=True))
         self.define_field(_odm.field.RefsUniqueList('pending_transactions', model='wallet_transaction'))
         self.define_field(_odm.field.RefsUniqueList('cancelling_transactions', model='wallet_transaction'))
         self.define_field(_odm.field.Dict('options'))
@@ -68,11 +69,10 @@ class Account(_odm_ui.model.UIEntity):
         return self.f_get('options')
 
     def _on_f_set(self, field_name: str, value, **kwargs):
-        if field_name == 'currency':
-            if value not in _currency.get_all():
-                raise _currency.error.CurrencyNotDefined("Currency '{}' is not defined.".format(value))
+        if field_name == 'currency' and value not in _currency.get_all():
+            raise _currency.error.CurrencyNotDefined("Currency '{}' is not defined.".format(value))
 
-        return value
+        return super()._on_f_set(field_name, value, **kwargs)
 
     def _pre_delete(self, **kwargs):
         """Hook.
@@ -80,7 +80,7 @@ class Account(_odm_ui.model.UIEntity):
         :param force: only for testing purposes.
         """
         if not kwargs.get('force'):
-            f = _odm.find('wallet_transaction').or_where('source', '=', self).or_where('destination', '=', self)
+            f = _odm.find('wallet_transaction').or_eq('source', self).or_eq('destination', self)
             if f.count():
                 raise _odm.error.ForbidEntityDelete('Cannot delete account due to its usage in transaction(s).')
 
@@ -91,14 +91,14 @@ class Account(_odm_ui.model.UIEntity):
         :type browser: pytsite.odm_ui._browser.Browser
         """
         browser.data_fields = [
-            ('_id',  'pytsite.wallet@id'),
-            ('title',  'pytsite.wallet@title'),
-            ('currency',  'pytsite.wallet@currency'),
-            ('balance',  'pytsite.wallet@balance'),
+            ('_id', 'pytsite.wallet@id'),
+            ('title', 'pytsite.wallet@title'),
+            ('currency', 'pytsite.wallet@currency'),
+            ('balance', 'pytsite.wallet@balance'),
             ('owner', 'pytsite.wallet@owner'),
         ]
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         balance = _currency.fmt(self.currency, self.balance)
@@ -106,7 +106,7 @@ class Account(_odm_ui.model.UIEntity):
 
         return str(self.id), self.title, self.currency, balance, owner.full_name
 
-    def ui_mass_action_get_entity_description(self) -> str:
+    def ui_mass_action_entity_description(self) -> str:
         return '{} ({}, {})'.format(self.title, str(self.id), self.currency)
 
     def ui_m_form_setup_widgets(self, frm):
@@ -145,7 +145,7 @@ class Account(_odm_ui.model.UIEntity):
                 value=self.currency,
             ))
 
-        frm.add_widget(_auth.get_user_select_widget(
+        frm.add_widget(_auth.widget.UserSelect(
             uid='owner',
             weight=30,
             label=self.t('owner'),
@@ -158,12 +158,13 @@ class Account(_odm_ui.model.UIEntity):
 class Transaction(_odm_ui.model.UIEntity):
     """Transaction ODM Model.
     """
+
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.DateTime('time', nonempty=True, default=_datetime.now()))
-        self.define_field(_odm.field.Ref('source', model='wallet_account', nonempty=True))
-        self.define_field(_odm.field.Ref('destination', model='wallet_account', nonempty=True))
+        self.define_field(_odm.field.DateTime('time', required=True, default=_datetime.now()))
+        self.define_field(_odm.field.Ref('source', model='wallet_account', required=True))
+        self.define_field(_odm.field.Ref('destination', model='wallet_account', required=True))
         self.define_field(_odm.field.String('state', default='new'))
         self.define_field(_odm.field.Decimal('amount', round=8))
         self.define_field(_odm.field.Decimal('exchange_rate', round=8, default=1))
@@ -213,7 +214,7 @@ class Transaction(_odm_ui.model.UIEntity):
         if not self.is_new and field_name in ('source', 'destination', 'amount'):
             raise ValueError('Transaction cannot be changed.')
 
-        return value
+        return super()._on_f_set(field_name, value, **kwargs)
 
     def _pre_save(self):
         """Hook.
@@ -247,11 +248,11 @@ class Transaction(_odm_ui.model.UIEntity):
         """
         browser.data_fields = [
             ('time', 'pytsite.wallet@time'),
-            ('description',  'pytsite.wallet@description'),
-            ('source',  'pytsite.wallet@source'),
-            ('destination',  'pytsite.wallet@destination'),
-            ('amount',  'pytsite.wallet@amount'),
-            ('state',  'pytsite.wallet@state'),
+            ('description', 'pytsite.wallet@description'),
+            ('source', 'pytsite.wallet@source'),
+            ('destination', 'pytsite.wallet@destination'),
+            ('amount', 'pytsite.wallet@amount'),
+            ('state', 'pytsite.wallet@state'),
         ]
         browser.default_sort_field = 'time'
 
@@ -262,7 +263,7 @@ class Transaction(_odm_ui.model.UIEntity):
                 'color': 'danger',
                 'title': Transaction.t('odm_ui_form_title_delete_wallet_transaction')},
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         time = self.f_get('time', fmt='pretty_date_time')
@@ -283,7 +284,7 @@ class Transaction(_odm_ui.model.UIEntity):
 
         return time, self.description, source, destination, amount, state
 
-    def ui_browser_get_entity_actions(self) -> tuple:
+    def ui_browser_entity_actions(self) -> tuple:
         if self.state == 'committed':
             return {'icon': 'undo',
                     'ep': 'pytsite.wallet@transactions_cancel',

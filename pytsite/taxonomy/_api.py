@@ -55,7 +55,7 @@ def find(model: str, language: str = None):
     f = _odm.find(model).sort([('weight', _odm.I_DESC)])
 
     if _localization_enabled:
-        f.where('language', '=', language or _lang.get_current())
+        f.eq('language', language or _lang.get_current())
 
     return f
 
@@ -69,7 +69,7 @@ def find_by_title(model: str, title: str, language: str = None) -> _Term:
 def find_by_alias(model: str, alias: str, language: str = None) -> _Term:
     """Find term by alias.
     """
-    return find(model, language).where('alias', '=', alias).first()
+    return find(model, language).eq('alias', alias).first()
 
 
 def dispense(model: str, title: str, alias: str = None, language: str = None) -> _Term:
@@ -88,7 +88,7 @@ def dispense(model: str, title: str, alias: str = None, language: str = None) ->
 
     # If term is not found, trying to find it by alias
     if not term:
-        term = find(model, language).where('alias', '=', alias).first()
+        term = find(model, language).eq('alias', alias).first()
 
     # If term is not found, create it
     if not term:
@@ -111,7 +111,7 @@ def sanitize_alias_string(model: str, s: str) -> str:
 
     itr = 0
     while True:
-        if not find(model).where('alias', '=', s).first():
+        if not find(model).eq('alias', s).first():
             return s
 
         itr += 1

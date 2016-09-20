@@ -1,7 +1,7 @@
 """PytSite ODM Permissions API Functions.
 """
 from typing import Iterable as _Iterable
-from pytsite import permission as _permission, auth as _auth, odm as _odm, threading as _threading
+from pytsite import permissions as _permission, auth as _auth, odm as _odm, threading as _threading
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -80,6 +80,10 @@ def check_permissions(action: str, model: str, ids: _Iterable = None, user: _aut
                     for author_field in 'author', 'owner':
                         if entity.has_field(author_field):
                             author = entity.f_get(author_field)
+
+                            if not isinstance(author, _auth.model.AbstractUser) and author is not None:
+                                raise RuntimeError('Entity must return user object or None here.')
+
                             if not user.is_anonymous and author == user:
                                 return True
 

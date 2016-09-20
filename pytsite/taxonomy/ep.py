@@ -19,7 +19,7 @@ def search_terms(args: dict, inp: dict) -> _http.response.JSON:
         exclude = [exclude]
 
     r = []
-    finder = _api.find(model).where('title', 'nin', exclude)
+    finder = _api.find(model).ninc('title', exclude)
 
     for word in query.split(' '):
         finder.where('title', 'regex_i', word.strip())

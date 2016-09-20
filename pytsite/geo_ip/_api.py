@@ -33,7 +33,7 @@ def resolve(ip: str) -> _model.GeoIP:
     """Get data about an IP address.
     """
     # Checking for previously fetched data
-    entity = _odm.find('geo_ip').where('ip', '=', ip).first()
+    entity = _odm.find('geo_ip').eq('ip', ip).first()
     if entity:
         return entity
 

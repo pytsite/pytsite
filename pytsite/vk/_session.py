@@ -2,7 +2,7 @@
 """
 import requests as _requests
 from os import path as _path
-from pytsite import reg as _reg, image as _image
+from pytsite import reg as _reg, file as _file
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -60,7 +60,7 @@ class Session:
 
         :type photo: image.model.Image | str
         """
-        if isinstance(photo, _image.model.Image):
+        if isinstance(photo, _file.model.AbstractImage):
             file = open(photo.abs_path, 'rb')
             if not name:
                 name = _path.basename(photo.abs_path)

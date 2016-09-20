@@ -24,10 +24,10 @@ class Abstract(_ABC):
         """Init.
 
         :param default:
-        :param nonempty: bool
+        :param required: bool
         """
         self._name = name
-        self._nonempty = kwargs.get('nonempty', False)
+        self._required = kwargs.get('required', False)
         self._default = _deepcopy(kwargs.get('default'))
         self._uid = None
         self._value = None
@@ -36,12 +36,16 @@ class Abstract(_ABC):
         self.clr_val()
 
     @property
-    def nonempty(self) -> bool:
-        return self._nonempty
+    def required(self) -> bool:
+        return self._required
 
-    @nonempty.setter
-    def nonempty(self, value: bool):
-        self._nonempty = value
+    @required.setter
+    def required(self, value: bool):
+        self._required = value
+
+    @property
+    def is_empty(self) -> bool:
+        return not bool(self.get_val())
 
     @property
     def name(self) -> str:
@@ -175,14 +179,15 @@ class Abstract(_ABC):
         """
         pass
 
+    def sanitize_finder_arg(self, arg):
+        """Hook. Used for sanitizing Finder's query argument.
+        """
+        return arg
+
     def __str__(self) -> str:
         """Stringify field's value.
         """
         return str(self.get_val())
-
-    @property
-    def is_empty(self) -> bool:
-        return not bool(self.get_val())
 
 
 class List(Abstract):
@@ -447,6 +452,23 @@ class Ref(Abstract):
         """
         return '_ref:{}:{}'.format(internal_value.collection, internal_value.id) if internal_value else None
 
+    def sanitize_finder_arg(self, arg):
+        """Hook. Used for sanitizing Finder's query argument.
+        """
+        from . import _model
+        if isinstance(arg, _model.Entity):
+            arg = arg.ref
+        elif isinstance(arg, (list, tuple)):
+            clean_arg = []
+            for v in arg:
+                if isinstance(v, _model.Entity):
+                    clean_arg.append(v.ref)
+                else:
+                    clean_arg.append(v)
+            arg = clean_arg
+
+        return arg
+
 
 class RefsList(List):
     """List of DBRefs field.
@@ -536,6 +558,22 @@ class RefsList(List):
             raise TypeError("Entity expected.")
 
         return super()._on_sub(internal_value, value_to_sub, **kwargs)
+
+
+    def sanitize_finder_arg(self, arg):
+        """Hook. Used for sanitizing Finder's query argument.
+        """
+        from . import _model
+
+        if not isinstance(arg, _Iterable):
+            arg = (arg,)
+
+        clean_arg = []
+        for v in arg:
+            if isinstance(v, _model.Entity):
+                v = v.ref
+            clean_arg.append(v)
+        arg = clean_arg
 
 
 class RefsUniqueList(RefsList):
@@ -668,7 +706,10 @@ class String(Abstract):
     def _on_set(self, value: str, **kwargs):
         """Hook.
         """
-        value = str(value).strip()
+        if not isinstance(value, str):
+            raise TypeError("Field '{}': string object expected, got {}.".format(self.name, type(value)))
+
+        value = value.strip()
 
         if value:
             # Strip HTML

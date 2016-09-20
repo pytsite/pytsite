@@ -50,9 +50,8 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
         return $(slot);
     }
 
-    function createSlot(model, uid, thumb_url) {
-        var ref = model + ':' + uid;
-        var slot = $('<div class="slot content sortable ' + slotCss + '" data-ref="' + ref + '">');
+    function createSlot(uid, thumb_url) {
+        var slot = $('<div class="slot content sortable ' + slotCss + '" data-uid="' + uid + '">');
         var inner = $('<div class="inner">');
 
         slot.append(inner);
@@ -60,7 +59,7 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
         inner.append($('<button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>'));
         if (showNumbers)
             inner.append($('<span class="number">'));
-        inner.append('<input type="hidden" name="' + widgetUid + '[]" value="' + ref + '">');
+        inner.append('<input type="hidden" name="' + widgetUid + '[]" value="' + uid + '">');
 
         return setupSlot(slot);
     }
@@ -95,13 +94,13 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
     }
 
     function removeSlot(slot, confirmDelete) {
-        var ref = $(slot).data('ref');
+        var uid = $(slot).data('uid');
 
         if (confirmDelete != false && !confirm(t('pytsite.file@really_delete')))
             return;
 
-        widgetEm.find('input[value="' + ref + '"]').remove();
-        widgetEm.append('<input type="hidden" name="' + widgetUid + '_to_delete" value="' + ref + '">');
+        widgetEm.find('input[value="' + uid + '"]').remove();
+        widgetEm.append('<input type="hidden" name="' + widgetUid + '_to_delete" value="' + uid + '">');
         $(slot.remove());
         renumberSlots();
 
@@ -174,7 +173,7 @@ $(window).on('pytsite.widget.init:pytsite.file._widget.FilesUpload', function (e
             $.each(data, function (k, v) {
                 pytsite.httpApi.get('file/file', {uid: v['uid'], model: model}).done(function (r) {
                     progressSlot.hide();
-                    appendSlot(createSlot(model, r['uid'], r['thumb_url']));
+                    appendSlot(createSlot(r['uid'], r['thumb_url']));
                     $(widget).trigger('fileUploadSuccess', [v]);
                 });
             });

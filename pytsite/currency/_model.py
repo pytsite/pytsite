@@ -17,9 +17,9 @@ class Rate(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.DateTime('date', nonempty=True))
-        self.define_field(_odm.field.String('source', nonempty=True))
-        self.define_field(_odm.field.String('destination', nonempty=True))
+        self.define_field(_odm.field.DateTime('date', required=True))
+        self.define_field(_odm.field.String('source', required=True))
+        self.define_field(_odm.field.String('destination', required=True))
         self.define_field(_odm.field.Decimal('rate', round=8))
 
     def _setup_indexes(self):
@@ -28,7 +28,7 @@ class Rate(_odm_ui.model.UIEntity):
         self.define_index([('date', _odm.I_DESC), ('source', _odm.I_ASC), ('destination', _odm.I_ASC)])
 
     @classmethod
-    def get_permissions(cls) -> _Tuple[str]:
+    def odm_auth_permissions(cls) -> _Tuple[str]:
         """Get permissions supported by model.
         """
         return 'create', 'modify', 'delete'
@@ -63,12 +63,12 @@ class Rate(_odm_ui.model.UIEntity):
         ]
         browser.default_sort_field = 'date'
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return str(self.date), self.source, self.destination, str(self.rate)
 
-    def ui_mass_action_get_entity_description(self):
+    def ui_mass_action_entity_description(self):
         return '{}, {} -&gt; {}, {}'.format(str(self.date), self.source, self.destination, str(self.rate))
 
     def ui_m_form_setup_widgets(self, frm: _form.Form):

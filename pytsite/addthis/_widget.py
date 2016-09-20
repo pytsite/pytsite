@@ -24,7 +24,7 @@ class AddThis(_widget.Abstract):
 
         self._pub_id = _settings.get('addthis.pub_id')
         if not self._pub_id:
-            raise RuntimeError("Configuration parameter 'addthis.pub_id' is not defined.")
+            raise RuntimeError("Setting 'addthis.pub_id' is not defined.")
 
         self._box_type = kwargs.get('box_type', _valid_box_types[0])
         if self._box_type not in _valid_box_types:
@@ -45,7 +45,6 @@ class AddThis(_widget.Abstract):
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
-        :param **kwargs:
         """
         div = _html.Div(cls=self._box_type)
 

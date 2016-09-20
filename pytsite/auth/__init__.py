@@ -1,13 +1,12 @@
-""" PytSite Auth Module Init.
+""" PytSite Authentication and Authorization.
 """
 # Public API
 from . import _error as error, _model as model, _driver as driver, _widget as widget
 from ._api import get_current_user, get_user_statuses, get_user, create_user, get_role, get_sign_in_form, \
     register_auth_driver, user_nickname_rule, sign_in, get_auth_driver, create_role, get_sign_in_url, get_sign_out_url,\
     verify_password, hash_password, sign_out, get_access_token_info, switch_user, get_anonymous_user, \
-    get_system_user, get_users, get_storage_driver, register_storage_driver, count_users, count_roles, \
-    get_first_admin_user, get_roles, get_role_modify_form, get_user_modify_form, base_path, get_user_select_widget, \
-    switch_user_to_system, switch_user_to_anonymous, restore_user
+    get_system_user, get_users, get_storage_driver, count_users, count_roles, get_first_admin_user, get_roles, \
+    get_user_modify_form, base_path, switch_user_to_system, switch_user_to_anonymous, restore_user
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -17,20 +16,21 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, events, tpl, lang, router, robots, console, util, http_api, permission
+    from pytsite import reg, assetman, events, tpl, lang, router, robots, console, util, http_api, permissions
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh
 
+    # Resources
     tpl.register_package(__name__)
     lang.register_package(__name__)
-    http_api.register_package('auth', 'pytsite.auth.http_api')
-
-    # Permissions
-    permission.define_group('security', 'pytsite.auth@security')
-
-    # Resources
     assetman.register_package(__name__)
     assetman.add('pytsite.auth@js/auth.js', permanent=True)
+
+    # Module permission group
+    permissions.define_group('security', 'pytsite.auth@security')
+
+    # HTTP API handlers
+    http_api.register_package('auth', 'pytsite.auth.http_api')
 
     # Common routes
     bp = base_path()
@@ -47,26 +47,12 @@ def __init():
     tpl.register_global('auth_sign_out_url', get_sign_out_url)
 
     # Event handlers
-    events.listen('pytsite.setup', _eh.pytsite_setup)
+    events.listen('pytsite.setup', _eh.setup)
     events.listen('pytsite.router.dispatch', _eh.router_dispatch, priority=-9999)
     events.listen('pytsite.router.response', _eh.router_response)
 
     # Console commands
     console.register_command(AuthConsoleCommand())
-
-    # Load storage driver
-    driver_class = util.get_class(reg.get('auth.storage_driver', 'pytsite.auth_storage_odm.Driver'))
-    register_storage_driver(driver_class())
-
-    # Set system user as current
-    switch_user_to_system()
-
-    # Check if required roles exist
-    for r_name in ('anonymous', 'user', 'admin'):
-        try:
-            _api.get_role(r_name)
-        except error.RoleNotExist:
-            _api.create_role(r_name, 'pytsite.auth@{}_role_description'.format(r_name)).save()
 
     # robots.txt rules
     robots.disallow(bp + '/')

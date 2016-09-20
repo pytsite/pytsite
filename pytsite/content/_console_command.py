@@ -2,7 +2,7 @@
 """
 import requests as _requests
 from random import shuffle as _shuffle, random as _random, randint as _randint
-from pytsite import image as _image, auth as _auth, console as _console, lang as _lang, events as _events, \
+from pytsite import file as _file, auth as _auth, console as _console, lang as _lang, events as _events, \
     validation as _validation
 from . import _api
 
@@ -89,7 +89,7 @@ class Generate(_console.command.Abstract):
                 author = users[rand:rand + 1][0]
 
             # Set author
-            entity.f_set('author', author)
+            entity.f_set('author', author.uid)
 
             # Title
             entity.f_set('title', self._generate_title(int(kwargs.get('title-len', 7))))
@@ -143,7 +143,7 @@ class Generate(_console.command.Abstract):
             # Images
             if entity.has_field('images') and images_num:
                 for n in range(0, images_num):
-                    entity.f_add('images', _image.create(self.lp_url, owner=author))
+                    entity.f_add('images', _file.create(self.lp_url))
 
             entity.f_set('status', 'published')
             entity.f_set('views_count', int(_random() * 1000))

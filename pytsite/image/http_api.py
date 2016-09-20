@@ -1,7 +1,6 @@
 """PytSIte Image HTTP API Endpoints.
 """
 from pytsite import http_api as _http_api
-from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

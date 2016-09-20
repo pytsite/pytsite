@@ -5,7 +5,7 @@ from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.request import urlopen as _urlopen
 from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, router as _router, \
-    html as _html, auth as _auth, image as _image
+    html as _html, auth as _auth, file as _file
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -119,14 +119,10 @@ class ULogin(_auth.driver.Authentication):
             if not picture_url:
                 picture_url = ulogin_data.get('photo')
 
-            # Replace existing picture with provide by uLogin
+            # Replace existing picture with provided by uLogin
             if picture_url:
-                user.picture = _image.create(picture_url, owner=user, attached_to=user)
-                with user.picture:
-                    user.picture.save()
-
-                with current_pic:
-                    current_pic.delete()
+                user.picture = _file.create(picture_url)
+                current_pic.delete()
 
         # Name
         if not user.first_name:
@@ -156,8 +152,7 @@ class ULogin(_auth.driver.Authentication):
         options['ulogin'] = ulogin_data
         user.options = options
 
-        with user:
-            user.save()
+        user.save()
 
         return user
 

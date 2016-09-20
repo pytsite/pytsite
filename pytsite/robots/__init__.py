@@ -1,4 +1,4 @@
-"""Pytsite Robots Package.
+"""Pytsite robots.txt support.
 """
 
 # Public API
@@ -9,10 +9,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     from pytsite import events
     from . import _eh
 
     events.listen('pytsite.cron.daily', _eh.cron_daily)
 
-__init()
+
+_init()

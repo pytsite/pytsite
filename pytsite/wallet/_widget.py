@@ -23,7 +23,7 @@ class AccountSelect(_w.select.Select):
 
             # User can only view its own accounts
             if not u.has_permission('pytsite.odm_perm.view.wallet_account'):
-                f.where('owner', '=', u)
+                f.eq('owner', u.uid)
 
             for acc in f.get():
                 label = '{} ({})'.format(acc.title, acc.currency)

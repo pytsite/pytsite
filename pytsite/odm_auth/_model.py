@@ -13,13 +13,13 @@ class AuthorizableEntity(_odm.model.Entity):
     """
 
     @classmethod
-    def get_permission_group(cls) -> str:
+    def odm_auth_permissions_group(cls) -> str:
         """Get model permission group name.
         """
         return cls.get_package_name().split('.')[-1]
 
     @classmethod
-    def get_permissions(cls) -> _Tuple[str]:
+    def odm_auth_permissions(cls) -> _Tuple[str]:
         """Get permissions supported by model.
         """
         return 'create', 'view', 'modify', 'delete', 'view_own', 'modify_own', 'delete_own'

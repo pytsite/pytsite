@@ -88,10 +88,11 @@ def set_no_cache(status: bool):
 
 def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None, methods=None, filters=None):
     """Add a rule to the router.
+
     :param methods: str|tuple|list
     """
     if not name and not call:
-        raise Exception("Either 'name' or 'call' must be specified.")
+        raise RuntimeError("Either 'name' or 'call' must be specified.")
 
     if filters is None:
         filters = []

@@ -5,9 +5,10 @@ from typing import Tuple as _Tuple, Union as _Union
 from datetime import datetime as _datetime, timedelta as _timedelta
 from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
-    image as _image, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
+    file as _file, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments
+    tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments, \
+    auth_storage_odm as _auth_storage_odm, file_storage_odm as _file_storage_odm
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -127,7 +128,7 @@ def _extract_images(entity) -> tuple:
     def replace_func(match):
         nonlocal img_index, images
         img_index += 1
-        images.append(_image.create(match.group(1), owner=entity.author))
+        images.append(_file.create(match.group(1)))
 
         return '[img:{}]'.format(img_index)
 
@@ -177,14 +178,14 @@ class Section(_taxonomy.model.Term):
             f = _api.find(m, status=None, check_publish_time=False)
             if not f.mock.has_field('section'):
                 continue
-            r_entity = f.where('section', '=', self).first()
+            r_entity = f.eq('section', self).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
                 raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
 
         f = _taxonomy.find('tag')
         if f.mock.has_field('sections'):
-            tag = f.where('sections', 'in', [self]).first()
+            tag = f.inc('sections', [self]).first()
             if tag:
                 error_args = {'model': tag.model, 'title': tag.f_get('title')}
                 raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
@@ -216,19 +217,19 @@ class Base(_odm_ui.model.UIEntity):
     """
 
     @classmethod
-    def get_permission_group(cls) -> str:
+    def odm_auth_permissions_group(cls) -> str:
         return 'content'
 
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('title', nonempty=True, strip_html=True))
+        self.define_field(_odm.field.String('title', required=True, strip_html=True))
         self.define_field(_odm.field.String('body', tidyfy_html=True))
-        self.define_field(_odm.field.RefsUniqueList('images', model='image'))
+        self.define_field(_file_storage_odm.field.Images('images'))
         self.define_field(_odm.field.StringList('video_links', unique=True))
-        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_primary()))
-        self.define_field(_odm.field.String('language_db', nonempty=True))
-        self.define_field(_odm.field.Ref('author', nonempty=True, model='user'))
+        self.define_field(_odm.field.String('language', required=True, default=_lang.get_primary()))
+        self.define_field(_odm.field.String('language_db', required=True))
+        self.define_field(_auth_storage_odm.field.User('author', required=True))
         self.define_field(_odm.field.Dict('options'))
 
     def _setup_indexes(self):
@@ -257,7 +258,7 @@ class Base(_odm_ui.model.UIEntity):
         return self.f_get('body', process_tags=True)
 
     @property
-    def images(self) -> _Tuple[_image.model.Image]:
+    def images(self) -> _Tuple[_file.model.AbstractImage]:
         """Images getter.
         """
         return self.f_get('images')
@@ -295,6 +296,8 @@ class Base(_odm_ui.model.UIEntity):
             elif kwargs.get('remove_tags'):
                 value = _remove_tags(value)
 
+            return value
+
         return value
 
     def _on_f_set(self, field_name: str, value, **kwargs):
@@ -311,7 +314,7 @@ class Base(_odm_ui.model.UIEntity):
             else:
                 self.f_set('language_db', 'none')
 
-        return value
+        return super()._on_f_set(field_name, value, **kwargs)
 
     def _pre_save(self):
         """Hook.
@@ -325,7 +328,7 @@ class Base(_odm_ui.model.UIEntity):
             self.f_set('language', _lang.get_current())
 
         # If author is required
-        if self.has_field('author') and self.get_field('author').nonempty and not self.author:
+        if self.has_field('author') and self.get_field('author').required and not self.author:
             if not current_user.is_anonymous:
                 self.f_set('author', current_user)
             else:
@@ -355,27 +358,8 @@ class Base(_odm_ui.model.UIEntity):
     def _after_save(self, first_save: bool = False):
         """Hook.
         """
-        # Creating back links in images
-        if self.has_field('images'):
-            for img in self.images:
-                with img:
-                    if not img.attached_to:
-                        img.attached_to = self
-                    if not img.owner:
-                        img.f_set('owner', self.author)
-                    img.save()
-
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
-
-    def _pre_delete(self, **kwargs):
-        """Hook.
-        """
-        # Check if the all attached images could be deleted after entity deletion
-        if self.has_field('images'):
-            for img in self.images:
-                if not img.check_permissions('delete'):
-                    raise _odm.error.ForbidEntityDelete('One or more images attached to entity cannot be deleted.')
 
     def _after_delete(self):
         """Hook.
@@ -383,8 +367,7 @@ class Base(_odm_ui.model.UIEntity):
         # Delete all attached images
         if self.has_field('images'):
             for img in self.images:
-                with img:
-                    img.delete()
+                img.delete()
 
     @classmethod
     def ui_browser_setup(cls, browser: _odm_ui.Browser):
@@ -392,12 +375,12 @@ class Base(_odm_ui.model.UIEntity):
         """
         # Filter by language
         if _localization_enabled:
-            browser.finder_adjust = lambda f: f.where('language', '=', _lang.get_current())
+            browser.finder_adjust = lambda f: f.eq('language', _lang.get_current())
 
         browser.default_sort_field = '_modified'
         browser.insert_data_field('title', 'pytsite.content@title')
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return self.title,
@@ -416,7 +399,7 @@ class Base(_odm_ui.model.UIEntity):
 
         # Images
         if self.has_field('images'):
-            frm.add_widget(_image.widget.ImagesUpload(
+            frm.add_widget(_file.widget.ImagesUpload(
                 uid='images',
                 weight=400,
                 label=self.t('images'),
@@ -424,7 +407,7 @@ class Base(_odm_ui.model.UIEntity):
                 max_file_size=5,
                 max_files=50,
             ))
-            if self.get_field('images').nonempty:
+            if self.get_field('images').required:
                 frm.add_rule('images', _validation.rule.NonEmpty())
 
         # Video links
@@ -447,14 +430,14 @@ class Base(_odm_ui.model.UIEntity):
                 label=self.t('body'),
                 value=self.f_get('body', process_tags=False),
             ))
-            if self.get_field('body').nonempty:
+            if self.get_field('body').required:
                 frm.add_rule('body', _validation.rule.NonEmpty())
 
         # Visible only for admins
         if _auth.get_current_user().is_admin:
             # Author
             if self.has_field('author'):
-                frm.add_widget(_auth.get_user_select_widget(
+                frm.add_widget(_auth.widget.UserSelect(
                     uid='author',
                     weight=1000,
                     label=self.t('author'),
@@ -463,7 +446,7 @@ class Base(_odm_ui.model.UIEntity):
                     required=True,
                 ))
 
-    def ui_mass_action_get_entity_description(self) -> str:
+    def ui_mass_action_entity_description(self) -> str:
         """Get delete form description.
         """
         return self.title
@@ -516,8 +499,8 @@ class Content(Base):
         """
         super()._setup_fields()
 
-        self.define_field(_odm.field.Ref('route_alias', model='route_alias', nonempty=True))
-        self.define_field(_odm.field.String('status', nonempty=True, default='waiting'))
+        self.define_field(_odm.field.Ref('route_alias', model='route_alias', required=True))
+        self.define_field(_odm.field.String('status', required=True, default='waiting'))
         self.define_field(_odm.field.String('description', strip_html=True))
         self.define_field(_odm.field.DateTime('publish_time', default=_datetime.now()))
         self.define_field(_odm.field.RefsUniqueList('tags', model='tag'))
@@ -647,10 +630,7 @@ class Content(Base):
             if value not in [v[0] for v in get_statuses()]:
                 raise RuntimeError("Invalid publish status: '{}'.".format(value))
 
-        else:
-            value = super()._on_f_set(field_name, value, **kwargs)
-
-        return value
+        return super()._on_f_set(field_name, value, **kwargs)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
@@ -693,7 +673,7 @@ class Content(Base):
         if first_save:
             # Clean up not fully filled route aliases
             f = _route_alias.find()
-            f.where('target', '=', 'NONE').where('_created', '<', _datetime.now() - _timedelta(1))
+            f.eq('target', 'NONE').lt('_created', _datetime.now() - _timedelta(1))
             for ra in f.get():
                 with ra:
                     ra.delete()
@@ -709,7 +689,7 @@ class Content(Base):
                     with tag:
                         weight = 0
                         for model in _api.get_models().keys():
-                            weight += _api.find(model, language=self.language).where('tags', 'in', [tag]).count()
+                            weight += _api.find(model, language=self.language).inc('tags', [tag]).count()
 
                         _auth.switch_user_to_system()
                         tag.f_set('weight', weight).save()
@@ -732,7 +712,7 @@ class Content(Base):
             # If localization is not set
             elif localization is None:
                 # Clear references from localized entities
-                f = _api.find(self.model, language=lng).where('localization_' + self.language, '=', self)
+                f = _api.find(self.model, language=lng).eq('localization_' + self.language, self)
                 for referenced in f.get():
                     with referenced:
                         referenced.f_set('localization_' + self.language, None).save()
@@ -795,7 +775,7 @@ class Content(Base):
         if mock.has_field('author'):
             browser.insert_data_field('author', 'pytsite.content@author')
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         # Title
@@ -1047,7 +1027,7 @@ class Page(Content):
         """
         super()._setup_fields()
 
-        self.get_field('body').nonempty = True
+        self.get_field('body').required = True
 
         self.remove_field('section')
         self.remove_field('starred')
@@ -1060,8 +1040,8 @@ class Article(Content):
     def _setup_fields(self):
         super()._setup_fields()
 
-        self.get_field('images').nonempty = True
-        self.get_field('body').nonempty = True
+        self.get_field('images').required = True
+        self.get_field('body').required = True
 
 
 class ContentSubscriber(_odm.model.Entity):
@@ -1071,9 +1051,9 @@ class ContentSubscriber(_odm.model.Entity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('email', nonempty=True))
+        self.define_field(_odm.field.String('email', required=True))
         self.define_field(_odm.field.Bool('enabled', default=True))
-        self.define_field(_odm.field.String('language', nonempty=True))
+        self.define_field(_odm.field.String('language', required=True))
 
     def _setup_indexes(self):
         """Hook.

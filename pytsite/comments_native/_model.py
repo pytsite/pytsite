@@ -2,7 +2,8 @@
 """
 from typing import Tuple as _Tuple
 from datetime import datetime as _datetime
-from pytsite import odm as _odm, odm_ui as _odm_ui, comments as _comments, auth as _auth, router as _router
+from pytsite import odm as _odm, odm_ui as _odm_ui, comments as _comments, auth as _auth, router as _router, \
+    auth_storage_odm as _auth_storage_odm
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -17,12 +18,12 @@ class Comment(_comments.model.AbstractComment, _odm_ui.model.UIEntity):
         min_body_len = _comments.get_comment_body_min_length()
         max_body_len = _comments.get_comment_body_max_length()
 
-        self.define_field(_odm.field.String('thread_uid', nonempty=True))
-        self.define_field(_odm.field.Enum('status', nonempty=True, default='published', valid_values=valid_statuses))
-        self.define_field(_odm.field.String('body', nonempty=True, strip_html=True, min_length=min_body_len,
+        self.define_field(_odm.field.String('thread_uid', required=True))
+        self.define_field(_odm.field.Enum('status', required=True, default='published', valid_values=valid_statuses))
+        self.define_field(_odm.field.String('body', required=True, strip_html=True, min_length=min_body_len,
                                             max_length=max_body_len))
-        self.define_field(_odm.field.DateTime('publish_time', nonempty=True, default=_datetime.now()))
-        self.define_field(_odm.field.Ref('author', model='user', nonempty=True))
+        self.define_field(_odm.field.DateTime('publish_time', required=True, default=_datetime.now()))
+        self.define_field(_auth_storage_odm.field.User('author', required=True))
 
     def _setup_indexes(self):
         """Setup indexes.
@@ -32,11 +33,11 @@ class Comment(_comments.model.AbstractComment, _odm_ui.model.UIEntity):
         self.define_index([('author', _odm.I_ASC)])
 
     @classmethod
-    def get_permission_group(cls) -> str:
+    def odm_auth_permissions_group(cls) -> str:
         return 'comments'
 
     @classmethod
-    def get_permissions(cls) -> _Tuple[str]:
+    def odm_auth_permissions(cls) -> _Tuple[str]:
         return 'create', 'modify', 'delete', 'modify_own', 'delete_own'
 
     @property

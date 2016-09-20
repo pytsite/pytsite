@@ -5,7 +5,7 @@ from datetime import datetime as _datetime
 from urllib import parse as _urllib_parse
 from os import path as _path, makedirs as _makedirs
 from pytsite import admin as _admin, taxonomy as _taxonomy, odm as _odm, util as _util, settings as _settings, \
-    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permission as _permission, \
+    router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permissions as _permission, \
     route_alias as _route_alias
 from . import _model
 
@@ -37,7 +37,7 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
     # Saving info about registered _content_ model
     _models[model] = (cls, title)
 
-    perm_group = cls.get_permission_group()
+    perm_group = cls.odm_auth_permissions_group()
     mock = dispense(model)
 
     # Define 'bypass_moderation' permission
@@ -131,7 +131,7 @@ def find(model: str, **kwargs):
         f.sort([('publish_time', _odm.I_DESC)])
         if kwargs.get('check_publish_time', True):
             f.cache(0)  # It has no sense to cache such queries because argument is different every time
-            f.where('publish_time', '<=', _datetime.now())
+            f.lte('publish_time', _datetime.now())
     else:
         f.sort([('_modified', _odm.I_DESC)])
 
@@ -139,17 +139,17 @@ def find(model: str, **kwargs):
     if _localization_enabled and f.mock.has_field('language'):
         if 'language' in kwargs:
             if kwargs['language'] is not None:
-                f.where('language', '=', kwargs['language'])
+                f.eq('language', kwargs['language'])
         else:
-            f.where('language', '=', _lang.get_current())
+            f.eq('language', _lang.get_current())
 
     # Status
     if f.mock.has_field('status'):
         if 'status' in kwargs:
             if kwargs['status'] is not None:
-                f.where('status', '=', kwargs['status'])
+                f.eq('status', kwargs['status'])
         else:
-            f.where('status', '=', 'published')
+            f.eq('status', 'published')
 
     return f
 

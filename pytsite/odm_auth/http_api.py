@@ -52,7 +52,7 @@ def get_entity(inp: dict) -> dict:
         raise _http.error.InternalServerError('UID is not specified.')
 
     # Search for entity
-    entity = _odm.find(model).where('_id', '=', uid).first()  # type: _model.AuthorizableEntity
+    entity = _odm.find(model).eq('_id', uid).first()  # type: _model.AuthorizableEntity
     if not entity:
         raise _http.error.NotFound('Entity not found.')
 

@@ -15,7 +15,7 @@ def _init():
     """Module Init Wrapper.
     """
     from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
-        http_api, permission
+        http_api, permissions
     from . import _eh, _settings_form
     from ._model import Tag, Section, ContentSubscriber
     from ._console_command import Generate as GenerateConsoleCommand
@@ -25,8 +25,8 @@ def _init():
     http_api.register_package('content', 'pytsite.content.http_api')
 
     # Permission groups
-    permission.define_group('content', 'pytsite.content@content')
-    permission.define_permission('content.settings.manage', __name__ + '@manage_content_settings_permission', 'content')
+    permissions.define_group('content', 'pytsite.content@content')
+    permissions.define_permission('content.settings.manage', __name__ + '@manage_content_settings_permission', 'content')
 
     # Assets
     assetman.register_package(__name__)

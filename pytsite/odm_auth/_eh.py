@@ -1,6 +1,6 @@
 """ODM UI Manager.
 """
-from pytsite import lang as _lang, odm as _odm, permission as _permission, logger as _logger, auth as _auth
+from pytsite import lang as _lang, odm as _odm, permissions as _permission, logger as _logger, auth as _auth
 from . import _model, _api
 
 __author__ = 'Alexander Shepetko'
@@ -23,11 +23,11 @@ def odm_register_model(model: str, cls, replace: bool):
         _lang.register_package(pkg_name)
 
     # Register permissions
-    perm_group = cls.get_permission_group()
+    perm_group = cls.odm_auth_permissions_group()
     if perm_group:
         # Registering permissions
         mock = _odm.dispense(model)  # type: _model.AuthorizableEntity
-        for perm_name in mock.get_permissions():
+        for perm_name in mock.odm_auth_permissions():
             if perm_name.endswith('_own') and not mock.has_field('author') and not mock.has_field('owner'):
                 continue
 

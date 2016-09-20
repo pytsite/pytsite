@@ -140,6 +140,55 @@ class Finder:
 
         return self
 
+    def gt(self, field_name: str, arg):
+        """Add an '$and $gt' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$gt', arg)
+
+        return self
+
+    def gte(self, field_name: str, arg):
+        """Add an '$and $gte' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$gte', arg)
+
+        return self
+
+    def lt(self, field_name: str, arg):
+        """Add an '$and $lt' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$lt', arg)
+
+        return self
+
+    def lte(self, field_name: str, arg):
+        """Add an '$and $lte' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$lte', arg)
+
+        return self
+
+    def ne(self, field_name: str, arg):
+        """Add an '$and $ne' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$ne', arg)
+
+        return self
+
+    def inc(self, field_name: str, arg):
+        """Add an '$and $in' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$in', arg)
+
+        return self
+
+    def ninc(self, field_name: str, arg):
+        """Add an '$and $nin' criteria.
+        """
+        self._query.add_criteria('$and', field_name, '$nin', arg)
+
+        return self
+
     def or_where(self, field_name: str, comparison_op: str, arg):
         """Add '$or' criteria.
         """
@@ -151,6 +200,55 @@ class Finder:
         """Add an '$or $eq' criteria.
         """
         self._query.add_criteria('$or', field_name, '$eq', arg)
+
+        return self
+
+    def or_gt(self, field_name: str, arg):
+        """Add an '$or $gt' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$gt', arg)
+
+        return self
+
+    def or_gte(self, field_name: str, arg):
+        """Add an '$or $gte' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$gte', arg)
+
+        return self
+
+    def or_lt(self, field_name: str, arg):
+        """Add an '$or $lt' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$lt', arg)
+
+        return self
+
+    def or_lte(self, field_name: str, arg):
+        """Add an '$or $lte' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$lte', arg)
+
+        return self
+
+    def or_ne(self, field_name: str, arg):
+        """Add an '$or $ne' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$ne', arg)
+
+        return self
+
+    def or_inc(self, field_name: str, arg):
+        """Add an '$or $in' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$in', arg)
+
+        return self
+
+    def or_ninc(self, field_name: str, arg):
+        """Add an '$or $nin' criteria.
+        """
+        self._query.add_criteria('$or', field_name, '$nin', arg)
 
         return self
 

@@ -11,7 +11,7 @@ class Setting(_odm.model.Entity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('uid', nonempty=True))
+        self.define_field(_odm.field.String('uid', required=True))
         self.define_field(_odm.field.Dict('value'))
 
     def _setup_indexes(self):

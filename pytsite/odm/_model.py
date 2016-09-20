@@ -55,7 +55,7 @@ class Entity(_ABC):
         # Define 'system' fields
         self.define_field(_field.Ref('_parent', model=model))
         self.define_field(_field.RefsList('_children', model=model))
-        self.define_field(_field.Integer('_depth', nonempty=True, default=0))
+        self.define_field(_field.Integer('_depth', required=True, default=0))
         self.define_field(_field.DateTime('_created', default=_datetime.now()))
         self.define_field(_field.DateTime('_modified', default=_datetime.now()))
 
@@ -235,7 +235,7 @@ class Entity(_ABC):
         """Raise an exception if the entity has 'deleted' state.
         """
         if self._is_deleted:
-            raise _error.EntityDeleted('Entity has been deleted.')
+            raise _error.EntityDeleted("Entity '{}' has been deleted.".format(self.ref_str))
 
     def _check_is_locked(self):
         """Raise an exception if the entity is NOT locked.
@@ -248,7 +248,7 @@ class Entity(_ABC):
         """
         return False if field_name not in self._fields else True
 
-    def get_field(self, field_name) -> _field.Abstract:
+    def get_field(self, field_name: str) -> _field.Abstract:
         """Get field's object.
         """
         if not self.has_field(field_name):
@@ -781,7 +781,7 @@ class Entity(_ABC):
                 continue
 
             # Required fields should be filled
-            if check_required_fields and f.nonempty and f.is_empty:
+            if check_required_fields and f.required and f.is_empty:
                 raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty.".format(self._model, f_name))
 
             r[f_name] = f.as_storable()
@@ -833,7 +833,7 @@ class Entity(_ABC):
         return False
 
     def __enter__(self):
-        self.lock()
+        return self.lock()
 
     def __exit__(self, t, v, tb):
         self.unlock()

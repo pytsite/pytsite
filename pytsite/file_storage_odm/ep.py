@@ -3,41 +3,43 @@
 from os import path as _path, makedirs as _makedirs
 from math import floor as _floor
 from PIL import Image as _Image
-from pytsite import reg as _reg, http as _http, router as _router
-from . import _api
+from pytsite import reg as _reg, http as _http, router as _router, file as _file
+from . import _model, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def resize(args: dict, inp: dict) -> _http.response.Redirect:
+def image(args: dict, inp: dict) -> _http.response.Redirect:
     requested_width = int(args['width'])
     requested_height = int(args['height'])
-    file_path = _path.join('image', args['p1'], args['p2'], args['filename'])
+    p1 = args['p1']
+    p2 = args['p2']
+    filename = args['filename']
+    uid = 'file_image:' + _path.splitext(filename)[0]
 
-    image_entity = _api.get(rel_path=file_path)
+    try:
+        img_file = _file.get(uid)  # type: _model.ImageFile
+    except _file.error.FileNotFound as e:
+        raise _http.error.NotFound(e)
 
-    # Checking existence
-    if not image_entity:
-        raise _http.error.NotFound()
-
-    # Aligning side lengths
-    aligned_width = _api.align_length(requested_width, _api.get_resize_limit_width())
-    aligned_height = _api.align_length(requested_height, _api.get_resize_limit_height())
+    # Align side lengths and redirect
+    aligned_width = _api.align_image_side(requested_width, _api.get_image_resize_limit_width())
+    aligned_height = _api.align_image_side(requested_height, _api.get_image_resize_limit_height())
     if aligned_width != requested_width or aligned_height != requested_height:
-        redirect = _router.ep_url('pytsite.image@resize', {
+        redirect = _router.ep_url('pytsite.file_storage_odm@image', {
             'width': aligned_width,
             'height': aligned_height,
-            'p1': args['p1'],
-            'p2': args['p2'],
-            'filename': args['filename'],
+            'p1': p1,
+            'p2': p2,
+            'filename': filename,
         })
         return _http.response.Redirect(redirect, 301)
 
     # Original size
-    orig_width = image_entity.width
-    orig_height = image_entity.height
+    orig_width = img_file.width
+    orig_height = img_file.height
     orig_ratio = orig_width / orig_height
 
     need_resize = True
@@ -62,21 +64,23 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
         resize_height = requested_height
 
     # Checking source file
-    source_path = image_entity.path
-    source_abs_path = image_entity.abs_path
+    source_path = img_file.path
+    source_abs_path = img_file.get_field('abs_path')
     if not _path.exists(source_abs_path):
         return _http.response.Redirect('http://placehold.it/{}x{}'.format(requested_width, requested_height))
 
     # Calculating target file location
     target_abs_path = _path.join(_reg.get('paths.static'), 'image', 'resize', str(requested_width),
-                                 str(requested_height), source_path.replace('image' + _path.sep, ''))
+                                 str(requested_height), p1, p2, filename)
+
+    # Create target directory
     target_dir = _path.dirname(target_abs_path)
     if not _path.exists(target_dir):
         _makedirs(target_dir, 0o755, True)
 
     if not _path.exists(target_abs_path):
         # Open source image
-        image = _Image.open(source_abs_path)  # type: _Image
+        img = _Image.open(source_abs_path)  # type: _Image
 
         # Resize
         if need_resize:
@@ -94,13 +98,13 @@ def resize(args: dict, inp: dict) -> _http.response.Redirect:
             crop_right = crop_left + crop_width
             crop_bottom = crop_top + crop_height
 
-            cropped = image.crop((crop_left, crop_top, crop_right, crop_bottom))
-            image.close()
+            cropped = img.crop((crop_left, crop_top, crop_right, crop_bottom))
+            img.close()
 
             # Resize
-            image = cropped.resize((resize_width, resize_height), _Image.BILINEAR)
+            img = cropped.resize((resize_width, resize_height), _Image.BILINEAR)
 
-        image.save(target_abs_path)
-        image.close()
+        img.save(target_abs_path)
+        img.close()
 
-    return _http.response.Redirect(image_entity.f_get('url', width=requested_width, height=requested_height))
+    return _http.response.Redirect(img_file.get_url(width=requested_width, height=requested_height))

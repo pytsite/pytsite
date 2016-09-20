@@ -114,10 +114,11 @@ class Checkboxes(Select):
         if 'default' not in kwargs:
             kwargs['default'] = ()
 
+        self._unique = kwargs.get('unique', False)
+
         super().__init__(uid, **kwargs)
 
         self._selected_items = kwargs.get('selected_items', self.get_val())
-        self._unique = kwargs.get('unique', False)
 
     def set_val(self, value: _Union[_List, _Tuple], **kwargs):
         """Set value of the widget.

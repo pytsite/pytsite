@@ -16,7 +16,7 @@ class TermSelect(_odm_ui.widget.EntitySelect):
 
     def _get_finder(self):
         finder = super()._get_finder()
-        finder.where('language', '=', self._language)
+        finder.eq('language', self._language)
 
         return finder
 

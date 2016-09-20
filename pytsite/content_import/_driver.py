@@ -5,7 +5,7 @@ from typing import Iterable as _Iterable, Tuple as _Tuple
 from frozendict import frozendict as _frozendict
 from urllib.parse import urlparse
 from pytsite import lang as _lang, widget as _widget, validation as _validation, feed as _feed, util as _util, \
-    content as _content, image as _image
+    content as _content, file as _file
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -76,7 +76,7 @@ class RSS(Abstract):
         for rss_item in items:
             # Check for duplication
             f = _content.find(o['content_model'], status=None, check_publish_time=False)
-            if f.where('ext_links', '=', rss_item.get_children('link')[0].text).count():
+            if f.eq('ext_links', rss_item.get_children('link')[0].text).count():
                 continue
 
             # Dispensing new entity
@@ -139,7 +139,7 @@ class RSS(Abstract):
             if entity.has_field('images') and rss_item.has_children('enclosure') and '<img' not in entity.body:
                 for enc in rss_item.get_children('enclosure'):
                     if enc.attributes['type'].startswith('image'):
-                        entity.f_add('images', _image.create(enc.attributes['url'], owner=o['content_author']))
+                        entity.f_add('images', _file.create(enc.attributes['url']))
 
             # Store information about content source
             if rss_item.has_children('link'):

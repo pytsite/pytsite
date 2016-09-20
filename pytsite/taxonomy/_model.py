@@ -18,9 +18,9 @@ class Term(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('title', nonempty=True, strip_html=True))
-        self.define_field(_odm.field.String('alias', nonempty=True, strip_html=True))
-        self.define_field(_odm.field.String('language', nonempty=True, default=_lang.get_primary()))
+        self.define_field(_odm.field.String('title', required=True, strip_html=True))
+        self.define_field(_odm.field.String('alias', required=True, strip_html=True))
+        self.define_field(_odm.field.String('language', required=True, default=_lang.get_primary()))
         self.define_field(_odm.field.Integer('weight'))
         self.define_field(_odm.field.Integer('order'))
 
@@ -33,11 +33,11 @@ class Term(_odm_ui.model.UIEntity):
         self.define_index([('order', _odm.I_ASC)])
 
     @classmethod
-    def get_permission_group(cls) -> str:
+    def odm_auth_permissions_group(cls) -> str:
         return 'taxonomy'
 
     @classmethod
-    def get_permissions(cls) -> _Tuple[str]:
+    def odm_auth_permissions(cls) -> _Tuple[str]:
         return 'create', 'modify', 'delete'
 
     @property
@@ -80,7 +80,7 @@ class Term(_odm_ui.model.UIEntity):
             else:
                 value = _api.sanitize_alias_string(self.model, value)
 
-        if field_name == 'language':
+        elif field_name == 'language':
             if value not in _lang.langs():
                 raise ValueError("Language '{}' is not supported.".format(value))
 
@@ -111,7 +111,7 @@ class Term(_odm_ui.model.UIEntity):
         if _localization_enabled:
             browser.finder_adjust = lambda finder: finder.eq('language', _lang.get_current())
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return (
@@ -171,7 +171,7 @@ class Term(_odm_ui.model.UIEntity):
                 value=self.language if self.language else _lang.get_current(),
             ))
 
-    def ui_mass_action_get_entity_description(self) -> str:
+    def ui_mass_action_entity_description(self) -> str:
         """Hook.
         """
         return self.f_get('title')

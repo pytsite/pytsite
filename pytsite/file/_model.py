@@ -1,120 +1,165 @@
 """File Model.
 """
-from os import path as _path, unlink as _unlink
-from pytsite import odm as _odm, odm_auth as _odm_auth, reg as _reg, router as _router, auth as _auth
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from pytsite import util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class File(_odm_auth.model.AuthorizableEntity):
-    """File Model.
-    """
-
-    @classmethod
-    def get_permission_group(cls) -> str:
-        return None
-
-    def _setup_fields(self):
-        """_setup() hook.
+class AbstractFile(_ABC):
+    @property
+    def uid(self) -> str:
+        """Get UID of the file.
         """
-        self.define_field(_odm.field.String('path', nonempty=True))
-        self.define_field(_odm.field.String('name', nonempty=True))
-        self.define_field(_odm.field.String('description'))
-        self.define_field(_odm.field.String('mime', nonempty=True))
-        self.define_field(_odm.field.Integer('length', nonempty=True))
-        self.define_field(_odm.field.Ref('owner', model='user'))
-        self.define_field(_odm.field.Ref('attached_to'))
-        self.define_field(_odm.field.Virtual('abs_path'))
-        self.define_field(_odm.field.Virtual('url'))
-        self.define_field(_odm.field.Virtual('thumb_url'))
+        return self.get_field('uid')
 
-    @property
-    def path(self) -> str:
-        return self.f_get('path')
-
-    @property
-    def name(self) -> str:
-        return self.f_get('name')
-
-    @property
-    def description(self) -> str:
-        return self.f_get('description')
-
-    @property
-    def mime(self) -> str:
-        return self.f_get('mime')
+    @uid.setter
+    def uid(self, value: str):
+        """Set UID of the file.
+        """
+        raise RuntimeError("'uid' property is read-only.")
 
     @property
     def length(self) -> int:
-        return self.f_get('length')
-
-    @property
-    def owner(self) -> _auth.model.AbstractUser:
-        return self.f_get('owner')
-
-    @property
-    def attached_to(self) -> _odm.model.Entity:
-        return self.f_get('attached_to')
-
-    @attached_to.setter
-    def attached_to(self, value: _odm.model.Entity):
-        self.f_set('attached_to', value)
-
-    @property
-    def abs_path(self) -> str:
-        return self.f_get('abs_path')
-
-    @property
-    def url(self) -> str:
-        return self.f_get('url')
-
-    @property
-    def thumb_url(self) -> str:
-        return self.f_get('thumb_url')
-
-    def _after_delete(self):
-        """_after_delete() hook.
+        """Get length of the image.
         """
-        # Remove file from storage
-        storage_dir = _reg.get('paths.storage')
-        file_abs_path = _path.join(storage_dir, self.f_get('path'))
-        if _path.exists(file_abs_path):
-            _unlink(file_abs_path)
+        return self.get_field('length')
 
-    def _on_f_get(self, field_name: str, value, **kwargs):
-        """Hook.
+    @length.setter
+    def length(self, value: int):
+        """Set length of the image.
         """
-        if field_name == 'abs_path':
-            return _path.join(_reg.get('paths.storage'), self.path)
+        self.set_field('length', value)
 
-        elif field_name == 'url':
-            p = str(self.path).split('/')
-            return _router.ep_url('pytsite.file@download', {
-                'model': p[0],
-                'p1': p[1],
-                'p2': p[2],
-                'filename': p[3]
-            })
-
-        elif field_name == 'thumb_url':
-            raise NotImplementedError()
-
-        return super()._on_f_get(field_name, value)
-
-    def as_jsonable(self, **kwargs):
-        """Hook.
+    @property
+    def path(self) -> str:
+        """Get path of the file.
         """
-        r = super().as_jsonable(**kwargs)
+        return self.get_field('path')
 
+    @path.setter
+    def path(self, value: str):
+        """Set path of the file.
+        """
+        self.set_field('path', value)
+
+    @property
+    def mime(self) -> str:
+        """Get MIME of the file.
+        """
+        return self.get_field('mime')
+
+    @mime.setter
+    def mime(self, value: str):
+        """Set MIME of the file.
+        """
+        self.set_field('mime', value)
+
+    def get_url(self, **kwargs) -> str:
+        """Get URL of the file.
+        """
+        return self.get_field('url', **kwargs)
+
+    def get_thumb_url(self, **kwargs) -> str:
+        """Get URL of thumbnail of the file.
+        """
+        return self.get_field('thumb_url', **kwargs)
+
+    @_abstractmethod
+    def get_field(self, field_name: str, **kwargs):
+        pass
+
+    @_abstractmethod
+    def set_field(self, field_name: str, value, **kwargs):
+        pass
+
+    @_abstractmethod
+    def save(self):
+        pass
+
+    @_abstractmethod
+    def delete(self):
+        pass
+
+    def as_jsonable(self, **kwargs) -> dict:
+        return {
+            'uid': self.uid,
+            'url': self.get_url(),
+        }
+
+
+class AbstractImage(AbstractFile):
+    @property
+    def width(self) -> int:
+        """Get width of the image.
+        """
+        return self.get_field('width')
+
+    @width.setter
+    def width(self, value: int):
+        """Set width of the image.
+        """
+        self.set_field('width', value)
+
+    @property
+    def height(self) -> int:
+        """Get height of the image.
+        """
+        return self.get_field('height')
+
+    @height.setter
+    def height(self, value: int):
+        """Set height of the image.
+        """
+        self.set_field('height', value)
+
+    @property
+    def exif(self) -> dict:
+        """Get EXIF data of the image.
+        """
+        return self.get_field('exif')
+
+    @exif.setter
+    def exif(self, value: dict):
+        """Set EXIF of the image.
+        """
+        self.set_field('exif', value)
+
+    def get_html(self, alt: str = '', css: str = '', width: int = 0, height: int = 0, enlarge: bool = True):
+        """Get HTML code to embed the image.
+        """
+        if not enlarge:
+            if width and width > self.width:
+                width = self.width
+            if height and height > self.height:
+                height = self.height
+
+        css += ' img-responsive'
+
+        return '<img src="{}" class="{}" alt="{}">'.format(
+            self.get_url(width=width, height=height), css.strip(), _util.escape_html(alt)
+        )
+
+    def get_responsive_html(self, alt: str = '', css: str = '', aspect_ratio: float = None,
+                            enlarge: bool = True) -> str:
+        """Get HTML code to embed the image (responsive way).
+        """
+        alt = _util.escape_html(alt)
+        css += ' img-responsive pytsite-img'
+
+        return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}" ' \
+               'data-width="{}" data-height="{}" data-enlarge="{}"></span>' \
+            .format(css.strip(), self.path, alt, aspect_ratio, self.width, self.height, enlarge)
+
+    def as_jsonable(self, **kwargs) -> dict:
+        r = super().as_jsonable()
         r.update({
-            'name': self.name,
-            'description': self.description,
-            'mime': self.mime,
-            'length': self.length,
-            'url': self.url,
-            'thumb_url': self.thumb_url,
+            'thumb_url': self.get_url(width=kwargs.get('thumb_width', 450), height=kwargs.get('thumb_height', 450)),
+            'width': self.width,
+            'height': self.height,
+            'exif': dict(self.exif),
         })
 
         return r

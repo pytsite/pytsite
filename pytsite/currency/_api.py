@@ -72,10 +72,10 @@ def get_rate(source: str, destination: str, date: _datetime = None) -> _Decimal:
         raise _error.CurrencyNotDefined("Currency '{}' is not defined.".format(destination))
 
     # Setup ODM finder
-    f = _odm.find('currency_rate').where('source', '=', source).where('destination', '=', destination)
+    f = _odm.find('currency_rate').eq('source', source).eq('destination', destination)
     f.sort([('date', _odm.I_DESC)])
     if date:
-        f.where('date', '<=', date)
+        f.lte('date', date)
 
     if f.count():
         # Direct rate found
@@ -83,8 +83,8 @@ def get_rate(source: str, destination: str, date: _datetime = None) -> _Decimal:
     else:
         # Trying to find reverse rate
         f.remove_where('source').remove_where('destination')
-        f.where('source', '=', destination)
-        f.where('destination', '=', source)
+        f.eq('source', destination)
+        f.eq('destination', source)
         if f.count():
             return round(_Decimal(1) / f.first().f_get('rate'), 8)
 

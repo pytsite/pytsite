@@ -18,12 +18,12 @@ class ContentExport(_odm_ui.model.UIEntity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('driver', nonempty=True))
+        self.define_field(_odm.field.String('driver', required=True))
         self.define_field(_odm.field.Dict('driver_opts'))
-        self.define_field(_odm.field.String('content_model', nonempty=True))
+        self.define_field(_odm.field.String('content_model', required=True))
         self.define_field(_odm.field.Bool('process_all_authors', default=True))
         self.define_field(_odm.field.Bool('with_images_only', default=True))
-        self.define_field(_odm.field.Ref('owner', model='user', nonempty=True))
+        self.define_field(_odm.field.String('owner', required=True))
         self.define_field(_odm.field.Bool('enabled', default=True))
         self.define_field(_odm.field.Integer('errors'))
         self.define_field(_odm.field.String('last_error'))
@@ -99,7 +99,7 @@ class ContentExport(_odm_ui.model.UIEntity):
             ('owner', 'pytsite.content_export@owner')
         ]
 
-    def ui_browser_get_row(self) -> tuple:
+    def ui_browser_row(self) -> tuple:
         """Hook.
         """
         driver = _api.get_driver(self.driver)
@@ -218,7 +218,23 @@ class ContentExport(_odm_ui.model.UIEntity):
             frm.replace_widget('driver_opts', settings_widget)
             frm.add_rule('driver_opts', _validation.rule.NonEmpty())
 
-    def ui_mass_action_get_entity_description(self) -> str:
+    def ui_mass_action_entity_description(self) -> str:
         """Get description for mass action form.
         """
         return _api.get_driver(self.driver).get_options_description(self.driver_opts)
+
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        if field_name == 'owner' and value:
+            return _auth.get_user(uid=value)
+        else:
+            return super()._on_f_get(field_name, value)
+
+    def _on_f_set(self, field_name: str, value, **kwargs):
+        if field_name == 'owner':
+            if isinstance(value, _auth.model.AbstractUser):
+                value = value.uid
+            elif isinstance(value, str):
+                # Check user for existence
+                value = _auth.get_user(uid=value).uid
+
+        return super()._on_f_set(field_name, value)

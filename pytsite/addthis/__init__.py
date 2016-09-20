@@ -12,13 +12,13 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import lang, tpl, permission, settings
+    from pytsite import lang, tpl, permissions, settings
     from . import _settings_form
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
 
-    permission.define_permission('addthis.settings.manage', 'pytsite.addthis@manage_addthis_settings', 'app')
+    permissions.define_permission('addthis.settings.manage', 'pytsite.addthis@manage_addthis_settings', 'app')
     settings.define('addthis', _settings_form.Form, 'pytsite.addthis@addthis', 'fa fa-plus-square',
                     'addthis.settings.manage')
 

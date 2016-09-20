@@ -28,7 +28,7 @@ class Native(_comments.driver.Abstract):
         comment = _odm.dispense('comment')
         comment.f_set('thread_uid', thread_uid)
         comment.f_set('body', body)
-        comment.f_set('author', author)
+        comment.f_set('author', author.uid)
         comment.f_set('status', status)
         comment.save()
 

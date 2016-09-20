@@ -58,7 +58,7 @@ class GeoIP(_odm.model.Entity):
     def _setup_fields(self):
         """Hook.
         """
-        self.define_field(_odm.field.String('ip', nonempty=True))
+        self.define_field(_odm.field.String('ip', required=True))
         self.define_field(_odm.field.String('asn'))
         self.define_field(_odm.field.String('city'))
         self.define_field(_odm.field.String('country'))

@@ -91,21 +91,5 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def update_entity(self, user: _model.AuthEntity):
-        pass
-
-    @_abstractmethod
-    def delete_entity(self, user: _model.AuthEntity):
-        pass
-
-    @_abstractmethod
     def get_user_modify_form(self, user: _model.AbstractUser = None) -> _form.Form:
-        pass
-
-    @_abstractmethod
-    def get_role_modify_form(self, role: _model.AbstractRole = None) -> _form.Form:
-        pass
-
-    @_abstractmethod
-    def get_user_select_widget(self, uid: str, **kwargs) -> _widget.Abstract:
         pass

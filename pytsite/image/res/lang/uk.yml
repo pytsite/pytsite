@@ -1,8 +1,0 @@
-images: 'Зображення'
-odm_perm_create_image: 'Створення зображень'
-odm_perm_view_image: 'Перегляд УСІХ зображень'
-odm_perm_view_own_image: 'Перегляд ВЛАСНИХ зображень'
-odm_perm_modify_image: 'Зміна БУДЬ-ЯКИХ зображень'
-odm_perm_modify_own_image: 'Зміна ВЛАСНИХ зображень'
-odm_perm_delete_image: 'Видалення БУДЬ-ЯКИХ зображень'
-odm_perm_delete_own_image: 'Видалення ВЛАСНИХ зображень'

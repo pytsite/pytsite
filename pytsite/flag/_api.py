@@ -13,7 +13,7 @@ _cache_p = _cache.create_pool('pytsite.flag')
 def count(entity: _odm.model.Entity, flag_type: str = 'default') -> int:
     """Get flags count for the entity.
     """
-    return _odm.find('flag').where('entity', '=', entity).where('type', '=', flag_type).count()
+    return _odm.find('flag').eq('entity', entity).eq('type', flag_type).count()
 
 
 def sum(entity: _odm.model.Entity, flag_type: str = 'default') -> float:
@@ -65,7 +65,7 @@ def is_flagged(entity: _odm.model.Entity, author: _auth.model.AbstractUser = Non
     if author.is_anonymous:
         return False
 
-    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', author).where('type', '=', flag_type)
+    f = _odm.find('flag').eq('entity', entity).eq('author', author.uid).eq('type', flag_type)
 
     return bool(f.count())
 
@@ -84,7 +84,7 @@ def flag(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, fla
         return
 
     e = _odm.dispense('flag')
-    e.f_set('entity', entity).f_set('author', author).f_set('type', flag_type).f_set('score', score)
+    e.f_set('entity', entity).f_set('author', author.uid).f_set('type', flag_type).f_set('score', score)
     e.save()
 
     _events.fire('pytsite.flag.flag', entity=entity, user=author, flag_type=flag_type, score=score)
@@ -104,7 +104,7 @@ def unflag(entity: _odm.model.Entity, author: _auth.model.AbstractUser = None, f
     if not is_flagged(entity, author):
         return
 
-    f = _odm.find('flag').where('entity', '=', entity).where('author', '=', author).where('type', '=', flag_type)
+    f = _odm.find('flag').eq('entity', entity).eq('author', author.uid).eq('type', flag_type)
     fl = f.first()
     with fl:
         fl.delete()
@@ -134,7 +134,7 @@ def delete(entity: _odm.model.Entity) -> int:
     """Delete all flags for particular entity.
     """
     r = 0
-    for flag_entity in _odm.find('flag').where('entity', '=', entity).get():
+    for flag_entity in _odm.find('flag').eq('entity', entity).get():
         with flag_entity:
             flag_entity.delete()
         r += 1

@@ -57,7 +57,7 @@ def get_permission(name: str) -> tuple:
 
 
 def is_permission_defined(name: str) -> bool:
-    """Checks if the permission is defined.
+    """Check if the permission is defined.
     """
     try:
         get_permission(name)
@@ -67,7 +67,7 @@ def is_permission_defined(name: str) -> bool:
 
 
 def define_permission(name: str, description: str, group: str):
-    """Define permission.
+    """Define a permission.
     """
     if group not in _groups:
         raise _error.PermissionGroupNotDefined("Permission group '{}' is not defined.".format(group))

@@ -44,7 +44,7 @@ def get(uid: str, default=None) -> _Any:
     if uid_split[0] not in _settings:
         raise KeyError("Setting '{}' is not defined.".format(uid_split[0]))
 
-    entity = _odm.find('setting').where('uid', '=', uid_split[0]).first()
+    entity = _odm.find('setting').eq('uid', uid_split[0]).first()
     if not entity:
         return default if default is not None else {}
 
@@ -63,7 +63,7 @@ def put(uid: str, value: _Any):
     if uid_split[0] not in _settings:
         raise KeyError("Setting '{}' is not defined.".format(uid_split[0]))
 
-    entity = _odm.find('setting').where('uid', '=', uid_split[0]).first()
+    entity = _odm.find('setting').eq('uid', uid_split[0]).first()
     if not entity:
         entity = _odm.dispense('setting').f_set('uid', uid_split[0])
 

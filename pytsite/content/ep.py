@@ -1,7 +1,7 @@
 """Pytsite Content Endpoints.
 """
 from datetime import datetime as _datetime
-from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, odm_auth as _odm_auth, \
+from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, \
     router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
     lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments, reg as _reg
 
@@ -38,7 +38,7 @@ def index(args: dict, inp: dict):
                 if isinstance(f.mock.fields[term_field], _odm.field.Ref):
                     f.eq(term_field, term)
                 elif isinstance(f.mock.fields[term_field], _odm.field.RefsList):
-                    f.where(term_field, 'in', [term])
+                    f.inc(term_field, [term])
                 _metatag.t_set('title', term.title)
             else:
                 raise _http.error.NotFound()
@@ -52,7 +52,7 @@ def index(args: dict, inp: dict):
 
         if author:
             _metatag.t_set('title', _lang.t('pytsite.content@articles_of_author', {'name': author.full_name}))
-            f.eq('author', author)
+            f.eq('author', author.uid)
             args['author'] = author
         else:
             raise _http.error.NotFound()
@@ -133,7 +133,7 @@ def view(args: dict, inp: dict):
         _metatag.t_set('twitter:card', 'summary_large_image')
         image_w = 900
         image_h = 500
-        image_url = entity.images[0].f_get('url', width=image_w, height=image_h)
+        image_url = entity.images[0].get_url(width=image_w, height=image_h)
         _metatag.t_set('og:image', image_url)
         _metatag.t_set('og:image:width', str(image_w))
         _metatag.t_set('og:image:height', str(image_h))

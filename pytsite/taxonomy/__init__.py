@@ -11,10 +11,10 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import assetman, tpl, lang, router, admin, permission
+    from pytsite import assetman, tpl, lang, router, admin, permissions
 
     # Permissions
-    permission.define_group('taxonomy', 'pytsite.taxonomy@taxonomy')
+    permissions.define_group('taxonomy', 'pytsite.taxonomy@taxonomy')
 
     # Resources
     lang.register_package(__name__)

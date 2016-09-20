@@ -37,7 +37,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         """
         return ()
 
-    def ui_browser_get_row(self) -> _Tuple:
+    def ui_browser_row(self) -> _Tuple:
         """Get single UI browser row.
         """
         return ()
@@ -48,12 +48,12 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         """
         return True
 
-    def ui_browser_get_entity_actions(self) -> _Tuple[_Dict]:
+    def ui_browser_entity_actions(self) -> _Tuple[_Dict]:
         """Get actions buttons data for single data row.
         """
         return ()
 
-    def ui_mass_action_get_entity_description(self) -> str:
+    def ui_mass_action_entity_description(self) -> str:
         """Get entity description on mass action forms.
         """
         if hasattr(self, 'id'):

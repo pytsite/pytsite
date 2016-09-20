@@ -1,12 +1,26 @@
 # PytSite Changelog
 
-## 0.89.1
+## 0.90 (2016-09-2?)
+### Added
+- `odm`: new finder shortcut operators.
+
+### Changed
+- `auth`: totally refactored.
+- `file`: totally refactored.
+- `permission` renamed to `permissions`.
+- `odm`: `nonempty` argument of fields renamed to `required`.
+- `odm_ui`: renamed some hook methods.
+
+### Removed
+- `image`: removed completely in favour of `file` and `file_storage_odm`.
+
+
+## 0.89.1 (2016-09-11)
 ### Fixed
 - `content`: processing YouTube embedded videos.
 
 
-
-## 0.89
+## 0.89 (2016-09-11)
 ### Added
 - `contact_form`: settings form.
 

@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def pytsite_update(version: str):
+def update(version: str):
     """'pytsite.update' event handler.
     """
     if version == '0.73.0':

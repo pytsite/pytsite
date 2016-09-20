@@ -1,6 +1,7 @@
 """PytSIte Authentication ODM Storage Driver.
 """
-from . import _model as model, _widget as widget
+# Public API
+from . import _model as model, _field as field
 from ._driver import Driver
 
 __author__ = 'Alexander Shepetko'
@@ -15,8 +16,8 @@ def _init():
     lang.register_package(__name__)
 
     # ODM models
-    odm.register_model('user', model.User)
-    odm.register_model('role', model.Role)
+    odm.register_model('role', model.ODMRole)
+    odm.register_model('user', model.ODMUser)
 
     # 'Security' admin sidebar section
     admin.sidebar.add_section('auth', 'pytsite.auth_storage_odm@security', 1000)

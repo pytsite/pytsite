@@ -38,9 +38,9 @@ def get_account(title: str = None, acc_id: str = None) -> _Account:
     f = _odm.find('wallet_account')
 
     if acc_id:
-        f.where('_id', '=', acc_id)
+        f.eq('_id', acc_id)
     elif title:
-        f.where('title', '=', title)
+        f.eq('title', title)
     else:
         raise ValueError('Either account ID or title should be specified.')
 
@@ -77,11 +77,11 @@ def get_transactions(state: str = None, from_dt: _datetime = None, to_dt: _datet
     f = _odm.find('wallet_transaction').cache(60).sort([('time', _odm.I_DESC)])
 
     if state:
-        f.where('state', '=', state)
+        f.eq('state', state)
     if from_dt:
-        f.where('time', '>=', from_dt)
+        f.gte('time', from_dt)
     if to_dt:
-        f.where('time', '<=', to_dt)
+        f.lte('time', to_dt)
 
     return f.get()
 
