@@ -41,12 +41,12 @@ class Update(_console.command.Abstract):
         """
         _maintenance.enable()
 
-        if kwargs.get('stage', '1') == '1':
+        if kwargs.get('stage', '1') in (1, '1'):
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
             _subprocess.call(['./console', 'update', '--stage=2'])
-        elif kwargs.get('stage') == '2':
+        elif kwargs.get('stage') in (2, '2'):
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
             state = self._get_state()

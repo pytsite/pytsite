@@ -12,12 +12,12 @@ __license__ = 'MIT'
 
 def __init():
     from pytsite import odm, events
-    from . import eh
+    from . import _eh
 
     odm.register_model('geo_ip', model.GeoIP)
 
-    events.listen('pytsite.cron.weekly', eh.pytsite_cron_weekly)
-    events.listen('pytsite.update', eh.pytsite_update)
+    events.listen('pytsite.cron.weekly', _eh.pytsite_cron_weekly)
+    events.listen('pytsite.update', _eh.pytsite_update)
 
 
 __init()

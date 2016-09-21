@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.90.2 (2016-09-22)
+### Added
+- `setup`: automatic updates applying after setup.
+
+### Fixed
+- `file_storage_odm`: stuck while updating process.
+
+
 ## 0.90.1 (2016-09-21)
 ### Added
 - `auth`: `url` shortcut property in `model.AbstractUser`.

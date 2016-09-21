@@ -1,9 +1,8 @@
 """PytSite Setup Console Command
 """
-from pytsite import console as _console
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
-from pytsite import reg as _reg, events as _events, lang as _lang, validation as _validation
+from pytsite import console as _console, reg as _reg, events as _events, lang as _lang, validation as _validation
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -51,3 +50,6 @@ class Setup(_console.command.Abstract):
             f.write(_datetime.now().isoformat())
 
         _console.print_info(_lang.t('pytsite.setup@setup_has_been_completed'))
+
+        # Run 'update' to build updates info file
+        _console.run_command('update', stage=2)
