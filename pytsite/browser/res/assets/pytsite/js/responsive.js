@@ -6,7 +6,7 @@ pytsite.responsive = function () {
 
         var max = 2000;
         var step = 50;
-        for(var i = 0; i <= max; i += step) {
+        for (var i = 0; i <= max; i += step) {
             if (l <= i)
                 return i;
         }
@@ -34,8 +34,8 @@ pytsite.responsive = function () {
     }
 
     function getImgContainer(cont) {
-        var img_path = cont.data('path');
-        if (typeof img_path == 'undefined')
+        var img_url = cont.data('url');
+        if (typeof img_url == 'undefined')
             return cont;
 
         var alt = cont.data('alt');
@@ -50,11 +50,13 @@ pytsite.responsive = function () {
         if (aspect_ratio != 'None')
             new_height = align_length(parseInt(new_width / parseFloat(aspect_ratio)));
 
-        var src = '/image/resize/0/' + new_height + '/' + img_path;
+        var src = '';
         if (enlarge == 'True' || new_width <= orig_width)
-            src = '/image/resize/' + new_width + '/' + new_height + '/' + img_path;
+            src = img_url.replace('/0/0/', '/' + new_width + '/' + new_height + '/');
+        else
+            src = img_url.replace('/0/0/', '/0/' + new_height + '/');
 
-        return '<img class="' + css + '" src="' + src + '" alt="' + alt + '" data-path="' + img_path + '"' +
+        return '<img class="' + css + '" src="' + src + '" alt="' + alt + '" data-path="' + img_url + '"' +
             'data-alt="' + alt + '" data-aspect-ratio="' + aspect_ratio + '"' + 'data-enlarge="' + enlarge + '"' +
             'data-width="' + orig_width + '"' + 'data-height="' + orig_height + '"' + '>';
     }
@@ -67,7 +69,7 @@ pytsite.responsive = function () {
     });
 
     // Replace iframes
-    $('iframe').each(function() {
+    $('iframe').each(function () {
         var origWidth = parseInt($(this).width());
         var origHeight = parseInt($(this).height());
         var newWidth = getParentWidth(this);

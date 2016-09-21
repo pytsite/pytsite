@@ -60,11 +60,11 @@ def cron_1min():
                                 tag.save()
                                 entity.f_add('tags', tag)
 
-                    # Notify listeners
-                    _events.fire('pytsite.content_import.import', driver=driver, entity=entity)
-
                     # Save entity
                     entity.save()
+
+                    # Notify listeners
+                    _events.fire('pytsite.content_import.import', driver=driver, entity=entity)
 
                     _logger.info("Content entity imported: '{}'".format(entity.f_get('title')))
                     items_imported += 1

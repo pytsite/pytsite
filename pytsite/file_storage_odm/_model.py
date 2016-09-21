@@ -152,7 +152,7 @@ class ImageFileODMEntity(AnyFileODMEntity):
                     if width:
                         width = _api.align_image_side(width, _api.get_image_resize_limit_width())
                     if height:
-                        height = _api.align_image_side(width, _api.get_image_resize_limit_height())
+                        height = _api.align_image_side(height, _api.get_image_resize_limit_height())
 
             except ValueError:
                 raise ValueError('Width and height should be positive integers.')

@@ -11,7 +11,7 @@ def _update_0_90_0():
 
     path_re = re.compile('^image/')
 
-    # Rename 'images' collection
+    # Rename existing 'images' collection to 'file_images'
     if 'file_images' not in db.get_collection_names():
         db.get_collection('images').rename('file_images')
         msg = "Collection 'images' renamed to 'file_images'."
@@ -29,7 +29,7 @@ def _update_0_90_0():
             logger.info(msg)
             print(msg)
 
-    # Move images dir to the new location
+    # Move 'storage/image' to 'storage/file/image'
     images_dir = os.path.join(reg.get('paths.storage'), 'image')
     if os.path.exists(images_dir):
         files_dir = os.path.join(reg.get('paths.storage'), 'file')
@@ -42,6 +42,13 @@ def _update_0_90_0():
         msg = '{} moved to {}.'.format(images_dir, files_dir)
         logger.info(msg)
         print(msg)
+
+    # Delete 'static/image' directory
+    static_images_path = os.path.join(reg.get('paths.static'), 'image')
+    shutil.rmtree(static_images_path)
+    msg = '{} has been removed.'.format(static_images_path)
+    logger.info(msg)
+    print(msg)
 
 
 def update(version: str):

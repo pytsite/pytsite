@@ -13,7 +13,9 @@ __license__ = 'MIT'
 
 _current_driver = None
 
+
 def get_driver() -> _driver.Abstract:
+    global _current_driver
     if not _current_driver:
         driver_class = _util.get_class(_reg.get('file.driver', 'pytsite.file_storage_odm.Driver'))
         driver = driver_class()
@@ -21,7 +23,6 @@ def get_driver() -> _driver.Abstract:
         if not isinstance(driver, _driver.Abstract):
             raise TypeError('Invalid driver instance.')
 
-        global _current_driver
         _current_driver = driver
 
     return _current_driver

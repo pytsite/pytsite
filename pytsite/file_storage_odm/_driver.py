@@ -77,10 +77,10 @@ class Driver(_file.driver.Abstract):
         odm_entity.f_set('length', _os.path.getsize(file_path))
         odm_entity.save()
 
-        if isinstance(odm_entity, _model.AnyFileODMEntity):
-            return _model.AnyFile(odm_entity)
-        elif isinstance(odm_entity, _model.ImageFileODMEntity):
+        if isinstance(odm_entity, _model.ImageFileODMEntity):
             return _model.ImageFile(odm_entity)
+        elif isinstance(odm_entity, _model.AnyFileODMEntity):
+            return _model.AnyFile(odm_entity)
 
     def get(self, uid: str) -> _file.model.AbstractFile:
         """Get file by UID.
@@ -101,4 +101,4 @@ class Driver(_file.driver.Abstract):
         elif isinstance(odm_entity, _model.AnyFileODMEntity):
             return _model.AnyFile(odm_entity)
         else:
-            raise TypeError('UID format does not supported at this moment: {}'.format(uid))
+            raise TypeError('Unknown error.')

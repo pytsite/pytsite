@@ -1,6 +1,7 @@
 """CKEditor Widget.
 """
-from pytsite import assetman as _assetman, html as _html, widget as _widget
+from pytsite import html as _html, widget as _widget
+
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

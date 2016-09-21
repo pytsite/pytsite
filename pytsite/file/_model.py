@@ -149,9 +149,9 @@ class AbstractImage(AbstractFile):
         alt = _util.escape_html(alt)
         css += ' img-responsive pytsite-img'
 
-        return '<span class="{}" data-path="{}" data-alt="{}" data-aspect-ratio="{}" ' \
+        return '<span class="{}" data-url="{}" data-alt="{}" data-aspect-ratio="{}" ' \
                'data-width="{}" data-height="{}" data-enlarge="{}"></span>' \
-            .format(css.strip(), self.path, alt, aspect_ratio, self.width, self.height, enlarge)
+            .format(css.strip(), self.get_url(), alt, aspect_ratio, self.width, self.height, enlarge)
 
     def as_jsonable(self, **kwargs) -> dict:
         r = super().as_jsonable()

@@ -19,7 +19,8 @@ _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 _html_img_tag_re = _re.compile('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>')
 _html_video_youtube_re = _re.compile(
-    '<iframe.*?src\s*=["\']https?://www\.youtube\.com/embed/([a-zA-Z0-9\-_]{11})([^"\']+)["\'].+?</iframe>')
+    '<iframe.*?src=["\']?https?://www\.youtube\.com/embed/([a-zA-Z0-9_-]{11})[^"\']*["\']?.+?</iframe>'
+)
 
 
 def _process_tags(entity, inp: str) -> str:
@@ -156,7 +157,7 @@ def _extract_video_links(entity) -> tuple:
 
         return '[vid:{}]'.format(vid_index)
 
-    body = entity.body
+    body = entity.f_get('body', process_tags=False)
     body = _html_video_youtube_re.sub(replace_func, body)
 
     return body, vid_links
