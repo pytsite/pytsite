@@ -32,8 +32,10 @@ def setup():
             'pytsite.odm_perm.view.{}'.format(model),
         ]
 
+    _auth.switch_user_to_system()
     user_role.save()
     anon_role.save()
+    _auth.restore_user()
 
 
 def cron_hourly():

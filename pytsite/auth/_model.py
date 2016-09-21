@@ -350,6 +350,12 @@ class AbstractUser(AuthEntity):
         return _router.ep_url('pytsite.auth@profile_view', {'nickname': self.nickname})
 
     @property
+    def url(self) -> str:
+        """Shortcut.
+        """
+        return self.profile_view_url
+
+    @property
     def profile_edit_url(self) -> str:
         return _router.ep_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
 

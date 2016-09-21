@@ -25,11 +25,13 @@ def setup():
     except _validation.error.RuleError as e:
         raise _console.error.Error(e)
 
+    _api.switch_user_to_system()
     admin_user = _api.create_user(email)
     admin_user.first_name = _lang.t('pytsite.auth@administrator')
     admin_user.nickname = _util.transform_str_2(admin_user.full_name)
     admin_user.roles = [_api.get_role('admin')]
     admin_user.save()
+    _api.restore_user()
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.login}))
 
 

@@ -6,7 +6,7 @@
                     <div class="image">
                         {% block user_image_inner %}
                             <a href="{{ user.url }}">
-                                <img class="img-responsive" src="{{ user.picture.url }}" alt="{{ user.full_name }}">
+                                <img class="img-responsive img-circle" src="{{ user.picture.get_url(width=300) }}" alt="{{ user.full_name }}">
                             </a>
                         {% endblock user_image_inner %}
                     </div>

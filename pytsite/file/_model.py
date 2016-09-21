@@ -62,10 +62,22 @@ class AbstractFile(_ABC):
         """
         return self.get_field('url', **kwargs)
 
+    @property
+    def url(self) -> str:
+        """Shortcut.
+        """
+        return self.get_url()
+
     def get_thumb_url(self, **kwargs) -> str:
         """Get URL of thumbnail of the file.
         """
         return self.get_field('thumb_url', **kwargs)
+
+    @property
+    def thumb_url(self) -> str:
+        """Shortcut.
+        """
+        return self.get_thumb_url()
 
     @_abstractmethod
     def get_field(self, field_name: str, **kwargs):

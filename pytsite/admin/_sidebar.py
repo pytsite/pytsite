@@ -163,9 +163,9 @@ def render() -> _html.Aside:
             li = _html.Li(data_menu_weight=menu['weight'])
 
             # 'active' CSS class
-            current_path = _router.current_path(strip_lang=False)
-            if not current_path.endswith(_reg.get('admin.base_path', '/admin')) and \
-                    (current_path.endswith(href) or current_path.find(href + '/') >= 0):
+            abp = _reg.get('admin.base_path', '/admin')
+            current_path = _router.current_path()
+            if current_path != abp and href.endswith(current_path):
                 li.set_attr('cls', 'active')
 
             root_menu_ul.append(li.append(a))

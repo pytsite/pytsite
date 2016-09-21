@@ -147,8 +147,8 @@ class Role(_auth.model.AbstractRole):
         return self._entity.f_get(field_name)
 
     def set_field(self, field_name: str, value):
-        with self._entity:
-            self._entity.f_set(field_name, value)
+        with self._entity as e:
+            e.f_set(field_name, value)
 
         return self
 
@@ -160,8 +160,8 @@ class Role(_auth.model.AbstractRole):
 
         _events.fire('pytsite.auth.role.pre_save', role=self)
 
-        with self._entity:
-            self._entity.save()
+        with self._entity as e:
+            e.save()
 
         _events.fire('pytsite.auth.role.save', role=self)
 
@@ -173,8 +173,8 @@ class Role(_auth.model.AbstractRole):
     def delete(self):
         _events.fire('pytsite.auth.role.pre_delete', role=self)
 
-        with self._entity:
-            self._entity.delete()
+        with self._entity as e:
+            e.delete()
 
         _events.fire('pytsite.auth.role.delete', role=self)
 
@@ -283,14 +283,14 @@ class ODMUser(_odm_ui.model.UIEntity):
         if not self.f_get('nickname'):
             m = _hashlib.md5()
             m.update(self.f_get('login').encode('UTF-8'))
-            self.nickname = m.hexdigest()
+            self.f_set('nickname', m.hexdigest())
 
     def _after_save(self, first_save: bool = False):
         # Load user picture from Gravatar
         if not self.f_get('picture'):
             img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
-            self.f_set('picture', _file.create(img_url))
-            self.save()
+            with self:
+                self.f_set('picture', _file.create(img_url)).save()
 
     def _pre_delete(self, **kwargs):
         if str(self.id) == _auth.get_current_user().uid:
@@ -301,8 +301,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         """
         pic = self.f_get('picture')
         if pic:
-            with pic:
-                pic.delete()
+            pic.delete()
 
     @classmethod
     def ui_browser_setup(cls, browser: _odm_ui.Browser):
@@ -581,17 +580,6 @@ class User(_auth.model.AbstractUser):
     def access_token(self, value: str):
         self.set_field('acs_token', value)
 
-    @property
-    def roles(self) -> _Tuple[Role]:
-        if self.is_anonymous:
-            return _auth.get_role('anonymous'),
-
-        return self._entity.f_get('roles')
-
-    @roles.setter
-    def roles(self, value: _Tuple[Role]):
-        self._entity.f_set('roles', [role.odm_entity for role in value])
-
     def has_field(self, field_name: str) -> bool:
         return self._entity.has_field(field_name)
 
@@ -599,8 +587,8 @@ class User(_auth.model.AbstractUser):
         return self._entity.f_get(field_name)
 
     def set_field(self, field_name: str, value):
-        with self._entity:
-            self._entity.f_set(field_name, value)
+        with self._entity as e:
+            e.f_set(field_name, value)
 
         return self
 
@@ -623,8 +611,8 @@ class User(_auth.model.AbstractUser):
         _events.fire('pytsite.auth.user.pre_save', user=self)
 
         # Do actual save into storage
-        with self._entity:
-            self._entity.save()
+        with self._entity as e:
+            e.save()
 
         _events.fire('pytsite.auth.user.save', user=self)
 
@@ -636,25 +624,25 @@ class User(_auth.model.AbstractUser):
     def delete(self):
         _events.fire('pytsite.auth.user.pre_delete', user=self)
 
-        with self._entity:
-            self._entity.delete()
+        with self._entity as e:
+            e.delete()
 
         _events.fire('pytsite.auth.user.delete', user=self)
 
         return self
 
     def add_follower(self, follower: _auth.model.AbstractUser):
-        with self._entity:
-            self._entity.f_add('followers', follower)
+        with self._entity as e:
+            e.f_add('followers', follower)
 
     def remove_follower(self, follower: _auth.model.AbstractUser):
-        with self._entity:
-            self._entity.f_sub('followers', follower)
+        with self._entity as e:
+            e.f_sub('followers', follower)
 
     def add_follows(self, user: _auth.model.AbstractUser):
-        with self._entity:
-            self._entity.f_add('follows', user)
+        with self._entity as e:
+            e.f_add('follows', user)
 
     def remove_follows(self, user: _auth.model.AbstractUser):
-        with self._entity:
-            self._entity.f_sub('follows', user)
+        with self._entity as e:
+            e.f_sub('follows', user)

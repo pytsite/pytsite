@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.90.1 (2016-09-21)
+### Added
+- `auth`: `url` shortcut property in `model.AbstractUser`.
+- `file`: `url` and `thumb_url` shortcut properties in `model.AbstractFile`.
+
+### Fixed
+- `admin`: active links on the sidebar.
+- `auth`:
+    - creating admin user while application's setup;
+    - user picture size in `widget.Profile`.
+- `auth_storage_odm`: entity locking issues.
+- `content`: setting up roles while application's setup.
+
+
 ## 0.90 (2016-09-21)
 ### Added
 - `odm`: new finder shortcut operators.
