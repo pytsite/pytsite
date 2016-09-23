@@ -543,7 +543,7 @@ class ODMUser(_odm_ui.model.UIEntity):
             ))
 
     def ui_mass_action_entity_description(self) -> str:
-        return '{} ({})'.format(self.f_get('login'), self.f_get('full_name'))
+        return '{} ({} {})'.format(self.f_get('login'), self.f_get('first_name'), self.f_get('last_name'))
 
     def check_permissions(self, action: str, user: _auth.model.AbstractUser = None) -> bool:
         # Users can modify themselves

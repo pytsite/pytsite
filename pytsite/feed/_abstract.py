@@ -67,7 +67,7 @@ class Serializable:
         """
         if name:
             if name not in self._children_names:
-                raise _error.ElementNotFound("Element '{}' does not contain element {}.".format(self.name, name))
+                raise _error.ElementNotFound("Element '{}' does not contain '{}'.".format(self.name, name))
 
             return tuple([child for child in self._children if child.name == name])
 

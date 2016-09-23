@@ -62,12 +62,14 @@ class AnyFile(_odm.field.Abstract):
     def _on_set(self, value, **kwargs) -> str:
         """Hook. Transforms externally set value to internal value.
         """
-        self._file = _get_file(value)
+        try:
+            self._file = _get_file(value)
+            if self._allowed_mime_group != '*' and not self._file.mime.startswith(self._allowed_mime_group):
+                raise TypeError("File MIME '{}' is not allowed here.".format(self._file.mime))
 
-        if self._allowed_mime_group != '*' and not self._file.mime.startswith(self._allowed_mime_group):
-            raise TypeError("File MIME '{}' is not allowed here.".format(self._file.mime))
-
-        return self._file.uid
+            return self._file.uid
+        except _file.error.FileNotFound:
+            return None
 
     def _on_get(self, internal_value: str, **kwargs) -> _file.model.AbstractFile:
         """Hook. Transforms internal value to external one.
@@ -101,13 +103,16 @@ class AnyFiles(_odm.field.UniqueStringList):
         self._files = []
         clean_value = []
         for file in value:
-            file = _get_file(file)
+            try:
+                file = _get_file(file)
 
-            if self._allowed_mime_group != '*' and not file.mime.startswith(self._allowed_mime_group):
-                raise TypeError("File MIME '{}' is not allowed here.".format(file.mime))
+                if self._allowed_mime_group != '*' and not file.mime.startswith(self._allowed_mime_group):
+                    raise TypeError("File MIME '{}' is not allowed here.".format(file.mime))
 
-            clean_value.append(file.uid)
-            self._files.append(file)
+                clean_value.append(file.uid)
+                self._files.append(file)
+            except _file.error.FileNotFound:
+                pass
 
         return clean_value
 

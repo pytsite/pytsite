@@ -52,7 +52,7 @@ class Parser(_abstract.Parser, _xml.Serializable):
     """RSS Generator.
     """
 
-    def __init__(self):
+    def __init__(self, skip_unknown_elements: bool = True):
         """Init.
         """
         super().__init__(nsmap={
@@ -61,9 +61,12 @@ class Parser(_abstract.Parser, _xml.Serializable):
             'media': 'http://search.yahoo.com/mrss',
             'sy': 'http://purl.org/rss/1.0/modules/syndication',
             'slash': 'http://purl.org/rss/1.0/modules/slash',
+            'wfw': 'http://wellformedweb.org/CommentAPI',
             'pytsite': 'https://pytsite.xyz',
             'yandex': 'http://news.yandex.ru',
         })
+
+        self._skip_unknown_elements = skip_unknown_elements
 
         self.append_child(_em.Channel())
 
@@ -79,18 +82,23 @@ class Parser(_abstract.Parser, _xml.Serializable):
 
     def load(self, source: str):
         def parse_xml_element(xml_em: _etree.Element) -> _xml.Serializable:
-            # Replace trailing slash in namespace
+            # Remove trailing slash from namespace
             xml_tag_name = xml_em.tag.replace('/}', '}')
 
+            # Check if we know how to handle an element
             if xml_tag_name not in _tag_map:
-                raise _error.UnsupportedElement("Unsupported RSS element: '{}'.".format(xml_em.tag))
+                raise _error.UnknownElement("Unknown RSS element: '{}'.".format(xml_em.tag))
 
             # Element itself
             em = _tag_map[xml_tag_name](xml_em.text, **dict(xml_em.items()))  # type: _xml.Serializable
 
             # Child elements
             for xml_child in xml_em:
-                em.append_child(parse_xml_element(xml_child))
+                try:
+                    em.append_child(parse_xml_element(xml_child))
+                except _error.UnknownElement as e:
+                    if not self._skip_unknown_elements:
+                        raise e
 
             return em
 
@@ -115,7 +123,11 @@ class Parser(_abstract.Parser, _xml.Serializable):
 
         channel = self.get_children('channel')[0]
         for channel_xml_em in xml_root[0]:
-            channel.append_child(parse_xml_element(channel_xml_em))
+            try:
+                channel.append_child(parse_xml_element(channel_xml_em))
+            except _error.UnknownElement as e:
+                if not self._skip_unknown_elements:
+                    raise e
 
     def generate(self) -> str:
         """Generate feed's XML string.

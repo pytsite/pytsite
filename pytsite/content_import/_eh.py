@@ -74,8 +74,7 @@ def cron_1min():
                     # Delete already attached images to free space
                     if entity.has_field('images'):
                         for img in entity.f_get('images'):
-                            with img:
-                                img.delete()
+                            img.delete()
 
                     _logger.warn("Error while importing entity '{}'. {}".format(entity.title, str(e)))
 
@@ -103,7 +102,7 @@ def cron_1min():
                 # Pause importer
                 importer.f_set('paused_till', _datetime.now() + _timedelta(minutes=delay_errors))
 
-            _logger.error(str(e), exc_info=e, stack_info=True)
+            _logger.error(str(e), exc_info=e)
 
             # Continue to the next importer
             continue

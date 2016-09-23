@@ -10,9 +10,11 @@ from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, rou
     tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments, \
     auth_storage_odm as _auth_storage_odm, file_storage_odm as _file_storage_odm
 
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
 
 _localization_enabled = _reg.get('content.localization', True)
 _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
@@ -20,6 +22,9 @@ _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 _html_img_tag_re = _re.compile('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>')
 _html_video_youtube_re = _re.compile(
     '<iframe.*?src=["\']?https?://www\.youtube\.com/embed/([a-zA-Z0-9_-]{11})[^"\']*["\']?.+?</iframe>'
+)
+_html_video_facebook_re = _re.compile(
+    '<iframe.*?src=["\']?https?://www\.facebook\.com/plugins/video\.php\?href=([^"\']+)["\']?.+?</iframe>'
 )
 
 
@@ -154,11 +159,15 @@ def _extract_video_links(entity) -> tuple:
 
         if 'youtube' in match.group(0):
             vid_links.append('https://youtu.be/' + match.group(1))
+        elif 'facebook' in match.group(0):
+            link = _re.sub('&.+$', '', _util.url_unquote(match.group(1)))
+            vid_links.append(link)
 
         return '[vid:{}]'.format(vid_index)
 
     body = entity.f_get('body', process_tags=False)
     body = _html_video_youtube_re.sub(replace_func, body)
+    body = _html_video_facebook_re.sub(replace_func, body)
 
     return body, vid_links
 

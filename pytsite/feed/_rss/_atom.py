@@ -12,7 +12,7 @@ __license__ = 'MIT'
 class Link(_em.Empty):
     def __init__(self, text: str = '', **kwargs):
         super().__init__(text, **kwargs)
-        self._href = _validation.rule.Url(kwargs.get('href'))
+        self._href = _validation.rule.Url(kwargs.get('href')).validate()
         self._rel = kwargs.get('rel', 'self')
         self._type = kwargs.get('type', 'text/html')
 

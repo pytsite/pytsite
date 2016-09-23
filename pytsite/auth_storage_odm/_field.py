@@ -101,7 +101,10 @@ class User(_odm.field.Abstract):
         """Hook. Transforms externally set value to internal value.
         """
         # Cache user object for self._on_get()
-        self._user = self._convert_value_to_user(value)
+        try:
+            self._user = self._convert_value_to_user(value)
+        except _auth.error.UserNotExist:
+            self._user = _auth.get_first_admin_user()
 
         # Internally this field stores only user's UID as string
         return self._user.uid

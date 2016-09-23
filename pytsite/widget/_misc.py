@@ -3,7 +3,7 @@
 import re as _re
 from abc import abstractmethod as _abstractmethod
 from typing import Union as _Union
-from pytsite import html as _html, browser as _browser, lang as _lang
+from pytsite import html as _html, browser as _browser, lang as _lang, util as _util
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -169,11 +169,13 @@ class VideoPlayer(_base.Abstract):
     def _get_embed(self, url: str) -> _html.Element:
         """Get player embed code.
         """
-        if url.find('youtube.com') > 0 or url.find('youtu.be') > 0:
+        if 'youtube.com' in url or 'youtu.be' in url:
             return self._get_embed_youtube(url)
-        elif url.find('vimeo.com') > 0:
+        elif 'facebook.com' in url:
+            return self._get_embed_facebook(url)
+        elif 'vimeo.com' in url:
             return self._get_embed_vimeo(url)
-        elif url.find('rutube.ru') > 0:
+        elif 'rutube.ru' in url:
             return self._get_embed_rutube(url)
         else:
             return _html.Div('Not implemented.')
@@ -185,6 +187,18 @@ class VideoPlayer(_base.Abstract):
         match = _re.search('(youtube\.com/watch.+v=|youtu.be/)([a-zA-Z0-9\-_]{11})', url)
         if match:
             src = '//www.youtube.com/embed/{}?html5=1'.format(match.group(2))
+            return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
+                                cls='iframe-responsive')
+
+        raise ValueError(_html.Div('Invalid video link: ' + url))
+
+    @staticmethod
+    def _get_embed_facebook(url, width: int = 640, height: int = 360) -> _html.Element:
+        """Get RuTube player embed code.
+        """
+        match = _re.search('facebook\.com/[^/]+/videos/\d+', url)
+        if match:
+            src = 'https://www.facebook.com/plugins/video.php?href={}'.format(_util.url_quote(url))
             return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
                                 cls='iframe-responsive')
 

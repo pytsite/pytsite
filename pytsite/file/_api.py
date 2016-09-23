@@ -2,7 +2,7 @@
 """
 import os as _os
 import magic as _magic
-from urllib.request import urlopen as _urlopen
+from urllib.request import urlopen as _urlopen, Request as _urllib_request
 from urllib.parse import urlparse as _urlparse
 from pytsite import reg as _reg, util as _util, validation as _validation
 from . import _model, _driver
@@ -41,7 +41,10 @@ def create(source: str, name: str = None, description: str = None, propose_path:
         _validation.rule.Url(source).validate()
 
         # Copy remote file to the temporary local file
-        with _urlopen(_util.url_quote(source, safe='/:?&%')) as src:
+        req = _urllib_request(_util.url_quote(source, safe='/:?&%'), headers={
+            'User-Agent': 'Mozilla/5.0 (X11; Linux i586; rv:31.0) Gecko/20100101 Firefox/31.0',
+        })
+        with _urlopen(req) as src:
             data = src.read()
             tmp_file.write(data)
 

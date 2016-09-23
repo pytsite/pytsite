@@ -1,5 +1,23 @@
 # PytSite Changelog
 
+## 0.90.3 (2016-09-23)
+### Added
+- `content`: Facebook's embedded videos extracting.
+- `feed`: ability to skip unknown elements without exception in `rss.Parser`.
+- `file`: 'real' user agent string while downloading remote files.
+- `validation`: support for Facebook's video links in `rule.VideoHostingUrl`. 
+- `widget`: support for Facebook's in `misc.VideoPlayer`.
+
+### Fixed
+- `auth_storage_odm`:
+    - empty response from `get_users()`;
+    - automatic `field.User`'s value in case of user deletion.
+    - error while user deletion via admin ODM UI.
+- `content_import`: exception handling.
+- `feed`: error while URLs validation.
+- `file_storage_odm`: automatic skipping non-existent files in `field` models.
+
+
 ## 0.90.2 (2016-09-22)
 ### Added
 - `setup`: automatic updates applying after setup.

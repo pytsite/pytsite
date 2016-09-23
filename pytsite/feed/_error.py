@@ -13,7 +13,7 @@ class ElementRequired(Exception):
     pass
 
 
-class UnsupportedElement(Exception):
+class UnknownElement(Exception):
     pass
 
 

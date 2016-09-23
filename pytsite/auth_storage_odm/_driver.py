@@ -117,8 +117,8 @@ class Driver(_auth.driver.Storage):
                 else:
                     f.eq(k, v)
 
-            # Return generator
-            return (_model.User(user_entity) for user_entity in f.get(limit))
+        # Return generator
+        return (_model.User(user_entity) for user_entity in f.get(limit))
 
     def count_users(self, flt: dict = None) -> int:
         f = _odm.find('user')
