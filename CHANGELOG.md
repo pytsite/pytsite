@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.90.4 (2016-09-24)
+### Fixed
+- `file_storage_odm`: values set hook errors in `field`'s classes.
+
+
 ## 0.90.3 (2016-09-23)
 ### Added
 - `content`: Facebook's embedded videos extracting.

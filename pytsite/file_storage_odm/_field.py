@@ -41,7 +41,10 @@ def _get_file(value) -> _file.model.AbstractFile:
         else:
             raise ValueError('Cannot determine collection of DB reference: {}.'.format(value))
 
-    elif value is not None:
+    elif value is None:
+        raise _file.error.FileNotFound()
+
+    else:
         raise TypeError('File object, UID or None expected, got {}'.format(type(value)))
 
     return value
@@ -63,11 +66,14 @@ class AnyFile(_odm.field.Abstract):
         """Hook. Transforms externally set value to internal value.
         """
         try:
+            # Extract first image from a list or tuple
+            if isinstance(value, (list, tuple)):
+                value = value[0] if value else None
+
             self._file = _get_file(value)
             if self._allowed_mime_group != '*' and not self._file.mime.startswith(self._allowed_mime_group):
                 raise TypeError("File MIME '{}' is not allowed here.".format(self._file.mime))
 
-            return self._file.uid
         except _file.error.FileNotFound:
             return None
 
@@ -98,7 +104,7 @@ class AnyFiles(_odm.field.UniqueStringList):
         """Hook. Transforms externally set value to internal value.
         """
         if not isinstance(value, (list, tuple)):
-            raise TypeError("Field '{}': list or tuple expected, god {}.".format(self.name, type(value)))
+            value = [value]
 
         self._files = []
         clean_value = []
@@ -111,6 +117,7 @@ class AnyFiles(_odm.field.UniqueStringList):
 
                 clean_value.append(file.uid)
                 self._files.append(file)
+
             except _file.error.FileNotFound:
                 pass
 
