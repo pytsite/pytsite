@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.90.5 (2016-09-25)
+### Fixed
+- `odm`: missed return value in `field.RefsList.sanitize_finder_arg()`.
+
+
 ## 0.90.4 (2016-09-24)
 ### Fixed
 - `file_storage_odm`: values set hook errors in `field`'s classes.

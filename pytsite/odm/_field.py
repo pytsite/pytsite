@@ -559,7 +559,6 @@ class RefsList(List):
 
         return super()._on_sub(internal_value, value_to_sub, **kwargs)
 
-
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.
         """
@@ -573,7 +572,8 @@ class RefsList(List):
             if isinstance(v, _model.Entity):
                 v = v.ref
             clean_arg.append(v)
-        arg = clean_arg
+
+        return clean_arg
 
 
 class RefsUniqueList(RefsList):

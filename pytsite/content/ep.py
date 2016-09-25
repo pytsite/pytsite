@@ -27,7 +27,6 @@ def index(args: dict, inp: dict):
 
     # Filter by term
     term_field = args.get('term_field')
-
     if term_field and f.mock.has_field(term_field):
         term_model = f.mock.get_field(term_field).model
         term_alias = args.get('term_alias')
@@ -38,7 +37,7 @@ def index(args: dict, inp: dict):
                 if isinstance(f.mock.fields[term_field], _odm.field.Ref):
                     f.eq(term_field, term)
                 elif isinstance(f.mock.fields[term_field], _odm.field.RefsList):
-                    f.inc(term_field, [term])
+                    f.inc(term_field, term)
                 _metatag.t_set('title', term.title)
             else:
                 raise _http.error.NotFound()
