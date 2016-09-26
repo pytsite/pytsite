@@ -1,7 +1,6 @@
 """PytSite Authorization ODM Storage Models.
 """
 import hashlib as _hashlib
-from typing import Tuple as _Tuple
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
@@ -546,8 +545,11 @@ class ODMUser(_odm_ui.model.UIEntity):
         return '{} ({} {})'.format(self.f_get('login'), self.f_get('first_name'), self.f_get('last_name'))
 
     def check_permissions(self, action: str, user: _auth.model.AbstractUser = None) -> bool:
+        if not user:
+            user = _auth.get_current_user()
+
         # Users can modify themselves
-        if action == 'modify' and _auth.get_current_user() == self:
+        if action == 'modify' and user.uid == str(self.id):
             return True
 
         return super().check_permissions(action)

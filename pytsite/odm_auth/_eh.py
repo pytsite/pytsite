@@ -1,7 +1,7 @@
-"""ODM UI Manager.
+"""PytSite ODM UI Event Handlers.
 """
 from pytsite import lang as _lang, odm as _odm, permissions as _permission, logger as _logger, auth as _auth
-from . import _model, _api
+from . import _model
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

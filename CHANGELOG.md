@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.90.7 (2016-09-26)
+### Fixed
+- `auth_storage_odm`: authentication error of non-admin users.
+
+
 ## 0.90.6 (2016-09-26)
 ### Added
 - `file`: `local_path` property to abstract models.
