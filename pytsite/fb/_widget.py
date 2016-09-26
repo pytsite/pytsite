@@ -1,8 +1,8 @@
 """Facebook Widgets.
 """
 from datetime import datetime as _datetime
-from pytsite import widget as _widget, html as _html, reg as _reg, router as _router, assetman as _assetman, \
-    lang as _lang, tpl as _tpl
+from pytsite import widget as _widget, html as _html, router as _router, assetman as _assetman, lang as _lang, \
+    tpl as _tpl, settings as _settings
 from ._session import AuthSession as _AuthSession, Session as _Session
 
 __author__ = 'Alexander Shepetko'
@@ -18,8 +18,14 @@ class Auth(_widget.Abstract):
         """
         super().__init__(uid, **kwargs)
 
-        self._app_id = _reg.get('fb.app_id')
-        self._app_secret = _reg.get('fb.app_secret')
+        self._app_id = _settings.get('fb.app_id')
+        if not self._app_id:
+            raise RuntimeError("Settings parameter 'fb.app_id' is not defined.")
+
+        self._app_secret = _settings.get('fb.app_secret')
+        if not self._app_secret:
+            raise RuntimeError("Settings parameter 'fb.app_secret' is not defined.")
+
         self._scope = kwargs.get('scope', 'public_profile,email,user_friends')
         self._access_token = kwargs.get('access_token', '')
         self._access_token_type = kwargs.get('access_token_type', '')
@@ -132,10 +138,14 @@ class Comments(_widget.Abstract):
         """
         super().__init__(uid, **kwargs)
 
+        self._app_id = _settings.get('fb.app_id')
+        if not self._app_id:
+            raise RuntimeError("Settings parameter 'fb.app_id' is not defined.")
+
         self._href = kwargs.get('href', _router.current_url())
 
         js_sdk_args = {
-            'app_id': _reg.get('fb.app_id'),
+            'app_id': self._app_id,
             'language': _lang.ietf_tag(sep='_')
         }
         _assetman.add_inline(_tpl.render('pytsite.fb@fb-js-sdk', js_sdk_args))

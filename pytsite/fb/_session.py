@@ -2,7 +2,7 @@
 """
 from collections import Generator as _Generator
 import requests as _requests
-from pytsite import router as _router, util as _util, reg as _reg
+from pytsite import router as _router, util as _util, settings as _settings
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -19,8 +19,13 @@ class AuthSession:
     def __init__(self, state: str=None, redirect_uri: str=None):
         """Init.
         """
-        self._app_id = _reg.get('fb.app_id')
-        self._app_secret = _reg.get('fb.app_secret')
+        self._app_id = _settings.get('fb.app_id')
+        if not self._app_id:
+            raise RuntimeError("Settings parameter 'fb.app_id' is not defined.")
+
+        self._app_secret = _settings.get('fb.app_secret')
+        if not self._app_secret:
+            raise RuntimeError("Settings parameter 'fb.app_secret' is not defined.")
 
         if state:
             self._state = state
@@ -67,8 +72,14 @@ class Session:
     def __init__(self, access_token: str):
         """Init.
         """
-        self._app_id = _reg.get('fb.app_id')
-        self._app_secret = _reg.get('fb.app_secret')
+        self._app_id = _settings.get('fb.app_id')
+        if not self._app_id:
+            raise RuntimeError("Settings parameter 'fb.app_id' is not defined.")
+
+        self._app_secret = _settings.get('fb.app_secret')
+        if not self._app_secret:
+            raise RuntimeError("Settings parameter 'fb.app_secret' is not defined.")
+
         self._access_token = access_token
 
         if not self._access_token:

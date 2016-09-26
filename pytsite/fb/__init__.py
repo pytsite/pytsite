@@ -9,20 +9,10 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import reg, lang, assetman, content_export, router, tpl, comments, events
-    from . import _eh
+    from pytsite import lang, assetman, content_export, router, tpl, comments, events, permissions, settings
+    from . import _eh, _settings_form
     from ._content_export import Driver as ContentExportDriver
     from ._comments import Driver
-
-    # App ID is mandatory configuration parameter
-    app_id = reg.get('fb.app_id')
-    if not app_id:
-        raise Exception("Configuration parameter 'fb.app_id' is not defined.")
-
-    # App secret is mandatory configuration parameter
-    app_secret = reg.get('fb.app_secret')
-    if not app_secret:
-        raise Exception("Configuration parameter 'fb.app_secret' is not defined.")
 
     # Resources
     lang.register_package(__name__)
@@ -37,6 +27,10 @@ def __init():
 
     # Comments driver
     comments.register_driver(Driver())
+
+    # Register settings form
+    permissions.define_permission('fb.settings.manage', 'pytsite.fb@manage_fb_settings', 'app')
+    settings.define('fb', _settings_form.Form, 'pytsite.fb@facebook', 'fa fa-facebook', 'fb.settings.manage')
 
     # Event handlers
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)

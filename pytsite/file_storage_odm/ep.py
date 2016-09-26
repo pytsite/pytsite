@@ -64,23 +64,22 @@ def image(args: dict, inp: dict) -> _http.response.Redirect:
         resize_height = requested_height
 
     # Checking source file
-    source_path = img_file.path
-    source_abs_path = img_file.get_field('abs_path')
-    if not _path.exists(source_abs_path):
+    source_local_path = img_file.get_field('local_path')
+    if not _path.exists(source_local_path):
         return _http.response.Redirect('http://placehold.it/{}x{}'.format(requested_width, requested_height))
 
     # Calculating target file location
-    target_abs_path = _path.join(_reg.get('paths.static'), 'image', 'resize', str(requested_width),
-                                 str(requested_height), p1, p2, filename)
+    target_local_path = _path.join(_reg.get('paths.static'), 'image', 'resize', str(requested_width),
+                                   str(requested_height), p1, p2, filename)
 
     # Create target directory
-    target_dir = _path.dirname(target_abs_path)
+    target_dir = _path.dirname(target_local_path)
     if not _path.exists(target_dir):
         _makedirs(target_dir, 0o755, True)
 
-    if not _path.exists(target_abs_path):
+    if not _path.exists(target_local_path):
         # Open source image
-        img = _Image.open(source_abs_path)  # type: _Image
+        img = _Image.open(source_local_path)  # type: _Image
 
         # Resize
         if need_resize:
@@ -104,7 +103,7 @@ def image(args: dict, inp: dict) -> _http.response.Redirect:
             # Resize
             img = cropped.resize((resize_width, resize_height), _Image.BILINEAR)
 
-        img.save(target_abs_path)
+        img.save(target_local_path)
         img.close()
 
     return _http.response.Redirect(img_file.get_url(width=requested_width, height=requested_height))

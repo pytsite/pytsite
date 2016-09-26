@@ -1,18 +1,19 @@
+"""RSS Feed Elements
 """
-"""
+
 import pytz as _pytz
-from typing import List as _List, Tuple as _Tuple
+from typing import Tuple as _Tuple
 from time import tzname as _tzname
 from datetime import datetime as _datetime
 from lxml import etree as _etree
 from pytsite import validation as _validation, util as _util
-from .. import _xml
-
-_tz = _pytz.timezone(_tzname[0])
+from .. import _xml, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+_tz = _pytz.timezone(_tzname[0])
 
 
 class Element(_xml.Serializable):
@@ -43,7 +44,7 @@ class NonEmpty(Element):
         try:
             super().__init__(_validation.rule.NonEmpty(text).validate(), **kwargs)
         except _validation.error.RuleError:
-            raise RuntimeError("Element '{}' must contain text data.".format(self.name))
+            raise _error.ElementParsingError("Element '{}' must contain text data.".format(self.name))
 
     @property
     def name(self) -> str:
@@ -52,7 +53,10 @@ class NonEmpty(Element):
 
 class Integer(Element):
     def __init__(self, text='', **kwargs):
-        super().__init__(str(_validation.rule.Integer(text).validate()))
+        try:
+            super().__init__(str(_validation.rule.Integer(text).validate()))
+        except _validation.error.RuleError:
+            raise _error.ElementParsingError("Element '{}' must contain integer data.".format(self.name))
 
     @property
     def name(self) -> str:
@@ -61,7 +65,10 @@ class Integer(Element):
 
 class Url(Element):
     def __init__(self, text: str = '', **kwargs):
-        super().__init__(_validation.rule.Url(text).validate(), **kwargs)
+        try:
+            super().__init__(_validation.rule.Url(text).validate(), **kwargs)
+        except _validation.error.RuleError:
+            raise _error.ElementParsingError("Element '{}' must contain valid URL.".format(self.name))
 
     @property
     def name(self) -> str:
@@ -80,7 +87,10 @@ class NonEmptyUrl(NonEmpty, Url):
 
 class Date(NonEmpty):
     def __init__(self, date: _datetime, **kwargs):
-        super().__init__(_util.rfc822_datetime_str(_validation.rule.DateTime(date).validate()), **kwargs)
+        try:
+            super().__init__(_util.rfc822_datetime_str(_validation.rule.DateTime(date).validate()), **kwargs)
+        except _validation.error.RuleError:
+            raise _error.ElementParsingError("Element '{}' must contain valid date.".format(self.name))
 
     @property
     def name(self) -> str:
@@ -222,10 +232,17 @@ class Author(NonEmpty):
 class Enclosure(_xml.Serializable):
     def __init__(self, text: str = '', **kwargs):
         super().__init__()
-        self._url = _validation.rule.Url(kwargs.get('url')).validate()
-        self._url = _validation.rule.NonEmpty(self._url).validate()
-        self._length = str(kwargs.get('length', 0))
-        self._type = _validation.rule.Regex(kwargs.get('type', 'text/html'), pattern='\w+/\w+').validate()
+        try:
+            self._url = _validation.rule.NonEmpty(kwargs.get('url')).validate()
+            self._url = _validation.rule.Url(self._url).validate()
+        except _validation._error.RuleError:
+            raise _error.ElementParsingError("Element '{}' has invalid 'url' attribute value.".format(self.name))
+
+        try:
+            self._length = str(kwargs.get('length', 0))
+            self._type = _validation.rule.Regex(kwargs.get('type', 'text/html'), pattern='\w+/\w+').validate()
+        except _validation._error.RuleError:
+            raise _error.ElementParsingError("Element '{}' has invalid 'type' attribute value.".format(self.name))
 
     @property
     def name(self) -> str:
@@ -250,12 +267,12 @@ class Category(_xml.Serializable):
         try:
             self._title = _validation.rule.NonEmpty(title).validate()
         except _validation.error.RuleError:
-            raise ValueError('Category title cannot be empty.')
+            raise _error.ElementParsingError('Category title cannot be empty.')
 
         try:
             self._domain = _validation.rule.Url(domain).validate()
         except _validation.error.RuleError:
-            raise ValueError('Category domain must be an URL.')
+            raise _error.ElementParsingError('Category domain must be an URL.')
 
     @property
     def name(self) -> str:

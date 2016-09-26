@@ -3,7 +3,8 @@
 from datetime import datetime as _datetime
 from frozendict import frozendict as _frozendict
 from pytsite import odm_ui as _odm_ui, auth as _auth, content as _content, odm as _odm, router as _router, \
-    widget as _widget, util as _util, form as _form, lang as _lang, validation as _validation
+    widget as _widget, util as _util, form as _form, lang as _lang, validation as _validation, \
+    auth_storage_odm as _auth_storage_odm
 from . import _widget as _content_export_widget, _api
 
 __author__ = 'Alexander Shepetko'
@@ -23,7 +24,7 @@ class ContentExport(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('content_model', required=True))
         self.define_field(_odm.field.Bool('process_all_authors', default=True))
         self.define_field(_odm.field.Bool('with_images_only', default=True))
-        self.define_field(_odm.field.String('owner', required=True))
+        self.define_field(_auth_storage_odm.field.User('owner', required=True))
         self.define_field(_odm.field.Bool('enabled', default=True))
         self.define_field(_odm.field.Integer('errors'))
         self.define_field(_odm.field.String('last_error'))
@@ -222,19 +223,3 @@ class ContentExport(_odm_ui.model.UIEntity):
         """Get description for mass action form.
         """
         return _api.get_driver(self.driver).get_options_description(self.driver_opts)
-
-    def _on_f_get(self, field_name: str, value, **kwargs):
-        if field_name == 'owner' and value:
-            return _auth.get_user(uid=value)
-        else:
-            return super()._on_f_get(field_name, value)
-
-    def _on_f_set(self, field_name: str, value, **kwargs):
-        if field_name == 'owner':
-            if isinstance(value, _auth.model.AbstractUser):
-                value = value.uid
-            elif isinstance(value, str):
-                # Check user for existence
-                value = _auth.get_user(uid=value).uid
-
-        return super()._on_f_set(field_name, value)

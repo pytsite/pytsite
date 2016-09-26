@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.90.6 (2016-09-26)
+### Added
+- `file`: `local_path` property to abstract models.
+
+### Changed
+- `fb`: settings moved from `reg` to `settings` module.
+- `vk`: settings moved from `reg` to `settings` module.
+
+### Fixed
+- `content_export`: `owner`'s field type in `model.ContentExport`;
+- `content_import`: processing errors while saving entities.
+- `feed`: processing XML elements parsing errors.
+
+
 ## 0.90.5 (2016-09-25)
 ### Fixed
 - `odm`: missed return value in `field.RefsList.sanitize_finder_arg()`.

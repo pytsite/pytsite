@@ -69,16 +69,14 @@ def cron_1min():
                     _logger.info("Content entity imported: '{}'".format(entity.f_get('title')))
                     items_imported += 1
 
-                # Entity save was not successfully finished
+                # Entity was not successfully saved; make record in the log and skip to the next entity
                 except Exception as e:
                     # Delete already attached images to free space
-                    if entity.has_field('images'):
-                        for img in entity.f_get('images'):
+                    if entity.has_field('images') and entity.images:
+                        for img in entity.images:
                             img.delete()
 
-                    _logger.warn("Error while importing entity '{}'. {}".format(entity.title, str(e)))
-
-                    raise e
+                    _logger.warn("Error while creating entity '{}'. {}".format(entity.title, str(e)))
 
                 finally:
                     entity.unlock()

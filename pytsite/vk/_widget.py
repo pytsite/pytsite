@@ -1,6 +1,6 @@
 """VK Auth Widget.
 """
-from pytsite import widget as _widget, html as _html, lang as _lang, router as _router, reg as _reg
+from pytsite import widget as _widget, html as _html, lang as _lang, router as _router, settings as _settings
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -8,12 +8,17 @@ __license__ = 'MIT'
 
 
 class Auth(_widget.Abstract):
-    """Twitter oAuth Widget.
+    """VK oAuth Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
+
+        self._app_id = _settings.get('vk.app_id')
+        if not self._app_id:
+            raise RuntimeError("Settings parameter 'vk.app_id' is not defined.")
 
         self._scope = kwargs.get('scope', ('wall', 'offline', 'photos'))
         self._access_url = kwargs.get('access_url', '')
@@ -40,7 +45,7 @@ class Auth(_widget.Abstract):
         :param **kwargs:
         """
         authorize_url = _router.url('https://oauth.vk.com/authorize', query={
-            'client_id': _reg.get('vk.app_id'),
+            'client_id': self._app_id,
             'scope': ','.join(self.scope),
             'redirect_uri': 'https://oauth.vk.com/blank.html',
             'display': 'page',

@@ -1,4 +1,4 @@
-"""
+"""PytSite File ODM Storage Models.
 """
 import exifread as _exifread
 from os import unlink as _unlink, path as _path
@@ -12,7 +12,7 @@ __license__ = 'MIT'
 
 
 class AnyFileODMEntity(_odm.model.Entity):
-    """File Model.
+    """Any File ODM Model.
     """
     _collection_name = 'file_other'
 
@@ -24,23 +24,23 @@ class AnyFileODMEntity(_odm.model.Entity):
         self.define_field(_odm.field.String('description'))
         self.define_field(_odm.field.String('mime', required=True))
         self.define_field(_odm.field.Integer('length', required=True))
-        self.define_field(_odm.field.Virtual('abs_path'))
+        self.define_field(_odm.field.Virtual('local_path'))
         self.define_field(_odm.field.Virtual('url'))
         self.define_field(_odm.field.Virtual('thumb_url'))
 
     def _after_delete(self):
         """_after_delete() hook.
         """
-        # Remove file from storage
-        abs_path = self.f_get('abs_path')
-        if _path.exists(abs_path):
-            _unlink(abs_path)
+        # Remove file from the storage
+        local_path = self.f_get('local_path')
+        if _path.exists(local_path):
+            _unlink(local_path)
 
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
         # Absolute file path on the filesystem
-        if field_name == 'abs_path':
+        if field_name == 'local_path':
             return _path.join(_reg.get('paths.storage'), self.f_get('path'))
 
         # File download URL
@@ -78,7 +78,7 @@ class AnyFileODMEntity(_odm.model.Entity):
 
 
 class ImageFileODMEntity(AnyFileODMEntity):
-    """Image ODM Entity Model.
+    """Image File ODM Model.
     """
     _collection_name = 'file_images'
 
@@ -96,7 +96,7 @@ class ImageFileODMEntity(AnyFileODMEntity):
         super()._pre_save()
 
         # Read EXIF from file
-        with open(self.f_get('abs_path'), 'rb') as f:
+        with open(self.f_get('local_path'), 'rb') as f:
             exif = _exifread.process_file(f, details=False)
             entity_exif = {}
             for k, v in exif.items():
@@ -105,7 +105,7 @@ class ImageFileODMEntity(AnyFileODMEntity):
             self.f_set('exif', entity_exif)
 
         # Open image for processing
-        image = _PILImage.open(self.f_get('abs_path'))  #type: _PILImage.Image
+        image = _PILImage.open(self.f_get('local_path'))  # type: _PILImage.Image
 
         # Rotate image
         if 'Image Orientation' in exif:
@@ -119,12 +119,12 @@ class ImageFileODMEntity(AnyFileODMEntity):
                 rotated = image.rotate(180, _PILImage.BICUBIC, True)
 
             if rotated:
-                rotated.save(self.f_get('abs_path'))
+                rotated.save(self.f_get('local_path'))
                 image = rotated
 
         # Convert BMP to JPEG
         if image.format == 'BMP':
-            current_abs_path = self.f_get('abs_path')
+            current_local_path = self.f_get('local_path')
 
             # Change path and MIME info
             new_path = self.f_get('path').replace('.bmp', '.jpg')
@@ -133,8 +133,8 @@ class ImageFileODMEntity(AnyFileODMEntity):
             self.f_set('path', new_path)
             self.f_set('mime', 'image/jpeg')
 
-            image.save(self.f_get('abs_path'))
-            _unlink(current_abs_path)
+            image.save(self.f_get('local_path'))
+            _unlink(current_local_path)
 
         self.f_set('width', image.size[0])
         self.f_set('height', image.size[1])
@@ -173,8 +173,17 @@ class ImageFileODMEntity(AnyFileODMEntity):
         else:
             return super()._on_f_get(field_name, value, **kwargs)
 
+    def _on_f_set(self, field_name: str, value, **kwargs):
+        if field_name == 'local_path':
+            raise RuntimeError('Local path of the file cannot be changed.')
+
+        return super()._on_f_set(field_name, value, **kwargs)
+
 
 class AnyFile(_file.model.AbstractFile):
+    """Any File Model.
+    """
+
     def __init__(self, entity: AnyFileODMEntity):
         """Init.
         """
@@ -203,6 +212,9 @@ class AnyFile(_file.model.AbstractFile):
 
 
 class ImageFile(_file.model.AbstractImage):
+    """Imge File Model.
+    """
+
     def __init__(self, entity: ImageFileODMEntity):
         if not isinstance(entity, ImageFileODMEntity):
             raise TypeError('ImageFileODMEntity instance expected, got {}.'.format(type(entity)))

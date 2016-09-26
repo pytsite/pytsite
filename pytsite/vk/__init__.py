@@ -8,15 +8,9 @@ __license__ = 'MIT'
 
 
 def __init():
-    from pytsite import content_export, assetman, lang, reg, events
-    from . import _eh
+    from pytsite import content_export, assetman, lang, events, settings, permissions
+    from . import _eh, _settings_form
     from ._content_export import Driver as ContentExportDriver
-
-    if not reg.get('vk.app_id'):
-        raise Exception("'vk.app_id' configuration option should be defined.")
-
-    if not reg.get('vk.app_secret'):
-        raise Exception("'vk.app_secret' configuration option should be defined.")
 
     # Register resources
     lang.register_package(__name__)
@@ -25,7 +19,12 @@ def __init():
     # Register Content Export driver
     content_export.register_driver(ContentExportDriver())
 
+    # Register settings form
+    permissions.define_permission('vk.settings.manage', 'pytsite.vk@manage_vk_settings', 'app')
+    settings.define('vk', _settings_form.Form, 'pytsite.vk@vkontakte', 'fa fa-vk', 'vk.settings.manage')
+
     # Event handlers
     events.listen('pytsite.odm.entity.pre_save.content_export', _eh.odm_entity_pre_save_content_export)
+
 
 __init()

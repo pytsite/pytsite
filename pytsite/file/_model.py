@@ -23,27 +23,37 @@ class AbstractFile(_ABC):
 
     @property
     def length(self) -> int:
-        """Get length of the image.
+        """Get length of the file in bytes.
         """
         return self.get_field('length')
 
     @length.setter
     def length(self, value: int):
-        """Set length of the image.
+        """Set length of the file in bytes.
         """
         self.set_field('length', value)
 
     @property
     def path(self) -> str:
-        """Get path of the file.
+        """Get path of the file relative to storage.
         """
         return self.get_field('path')
 
     @path.setter
     def path(self, value: str):
-        """Set path of the file.
+        """Set path of the file relative to storage.
         """
         self.set_field('path', value)
+
+    @property
+    def local_path(self) -> str:
+        """Get path of the file accessible via local filesystem.
+        """
+        return self.get_field('local_path')
+
+    @local_path.setter
+    def local_path(self, value: str) -> str:
+        self.set_field('local_path', value)
 
     @property
     def mime(self) -> str:

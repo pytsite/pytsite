@@ -13,6 +13,10 @@ class ElementRequired(Exception):
     pass
 
 
+class ElementParsingError(Exception):
+    pass
+
+
 class UnknownElement(Exception):
     pass
 

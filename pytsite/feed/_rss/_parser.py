@@ -52,7 +52,7 @@ class Parser(_abstract.Parser, _xml.Serializable):
     """RSS Generator.
     """
 
-    def __init__(self, skip_unknown_elements: bool = True):
+    def __init__(self, skip_bad_elements: bool = True):
         """Init.
         """
         super().__init__(nsmap={
@@ -66,7 +66,7 @@ class Parser(_abstract.Parser, _xml.Serializable):
             'yandex': 'http://news.yandex.ru',
         })
 
-        self._skip_unknown_elements = skip_unknown_elements
+        self._skip_bad_elements = skip_bad_elements
 
         self.append_child(_em.Channel())
 
@@ -96,8 +96,8 @@ class Parser(_abstract.Parser, _xml.Serializable):
             for xml_child in xml_em:
                 try:
                     em.append_child(parse_xml_element(xml_child))
-                except _error.UnknownElement as e:
-                    if not self._skip_unknown_elements:
+                except (_error.UnknownElement, _error.ElementParsingError) as e:
+                    if not self._skip_bad_elements:
                         raise e
 
             return em
@@ -125,8 +125,8 @@ class Parser(_abstract.Parser, _xml.Serializable):
         for channel_xml_em in xml_root[0]:
             try:
                 channel.append_child(parse_xml_element(channel_xml_em))
-            except _error.UnknownElement as e:
-                if not self._skip_unknown_elements:
+            except (_error.UnknownElement, _error.ElementParsingError) as e:
+                if not self._skip_bad_elements:
                     raise e
 
     def generate(self) -> str:

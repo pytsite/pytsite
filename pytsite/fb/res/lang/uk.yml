@@ -1,4 +1,9 @@
-facebook: Facebook
-user: Користувач
-page: Сторінка
-you_are_not_authorized: Ви не авторизувались
+facebook: 'Facebook'
+user: 'Користувач'
+page: 'Сторінка'
+you_are_not_authorized: 'Ви не авторизувались'
+manage_fb_settings: 'Керування налаштуваннями Facebookc'
+app_id: 'ID додатка'
+app_secret: 'Секретний ключ'
+app_id_setup_help: '<a href="https://developers.facebook.com/apps/" target="_blank">Створіть новий додаток</a>, потім скопіюйте отриманий ID додатка в це поле'
+app_secret_setup_help: '<a href="https://developers.facebook.com/apps/" target="_blank">Створіть новий додаток</a>, потім скопіюйте отриманий секретний ключ в це поле'

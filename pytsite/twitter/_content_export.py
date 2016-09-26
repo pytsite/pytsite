@@ -55,7 +55,7 @@ class Driver(_content_export.AbstractDriver):
             media_ids = []
             if entity.images:
                 img = entity.images[0]
-                with open(img.abs_path, 'rb') as f:
+                with open(img.local_path, 'rb') as f:
                     r = tw.upload_media(media=f)
                     media_ids.append(r['media_id'])
         except _TwythonError as e:

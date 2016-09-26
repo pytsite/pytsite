@@ -1,7 +1,12 @@
-vkontakte: VK
-access_url: Access URL
-access_url_help: Follow this <a href=":link" target="_blank">link</a>, then copy content of the address bar to this field
-access_token: Access token
-user_id: User ID
-invalid_access_url: Invalid access URL
-group_id: Group ID
+vkontakte: 'Vkontakte'
+access_url: 'Access URL'
+access_url_help: 'Follow this <a href=":link" target="_blank">link</a>, then copy content of the address bar to this field'
+access_token: 'Access token'
+user_id: 'User ID'
+invalid_access_url: 'Invalid access URL'
+group_id: 'Group ID'
+manage_vk_settings: 'Manage Vkontakte settings'
+app_id: 'Application ID'
+app_secret: 'Secure key'
+app_id_setup_help: '<a href="https://vk.com/apps?act=manage" target="_blank">Create new application</a>, then copy given application ID to this field'
+app_secret_setup_help: '<a href="https://vk.com/apps?act=manage" target="_blank">Create new application</a>, then copy given secure key to this field'
