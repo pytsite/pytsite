@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.90.9 (2016-09-26)
+### Fixed
+- `fb`: error while getting image URL in `content_export`'s driver.
+
+
 ## 0.90.8 (2016-09-26)
 ### Fixed
 - `content_export`: error in finder query argument.

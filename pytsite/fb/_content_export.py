@@ -68,7 +68,7 @@ class Driver(_content_export.AbstractDriver):
 
             # Pre-generating image for OpenGraph story
             if entity.has_field('images') and entity.images:
-                _requests.get(entity.images[0].get_url(900, 500))
+                _requests.get(entity.images[0].get_url(width=900, height=500))
 
             # Notify OpenGraph about sharing
             scrape_r = user_session.request('', 'POST', id=entity.url, scrape='true')
