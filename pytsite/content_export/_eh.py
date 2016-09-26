@@ -27,7 +27,7 @@ def cron_1min():
         # Search for content entities which are hasn't been exported yet
         content_f = _content.find(exporter.content_model) \
             .gte('publish_time', _datetime.now() - _timedelta(exporter.max_age)) \
-            .ninc('options.content_export', str(exporter.id)) \
+            .ninc('options.content_export', [str(exporter.id)]) \
             .sort([('publish_time', _odm.I_ASC)])
 
         # Get content only with images
