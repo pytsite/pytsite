@@ -70,7 +70,7 @@ class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
             self._content.append('</{}>'.format(tag))
 
     def handle_data(self, data: str):
-        self._content.append(_re.sub(r'(\n|\r\n)', ' ', data, flags=_re.MULTILINE))
+        self._content.append(data)
 
     def handle_entityref(self, name: str):
         self._content.append('&{};'.format(name))
@@ -126,7 +126,6 @@ class _HTMLTrimParser(_python_html_parser.HTMLParser):
         if not self._get_available_len():
             return
 
-        data = _re.sub(r'(\r\n|\n)', '', data, flags=_re.MULTILINE)
         for char in data:
             char_len = len(char.encode()) if self._count_bytes else len(char)
             if self._get_available_len() >= char_len:

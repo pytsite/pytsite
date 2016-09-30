@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.91.1 (2016-09-30)
+### Fixed
+- `util`: newlines not deleted anymore while processing HTML code by related functions. 
+
+
 ## 0.91 (2016-09-30)
 ### Added
 - New package: `errors`.
