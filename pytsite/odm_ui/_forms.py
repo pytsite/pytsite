@@ -56,7 +56,7 @@ class Modify(_form.Form):
             self._title = entity.t('odm_ui_form_title_modify_' + self._model)
 
         # Setting up the form through entity hook and global event
-        entity.ui_m_form_setup(self)
+        entity.odm_ui_m_form_setup(self)
         _events.fire('pytsite.odm_ui.{}.m_form_setup'.format(self._model), frm=self, entity=entity)
 
         if self._update_meta_title:
@@ -80,7 +80,7 @@ class Modify(_form.Form):
 
         # Setting up form's widgets through entity hook and global event
         entity = dispense_entity(self._model, self._eid)
-        entity.ui_m_form_setup_widgets(self)
+        entity.odm_ui_m_form_setup_widgets(self)
         _events.fire('pytsite.odm_ui.{}.m_form_setup_widgets'.format(self._model), frm=self, entity=entity)
 
         # Cancel button
@@ -88,8 +88,8 @@ class Modify(_form.Form):
         if not self.modal:
             cancel_href = _router.request().inp.get('__redirect')
             if not cancel_href or cancel_href == 'ENTITY_VIEW':
-                if not entity.is_new and entity.ui_view_url():
-                    cancel_href = entity.ui_view_url()
+                if not entity.is_new and entity.odm_ui_view_url():
+                    cancel_href = entity.odm_ui_view_url()
                 else:
                     cancel_href = _router.base_url()
 
@@ -110,7 +110,7 @@ class Modify(_form.Form):
         # Ask entity to validate the form
         from ._api import dispense_entity
         entity = dispense_entity(self._model, self._eid)
-        entity.ui_m_form_validate(self)
+        entity.odm_ui_m_form_validate(self)
 
 
 class MassAction(_form.Form):
@@ -147,7 +147,7 @@ class MassAction(_form.Form):
         for eid in self._eids:
             entity = dispense_entity(self._model, eid)
             self.add_widget(_widget.input.Hidden(uid='ids-' + eid, name='ids', value=eid))
-            ol.append(_html.Li(entity.ui_mass_action_entity_description()))
+            ol.append(_html.Li(entity.odm_ui_mass_action_entity_description()))
         self.add_widget(_widget.static.HTML(uid='ids-text', em=ol))
 
         # Submit button

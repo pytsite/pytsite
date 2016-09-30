@@ -55,6 +55,7 @@ uid: 'UID'
 mail_subject_new_comment: 'New comment to your post on {:app_name}'
 generate_rss_feed_for: 'Generate RSS feed for:'
 generate_sitemap_for: 'Include in sitemap.txt:'
+forbid_author_deletion: 'Cannot delete account of user :author, because it owns content entity :content_model (:content_title)'
 
 odm_perm_group_description: 'Content'
 

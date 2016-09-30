@@ -55,6 +55,7 @@ uid: 'UID'
 mail_subject_new_comment: 'Новый комментарий на ваш пост на {:app_name}'
 generate_rss_feed_for: 'Создавать RSS-поток для:'
 generate_sitemap_for: 'Включать в sitemap.txt:'
+forbid_author_deletion: 'Невозможно удалить учётную запись пользователя :author, поскольку он является автором контента :content_model (:content_title)'
 
 odm_perm_group_description: 'Содержимое'
 

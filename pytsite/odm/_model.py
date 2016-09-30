@@ -11,7 +11,7 @@ from bson import errors as _bson_errors
 from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, \
+from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, errors as _errors, \
     threading as _threading, util as _util
 from . import _error, _field, _cache as _e_cache
 
@@ -668,7 +668,7 @@ class Entity(_ABC):
             first_save = False
 
         # After-save hook
-        self._after_save(first_save)
+        self._after_save(first_save, **kwargs)
         _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
         _events.fire('pytsite.odm.entity.save.' + self._model, entity=self, first_save=first_save)
 
@@ -695,12 +695,12 @@ class Entity(_ABC):
 
         return self
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Pre save hook.
         """
         pass
 
-    def _after_save(self, first_save: bool = False):
+    def _after_save(self, first_save: bool = False, **kwargs):
         """After save hook.
         """
         pass
@@ -711,7 +711,7 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if self._is_new:
-            raise _error.ForbidEntityDelete('New entities cannot be deleted.')
+            raise _errors.ForbidDeletion('New entities cannot be deleted.')
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
@@ -741,7 +741,7 @@ class Entity(_ABC):
                 child.f_clr('_parent').save()
 
         # After delete hook
-        self._after_delete()
+        self._after_delete(**kwargs)
         _events.fire('pytsite.odm.entity.delete', entity=self)
         _events.fire('pytsite.odm.entity.{}.delete'.format(self._model), entity=self)
 
@@ -754,7 +754,7 @@ class Entity(_ABC):
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug('[ENTITY DELETE FINISHED] {}, caller {}'.format(self.ref_str, caller))
+            _logger.debug('[ENTITY DELETION FINISHED] {}, caller {}'.format(self.ref_str, caller))
 
         return self
 
@@ -763,7 +763,7 @@ class Entity(_ABC):
         """
         pass
 
-    def _after_delete(self):
+    def _after_delete(self, **kwargs):
         """After delete hook.
         """
         pass
@@ -827,10 +827,10 @@ class Entity(_ABC):
     def __eq__(self, other) -> bool:
         """__eq__ overloading.
         """
-        if hasattr(other, 'ref') and self.ref == other.ref:
-            return True
+        if hasattr(other, 'ref'):
+            return self.ref == other.ref
 
-        return False
+        raise TypeError('{} cannot be compared with {}.'.format(type(self), type(other)))
 
     def __enter__(self):
         return self.lock()

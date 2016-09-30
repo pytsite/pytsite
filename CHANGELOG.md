@@ -1,5 +1,27 @@
 # PytSite Changelog
 
+## 0.91 (2016-09-30)
+### Added
+- New package: `errors`.
+- `content`: searching for authored content entities while user deletion.
+- `http_api`: support for '$theme' shortcut while package registration.
+
+### Changed
+- `assetman`: `tpl`'s globals renamed:
+    - `assetman_url()` to `asset_url()`;
+    - `assetman_css()` to `css_links()`;
+    - `assetman_js()` to `js_links()`;
+    - `assetman_inline()` to `inline_js()`.
+- `metatag`: `tpl`'s global `metatag_all()` renamed to `metatags()`.
+- `odm_ui`: all methods in `model.UIEntity` got prefix 'odm_'.
+
+### Fixed
+- `assetman`: error while adding non-permanent assets outside router's context.
+- `auth_storage_odm`: issuing events.
+- `browser`: `pytsite.responsive()` behavior.
+- `taxonomy`: incorrect language setting while modifying term via UI.
+
+
 ## 0.90.9 (2016-09-26)
 ### Fixed
 - `fb`: error while getting image URL in `content_export`'s driver.

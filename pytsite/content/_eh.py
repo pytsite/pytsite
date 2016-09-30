@@ -5,7 +5,7 @@ from shutil import rmtree as _rmtree
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, tpl as _tpl, \
     mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
-    comments as _comments, auth as _auth
+    comments as _comments, auth as _auth, errors as _errors
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -91,6 +91,21 @@ def comments_create_comment(comment: _comments.model.AbstractComment):
     body = _tpl.render(tpl_name, {'comment': comment, 'entity': entity})
     m_from = '{} <{}>'.format(comment.author.full_name, _mail.mail_from()[1])
     _mail.Message(entity.author.email, subject, body, m_from).send()
+
+
+def auth_user_delete(user: _auth.model.AbstractUser):
+    """'auth.user.delete' event handler.
+    """
+    for model in _api.get_models():
+        f = _api.find(model, language=None)
+        if f.mock.has_field('author'):
+            entity = f.eq('author', user).first()
+            if entity:
+                raise _errors.ForbidDeletion(_lang.t('pytsite.content@forbid_author_deletion', {
+                    'author': user.full_name,
+                    'content_model': model,
+                    'content_title': entity.f_get('title'),
+                }))
 
 
 def _mail_digest():

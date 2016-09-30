@@ -25,18 +25,6 @@ class ForbidEntityOperation(Exception):
     pass
 
 
-class ForbidEntityCreate(ForbidEntityOperation):
-    pass
-
-
-class ForbidEntityModify(ForbidEntityOperation):
-    pass
-
-
-class ForbidEntityDelete(ForbidEntityOperation):
-    pass
-
-
 class FieldNotDefined(Exception):
     pass
 

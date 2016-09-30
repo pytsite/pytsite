@@ -98,12 +98,12 @@ class Query:
                 arg = field.sanitize_finder_arg(arg)
 
         # Checking for argument type
-        if comparison_op == '$near':
-            if not isinstance(arg, (list, tuple)):
-                raise TypeError('$near agrument should be specified as a list or a tuple.')
-        if comparison_op == '$nearSphere':
-            if not isinstance(arg, _geo.Point):
-                raise TypeError('$near agrument should be specified as a geo point.')
+        if comparison_op == '$in' and not isinstance(arg, (list, tuple)):
+            arg = [arg]
+        elif comparison_op == '$near' and not isinstance(arg, (list, tuple)):
+            raise TypeError('$near agrument should be specified as a list or a tuple.')
+        elif comparison_op == '$nearSphere' and not isinstance(arg, _geo.Point):
+            raise TypeError('$near agrument should be specified as a geo point.')
 
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:
@@ -155,3 +155,6 @@ class Query:
 
     def __len__(self) -> int:
         return self._len
+
+    def __str__(self):
+        return str(self._criteria)

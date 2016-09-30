@@ -137,6 +137,10 @@ def find(model: str, **kwargs):
 
     # Language
     if _localization_enabled and f.mock.has_field('language'):
+        # DON'T change this construction!
+        # Language can be specified as str, None or can be not passed at all.
+        # If it specified, but it is None, then language must not take part in the query.
+        # If it not specified, current language should be used.
         if 'language' in kwargs:
             if kwargs['language'] is not None:
                 f.eq('language', kwargs['language'])
@@ -145,6 +149,8 @@ def find(model: str, **kwargs):
 
     # Status
     if f.mock.has_field('status'):
+        # DON'T change this construction!
+        # Works same as with language above.
         if 'status' in kwargs:
             if kwargs['status'] is not None:
                 f.eq('status', kwargs['status'])

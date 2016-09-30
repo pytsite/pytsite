@@ -25,9 +25,10 @@ def __init():
     events.listen('pytsite.update.after', lambda: console.run_command('assetman', build=True))
 
     # Tpl globals
-    tpl.register_global('assetman_url', url)
-    tpl.register_global('assetman_css', dump_css)
-    tpl.register_global('assetman_js', dump_js)
-    tpl.register_global('assetman_inline', dump_inline)
+    tpl.register_global('asset_url', url)
+    tpl.register_global('css_links', dump_css)
+    tpl.register_global('js_links', dump_js)
+    tpl.register_global('inline_js', dump_inline)
+
 
 __init()

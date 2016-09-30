@@ -2,7 +2,7 @@
 """
 from typing import Union as _Union
 from pytsite import tpl as _tpl, lang as _lang, http as _http, odm as _odm, logger as _logger, router as _router, \
-    admin as _admin, form as _form
+    admin as _admin, form as _form, errors as _errors
 from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -59,7 +59,7 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     entity.lock()
 
     # Let entity know about form submission
-    entity.ui_m_form_submit(frm)
+    entity.odm_ui_m_form_submit(frm)
 
     # Populate form values to entity
     for f_name, f_value in frm.values.items():
@@ -81,7 +81,7 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
 
     # Process 'special' redirect endpoint
     if frm.redirect == 'ENTITY_VIEW':
-        frm.redirect = entity.ui_view_url()
+        frm.redirect = entity.odm_ui_view_url()
 
     return _http.response.Redirect(frm.redirect)
 
@@ -115,19 +115,12 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
     try:
         # Delete entities
         for eid in ids:
-            entity = _api.dispense_entity(model, eid)
-
-            # Check permissions
-            if not entity.check_permissions('delete'):
-                raise _odm.error.ForbidEntityDelete('User does not have sufficient permissions.')
-
-            with entity:
-                entity.delete()
+            entity = _api.dispense_entity(model, eid).odm_ui_d_form_submit()
 
         _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
 
     # Entity deletion was forbidden
-    except _odm.error.ForbidEntityDelete as e:
+    except _errors.ForbidDeletion as e:
         _logger.error(str(e), exc_info=e)
         _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 

@@ -81,7 +81,7 @@ class ContentExport(_odm_ui.model.UIEntity):
         return self.f_get('add_tags')
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Hook.
         :type browser: pytsite.odm_ui._browser.Browser
         """
@@ -100,7 +100,7 @@ class ContentExport(_odm_ui.model.UIEntity):
             ('owner', 'pytsite.content_export@owner')
         ]
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Hook.
         """
         driver = _api.get_driver(self.driver)
@@ -125,13 +125,13 @@ class ContentExport(_odm_ui.model.UIEntity):
         return content_model, driver_desc, opts_desc, all_authors, w_images, max_age, enabled, \
             errors, paused_till, self.owner.full_name
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
         frm.reload_on_forward = True
         frm.steps = 2
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
         frm.add_widget(_widget.select.Checkbox(
@@ -219,7 +219,7 @@ class ContentExport(_odm_ui.model.UIEntity):
             frm.replace_widget('driver_opts', settings_widget)
             frm.add_rule('driver_opts', _validation.rule.NonEmpty())
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         """Get description for mass action form.
         """
         return _api.get_driver(self.driver).get_options_description(self.driver_opts)

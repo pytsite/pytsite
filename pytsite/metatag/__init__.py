@@ -14,7 +14,7 @@ def __init():
     events.listen('pytsite.router.dispatch', reset)
 
     tpl.register_global('metatag', dump)
-    tpl.register_global('metatag_all', dump_all)
+    tpl.register_global('metatags', dump_all)
     tpl.register_global('metatag_get', get)
 
 

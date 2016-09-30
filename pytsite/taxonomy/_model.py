@@ -1,18 +1,18 @@
 """Taxonomy Models.
 """
 from typing import Tuple as _Tuple
-from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form, reg as _reg
+from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form, reg as _reg, \
+    events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _localization_enabled = _reg.get('taxonomy.localization', True)
 
 
 class Term(_odm_ui.model.UIEntity):
-    """Taxonomy Term Model.
+    """Taxonomy Term Base Model.
     """
 
     def _setup_fields(self):
@@ -74,28 +74,39 @@ class Term(_odm_ui.model.UIEntity):
 
             value = value.strip()
             if not self.is_new:
+                # Sanitize CHANGED alias for EXISTING term
                 term = _api.find(self.model).eq('alias', value).first()
-                if not term or term.id != self.id:
+                if not term or term != self:
                     value = _api.sanitize_alias_string(self.model, value)
             else:
+                # Sanitize alias for NEW term
                 value = _api.sanitize_alias_string(self.model, value)
 
         elif field_name == 'language':
+            # Check if language code is correct
             if value not in _lang.langs():
                 raise ValueError("Language '{}' is not supported.".format(value))
 
         return super()._on_f_set(field_name, value, **kwargs)
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Hook.
         """
-        super()._pre_save()
+        super()._pre_save(**kwargs)
 
+        # Alias is mandatory
         if not self.f_get('alias'):
             self.f_set('alias', self.f_get('title'))
 
+        _events.fire('pytsite.taxonomy.term.pre_save', term=self)
+
+    def _pre_delete(self, **kwargs):
+        super()._pre_delete(**kwargs)
+
+        _events.fire('pytsite.taxonomy.term.pre_delete', term=self)
+
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Hook.
         """
         browser.data_fields = [
@@ -111,8 +122,8 @@ class Term(_odm_ui.model.UIEntity):
         if _localization_enabled:
             browser.finder_adjust = lambda finder: finder.eq('language', _lang.get_current())
 
-    def ui_browser_row(self) -> tuple:
-        """Get single UI browser row hook.
+    def odm_ui_browser_row(self) -> tuple:
+        """Hook.
         """
         return (
             self.f_get('title'),
@@ -121,7 +132,7 @@ class Term(_odm_ui.model.UIEntity):
             self.f_get('order'),
         )
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
         frm.add_widget(_widget.input.Text(
@@ -168,10 +179,10 @@ class Term(_odm_ui.model.UIEntity):
                 weight=900,
                 label=self.t('language'),
                 title=lang_title,
-                value=self.language if self.language else _lang.get_current(),
+                value=_lang.get_current() if self.is_new else self.language,
             ))
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         """Hook.
         """
-        return self.f_get('title')
+        return self.title

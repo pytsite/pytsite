@@ -56,6 +56,9 @@ def add(location: str, permanent: bool = False, collection: str = None, weight: 
         async: bool = False, defer: bool = False):
     """Add an asset.
     """
+    if not permanent and not _router.request():
+        raise RuntimeError('Non permanent assets only allowed while processing HTTP requests.')
+
     # Determine collection
     if not collection:
         collection = detect_collection(location)

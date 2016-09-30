@@ -44,7 +44,7 @@ class RouteAlias(_odm.model.Entity):
 
         return super()._on_f_set(field_name, value, **kwargs)
 
-    def _after_delete(self):
+    def _after_delete(self, **kwargs):
         """Hook.
         """
         _router.remove_path_alias(self.alias)

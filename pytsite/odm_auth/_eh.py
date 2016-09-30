@@ -1,6 +1,7 @@
 """PytSite ODM UI Event Handlers.
 """
-from pytsite import lang as _lang, odm as _odm, permissions as _permission, logger as _logger, auth as _auth
+from pytsite import lang as _lang, odm as _odm, permissions as _permission, logger as _logger, auth as _auth, \
+    errors as _errors
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -53,14 +54,14 @@ def odm_entity_pre_save(entity: _model.AuthorizableEntity):
     # Check current user's permissions to MODIFY entities
     if entity.is_new and not entity.check_permissions('create'):
         _logger.info('Current user login: {}'.format(_auth.get_current_user().login))
-        raise _odm.error.ForbidEntityCreate("Insufficient permissions to create entities of model '{}'.".
-                                            format(entity.model))
+        raise _errors.ForbidCreation("Insufficient permissions to create entities of model '{}'.".
+                                     format(entity.model))
 
     # Check current user's permissions to MODIFY entities
     elif not entity.is_new and not entity.check_permissions('modify'):
         _logger.info('Current user login: {}'.format(_auth.get_current_user().login))
-        raise _odm.error.ForbidEntityModify("Insufficient permissions to modify entity '{}:{}'.".
-                                            format(entity.model, entity.id))
+        raise _errors.ForbidModification("Insufficient permissions to modify entity '{}:{}'.".
+                                         format(entity.model, entity.id))
 
 
 def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
@@ -79,5 +80,5 @@ def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
     # Check current user's permissions to DELETE entities
     if not entity.check_permissions('delete'):
         _logger.debug('Current user login: {}'.format(_auth.get_current_user().login))
-        raise _odm.error.ForbidEntityDelete("Insufficient permissions to delete entity '{}:{}'.".
-                                            format(entity.model, entity.id))
+        raise _errors.ForbidDeletion("Insufficient permissions to delete entity '{}:{}'.".
+                                     format(entity.model, entity.id))

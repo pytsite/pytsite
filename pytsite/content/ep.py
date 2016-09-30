@@ -106,7 +106,7 @@ def view(args: dict, inp: dict):
     with entity:
         # Update entity's comments count
         _auth.switch_user_to_system()
-        entity.f_set('comments_count', _comments.get_all_comments_count(entity.ui_view_url())).save()
+        entity.f_set('comments_count', _comments.get_all_comments_count(entity.odm_ui_view_url())).save()
         _auth.restore_user()
 
     # Meta title

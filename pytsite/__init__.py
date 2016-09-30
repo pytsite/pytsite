@@ -35,7 +35,7 @@ def core_version_str() -> str:
     return '{}.{}.{}'.format(v[0], v[1], v[2])
 
 
-def __init():
+def _init():
     """Init wrapper.
     """
     from os import path, environ, getcwd
@@ -138,4 +138,4 @@ def __init():
     reg.put('metatag.favicon.href', 'img/favicon.png')
 
 
-__init()
+_init()

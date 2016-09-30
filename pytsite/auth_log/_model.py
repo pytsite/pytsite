@@ -60,7 +60,7 @@ class AuthLog(_odm_ui.model.UIEntity):
             pass
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -76,7 +76,7 @@ class AuthLog(_odm_ui.model.UIEntity):
             ('_created', 'pytsite.auth_log@created'),
         ]
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         user = ''

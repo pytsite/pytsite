@@ -25,17 +25,17 @@ class Block(_content.model.Base):
         return self.f_get('uid')
 
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
-        _content.model.Base.ui_browser_setup(browser)
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
+        _content.model.Base.odm_ui_browser_setup(browser)
         browser.data_fields = ('title', 'uid', 'author')
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         return self.title, self.uid, self.author.full_name
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
-        super().ui_m_form_setup_widgets(frm)
+        super().odm_ui_m_form_setup_widgets(frm)
 
         # ID
         frm.add_widget(_widget.input.Text(
@@ -46,7 +46,7 @@ class Block(_content.model.Base):
             required=True,
         ))
 
-    def ui_m_form_validate(self, frm: _form.Form):
+    def odm_ui_m_form_validate(self, frm: _form.Form):
         from . import _api, _error
 
         block_uid = frm.get_widget('uid').value

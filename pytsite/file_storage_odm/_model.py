@@ -28,7 +28,7 @@ class AnyFileODMEntity(_odm.model.Entity):
         self.define_field(_odm.field.Virtual('url'))
         self.define_field(_odm.field.Virtual('thumb_url'))
 
-    def _after_delete(self):
+    def _after_delete(self, **kwargs):
         """_after_delete() hook.
         """
         # Remove file from the storage
@@ -90,10 +90,10 @@ class ImageFileODMEntity(AnyFileODMEntity):
         self.define_field(_odm.field.Integer('height'))
         self.define_field(_odm.field.Dict('exif'))
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Hook.
         """
-        super()._pre_save()
+        super()._pre_save(**kwargs)
 
         # Read EXIF from file
         with open(self.f_get('local_path'), 'rb') as f:

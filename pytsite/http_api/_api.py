@@ -79,6 +79,8 @@ def register_package(alias: str, package: str):
     if alias in _packages:
         raise RuntimeError("Alias '{}' is already registered for package '{}'.".format(alias, _packages[alias]))
 
+    package = package.replace('$theme', 'app.themes.{}'.format(_reg.get('output.theme')))
+
     try:
         _import_module(package)
     except ImportError:

@@ -111,11 +111,11 @@ def sanitize_alias_string(model: str, s: str) -> str:
 
     itr = 0
     while True:
-        if not find(model).eq('alias', s).first():
+        if not find(model).eq('alias', s).count():
             return s
 
         itr += 1
         if itr == 1:
             s += '-1'
         else:
-            s = re.sub(r'-\d+$', '-' + str(itr), s)
+            s = re.sub('-\d+$', '-' + str(itr), s)

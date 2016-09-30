@@ -13,7 +13,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
     """
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui.Browser
@@ -21,7 +21,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         pass
 
     @classmethod
-    def ui_browser_search(cls, finder: _odm.Finder, query: str):
+    def odm_ui_browser_search(cls, finder: _odm.Finder, query: str):
         """Adjust ODM browser finder while performing search.
         """
         if finder.mock.has_text_index:
@@ -32,54 +32,60 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
                     finder.or_where(name, 'regex_i', query)
 
     @classmethod
-    def ui_browser_get_mass_action_buttons(cls) -> _Tuple[_Dict]:
+    def odm_ui_browser_mass_action_buttons(cls) -> _Tuple[_Dict]:
         """Get toolbar mass actions buttons data.
         """
         return ()
 
-    def ui_browser_row(self) -> _Tuple:
+    def odm_ui_browser_row(self) -> _Tuple:
         """Get single UI browser row.
         """
         return ()
 
     @classmethod
-    def ui_model_actions_enabled(cls) -> bool:
+    def odm_ui_model_actions_enabled(cls) -> bool:
         """Should the 'actions' column be visible in the entities browser.
         """
         return True
 
-    def ui_browser_entity_actions(self) -> _Tuple[_Dict]:
+    def odm_ui_browser_entity_actions(self) -> _Tuple[_Dict]:
         """Get actions buttons data for single data row.
         """
         return ()
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         """Get entity description on mass action forms.
         """
         if hasattr(self, 'id'):
             return str(self.id)
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
         pass
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
         pass
 
-    def ui_m_form_validate(self, frm: _form.Form):
+    def odm_ui_m_form_validate(self, frm: _form.Form):
         """Hook.
         """
         pass
 
-    def ui_m_form_submit(self, frm: _form.Form):
+    def odm_ui_m_form_submit(self, frm: _form.Form):
         """Hook.
         """
         pass
 
-    def ui_d_form_url(self, ajax: bool = False) -> str:
+    def odm_ui_d_form_submit(self):
+        """Hook.
+        """
+        with self as e:
+            e.delete()
+
+    def odm_ui_d_form_url(self, ajax: bool = False) -> str:
         if hasattr(self, 'model') and hasattr(self, 'id'):
             if ajax:
                 return _router.ep_url('pytsite.odm_ui@d_form_submit', {
@@ -95,7 +101,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         else:
             raise NotImplementedError('Not implemented yet.')
 
-    def ui_m_form_url(self, args: dict = None):
+    def odm_ui_m_form_url(self, args: dict = None):
         if hasattr(self, 'model') and hasattr(self, 'id'):
             if not args:
                 args = {}
@@ -111,16 +117,16 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         else:
             raise NotImplementedError('Not implemented yet.')
 
-    def ui_view_url(self) -> str:
+    def odm_ui_view_url(self) -> str:
         return ''
 
     @property
     def url(self) -> str:
-        return self.ui_view_url()
+        return self.odm_ui_view_url()
 
     @property
     def edit_url(self) -> str:
-        return self.ui_m_form_url()
+        return self.odm_ui_m_form_url()
 
     def as_jsonable(self, **kwargs) -> dict:
         r = super().as_jsonable(**kwargs)

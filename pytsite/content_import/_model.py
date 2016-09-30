@@ -85,7 +85,7 @@ class ContentImport(_odm_ui.model.UIEntity):
         return self.f_get('add_tags')
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Hook.
         :type browser: pytsite.odm_ui._browser.Browser
         """
@@ -102,7 +102,7 @@ class ContentImport(_odm_ui.model.UIEntity):
             ('owner', 'pytsite.content_import@owner'),
         ]
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         model = _content.get_model_title(self.content_model)
         driver = _api.get_driver(self.driver).get_description()
         driver_options = str(dict(self.driver_opts))
@@ -119,13 +119,13 @@ class ContentImport(_odm_ui.model.UIEntity):
 
         return model, driver, driver_options, content_author, enabled, errors, paused_till, owner
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
         frm.steps = 2
         frm.reload_on_forward = True
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Setup of a modification form.
         """
         frm.add_widget(_widget.select.Checkbox(
@@ -221,7 +221,7 @@ class ContentImport(_odm_ui.model.UIEntity):
             settings_widget.form_step = 2
             frm.add_widget(settings_widget)
 
-    def ui_m_form_submit(self, frm: _form.Form):
+    def odm_ui_m_form_submit(self, frm: _form.Form):
         """Hook.
         """
         driver_opts = {}

@@ -50,7 +50,7 @@ class Rate(_odm_ui.model.UIEntity):
         return self.f_get('rate')
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -63,15 +63,15 @@ class Rate(_odm_ui.model.UIEntity):
         ]
         browser.default_sort_field = 'date'
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return str(self.date), self.source, self.destination, str(self.rate)
 
-    def ui_mass_action_entity_description(self):
+    def odm_ui_mass_action_entity_description(self):
         return '{}, {} -&gt; {}, {}'.format(str(self.date), self.source, self.destination, str(self.rate))
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Modify form setup hook.
         """
         frm.add_widget(_widget.select.DateTime(

@@ -5,7 +5,7 @@ from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
     permissions as _permissions, http as _http, file as _file, file_storage_odm as _file_storage_odm, \
-    events as _events
+    events as _events, errors as _errors
 from . import _field
 
 __author__ = 'Alexander Shepetko'
@@ -30,16 +30,28 @@ class ODMRole(_odm_ui.model.UIEntity):
         """
         self.define_index([('name', _odm.I_ASC)], unique=True)
 
+    def _after_save(self, first_save: bool = False, **kwargs):
+        super()._after_save(first_save, **kwargs)
+
+        role = _auth.get_role(uid=str(self.id))
+
+        if first_save:
+            _events.fire('pytsite.auth.role.create', role=role)
+
+        _events.fire('pytsite.auth.role.save', role=role)
+
     def _pre_delete(self, **kwargs):
         """Hook.
         """
         # Check if the role is used by users
         for user in _auth.get_users():
             if user.has_role(self.f_get('name')):
-                raise _odm.error.ForbidEntityDelete(self.t('role_used_by_user', {'user': user.login}))
+                raise _errors.ForbidDeletion(self.t('role_used_by_user', {'user': user.login}))
+
+        _events.fire('pytsite.auth.role.delete', role=_auth.get_role(uid=str(self.id)))
 
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         browser.data_fields = [
             ('name', 'pytsite.auth_storage_odm@name'),
             ('description', 'pytsite.auth_storage_odm@description'),
@@ -48,7 +60,7 @@ class ODMRole(_odm_ui.model.UIEntity):
 
         browser.default_sort_field = 'name'
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         if self.f_get('name') == 'admin':
             return
 
@@ -66,14 +78,14 @@ class ODMRole(_odm_ui.model.UIEntity):
 
         return self.f_get('name'), _lang.t(self.f_get('description')), ' '.join(perms)
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
         # Admin role cannot be changed
         if self.f_get('name') == 'admin':
             raise _http.error.Forbidden()
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
         frm.add_widget(_widget.input.Text(
@@ -118,7 +130,7 @@ class ODMRole(_odm_ui.model.UIEntity):
         frm.add_widget(_widget.input.Hidden('permissions', value=''))
         frm.add_widget(perms_tabs)
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         """Get delete form description.
         """
         return _lang.t(self.f_get('description'))
@@ -152,30 +164,14 @@ class Role(_auth.model.AbstractRole):
         return self
 
     def save(self):
-        is_new = self._entity.is_new
-
-        if is_new:
-            _events.fire('pytsite.auth.role.pre_create', role=self)
-
-        _events.fire('pytsite.auth.role.pre_save', role=self)
-
         with self._entity as e:
             e.save()
-
-        _events.fire('pytsite.auth.role.save', role=self)
-
-        if is_new:
-            _events.fire('pytsite.auth.role.create', role=self)
 
         return self
 
     def delete(self):
-        _events.fire('pytsite.auth.role.pre_delete', role=self)
-
         with self._entity as e:
             e.delete()
-
-        _events.fire('pytsite.auth.role.delete', role=self)
 
         return self
 
@@ -271,10 +267,10 @@ class ODMUser(_odm_ui.model.UIEntity):
             cnt += 1
             nickname = s + '-' + str(cnt)
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Hook.
         """
-        super()._pre_save()
+        super()._pre_save(**kwargs)
 
         if not self.f_get('password'):
             self.f_set('password', '')
@@ -284,16 +280,30 @@ class ODMUser(_odm_ui.model.UIEntity):
             m.update(self.f_get('login').encode('UTF-8'))
             self.f_set('nickname', m.hexdigest())
 
-    def _after_save(self, first_save: bool = False):
+    def _after_save(self, first_save: bool = False, **kwargs):
+        super()._after_save(first_save, **kwargs)
+
         # Load user picture from Gravatar
         if not self.f_get('picture'):
             img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
             with self:
                 self.f_set('picture', _file.create(img_url)).save()
 
+        user = _auth.get_user(uid=str(self.id))
+
+        if first_save:
+            _events.fire('pytsite.auth.user.create', user=user)
+
+        _events.fire('pytsite.auth.user.save', user=user)
+
     def _pre_delete(self, **kwargs):
+
+        super()._pre_delete(**kwargs)
+
         if str(self.id) == _auth.get_current_user().uid:
-            raise _odm.error.ForbidEntityDelete(self.t('you_cannot_delete_yourself'))
+            raise _errors.ForbidDeletion(self.t('you_cannot_delete_yourself'))
+
+        _events.fire('pytsite.auth.user.delete', user=_auth.get_user(uid=str(self.id)))
 
     def _after_delete(self, **kwargs):
         """Hook.
@@ -303,7 +313,7 @@ class ODMUser(_odm_ui.model.UIEntity):
             pic.delete()
 
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         browser.data_fields = [
             ('login', 'pytsite.auth_storage_odm@login'),
             ('full_name', 'pytsite.auth_storage_odm@full_name', False),
@@ -318,7 +328,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         browser.default_sort_field = 'last_activity'
         browser.default_sort_order = 'desc'
 
-    def ui_browser_row(self) -> dict:
+    def odm_ui_browser_row(self) -> dict:
         yes = _lang.t('pytsite.auth_storage_odm@word_yes')
 
         login = '<a href="' + self.url + '">' + self.f_get('login') + '</a>'
@@ -343,10 +353,10 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         return login, full_name, roles, status, p_is_public, is_online, created, last_activity
 
-    def ui_view_url(self) -> str:
+    def odm_ui_view_url(self) -> str:
         return _router.ep_url('pytsite.auth@profile_view', {'nickname': self.f_get('nickname')})
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
         frm.area_footer_css += ' text-center'
@@ -354,7 +364,7 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         _metatag.t_set('title', self.t('profile_edit'))
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
         current_user = _auth.get_current_user()
@@ -541,7 +551,7 @@ class ODMUser(_odm_ui.model.UIEntity):
                     exclude_ids=self.id)
             ))
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         return '{} ({} {})'.format(self.f_get('login'), self.f_get('first_name'), self.f_get('last_name'))
 
     def check_permissions(self, action: str, user: _auth.model.AbstractUser = None) -> bool:
@@ -605,31 +615,14 @@ class User(_auth.model.AbstractUser):
         if self.is_system:
             raise RuntimeError('System user cannot be saved.')
 
-        is_new = self._entity.is_new
-
-        if is_new:
-            _events.fire('pytsite.auth.user.pre_create', user=self)
-
-        _events.fire('pytsite.auth.user.pre_save', user=self)
-
-        # Do actual save into storage
         with self._entity as e:
             e.save()
-
-        _events.fire('pytsite.auth.user.save', user=self)
-
-        if is_new:
-            _events.fire('pytsite.auth.user.create', user=self)
 
         return self
 
     def delete(self):
-        _events.fire('pytsite.auth.user.pre_delete', user=self)
-
         with self._entity as e:
             e.delete()
-
-        _events.fire('pytsite.auth.user.delete', user=self)
 
         return self
 

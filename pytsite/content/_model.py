@@ -7,7 +7,7 @@ from frozendict import frozendict as _frozendict
 from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, route_alias as _route_alias, \
     file as _file, ckeditor as _ckeditor, odm as _odm, widget as _widget, validation as _validation, \
     html as _html, router as _router, lang as _lang, assetman as _assetman, events as _events, mail as _mail, \
-    tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments, \
+    tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments, errors as _errors, \
     auth_storage_odm as _auth_storage_odm, file_storage_odm as _file_storage_odm
 
 
@@ -184,21 +184,24 @@ class Section(_taxonomy.model.Term):
 
     def _pre_delete(self, **kwargs):
         from . import _api
-        for m in _api.get_models():
-            f = _api.find(m, status=None, check_publish_time=False)
+
+        # Search for content entities which use this section
+        for content_model in _api.get_models():
+            f = _api.find(content_model, status=None, check_publish_time=False)
             if not f.mock.has_field('section'):
                 continue
             r_entity = f.eq('section', self).first()
             if r_entity:
                 error_args = {'model': r_entity.model, 'title': r_entity.f_get('title')}
-                raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
+                raise _errors.ForbidDeletion(_lang.t('pytsite.content@referenced_entity_exists', error_args))
 
+        # Search for tags which use this section
         f = _taxonomy.find('tag')
         if f.mock.has_field('sections'):
             tag = f.inc('sections', [self]).first()
             if tag:
                 error_args = {'model': tag.model, 'title': tag.f_get('title')}
-                raise _odm.error.ForbidEntityDelete(_lang.t('pytsite.content@referenced_entity_exists', error_args))
+                raise _errors.ForbidDeletion(_lang.t('pytsite.content@referenced_entity_exists', error_args))
 
 
 class Tag(_taxonomy.model.Term):
@@ -212,10 +215,10 @@ class Tag(_taxonomy.model.Term):
         self.define_field(_odm.field.RefsUniqueList('sections', model='section'))
 
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Hook.
         """
-        super().ui_browser_setup(browser)
+        super().odm_ui_browser_setup(browser)
         browser.default_sort_field = 'weight'
         browser.default_sort_order = _odm.I_DESC
 
@@ -326,10 +329,10 @@ class Base(_odm_ui.model.UIEntity):
 
         return super()._on_f_set(field_name, value, **kwargs)
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Hook.
         """
-        super()._pre_save()
+        super()._pre_save(**kwargs)
 
         current_user = _auth.get_current_user()
 
@@ -365,13 +368,13 @@ class Base(_odm_ui.model.UIEntity):
         _events.fire('pytsite.content.entity.pre_save', entity=self)
         _events.fire('pytsite.content.entity.{}.pre_save.'.format(self.model), entity=self)
 
-    def _after_save(self, first_save: bool = False):
+    def _after_save(self, first_save: bool = False, **kwargs):
         """Hook.
         """
         _events.fire('pytsite.content.entity.save', entity=self)
         _events.fire('pytsite.content.entity.{}.save'.format(self.model), entity=self)
 
-    def _after_delete(self):
+    def _after_delete(self, **kwargs):
         """Hook.
         """
         # Delete all attached images
@@ -380,7 +383,7 @@ class Base(_odm_ui.model.UIEntity):
                 img.delete()
 
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Setup ODM UI browser hook.
         """
         # Filter by language
@@ -390,12 +393,12 @@ class Base(_odm_ui.model.UIEntity):
         browser.default_sort_field = '_modified'
         browser.insert_data_field('title', 'pytsite.content@title')
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         return self.title,
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
         # Title
@@ -456,7 +459,7 @@ class Base(_odm_ui.model.UIEntity):
                     required=True,
                 ))
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         """Get delete form description.
         """
         return self.title
@@ -484,18 +487,7 @@ class Base(_odm_ui.model.UIEntity):
             r['body'] = self.body
 
         if self.has_field('author'):
-            r['author'] = {
-                'uid': self.author.uid,
-                'nickname': self.author.nickname,
-                'first_name': self.author.first_name,
-                'last_name': self.author.last_name,
-                'full_name': self.author.full_name,
-                'url': self.author.profile_view_url,
-                'picture': self.author.picture.as_jsonable(
-                    thumb_width=kwargs.get('author_picture_size', 100),
-                    thumb_height=kwargs.get('author_picture_size', 100),
-                ),
-            }
+            r['author'] = self.author.as_jsonable()
 
         return r
 
@@ -550,14 +542,14 @@ class Content(Base):
     def tags(self) -> _Tuple[Tag]:
         return self.f_get('tags', sort_by='weight', sort_reverse=True)
 
-    def ui_m_form_url(self, args: dict = None) -> str:
+    def odm_ui_m_form_url(self, args: dict = None) -> str:
         return _router.ep_url('pytsite.content@modify', {
             'model': self.model,
             'id': '0' if self.is_new else str(self.id),
             '__redirect': 'ENTITY_VIEW',
         })
 
-    def ui_view_url(self) -> str:
+    def odm_ui_view_url(self) -> str:
         if self.is_new:
             raise RuntimeError("Cannot generate view URL for non-saved entity of model '{}'.".format(self.model))
 
@@ -650,10 +642,10 @@ class Content(Base):
         else:
             return super()._on_f_get(field_name, value, **kwargs)
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Hook.
         """
-        super()._pre_save()
+        super()._pre_save(**kwargs)
 
         # Route alias is required
         if not self.route_alias:
@@ -669,10 +661,10 @@ class Content(Base):
                         tag.f_add('sections', self.section).save()
                         _auth.restore_user()
 
-    def _after_save(self, first_save: bool = False):
+    def _after_save(self, first_save: bool = False, **kwargs):
         """Hook.
         """
-        super()._after_save(first_save)
+        super()._after_save(first_save, **kwargs)
 
         # Update route alias target which has been created in self._pre_save()
         if self.route_alias.target == 'NONE':
@@ -727,7 +719,7 @@ class Content(Base):
                     with referenced:
                         referenced.f_set('localization_' + self.language, None).save()
 
-    def _after_delete(self):
+    def _after_delete(self, **kwargs):
         """Hook.
         """
         super()._after_delete()
@@ -749,10 +741,10 @@ class Content(Base):
             self.route_alias.delete()
 
     @classmethod
-    def ui_browser_setup(cls, browser: _odm_ui.Browser):
+    def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Setup ODM UI browser hook.
         """
-        Base.ui_browser_setup(browser)
+        super().odm_ui_browser_setup(browser)
 
         mock = _odm.dispense(browser.model)
 
@@ -785,7 +777,7 @@ class Content(Base):
         if mock.has_field('author'):
             browser.insert_data_field('author', 'pytsite.content@author')
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         # Title
@@ -832,15 +824,15 @@ class Content(Base):
 
         return tuple(r)
 
-    def ui_m_form_setup(self, frm: _form.Form):
+    def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
         """
         _assetman.add('pytsite.content@js/content.js')
 
-    def ui_m_form_setup_widgets(self, frm: _form.Form):
+    def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
-        super().ui_m_form_setup_widgets(frm)
+        super().odm_ui_m_form_setup_widgets(frm)
 
         current_user = _auth.get_current_user()
 
@@ -997,7 +989,7 @@ class Content(Base):
         if self.has_field('starred'):
             r['starred'] = self.starred
         if self.has_field('section'):
-            r['section'] = self.section
+            r['section'] = self.section.as_jsonable()
         if self.has_field('description'):
             r['description'] = self.description
         if self.has_field('tags'):

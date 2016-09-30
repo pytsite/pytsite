@@ -66,6 +66,7 @@ def _init():
     events.listen('pytsite.cron.daily', _eh.cron_daily)
     events.listen('pytsite.cron.weekly', _eh.cron_weekly)
     events.listen('pytsite.comments.create_comment', _eh.comments_create_comment)
+    events.listen('pytsite.auth.user.delete', _eh.auth_user_delete)
 
     # Settings
     settings.define('content', _settings_form.Form, __name__ + '@content', 'fa fa-glass', 'content.settings.manage')

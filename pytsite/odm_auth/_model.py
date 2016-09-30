@@ -30,8 +30,8 @@ class AuthorizableEntity(_odm.model.Entity):
         from . import _api
         return _api.check_permissions(action, self.model, self.id, user)
 
-    def _pre_save(self):
-        super()._pre_save()
+    def _pre_save(self, **kwargs):
+        super()._pre_save(**kwargs)
 
         # If entity's owner was deleted, set it to first administrator
         for f_name in 'author', 'owner':

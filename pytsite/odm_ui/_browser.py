@@ -66,7 +66,7 @@ class Browser(_widget.misc.BootstrapTable):
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # Additional toolbar buttons
-        for btn_data in self._model_class.ui_browser_get_mass_action_buttons():
+        for btn_data in self._model_class.odm_ui_browser_mass_action_buttons():
             ep = btn_data.get('ep')
             url = _router.ep_url(ep) if ep else '#'
             cls = 'btn btn-{} mass-action-button'.format(btn_data.get('color', 'default'))
@@ -83,7 +83,7 @@ class Browser(_widget.misc.BootstrapTable):
         ])
 
         # Call model's class to perform setup tasks
-        self._model_class.ui_browser_setup(self)
+        self._model_class.odm_ui_browser_setup(self)
 
         # Head columns
         if not self.data_fields:
@@ -108,7 +108,7 @@ class Browser(_widget.misc.BootstrapTable):
 
     def _build_head_row(self, row: _html.Tr):
         # Actions column
-        if self._model_class.ui_model_actions_enabled():
+        if self._model_class.odm_ui_model_actions_enabled():
             row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
     def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str]=None,
@@ -137,7 +137,7 @@ class Browser(_widget.misc.BootstrapTable):
 
         # Search
         if search:
-            self._model_class.ui_browser_search(finder, search)
+            self._model_class.odm_ui_browser_search(finder, search)
 
         # Counting total
         r['total'] = finder.count()
@@ -157,7 +157,7 @@ class Browser(_widget.misc.BootstrapTable):
         # Iterate over result and get content for table rows
         cursor = finder.skip(offset).get(limit)
         for entity in cursor:
-            row = entity.ui_browser_row()
+            row = entity.odm_ui_browser_row()
 
             if row is None:
                 continue
@@ -173,9 +173,9 @@ class Browser(_widget.misc.BootstrapTable):
                 cell[f_name] = cell_content
 
             # Action buttons
-            if self._model_class.ui_model_actions_enabled():
+            if self._model_class.odm_ui_model_actions_enabled():
                 actions = self._get_entity_action_buttons(entity)
-                for btn_data in entity.ui_browser_entity_actions():
+                for btn_data in entity.odm_ui_browser_entity_actions():
                     color = 'btn btn-xs btn-' + btn_data.get('color', 'default')
                     title = btn_data.get('title', '')
                     ep = btn_data.get('ep')

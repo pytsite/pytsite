@@ -33,11 +33,8 @@ pytsite.responsive = function () {
         }
     }
 
-    function getImgContainer(cont) {
+    function getImgElement(cont) {
         var img_url = cont.data('url');
-        if (typeof img_url == 'undefined')
-            return cont;
-
         var alt = cont.data('alt');
         var enlarge = cont.data('enlarge');
         var css = cont.attr('class');
@@ -57,14 +54,14 @@ pytsite.responsive = function () {
             src = img_url.replace('/0/0/', '/0/' + new_height + '/');
 
         return '<img class="' + css + '" src="' + src + '" alt="' + alt + '" data-path="' + img_url + '"' +
-            'data-alt="' + alt + '" data-aspect-ratio="' + aspect_ratio + '"' + 'data-enlarge="' + enlarge + '"' +
-            'data-width="' + orig_width + '"' + 'data-height="' + orig_height + '"' + '>';
+            ' data-alt="' + alt + '" data-aspect-ratio="' + aspect_ratio + '"' + ' data-enlarge="' + enlarge + '"' +
+            ' data-width="' + orig_width + '"' + ' data-height="' + orig_height + '"' + '>';
     }
 
-    // Replace images
-    $('img.pytsite-img,span.pytsite-img').each(function () {
+    // Replace image placeholders
+    $('span.pytsite-img').each(function () {
         $(this).replaceWith(function () {
-            return getImgContainer($(this));
+            return getImgElement($(this));
         });
     });
 
@@ -82,6 +79,4 @@ pytsite.responsive = function () {
 
 $(function () {
     pytsite.responsive();
-
-    $(window).resize($.debounce(1000, pytsite.responsive));
 });

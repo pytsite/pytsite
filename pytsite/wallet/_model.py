@@ -4,7 +4,7 @@ from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, widget as _widget, \
-    auth_storage_odm as _auth_storage_odm
+    errors as _errors
 from . import _error, _widget as _wallet_widget
 
 __author__ = 'Alexander Shepetko'
@@ -82,10 +82,10 @@ class Account(_odm_ui.model.UIEntity):
         if not kwargs.get('force'):
             f = _odm.find('wallet_transaction').or_eq('source', self).or_eq('destination', self)
             if f.count():
-                raise _odm.error.ForbidEntityDelete('Cannot delete account due to its usage in transaction(s).')
+                raise _errors.ForbidDeletion('Cannot delete account due to its usage in transaction(s).')
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -98,7 +98,7 @@ class Account(_odm_ui.model.UIEntity):
             ('owner', 'pytsite.wallet@owner'),
         ]
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         balance = _currency.fmt(self.currency, self.balance)
@@ -106,10 +106,10 @@ class Account(_odm_ui.model.UIEntity):
 
         return str(self.id), self.title, self.currency, balance, owner.full_name
 
-    def ui_mass_action_entity_description(self) -> str:
+    def odm_ui_mass_action_entity_description(self) -> str:
         return '{} ({}, {})'.format(self.title, str(self.id), self.currency)
 
-    def ui_m_form_setup_widgets(self, frm):
+    def odm_ui_m_form_setup_widgets(self, frm):
         """Modify form setup hook.
 
         :type frm: pytsite.form.Form
@@ -216,10 +216,10 @@ class Transaction(_odm_ui.model.UIEntity):
 
         return super()._on_f_set(field_name, value, **kwargs)
 
-    def _pre_save(self):
+    def _pre_save(self, **kwargs):
         """Hook.
         """
-        super()._pre_save()
+        super()._pre_save(**kwargs)
 
         if self.is_new and self.exchange_rate == 1:
             self.f_set('exchange_rate', _currency.get_rate(self.source.currency, self.destination.currency))
@@ -229,7 +229,7 @@ class Transaction(_odm_ui.model.UIEntity):
         :param force: only for testing purposes.
         """
         if not kwargs.get('force'):
-            raise _odm.error.ForbidEntityDelete('Wallet transactions cannot be deleted.')
+            raise _errors.ForbidDeletion('Wallet transactions cannot be deleted.')
 
     def cancel(self):
         if self.state != 'committed':
@@ -241,7 +241,7 @@ class Transaction(_odm_ui.model.UIEntity):
         return self
 
     @classmethod
-    def ui_browser_setup(cls, browser):
+    def odm_ui_browser_setup(cls, browser):
         """Setup ODM UI browser hook.
 
         :type browser: pytsite.odm_ui._browser.Browser
@@ -257,13 +257,13 @@ class Transaction(_odm_ui.model.UIEntity):
         browser.default_sort_field = 'time'
 
     @classmethod
-    def ui_browser_get_mass_action_buttons(cls) -> tuple:
+    def odm_ui_browser_mass_action_buttons(cls) -> tuple:
         return {'ep': 'pytsite.wallet@transactions_cancel',
                 'icon': 'undo',
                 'color': 'danger',
                 'title': Transaction.t('odm_ui_form_title_delete_wallet_transaction')},
 
-    def ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> tuple:
         """Get single UI browser row hook.
         """
         time = self.f_get('time', fmt='pretty_date_time')
@@ -284,7 +284,7 @@ class Transaction(_odm_ui.model.UIEntity):
 
         return time, self.description, source, destination, amount, state
 
-    def ui_browser_entity_actions(self) -> tuple:
+    def odm_ui_browser_entity_actions(self) -> tuple:
         if self.state == 'committed':
             return {'icon': 'undo',
                     'ep': 'pytsite.wallet@transactions_cancel',
@@ -293,7 +293,7 @@ class Transaction(_odm_ui.model.UIEntity):
 
         return ()
 
-    def ui_m_form_setup_widgets(self, frm):
+    def odm_ui_m_form_setup_widgets(self, frm):
         """Modify form setup hook.
 
         :type frm: pytsite.form.Form
