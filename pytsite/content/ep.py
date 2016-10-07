@@ -4,6 +4,7 @@ from datetime import datetime as _datetime
 from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, \
     router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
     lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments, reg as _reg
+from . import _widget as _content_widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -70,8 +71,10 @@ def index(args: dict, inp: dict):
         if entity.check_permissions('view'):
             entities.append(entity)
 
-    args['entities'] = entities
-    args['pager'] = pager
+    args.update({
+        'entities': entities,
+        'pager': pager,
+    })
 
     return _router.call_ep('$theme@content_' + model + '_index', args, inp)
 
@@ -157,7 +160,10 @@ def view(args: dict, inp: dict):
 
     _assetman.add('pytsite.content@js/content.js')
 
-    args['entity'] = entity
+    args.update({
+        'entity': entity,
+        'entity_tag_cloud': _content_widget.EntityTagCloud('entity-tag-cloud', entity=entity)
+    })
 
     return _router.call_ep('$theme@content_' + model + '_view', args, inp)
 

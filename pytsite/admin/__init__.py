@@ -9,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     """Init wrapper.
     """
     from pytsite import assetman, tpl, lang, router, robots, events, browser, permissions
@@ -37,14 +37,17 @@ def __init():
     # Dashboard route
     router.add_rule(bp, __name__ + '@dashboard')
 
+    # Tpl globals
+    tpl.register_global('admin_url', base_path)
+
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 
     # robots.txt rules
-    robots.disallow(base_path() + '/')
+    robots.disallow(bp + '/')
 
     # Event handlers
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
 
 
 # Initialization
-__init()
+_init()

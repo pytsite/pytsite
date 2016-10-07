@@ -74,6 +74,8 @@ class AnyFile(_odm.field.Abstract):
             if self._allowed_mime_group != '*' and not self._file.mime.startswith(self._allowed_mime_group):
                 raise TypeError("File MIME '{}' is not allowed here.".format(self._file.mime))
 
+            return self._file.uid
+
         except _file.error.FileNotFound:
             return None
 

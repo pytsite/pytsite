@@ -1,8 +1,10 @@
 {% extends reg_get('output.base_tpl') %}
 
 {% block content %}
-    <h1>{{ title | e }}</h1>
-    {% if traceback and reg_get('debug') %}
-        <pre>{{ traceback | e }}</pre>
-    {% endif %}
+    <div id="http-exception">
+        <h1 class="page-title">{{ title | e }}</h1>
+        {% if traceback and reg_get('debug') %}
+            <pre>{{ traceback | e }}</pre>
+        {% endif %}
+    </div>
 {% endblock %}

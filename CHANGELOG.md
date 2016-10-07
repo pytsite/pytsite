@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.91.2 (2016-10-07)
+### Added
+- `admin`: new `tpl`'s global: `admin_url()`.
+- `content`: entity view endpoint's argument: `entity_tag_cloud`.
+- `router`: CSS classes and ID in exception's template.
+
+### Fixed
+- `browser`: Twitter Bootstrap's add-ons.
+- `content`: user context while content generation.
+- `file_storage_odm`: missed `field.AnyFile._on_set()` return value.
+- `odm`:
+    - `__eq__`'s misbehaviour in `model.Entity`;
+    - empty query checking in `Query.remove_criteria()`.
+- `util`: improper processing of whitespaces by some regular expressions.
+- `validation`: improper processing of whitespaces by some regular expressions.
+
+
 ## 0.91.1 (2016-09-30)
 ### Fixed
 - `util`: newlines not deleted anymore while processing HTML code by related functions. 

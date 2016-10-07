@@ -1,4 +1,4 @@
-from typing import Iterable as _Iterable, Any as _Any
+from typing import Any as _Any, Union as _Union
 from bson import ObjectId as _ObjectId
 from pytsite import lang as _lang
 from . import _model, _geo, _field
@@ -78,6 +78,17 @@ class Query:
         else:
             return 'none'
 
+    def _sanitize_object_ids(self, ids: _Union[str, list, tuple]) -> _Union[_ObjectId, list]:
+        if isinstance(ids, str):
+            return _ObjectId(ids)
+        elif isinstance(ids, (list, tuple)):
+            clean_arg = []
+            for i in ids:
+                clean_arg.append(self._sanitize_object_ids(i))
+            return clean_arg
+        else:
+            TypeError('{} cannot be converted to object id(s).'.format(type(ids)))
+
     def add_criteria(self, logical_op: str, field_name: str, comparison_op: str, arg: _Any):
         """Add find criteria.
         """
@@ -87,9 +98,7 @@ class Query:
         # It is possible to perform checks only for top-level fields
         if field_name.find('.') < 0:
             if field_name == '_id':
-                # Convert str to ObjectId
-                if isinstance(arg, str):
-                    arg = _ObjectId(arg)
+                arg = self._sanitize_object_ids(arg)
             else:
                 # Get field object to perform check
                 field = self._entity_mock.get_field(field_name)
@@ -144,7 +153,10 @@ class Query:
             if field_name not in item:
                 clean.append(item)
 
-        self._criteria[logical_op] = clean
+        if clean:
+            self._criteria[logical_op] = clean
+        else:
+            del self._criteria[logical_op]
 
         self._len -= 1
 

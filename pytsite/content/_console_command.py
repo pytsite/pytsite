@@ -53,6 +53,8 @@ class Generate(_console.command.Abstract):
     def execute(self, args: tuple = (), **kwargs):
         """Execute teh command.
         """
+        _auth.switch_user_to_system()
+
         model = kwargs['model']
 
         # Checking if the content model registered

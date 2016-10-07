@@ -81,7 +81,7 @@ class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
     def __str__(self) -> str:
         self.close()
 
-        return _re.sub('\s{2,}', ' ', ''.join(self._content))
+        return _re.sub(' {2,}', ' ', ''.join(self._content))
 
 
 class _HTMLTrimParser(_python_html_parser.HTMLParser):
@@ -177,10 +177,10 @@ def strip_html_tags(s: str, safe_tags: str = None) -> str:
 def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = None, remove_tags: str = None) -> str:
     """Remove tags and attributes except safe_tags and empty tags is necessary.
     """
-    safe_tags = 'a:href:target:rel|abbr|address|b|blockquote|br|cite|code|col|colgroup|dd|del|details|dfn|dl|dt|em|' \
-                'figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src:width:height|img:src:alt|ins|kbd|li|mark|ol|' \
-                'output|p|param|pre|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|tfoot|th|thead|' \
-                'time|tr|u|ul|var|wbr'
+    safe_tags = 'a:href:target:rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
+                'dt|em|figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src:width:height|img:src:alt|ins|kbd|li|mark|' \
+                'ol|output|p|param|pre:class|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|' \
+                'tfoot|th|thead|time|tr|u|ul|var|wbr'
 
     if remove_tags:
         for remove_tag in remove_tags.split('|'):
@@ -220,7 +220,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
 
             s = s_cleaned
 
-        s = _re.sub('\s{2,}', ' ', s)
+        s = _re.sub(' {2,}', ' ', s)
 
         # Remove root '<div>' tag which can be added by lxml
         if s.startswith('<div>'):

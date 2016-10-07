@@ -827,7 +827,9 @@ class Entity(_ABC):
     def __eq__(self, other) -> bool:
         """__eq__ overloading.
         """
-        if hasattr(other, 'ref'):
+        if isinstance(other, _DBRef):
+            return self.ref == other
+        elif hasattr(other, 'ref'):
             return self.ref == other.ref
 
         raise TypeError('{} cannot be compared with {}.'.format(type(self), type(other)))

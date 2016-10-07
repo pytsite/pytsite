@@ -86,7 +86,7 @@ class TagCloud(_taxonomy.widget.Cloud):
 
 
 class EntityTagCloud(_taxonomy.widget.Cloud):
-    """Tags Cloud of the Entity.
+    """Tag Cloud of the Entity.
     """
 
     def __init__(self, uid: str, **kwargs):
