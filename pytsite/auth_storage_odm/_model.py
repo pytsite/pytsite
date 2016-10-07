@@ -224,6 +224,17 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_index([('acs_token', _odm.I_ASC)])
         self.define_index([('last_sign_in', _odm.I_DESC)])
 
+    def _on_f_get(self, field_name: str, value, **kwargs):
+        if field_name == 'picture' and not self.get_field('picture').get_val():
+            # Load user picture from Gravatar
+            img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
+            img = _file.create(img_url)
+            with self:
+                self.f_set('picture', img).save()
+            value = img
+
+        return value
+
     def _on_f_set(self, field_name: str, value, **kwargs):
         """Hook.
         """
@@ -282,12 +293,6 @@ class ODMUser(_odm_ui.model.UIEntity):
 
     def _after_save(self, first_save: bool = False, **kwargs):
         super()._after_save(first_save, **kwargs)
-
-        # Load user picture from Gravatar
-        if not self.f_get('picture'):
-            img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
-            with self:
-                self.f_set('picture', _file.create(img_url)).save()
 
         user = _auth.get_user(uid=str(self.id))
 

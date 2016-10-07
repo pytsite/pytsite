@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.91.3 (2016-10-07)
+### Fixed
+- `auth_storage_odm`: default user picture acquiring.
+- `odm`: 
+    - processing `ObjectId` arguments in `Query`;
+    - casting of `$nin` operator's arguments.
+
+
 ## 0.91.2 (2016-10-07)
 ### Added
 - `admin`: new `tpl`'s global: `admin_url()`.

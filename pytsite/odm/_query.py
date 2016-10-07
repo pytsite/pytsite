@@ -1,7 +1,7 @@
 from typing import Any as _Any, Union as _Union
 from bson import ObjectId as _ObjectId
 from pytsite import lang as _lang
-from . import _model, _geo, _field
+from . import _model, _geo
 
 
 class Query:
@@ -79,12 +79,15 @@ class Query:
             return 'none'
 
     def _sanitize_object_ids(self, ids: _Union[str, list, tuple]) -> _Union[_ObjectId, list]:
-        if isinstance(ids, str):
+        if isinstance(ids, _ObjectId):
+            return ids
+        elif isinstance(ids, str):
             return _ObjectId(ids)
         elif isinstance(ids, (list, tuple)):
             clean_arg = []
             for i in ids:
                 clean_arg.append(self._sanitize_object_ids(i))
+
             return clean_arg
         else:
             TypeError('{} cannot be converted to object id(s).'.format(type(ids)))
@@ -107,7 +110,7 @@ class Query:
                 arg = field.sanitize_finder_arg(arg)
 
         # Checking for argument type
-        if comparison_op == '$in' and not isinstance(arg, (list, tuple)):
+        if comparison_op in ('$in', '$nin') and not isinstance(arg, (list, tuple)):
             arg = [arg]
         elif comparison_op == '$near' and not isinstance(arg, (list, tuple)):
             raise TypeError('$near agrument should be specified as a list or a tuple.')
