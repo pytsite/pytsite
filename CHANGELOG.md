@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.91.4 (2016-10-09)
+### Fixed
+- `disqus`: comments number calculating.
+- `file_storage_odm`: processing of invalid entity IDs by driver's `get()` method.
+
+
 ## 0.91.3 (2016-10-07)
 ### Fixed
 - `auth_storage_odm`: default user picture acquiring.

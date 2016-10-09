@@ -3,6 +3,7 @@
 import os as _os
 import re as _re
 import shutil as _shutil
+import bson.errors as _bson_errors
 from mimetypes import guess_extension as _guess_extension
 from pytsite import file as _file, reg as _reg, util as _util, odm as _odm
 from . import _model
@@ -91,7 +92,11 @@ class Driver(_file.driver.Abstract):
             raise ValueError('Invalid file UID format: {}.'.format(uid))
 
         # Search fo ODM entity in appropriate collection
-        odm_entity = _odm.find(uid_split[0]).eq('_id', uid_split[1]).first()
+        try:
+            odm_entity = _odm.find(uid_split[0]).eq('_id', uid_split[1]).first()
+        except _bson_errors.InvalidId:
+            raise _file.error.FileNotFound('ODM entity is not found for file {}.'.format(uid))
+
         if not odm_entity:
             raise _file.error.FileNotFound('ODM entity is not found for file {}.'.format(uid))
 

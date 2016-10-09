@@ -30,13 +30,13 @@ class Driver(_comments.driver.Abstract):
 
         try:
             r = _requests.get('https://disqus.com/api/3.0/forums/listThreads.json', {
-                'api_secret': _settings.get('disqus.api_secret'),
+                'api_secret': _settings.get('disqus.secret_key'),
                 'forum': _settings.get('disqus.short_name'),
-                'thread': 'link:' + thread_uid,
+                'thread': 'ident:' + thread_uid,
                 'limit': 1,
             }).json()
 
-            if r['code'] == 0 and r['response'] and r['response'][0]['link'] == thread_uid:
+            if r['code'] == 0 and r['response']:
                 count = r['response'][0]['posts']
 
         except Exception as e:
