@@ -1,6 +1,5 @@
 """Tumblr Auth Widget.
 """
-import pytsite.widget._base
 from pytsite import widget as _widget, html as _html, lang as _lang, router as _router
 from ._session import Session as TumblrSession, AuthSession as TumblrAuthSession
 

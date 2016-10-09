@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.91.5 (2016-10-09)
+### Fixed
+- `fb`: invalid setting of metatag 'fb:app_id'.
+- `tumblr`: error while getting image's URL.
+
+
 ## 0.91.4 (2016-10-09)
 ### Fixed
 - `disqus`: comments number calculating.

@@ -2,7 +2,7 @@
 """
 from frozendict import frozendict as _frozendict
 from pytsite import content as _content, content_export as _content_export, widget as _widget, logger as _logger, \
-    form as _form, router as _router
+     router as _router
 from ._widget import Auth as _TumblrAuthWidget
 from ._session import Session as _Session
 
@@ -56,7 +56,7 @@ class Driver(_content_export.AbstractDriver):
             tags = exporter.add_tags  # type: tuple
             tags += tuple(t.title for t in entity.tags)
 
-            thumb_url = entity.images[0].get_url(640) if entity.images else None
+            thumb_url = entity.images[0].get_url(width=640) if entity.images else None
             author = entity.author.full_name
             s.blog_post_link(opts['user_blog'], entity.url, entity.title, entity.description, thumb_url,
                              author=author, tags=','.join(tags))
