@@ -1,9 +1,14 @@
 # PytSite Changelog
 
+## 0.91.6 (2016-10-10)
+### Fixed
+- `lj`: error while getting image's URL in `content_export`'s driver.
+
+
 ## 0.91.5 (2016-10-09)
 ### Fixed
 - `fb`: invalid setting of metatag 'fb:app_id'.
-- `tumblr`: error while getting image's URL.
+- `tumblr`: error while getting image's URL in `content_export`'s driver.
 
 
 ## 0.91.4 (2016-10-09)
