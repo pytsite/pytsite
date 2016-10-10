@@ -168,7 +168,9 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
     user = get_storage_driver().get_user(login, nickname, access_token, uid)
 
     if check_status and user.status != 'active':
+        switch_user_to_system()
         sign_out(user)
+        restore_user()
         raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
 
     return user
@@ -308,9 +310,10 @@ def sign_out(user: _model.AbstractUser):
         driver.sign_out(user)
 
     # Remove access token
-    _access_tokens.rm(user.access_token)
-    user.access_token = ''
-    user.save()
+    if user.access_token:
+        _access_tokens.rm(user.access_token)
+        user.access_token = ''
+        user.save()
 
     # Remove session's data
     if _router.session().get('pytsite.auth.login'):

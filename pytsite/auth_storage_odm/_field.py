@@ -90,9 +90,9 @@ class User(_odm.field.Abstract):
         if isinstance(value, _auth.model.AbstractUser):
             return value
         elif isinstance(value, str):
-            return _auth.get_user(uid=value)
+            return _auth.get_user(uid=value, check_status=False)
         elif isinstance(value, _DBRef):
-            return _auth.get_user(uid=str(value.id))
+            return _auth.get_user(uid=str(value.id), check_status=False)
         else:
             raise TypeError("Field '{}': user object, str or DB ref expected, got {}.".
                             format(self._name, type(value)))

@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.91.7 (2016-10-10)
+### Fixed
+- `auth`: switching user context while performing `sign_out()` call.
+- `auth_storage_odm`: skipping unnecessary user status checking in `field.User`.
+- `lj`: HTML escaping of image titles in `content_export`'s driver.
+
+
 ## 0.91.6 (2016-10-10)
 ### Fixed
 - `lj`: error while getting image's URL in `content_export`'s driver.

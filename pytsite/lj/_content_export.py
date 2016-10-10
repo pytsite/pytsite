@@ -109,7 +109,8 @@ class Driver(_content_export.AbstractDriver):
             msg = ''
             if entity.has_field('images') and entity.images:
                 img_url = entity.images[0].get_url(width=1024)
-                msg += '<p><a href="{}"><img src="{}" title="{}"></a></p>'.format(entity.url, img_url, entity.title)
+                msg += '<p><a href="{}"><img src="{}" title="{}"></a></p>'.\
+                    format(entity.url, img_url, _util.escape_html(entity.title))
 
             msg += '<p>{}: <a href="{}">{}</a></p>'.format(
                     _lang.t('pytsite.lj@source', language=entity.language), entity.url, entity.url)
