@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.91.8 (2016-10-11)
+### Fixed
+- `auth_storage_odm`: switching user context while updating missing user's picture.
+
+
 ## 0.91.7 (2016-10-10)
 ### Fixed
 - `auth`: switching user context while performing `sign_out()` call.

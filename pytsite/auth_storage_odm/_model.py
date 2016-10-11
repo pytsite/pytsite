@@ -230,7 +230,9 @@ class ODMUser(_odm_ui.model.UIEntity):
             img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
             img = _file.create(img_url)
             with self:
+                _auth.switch_user_to_system()
                 self.f_set('picture', img).save()
+                _auth.restore_user()
             value = img
 
         return value
