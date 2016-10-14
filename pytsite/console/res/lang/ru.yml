@@ -1,3 +1,4 @@
 unknown_command: "Неизвестная команда: ':name'"
 help_command_description: 'Показывает справку по работе с командой'
 insufficient_arguments: 'Недостаточно аргументов'
+invalid_option: 'Неизвестный параметр: --:option'

@@ -56,11 +56,11 @@ def get_user(inp: dict) -> dict:
     except _error.UserNotExist:
         raise _http.error.Unauthorized()
 
-
+    r = user.as_jsonable()
 
     _events.fire('pytsite.auth.http_api.get_user', user=user, response=r)
 
-    return user.as_jsonable()
+    return r
 
 
 def patch_user(inp: dict) -> dict:
@@ -87,8 +87,8 @@ def patch_user(inp: dict) -> dict:
 def patch_follow(inp: dict) -> bool:
     """Follow.
     """
-    op = inp.get('op')
-    uid = inp.get('uid')
+    op = inp.get('op')  # What to do: follow or unfollow
+    uid = inp.get('uid')  # Who to (un)follow
 
     # Does all required arguments present?
     if not op or not uid:
@@ -99,36 +99,31 @@ def patch_follow(inp: dict) -> bool:
     if current_user.is_anonymous:
         raise _http.error.Unauthorized()
 
-    user = _api.get_user(uid=inp.get('uid'))
+    # Load user
+    user = _api.get_user(uid=uid)
 
     if op == 'follow':
-        _api.switch_user(user)
-        user.add_follower(current_user)
-        user.save()
-        _api.switch_user(current_user)
-
-        current_user.add_follows(user)
-        current_user.save()
+        _api.switch_user_to_system()
+        user.add_follower(current_user).save()
+        current_user.add_follows(user).save()
+        _api.restore_user()
 
         _events.fire('pytsite.auth.follow', user=user, follower=current_user)
 
         return True
 
     elif op == 'unfollow':
-        _api.switch_user(user)
-        user.remove_follower(current_user)
-        user.save()
-        _api.switch_user(current_user)
-
-        current_user.remove_follows(user)
-        current_user.save()
+        _api.switch_user_to_system()
+        user.remove_follower(current_user).save()
+        current_user.remove_follows(user).save()
+        _api.restore_user()
 
         _events.fire('pytsite.auth.unfollow', user=user, follower=current_user)
 
         return True
 
     else:
-        raise _http.error.InternalServerError('Operation type must be specified.')
+        raise _http.error.InternalServerError("Invalid operation: 'follow' or 'unfollow' expected.")
 
 
 def get_login_form(inp: dict) -> dict:

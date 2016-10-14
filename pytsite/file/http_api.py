@@ -2,7 +2,7 @@
 """
 from typing import List as _List
 from os import unlink as _unlink
-from pytsite import util as _util, router as _router, http as _http
+from pytsite import util as _util, router as _router, http as _http, auth as _auth
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -16,6 +16,11 @@ def post_upload(inp: dict) -> _List[str]:
     files = _router.request().files
     if not files:
         raise RuntimeError('No files received.')
+
+    # It is important to accept files from authenticated users only.
+    # At this moment there is no way to store info about file's owner, but in the future things may be changed.
+    if _auth.get_current_user().is_anonymous:
+        raise _http.error.Forbidden('Access denied.')
 
     r = []
     for field_name, f in files.items():

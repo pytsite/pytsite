@@ -1,5 +1,21 @@
 # PytSite Changelog
 
+## 0.92 (2016-10-14)
+### Added
+- New packages: `google_analytics`, `reload`.
+- `auth`: `__eq()__` support in `model.AbstractUser`.
+- `auth_storage_odm`: new ODM field: `Users`.
+- `file`: authentication is necessary now while performing file uploads.
+
+### Fixed
+- `auth`: following/unfollowing HTTP API errors.
+- `auth_storage_odm`: error while getting non-existent user's picture.
+- `console`: error message localization.
+- `contact_form`: missing translations.
+- `file`: missing data in `model.AbstractFile.as_jsonable()`.
+- `wallet`: improper `owner` field's type in `model.Account`. 
+
+
 ## 0.91.8 (2016-10-11)
 ### Fixed
 - `auth_storage_odm`: switching user context while updating missing user's picture.

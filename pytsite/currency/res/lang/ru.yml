@@ -1,7 +1,7 @@
 currency: 'Валюта'
 main_currency: 'Основная валюта'
 exchange_rate: 'Курс :code'
-rates: 'Обменные курсы'
+rates: 'Курсы валют'
 date: 'Дата'
 source: 'Источник'
 destination: 'Получатель'

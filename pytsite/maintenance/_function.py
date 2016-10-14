@@ -1,4 +1,4 @@
-"""Maintenance Functions.
+"""PytSite Maintenance Mode Functions.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -15,7 +15,9 @@ def is_enabled() -> bool:
     return _path.exists(_lock_path)
 
 
-def enable(console_notify=True):
+def enable(console_notify: bool = True):
+    """Enable maintenance mode.
+    """
     if not is_enabled():
         with open(_lock_path, 'wt') as f:
             f.write(str(_datetime.now()))
@@ -23,7 +25,9 @@ def enable(console_notify=True):
             _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_enabled'))
 
 
-def disable(console_notify=True):
+def disable(console_notify: bool = True):
+    """Disable maintenance mode.
+    """
     if is_enabled():
         _unlink(_lock_path)
         if console_notify:

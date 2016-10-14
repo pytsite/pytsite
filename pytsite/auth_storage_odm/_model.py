@@ -210,8 +210,8 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.Dict('options'))
         self.define_field(_file_storage_odm.field.Image('picture'))
         self.define_field(_odm.field.StringList('urls', unique=True))
-        self.define_field(_odm.field.StringList('follows', unique=True))
-        self.define_field(_odm.field.StringList('followers', unique=True))
+        self.define_field(_field.Users('follows'))
+        self.define_field(_field.Users('followers'))
         self.define_field(_odm.field.String('last_ip'))
         self.define_field(_odm.field.String('country'))
         self.define_field(_odm.field.String('city'))
@@ -225,7 +225,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_index([('last_sign_in', _odm.I_DESC)])
 
     def _on_f_get(self, field_name: str, value, **kwargs):
-        if field_name == 'picture' and not self.get_field('picture').get_val():
+        if field_name == 'picture' and not self.is_new and not self.get_field('picture').get_val():
             # Load user picture from Gravatar
             img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
             img = _file.create(img_url)
@@ -637,14 +637,22 @@ class User(_auth.model.AbstractUser):
         with self._entity as e:
             e.f_add('followers', follower)
 
+        return self
+
     def remove_follower(self, follower: _auth.model.AbstractUser):
         with self._entity as e:
             e.f_sub('followers', follower)
+
+        return self
 
     def add_follows(self, user: _auth.model.AbstractUser):
         with self._entity as e:
             e.f_add('follows', user)
 
+        return self
+
     def remove_follows(self, user: _auth.model.AbstractUser):
         with self._entity as e:
             e.f_sub('follows', user)
+
+        return self

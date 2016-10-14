@@ -120,6 +120,8 @@ def _init():
     __import__('pytsite.browser')
     __import__('pytsite.form')
     __import__('pytsite.setup')
+    __import__('pytsite.reload')
+    __import__('pytsite.update')
     __import__('pytsite.cleanup')
     __import__('pytsite.auth')
 

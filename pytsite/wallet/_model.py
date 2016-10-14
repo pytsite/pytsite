@@ -4,7 +4,7 @@ from typing import Iterable as _Iterable
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from pytsite import odm as _odm, odm_ui as _odm_ui, currency as _currency, auth as _auth, widget as _widget, \
-    errors as _errors
+    errors as _errors, auth_storage_odm as _auth_storage_odm
 from . import _error, _widget as _wallet_widget
 
 __author__ = 'Alexander Shepetko'
@@ -24,7 +24,7 @@ class Account(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('currency', required=True))
         self.define_field(_odm.field.String('title', required=True))
         self.define_field(_odm.field.Decimal('balance', round=8))
-        self.define_field(_odm.field.String('owner', required=True))
+        self.define_field(_auth_storage_odm.field.User('owner', required=True))
         self.define_field(_odm.field.RefsUniqueList('pending_transactions', model='wallet_transaction'))
         self.define_field(_odm.field.RefsUniqueList('cancelling_transactions', model='wallet_transaction'))
         self.define_field(_odm.field.Dict('options'))

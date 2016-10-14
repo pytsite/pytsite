@@ -1,10 +1,9 @@
 """Pytsite Auth Endpoints.
 """
-from typing import List as _List, Union as _Union
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
     router as _router, logger as _logger
-from . import _api, _error, _model, _widget as _auth_widget
+from . import _api, _error, _widget as _auth_widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -75,7 +74,7 @@ def profile_view(args: dict, inp: dict) -> str:
     """Profile view endpoint.
     """
     try:
-        profile_owner = _api.get_user(nickname=args.get('nickname'))  # type: _model.AbstractUser
+        profile_owner = _api.get_user(nickname=args.get('nickname'))
     except _error.UserNotExist:
         raise _http.error.NotFound()
 

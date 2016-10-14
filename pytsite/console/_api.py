@@ -56,7 +56,7 @@ def run_command(name: str, args: tuple=(), **kwargs):
     kwargs = {k.replace('_', '-'): v for k, v in kwargs.items()}
     for k in kwargs.keys():
         if k not in valid_options:
-            raise _error.InvalidOption('Invalid option: --{}'.format(k))
+            raise _error.InvalidOption(_lang.t('pytsite.console@invalid_option', {'option': k}))
 
     try:
         return cmd.execute(args, **kwargs)

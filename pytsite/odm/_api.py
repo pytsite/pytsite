@@ -155,16 +155,20 @@ def dispense(model: str, uid=None) -> _model.Entity:
 
 
 def find(model: str):
-    """Get ODM finder.
+    """Get finder instance.
     """
     return _finder.Finder(model, _cache.get_pool('pytsite.odm.finder:' + model))
 
 
 def aggregate(model: str):
+    """Get aggregator instance.
+    """
     from ._aggregation import Aggregator
 
     return Aggregator(model)
 
 
 def get_finder_cache(model: str) -> _cache.driver.Abstract:
+    """Get finder cache pool.
+    """
     return _cache.get_pool('pytsite.odm.finder:' + model)

@@ -2,9 +2,9 @@
 """
 import pickle as _pickle
 import subprocess as _subprocess
-from os import path as _path, utime as _utime
+from os import path as _path
 from pytsite import console as _console, events as _events, lang as _lang, core_version as _pytsite_ver, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, validation as _validation
+    logger as _logger, maintenance as _maintenance, validation as _validation, reload as _reload
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,6 +14,7 @@ __license__ = 'MIT'
 class Update(_console.command.Abstract):
     """Setup Command.
     """
+
     def get_name(self) -> str:
         """Get name of the command.
         """
@@ -85,15 +86,11 @@ class Update(_console.command.Abstract):
             _logger.info('pytsite.update.after event')
             _events.fire('pytsite.update.after')
 
+            # Disable maintenance mode
             _maintenance.disable()
 
-            # Updating touch-reload file
-            touch_reload_path = _path.join(_reg.get('paths.storage'), 'touch.reload')
-            if not _path.exists(touch_reload_path):
-                with open(touch_reload_path, 'w'):
-                    pass
-            else:
-                _utime(touch_reload_path, None)
+            # Reload the application
+            _reload.reload()
 
     def _get_state(self) -> set:
         """Get current update state.

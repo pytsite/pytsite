@@ -21,7 +21,8 @@ def _init():
     http_api.register_package('contact_form', 'pytsite.contact_form.http_api')
 
     # Settings form
-    permissions.define_permission('contact_form.settings.manage', 'pytsite.contact_form@manage_contact_form', 'app')
+    permissions.define_permission('contact_form.settings.manage', 'pytsite.contact_form@manage_contact_form_settings',
+                                  'app')
     settings.define('contact_form', _settings_form.Form, 'pytsite.contact_form@contact_form', 'fa fa-paper-plane',
                     'contact_form.settings.manage')
 

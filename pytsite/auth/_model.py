@@ -361,18 +361,30 @@ class AbstractUser(AuthEntity):
 
     @_abstractmethod
     def add_follower(self, follower):
+        """
+        :rtype: AbstractUser
+        """
         pass
 
     @_abstractmethod
     def remove_follower(self, follower):
+        """
+        :rtype: AbstractUser
+        """
         pass
 
     @_abstractmethod
     def add_follows(self, user):
+        """
+        :rtype: AbstractUser
+        """
         pass
 
     @_abstractmethod
     def remove_follows(self, user):
+        """
+        :rtype: AbstractUser
+        """
         pass
 
     def has_role(self, name: str) -> bool:
@@ -440,3 +452,9 @@ class AbstractUser(AuthEntity):
             })
 
         return r
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__) and other.uid == self.uid:
+            return True
+
+        return False
