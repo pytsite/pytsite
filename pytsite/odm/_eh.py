@@ -1,9 +1,8 @@
+"""PytSite ODM Event Handlers.
+"""
+
 from pytsite import console as _console, lang as _lang
 from . import _api
-
-
-def pytsite_update_after():
-    _console.run_command('odm', reindex=True)
 
 
 def pytsite_db_restore():

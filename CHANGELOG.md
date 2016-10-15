@@ -1,9 +1,19 @@
 # PytSite Changelog
 
+## 0.92.2 (2016-10-15)
+### Fixed
+- `auth_storage_odm`: getting non-assigned user in `field.User`.
+- `file_storage_odm`: support for dictionary argument in `field`'s classes.
+- `http_api`: HTTP exceptions traceback logging.
+
+### Removed
+- `odm`: collection reindexing after each update.
+
+
 ## 0.92.1 (2016-10-15)
 ### Fixed
 - `file_storage_odm`, `odm_auth`: more descriptive exception message.
-- `http_api`: HTTP exceptions traceback logging,
+- `http_api`: HTTP exceptions traceback logging.
 
 
 ## 0.92 (2016-10-14)

@@ -34,6 +34,13 @@ def _get_file(value) -> _file.model.AbstractFile:
     elif isinstance(value, str):
         value = _file.get(value)
 
+    # To directly support HTTP API requests
+    elif isinstance(value, dict):
+        if 'uid' not in value:
+            raise ValueError("Dictionary must contain 'uid' key.")
+
+        value = _file.get(value['uid'])
+
     # Only to support backward compatibility
     elif isinstance(value, _DBRef):
         if value.collection == 'images':
@@ -45,7 +52,7 @@ def _get_file(value) -> _file.model.AbstractFile:
         raise _file.error.FileNotFound("File for '{}' is not found.".format(value))
 
     else:
-        raise TypeError('File object, UID or None expected, got {}'.format(type(value)))
+        raise TypeError('File object, string UID, dict or None expected, got {}'.format(type(value)))
 
     return value
 

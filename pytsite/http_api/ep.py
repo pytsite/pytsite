@@ -36,7 +36,7 @@ def entry(args: dict, inp: dict):
         return response
 
     except _http.error.Base as e:
-        _logger.error(_router.current_path() + ': ' + str(e.description))
+        _logger.error(_router.current_path() + ': ' + str(e.description), exc_info=e)
         response = _http.response.JSON({'error': str(e.description)}, e.code)
         response.headers.add('PytSite-HTTP-API', version)
         return response

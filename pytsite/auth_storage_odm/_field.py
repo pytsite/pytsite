@@ -97,7 +97,7 @@ class User(_odm.field.Abstract):
     def _on_get(self, internal_value: str, **kwargs) -> _auth.model.AbstractUser:
         """Hook. Transforms internal value to external one.
         """
-        return _auth.get_user(uid=internal_value)
+        return _auth.get_user(uid=internal_value) if internal_value else None
 
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.

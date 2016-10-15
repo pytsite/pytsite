@@ -33,7 +33,7 @@ class AuthorizableEntity(_odm.model.Entity):
     def _pre_save(self, **kwargs):
         super()._pre_save(**kwargs)
 
-        # If entity's owner was deleted, set it to first administrator
+        # If entity's owner was deleted or just wasn't set, set it to first administrator
         for f_name in 'author', 'owner':
             if self.has_field(f_name) and not self.f_get(f_name):
                 c_user = _auth.get_current_user()
