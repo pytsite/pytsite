@@ -42,7 +42,7 @@ def _get_file(value) -> _file.model.AbstractFile:
             raise ValueError('Cannot determine collection of DB reference: {}.'.format(value))
 
     elif value is None:
-        raise _file.error.FileNotFound()
+        raise _file.error.FileNotFound("File for '{}' is not found.".format(value))
 
     else:
         raise TypeError('File object, UID or None expected, got {}'.format(type(value)))

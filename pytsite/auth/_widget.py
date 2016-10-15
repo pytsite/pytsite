@@ -105,15 +105,10 @@ class Profile(_widget.Abstract):
         if not self._user.profile_is_public and current_user.login != self._user.login and not current_user.is_admin:
             return _html.TagLessElement()
 
-        # Check whether to show 'Edit' button
-        profile_is_editable = False
-        if current_user.login == self._user.login or current_user.is_admin:
-            profile_is_editable = True
-
         # Rendering widget's template
         content = _html.TagLessElement(_tpl.render(self._tpl, {
             'user': self._user,
-            'profile_is_editable': profile_is_editable,
+            'profile_is_editable': current_user == self._user or current_user.is_admin,
             'col_image_css': self._col_image_css,
             'col_content_css': self._col_content_css,
             'following_enabled': self._following_enabled,

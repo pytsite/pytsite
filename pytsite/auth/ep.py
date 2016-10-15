@@ -95,21 +95,22 @@ def profile_view(args: dict, inp: dict) -> str:
     # Widgets
     profile_widget = _auth_widget.Profile('auth-ui-profile-widget', user=profile_owner)
 
+    args.update({
+        'profile_is_editable': c_user == profile_owner or c_user.is_admin,
+        'user': profile_owner,
+        'profile_widget': profile_widget,
+    })
+
     # Give control of the response to an alternate endpoint
     if _router.is_ep_callable('$theme@auth_profile_view'):
         args.update({
             'tpl': tpl_name,
-            'user': profile_owner,
-            'profile_widget': profile_widget,
         })
 
         return _router.call_ep('$theme@auth_profile_view', args, inp)
 
     # Default response
-    return _tpl.render(tpl_name, {
-        'user': profile_owner,
-        'profile_widget': profile_widget,
-    })
+    return _tpl.render(tpl_name, args)
 
 
 def profile_edit(args: dict, inp: dict) -> str:

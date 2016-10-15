@@ -36,8 +36,8 @@ def _fill_entity_fields(entity: _model.AuthorizableEntity, inp: dict):
         # Set field's value
         try:
             entity.f_set(k, v)
-        except (TypeError, ValueError):
-            raise _http.error.InternalServerError("Invalid format of field '{}'".format(k))
+        except (TypeError, ValueError) as e:
+            raise _http.error.InternalServerError("Invalid format of field '{}': {}".format(k, e))
 
 
 def get_entity(inp: dict) -> dict:

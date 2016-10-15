@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.92.1 (2016-10-15)
+### Fixed
+- `file_storage_odm`, `odm_auth`: more descriptive exception message.
+- `http_api`: HTTP exceptions traceback logging,
+
+
 ## 0.92 (2016-10-14)
 ### Added
 - New packages: `google_analytics`, `reload`.
