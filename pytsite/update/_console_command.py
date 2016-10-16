@@ -46,7 +46,10 @@ class Update(_console.command.Abstract):
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
-            _subprocess.call(['./console', 'update', '--stage=2'])
+
+            # Call second step automatically only if '--stage=1' option was not explicitly provided
+            if 'stage' not in kwargs:
+                _subprocess.call(['./console', 'update', '--stage=2'])
         elif kwargs.get('stage') in (2, '2'):
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 

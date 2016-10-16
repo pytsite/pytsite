@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.92.3 (2016-10-16)
+### Fixed
+- `browser`: `responsive` library is loading synchronously now. 
+- `update`: automatic start of second stage.
+
+
 ## 0.92.2 (2016-10-15)
 ### Fixed
 - `auth_storage_odm`: getting non-assigned user in `field.User`.
