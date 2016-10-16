@@ -1,16 +1,14 @@
-"""
+"""PytSite ODM File Storage API Functions.
 """
 from pytsite import reg as _reg
-
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
-_resize_limit_width = int(_reg.get('image.resize_limit_width', 1200))
-_resize_limit_height = int(_reg.get('image.resize_limit_height', 1200))
-_resize_step = int(_reg.get('image.resize_step', 50))
+_resize_limit_width = int(_reg.get('file_storage_odm.image_resize_limit_width', 1200))
+_resize_limit_height = int(_reg.get('file_storage_odm.image_resize_limit_height', 1200))
+_resize_step = int(_reg.get('file_storage_odm.image_resize_step', 50))
 
 
 def get_image_resize_limit_width() -> int:

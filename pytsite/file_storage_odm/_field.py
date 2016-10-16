@@ -1,4 +1,4 @@
-"""PytSite Image File ODM Field.
+"""PytSite ODM File Storage Fields.
 """
 from typing import Tuple as _Tuple
 from bson import DBRef as _DBRef

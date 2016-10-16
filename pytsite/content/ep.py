@@ -63,6 +63,7 @@ def index(args: dict, inp: dict):
         f.where_text(query)
         _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
 
+    # Pager
     per_page = _reg.get('content.ep.index.per_page', 10)
     pager = _widget.select.Pager('content-pager', total_items=f.count(), per_page=per_page)
 
@@ -85,9 +86,8 @@ def view(args: dict, inp: dict):
     from . import _api
 
     model = args.get('model')
-    f = _api.find(model, status=None, check_publish_time=False).eq('_id', args.get('id'))
 
-    entity = f.first()
+    entity = _api.find(model, status=None, check_publish_time=False).eq('_id', args.get('id')).first()
     """:type: pytsite.content._model.Content"""
 
     # Check entity existence
@@ -98,7 +98,7 @@ def view(args: dict, inp: dict):
     if not entity.check_permissions('view'):
         raise _http.error.Forbidden()
 
-    # Show non published entities only who can edit them
+    # Show non published entities only to users who can edit them
     if entity.has_field('publish_time') and entity.publish_time > _datetime.now():
         if not entity.check_permissions('modify'):
             raise _http.error.NotFound()
@@ -109,7 +109,7 @@ def view(args: dict, inp: dict):
     with entity:
         # Update entity's comments count
         _auth.switch_user_to_system()
-        entity.f_set('comments_count', _comments.get_all_comments_count(entity.odm_ui_view_url())).save()
+        entity.f_set('comments_count', _comments.get_all_comments_count(entity.route_alias.alias)).save()
         _auth.restore_user()
 
     # Meta title

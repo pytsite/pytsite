@@ -1,4 +1,4 @@
-"""PytSite File ODM Storage Event Handlers.
+"""PytSite ODM File Storage Event Handlers.
 """
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

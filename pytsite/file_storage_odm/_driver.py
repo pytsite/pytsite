@@ -1,4 +1,4 @@
-"""PytSite File ODM Storage Driver.
+"""PytSite ODM File Storage Driver.
 """
 import os as _os
 import re as _re
@@ -68,7 +68,7 @@ class Driver(_file.driver.Abstract):
         if mime.startswith('image'):
             odm_entity = _odm.dispense('file_image')  # type: _model.ImageFileODMEntity
         else:
-            odm_entity = _odm.dispense('file_other')  # type: _model.AnyFileODMEntity
+            odm_entity = _odm.dispense('file')  # type: _model.AnyFileODMEntity
 
         storage_dir = _reg.get('paths.storage')
         odm_entity.f_set('path', abs_target_path.replace(storage_dir + '/', ''))

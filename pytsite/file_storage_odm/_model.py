@@ -1,4 +1,4 @@
-"""PytSite File ODM Storage Models.
+"""PytSite ODM File Storage Models.
 """
 import exifread as _exifread
 from os import unlink as _unlink, path as _path
@@ -44,18 +44,8 @@ class AnyFileODMEntity(_odm.model.Entity):
             return _path.join(_reg.get('paths.storage'), self.f_get('path'))
 
         # File download URL
-        elif field_name == 'url':
-            p = self.f_get('path').split('/')
-            return _router.ep_url('pytsite.file@download', {
-                'model': p[0],
-                'p1': p[1],
-                'p2': p[2],
-                'filename': p[3]
-            })
-
-        # File thumbnail/icon download URL
-        elif field_name == 'thumb_url':
-            raise NotImplementedError()
+        elif field_name in ('url', 'thumb_url'):
+            raise NotImplementedError('This type of file cannot be downloaded.')
 
         else:
             return super()._on_f_get(field_name, value, **kwargs)

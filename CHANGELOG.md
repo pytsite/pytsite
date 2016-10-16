@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.92.4 (2016-10-16)
+### Fixed
+- `content`: comments counter recalculation.
+- `file`: documentation.
+- `file_storage_odm`: configuration parameters and documentation.
+
+
 ## 0.92.3 (2016-10-16)
 ### Fixed
 - `browser`: `responsive` library is loading synchronously now. 

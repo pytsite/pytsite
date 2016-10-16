@@ -1,4 +1,4 @@
-"""Image Endpoints.
+"""PytSite ODM File Storage Endpoints.
 """
 from os import path as _path, makedirs as _makedirs
 from math import floor as _floor
@@ -12,6 +12,8 @@ __license__ = 'MIT'
 
 
 def image(args: dict, inp: dict) -> _http.response.Redirect:
+    """Download image file.
+    """
     requested_width = int(args['width'])
     requested_height = int(args['height'])
     p1 = args['p1']
