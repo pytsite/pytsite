@@ -6,28 +6,28 @@ __license__ = 'MIT'
 
 core_name = 'PytSite'
 core_url = 'https://pytsite.xyz'
-__version = None  # type: tuple
+_version = None  # type: tuple
 
 
 def core_version():
     from os import path
 
-    global __version
-    if not __version:
+    global _version
+    if not _version:
         with open(path.join(path.dirname(__file__), 'VERSION.txt')) as f:
-            __version = f.readline().replace('\n', '').split('.')
-            if len(__version) == 2:
-                __version.append(0)
-            for k, v in enumerate(__version):
-                __version[k] = int(__version[k])
-            __version = tuple(__version)
+            _version = f.readline().replace('\n', '').split('.')
+            if len(_version) == 2:
+                _version.append(0)
+            for k, v in enumerate(_version):
+                _version[k] = int(_version[k])
+            _version = tuple(_version)
 
-    if __version[1] > 99:
+    if _version[1] > 99:
         raise ValueError('Version minor cannot be greater 99.')
-    if __version[2] > 99:
+    if _version[2] > 99:
         raise ValueError('Version revision cannot be greater 99.')
 
-    return __version
+    return _version
 
 
 def core_version_str() -> str:
@@ -38,6 +38,7 @@ def core_version_str() -> str:
 def _init():
     """Init wrapper.
     """
+    from importlib import import_module
     from os import path, environ, getcwd
     from getpass import getuser
     from socket import gethostname
@@ -66,7 +67,7 @@ def _init():
     reg.put('paths.root', root_path)
     reg.put('paths.app', app_path)
     reg.put('paths.static', path.join(root_path, 'static'))
-    for n in ['config', 'log', 'storage', 'tmp', 'themes']:
+    for n in ['config', 'log', 'plugins', 'storage', 'tmp', 'themes']:
         reg.put('paths.' + n, path.join(app_path, n))
 
     # Additional filesystem paths
@@ -88,53 +89,27 @@ def _init():
     file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'))
     reg.set_driver(file_driver)
 
-    # Initializing language subsystem
-    from . import lang
-    lang.define(reg.get('languages', ['en']))
-
-    # Initializing template subsystem
-    from . import tpl
-
-    # Initializing event subsystem
-    from . import events
-
-    # Initializing cron
-    __import__('pytsite.cron')
-
-    # Initializing console
-    __import__('pytsite.console')
-
-    # Initializing router
-    from . import router
-
-    # Initializing asset manager
-    from pytsite import assetman
-
-    # Initializing metatag
-    from . import metatag
-
-    # Initializing hreflang
-    from . import hreflang
-
-    # Initializing minimal set of required packages
-    __import__('pytsite.browser')
-    __import__('pytsite.form')
-    __import__('pytsite.setup')
-    __import__('pytsite.reload')
-    __import__('pytsite.update')
-    __import__('pytsite.cleanup')
-    __import__('pytsite.auth')
+    # Initialize required core packages
+    autoload = ('lang', 'tpl', 'events', 'cron', 'console', 'router', 'assetman', 'metatag', 'hreflang', 'browser',
+                'form', 'setup', 'reload', 'update', 'cleanup', 'auth', 'plugman')
+    for pkg_name in autoload:
+        import_module('pytsite.' + pkg_name)
 
     # Initializing automatically loaded required packages
     for module in reg.get('autoload', ()):
         __import__(module)
 
     # Initializing 'app' package parts
+    from pytsite import lang, tpl, assetman
     theme = reg.get('output.theme')
     lang.register_package('app', 'lang')
     tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
     assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
     __import__('app.themes.' + theme)
+
+    # Initialize plugins
+    from pytsite import plugman
+    plugman.init()
 
     # Settings favicon href
     reg.put('metatag.favicon.href', 'img/favicon.png')

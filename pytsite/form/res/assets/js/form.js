@@ -221,62 +221,60 @@ pytsite.form = {
                 }
             }, 250);
 
-            self._request('POST', self.getWidgetsEp)
-                .done(function (resp) {
-                    var numWidgetsToLoad = resp.length;
-                    var progressCount = 1;
+            self._request('POST', self.getWidgetsEp).done(function (resp) {
+                var numWidgetsToLoad = resp.length;
+                var progressCount = 1;
 
-                    for (var i = 0; i < numWidgetsToLoad; i++) {
-                        // Append widget
-                        self.loadWidget(resp[i], i)
-                            .done(function (index) {
-                                // Increase progress bar value
-                                var percents = (100 / numWidgetsToLoad) * progressCount++;
-                                progressBar.width(percents + '%');
-                                progressBar.attr('aria-valuenow', percents);
+                for (var i = 0; i < numWidgetsToLoad; i++) {
+                    // Append widget
+                    self.loadWidget(resp[i], i).done(function (index) {
+                        // Increase progress bar value
+                        var percents = (100 / numWidgetsToLoad) * progressCount++;
+                        progressBar.width(percents + '%');
+                        progressBar.attr('aria-valuenow', percents);
 
-                                // This widget is the last one
-                                if (self.count() == numWidgetsToLoad) {
-                                    // Sort all loaded widgets by weight
-                                    var sortedWidgets = [];
-                                    for (var uid in self.widgets) {
-                                        sortedWidgets.push(self.widgets[uid]);
-                                    }
-                                    sortedWidgets.sort(function (a, b) {
-                                        return a.weight - b.weight
-                                    });
-
-                                    // Place loaded widgets to the form
-                                    for (var k = 0; k < sortedWidgets.length; k++) {
-                                        var formArea = sortedWidgets[k].formArea;
-                                        var widget = sortedWidgets[k];
-
-                                        if (widget.parentUid) {
-                                            if (widget.parentUid in self.widgets)
-                                                self.widgets[widget.parentUid].em.append(widget.em);
-                                            else
-                                                throw "Parent widget '{0}' is not found".format(widget.parentUid)
-                                        }
-                                        else
-                                            self.areas[formArea].append(widget.em);
-                                    }
-
-                                    // Hide progress bar
-                                    clearInterval(progressBarInt);
-                                    progress.addClass('hidden');
-
-                                    // Fill widgets with data from location string
-                                    self.fill(pytsite.browser.parseLocation().query);
-
-                                    // Show loaded widgets
-                                    if (showAfterLoad == true)
-                                        self.showWidgets();
-
-                                    deffer.resolve();
-                                }
+                        // This widget is the last one
+                        if (self.count() == numWidgetsToLoad) {
+                            // Sort all loaded widgets by weight
+                            var sortedWidgets = [];
+                            for (var uid in self.widgets) {
+                                sortedWidgets.push(self.widgets[uid]);
+                            }
+                            sortedWidgets.sort(function (a, b) {
+                                return a.weight - b.weight
                             });
-                    }
-                });
+
+                            // Place loaded widgets to the form
+                            for (var k = 0; k < sortedWidgets.length; k++) {
+                                var formArea = sortedWidgets[k].formArea;
+                                var widget = sortedWidgets[k];
+
+                                if (widget.parentUid) {
+                                    if (widget.parentUid in self.widgets)
+                                        self.widgets[widget.parentUid].em.append(widget.em);
+                                    else
+                                        throw "Parent widget '{0}' is not found".format(widget.parentUid)
+                                }
+                                else
+                                    self.areas[formArea].append(widget.em);
+                            }
+
+                            // Hide progress bar
+                            clearInterval(progressBarInt);
+                            progress.addClass('hidden');
+
+                            // Fill widgets with data from location string
+                            self.fill(pytsite.browser.parseLocation().query);
+
+                            // Show loaded widgets
+                            if (showAfterLoad == true)
+                                self.showWidgets();
+
+                            deffer.resolve();
+                        }
+                    });
+                }
+            });
 
             return deffer;
         };
@@ -409,58 +407,55 @@ pytsite.form = {
 
             // Validating the form for the current step
             submitButton.attr('disabled', true);
-            self.validate()
-                .done(function () {
-                    submitButton.attr('disabled', false);
+            self.validate().done(function () {
+                submitButton.attr('disabled', false);
 
-                    // It is not a last step, so just load (if necessary) and show widgets for the next step
-                    if (self.currentStep < self.totalSteps) {
-                        // Hide widgets for the current step
-                        self.hideWidgets();
+                // It is not a last step, so just load (if necessary) and show widgets for the next step
+                if (self.currentStep < self.totalSteps) {
+                    // Hide widgets for the current step
+                    self.hideWidgets();
 
-                        // Step change
-                        ++self.currentStep;
+                    // Step change
+                    ++self.currentStep;
 
-                        // Load widgets via AJAX request, if necessary
-                        if ($.inArray(self.currentStep, self.loadedSteps) < 0 || self.reloadOnForward) {
-                            // First, remove all existing widgets for the current step
-                            self.removeWidgets(self.currentStep);
+                    // Load widgets via AJAX request, if necessary
+                    if ($.inArray(self.currentStep, self.loadedSteps) < 0 || self.reloadOnForward) {
+                        // First, remove all existing widgets for the current step
+                        self.removeWidgets(self.currentStep);
 
-                            // Load widgets for the current step
-                            self.loadWidgets()
-                                .done(function () {
-                                    if ($.inArray(self.currentStep, self.loadedSteps) < 0)
-                                        self.loadedSteps.push(self.currentStep);
+                        // Load widgets for the current step
+                        self.loadWidgets().done(function () {
+                            if ($.inArray(self.currentStep, self.loadedSteps) < 0)
+                                self.loadedSteps.push(self.currentStep);
 
-                                    // Attach click handler to the 'Backward' button
-                                    self.em.find('.form-action-backward').click(self.backward);
+                            // Attach click handler to the 'Backward' button
+                            self.em.find('.form-action-backward').click(self.backward);
 
-                                    // Show widgets
-                                    self.isCurrentStepValidated = false;
-                                    self.showWidgets();
-                                    $(self).trigger('pytsite.form.forward');
-                                    deffer.resolve();
-                                });
-                        }
-                        // Just show widgets, if they already loaded
-                        else {
                             // Show widgets
                             self.isCurrentStepValidated = false;
                             self.showWidgets();
                             $(self).trigger('pytsite.form.forward');
                             deffer.resolve();
-                        }
+                        });
                     }
-                    // It is a last step, just allowing submit the form
+                    // Just show widgets, if they already loaded
                     else {
-                        self.readyToSubmit = true;
-                        self.em.submit();
+                        // Show widgets
+                        self.isCurrentStepValidated = false;
+                        self.showWidgets();
+                        $(self).trigger('pytsite.form.forward');
+                        deffer.resolve();
                     }
-                })
-                .fail(function () {
-                    submitButton.attr('disabled', false);
-                    deffer.reject();
-                });
+                }
+                // It is a last step, just allowing submit the form
+                else {
+                    self.readyToSubmit = true;
+                    self.em.submit();
+                }
+            }).fail(function () {
+                submitButton.attr('disabled', false);
+                deffer.reject();
+            });
 
             return deffer;
         };

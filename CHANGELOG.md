@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.92.5 (2016-10-19)
+### Added
+- `plugman`: first steps.
+- `content`: new arguments for `f_get('body')`: `responsive_images`, `images_width`.
+- `widget`: new widget: `static.Table`.
+
+### Fixed
+- `file_storage_odm`: non-necessary static images deletion while updating to version 0.90.
+- `lj`: ugly line breaks while exporting content. 
+
+
 ## 0.92.4 (2016-10-16)
 ### Fixed
 - `content`: comments counter recalculation.

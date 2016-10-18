@@ -1,4 +1,4 @@
-"""pytsite.lang Init
+"""PytSite Language Package
 """
 # Public API
 from . import _error as error
@@ -10,6 +10,14 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+def _init():
+    from pytsite import reg
 
-# Registering itself
-register_package(__name__)
+    # Register itself as language package
+    register_package(__name__)
+
+    # Define languages based on registry setting or set default
+    define(reg.get('languages', ['en']))
+
+
+_init()

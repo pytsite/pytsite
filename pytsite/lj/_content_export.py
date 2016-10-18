@@ -13,6 +13,7 @@ __license__ = 'MIT'
 class _SettingsWidget(_widget.Abstract):
     """LiveJournal content_export Settings Widget.
      """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -69,6 +70,7 @@ class _SettingsWidget(_widget.Abstract):
 class Driver(_content_export.AbstractDriver):
     """LiveJournal content_export Driver.
     """
+
     def get_name(self) -> str:
         """Get system name of the driver.
         """
@@ -109,15 +111,17 @@ class Driver(_content_export.AbstractDriver):
             msg = ''
             if entity.has_field('images') and entity.images:
                 img_url = entity.images[0].get_url(width=1024)
-                msg += '<p><a href="{}"><img src="{}" title="{}"></a></p>'.\
+                msg += '<p><a href="{}"><img src="{}" title="{}"></a></p>'. \
                     format(entity.url, img_url, _util.escape_html(entity.title))
 
             msg += '<p>{}: <a href="{}">{}</a></p>'.format(
-                    _lang.t('pytsite.lj@source', language=entity.language), entity.url, entity.url)
+                _lang.t('pytsite.lj@source', language=entity.language), entity.url, entity.url)
             if entity.description:
                 msg += '<p>{}</p>'.format(entity.description)
             msg += '<lj-cut>'
-            msg += _util.trim_str(entity.f_get('body', process_tags=True, responsive=False), 64000, True)
+            msg_body = entity.f_get('body', process_tags=True, responsive_images=False, images_width=1200)
+            msg_body = msg_body.replace('\r', '').replace('\n', '')
+            msg += _util.trim_str(msg_body, 64000, True)
             msg += '</lj-cut>'
             if opts['lj_like']:
                 msg += '<lj-like buttons="{}">'.format(opts['lj_like'])

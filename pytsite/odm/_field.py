@@ -637,8 +637,8 @@ class String(Abstract):
         kwargs['default'] = kwargs.get('default', '')
         self._min_length = kwargs.get('min_length')
         self._max_length = kwargs.get('max_length')
-        self._strip_html = kwargs.get('strip_html')
-        self._tidyfy_html = kwargs.get('tidyfy_html')
+        self._strip_html = kwargs.get('strip_html', False)
+        self._tidyfy_html = kwargs.get('tidyfy_html', False)
         self._remove_empty_html_tags = kwargs.get('remove_empty_html_tags', True)
 
         super().__init__(name, **kwargs)

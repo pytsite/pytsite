@@ -10,11 +10,9 @@ from pytsite import auth as _auth, taxonomy as _taxonomy, odm_ui as _odm_ui, rou
     tpl as _tpl, util as _util, form as _form, reg as _reg, comments as _comments, errors as _errors, \
     auth_storage_odm as _auth_storage_odm, file_storage_odm as _file_storage_odm
 
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
 
 _localization_enabled = _reg.get('content.localization', True)
 _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
@@ -28,7 +26,7 @@ _html_video_facebook_re = _re.compile(
 )
 
 
-def _process_tags(entity, inp: str) -> str:
+def _process_tags(entity, inp: str, responsive_images: bool = True, images_width: int = None) -> str:
     """Converts body tags like [img] into HTML tags.
 
     :type entity: _Union[Block, Content]
@@ -39,6 +37,8 @@ def _process_tags(entity, inp: str) -> str:
     def process_img_tag(match):
         """Converts single body [img] tag into HTML <img> tag.
         """
+        nonlocal responsive_images, images_width
+
         # Image index
         img_index = int(match.group(1))
 
@@ -57,7 +57,7 @@ def _process_tags(entity, inp: str) -> str:
         alt = entity.title if entity.has_field('title') else ''
         width = 0
         height = 0
-        responsive = True
+        responsive = responsive_images
 
         for arg in match.group(2).split(':'):  # type: str
             arg = arg.strip()
@@ -85,6 +85,10 @@ def _process_tags(entity, inp: str) -> str:
                     height = int(arg.split('=')[1])
                 except ValueError:
                     height = 0
+
+        if images_width:
+            responsive = False
+            width = images_width
 
         # HTML code
         if responsive:
@@ -305,7 +309,8 @@ class Base(_odm_ui.model.UIEntity):
         """
         if field_name == 'body':
             if kwargs.get('process_tags'):
-                value = _process_tags(self, value)
+                value = _process_tags(self, value, kwargs.get('responsive_images', True),
+                                      kwargs.get('images_width'))
             elif kwargs.get('remove_tags'):
                 value = _remove_tags(value)
 

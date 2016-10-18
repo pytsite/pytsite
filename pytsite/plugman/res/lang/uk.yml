@@ -1,0 +1,11 @@
+plugins: 'Плагіни'
+name: "Ім'я"
+версія: 'Версія'
+description: 'Опис'
+url: 'URL'
+actions: 'Дії'
+enable: 'Включити'
+enabled: 'Включений'
+disable: 'Відключити'
+word_yes: 'Так'
+plugin_management: 'Керування плагінами'

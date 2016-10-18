@@ -40,13 +40,6 @@ def _update_0_90_0():
         msg = '{} moved to {}.'.format(images_dir, files_dir)
         logger.info(msg)
 
-        # Delete 'static/image' directory
-        static_images_path = os.path.join(reg.get('paths.static'), 'image')
-        if os.path.exists(static_images_path):
-            shutil.rmtree(static_images_path)
-            msg = '{} has been removed.'.format(static_images_path)
-            logger.info(msg)
-
 
 def update(version: str):
     if version == '0.90.0':

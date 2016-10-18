@@ -1,5 +1,6 @@
 """Static Widgets.
 """
+from typing import Union as _Union
 from pytsite import html as _html
 from . import _base
 
@@ -45,3 +46,58 @@ class Text(_base.Abstract):
         container.append(_html.P(self.title, cls='form-control-static'))
 
         return self._group_wrap(container)
+
+
+class Table(_base.Abstract):
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, **kwargs)
+
+        self._thead = []
+        self._tbody = []
+        self._tfoot = []
+
+    def add_row(self, cells: _Union[list, tuple], index: int = None, part: str = 'tbody'):
+        if not isinstance(cells, (list, tuple)):
+            raise TypeError('List or tuple expected, got {}'.format(type(cells)))
+
+        if index is None:
+            index = len(self._tbody)
+
+        if part == 'thead':
+            self._thead.insert(index, cells)
+        elif part == 'tfoot':
+            self._tfoot.insert(index, cells)
+        else:
+            self._tbody.insert(index, cells)
+
+    def get_html_em(self, **kwargs) -> _html.Element:
+        table = _html.Table(cls='table table-bordered table-striped')
+
+        for part in self._thead, self._tbody, self._tfoot:
+            if not part:
+                continue
+
+            # Append rows
+            for row in part:
+                tr = _html.Tr()
+                for cell in row:
+                    td = _html.Th() if part == self._thead else _html.Td()
+
+                    if isinstance(cell, dict):
+                        if 'content' in cell:
+                            td.content = cell['content']
+                        for attr in 'css', 'colspan', 'rowspan':
+                            if attr in cell:
+                                td.set_attr(attr, cell[attr])
+                    elif isinstance(cell, str):
+                        td.content = cell
+                    else:
+                        raise TypeError('Dict or str expected, got {}'.format(type(cell)))
+
+                    tr.append(td)
+
+                table.append(tr)
+
+        return table
