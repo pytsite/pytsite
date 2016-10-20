@@ -453,8 +453,5 @@ class AbstractUser(AuthEntity):
 
         return r
 
-    def __eq__(self, other):
-        if isinstance(other, self.__class__) and other.uid == self.uid:
-            return True
-
-        return False
+    def __eq__(self, other) -> bool:
+        return isinstance(other, self.__class__) and other.uid == self.uid

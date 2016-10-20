@@ -3,7 +3,7 @@
 from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
 from datetime import datetime as _datetime
-from pytsite import reg as _reg, form as _form, lang as _lang, router as _router, cache as _cache, widget as _widget, \
+from pytsite import reg as _reg, form as _form, lang as _lang, router as _router, cache as _cache, \
     events as _events, validation as _validation, logger as _logger, util as _util, threading as _threading
 from . import _error, _model, _driver
 
@@ -157,8 +157,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         return user
 
 
-def get_user(login: str = None, nickname: str = None, access_token: str = None, uid: str = None,
-             check_status: bool = True) -> _model.AbstractUser:
+def get_user(login: str = None, nickname: str = None, access_token: str = None, uid: str = None) -> _model.AbstractUser:
     """Get user by login, nickname, access token or UID.
     """
     # Check if the access token is valid
@@ -167,11 +166,9 @@ def get_user(login: str = None, nickname: str = None, access_token: str = None, 
 
     user = get_storage_driver().get_user(login, nickname, access_token, uid)
 
-    if check_status and user.status != 'active':
-        switch_user_to_system()
+    c_user = get_current_user()
+    if user == c_user and user.status != 'active':
         sign_out(user)
-        restore_user()
-        raise _error.AuthenticationError("Account of user '{}' is not active.".format(user.login))
 
     return user
 
@@ -231,6 +228,10 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
         try:
             # Get user from driver
             user = get_auth_driver(auth_driver_name).sign_in(data)
+
+            if user.status != 'active':
+                raise _error.AuthenticationError("Status of user account '{}' is not active.".format(user.login))
+
             switch_user(user)
 
         except _error.AuthenticationError as e:
@@ -304,6 +305,9 @@ def sign_out(user: _model.AbstractUser):
     # Anonymous user cannot be signed out
     if user.is_anonymous:
         return
+
+    # All operation on current user perform on behalf of system user
+    switch_user_to_system()
 
     # Ask drivers to perform necessary operations
     for driver in _authentication_drivers.values():

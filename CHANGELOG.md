@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.92.6 (2016-10-20)
+### Fixed
+- `auth`: checking user's status. 
+
+
 ## 0.92.5 (2016-10-19)
 ### Added
 - `plugman`: first steps.
