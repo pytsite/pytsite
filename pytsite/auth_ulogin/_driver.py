@@ -140,8 +140,12 @@ class ULogin(_auth.driver.Authentication):
 
         # Birth date
         if 'bdate' in ulogin_data:
-            b_date = _strptime(ulogin_data['bdate'], '%d.%m.%Y')
-            user.birth_date = _datetime(*b_date[0:5])
+            try:
+                b_date = _strptime(ulogin_data['bdate'], '%d.%m.%Y')
+                user.birth_date = _datetime(*b_date[0:5])
+            except ValueError:
+                # Yes, sometimes uLogin provides strange data here :(
+                pass
 
         # Link to profile
         if 'profile' in ulogin_data and ulogin_data['profile']:

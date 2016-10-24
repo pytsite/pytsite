@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.92.8 (2016-10-24)
+### Fixed
+- `auth_ulogin`: processing incorrect birth date from uLogin response.
+- `currency`: error while updating `auth`'s HTTP API response. 
+
+
 ## 0.92.7 (2016-10-24)
 ### Removed
 - `util`: non-necessary whitespaces cleaning while processing HTML code by related functions.
