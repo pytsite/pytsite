@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.92.7 (2016-10-24)
+### Removed
+- `util`: non-necessary whitespaces cleaning while processing HTML code by related functions.
+
+
 ## 0.92.6 (2016-10-20)
 ### Fixed
 - `auth`: checking user's status. 

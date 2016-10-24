@@ -81,7 +81,7 @@ class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
     def __str__(self) -> str:
         self.close()
 
-        return _re.sub(' {2,}', ' ', ''.join(self._content))
+        return ''.join(self._content)
 
 
 class _HTMLTrimParser(_python_html_parser.HTMLParser):
@@ -202,7 +202,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
                 if not item_text:
                     # Remove item with no text
                     item.getparent().remove(item)
-                else:
+                elif item.tag not in ('pre', 'code'):
                     # Put tidy text back to item
                     item.text = item_text
 
@@ -219,8 +219,6 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
                 break
 
             s = s_cleaned
-
-        s = _re.sub(' {2,}', ' ', s)
 
         # Remove root '<div>' tag which can be added by lxml
         if s.startswith('<div>'):
