@@ -177,8 +177,8 @@ def strip_html_tags(s: str, safe_tags: str = None) -> str:
 def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = None, remove_tags: str = None) -> str:
     """Remove tags and attributes except safe_tags and empty tags is necessary.
     """
-    safe_tags = 'a:href:target:rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
-                'dt|em|figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src:width:height|img:src:alt|ins|kbd|li|mark|' \
+    safe_tags = 'a:href,target,rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
+                'dt|em|figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src,width,height|img:src,alt|ins|kbd|li|mark|' \
                 'ol|output|p|param|pre:class|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|' \
                 'tfoot|th|thead|time|tr|u|ul|var|wbr'
 

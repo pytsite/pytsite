@@ -832,7 +832,7 @@ class Entity(_ABC):
         elif hasattr(other, 'ref'):
             return self.ref == other.ref
 
-        raise TypeError('{} cannot be compared with {}.'.format(type(self), type(other)))
+        return False
 
     def __enter__(self):
         return self.lock()

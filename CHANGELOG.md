@@ -1,6 +1,12 @@
 # PytSite Changelog
 
-## 0.93
+## 0.93.1 (2016-11-02)
+### Fixed
+- `odm`: unnecessary exception in `model.Entity.__eq__()`. 
+- `util`: incorrect default HTML arguments list in `tidyfy_html()`.
+
+
+## 0.93 (2016-11-02)
 ### Added
 - New packages: `github`, `semver`, `odm_http_api`.
 - `http`: new `Session()`'s methods: `flash_clear()` and `has_message()`.
