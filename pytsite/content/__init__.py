@@ -22,7 +22,7 @@ def _init():
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    http_api.register_package('content', 'pytsite.content.http_api')
+    http_api.register_handler('content', 'pytsite.content.http_api')
 
     # Permission groups
     permissions.define_group('content', 'pytsite.content@content')

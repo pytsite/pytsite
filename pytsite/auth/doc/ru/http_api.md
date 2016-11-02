@@ -27,11 +27,12 @@
 
 ```
 curl \
--d "driver=password" \
--d "login=vasya@pupkeen.com" \
--d "password=Very5tr0ngP@ssw0rd" \
-'https://test.com/api/1/auth/sign_in'
+-d driver=password \
+-d login=vasya@pupkeen.com \
+-d password=Very5tr0ngP@ssw0rd \
+https://test.com/api/1/auth/sign_in
 ```
+
 
 Ответ:
 
@@ -151,6 +152,7 @@ curl -X GET \
 https://test.com/api/1/auth/user
 ```
 
+
 Ответ:
 
 ```
@@ -199,6 +201,7 @@ https://test.com/api/1/auth/user
 ## POST auth/sign_out
 
 Удаление ранее выданного токена доступа.
+
 
 ### Аргументы
 

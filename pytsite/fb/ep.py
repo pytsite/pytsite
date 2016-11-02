@@ -14,7 +14,7 @@ def authorize(args: dict, inp: dict):
     # Checking for errors
     error = inp.get('error_description')
     if error:
-        _router.session().add_error(error)
+        _router.session().add_error_message(error)
 
     # Initializing authorization session
     auth_session = _AuthSession(inp.get('state'))

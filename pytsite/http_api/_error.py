@@ -1,4 +1,4 @@
-"""
+"""PytSite HTTP API Errors.
 """
 
 __author__ = 'Alexander Shepetko'

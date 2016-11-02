@@ -91,7 +91,7 @@ def _init():
 
     # Initialize required core packages
     autoload = ('lang', 'tpl', 'events', 'cron', 'console', 'router', 'assetman', 'metatag', 'hreflang', 'browser',
-                'form', 'setup', 'reload', 'update', 'cleanup', 'auth', 'plugman')
+                'form', 'setup', 'reload', 'update', 'cleanup', 'auth', 'odm_http_api')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 
@@ -108,8 +108,7 @@ def _init():
     __import__('app.themes.' + theme)
 
     # Initialize plugins
-    from pytsite import plugman
-    plugman.init()
+    __import__('pytsite.plugman')
 
     # Settings favicon href
     reg.put('metatag.favicon.href', 'img/favicon.png')

@@ -23,7 +23,7 @@ def _init():
 
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    http_api.register_package('comments', 'pytsite.comments.http_api')
+    http_api.register_handler('comments', 'pytsite.comments.http_api')
 
 
 _init()

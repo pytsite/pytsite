@@ -105,8 +105,8 @@ def is_package_registered(pkg_name):
 def register_package(pkg_name: str, languages_dir: str = 'res/lang') -> str:
     """Register language container.
     """
-    if is_package_registered(pkg_name):
-        return
+    if pkg_name in _packages:
+        raise RuntimeError("Package '{}' already registered.".format(pkg_name))
 
     spec = _find_spec(pkg_name)
     if not spec or not spec.loader:
@@ -114,7 +114,7 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang') -> str:
 
     lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)
     if not _path.isdir(lng_dir):
-        raise RuntimeError("Directory '{}' is not exists.".format(lng_dir))
+        raise RuntimeError("Error while registering package '{}': dir '{}' does not exist".format(pkg_name, lng_dir))
 
     _packages[pkg_name] = {'__path': lng_dir}
 

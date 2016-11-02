@@ -435,6 +435,7 @@ pytsite.form = {
                             self.isCurrentStepValidated = false;
                             self.showWidgets();
                             $(self).trigger('pytsite.form.forward');
+                            $(self.em).trigger('pytsite.form.forward', [self]);
                             deffer.resolve();
                         });
                     }
@@ -444,6 +445,7 @@ pytsite.form = {
                         self.isCurrentStepValidated = false;
                         self.showWidgets();
                         $(self).trigger('pytsite.form.forward');
+                        $(self.em).trigger('pytsite.form.forward', [self]);
                         deffer.resolve();
                     }
                 }

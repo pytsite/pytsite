@@ -5,7 +5,7 @@
 Все запросы к HTTP API должны выполняться по протоколу [HTTP 1.1](https://tools.ietf.org/html/rfc2616).
 
 URL любого запроса запроса миеет вид `/api/{VERSION}/{ENDPOINT}`, где `{VERSION}` -- текущая версия API 
-приложения; `{ENDPOINT}` -- конечная точка. 
+приложения; `{ENDPOINT}` -- конечная точка.
 
 Каждая конечная точка поддерживает один или более [HTTP-методов](https://tools.ietf.org/html/rfc2616#section-9), что 
 должно быть описано в документации соответствующего модуля. 
@@ -25,7 +25,7 @@ URL любого запроса запроса миеет вид `/api/{VERSION}
 HTTP API **всегда** возвращает ответ в формтае JSON. Для анализа успешности/ошибочности запросов, используйте 
 возвращаемые [HTTP статус-коды](https://tools.ietf.org/html/rfc2616#section-10).
 
-В каждый ответ включается заголовок 'PytSite-HTTP-API' с номером версии API.
+В каждый ответ включается заголовок 'PytSite-HTTP-API', содержащий номер версии API.
 
 
 ## Примеры
@@ -72,11 +72,11 @@ curl -v -X POST \
 -d driver=password \
 -d login=vasya \
 -d password=123 \
-http://test.com/api/1/pytsite.auth/sign_in
+http://test.com/api/1/auth/sign_in
 ```
 
 ```
-> POST /api/1/pytsite.auth/sign_in HTTP/1.1
+> POST /api/1/auth/sign_in HTTP/1.1
 > Host: test.com
 > User-Agent: curl/7.49.1
 > Accept: */*

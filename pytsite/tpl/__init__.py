@@ -72,11 +72,17 @@ def _nl2br_filter(value: str) -> str:
     return value.replace('\n', _jinja.Markup('<br>'))
 
 
+def is_package_registered(package_name: str):
+    """Check if the package already registered.
+    """
+    return package_name in _packages
+
+
 def register_package(package_name: str, templates_dir: str = 'res/tpl'):
     """Register templates container.
     """
     if package_name in _packages:
-        raise Exception("Package '{}' already registered.".format(package_name))
+        raise RuntimeError("Package '{}' already registered.".format(package_name))
 
     package = _import_module(package_name)
     templates_dir = _path.join(_path.abspath(_path.dirname(package.__file__)), templates_dir)

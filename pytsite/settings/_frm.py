@@ -17,11 +17,8 @@ class Form(_form.Form):
         """
         self._setting_uid = kwargs.get('setting_uid')
 
-        super().__init__(uid, **kwargs)
+        super().__init__(uid, css='setting-uid-' + self._setting_uid, **kwargs)
 
-        self._data.update({
-            'setting-uid': self._setting_uid
-        })
 
     def _setup_form(self, **kwargs):
         """Hook.

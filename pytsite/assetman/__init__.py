@@ -21,7 +21,7 @@ def __init():
     console.register_command(_console_command.Assetman())
 
     # Events
-    events.listen('pytsite.router.dispatch', reset)
+    events.listen('pytsite.router.dispatch', reset, priority=-999)
     events.listen('pytsite.update.after', lambda: console.run_command('assetman', build=True))
 
     # Tpl globals

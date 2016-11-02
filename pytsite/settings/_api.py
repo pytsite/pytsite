@@ -11,6 +11,12 @@ __license__ = 'MIT'
 _settings = {}
 
 
+def is_defined(uid: str) -> bool:
+    """Check if the setting is already defined.
+    """
+    return uid in _settings
+
+
 def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permissions: str = '*', menu_weight: int = 0):
     """Define setting.
     """

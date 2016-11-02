@@ -47,7 +47,7 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     try:
         frm.validate()
     except _form.error.ValidationError as e:
-        _router.session().add_error(str(e.errors))
+        _router.session().add_error_message(str(e.errors))
         raise _http.error.InternalServerError()
 
     # Refill the form in 'normal' mode
@@ -69,10 +69,10 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     try:
         # Save entity
         entity.save()
-        _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+        _router.session().add_info_message(_lang.t('pytsite.odm_ui@operation_successful'))
 
     except Exception as e:
-        _router.session().add_error(str(e))
+        _router.session().add_error_message(str(e))
         _logger.error(str(e), exc_info=e, stack_info=True)
         raise e
 
@@ -117,12 +117,12 @@ def d_form_submit(args: dict, inp: dict) -> _Union[_http.response.Redirect, _htt
         for eid in ids:
             entity = _api.dispense_entity(model, eid).odm_ui_d_form_submit()
 
-        _router.session().add_info(_lang.t('pytsite.odm_ui@operation_successful'))
+        _router.session().add_info_message(_lang.t('pytsite.odm_ui@operation_successful'))
 
     # Entity deletion was forbidden
     except _errors.ForbidDeletion as e:
         _logger.error(str(e), exc_info=e)
-        _router.session().add_error(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
+        _router.session().add_error_message(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
     default_redirect = _router.ep_url('pytsite.odm_ui@browse', {'model': model})
     return _http.response.Redirect(inp.get('__redirect', default_redirect))

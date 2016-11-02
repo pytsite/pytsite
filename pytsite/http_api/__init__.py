@@ -1,8 +1,7 @@
 """PytSite HTTP API Package.
 """
 # Public API
-from ._api import url, call_ep, register_package
-
+from ._api import register_handler, call_endpoint, get, post, patch, delete, url
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

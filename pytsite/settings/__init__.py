@@ -1,7 +1,7 @@
 """Settings Plugin Init.
 """
 # Public API
-from ._api import define, get, put
+from ._api import is_defined, define, get, put
 from ._frm import Form
 
 __author__ = 'Alexander Shepetko'

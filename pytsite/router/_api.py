@@ -56,6 +56,12 @@ class Rule(_Rule):
         return super().get_rules(rules_map)
 
 
+def get_session_store() -> _FilesystemSessionStore:
+    """Get session store.
+    """
+    return _session_store
+
+
 def set_request(r: _http.request.Request):
     """Set request for the current thread.
     """
@@ -63,13 +69,13 @@ def set_request(r: _http.request.Request):
 
 
 def request() -> _Union[_http.request.Request, None]:
-    """Get request belonged to the current thread.
+    """Get request for current thread.
     """
     return _requests.get(_threading.get_id())
 
 
 def session() -> _http.session.Session:
-    """Get session belonged to the current thread.
+    """Get session for current thread.
     """
     return _sessions.get(_threading.get_id())
 

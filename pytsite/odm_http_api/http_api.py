@@ -1,15 +1,14 @@
-""" PytSite ODM Auth HTTP API
+""" PytSite ODM Auth HTTP API.
 """
 from json import loads as _json_loads, JSONDecodeError as _JSONDecodeError
-from pytsite import http as _http, odm as _odm
-from . import _model, _api
+from pytsite import http as _http, odm as _odm, odm_auth as _odm_auth
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _fill_entity_fields(entity: _model.AuthorizableEntity, inp: dict):
+def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity, inp: dict):
     for k, v in inp.items():
         # Fields to skip
         if k in ('access_token', 'model', 'uid') or k.startswith('_'):
@@ -40,88 +39,98 @@ def _fill_entity_fields(entity: _model.AuthorizableEntity, inp: dict):
             raise _http.error.InternalServerError("Invalid format of field '{}': {}".format(k, e))
 
 
-def get_entity(inp: dict) -> dict:
+def get_entity(**kwargs) -> dict:
     """Get entity.
     """
-    model = inp.get('model')
+    model = kwargs.get('model')
     if not model:
         raise _http.error.InternalServerError('Model is not specified.')
 
-    uid = inp.get('uid')
+    uid = kwargs.get('uid')
     if not uid:
         raise _http.error.InternalServerError('UID is not specified.')
 
     # Search for entity
-    entity = _odm.find(model).eq('_id', uid).first()  # type: _model.AuthorizableEntity
+    entity = _odm.find(model).eq('_id', uid).first()  # type: _odm_auth.model.AuthorizableEntity
     if not entity:
         raise _http.error.NotFound('Entity not found.')
 
     # Check for entity's class
-    if not isinstance(entity, _model.AuthorizableEntity):
+    if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Check for permissions
     if not entity.check_permissions('view'):
         raise _http.error.Forbidden('Insufficient permissions.')
 
-    return entity.as_jsonable(**inp)
+    return entity.as_jsonable(**kwargs)
 
 
-def post_entity(inp: dict):
+def post_entity(**kwargs) -> dict:
     """Create new entity.
     """
     # Required arguments
-    model = inp.get('model')
+    model = kwargs.get('model')
     if not model:
         raise _http.error.InternalServerError('Model is not specified.')
 
     # Check permissions
-    if not _api.check_permissions('create', model):
+    if not _odm_auth.check_permissions('create', model):
         raise _http.error.Forbidden("Insufficient permissions.")
 
     # Dispense new entity
-    entity = _api.dispense(model)
+    entity = _odm.dispense(model)  # type: _odm_auth.model.AuthorizableEntity
 
-    # Fill fields with values
-    _fill_entity_fields(entity, inp)
+    # Check for entity's class
+    if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
+        raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
+
+    # Fill entity's fields with values
+    _fill_entity_fields(entity, kwargs)
+
+    # Save the entity
     entity.save()
 
     return entity.as_jsonable()
 
 
-def patch_entity(inp: dict) -> dict:
+def patch_entity(**kwargs) -> dict:
     """Update entity.
     """
     # Model is required
-    model = inp.get('model')
+    model = kwargs.get('model')
     if not model:
         raise RuntimeError('Model is not specified.')
 
     # Entity ID is required
-    uid = inp.get('uid')
+    uid = kwargs.get('uid')
     if not uid:
         raise RuntimeError('UID is not specified.')
 
     # Dispense existing entity
-    entity = _api.dispense(model, uid)
+    entity = _odm.dispense(model, uid)  # type: _odm_auth.model.AuthorizableEntity
+
+    # Check for entity's class
+    if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
+        raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Check permissions
     if not entity.check_permissions('modify'):
         raise _http.error.Forbidden("Insufficient permissions.")
 
     # Fill fields with values
-    with entity:
-        _fill_entity_fields(entity, inp)
-        entity.save()
+    with entity as e:
+        _fill_entity_fields(e, kwargs)
+        e.save()
 
     return entity.as_jsonable()
 
 
-def delete_entity(inp: dict):
+def delete_entity(**kwargs):
     """Delete one or more entities.
     """
-    model = inp.get('model')
-    ids = inp.get('uid')
+    model = kwargs.get('model')
+    ids = kwargs.get('uid')
 
     if not model:
         raise RuntimeError('Model is not specified.')
@@ -135,8 +144,8 @@ def delete_entity(inp: dict):
     count = 0
     for eid in ids:
         entity = _odm.dispense(model, eid)
-        with entity:
-            entity.delete()
+        with entity as e:
+            e.delete()
         count += 1
 
     return count

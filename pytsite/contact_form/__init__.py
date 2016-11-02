@@ -18,7 +18,7 @@ def _init():
     tpl.register_package(__name__)
 
     # HTTP API endpoints
-    http_api.register_package('contact_form', 'pytsite.contact_form.http_api')
+    http_api.register_handler('contact_form', 'pytsite.contact_form.http_api')
 
     # Settings form
     permissions.define_permission('contact_form.settings.manage', 'pytsite.contact_form@manage_contact_form_settings',

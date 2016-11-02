@@ -62,8 +62,7 @@ class Form(_ABC):
         self._tpl = kwargs.get('tpl', 'pytsite.form@form')
 
         # <form>'s tag CSS class
-        self._css = kwargs.get('css', '') + ' pytsite-form'
-        self._css = self._css.strip()
+        self._css = str(kwargs.get('css', '') + ' pytsite-form').strip()
 
         # Title
         self._title = kwargs.get('title')
@@ -95,7 +94,7 @@ class Form(_ABC):
         # Assets
         _browser.include('scrollto')
         _assetman.add('pytsite.form@css/form.css')
-        _assetman.add('pytsite.form@js/form.js', async=True, defer=True)
+        _assetman.add('pytsite.form@js/form.js')
 
         # Setup form
         self._setup_form(**kwargs)
@@ -179,7 +178,7 @@ class Form(_ABC):
     def css(self, value):
         """Set CSS classes.
         """
-        self._css = value + ' pytsite-form'
+        self._css = value + ' pytsite-form' if 'pytsite-form' not in value else value
 
     @property
     def area_hidden_css(self) -> str:

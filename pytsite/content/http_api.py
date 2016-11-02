@@ -1,7 +1,6 @@
 """PytSite Content HTTP API.
 """
-from pytsite import http as _http, auth as _auth, lang as _lang, validation as _validation, odm as _odm, \
-    odm_auth as _odm_auth
+from pytsite import http as _http, auth as _auth, lang as _lang, validation as _validation, odm as _odm
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -9,11 +8,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def patch_view_count(inp: dict) -> int:
+def patch_view_count(**kwargs) -> int:
     """Increase content entity views counter by one.
     """
-    model = inp.get('model')
-    eid = inp.get('id')
+    model = kwargs.get('model')
+    eid = kwargs.get('id')
 
     if not model:
         raise RuntimeError('Model is not specified.')
@@ -34,10 +33,10 @@ def patch_view_count(inp: dict) -> int:
     return 0
 
 
-def post_subscribe(inp: dict) -> dict:
+def post_subscribe(**kwargs) -> dict:
     """Subscribe to digest endpoint.
     """
-    email = inp.get('email')
+    email = kwargs.get('email')
     _validation.rule.Email(value=email).validate()
 
     lng = _lang.get_current()
@@ -54,9 +53,9 @@ def post_subscribe(inp: dict) -> dict:
     return {'message': _lang.t('pytsite.content@digest_subscription_success')}
 
 
-def get_widget_entity_select_search(inp: dict) -> dict:
+def get_widget_entity_select_search(**kwargs) -> dict:
     # Query is mandatory parameter
-    query = inp.get('q')
+    query = kwargs.get('q')
     if not query:
         return {'results': ()}
 
@@ -65,8 +64,8 @@ def get_widget_entity_select_search(inp: dict) -> dict:
     if user.is_anonymous:
         raise _http.error.Forbidden()
 
-    model = inp.get('model')
-    language = inp.get('language', _lang.get_current())
+    model = kwargs.get('model')
+    language = kwargs.get('language', _lang.get_current())
 
     # User can browse ANY entities
     if user.has_permission('pytsite.odm_perm.view.' + model):

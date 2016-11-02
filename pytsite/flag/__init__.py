@@ -9,9 +9,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     from pytsite import assetman, odm, tpl, lang, events, http_api, permissions
     from . import _model, _eh
+
+    # Resources
+    lang.register_package(__name__)
+    tpl.register_package(__name__)
+    assetman.register_package(__name__)
 
     # Permission group
     permissions.define_group('flag', 'pytsite.flag@flag')
@@ -19,17 +24,12 @@ def __init():
     # ODM models
     odm.register_model('flag', _model.Flag)
 
-    # Resources
-    lang.register_package(__name__)
-    tpl.register_package(__name__)
-    assetman.register_package(__name__)
-
     # HTTP API aliases
-    http_api.register_package('flag', 'pytsite.flag.http_api')
+    http_api.register_handler('flag', 'pytsite.flag.http_api')
 
     # Event listeners
     events.listen('pytsite.setup', _eh.setup)
     events.listen('pytsite.odm.entity.delete', _eh.odm_entity_delete)
 
 
-__init()
+_init()

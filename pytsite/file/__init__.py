@@ -16,7 +16,7 @@ def _init():
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    http_api.register_package('file', 'pytsite.file.http_api')
+    http_api.register_handler('file', 'pytsite.file.http_api')
     # http_api.register_package('image', 'pytsite.image.http_api')
 
 

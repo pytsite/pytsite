@@ -123,7 +123,7 @@ class Entity(_ABC):
         # Try to load fields data directly from DB
         data = self.collection.find_one({'_id': eid})
         if not data:
-            raise _error.EntityNotFound("Entity '{}:{}' not found in the database.".format(self.model, eid))
+            raise _error.EntityNotFound("Entity '{}:{}' does not exist.".format(self.model, eid))
 
         # Fill fields with retrieved data
         for f_name, value in data.items():

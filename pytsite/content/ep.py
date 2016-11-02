@@ -210,6 +210,6 @@ def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
     if s:
         with s:
             s.f_set('enabled', False).save()
-        _router.session().add_success(_lang.t('pytsite.content@unsubscription_successful'))
+        _router.session().add_success_message(_lang.t('pytsite.content@unsubscription_successful'))
 
     return _http.response.Redirect(_router.base_url())

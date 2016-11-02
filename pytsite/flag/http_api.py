@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def patch_toggle(inp: dict) -> dict:
+def patch_toggle(**kwargs) -> dict:
     """Set/remove flag.
     """
     # Check for permissions
@@ -16,14 +16,14 @@ def patch_toggle(inp: dict) -> dict:
         raise _http.error.Unauthorized('Anonymous users are not allowed here.')
 
     # Check for entity model
-    model = inp.get('model')
+    model = kwargs.get('model')
     if not model:
-        raise RuntimeError("Argument 'model' is not specified.")
+        raise RuntimeError('Model is not specified.')
 
     # Check for entity ID
-    uid = inp.get('uid')
+    uid = kwargs.get('uid')
     if not uid:
-        raise RuntimeError("Argument 'uid' is not specified.")
+        raise RuntimeError('Entity UID is not specified.')
 
     try:
         entity = _odm.dispense(model, uid)
@@ -34,5 +34,6 @@ def patch_toggle(inp: dict) -> dict:
             'count': count,
             'status': is_flagged,
         }
+
     except _odm.error.ForbidEntityOperation as e:
         raise _http.error.Forbidden(str(e))

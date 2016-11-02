@@ -13,9 +13,6 @@ def _init():
     from pytsite import events, http_api
     from . import _eh
 
-    # HTTP API aliases
-    http_api.register_package('odm_auth', 'pytsite.odm_auth.http_api')
-
     # Event listeners
     events.listen('pytsite.odm.register_model', _eh.odm_register_model)
     events.listen('pytsite.odm.entity.pre_save', _eh.odm_entity_pre_save)

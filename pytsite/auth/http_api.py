@@ -8,18 +8,18 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def post_sign_in(inp: dict) -> dict:
+def post_sign_in(**kwargs) -> dict:
     """Sign in user.
     """
     try:
         # Try to sign in user via driver
-        return {'access_token': _api.sign_in(inp.get('driver'), inp).access_token}
+        return {'access_token': _api.sign_in(kwargs.get('driver'), kwargs).access_token}
 
     except _error.AuthenticationError as e:
         raise _http.error.Unauthorized(str(e))
 
 
-def post_sign_out(inp: dict) -> dict:
+def post_sign_out(**kwargs) -> dict:
     """Sign out user.
     """
     try:
@@ -29,23 +29,23 @@ def post_sign_out(inp: dict) -> dict:
         raise _http.error.Unauthorized(e)
 
 
-def get_access_token_info(inp: dict) -> dict:
+def get_access_token_info(**kwargs) -> dict:
     """Get information about user's access token.
     """
     try:
-        return _api.get_access_token_info(inp.get('access_token', ''))
+        return _api.get_access_token_info(kwargs.get('access_token', ''))
 
     except _error.InvalidAccessToken as e:
         raise _http.error.Unauthorized(e)
 
 
-def get_user(inp: dict) -> dict:
+def get_user(**kwargs) -> dict:
     """Get information about user.
     """
     try:
         current_user = _api.get_current_user()
 
-        uid = inp.get('uid')
+        uid = kwargs.get('uid')
         if uid:
             user = _api.get_user(uid=uid)
         elif not current_user.is_anonymous:
@@ -63,7 +63,7 @@ def get_user(inp: dict) -> dict:
     return r
 
 
-def patch_user(inp: dict) -> dict:
+def patch_user(**kwargs) -> dict:
     """Update user.
     """
     allowed_fields = ('login', 'email', 'password', 'nickname', 'first_name', 'last_name', 'description', 'birth_date',
@@ -78,17 +78,17 @@ def patch_user(inp: dict) -> dict:
     user = c_user
 
     # Change user to work with
-    if 'uid' in inp:
-        user = _api.get_user(uid=inp.pop('uid'))
+    if 'uid' in kwargs:
+        user = _api.get_user(uid=kwargs.pop('uid'))
 
     return user.as_jsonable()
 
 
-def patch_follow(inp: dict) -> bool:
+def patch_follow(**kwargs) -> bool:
     """Follow.
     """
-    op = inp.get('op')  # What to do: follow or unfollow
-    uid = inp.get('uid')  # Who to (un)follow
+    op = kwargs.get('op')  # What to do: follow or unfollow
+    uid = kwargs.get('uid')  # Who to (un)follow
 
     # Does all required arguments present?
     if not op or not uid:
@@ -126,13 +126,13 @@ def patch_follow(inp: dict) -> bool:
         raise _http.error.InternalServerError("Invalid operation: 'follow' or 'unfollow' expected.")
 
 
-def get_login_form(inp: dict) -> dict:
+def get_login_form(**kwargs) -> dict:
     frm = _api.get_sign_in_form(
-        auth_driver_name=inp.get('driver'),
-        uid=inp.get('uid'),
-        title=inp.get('title'),
-        css=inp.get('css', ''),
-        modal=inp.get('modal', False)
+        auth_driver_name=kwargs.get('driver'),
+        uid=kwargs.get('uid'),
+        title=kwargs.get('title'),
+        css=kwargs.get('css', ''),
+        modal=kwargs.get('modal', False)
     )
 
     return {
@@ -142,5 +142,5 @@ def get_login_form(inp: dict) -> dict:
     }
 
 
-def get_is_anonymous(inp: dict) -> bool:
+def get_is_anonymous(**kwargs) -> bool:
     return _api.get_current_user().is_anonymous

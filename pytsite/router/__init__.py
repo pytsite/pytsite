@@ -2,7 +2,7 @@
 """
 from ._api import add_rule, add_path_alias, base_path, base_url, call_ep, current_path, current_url, dispatch, ep_path,\
     ep_url, is_base_url, is_ep_callable, get_no_cache, set_no_cache, remove_path_alias, resolve_ep_callable, scheme, \
-    server_name, url, session, request, set_request
+    server_name, url, session, request, set_request, get_session_store
 
 
 __author__ = 'Alexander Shepetko'
@@ -31,6 +31,11 @@ def _init():
     tpl.register_global('base_url', base_url)
     tpl.register_global('is_base_url', is_base_url)
     tpl.register_global('session_messages', lambda x: session().get_messages(x) if session() else ())
+
+    # Clear flash messages from all session
+    s_store = get_session_store()
+    for sid in s_store.list():
+        s_store.save_if_modified(s_store.get(sid).flash_clear())
 
 
 _init()

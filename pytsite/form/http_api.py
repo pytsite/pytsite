@@ -56,12 +56,12 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
     return frm.fill(values, mode=fill_mode)
 
 
-def post_widgets(inp: dict) -> dict:
+def post_widgets(**kwargs) -> dict:
     """Get widgets of the form for particular step.
 
-    We use POST method here due to large request size in come cases.
+    We use POST method here due to large request size in some cases.
     """
-    frm = _create_form(inp)
+    frm = _create_form(kwargs)
 
     r = []
     for widget in frm.get_widgets(step=frm.step, recursive=True).values():
@@ -72,11 +72,11 @@ def post_widgets(inp: dict) -> dict:
     return r
 
 
-def post_validate(inp: dict) -> dict:
-    """Default form AJAX validator.
+def post_validate(**kwargs) -> dict:
+    """Default form's AJAX validator.
     """
     try:
-        _create_form(inp, 'validation').validate()
+        _create_form(kwargs, 'validation').validate()
         return {'status': True}
 
     except _error.ValidationError as e:

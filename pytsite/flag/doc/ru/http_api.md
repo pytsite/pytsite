@@ -5,11 +5,11 @@
 
 ## PATCH flag/toggle
 
-Установка/снятие флага для сущности. 
+Установка/снятие отметки для сущности. 
 
 
 ### Аргументы
-- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
+- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
 - *required* **str** `model`. Модель сущности.
 - *required* **str** `uid`. UID сущности.
 

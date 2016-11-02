@@ -7,11 +7,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+RELOAD_MSG_ID = 'pytsite.reload@reload_required'
+_flag = False
+
 
 def reload(console_notify: bool = True):
     """Touch 'touch.reload' file.
     """
-
     touch_reload_path = _path.join(_reg.get('paths.storage'), 'touch.reload')
 
     _events.fire('pytsite.reload.before')
@@ -22,9 +24,23 @@ def reload(console_notify: bool = True):
     else:
         _utime(touch_reload_path, None)
 
-    _logger.info('{} has been touched.'.format(touch_reload_path))
-
     _events.fire('pytsite.reload')
 
+    _logger.info('Application is reloading')
+
     if console_notify:
-        _console.print_info(_lang.t('pytsite.reload@app_reloading'))
+        _console.print_info(_lang.t('pytsite.reload@app_is_reloading'))
+
+
+def set_flag():
+    """Set 'Reload requested' flag state.
+    """
+    global _flag
+
+    _flag = True
+
+
+def get_flag() -> bool:
+    """Get 'Reload requested' flag state.
+    """
+    return _flag

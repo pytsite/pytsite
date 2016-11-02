@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_settings(inp: dict) -> dict:
+def get_settings(**kwargs) -> dict:
     """Get comments settings.
     """
     return {
@@ -16,55 +16,55 @@ def get_settings(inp: dict) -> dict:
         'body_max_length': _api.get_comment_body_max_length(),
         'max_depth': _api.get_comment_max_depth(),
         'statuses': _api.get_comment_statuses(),
-        'permissions': _api.get_permissions(_auth.get_current_user(), inp.get('driver')),
+        'permissions': _api.get_permissions(_auth.get_current_user(), kwargs.get('driver')),
     }
 
 
-def post_comment(inp: dict) -> dict:
+def post_comment(**kwargs) -> dict:
     """Create new comment.
     """
-    driver = inp.get('driver')
+    driver = kwargs.get('driver')
 
-    thread_uid = inp.get('thread_uid')
+    thread_uid = kwargs.get('thread_uid')
     if not thread_uid:
         raise RuntimeError("'thread_uid' is not specified")
 
-    body = inp.get('body', '').strip()
+    body = kwargs.get('body', '').strip()
     if not body:
         raise RuntimeError(_lang.t('pytsite.comments@comment_body_cannot_be_empty'))
 
     status = 'published'
-    parent_uid = inp.get('parent_uid')
+    parent_uid = kwargs.get('parent_uid')
     comment = _api.create_comment(thread_uid, body, _auth.get_current_user(), status, parent_uid, driver)
 
     return comment.as_jsonable()
 
 
-def get_comments(inp: dict) -> dict:
+def get_comments(**kwargs) -> dict:
     """Get comments.
     """
-    driver = inp.get('driver')
+    driver = kwargs.get('driver')
 
-    thread_uid = inp.get('thread_uid')
+    thread_uid = kwargs.get('thread_uid')
     if not thread_uid:
         raise RuntimeError("'thread_uid' is not specified")
 
-    limit = abs(int(inp.get('limit', 0)))
-    skip = abs(int(inp.get('skip', 0)))
+    limit = abs(int(kwargs.get('limit', 0)))
+    skip = abs(int(kwargs.get('skip', 0)))
     comments = list(_api.get_driver(driver).get_comments(thread_uid, limit, skip))
 
     return {
         'items': [comment.as_jsonable() for comment in comments],
-        'settings': get_settings(inp),
+        'settings': get_settings(**kwargs),
     }
 
 
-def delete_comment(inp: dict) -> dict:
+def delete_comment(**kwargs) -> dict:
     """Delete comment.
     """
-    driver = inp.get('driver')
+    driver = kwargs.get('driver')
 
-    uid = inp.get('uid')
+    uid = kwargs.get('uid')
     if not uid:
         raise RuntimeError("'uid' argument is not specified.")
 
@@ -75,10 +75,10 @@ def delete_comment(inp: dict) -> dict:
         raise _http.error.NotFound(str(e))
 
 
-def post_report(inp: dict) -> dict:
+def post_report(**kwargs) -> dict:
     """Report about comment.
     """
-    uid = inp.get('uid')
+    uid = kwargs.get('uid')
     if not uid:
         raise RuntimeError("'uid' argument is not specified.")
 

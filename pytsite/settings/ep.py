@@ -15,6 +15,7 @@ def _build_form(setting_uid: str) -> _frm.Form:
     """
     # Load setting definition
     setting_def = _api.get_definition(setting_uid)
+
     return setting_def['form']('settings-form', setting_uid=setting_uid)  # type: _frm.Form
 
 
@@ -54,7 +55,7 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
             value[k] = v
 
     _api.put(uid, value)
-    _router.session().add_success(_lang.t('pytsite.settings@settings_has_been_saved'))
+    _router.session().add_success_message(_lang.t('pytsite.settings@settings_has_been_saved'))
 
     return _http.response.Redirect(_router.ep_url('pytsite.settings@form', {'uid': uid}))
 

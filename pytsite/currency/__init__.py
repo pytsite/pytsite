@@ -54,7 +54,7 @@ def _init():
     events.listen('pytsite.auth.http_api.get_user', _eh.auth_http_api_get_user)
 
     # HTTP API handlers
-    http_api.register_package('currency', 'pytsite.currency.http_api')
+    http_api.register_handler('currency', 'pytsite.currency.http_api')
 
 
 # Package initialization

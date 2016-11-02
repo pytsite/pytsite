@@ -73,24 +73,32 @@ class Table(_base.Abstract):
             self._tbody.insert(index, cells)
 
     def get_html_em(self, **kwargs) -> _html.Element:
-        table = _html.Table(cls='table table-bordered table-striped')
+        table = _html.Table(cls='table table-bordered table-hover')
 
         for part in self._thead, self._tbody, self._tfoot:
             if not part:
                 continue
 
+            if part is self._thead:
+                t_part = _html.THead()
+            elif part is self._tbody:
+                t_part = _html.TBody()
+            else:
+                t_part = _html.TFoot()
+
+            table.append(t_part)
+
             # Append rows
             for row in part:
                 tr = _html.Tr()
                 for cell in row:
-                    td = _html.Th() if part == self._thead else _html.Td()
+                    td = _html.Th() if part is self._thead else _html.Td()
 
                     if isinstance(cell, dict):
                         if 'content' in cell:
-                            td.content = cell['content']
-                        for attr in 'css', 'colspan', 'rowspan':
-                            if attr in cell:
-                                td.set_attr(attr, cell[attr])
+                            td.content = cell.pop('content')
+                        for attr in cell.keys():
+                            td.set_attr(attr, cell[attr])
                     elif isinstance(cell, str):
                         td.content = cell
                     else:
@@ -98,6 +106,6 @@ class Table(_base.Abstract):
 
                     tr.append(td)
 
-                table.append(tr)
+                t_part.append(tr)
 
         return table

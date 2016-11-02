@@ -30,7 +30,7 @@ def __init():
     permissions.define_group('security', 'pytsite.auth@security')
 
     # HTTP API handlers
-    http_api.register_package('auth', 'pytsite.auth.http_api')
+    http_api.register_handler('auth', 'pytsite.auth.http_api')
 
     # Common routes
     bp = base_path()

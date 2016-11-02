@@ -17,7 +17,7 @@ def entry(args: dict, inp: dict):
         if 'language' in inp:
             _lang.set_current(inp['language'])
 
-        status, body = _api.call_ep(endpoint, method, inp, version)
+        status, body = _api.call_endpoint(endpoint, method, version, **inp)
 
         # Simple string should be returned as text/html
         if isinstance(body, str):

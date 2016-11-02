@@ -1,5 +1,34 @@
 # PytSite Changelog
 
+## 0.93
+### Added
+- New packages: `github`, `semver`, `odm_http_api`.
+- `http`: new `Session()`'s methods: `flash_clear()` and `has_message()`.
+- `http_api`: shortcut API functions: `get()`, `post()`, `patch()`, `delete()`.
+- `reload`:
+    - HTTP API support;
+    - new API functions: `set_flag()`, `get_flag()`.
+- `plugman`: installing, uninstalling plugins from GitHub.
+- `router`:
+    - new API function: `get_session_store()`;
+    - automatic cleanup of old flash messages.
+- `settings`: new API function: `is_defined()`.
+- `tpl`: new API function: `is_package_registered()`.
+
+### Changed
+- `http`: flash messages related function names.
+- `http_api`:
+    - API function `register_package()` renamed to `register_handler()`;
+    - API function `call_ep()` renamed to `call_endpoint()`;
+    - signature of endpoint handlers.
+
+### Fixed
+- `widget`: processing table parts in `static.Table`.
+
+### Removed
+- Package `addthis` moved to separate [plugin](https://github.com/pytsite/plugin-addthis).
+
+
 ## 0.92.8 (2016-10-24)
 ### Fixed
 - `auth_ulogin`: processing incorrect birth date from uLogin response.

@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def post_upload(inp: dict) -> _List[str]:
+def post_upload(**kwargs) -> _List[str]:
     """Upload file endpoint.
     """
     files = _router.request().files
@@ -35,9 +35,9 @@ def post_upload(inp: dict) -> _List[str]:
         })
 
     # Request was from CKEditor
-    if inp.get('CKEditor') and inp.get('CKEditorFuncNum'):
+    if kwargs.get('CKEditor') and kwargs.get('CKEditorFuncNum'):
         script = 'window.parent.CKEDITOR.tools.callFunction("{}", "{}", "");' \
-            .format(inp.get('CKEditorFuncNum'), _api.get(r[0]['uid']).get_url())
+            .format(kwargs.get('CKEditorFuncNum'), _api.get(r[0]['uid']).get_url())
 
         # CKEditor requires such response format
         r = '<script type="text/javascript">{}</script>'.format(script)
@@ -45,15 +45,15 @@ def post_upload(inp: dict) -> _List[str]:
     return r
 
 
-def get_info(inp: dict) -> dict:
+def get_info(**kwargs) -> dict:
     """Get information about file.
     """
-    uid = inp.get('uid')
+    uid = kwargs.get('uid')
     if not uid:
         raise RuntimeError('File UID is not specified.')
 
     try:
-        return _api.get(uid).as_jsonable(**inp)
+        return _api.get(uid).as_jsonable(**kwargs)
 
     except _error.FileNotFound as e:
         raise _http.error.NotFound(e)
