@@ -12,9 +12,10 @@ def _update_0_90_0():
     path_re = re.compile('^image/')
 
     # Rename existing 'images' collection to 'file_images'
-    if 'file_images' not in db.get_collection_names():
+    collection_names = db.get_collection_names()
+    if 'file_images' not in collection_names and 'images' in collection_names:
         db.get_collection('images').rename('file_images')
-        msg = "Collection 'images' renamed to 'file_images'."
+        msg = "Collection 'images' renamed to 'file_images'"
         logger.info(msg)
 
         images = db.get_collection('file_images')

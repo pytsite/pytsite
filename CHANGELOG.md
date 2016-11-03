@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.93.2 (2016-11-03)
+### Fixed
+- `file_storage_odm`: error while performing setup on fresh installs.
+
+
 ## 0.93.1 (2016-11-02)
 ### Fixed
 - `odm`: unnecessary exception in `model.Entity.__eq__()`. 
