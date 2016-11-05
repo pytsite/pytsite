@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.93.3 (2016-11-05)
+### Fixed
+- `http`: error in `Session.has_message()`.
+
+
 ## 0.93.2 (2016-11-03)
 ### Fixed
 - `file_storage_odm`: error while performing setup on fresh installs.

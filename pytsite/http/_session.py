@@ -86,7 +86,7 @@ class Session(_BaseSession):
     def has_message(self, msg: str, section: str) -> bool:
         """Check if the section contains a message.
         """
-        if '__flash' not in self or '__messages' not in self['__flash']:
+        if '__flash' not in self or '__messages' not in self['__flash'] or section not in self['__flash']['__messages']:
             return False
 
         return msg in self['__flash']['__messages'][section]
@@ -117,7 +117,7 @@ class Session(_BaseSession):
         r = []
 
         if '__flash' not in self or '__messages' not in self['__flash']:
-            return r
+            return tuple(r)
 
         if section in self['__flash']['__messages']:
             r = tuple(self['__flash']['__messages'][section])
