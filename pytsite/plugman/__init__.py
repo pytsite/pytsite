@@ -33,9 +33,17 @@ def _init():
     # HTTP API
     http_api.register_handler('plugman', 'pytsite.plugman.http_api')
 
+    # Install required plugins
+    for p_name in reg.get('plugins', ()):
+        if is_installed(p_name):
+            continue
+
+        install(p_name)
+
     # Start installed plugins
     for p_name, p_info in get_info().items():
         if p_info['installed_version']:
             start(p_name)
+
 
 _init()

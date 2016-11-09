@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.94 (2016-11-09)
+### Added
+- `admin`: new argument in `add_section()`: `sort_items_by`.
+- `lang`: new argument in `register_package()`: `alias`.
+- `plugman`: automatic plugins installation while application init.
+- `tpl`: new argument in `register_package()`: `alias`.
+
+### Fixed
+- `content`: empty checkboxes on settings form in case when no models defined.
+- `plugman`: disabling buttons on settings form while working with plugin.
+- `validation`: regexp in `rule.Email`.
+
+### Removed
+- Package `disqus` moved to separate [plugin](https://github.com/pytsite/plugin-disqus).
+- Package `google_analytics` moved to separate [plugin](https://github.com/pytsite/plugin-google_analytics).
+
+
 ## 0.93.3 (2016-11-05)
 ### Fixed
 - `http`: error in `Session.has_message()`.

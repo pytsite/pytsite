@@ -1,4 +1,4 @@
-"""Content Forms.
+"""Content Settings Form.
 """
 from pytsite import settings as _settings, widget as _widget, lang as _lang
 from . import _api
@@ -41,19 +41,19 @@ class Form(_settings.Form):
         ))
 
         model_items = [(k, _api.get_model_title(k)) for k in sorted(_api.get_models().keys())]
+        if model_items:
+            self.add_widget(_widget.select.Checkboxes(
+                uid='setting_rss_models',
+                weight=1010,
+                label=_lang.t('pytsite.content@generate_rss_feed_for'),
+                items=model_items,
+            ))
 
-        self.add_widget(_widget.select.Checkboxes(
-            uid='setting_rss_models',
-            weight=1010,
-            label=_lang.t('pytsite.content@generate_rss_feed_for'),
-            items=model_items,
-        ))
-
-        self.add_widget(_widget.select.Checkboxes(
-            uid='setting_sitemap_models',
-            weight=1020,
-            label=_lang.t('pytsite.content@generate_sitemap_for'),
-            items=model_items,
-        ))
+            self.add_widget(_widget.select.Checkboxes(
+                uid='setting_sitemap_models',
+                weight=1020,
+                label=_lang.t('pytsite.content@generate_sitemap_for'),
+                items=model_items,
+            ))
 
         super()._setup_widgets()

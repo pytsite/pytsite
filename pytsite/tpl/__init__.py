@@ -78,7 +78,7 @@ def is_package_registered(package_name: str):
     return package_name in _packages
 
 
-def register_package(package_name: str, templates_dir: str = 'res/tpl'):
+def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: str = None):
     """Register templates container.
     """
     if package_name in _packages:
@@ -89,7 +89,11 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl'):
     if not _path.isdir(templates_dir):
         raise FileNotFoundError("Directory '{}' is not found.".format(templates_dir))
 
-    _packages[package_name] = {'templates_dir': templates_dir}
+    config = {'templates_dir': templates_dir}
+    if alias:
+        _packages[alias] = config
+    else:
+        _packages[package_name] = config
 
 
 def render(template: str, args: dict = None) -> str:

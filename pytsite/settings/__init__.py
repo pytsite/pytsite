@@ -1,4 +1,4 @@
-"""Settings Plugin Init.
+"""PytSite Settings Package.
 """
 # Public API
 from ._api import is_defined, define, get, put
@@ -14,10 +14,8 @@ def _init():
     from pytsite import odm, tpl, lang, router, admin
     from . import _api, _model
 
-    # Language package
+    # Resources
     lang.register_package(__name__)
-
-    # Template package and globals
     tpl.register_global('settings_get', _api.get)
 
     # ODM model
@@ -27,8 +25,8 @@ def _init():
     router.add_rule(admin.base_path() + '/settings/<uid>', 'pytsite.settings@form')
     router.add_rule(admin.base_path() + '/settings/<uid>/submit', 'pytsite.settings@form_submit', methods='POST')
 
-    # Sidebar section
-    admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',))
+    # Admin sidebar section
+    admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',), sort_items_by='title')
 
 
 # Package initialization

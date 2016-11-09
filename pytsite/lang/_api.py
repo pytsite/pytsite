@@ -102,7 +102,7 @@ def is_package_registered(pkg_name):
     return pkg_name in _packages
 
 
-def register_package(pkg_name: str, languages_dir: str = 'res/lang') -> str:
+def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str = None):
     """Register language container.
     """
     if pkg_name in _packages:
@@ -116,7 +116,11 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang') -> str:
     if not _path.isdir(lng_dir):
         raise RuntimeError("Error while registering package '{}': dir '{}' does not exist".format(pkg_name, lng_dir))
 
-    _packages[pkg_name] = {'__path': lng_dir}
+    config = {'__path': lng_dir}
+    if alias:
+        _packages[alias] = config
+    else:
+        _packages[pkg_name] = config
 
 
 def get_packages() -> dict:

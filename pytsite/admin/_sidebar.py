@@ -24,7 +24,7 @@ def get_section(sid: str) -> dict:
             return s
 
 
-def add_section(sid: str, title: str, weight: int = 0, permissions='*'):
+def add_section(sid: str, title: str, weight: int = 0, permissions='*', sort_items_by: str = 'weight'):
     """Add a section.
     :param permissions: str|tuple
     """
@@ -41,7 +41,8 @@ def add_section(sid: str, title: str, weight: int = 0, permissions='*'):
         'sid': sid,
         'title': title,
         'weight': weight,
-        'permissions': permissions
+        'permissions': permissions,
+        'sort_items_by': sort_items_by,
     })
 
     _menus[sid] = []
@@ -93,7 +94,12 @@ def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, 
         'permissions': permissions
     })
 
-    _menus[sid] = _util.weight_sort(_menus[sid])
+    # Sort menu items
+    if section['sort_items_by'] == 'title':
+        _menus[sid] = sorted(_menus[sid], key=lambda x: x['title'])
+    else:
+        # Default sorting is by weight
+        _menus[sid] = _util.weight_sort(_menus[sid])
 
 
 def del_menu(sid: str, mid: str):
@@ -121,9 +127,10 @@ def render() -> _html.Aside:
     root_menu_ul = _html.Ul(cls='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
-    # Filtering permissions
     render_sections = []
     render_menus = {}
+
+    # Filter by permissions
     for section in _sections:
         if not _check_permissions(section):
             continue

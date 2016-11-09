@@ -122,6 +122,8 @@ def is_installed(plugin_name: str) -> bool:
 def get_info(plugin_name: str = None) -> dict:
     """Get information about plugin(s).
     """
+    required = _reg.get('plugins', ())
+
     # Fetch data about existing plugins from GitHub
     r = _get_github_data()
 
@@ -134,6 +136,7 @@ def get_info(plugin_name: str = None) -> dict:
             'installing': name in _installing,
             'uninstalling': name in _uninstalling,
             'upgradable': bool(installed_version and r[name]['latest_version'][0] != installed_version),
+            'required': name in required,
         })
 
     if plugin_name:

@@ -1,7 +1,6 @@
 """PytSite Plugin Manager Settings Form.
 """
-from pytsite import settings as _settings, widget as _widget, lang as _lang, html as _html, http_api as _http_api, \
-    assetman as _assetman
+from pytsite import settings as _settings, widget as _widget, lang as _lang, html as _html, assetman as _assetman
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -27,7 +26,7 @@ class Form(_settings.Form):
             {'content': _lang.t('pytsite.plugman@actions'), 'style': 'width: 1%;'},
         ), part='thead')
 
-        for name, info in _api.get_info().items():
+        for name, info in sorted(_api.get_info().items()):
             description = str(_html.A(info['description'], href=info['home_url'], target='_blank'))
 
             actions = ''
@@ -47,11 +46,12 @@ class Form(_settings.Form):
                     actions += str(btn)
 
                 # Uninstall button
-                btn = _html.A(cls='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
-                              href='#', data_name=name, data_ep='plugman/uninstall')
-                btn.append(_html.I(cls='fa fa-trash'))
-                btn.append(_html.Span(_lang.t('pytsite.plugman@uninstall'), cls='text'))
-                actions += str(btn)
+                if not info['required']:
+                    btn = _html.A(cls='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
+                                  href='#', data_name=name, data_ep='plugman/uninstall')
+                    btn.append(_html.I(cls='fa fa-trash'))
+                    btn.append(_html.Span(_lang.t('pytsite.plugman@uninstall'), cls='text'))
+                    actions += str(btn)
 
             if info['installed_version']:
                 version = info['installed_version']
