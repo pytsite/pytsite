@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.95.1 (2016-11-24)
+### Fixed
+- `auth_ulogin`: profile URLs overwriting while login.
+- `comments`: check for registered comment drivers.
+- `content`: translation error.
+- `metatag`: favicon early URL building.
+- `theme`: directory structure checking while searching for installed themes.
+
+
 ## 0.95 (2016-11-24)
 ### Added
 - New package: `theme`.

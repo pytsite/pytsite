@@ -9,7 +9,11 @@ class DriverAlreadyRegistered(Exception):
     pass
 
 
-class DriverNotRegistered(Exception):
+class DriversNotRegistered(Exception):
+    pass
+
+
+class NoDriverRegistered(Exception):
     pass
 
 

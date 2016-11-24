@@ -34,8 +34,14 @@ def _init():
     # Initialize themes
     themes_path = get_themes_path()
     if path.isdir(themes_path):
-        for name in sorted(listdir(get_themes_path())):
-            register('themes.' + name)
+        for name in sorted(listdir(themes_path)):
+            if not path.isdir(path.join(themes_path, name)) or name.startswith('_') or name.startswith('.'):
+                continue
+
+            try:
+                register('themes.' + name)
+            except ImportError:
+                pass
 
 
 _init()

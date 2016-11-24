@@ -149,7 +149,7 @@ class ULogin(_auth.driver.Authentication):
 
         # Link to profile
         if 'profile' in ulogin_data and ulogin_data['profile']:
-            user.urls = (ulogin_data['profile'],)
+            user.urls = user.urls + (ulogin_data['profile'],)
 
         # Options
         options = dict(user.options)

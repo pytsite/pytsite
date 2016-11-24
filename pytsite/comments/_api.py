@@ -77,12 +77,11 @@ def get_driver(driver_name: str = None) -> _driver.Abstract:
     """
     if not driver_name:
         driver_name = _reg.get('comments.default_driver', _last_registered_driver_name)
-
-    if not _driver:
-        raise _error.DriverNotRegistered('No comments driver registered.')
+        if not driver_name:
+            raise _error.NoDriverRegistered('There is no comment drivers registered')
 
     if driver_name not in _drivers:
-        raise _error.DriverNotRegistered("Driver '{}' is not registered".format(driver_name))
+        raise _error.DriversNotRegistered("Driver '{}' is not registered".format(driver_name))
 
     return _drivers[driver_name]
 

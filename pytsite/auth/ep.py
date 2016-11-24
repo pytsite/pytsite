@@ -80,8 +80,8 @@ def profile_view(args: dict, inp: dict) -> str:
 
     c_user = _api.get_current_user()
 
-    if _tpl.tpl_exists('auth/profile-view'):
-        tpl_name = 'auth/profile-view'
+    if _tpl.tpl_exists('$theme/auth/profile-view'):
+        tpl_name = '$theme/auth/profile-view'
     else:
         tpl_name = 'pytsite.auth@profile-view'
 

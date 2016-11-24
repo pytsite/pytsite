@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _tags = {}
-_favicon_url = _assetman.url(_reg.get('metatag.favicon.href', '$theme@img/favicon.png'))
+_favicon_url = _reg.get('metatag.favicon.href', '$theme@img/favicon.png')
 
 
 def reset():
@@ -19,7 +19,7 @@ def reset():
     t_set('charset', 'UTF-8')
     t_set('title', _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-    t_set('link', rel='icon', type='image/png', href=_favicon_url)
+    t_set('link', rel='icon', type='image/png', href=_assetman.url(_favicon_url))
 
 
 def t_set(tag: str, value: str = None, **kwargs):

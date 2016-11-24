@@ -921,9 +921,9 @@ class Content(Base):
         if _localization_enabled and current_user.has_permission('pytsite.content.set_localization.' + self.model):
             # Current language
             if self.is_new:
-                lang_title = _lang.t('lang_title_' + _lang.get_current())
+                lang_title = _lang.t('app@lang_title_' + _lang.get_current())
             else:
-                lang_title = _lang.t('lang_title_' + self.language)
+                lang_title = _lang.t('app@lang_title_' + self.language)
             frm.add_widget(_widget.static.Text(
                 uid='language',
                 weight=1200,
