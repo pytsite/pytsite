@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.95.2 (2016-11-24)
+### Fixed
+- `util`: callable name checking in `get_callable()`.
+
+
 ## 0.95.1 (2016-11-24)
 ### Fixed
 - `auth_ulogin`: profile URLs overwriting while login.
