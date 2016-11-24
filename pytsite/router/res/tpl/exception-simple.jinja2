@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang() }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+<h1 class="page-title">{{ title | e }}</h1>
+{% if traceback and reg_get('debug') %}
+    <pre>{{ traceback | e }}</pre>
+{% endif %}
+</body>
+</html>

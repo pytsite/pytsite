@@ -19,7 +19,6 @@ class Form(_form.Form):
 
         super().__init__(uid, css='setting-uid-' + self._setting_uid, **kwargs)
 
-
     def _setup_form(self, **kwargs):
         """Hook.
         """

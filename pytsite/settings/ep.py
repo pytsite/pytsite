@@ -1,8 +1,8 @@
 """Settings Plugin Endpoints
 """
 import re as _re
-from pytsite import auth as _auth, tpl as _tpl, metatag as _metatag, lang as _lang, router as _router, http as _http, \
-    form as _form, admin as _admin, widget as _widget
+from pytsite import auth as _auth, metatag as _metatag, lang as _lang, router as _router, http as _http, \
+    admin as _admin
 from . import _api, _frm
 
 __author__ = 'Alexander Shepetko'

@@ -11,6 +11,8 @@ __license__ = 'MIT'
 
 
 def base_path() -> str:
+    """Get base path of the admin interface.
+    """
     return _reg.get('admin.base_path', '/admin')
 
 
@@ -27,12 +29,12 @@ def render(content: str) -> str:
         'core_name': _core_name,
         'core_url': _core_url,
         'core_version': _version_str(),
-        'sidebar_collapsed': _router.request().cookies.get('adminSidebarCollapsed') is not None
+        'sidebar_collapsed': _router.request().cookies.get('adminSidebarCollapsed') is not None,
     })
 
 
 def render_form(frm: _form.Form) -> str:
-    """Render a form on the admin page.
+    """Render a form within the admin page.
     """
     _assetman.add('pytsite.admin@css/admin-form.css')
     frm.css += ' admin-form'

@@ -28,8 +28,8 @@ def _init():
     assetman.add('pytsite.admin@AdminLTE/css/AdminLTE.min.css', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@AdminLTE/css/skins/skin-blue.min.css', permanent=True, path_prefix=bp)
     assetman.add('pytsite.admin@css/custom.css', permanent=True, path_prefix=bp)
-    assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix=bp, async=True, defer=True)
-    assetman.add('pytsite.admin@js/admin.js', permanent=True, path_prefix=bp, async=True, defer=True)
+    assetman.add('pytsite.admin@AdminLTE/js/app.js', permanent=True, path_prefix=bp)
+    assetman.add('pytsite.admin@js/admin.js', permanent=True, path_prefix=bp)
 
     # Permissions
     permissions.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')

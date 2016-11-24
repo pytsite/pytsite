@@ -1,5 +1,41 @@
 # PytSite Changelog
 
+## 0.95 (2016-11-24)
+### Added
+- New package: `theme`.
+- `assetman`:
+    - new `tpl`'s global: `add_asset()`;
+    - support for package aliases;
+    - asset's build cache;
+    - support for `$theme` placeholder in location specification.
+- `browser`: new `tpl`'s global: `add_lib()`.
+- `http`: new methods in `Session`: `get_message()`, `get_info_message()`, `get_success_message()`, 
+  `get_warning_message()`, `get_error_message()`.
+- `lang`: 
+    - support for registering and using global variables in translation strings;
+    - support for `$theme` placeholder in message id specification.
+- `plugman`: support for remote `plugin.json` spec files.
+- `settings`: new API function: `form_url()`.
+
+### Fixed
+- `router`: exception handling when theme's `exception` template is not accessible.
+- `console`: checking environment type in `print_` functions.
+- `http`: incorrect session's behaviour in some cases.
+
+### Changed
+- `assetman`: assets building console command moved to API function `build()`.
+- `plugman`: plugins storage moved outside `app` directory.
+- `theme`: themes storage moved outside `app` directory.
+- `tpl`: `$theme` is default package name now in location specification without it.
+
+### Removed
+- Package `fb` moved to separate [plugin](https://github.com/pytsite/plugin-facebook).
+- Package `lj` moved to separate [plugin](https://github.com/pytsite/plugin-livejournal).
+- Package `tumblr` moved to separate [plugin](https://github.com/pytsite/plugin-tumblr).
+- Package `twitter` moved to separate [plugin](https://github.com/pytsite/plugin-twitter).
+- Package `vk` moved to separate [plugin](https://github.com/pytsite/plugin-vkontakte).
+
+
 ## 0.94 (2016-11-09)
 ### Added
 - `admin`: new argument in `add_section()`: `sort_items_by`.

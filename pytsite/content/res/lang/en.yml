@@ -64,7 +64,7 @@ odm_ui_form_title_create_section: 'Create section'
 odm_ui_form_title_modify_section: 'Modify section'
 odm_ui_form_title_delete_section: 'Delete section(s)'
 
-odm_perm_create_section: 'Create section'
+odm_perm_create_section: 'Create sections'
 odm_perm_modify_section: 'Modify sections'
 odm_perm_delete_section: 'Delete sections'
 

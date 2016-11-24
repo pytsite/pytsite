@@ -10,16 +10,21 @@ __license__ = 'MIT'
 
 class Form(_settings.Form):
     def _setup_form(self, **kwargs):
+        """Hook.
+        """
         super()._setup_form(**kwargs)
 
         _assetman.add('pytsite.plugman@css/settings-form.css')
         _assetman.add('pytsite.plugman@js/settings-form.js')
 
     def _setup_widgets(self):
+        """Hook.
+        """
         self.remove_widget('action-submit')
 
         table = _widget.static.Table('plugins')
 
+        # Table header
         table.add_row((
             _lang.t('pytsite.plugman@description'),
             _lang.t('pytsite.plugman@version'),
@@ -30,7 +35,7 @@ class Form(_settings.Form):
             description = str(_html.A(info['description'], href=info['home_url'], target='_blank'))
 
             actions = ''
-            if not info['installed_version']:
+            if not _api.is_installed(name):
                 btn = _html.A(cls='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
                               href='#', data_name=name, data_ep='plugman/install')
                 btn.append(_html.I(cls='fa fa-download'))
@@ -55,10 +60,10 @@ class Form(_settings.Form):
 
             if info['installed_version']:
                 version = info['installed_version']
-                if info['installed_version'] != info['latest_version'][0]:
+                if info['upgradable']:
                     version += ' ({})'.format(info['latest_version'][0])
             else:
-                version = info['latest_version'][0]
+                version = info['latest_version']
 
             table.add_row((
                 description,

@@ -43,25 +43,25 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
     # Define 'bypass_moderation' permission
     if mock.has_field('status'):
         perm_name = 'pytsite.content.bypass_moderation.' + model
-        perm_description = cls.resolve_partly_msg_id('content_perm_bypass_moderation_' + model)
+        perm_description = cls.resolve_msg_id('content_perm_bypass_moderation_' + model)
         _permission.define_permission(perm_name, perm_description, perm_group)
 
     # Define 'set_localization' permission
     if _localization_enabled and mock.has_field('localization_' + _lang.get_current()):
         perm_name = 'pytsite.content.set_localization.' + model
-        perm_description = cls.resolve_partly_msg_id('content_perm_set_localization_' + model)
+        perm_description = cls.resolve_msg_id('content_perm_set_localization_' + model)
         _permission.define_permission(perm_name, perm_description,  perm_group)
 
     # Define 'set_date' permission
     if mock.has_field('publish_time'):
         perm_name = 'pytsite.content.set_publish_time.' + model
-        perm_description = cls.resolve_partly_msg_id('content_perm_set_publish_time_' + model)
+        perm_description = cls.resolve_msg_id('content_perm_set_publish_time_' + model)
         _permission.define_permission(perm_name, perm_description,  perm_group)
 
     # Define 'set_starred' permission
     if mock.has_field('starred'):
         perm_name = 'pytsite.content.set_starred.' + model
-        perm_description = cls.resolve_partly_msg_id('content_perm_set_starred_' + model)
+        perm_description = cls.resolve_msg_id('content_perm_set_starred_' + model)
         _permission.define_permission(perm_name, perm_description,  perm_group)
 
     _admin.sidebar.add_menu(

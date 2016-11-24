@@ -83,8 +83,8 @@ class Profile(_widget.Abstract):
 
         if 'tpl' in kwargs:
             self._tpl = kwargs['tpl']
-        elif _tpl.tpl_exists('app@auth/widget/profile'):
-            self._tpl = 'app@auth/widget/profile'
+        elif _tpl.tpl_exists('auth/widget/profile'):
+            self._tpl = 'auth/widget/profile'
         else:
             self._tpl = 'pytsite.auth@widget/profile'
 

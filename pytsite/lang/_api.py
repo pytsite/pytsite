@@ -2,11 +2,11 @@
 """
 import yaml as _yaml
 import re as _re
-from typing import List as _List
+from typing import List as _List, Callable as _Callable
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path
-from pytsite import threading as _threading
+from pytsite import threading as _threading, theme as _theme
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -17,13 +17,26 @@ _languages = []
 _current = {}  # Thread safe current language
 _fallback = None
 _packages = {}
-_sub_trans_re = _re.compile('\{:([_a-z0-9]+)\}')
+_globals = {}
+_sub_trans_token_re = _re.compile('{:([_a-z0-9]+)}')
+_func_token_re = _re.compile('{::([a-z0-9_]+)}')
 
 _default_regions = {
     'en': 'US',
     'ru': 'RU',
     'uk': 'UA',
 }
+
+
+def _call_func_re_handler(match: _re) -> str:
+    f_name = match.group(1)
+    if f_name not in _globals:
+        return match.group(0)
+
+    try:
+        return _globals[f_name]()
+    except Exception as e:
+        raise RuntimeError('Error while calling lang function {}(): {}'.format(f_name, e))
 
 
 def define(languages: list):
@@ -114,13 +127,25 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
 
     lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)
     if not _path.isdir(lng_dir):
-        raise RuntimeError("Error while registering package '{}': dir '{}' does not exist".format(pkg_name, lng_dir))
+        raise RuntimeError("Language directory '{}' is not found".format(lng_dir))
 
     config = {'__path': lng_dir}
     if alias:
         _packages[alias] = config
     else:
         _packages[pkg_name] = config
+
+
+def register_global(name: str, handler: _Callable):
+    """Register a global.
+    """
+    if name in _globals:
+        raise RuntimeError("Function '{}' is already registered".format(name))
+
+    if not callable(handler):
+        raise TypeError("{} is not callable".format(type(handler)))
+
+    _globals[name] = handler
 
 
 def get_packages() -> dict:
@@ -173,7 +198,10 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, us
             msg = msg.replace(':' + str(k), str(v))
 
     # Replacing sub-translations
-    msg = _sub_trans_re.sub(lambda match: t(match.group(1)), msg)
+    msg = _sub_trans_token_re.sub(lambda match: t(match.group(1)), msg)
+
+    # Call functions
+    msg = _func_token_re.sub(_call_func_re_handler, msg)
 
     return msg
 
@@ -209,7 +237,7 @@ def lang_title(language: str = None) -> str:
     if not language:
         language = get_current()
     try:
-        return t('lang_title_' + language, exceptions=True)
+        return t('app@lang_title_' + language, exceptions=True)
     except _error.TranslationError:
         return language
 
@@ -311,15 +339,13 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
     return language.lower() + sep + region.upper()
 
 
-def _split_msg_id(msg_id: str) -> tuple:
+def _split_msg_id(msg_id: str) -> list:
     """Split message ID into message ID and package name.
     """
-    package_name = 'app'
-    msg_id = msg_id.split('@')
-    if len(msg_id) == 2:
-        package_name = msg_id[0]
-        msg_id = msg_id[1]
-    else:
-        msg_id = msg_id[0]
+    if '@' not in msg_id:
+        msg_id = '$theme@' + msg_id
 
-    return package_name, msg_id
+    if '$theme' in msg_id:
+        msg_id = msg_id.replace('$theme', _theme.get_current())
+
+    return msg_id.split('@')[:2]

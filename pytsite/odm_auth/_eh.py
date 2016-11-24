@@ -21,7 +21,7 @@ def odm_register_model(model: str, cls, replace: bool):
 
     # Registering package's language resources
     if not _lang.is_package_registered(pkg_name):
-        _lang.register_package(pkg_name)
+        raise RuntimeError("Language package '{}' is not registered".format(pkg_name))
 
     # Register permissions
     perm_group = cls.odm_auth_permissions_group()
@@ -34,7 +34,7 @@ def odm_register_model(model: str, cls, replace: bool):
 
             p_name = 'pytsite.odm_perm.' + perm_name + '.' + model
             if not _permission.is_permission_defined(p_name):
-                p_description = cls.resolve_partly_msg_id('odm_perm_' + perm_name + '_' + model)
+                p_description = cls.resolve_msg_id('odm_perm_' + perm_name + '_' + model)
                 _permission.define_permission(p_name, p_description, perm_group)
 
 

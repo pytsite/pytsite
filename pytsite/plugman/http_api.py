@@ -24,6 +24,7 @@ def post_install(**kwargs) -> dict:
 
     return info
 
+
 def post_uninstall(**kwargs) -> dict:
     _api.uninstall(_check_args(**kwargs).get('name'))
     _reload.reload(False)

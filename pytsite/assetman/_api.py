@@ -1,8 +1,14 @@
-"""Asset Manager.
+"""PytSite Asset Manager.
 """
-from os import path as _path
+import re as _re
+import subprocess as _subprocess
+from os import path as _path, walk as _walk, makedirs as _makedirs
+from shutil import rmtree as _rmtree, copy as _copy
+from webassets import Environment as _Environment, Bundle as _Bundle
+from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
 from importlib.util import find_spec as _find_spec
-from pytsite import router as _router, threading as _threading, util as _util
+from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, logger as _logger, \
+    events as _events, maintenance as _maintenance, console as _console, lang as _lang, theme as _theme
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -20,21 +26,24 @@ _inline = {}
 _last_i_weight = {}
 
 
-def register_package(package_name: str, assets_dir: str = 'res/assets'):
+def register_package(package_name: str, assets_dir: str = 'res/assets', alias: str = None):
     """Register assets container.
     """
-    spec = _find_spec(package_name)
-    if not spec:
+    pkg_spec = _find_spec(package_name)
+    if not pkg_spec:
         raise RuntimeError("Package '{}' is not found.".format(package_name))
 
-    dir_path = _path.join(_path.dirname(spec.origin), assets_dir)
+    dir_path = _path.join(_path.dirname(pkg_spec.origin), assets_dir)
     if not _path.isdir(dir_path):
         FileNotFoundError("Directory '{}' is not found.".format(dir_path))
 
     if package_name in _packages:
         raise RuntimeError("Package '{}' is already registered.".format(package_name))
 
-    _packages[package_name] = dir_path
+    if alias:
+        _packages[alias] = dir_path
+    else:
+        _packages[package_name] = dir_path
 
 
 def get_packages() -> dict:
@@ -228,17 +237,110 @@ def get_urls(collection: str = None, filter_path: bool = True) -> list:
     return [url(l[0]) for l in get_locations(collection, filter_path)]
 
 
+def build(package_name: str = None, maintenance: bool = True):
+    """Compile assets.
+    """
+    # Check for LESS compiler existence
+    if _subprocess.run(['which', 'lessc'], stdout=_subprocess.PIPE).returncode:
+        raise RuntimeError('lessc executable is not found. Check http://lesscss.org/#using-less-installation.')
+
+    # Paths
+    assets_dir = _path.join(_reg.get('paths.static'), 'assets')
+
+    # Determine list of packages to process
+    packages_list = get_packages()
+    if package_name:
+        try:
+            packages_list = {package_name: packages_list[package_name]}
+        except KeyError:
+            raise KeyError("Assetman package '{}' is not registered.".format(package_name))
+
+    # Enable maintenance mode
+    if maintenance:
+        _maintenance.enable()
+
+    # Delete target assets directory if we going to compile all packages
+    if not package_name:
+        _rmtree(assets_dir)
+
+    _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+    for pkg_name, source_dir_path in packages_list.items():
+        # Create cache directory
+        cache_dir = _path.join(_reg.get('paths.tmp'), 'assetman', pkg_name)
+        if not _path.isdir(cache_dir):
+            _makedirs(cache_dir, 0o755)
+
+        # Building package's assets absolute paths list
+        src_file_paths = []
+        for root, dirs, files in _walk(source_dir_path):
+            for file in files:
+                src_file_paths.append(_path.join(root, file))
+
+        # Create Webassets environment
+        env = _Environment(directory=source_dir_path, versions=False, manifest=False, cache=cache_dir)
+
+        # Process each package's asset
+        for src_path in src_file_paths:
+            dst_path = _path.join(assets_dir, pkg_name, src_path.replace(source_dir_path + _path.sep, ''))
+
+            ext = _path.splitext(src_path)[1]
+            if ext in ['.js', '.css', '.ts', '.less']:
+                filters = []
+
+                # LESS compiler
+                if ext == '.less':
+                    filters.append('less')
+                    dst_path = _re.sub(r'\.less$', '.css', dst_path)
+                    ext = '.css'
+
+                # TypeScript compiler
+                elif ext == '.ts':
+                    filters.append('typescript')
+                    dst_path = _re.sub(r'\.ts$', '.js', dst_path)
+                    ext = '.js'
+
+                # Minifying JS/CSS
+                if _reg.get('output.minify'):
+                    if ext == '.js' and not src_path.endswith('.min.js') and not src_path.endswith('.pack.js'):
+                        filters.append('jsmin')
+                    if ext == '.css' and not src_path.endswith('.min.css'):
+                        filters.append('cssmin')
+
+                # Add asset to environment as separate bundle
+                bundle = _Bundle(src_path, filters=filters)
+                env.register(dst_path, bundle, output=dst_path)
+
+            # Just copy file as is
+            else:
+                dst_dir = _path.dirname(dst_path)
+                if not _path.exists(dst_dir):
+                    _makedirs(dst_dir, 0o755)
+                _copy(src_path, dst_path)
+
+        # Build environment
+        cmd = _CommandLineEnvironment(env, _logger)
+        if cmd.invoke('build', {}) == 2:
+            raise RuntimeError("Error while compiling assets for package '{}'. Check logs for details.".
+                               format(pkg_name))
+
+    _events.fire('pytsite.assetman.build')
+
+    if maintenance:
+        _maintenance.disable()
+
+
 def _split_asset_location_info(location: str) -> dict:
     """Split asset path into package name and asset path.
     """
-    package_name = 'app'
-    asset_path = location
-    path_parts = location.split('@')
-    if len(path_parts) == 2:
-        package_name = path_parts[0]
-        asset_path = path_parts[1]
+    if '@' not in location:
+        location = '$theme@' + location
 
-    if package_name not in _packages:
-        raise RuntimeError("Package '{}' is not registered.".format(package_name))
+    if '$theme' in location:
+        location = location.replace('$theme', _theme.get_current())
 
-    return package_name, asset_path
+    pkg_name, asset_path = location.split('@')[:2]
+
+    if pkg_name not in _packages:
+        raise RuntimeError("Assetman package '{}' is not registered.".format(pkg_name))
+
+    return pkg_name, asset_path

@@ -7,8 +7,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _tags = {}
+_favicon_url = _assetman.url(_reg.get('metatag.favicon.href', '$theme@img/favicon.png'))
 
 
 def reset():
@@ -19,10 +19,10 @@ def reset():
     t_set('charset', 'UTF-8')
     t_set('title', _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-    t_set('link', rel='icon', type='image/png', href=_assetman.url(_reg.get('metatag.favicon.href')))
+    t_set('link', rel='icon', type='image/png', href=_favicon_url)
 
 
-def t_set(tag: str, value: str=None, **kwargs):
+def t_set(tag: str, value: str = None, **kwargs):
     """Set tag value.
     """
     tid = _threading.get_id()
@@ -68,7 +68,7 @@ def dump(tag: str) -> str:
 
     # Page title
     elif tag == 'title':
-        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app_name'))
+        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app@app_name'))
 
     # OpenGraph tags
     elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):

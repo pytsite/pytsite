@@ -1,9 +1,8 @@
 """PytSite Router.
 """
-from ._api import add_rule, add_path_alias, base_path, base_url, call_ep, current_path, current_url, dispatch, ep_path,\
+from ._api import add_rule, add_path_alias, base_path, base_url, call_ep, current_path, current_url, dispatch, ep_path, \
     ep_url, is_base_url, is_ep_callable, get_no_cache, set_no_cache, remove_path_alias, resolve_ep_callable, scheme, \
     server_name, url, session, request, set_request, get_session_store
-
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,7 +13,7 @@ def _init():
     from os import path, makedirs
     from pytsite import tpl, lang, reg
 
-    # Registering resources
+    # Resources
     tpl.register_package(__name__)
     lang.register_package(__name__)
 

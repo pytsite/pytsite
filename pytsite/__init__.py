@@ -58,6 +58,10 @@ def _init():
     else:
         raise RuntimeError('Cannot find application directory.')
 
+    # Workaround for some cases
+    if '/usr/local/bin' not in environ['PATH'] and path.exists('/usr/local/bin'):
+        environ['PATH'] += ':/usr/local/bin'
+
     # Check root
     if not path.exists(root_path) or not path.isdir(root_path):
         raise RuntimeError("{} is not exists or it is not a directory.".format(root_path))
@@ -67,20 +71,13 @@ def _init():
     reg.put('paths.root', root_path)
     reg.put('paths.app', app_path)
     reg.put('paths.static', path.join(root_path, 'static'))
-    for n in ['config', 'log', 'plugins', 'storage', 'tmp', 'themes']:
+    for n in ['config', 'log', 'storage', 'tmp']:
         reg.put('paths.' + n, path.join(app_path, n))
 
     # Additional filesystem paths
     reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))
     reg.put('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
     reg.put('paths.maintenance.lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
-
-    # Output parameters
-    reg.put('output', {
-        'minify': True,
-        'theme': 'default',
-        'base_tpl': 'app@html',
-    })
 
     # Debug is disabled by default
     reg.put('debug', False)
@@ -89,29 +86,19 @@ def _init():
     file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'))
     reg.set_driver(file_driver)
 
-    # Initialize required core packages
-    autoload = ('lang', 'tpl', 'events', 'cron', 'console', 'router', 'assetman', 'metatag', 'hreflang', 'browser',
-                'form', 'setup', 'reload', 'update', 'cleanup', 'auth', 'odm_http_api')
+    # Default output parameters
+    reg.put('output', {
+        'minify': not reg.get('debug'),
+        'base_tpl': '$theme@html',
+    })
+
+    # Initialize required core packages. Order is important.
+    autoload = ('theme', 'cron', 'reload', 'update', 'setup', 'cleanup', 'auth_ulogin', 'odm_http_api', 'plugman')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 
-    # Initializing automatically loaded required packages
-    for module in reg.get('autoload', ()):
-        __import__(module)
-
-    # Initializing 'app' package parts
-    from pytsite import lang, tpl, assetman
-    theme = reg.get('output.theme')
-    lang.register_package('app', 'lang')
-    tpl.register_package('app', 'themes' + path.sep + theme + path.sep + 'tpl')
-    assetman.register_package('app', 'themes' + path.sep + theme + path.sep + 'assets')
-    __import__('app.themes.' + theme)
-
-    # Initialize plugins
-    __import__('pytsite.plugman')
-
-    # Settings favicon href
-    reg.put('metatag.favicon.href', 'img/favicon.png')
+    # Initialize application package
+    __import__('app')
 
 
 _init()

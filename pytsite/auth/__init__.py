@@ -16,7 +16,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import reg, assetman, events, tpl, lang, router, robots, console, util, http_api, permissions
+    from pytsite import assetman, events, tpl, lang, router, robots, console, http_api, permissions
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh
 

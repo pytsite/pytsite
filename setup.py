@@ -32,6 +32,7 @@ setup(
     author_email='a@shepetko.com',
     license='MIT',
     install_requires=[
+        'pip',
         'PyYAML',
         'Werkzeug',
         'Jinja2',
@@ -44,8 +45,6 @@ setup(
         'jsmin',
         'cssmin',
         'requests',
-        'requests_oauthlib',
-        'twython',
         'lxml',
         'pytz',
         'frozendict',

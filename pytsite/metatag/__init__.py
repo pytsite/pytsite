@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
+def _init():
     from pytsite import lang, events, tpl
 
     lang.register_package(__name__)
@@ -18,4 +18,4 @@ def __init():
     tpl.register_global('metatag_get', get)
 
 
-__init()
+_init()

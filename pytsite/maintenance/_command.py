@@ -1,7 +1,7 @@
 """PytSite Maintenance Console Commands.
 """
 from pytsite import console as _console, validation as _validation
-from . import _function
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,6 +11,7 @@ __license__ = 'MIT'
 class Maintenance(_console.command.Abstract):
     """'maintenance' Console Command.
     """
+
     def get_name(self) -> str:
         """Get name of the command.
         """
@@ -35,7 +36,7 @@ class Maintenance(_console.command.Abstract):
             ('disable', _validation.rule.Pass())
         )
 
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self, args: tuple = (), **kwargs):
         """Execute the command.
         """
         if not kwargs:
@@ -43,6 +44,6 @@ class Maintenance(_console.command.Abstract):
 
         for arg in kwargs:
             if arg == 'enable':
-                _function.enable()
+                _api.enable()
             if arg == 'disable':
-                _function.disable()
+                _api.disable()

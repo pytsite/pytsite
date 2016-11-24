@@ -21,7 +21,7 @@ def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permission
     """Define setting.
     """
     if uid in _settings:
-        raise KeyError("Setting '{}' already defined.".format(uid))
+        raise KeyError("Setting '{}' is already defined.".format(uid))
 
     _settings[uid] = {
         'title': menu_title,
@@ -82,3 +82,9 @@ def put(uid: str, value: _Any):
             entity.f_set('value', value)
 
         entity.save()
+
+
+def form_url(uid: str) -> str:
+    """Get URL of a settings form.
+    """
+    return _router.ep_url('pytsite.settings@form', {'uid': uid})

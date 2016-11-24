@@ -1,7 +1,7 @@
 """PytSite HTTP API Functions.
 """
 from importlib import import_module as _import_module
-from pytsite import router as _router, reg as _reg, util as _util
+from pytsite import router as _router, util as _util
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -14,9 +14,6 @@ _handlers = {}
 def register_handler(prefix: str, module_name: str):
     """Register API requests handler.
     """
-    if '$theme' in module_name:
-        module_name = module_name.replace('$theme', 'app.themes.{}'.format(_reg.get('output.theme')))
-
     if prefix in _handlers:
         raise RuntimeError("HTTP API endpoint '{}' is already registered with module '{}'."
                            .format(prefix, _handlers[prefix]))

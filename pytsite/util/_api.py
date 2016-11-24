@@ -292,7 +292,7 @@ def mk_tmp_file() -> tuple:
     return mkstemp(dir=tmp_dir)
 
 
-def random_str(size=16, alphabet='0123456789abcdef', exclude: _Iterable = None):
+def random_str(size: int = 16, alphabet: str = '0123456789abcdef', exclude: _Iterable = None):
     """Generate random string.
     """
     while True:
@@ -301,7 +301,7 @@ def random_str(size=16, alphabet='0123456789abcdef', exclude: _Iterable = None):
             return s
 
 
-def random_password(size=16):
+def random_password(size: int = 16):
     """Generate random password.
     """
     alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
@@ -410,7 +410,7 @@ def transform_str_2(s: str) -> str:
 
 
 def get_class(s: str) -> type:
-    """Get class by its dotted-notation name.
+    """Resolve class from dotted-notated name.
     """
     if not isinstance(s, str):
         raise ValueError('String expected.')
@@ -536,16 +536,20 @@ def to_snake_case(s: str) -> str:
 
 
 def get_callable(s: str) -> callable:
-    """Check if the object described by a string is callable.
+    """Get callable object described by a string.
     """
-    s = s.split('.')
+    if not _re.match('^[a-z\._]+$', s):
+        raise RuntimeError('Invalid format of callable string: {}'.format(s))
 
-    module_name = '.'.join(s[:-1])
-    callable_name = ''.join(s[-1:])
+    s_split = s.split('.')
+
+    module_name = '.'.join(s_split[:-1])
+    callable_name = ''.join(s_split[-1:])
 
     module = _import_module(module_name)
     if callable_name not in dir(module):
-        raise ImportError("Module '{}' doesn't define '{}'".format(module_name, callable_name))
+        raise ImportError("Cannot get callable for '{}': module '{}' doesn't define '{}'".
+                          format(s, module_name, callable_name))
 
     callable_obj = getattr(module, callable_name)
     if not callable(callable_obj):

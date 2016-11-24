@@ -8,8 +8,8 @@ from urllib import parse as _urlparse
 from werkzeug.routing import Map as _Map, Rule as _Rule, MapAdapter as _MapAdapter
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
-from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, metatag as _metatag, \
-    tpl as _tpl, threading as _threading
+from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
+    threading as _threading, theme as _theme
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -161,13 +161,16 @@ def is_ep_callable(ep_name: str) -> bool:
     try:
         resolve_ep_callable(ep_name)
         return True
-
     except ImportError:
         return False
 
 
 def resolve_ep_callable(ep_name: str) -> callable:
-    ep_name = ep_name.replace('$theme', 'app.themes.' + _reg.get('output.theme')).replace('@', '.ep.')
+    if '$theme' in ep_name:
+        ep_name = ep_name.replace('$theme', _theme.get_current())
+
+    if '@' in ep_name:
+        ep_name = ep_name.replace('@', '.ep.')
 
     return _util.get_callable(ep_name)
 
@@ -251,8 +254,12 @@ def dispatch(env: dict, start_response: callable):
     # Creating request context
     set_request(_http.request.Request(env))
 
+    # Shortcuts
+    request_input = request().inp
+    request_cookies = request().cookies
+
     # Session setup
-    sid = request().cookies.get('PYTSITE_SESSION')
+    sid = request_cookies.get('PYTSITE_SESSION')
     if sid:
         _sessions[tid] = _session_store.get(sid)
     else:
@@ -277,7 +284,7 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_ep(flt_endpoint, flt_args, request().inp)
+            flt_response = call_ep(flt_endpoint, flt_args, request_input)
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
@@ -304,7 +311,7 @@ def dispatch(env: dict, start_response: callable):
         else:
             wsgi_response.headers.set('Cache-Control', 'public')
 
-        # Updating session data
+        # Store updated session data
         if session().should_save:
             _session_store.save(session())
             wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
@@ -330,7 +337,8 @@ def dispatch(env: dict, start_response: callable):
             title = _lang.t('pytsite.router@error', {'code': '500'})
             _logger.error(str(e), exc_info=e)
 
-        _metatag.t_set('title', title)
+        from pytsite import metatag
+        metatag.t_set('title', title)
 
         args = {
             'title': title,
@@ -348,10 +356,14 @@ def dispatch(env: dict, start_response: callable):
         else:
             try:
                 # User defined template
-                wsgi_response = _tpl.render('app@exception', args)
+                wsgi_response = _tpl.render('$theme@exception', args)
             except _tpl.error.TemplateNotFound:
-                # Default template
-                wsgi_response = _tpl.render('pytsite.router@exception', args)
+                try:
+                    # Default template
+                    wsgi_response = _tpl.render('pytsite.router@exception', args)
+                except _tpl.error.TemplateNotFound:
+                    # Default simple template
+                    wsgi_response = _tpl.render('pytsite.router@exception-simple', args)
 
         return _http.response.Response(wsgi_response, code, content_type='text/html')(env, start_response)
 
@@ -507,17 +519,17 @@ def current_url(strip_query: bool = False, resolve_alias: bool = True, lang: str
     return r
 
 
-def ep_path(endpoint: str, args: dict = None) -> str:
-    """Get path of endpoint.
+def ep_path(endpoint: str, route_args: dict = None) -> str:
+    """Get path for an endpoint.
     """
     tid = _threading.get_id()
     if tid not in _map_adapters:
         _map_adapters[tid] = _routes.bind(server_name())
 
-    return _map_adapters[tid].build(endpoint, args)
+    return _map_adapters[tid].build(endpoint, route_args)
 
 
-def ep_url(ep_name: str, args: dict = None, **kwargs) -> str:
-    """Get URL of endpoint.
+def ep_url(ep_name: str, route_args: dict = None, **kwargs) -> str:
+    """Get URL for an endpoint.
     """
-    return url(ep_path(ep_name, args), **kwargs)
+    return url(ep_path(ep_name, route_args), **kwargs)

@@ -1,14 +1,19 @@
-"""PytSite Maintenance Module.
+"""PytSite Maintenance Package.
 """
 # Public API
-from ._function import enable, disable, is_enabled
-
-from pytsite import console as _console, lang as _lang
-from . import _command
+from ._api import enable, disable, is_enabled
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_lang.register_package(__name__)
-_console.register_command(_command.Maintenance())
+
+def _init():
+    from pytsite import console, lang
+    from . import _command
+
+    lang.register_package(__name__)
+    console.register_command(_command.Maintenance())
+
+
+_init()

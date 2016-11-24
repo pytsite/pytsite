@@ -48,7 +48,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
 
     except _error.AuthenticationError:
         _router.session().add_error_message(_lang.t('pytsite.auth@authentication_error'))
-        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
+        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', route_args={
             'driver': driver,
             '__redirect': redirect,
         }))
@@ -56,7 +56,7 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
     except Exception as e:
         _logger.error(str(e), exc_info=e)
         _router.session().add_error_message(str(e))
-        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', args={
+        return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', route_args={
             'driver': driver,
             '__redirect': redirect,
         }))
@@ -80,8 +80,8 @@ def profile_view(args: dict, inp: dict) -> str:
 
     c_user = _api.get_current_user()
 
-    if _tpl.tpl_exists('app@auth/profile-view'):
-        tpl_name = 'app@auth/profile-view'
+    if _tpl.tpl_exists('auth/profile-view'):
+        tpl_name = 'auth/profile-view'
     else:
         tpl_name = 'pytsite.auth@profile-view'
 

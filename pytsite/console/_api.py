@@ -7,7 +7,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 __commands = {}
 
 COLOR_HEADER = '\033[95m'
@@ -36,7 +35,7 @@ def get_command(name: str) -> _command.Abstract:
     return __commands[name]
 
 
-def run_command(name: str, args: tuple=(), **kwargs):
+def run_command(name: str, args: tuple = (), **kwargs):
     """Run a console command.
     """
     cmd = get_command(name)
@@ -120,16 +119,20 @@ def run():
 
 
 def print_info(msg: str):
-    print('{}{}{}'.format(COLOR_INFO, msg, COLOR_END))
+    if _reg.get('env.type') == 'console':
+        print('{}{}{}'.format(COLOR_INFO, msg, COLOR_END))
 
 
 def print_success(msg: str):
-    print('{}{}{}'.format(COLOR_SUCCESS, msg, COLOR_END))
+    if _reg.get('env.type') == 'console':
+        print('{}{}{}'.format(COLOR_SUCCESS, msg, COLOR_END))
 
 
 def print_warning(msg: str):
-    print('{}{}{}'.format(COLOR_WARNING, msg, COLOR_END))
+    if _reg.get('env.type') == 'console':
+        print('{}{}{}'.format(COLOR_WARNING, msg, COLOR_END))
 
 
 def print_error(msg: str):
-    print('{}{}{}'.format(COLOR_ERROR, msg, COLOR_END))
+    if _reg.get('env.type') == 'console':
+        print('{}{}{}'.format(COLOR_ERROR, msg, COLOR_END))

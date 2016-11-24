@@ -1,4 +1,4 @@
-"""Admin Sidebar.
+"""PytSite Admin Sidebar API.
 """
 from pytsite import auth as _auth, util as _util, html as _html, lang as _lang, router as _router, reg as _reg
 

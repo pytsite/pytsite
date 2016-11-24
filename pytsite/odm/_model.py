@@ -802,19 +802,19 @@ class Entity(_ABC):
         return '.'.join(cls.__module__.split('.')[:-1])
 
     @classmethod
-    def t(cls, partly_msg_id: str, args: dict = None) -> str:
+    def t(cls, partial_msg_id: str, args: dict = None) -> str:
         """Translate a string in model context.
         """
-        return _lang.t(cls.resolve_partly_msg_id(partly_msg_id), args)
+        return _lang.t(cls.resolve_msg_id(partial_msg_id), args)
 
     @classmethod
-    def t_plural(cls, partly_msg_id: str, num: int = 2) -> str:
+    def t_plural(cls, partial_msg_id: str, num: int = 2) -> str:
         """Translate a string into plural form.
         """
-        return _lang.t_plural(cls.resolve_partly_msg_id(partly_msg_id), num)
+        return _lang.t_plural(cls.resolve_msg_id(partial_msg_id), num)
 
     @classmethod
-    def resolve_partly_msg_id(cls, partly_msg_id: str) -> str:
+    def resolve_msg_id(cls, partly_msg_id: str) -> str:
         # Searching for translation up in hierarchy
         for super_cls in cls.__mro__:
             if issubclass(super_cls, Entity):

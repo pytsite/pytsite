@@ -1,10 +1,10 @@
 # Public API
 import jinja2 as _jinja
 from datetime import datetime as _datetime
-from importlib import import_module as _import_module
+from importlib.util import find_spec as _find_module_spec
 from os import path as _path
 from urllib.parse import urlparse as _urlparse
-from pytsite import reg as _reg, lang as _lang, util as _util, events as _events
+from pytsite import reg as _reg, lang as _lang, util as _util, events as _events, theme as _theme
 from . import _error as error
 
 __author__ = 'Alexander Shepetko'
@@ -18,19 +18,21 @@ def _get_tpl_path(tpl: str) -> str:
     if not tpl:
         raise ValueError('Template name is not specified.')
 
-    package_name = 'app'
-    tpl_split = tpl.split('@')
-    if len(tpl_split) == 2:
-        package_name = tpl_split[0]
-        tpl = tpl_split[1]
+    if '@' not in tpl:
+        tpl = '$theme@' + tpl
+
+    if '$theme' in tpl:
+        tpl = tpl.replace('$theme', _theme.get_current())
+
+    package_name, tpl_name = tpl.split('@')[:2]
 
     if package_name not in _packages:
-        raise error.TemplateNotFound("Package {} is not registered.".format(package_name))
+        raise error.TemplateNotFound("Templates package '{}' is not registered.".format(package_name))
 
-    if not tpl.endswith('.jinja2'):
-        tpl += '.jinja2'
+    if not tpl_name.endswith('.jinja2'):
+        tpl_name += '.jinja2'
 
-    return _path.join(_packages[package_name]['templates_dir'], tpl)
+    return _path.join(_packages[package_name]['templates_dir'], tpl_name)
 
 
 def tpl_exists(tpl: str) -> bool:
@@ -84,10 +86,13 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
     if package_name in _packages:
         raise RuntimeError("Package '{}' already registered.".format(package_name))
 
-    package = _import_module(package_name)
-    templates_dir = _path.join(_path.abspath(_path.dirname(package.__file__)), templates_dir)
+    pkg_spec = _find_module_spec(package_name)
+    if not pkg_spec:
+        raise RuntimeError("Package '{}' is not found".format(package_name))
+
+    templates_dir = _path.join(_path.dirname(pkg_spec.origin), templates_dir)
     if not _path.isdir(templates_dir):
-        raise FileNotFoundError("Directory '{}' is not found.".format(templates_dir))
+        raise NotADirectoryError("Directory '{}' is not found".format(templates_dir))
 
     config = {'templates_dir': templates_dir}
     if alias:

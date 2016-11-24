@@ -1,6 +1,6 @@
 """PytSite Form AJAX Endpoints.
 """
-from pytsite import util as _util, router as _router
+from pytsite import util as _util
 from . import _error, _form
 
 __author__ = 'Alexander Shepetko'
