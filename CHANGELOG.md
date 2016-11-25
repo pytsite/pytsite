@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.95.3 (2016-11-25)
+### Fixed
+- `content_export`: error messages formatting.
+- `theme`: error in `get_current()` API function.
+
+
 ## 0.95.2 (2016-11-24)
 ### Fixed
 - `util`: callable name checking in `get_callable()`.

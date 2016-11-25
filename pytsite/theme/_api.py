@@ -122,10 +122,10 @@ def set_current(package_name: str):
 
 
 def get_current() -> str:
-    """Get default theme.
+    """Get current theme.
     """
     if not _themes:
         raise _error.NoThemesRegistered('No registered themes found')
 
     tid = _threading.get_id()
-    return _current[tid] if tid in _current else _current[0]
+    return _current[tid] if tid in _current else list(_themes.keys())[0]
