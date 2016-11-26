@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.96 (2016-11-26)
+### Added
+- `plugman`: conformation dialogs.
+
+### Changed
+- `admin`: AdminLTE theme files updated: 2.3.2 -> 2.3.7.
+- `auth`: 'password' driver loads by default now.
+- `browser`:
+    - Twitter Bootstrap updated: 3.3.4 -> 3.3.7;
+    - Font Awesome updated: 4.6.3 -> 4.7.0.
+
+### Fixed
+- `auth_password`: translations and form button icon.
+- `odm`: entity caching error handling.
+- `plugman`: incorrect upgradable version number display.
+
+
 ## 0.95.3 (2016-11-25)
 ### Fixed
 - `content_export`: error messages formatting.

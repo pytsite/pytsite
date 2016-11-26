@@ -61,7 +61,7 @@ class Form(_settings.Form):
             if info['installed_version']:
                 version = info['installed_version']
                 if info['upgradable']:
-                    version += ' ({})'.format(info['latest_version'][0])
+                    version += ' ({})'.format(info['latest_version'])
             else:
                 version = info['latest_version']
 

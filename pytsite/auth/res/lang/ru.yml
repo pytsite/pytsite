@@ -16,11 +16,11 @@ nickname_str_rules: 'Никнейм должен содержать только
 email_cannot_be_empty: 'Email не может быть пустым'
 passwd_console_command_description: 'Смена пароля пользвателя'
 user_is_not_exist: "Пользователь ':login' не найден"
-enter_new_password: 'Введите новый пароль'
+enter_new_password: 'Новый пароль пользователя :login'
 retype_password: 'Повторите пароль'
 password_cannot_be_empty: 'Пароль не может быть пустым'
 passwords_dont_match: 'Пароли не совпадают'
-password_successfully_changed: 'Пароль успешно изменён'
+password_successfully_changed: 'Пароль пользователя :login успешно изменён'
 login_required: 'Вы не указали логин пользователя'
 unfollow_confirmation: 'Вы действительно хотите отписаться от этого пользователя?'
 follow: 'Подписаться'

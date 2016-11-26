@@ -30,7 +30,7 @@ def put(entity):
     c_key = '{}:{}'.format(entity.model, str(entity.id))
 
     if c_key in _entities:
-        raise KeyError("Entity '{}' is already cached.")
+        raise KeyError("Entity '{}' is already cached.".format(c_key))
 
     _entities[c_key] = entity
 

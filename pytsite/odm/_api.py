@@ -144,8 +144,15 @@ def dispense(model: str, uid=None) -> _model.Entity:
             # Get entity from cache
             return _e_cache.get(model, uid)
         except KeyError:
-            # Instantiate entity
-            return _e_cache.put(model_class(model, uid))
+            # Entity is not found in cache, instantiate new one and put in into the cache
+            entity = model_class(model, uid)
+            try:
+                _e_cache.put(entity)
+            except KeyError:
+                # If entity is already cached by another thread, do nothing, just notify about this
+                _logger.warn("Entity '{}:{}' is already cached".format(model, uid))
+
+            return entity
     else:
         entity = model_class(model)
         if _dbg:

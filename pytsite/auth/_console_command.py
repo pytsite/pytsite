@@ -41,7 +41,7 @@ class Passwd(_console.command.Abstract):
         if not user:
             raise _console.error.Error(_lang.t('pytsite.auth@user_is_not_exist', {'login': kwargs['login']}))
 
-        pass_1 = _getpass(_lang.t('pytsite.auth@enter_new_password') + ': ')
+        pass_1 = _getpass(_lang.t('pytsite.auth@enter_new_password', {'login': user.login}) + ': ')
         if not pass_1:
             raise _console.error.Error(_lang.t('pytsite.auth@password_cannot_be_empty'))
 
@@ -51,8 +51,9 @@ class Passwd(_console.command.Abstract):
             raise _console.error.Error(_lang.t('pytsite.auth@passwords_dont_match'))
 
         try:
+            _api.switch_user_to_system()
             user.password = pass_2
             user.save()
-            _console.print_success(_lang.t('pytsite.auth@password_successfully_changed'))
+            _console.print_success(_lang.t('pytsite.auth@password_successfully_changed', {'login': user.login}))
         except Exception as e:
             raise _console.error.Error(str(e))

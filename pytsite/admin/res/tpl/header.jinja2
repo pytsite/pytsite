@@ -135,6 +135,7 @@
 
                             <p>
                                 {{ user.full_name }}
+                                <small>{{ user.login }}</small>
                                 <small>{{ t('pytsite.admin@member_since') }} {{ user.created | date('pretty_date')}}</small>
                             </p>
                         </li>

@@ -8,4 +8,5 @@ actions: 'Actions'
 install: 'Install'
 uninstall: 'Uninstall'
 upgrade: 'Upgrade'
-
+confirm_plugin_upgrade: 'Do you really want to upgrade this plugin?'
+confirm_plugin_uninstall: 'Do you really want to uninstall this plugin?'

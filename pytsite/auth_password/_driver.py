@@ -18,7 +18,7 @@ class _SignInForm(_form.Form):
 
         self.add_widget(_widget.input.Email(
             uid='login',
-            label=_lang.t('pytsite.auth@email'),
+            label=_lang.t('pytsite.auth_password@login'),
             weight=10,
             required=True,
             value=_router.request().inp.get('login', ''),
@@ -26,12 +26,14 @@ class _SignInForm(_form.Form):
 
         self.add_widget(_widget.input.Password(
             uid='password',
-            label=_lang.t('pytsite.auth@password'),
+            label=_lang.t('pytsite.auth_password@password'),
             weight=20,
             required=True,
         ))
 
-        self.get_widget('action-submit').value = _lang.t('pytsite.auth@login')
+        submit_btn = self.get_widget('action-submit')
+        submit_btn.value = _lang.t('pytsite.auth_password@sign_in')
+        submit_btn.icon = 'fa fa-sign-in'
 
 
 class Password(_auth.driver.Authentication):
