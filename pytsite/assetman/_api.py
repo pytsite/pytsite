@@ -260,7 +260,7 @@ def build(package_name: str = None, maintenance: bool = True):
         _maintenance.enable()
 
     # Delete target assets directory if we going to compile all packages
-    if not package_name:
+    if not package_name and _path.exists(assets_dir):
         _rmtree(assets_dir)
 
     _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))

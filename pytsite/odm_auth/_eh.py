@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def odm_register_model(model: str, cls, replace: bool):
-    """'pytsite.odm.register_model' event handler.
+    """pytsite.odm.register_model
     """
     # Check if the model supports permissions
     if not issubclass(cls, _model.AuthorizableEntity):
@@ -39,7 +39,7 @@ def odm_register_model(model: str, cls, replace: bool):
 
 
 def odm_entity_pre_save(entity: _model.AuthorizableEntity):
-    """'pytsite.odm.entity_pre_save' event handler.
+    """pytsite.odm.entity_pre_save
     """
     # Check if the model supports permissions
     if not isinstance(entity, _model.AuthorizableEntity):

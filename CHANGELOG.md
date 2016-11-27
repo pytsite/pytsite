@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.97 (2016-11-27)
+### Removed
+- `content_import`: moved to separate [plugin](https://github.com/pytsite/plugin-content_import).
+
+### Fixed
+- `assetman`: check for static assets path existence. 
+
+
 ## 0.96 (2016-11-26)
 ### Added
 - `plugman`: conformation dialogs.

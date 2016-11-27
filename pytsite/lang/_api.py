@@ -118,9 +118,6 @@ def is_package_registered(pkg_name):
 def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str = None):
     """Register language container.
     """
-    if pkg_name in _packages:
-        raise RuntimeError("Package '{}' already registered.".format(pkg_name))
-
     spec = _find_spec(pkg_name)
     if not spec or not spec.loader:
         raise RuntimeError("Package '{}' is not found.".format(pkg_name))
@@ -129,11 +126,13 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
     if not _path.isdir(lng_dir):
         raise RuntimeError("Language directory '{}' is not found".format(lng_dir))
 
-    config = {'__path': lng_dir}
     if alias:
-        _packages[alias] = config
-    else:
-        _packages[pkg_name] = config
+        pkg_name = alias
+
+    if pkg_name in _packages:
+        raise RuntimeError("Package '{}' already registered.".format(pkg_name))
+
+    _packages[pkg_name] = {'__path': lng_dir}
 
 
 def register_global(name: str, handler: _Callable):
