@@ -37,13 +37,19 @@ def register_package(package_name: str, assets_dir: str = 'res/assets', alias: s
     if not _path.isdir(dir_path):
         FileNotFoundError("Directory '{}' is not found.".format(dir_path))
 
+    if alias:
+        package_name = alias
+
     if package_name in _packages:
         raise RuntimeError("Package '{}' is already registered.".format(package_name))
 
-    if alias:
-        _packages[alias] = dir_path
-    else:
-        _packages[package_name] = dir_path
+    _packages[package_name] = dir_path
+
+
+def is_package_registered(package_name_or_alias: str):
+    """Check if the package is registered.
+    """
+    return package_name_or_alias in _packages
 
 
 def get_packages() -> dict:

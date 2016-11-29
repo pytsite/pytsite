@@ -39,24 +39,24 @@ def _init():
 
     # Install required plugins
     for p_name in reg.get('plugins', ()):
-        if is_installed(p_name):
-            continue
+        if not is_installed(p_name):
+            install(p_name)
 
-        install(p_name)
-
-    try:
-        # Start installed plugins
-        for p_name, p_info in get_info().items():
-            if p_info['installed_version']:
-                start(p_name)
-
-        # Start plugins in development
-        for p_name in get_info_dev():
+    # Start development plugins
+    for p_name in get_info_dev():
+        try:
             if not is_started(p_name):
                 start(p_name, True)
+        except error.PluginStartError as e:
+            logger.error(e, exc_info=e)
 
-    except error.PluginStartError as e:
-        logger.error(e, exc_info=e)
+    # Start installed plugins
+    for p_name in get_info():
+        if is_installed(p_name) and not is_started(p_name):
+            try:
+                start(p_name)
+            except error.PluginStartError as e:
+                logger.error(e, exc_info=e)
 
 
 _init()

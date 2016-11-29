@@ -1,6 +1,7 @@
 """PytSite GitHub API Functions.
 """
 import requests as _requests
+from pytsite import reg as _reg
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -12,7 +13,7 @@ _API_URL = 'https://api.github.com/'
 
 class Session:
     def __init__(self, access_token: str = None):
-        self._access_token = access_token
+        self._access_token = access_token or _reg.get('github.access_token')
 
     def request(self, endpoint: str, method: str = 'get', **kwargs):
         """Make a request to the GitHub API.

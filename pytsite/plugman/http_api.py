@@ -20,7 +20,6 @@ def _check_args(**kwargs):
 
 def post_install(**kwargs) -> dict:
     info = _api.install(_check_args(**kwargs).get('name'))
-    _reload.reload(False)
 
     return info
 

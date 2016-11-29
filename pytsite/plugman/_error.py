@@ -26,12 +26,17 @@ class PluginUninstallationInProgress(Exception):
     pass
 
 
+class PluginInstallError(Exception):
+    pass
+
+
+class PluginUninstallError(Exception):
+    pass
+
+
 class PluginStartError(Exception):
     pass
 
 
-class PluginNotLoaded(Exception):
-    pass
-
-class PluginReloadError(Exception):
+class PluginAlreadyStarted(PluginStartError):
     pass

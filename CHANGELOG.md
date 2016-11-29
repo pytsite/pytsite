@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.98 (2016-11-29)
+### Added
+- `assetman`: new API function: `is_package_registered()`.
+- `github`: new configuration parameter: `github.access_token`. 
+
+### Changed
+- `plugman`: partly refactored.
+
+### Removed
+- `auth_google`: moved to separate [plugin](https://github.com/pytsite/plugin-auth_google).
+- `auth_log`: moved to separate [plugin](https://github.com/pytsite/plugin-auth_log).
+- `block`: moved to separate [plugin](https://github.com/pytsite/plugin-content_block).
+- `contact_form`: moved to separate [plugin](https://github.com/pytsite/plugin-contact_form).
+- `content_export`: moved to separate [plugin](https://github.com/pytsite/plugin-content_export).
+- `google`: removed totally.
+
+
 ## 0.97 (2016-11-27)
 ### Removed
 - `content_import`: moved to separate [plugin](https://github.com/pytsite/plugin-content_import).

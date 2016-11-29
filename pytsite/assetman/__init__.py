@@ -2,7 +2,7 @@
 """
 # Public API
 from ._api import register_package, add, remove, dump_js, dump_css, url, add_inline, dump_inline, get_urls, \
-    get_locations, reset, detect_collection, build
+    get_locations, reset, detect_collection, build, is_package_registered
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
