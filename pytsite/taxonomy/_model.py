@@ -125,12 +125,7 @@ class Term(_odm_ui.model.UIEntity):
     def odm_ui_browser_row(self) -> tuple:
         """Hook.
         """
-        return (
-            self.f_get('title'),
-            self.f_get('alias'),
-            self.f_get('weight'),
-            self.f_get('order'),
-        )
+        return self.title, self.alias, self.weight, self.order
 
     def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
@@ -169,17 +164,12 @@ class Term(_odm_ui.model.UIEntity):
 
         # Language
         if _localization_enabled:
-            if self.is_new:
-                lang_title = _lang.t('lang_title_' + _lang.get_current())
-            else:
-                lang_title = _lang.t('lang_title_' + self.language)
-
             frm.add_widget(_widget.static.Text(
                 uid='language',
                 weight=900,
                 label=self.t('language'),
-                title=lang_title,
-                value=_lang.get_current() if self.is_new else self.language,
+                title=_lang.lang_title(self.language or _lang.get_current()),
+                value=self.language or _lang.get_current(),
             ))
 
     def odm_ui_mass_action_entity_description(self) -> str:
