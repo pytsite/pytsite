@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.3 (2016-11-29)
+### Fixed
+- `taxonomy`: language widget default title and value on ODM model form.
+
+
 ## 0.98.2 (2016-11-29)
 ### Fixed
 - `taxonomy`: language widget title on ODM model form.

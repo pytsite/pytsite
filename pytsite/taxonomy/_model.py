@@ -164,12 +164,13 @@ class Term(_odm_ui.model.UIEntity):
 
         # Language
         if _localization_enabled:
+            lng = _lang.get_current() if self.is_new else self.language
             frm.add_widget(_widget.static.Text(
                 uid='language',
                 weight=900,
                 label=self.t('language'),
-                title=_lang.lang_title(self.language or _lang.get_current()),
-                value=self.language or _lang.get_current(),
+                title=_lang.lang_title(lng),
+                value=lng,
             ))
 
     def odm_ui_mass_action_entity_description(self) -> str:
