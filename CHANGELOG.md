@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.1 (2016-11-29)
+### Fixed
+- `assetman`: incorrect absolute asset paths in some cases. 
+
+
 ## 0.98 (2016-11-29)
 ### Added
 - `assetman`: new API function: `is_package_registered()`.

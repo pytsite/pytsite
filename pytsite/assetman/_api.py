@@ -33,7 +33,7 @@ def register_package(package_name: str, assets_dir: str = 'res/assets', alias: s
     if not pkg_spec:
         raise RuntimeError("Package '{}' is not found.".format(package_name))
 
-    dir_path = _path.join(_path.dirname(pkg_spec.origin), assets_dir)
+    dir_path = _path.abspath(_path.join(_path.dirname(pkg_spec.origin), assets_dir))
     if not _path.isdir(dir_path):
         FileNotFoundError("Directory '{}' is not found.".format(dir_path))
 

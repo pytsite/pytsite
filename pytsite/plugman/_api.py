@@ -15,7 +15,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_GITHUB_REPO = 'pytsite'
+_GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 
 _plugins_cache = _cache.create_pool('pytsite.plugman')
@@ -99,7 +99,7 @@ def _get_remote_info() -> dict:
 
     gh = _github.Session()
 
-    for repo in gh.org_repos(_GITHUB_REPO):
+    for repo in gh.org_repos(_GITHUB_ORG):
         if not repo['name'].startswith(_GITHUB_PLUGIN_REPO_PREFIX):
             continue
 
@@ -282,7 +282,7 @@ def install(plugin_name: str):
         _logger.debug('{} removed'.format(tmp_file_path))
 
         # Move extracted directory to the plugins directory
-        extracted_dir_prefix = '{}-{}{}'.format(_GITHUB_REPO, _GITHUB_PLUGIN_REPO_PREFIX, plugin_name)
+        extracted_dir_prefix = '{}-{}{}'.format(_GITHUB_ORG, _GITHUB_PLUGIN_REPO_PREFIX, plugin_name)
         for dir_name in _listdir(tmp_dir_path):
             if not dir_name.startswith(extracted_dir_prefix):
                 continue
