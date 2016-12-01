@@ -2,8 +2,8 @@
 """
 from datetime import datetime as _datetime
 from pytsite import taxonomy as _taxonomy, odm_ui as _odm_ui, auth as _auth, http as _http, \
-    router as _router, metatag as _metatag, assetman as _assetman, odm as _odm, widget as _widget, \
-    lang as _lang, tpl as _tpl, logger as _logger, hreflang as _hreflang, comments as _comments, reg as _reg
+    router as _router, metatag as _metatag, assetman as _assetman, odm as _odm,  lang as _lang, tpl as _tpl, \
+    logger as _logger, hreflang as _hreflang, comments as _comments
 from . import _widget as _content_widget
 
 __author__ = 'Alexander Shepetko'
@@ -14,7 +14,7 @@ __license__ = 'MIT'
 def index(args: dict, inp: dict):
     """Content Index.
     """
-    # Delayed import to prevent exception during application initialization
+    # Delayed import to prevent circular dependency
     from . import _api
 
     # Checking if the model is registered
@@ -25,6 +25,7 @@ def index(args: dict, inp: dict):
 
     # Getting finder
     f = _api.find(model)
+    args['finder'] = f
 
     # Filter by term
     term_field = args.get('term_field')
@@ -62,20 +63,6 @@ def index(args: dict, inp: dict):
         query = inp.get('search')
         f.where_text(query)
         _metatag.t_set('title', _lang.t('pytsite.content@search', {'query': query}))
-
-    # Pager
-    per_page = _reg.get('content.ep.index.per_page', 10)
-    pager = _widget.select.Pager('content-pager', total_items=f.count(), per_page=per_page)
-
-    entities = []
-    for entity in f.skip(pager.skip).get(pager.limit):
-        if entity.check_permissions('view'):
-            entities.append(entity)
-
-    args.update({
-        'entities': entities,
-        'pager': pager,
-    })
 
     return _router.call_ep('$theme@content_' + model + '_index', args, inp)
 

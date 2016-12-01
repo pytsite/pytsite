@@ -6,7 +6,7 @@ from urllib import parse as _urllib_parse
 from os import path as _path, makedirs as _makedirs
 from pytsite import admin as _admin, taxonomy as _taxonomy, odm as _odm, util as _util, settings as _settings, \
     router as _router, lang as _lang, logger as _logger, feed as _feed, reg as _reg, permissions as _permission, \
-    route_alias as _route_alias
+    route_alias as _route_alias, widget as _widget
 from . import _model
 
 __author__ = 'Alexander Shepetko'
@@ -50,19 +50,19 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
     if _localization_enabled and mock.has_field('localization_' + _lang.get_current()):
         perm_name = 'pytsite.content.set_localization.' + model
         perm_description = cls.resolve_msg_id('content_perm_set_localization_' + model)
-        _permission.define_permission(perm_name, perm_description,  perm_group)
+        _permission.define_permission(perm_name, perm_description, perm_group)
 
     # Define 'set_date' permission
     if mock.has_field('publish_time'):
         perm_name = 'pytsite.content.set_publish_time.' + model
         perm_description = cls.resolve_msg_id('content_perm_set_publish_time_' + model)
-        _permission.define_permission(perm_name, perm_description,  perm_group)
+        _permission.define_permission(perm_name, perm_description, perm_group)
 
     # Define 'set_starred' permission
     if mock.has_field('starred'):
         perm_name = 'pytsite.content.set_starred.' + model
         perm_description = cls.resolve_msg_id('content_perm_set_starred_' + model)
-        _permission.define_permission(perm_name, perm_description,  perm_group)
+        _permission.define_permission(perm_name, perm_description, perm_group)
 
     _admin.sidebar.add_menu(
         sid='content',
@@ -230,8 +230,8 @@ def find_tag_by_alias(alias: str, language: str = None) -> _model.Tag:
     return _taxonomy.find_by_alias('tag', alias, language)
 
 
-def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Callable[[_odm.Finder], None]=None,
-                 item_setup: _Callable[[_feed.xml.Serializable, _model.Content], None]=None, length: int = 20):
+def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Callable[[_odm.Finder], None] = None,
+                 item_setup: _Callable[[_feed.xml.Serializable, _model.Content], None] = None, length: int = 20):
     """Generate RSS feeds.
     """
     if not lng:
@@ -324,3 +324,19 @@ def generate_rss(model: str, filename: str, lng: str = None, finder_setup: _Call
         f.write(parser.generate())
 
     _logger.info("RSS feed successfully written to '{}'.".format(out_path))
+
+
+def paginate(finder: _odm.Finder, per_page: int = 10) -> dict:
+    """Get paginated content finder query results.
+    """
+    pager = _widget.select.Pager('content-pager', total_items=finder.count(), per_page=per_page)
+
+    entities = []
+    for entity in finder.skip(pager.skip).get(pager.limit):
+        if entity.check_permissions('view'):
+            entities.append(entity)
+
+    return {
+        'entities': entities,
+        'pager': pager,
+    }

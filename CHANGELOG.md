@@ -1,5 +1,17 @@
 # PytSite Changelog
 
+## 0.98.4 (2016-12-01)
+### Added
+- `content`: new API function: `paginate()`.
+
+### Changed
+- `content`: response format of `ep.index()`. 
+- `tpl`: signature of 'pytsite.tpl.render' event.
+
+### Fixed
+- `theme`: HTTP response handling. 
+
+
 ## 0.98.3 (2016-11-29)
 ### Fixed
 - `taxonomy`: language widget default title and value on ODM model form.

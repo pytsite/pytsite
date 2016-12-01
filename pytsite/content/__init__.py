@@ -4,7 +4,7 @@
 from . import _model as model, _widget as widget
 from ._api import register_model, get_models, find, get_model, get_model_title, dispense, get_sections, \
     dispense_section, get_tags, dispense_tag, get_statuses, is_model_registered, generate_rss, find_section_by_title, \
-    find_section_by_alias, find_tag_by_alias, find_tag_by_title, find_by_url
+    find_section_by_alias, find_tag_by_alias, find_tag_by_title, find_by_url, paginate
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

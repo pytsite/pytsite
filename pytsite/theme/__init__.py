@@ -25,7 +25,7 @@ def _init():
 
     # Event listeners
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    events.listen('pytsite.router.response', _eh.router_response)
     events.listen('pytsite.update', _eh.update)
 
     # Default home page handler

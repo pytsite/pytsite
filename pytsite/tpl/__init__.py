@@ -107,7 +107,7 @@ def render(template: str, args: dict = None) -> str:
     if not args:
         args = {}
 
-    _events.fire('pytsite.tpl.render', tpl=template, args=args)
+    _events.fire('pytsite.tpl.render', tpl_name=template, args=args)
 
     return _env.get_template(template).render(args)
 

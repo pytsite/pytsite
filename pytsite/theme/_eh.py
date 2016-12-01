@@ -15,7 +15,7 @@ def router_dispatch():
     """
     request_input = _router.request().inp
     request_cookies = _router.request().cookies
-    theme_setting = _settings.get('theme.default_theme')
+    theme_setting = _settings.get('theme.default')
 
     # Change theme from input, cookie or settings
     if '__theme' in request_input and _api.is_registered(request_input['__theme']):
