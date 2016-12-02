@@ -24,6 +24,7 @@ class TermSelect(_odm_ui.widget.EntitySelect):
 class TokensInput(_widget.input.Tokens):
     """Term Tokens Input Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -86,6 +87,7 @@ class TokensInput(_widget.input.Tokens):
 class Cloud(_widget.Abstract):
     """Tags Cloud Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

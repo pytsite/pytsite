@@ -1,16 +1,14 @@
 """Taxonomy Functions.
 """
 import re
-from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm, reg as _reg
+from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm
 from ._model import Term as _Term
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _models = []
-_localization_enabled = _reg.get('taxonomy.localization', True)
 
 
 def register_model(model: str, cls, menu_title: str, menu_weight: int = 0, menu_icon: str = 'fa fa-tags'):
@@ -52,10 +50,7 @@ def find(model: str, language: str = None):
     if not is_model_registered(model):
         raise RuntimeError("Model '{}' is not registered as taxonomy model.".format(model))
 
-    f = _odm.find(model).sort([('weight', _odm.I_DESC)])
-
-    if _localization_enabled:
-        f.eq('language', language or _lang.get_current())
+    f = _odm.find(model).eq('language', language or _lang.get_current()).sort([('weight', _odm.I_DESC)])
 
     return f
 

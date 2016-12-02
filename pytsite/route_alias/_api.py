@@ -1,15 +1,12 @@
 """Route Paths API.
 """
 import re
-from pytsite import util as _util, odm as _odm, lang as _lang, reg as _reg
+from pytsite import util as _util, odm as _odm, lang as _lang
 from . import _model, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-
-_localization_enabled = _reg.get('route_alias.localization', True)
 
 
 def create(alias: str, target: str, language: str = None) -> _model.RouteAlias:
@@ -53,13 +50,7 @@ def sanitize_alias_string(s: str, language: str = None) -> str:
 def find(language: str = None) -> _odm.Finder:
     """Get route alias finder.
     """
-    f = _odm.find('route_alias')
-    if _localization_enabled:
-        if not language:
-            language = _lang.get_current()
-        f.eq('language', language)
-
-    return f
+    return _odm.find('route_alias').eq('language', language or _lang.get_current())
 
 
 def get_by_alias(alias: str, language: str = None) -> _model.RouteAlias:

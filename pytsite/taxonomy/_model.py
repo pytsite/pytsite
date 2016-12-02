@@ -1,14 +1,11 @@
 """Taxonomy Models.
 """
 from typing import Tuple as _Tuple
-from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form, reg as _reg, \
-    events as _events
+from pytsite import odm_ui as _odm_ui, lang as _lang, odm as _odm, widget as _widget, form as _form, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-_localization_enabled = _reg.get('taxonomy.localization', True)
 
 
 class Term(_odm_ui.model.UIEntity):
@@ -20,7 +17,7 @@ class Term(_odm_ui.model.UIEntity):
         """
         self.define_field(_odm.field.String('title', required=True, strip_html=True))
         self.define_field(_odm.field.String('alias', required=True, strip_html=True))
-        self.define_field(_odm.field.String('language', required=True, default=_lang.get_primary()))
+        self.define_field(_odm.field.String('language', required=True, default=_lang.get_current()))
         self.define_field(_odm.field.Integer('weight'))
         self.define_field(_odm.field.Integer('order'))
 
@@ -109,18 +106,17 @@ class Term(_odm_ui.model.UIEntity):
     def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Hook.
         """
-        browser.data_fields = [
+        data_fields = [
             ('title', 'pytsite.taxonomy@title'),
             ('alias', 'pytsite.taxonomy@alias'),
             ('weight', 'pytsite.taxonomy@weight'),
             ('order', 'pytsite.taxonomy@order'),
         ]
 
+        browser.data_fields = data_fields
         browser.default_sort_field = 'order'
         browser.default_sort_order = _odm.I_ASC
-
-        if _localization_enabled:
-            browser.finder_adjust = lambda finder: finder.eq('language', _lang.get_current())
+        browser.finder_adjust = lambda finder: finder.eq('language', _lang.get_current())
 
     def odm_ui_browser_row(self) -> tuple:
         """Hook.
@@ -163,15 +159,14 @@ class Term(_odm_ui.model.UIEntity):
         ))
 
         # Language
-        if _localization_enabled:
-            lng = _lang.get_current() if self.is_new else self.language
-            frm.add_widget(_widget.static.Text(
-                uid='language',
-                weight=900,
-                label=self.t('language'),
-                title=_lang.lang_title(lng),
-                value=lng,
-            ))
+        lng = _lang.get_current() if self.is_new else self.language
+        frm.add_widget(_widget.static.Text(
+            uid='language',
+            weight=50,
+            label=self.t('language'),
+            title=_lang.lang_title(lng),
+            value=lng,
+        ))
 
     def odm_ui_mass_action_entity_description(self) -> str:
         """Hook.

@@ -14,7 +14,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_localization_enabled = _reg.get('content.localization', True)
 _body_img_tag_re = _re.compile('\[img:(\d+)([^\]]*)\]')
 _body_vid_tag_re = _re.compile('\[vid:(\d+)\]')
 _html_img_tag_re = _re.compile('<img.*?src\s*=["\']([^"\']+)["\'][^>]*>')
@@ -179,6 +178,7 @@ def _extract_video_links(entity) -> tuple:
 def _remove_tags(s: str) -> str:
     s = _body_img_tag_re.sub('', s)
     s = _body_vid_tag_re.sub('', s)
+
     return s
 
 
@@ -188,6 +188,8 @@ class Section(_taxonomy.model.Term):
 
     def _pre_delete(self, **kwargs):
         from . import _api
+
+        super()._pre_delete(**kwargs)
 
         # Search for content entities which use this section
         for content_model in _api.get_models():
@@ -244,7 +246,7 @@ class Base(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('body', tidyfy_html=True))
         self.define_field(_file_storage_odm.field.Images('images'))
         self.define_field(_odm.field.StringList('video_links', unique=True))
-        self.define_field(_odm.field.String('language', required=True, default=_lang.get_primary()))
+        self.define_field(_odm.field.String('language', required=True, default=_lang.get_current()))
         self.define_field(_odm.field.String('language_db', required=True))
         self.define_field(_auth_storage_odm.field.User('author', required=True))
         self.define_field(_odm.field.Dict('options'))
@@ -391,10 +393,7 @@ class Base(_odm_ui.model.UIEntity):
     def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
         """Setup ODM UI browser hook.
         """
-        # Filter by language
-        if _localization_enabled:
-            browser.finder_adjust = lambda f: f.eq('language', _lang.get_current())
-
+        browser.finder_adjust = lambda f: f.eq('language', _lang.get_current())
         browser.default_sort_field = '_modified'
         browser.insert_data_field('title', 'pytsite.content@title')
 
@@ -813,7 +812,7 @@ class Content(Base):
             status = str(_html.Span(status_str, cls='label label-' + status_cls))
             r.append(status)
 
-        # Images counter
+        # Number of images
         if self.has_field('images'):
             images_cls = 'default' if not len(self.images) else 'primary'
             images_count = '<span class="label label-{}">{}</span>'.format(images_cls, len(self.images))
@@ -918,22 +917,19 @@ class Content(Base):
                 ))
 
         # Language settings
-        if _localization_enabled and current_user.has_permission('pytsite.content.set_localization.' + self.model):
-            # Current language
-            if self.is_new:
-                lang_title = _lang.t('app@lang_title_' + _lang.get_current())
-            else:
-                lang_title = _lang.t('app@lang_title_' + self.language)
+        lng = _lang.get_current() if self.is_new else self.language
+        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
             frm.add_widget(_widget.static.Text(
                 uid='language',
                 weight=1200,
                 label=self.t('language'),
-                title=lang_title,
-                value=_lang.get_current() if self.is_new else self.language,
+                title=_lang.lang_title(lng),
+                value=lng,
                 hidden=False if len(_lang.langs()) > 1 else True,
             ))
 
-            # Localization selects
+        # Localizations
+        if current_user.has_permission('pytsite.content.set_localization.' + self.model):
             from ._widget import EntitySelect
             for i, lng in enumerate(_lang.langs(False)):
                 frm.add_widget(EntitySelect(
@@ -1015,12 +1011,11 @@ class Content(Base):
         if self.has_field('comments_count'):
             r['comments_count'] = self.comments_count
 
-        if _localization_enabled:
-            for lng in _lang.langs():
-                if self.has_field('localization_' + lng):
-                    ref = self.f_get('localization_' + lng)
-                    if ref:
-                        r['localization_' + lng] = ref.as_jsonable(**kwargs)
+        for lng in _lang.langs():
+            if self.has_field('localization_' + lng):
+                ref = self.f_get('localization_' + lng)
+                if ref:
+                    r['localization_' + lng] = ref.as_jsonable(**kwargs)
 
         return r
 

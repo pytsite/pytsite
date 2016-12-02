@@ -16,7 +16,7 @@ class RouteAlias(_odm.model.Entity):
         """
         self.define_field(_odm.field.String('alias', required=True))
         self.define_field(_odm.field.String('target', required=True))
-        self.define_field(_odm.field.String('language', required=True, default=_lang.get_primary()))
+        self.define_field(_odm.field.String('language', required=True, default=_lang.get_current()))
 
     def _setup_indexes(self):
         """Hook.

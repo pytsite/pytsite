@@ -78,6 +78,9 @@ class BootstrapTable(_base.Abstract):
 
         self._data_fields.insert(pos, (name, title, sortable))
 
+    def remove_data_field(self, name: str):
+        self._data_fields = [i for i in self._data_fields if i[0] != name]
+
     @property
     def default_sort_field(self) -> str:
         return self._default_sort_field
@@ -104,7 +107,7 @@ class BootstrapTable(_base.Abstract):
         """
         pass
 
-    def get_html_em(self, **kwargs)-> _html.Element:
+    def get_html_em(self, **kwargs) -> _html.Element:
         """Get browser table skeleton.
         """
         # Table skeleton

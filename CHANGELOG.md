@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.5 (2016-12-02)
+### Fixed
+- `content`, `route_alias`, `taxonomy`: language related issues. 
+
+
 ## 0.98.4 (2016-12-01)
 ### Added
 - `content`: new API function: `paginate()`.

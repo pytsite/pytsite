@@ -14,7 +14,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _models = {}
-_localization_enabled = _reg.get('content.localization', True)
 
 
 def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str = 'fa fa-file-text-o', replace=False):
@@ -47,7 +46,7 @@ def register_model(model: str, cls, title: str, menu_weight: int = 0, icon: str 
         _permission.define_permission(perm_name, perm_description, perm_group)
 
     # Define 'set_localization' permission
-    if _localization_enabled and mock.has_field('localization_' + _lang.get_current()):
+    if mock.has_field('localization_' + _lang.get_current()):
         perm_name = 'pytsite.content.set_localization.' + model
         perm_description = cls.resolve_msg_id('content_perm_set_localization_' + model)
         _permission.define_permission(perm_name, perm_description, perm_group)
@@ -136,7 +135,7 @@ def find(model: str, **kwargs):
         f.sort([('_modified', _odm.I_DESC)])
 
     # Language
-    if _localization_enabled and f.mock.has_field('language'):
+    if f.mock.has_field('language'):
         # DON'T change this construction!
         # Language can be specified as str, None or can be not passed at all.
         # If it specified, but it is None, then language must not take part in the query.

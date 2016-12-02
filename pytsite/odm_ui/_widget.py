@@ -27,6 +27,7 @@ class EntitySelect(_widget.select.Select):
 
         self._sort_field = kwargs.get('sort_field', self._caption_field)
         self._finder_adjust = kwargs.get('finder_adjust')
+        self._caption_adjust = kwargs.get('caption_adjust')
 
     @property
     def sort_field(self) -> str:
@@ -56,6 +57,13 @@ class EntitySelect(_widget.select.Select):
 
         return finder
 
+    def _get_caption(self, entity: _odm.model.Entity) -> str:
+        caption = str(entity.f_get(self._caption_field))
+        if self._caption_adjust:
+            caption = self._caption_adjust(caption)
+
+        return caption
+
     def get_html_em(self, **kwargs):
         """Render the widget.
         :param **kwargs:
@@ -64,8 +72,7 @@ class EntitySelect(_widget.select.Select):
 
         # Building items list
         for entity in finder.get():
-            k = entity.model + ':' + str(entity.id)
-            self._items.append((k, str(entity.f_get(self._caption_field))))
+            self._items.append((entity.ref_str, self._get_caption(entity)))
 
         return super().get_html_em()
 
