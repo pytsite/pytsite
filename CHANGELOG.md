@@ -1,7 +1,14 @@
 # PytSite Changelog
 
-## 0.98.6 (2016-12-03)
+## 0.98.7 (2016-12-03)
+### Added
+- `assetman`: new `build()`'s option: **cache** and corresponding console command argument.
 
+### Changed
+- `content`, `taxonomy`: processing **language** argument in find-related API functions.
+
+
+## 0.98.6 (2016-12-03)
 ### Changed
 - `assetman`: **assetman** console command renamed to **assetman:build**.
 

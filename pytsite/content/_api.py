@@ -136,15 +136,11 @@ def find(model: str, **kwargs):
 
     # Language
     if f.mock.has_field('language'):
-        # DON'T change this construction!
-        # Language can be specified as str, None or can be not passed at all.
-        # If it specified, but it is None, then language must not take part in the query.
-        # If it not specified, current language should be used.
-        if 'language' in kwargs:
-            if kwargs['language'] is not None:
-                f.eq('language', kwargs['language'])
-        else:
+        lng = kwargs.get('language')
+        if not lng:
             f.eq('language', _lang.get_current())
+        elif lng != '*':
+            f.eq('language', lng)
 
     # Status
     if f.mock.has_field('status'):

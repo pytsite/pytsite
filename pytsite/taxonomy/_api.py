@@ -1,4 +1,4 @@
-"""Taxonomy Functions.
+"""PytSite Taxonomy API Functions.
 """
 import re
 from pytsite import admin as _admin, router as _router, lang as _lang, util as _util, odm as _odm
@@ -50,7 +50,12 @@ def find(model: str, language: str = None):
     if not is_model_registered(model):
         raise RuntimeError("Model '{}' is not registered as taxonomy model.".format(model))
 
-    f = _odm.find(model).eq('language', language or _lang.get_current()).sort([('weight', _odm.I_DESC)])
+    f = _odm.find(model).sort([('weight', _odm.I_DESC)])
+
+    if not language:
+        f.eq('language', _lang.get_current())
+    elif language != '*':
+        f.eq('language', language)
 
     return f
 

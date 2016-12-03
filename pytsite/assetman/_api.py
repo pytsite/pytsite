@@ -244,7 +244,7 @@ def get_urls(collection: str = None, filter_path: bool = True) -> list:
     return [url(l[0]) for l in get_locations(collection, filter_path)]
 
 
-def build(package_name: str = None, maintenance: bool = True):
+def build(package_name: str = None, maintenance: bool = True, cache: bool = True):
     """Compile assets.
     """
     # Check for LESS compiler existence
@@ -272,10 +272,12 @@ def build(package_name: str = None, maintenance: bool = True):
 
     _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
     for pkg_name, source_dir_path in packages_list.items():
-        # Create cache directory
-        cache_dir = _path.join(_reg.get('paths.tmp'), 'assetman', pkg_name)
-        if not _path.isdir(cache_dir):
-            _makedirs(cache_dir, 0o755)
+        # Initialize cache storage
+        cache_dir = None
+        if cache:
+            cache_dir = _path.join(_reg.get('paths.tmp'), 'assetman', pkg_name)
+            if not _path.isdir(cache_dir):
+                _makedirs(cache_dir, 0o755)
 
         # Building package's assets absolute paths list
         src_file_paths = []
