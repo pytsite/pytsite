@@ -1,4 +1,3 @@
-assetman_console_command_description: 'Работа с ассетами'
-lang_console_command_description: 'Компиляция языковых переводов'
+assetman_console_command_description: 'Компиляция ассетов'
 compiling_assets: 'Компилирую ассеты'
 compiling_translations: 'Компилирую переводы'

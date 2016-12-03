@@ -9,6 +9,7 @@ from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
 from importlib.util import find_spec as _find_spec
 from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, logger as _logger, \
     events as _events, maintenance as _maintenance, console as _console, lang as _lang, theme as _theme
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,7 +42,7 @@ def register_package(package_name: str, assets_dir: str = 'res/assets', alias: s
         package_name = alias
 
     if package_name in _packages:
-        raise RuntimeError("Package '{}' is already registered.".format(package_name))
+        raise _error.PackageAlreadyRegistered("Package '{}' is already registered.".format(package_name))
 
     _packages[package_name] = dir_path
 
@@ -259,7 +260,7 @@ def build(package_name: str = None, maintenance: bool = True):
         try:
             packages_list = {package_name: packages_list[package_name]}
         except KeyError:
-            raise KeyError("Assetman package '{}' is not registered.".format(package_name))
+            raise _error.PackageNotRegistered("Assetman package '{}' is not registered.".format(package_name))
 
     # Enable maintenance mode
     if maintenance:
@@ -347,6 +348,6 @@ def _split_asset_location_info(location: str) -> dict:
     pkg_name, asset_path = location.split('@')[:2]
 
     if pkg_name not in _packages:
-        raise RuntimeError("Assetman package '{}' is not registered.".format(pkg_name))
+        raise _error.PackageNotRegistered("Assetman package '{}' is not registered.".format(pkg_name))
 
     return pkg_name, asset_path

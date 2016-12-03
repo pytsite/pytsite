@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.98.6 (2016-12-03)
+
+### Changed
+- `assetman`: **assetman** console command renamed to **assetman:build**.
+
+### Added
+- `assetman`: new argument in **assetman:build** console command: **--package**.
+
+
 ## 0.98.5 (2016-12-02)
 ### Fixed
 - `content`, `route_alias`, `taxonomy`: language related issues. 

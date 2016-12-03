@@ -17,7 +17,7 @@ def _init():
     lang.register_package(__name__)
 
     # Console commands
-    console.register_command(_console_command.Assetman())
+    console.register_command(_console_command.Build())
 
     # Event handlers
     events.listen('pytsite.router.dispatch', reset, priority=-999)

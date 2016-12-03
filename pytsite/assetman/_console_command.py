@@ -1,21 +1,21 @@
 """PytSite Assetman Console Commands.
 """
 from pytsite import console as _console, validation as _validation
-from . import _api
+from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Assetman(_console.command.Abstract):
+class Build(_console.command.Abstract):
     """assetman:build Console Command.
     """
 
     def get_name(self) -> str:
         """Get name of the command.
         """
-        return 'assetman'
+        return 'assetman:build'
 
     def get_description(self) -> str:
         """Get description of the command.
@@ -26,21 +26,21 @@ class Assetman(_console.command.Abstract):
     def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '--build [--no-maintenance]'
+        return '[--package=NAME] [--no-maint]'
 
     def get_options(self) -> tuple:
         """Get command options.
         """
         return (
-            ('build', _validation.rule.Pass()),
-            ('no-maintenance', _validation.rule.Pass()),
+            ('package', _validation.rule.Pass()),
+            ('no-maint', _validation.rule.Pass()),
         )
 
     def execute(self, args: tuple = (), **kwargs):
         """Execute The Command.
         """
-        if not kwargs:
-            return _console.run_command('help', ('assetman',))
+        try:
+            _api.build(kwargs.get('package'), not kwargs.get('no-maint'))
 
-        if 'build' in kwargs:
-            _api.build(maintenance=not kwargs.get('no-maintenance', False))
+        except (_error.PackageNotRegistered, _error.PackageAlreadyRegistered) as e:
+            raise _console.error.Error(e)
