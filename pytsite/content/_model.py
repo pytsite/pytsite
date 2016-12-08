@@ -1044,20 +1044,3 @@ class Article(Content):
 
         self.get_field('images').required = True
         self.get_field('body').required = True
-
-
-class ContentSubscriber(_odm.model.Entity):
-    """content_subscriber ODM Model.
-    """
-
-    def _setup_fields(self):
-        """Hook.
-        """
-        self.define_field(_odm.field.String('email', required=True))
-        self.define_field(_odm.field.Bool('enabled', default=True))
-        self.define_field(_odm.field.String('language', required=True))
-
-    def _setup_indexes(self):
-        """Hook.
-        """
-        self.define_index([('email', _odm.I_ASC), ('language', _odm.I_ASC)], unique=True)

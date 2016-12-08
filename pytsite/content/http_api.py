@@ -33,26 +33,6 @@ def patch_view_count(**kwargs) -> int:
     return 0
 
 
-def post_subscribe(**kwargs) -> dict:
-    """Subscribe to digest endpoint.
-    """
-    email = kwargs.get('email')
-    _validation.rule.Email(value=email).validate()
-
-    lng = _lang.get_current()
-
-    s = _odm.find('content_subscriber').eq('email', email).eq('language', lng).first()
-    if s:
-        if not s.f_get('enabled'):
-            with s:
-                s.f_set('enabled', True).save()
-    else:
-        # Create new
-        _odm.dispense('content_subscriber').f_set('email', email).f_set('language', lng).save()
-
-    return {'message': _lang.t('pytsite.content@digest_subscription_success')}
-
-
 def get_widget_entity_select_search(**kwargs) -> dict:
     # Query is mandatory parameter
     query = kwargs.get('q')

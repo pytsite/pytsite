@@ -188,15 +188,3 @@ def propose(args: dict, inp: dict) -> str:
     return _router.call_ep('$theme@content_' + model + '_propose', {
         'form': frm
     })
-
-
-def unsubscribe(args: dict, inp: dict) -> _http.response.Redirect:
-    """Unsubscribe from digest endpoint.
-    """
-    s = _odm.dispense('content_subscriber', args.get('id'))
-    if s:
-        with s:
-            s.f_set('enabled', False).save()
-        _router.session().add_success_message(_lang.t('pytsite.content@unsubscription_successful'))
-
-    return _http.response.Redirect(_router.base_url())

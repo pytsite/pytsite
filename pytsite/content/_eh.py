@@ -2,9 +2,9 @@
 """
 from os import path as _path, makedirs as _makedirs
 from shutil import rmtree as _rmtree
-from datetime import datetime as _datetime, timedelta as _timedelta
+from datetime import datetime as _datetime
 from pytsite import settings as _settings, sitemap as _sitemap, reg as _reg, logger as _logger, tpl as _tpl, \
-    mail as _mail, odm as _odm, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
+    mail as _mail, lang as _lang, router as _router, metatag as _metatag, assetman as _assetman, \
     comments as _comments, auth as _auth, errors as _errors
 from . import _api
 
@@ -48,12 +48,6 @@ def cron_daily():
     """'pytsite.cron.daily' event handler.
     """
     _generate_sitemap()
-
-
-def cron_weekly():
-    """'pytsite.cron.weekly' event handler.
-    """
-    _mail_digest()
 
 
 def router_dispatch():
@@ -106,36 +100,6 @@ def auth_user_delete(user: _auth.model.AbstractUser):
                     'content_model': model,
                     'content_title': entity.f_get('title'),
                 }))
-
-
-def _mail_digest():
-    """Send weekly mail digest.
-    """
-    model = _reg.get('content.digest.model')
-    if not model:
-        return
-
-    app_name = _lang.t('app_name')
-    entities_num = _reg.get('content.digest.num', 10)
-
-    for lng in _lang.langs():
-        _logger.info("Weekly mail digest for language {} started.".format(lng))
-
-        m_subject = _lang.t('pytsite.content@weekly_digest_mail_subject', {'app_name': app_name}, lng)
-        f = _odm.find('content_subscriber').eq('enabled', True).eq('language', lng)
-        for subscriber in f.get():
-            content_f = _api.find(model, language=lng)
-            content_f.gt('publish_time', _datetime.now() - _timedelta(7))
-            content_f.sort([('views_count', _odm.I_DESC)])
-            m_body = _tpl.render(_reg.get('content.digest.tpl', 'mail/content/digest'), {
-                'entities': content_f.get(entities_num),
-                'subscriber': subscriber,
-                'language': lng,
-            })
-            msg = _mail.Message(subscriber.f_get('email'), m_subject, m_body)
-            msg.send()
-
-        _logger.info("Weekly mail digest for language {} finished.".format(lng))
 
 
 def _generate_sitemap():

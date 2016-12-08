@@ -499,6 +499,8 @@ class Form(_ABC):
 
         self._setup_widgets()
 
+        _events.fire('pytsite.form.setup_widgets.' + self.uid.replace('-', '_'), frm=self)
+
         if self._steps > 1:
             # Submit button appears only on the last step
             self.get_widget('action-submit').form_step = self.steps

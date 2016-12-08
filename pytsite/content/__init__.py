@@ -14,10 +14,10 @@ __license__ = 'MIT'
 def _init():
     """Module Init Wrapper.
     """
-    from pytsite import admin, taxonomy, settings, console, assetman, odm, events, tpl, lang, router, robots, browser, \
+    from pytsite import admin, taxonomy, settings, console, assetman, events, tpl, lang, router, robots, browser, \
         http_api, permissions
     from . import _eh, _settings_form
-    from ._model import Tag, Section, ContentSubscriber
+    from ._model import Tag, Section
     from ._console_command import Generate as GenerateConsoleCommand
 
     lang.register_package(__name__)
@@ -45,16 +45,9 @@ def _init():
     router.add_rule('/content/propose/<model>/submit', 'pytsite.content@propose_submit',
                     filters='pytsite.auth@f_authorize')
 
-    # Content subscription routes
-    router.add_rule('/content/subscribe', 'pytsite.content@subscribe', methods='POST')
-    router.add_rule('/content/unsubscribe/<id>', 'pytsite.content@unsubscribe')
-
     # Taxonomy models
     taxonomy.register_model('section', Section, __name__ + '@sections')
     taxonomy.register_model('tag', Tag, __name__ + '@tags')
-
-    # ODM models
-    odm.register_model('content_subscriber', ContentSubscriber)
 
     # Admin elements
     admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))
@@ -64,7 +57,6 @@ def _init():
     events.listen('pytsite.setup', _eh.setup)
     events.listen('pytsite.cron.hourly', _eh.cron_hourly)
     events.listen('pytsite.cron.daily', _eh.cron_daily)
-    events.listen('pytsite.cron.weekly', _eh.cron_weekly)
     events.listen('pytsite.comments.create_comment', _eh.comments_create_comment)
     events.listen('pytsite.auth.user.delete', _eh.auth_user_delete)
 

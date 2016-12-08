@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.98.8 (2016-12-09)
+### Added
+- `form`: new event: **pytsite.form.setup_widgets.FORM_UID**.
+
+### Fixed
+- `mail`: default sender name.
+
+### Removed
+- `content`: digest mail moved to separate [plugin](https://github.com/pytsite/plugin-content_digest).
+
+
 ## 0.98.7 (2016-12-03)
 ### Added
 - `assetman`: new `build()`'s option: **cache** and corresponding console command argument.
