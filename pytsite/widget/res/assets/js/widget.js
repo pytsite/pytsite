@@ -71,22 +71,20 @@ pytsite.widget = {
         }
 
         // Load widget's assets
-        pytsite.browser.loadAssets(self.assets)
-            .done(function () {
-                // Initialize the widget
-                $(window).trigger('pytsite.widget.init:' + self.cid, [self]);
-                $(self).trigger('ready', [self]);
-                self.em.addClass('initialized');
-            })
-            .fail(function () {
-                $(self).trigger('initError', [self]);
-            });
+        pytsite.browser.loadAssets(self.assets).done(function () {
+            // Initialize the widget
+            $(window).trigger('pytsite.widget.init:' + self.cid, [self]);
+            $(self).trigger('ready', [self]);
+            self.em.addClass('initialized');
+        }).fail(function () {
+            $(self).trigger('initError', [self]);
+        });
     }
 };
 
-$(function() {
+$(function () {
     // Initialize all widgets found on a page
-    $('.pytsite-widget').not('.initialized').each(function() {
+    $('.pytsite-widget').not('.initialized').each(function () {
         new pytsite.widget.Widget(this);
     });
 });

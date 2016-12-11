@@ -28,6 +28,25 @@ class ModelSelect(_widget.select.Select):
         super().__init__(uid, items=sorted(items, key=lambda x: x[1]), **kwargs)
 
 
+class ModelCheckboxes(_widget.select.Checkboxes):
+    """Content Model Checkboxes.
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        self._check_perms = kwargs.get('check_perms', True)
+
+        items = []
+        u = _auth.get_current_user()
+        for k, v in _api.get_models().items():
+            if self._check_perms:
+                if u.has_permission('pytsite.odm_perm.view.' + k) or u.has_permission('pytsite.odm_perm.view_own.' + k):
+                    items.append((k, _lang.t(v[1])))
+            else:
+                items.append((k, _lang.t(v[1])))
+
+        super().__init__(uid, items=sorted(items, key=lambda x: x[1]), **kwargs)
+
+
 class StatusSelect(_widget.select.Select):
     """Content Status Select.
     """

@@ -128,4 +128,5 @@ def get_current() -> str:
         raise _error.NoThemesRegistered('No registered themes found')
 
     tid = _threading.get_id()
+
     return _current[tid] if tid in _current else list(_themes.keys())[0]

@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.98.9 (2016-12-11)
+### Added
+- `content`: new widget: `ModelCheckboxes`.
+
+### Fixed
+- `theme`: invalid setting name.
+
+
 ## 0.98.8 (2016-12-09)
 ### Added
 - `form`: new event: **pytsite.form.setup_widgets.FORM_UID**.
