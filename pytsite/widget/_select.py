@@ -175,6 +175,7 @@ class LanguageNav(_base.Abstract):
         self._wrap_em = _html.Ul()
         self._dropdown = kwargs.get('dropdown')
         self._css += ' nav navbar-nav widget-select-language-nav'
+        self._language_titles = kwargs.get('language_titles', {})
 
     def get_html_em(self, **kwargs) -> _html.Element:
         if len(_lang.langs()) == 1:
@@ -187,7 +188,7 @@ class LanguageNav(_base.Abstract):
             # Root element
             dropdown_root = _html.Li(cls='dropdown')
             toggle_a = _html.A(
-                _lang.lang_title(self.language),
+                self._language_titles.get(self._language) or _lang.lang_title(self.language),
                 cls='dropdown-toggle lang-' + self.language,
                 data_toggle='dropdown',
                 role='button',
@@ -205,35 +206,33 @@ class LanguageNav(_base.Abstract):
                     continue
 
                 hl = _hreflang.get(lng)
+                lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
                 if hl:
                     dropdown_menu.append(
-                        _html.Li().append(_html.A(_lang.lang_title(lng), cls='lang-' + lng, href=hl)))
+                        _html.Li().append(_html.A(lng_title, cls='lang-' + lng, href=hl)))
                 else:
                     # Link to homepage
                     dropdown_menu.append(_html.Li().append(
-                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.base_url(lang=lng))))
+                        _html.A(lng_title, cls='lang-' + lng, href=_router.base_url(lang=lng))))
 
             dropdown_root.append(toggle_a).append(dropdown_menu)
             root.append(dropdown_root)
         else:
             # Simple list
             for lng in _lang.langs():
-                lang_title = _lang.lang_title(lng)
+                lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
                 if lng == self.language:
                     # Active language
                     root.append(_html.Li(cls='active').append(
-                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.current_url(),
-                                title=lang_title)))
+                        _html.A(lng_title, cls='lang-' + lng, href=_router.current_url(), title=lng_title)))
                 elif _hreflang.get(lng):
                     # Inactive language, related link
                     root.append(_html.Li().append(
-                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_hreflang.get(lng),
-                                title=lang_title)))
+                        _html.A(lng_title, cls='lang-' + lng, href=_hreflang.get(lng), title=lng_title)))
                 else:
                     # Link to homepage, no related link found
                     root.append(_html.Li().append(
-                        _html.A(_lang.lang_title(lng), cls='lang-' + lng, href=_router.base_url(lang=lng),
-                                title=lang_title)))
+                        _html.A(lng_title, cls='lang-' + lng, href=_router.base_url(lang=lng), title=lng_title)))
 
         return root
 

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.10 (2016-12-16)
+### Added
+- `widget`: new constructor's argument **language_titles** in `select.LanguageNav`.
+
+
 ## 0.98.9 (2016-12-11)
 ### Added
 - `content`: new widget: `ModelCheckboxes`.
