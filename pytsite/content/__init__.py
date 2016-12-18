@@ -50,7 +50,7 @@ def _init():
     taxonomy.register_model('tag', Tag, __name__ + '@tags')
 
     # Admin elements
-    admin.sidebar.add_section('content', __name__ + '@content', 100, ('*',))
+    admin.sidebar.add_section('content', __name__ + '@content', 100)
 
     # Event handlers
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)

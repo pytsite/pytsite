@@ -25,7 +25,7 @@ def __init():
     router.add_rule('/taxonomy/search/<model>/<query>', 'pytsite.taxonomy@search_terms')
 
     # Admin sidebar menu
-    admin.sidebar.add_section('taxonomy', __name__ + '@taxonomy', 500, ('*',))
+    admin.sidebar.add_section('taxonomy', __name__ + '@taxonomy', 500)
 
 
 __init()

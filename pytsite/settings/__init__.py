@@ -25,7 +25,7 @@ def _init():
     router.add_rule(admin.base_path() + '/settings/<uid>/submit', 'pytsite.settings@form_submit', methods='POST')
 
     # Admin sidebar section
-    admin.sidebar.add_section('settings', __name__ + '@settings', 2000, ('*',), sort_items_by='title')
+    admin.sidebar.add_section('settings', __name__ + '@settings', 2000, sort_items_by='title')
 
 
 _init()

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.14 (2016-12-18)
+### Fixed
+- `content`, `settings`, `taxonomy`: `admin`'s section permissions definition.
+
+
 ## 0.98.13 (2016-12-18)
 ### Fixed
 - `admin`: permissions specification checking in `sidebar.add_menu()`. 
