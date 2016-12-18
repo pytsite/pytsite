@@ -75,3 +75,10 @@ class Session:
         https://developer.github.com/v3/repos/#list-tags
         """
         return self.request('repos/{}/{}/tags'.format(owner, repo))
+
+    def repo_contents(self, owner: str, repo: str, path: str) -> dict:
+        """Get repository contents.
+
+        https://developer.github.com/v3/repos/contents/#get-contents
+        """
+        return self.request('repos/{}/{}/contents/{}'.format(owner, repo, path))

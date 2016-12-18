@@ -1,6 +1,7 @@
 """PytSite GitHub Support.
 """
 # Public API
+from . import _error as error
 from ._session import Session
 
 __author__ = 'Alexander Shepetko'

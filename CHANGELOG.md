@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.15 (2016-12-19)
+### Added
+- `github`: new `Session`'s method: `repo_contents()`.
+
+
 ## 0.98.14 (2016-12-18)
 ### Fixed
 - `content`, `settings`, `taxonomy`: `admin`'s section permissions definition.
