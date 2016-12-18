@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.98.12 (2016-12-18)
+### Added
+- Automatic necessary files and directories creation while core initialization.
+
+### Removed
+- `tpl`: **output.base_tpl** variable.
+
+
 ## 0.98.11 (2016-12-18)
 ### Added
 - `router`: logging HTTP exceptions.

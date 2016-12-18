@@ -5,8 +5,7 @@ from pymongo import MongoClient as _MongoClient
 from pymongo.database import Database as _Database
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import ServerSelectionTimeoutError
-from pytsite import util as _util, reg as _reg
-from pytsite import logger as _logger
+from pytsite import util as _util, reg as _reg, logger as _logger
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

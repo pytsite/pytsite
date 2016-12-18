@@ -9,7 +9,7 @@ from werkzeug.routing import Map as _Map, Rule as _Rule, MapAdapter as _MapAdapt
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, theme as _theme
+    threading as _threading, theme as _theme, setup as _setup
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -201,6 +201,11 @@ def dispatch(env: dict, start_response: callable):
     """
     from pytsite import events
     tid = _threading.get_id()
+
+    # Check if the setup completed
+    if not _setup.is_setup_completed():
+        wsgi_response = _http.response.Response(response='Setup is not completed', status=503, content_type='text/html')
+        return wsgi_response(env, start_response)
 
     # Check maintenance mode status
     if _path.exists(_reg.get('paths.maintenance.lock')):

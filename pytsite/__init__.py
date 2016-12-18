@@ -39,34 +39,21 @@ def _init():
     """Init wrapper.
     """
     from importlib import import_module
-    from os import path, environ, getcwd
+    from os import path, environ, getcwd, mkdir
     from getpass import getuser
     from socket import gethostname
     from . import reg
 
-    # Environment type
+    # Environment type and name
     reg.put('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
-
-    # Environment name
     reg.put('env.name', getuser() + '@' + gethostname())
-
-    # Detecting application directory path
-    if 'PYTSITE_APP_ROOT' in environ:
-        root_path = path.abspath(environ['PYTSITE_APP_ROOT'])
-    elif path.exists(path.join(getcwd(), 'app')):
-        root_path = getcwd()
-    else:
-        raise RuntimeError('Cannot find application directory.')
 
     # Workaround for some cases
     if '/usr/local/bin' not in environ['PATH'] and path.exists('/usr/local/bin'):
         environ['PATH'] += ':/usr/local/bin'
 
-    # Check root
-    if not path.exists(root_path) or not path.isdir(root_path):
-        raise RuntimeError("{} is not exists or it is not a directory.".format(root_path))
-
     # Base filesystem paths
+    root_path = getcwd()
     app_path = path.join(root_path, 'app')
     reg.put('paths.root', root_path)
     reg.put('paths.app', app_path)
@@ -79,6 +66,25 @@ def _init():
     reg.put('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
     reg.put('paths.maintenance.lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
 
+    # Create 'app' package
+    if not path.exists(app_path):
+        mkdir(app_path, 0o755)
+        with open(path.join(app_path, '__init__.py'), 'w') as f:
+            f.write('"""PytSite Application.\n"""\n')
+
+        # Create default configuration file
+        config_dir = reg.get('paths.config')
+        if not path.exists(config_dir):
+            mkdir(config_dir, 0o755)
+            conf_str = 'server_name: test.com\n' \
+                       '# db:\n' \
+                       '  # database: test_com\n' \
+                       '  # user: test\n' \
+                       '  # password: test\n' \
+                       '  # ssl: true\n'
+            with open(path.join(config_dir, 'default.yml'), 'w') as f:
+                f.write(conf_str)
+
     # Debug is disabled by default
     reg.put('debug', False)
 
@@ -89,7 +95,6 @@ def _init():
     # Default output parameters
     reg.put('output', {
         'minify': not reg.get('debug'),
-        'base_tpl': '$theme@html',
     })
 
     # Initialize required core packages. Order is important.
@@ -98,8 +103,20 @@ def _init():
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 
-    # Initialize application package
-    __import__('app')
+    # Create application's language directory
+    from pytsite import lang
+    app_lng_dir = path.join(app_path, 'lang')
+    if not path.exists(app_lng_dir):
+        mkdir(app_lng_dir, 0o755)
+        for lng in lang.langs():
+            with open(path.join(app_lng_dir, '{}.yml'.format(lng)), 'w') as f:
+                f.write("app_name: 'PytSite Application'\n")
+
+    # Register application's language directory
+    lang.register_package('app', 'lang')
+
+    # Initialize 'app' package
+    import_module('app')
 
 
 _init()
