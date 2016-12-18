@@ -43,8 +43,8 @@ def _init():
         weight=10,
         permissions=(
             'pytsite.odm_perm.create.currency_rate',
-            'pytsite.odm_perm.modify.currency_rate'
-            'pytsite.odm_perm.delete.currency_rate'
+            'pytsite.odm_perm.modify.currency_rate',
+            'pytsite.odm_perm.delete.currency_rate',
         )
     )
 

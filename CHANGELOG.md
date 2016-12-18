@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.98.13 (2016-12-18)
+### Fixed
+- `admin`: permissions specification checking in `sidebar.add_menu()`. 
+- `currency`: `admin`'s sidebar menu permissions.
+
+
 ## 0.98.12 (2016-12-18)
 ### Added
 - Automatic necessary files and directories creation while core initialization.

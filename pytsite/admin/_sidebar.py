@@ -62,8 +62,9 @@ def get_menu(sid: str, mid: str) -> dict:
 
 
 def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, label: str = None,
-             label_class: str = 'primary', weight: int = 0, permissions=(), replace=False):
+             label_class: str = 'primary', weight: int = 0, permissions='*', replace=False):
     """Add a menu to a section.
+
     :type permissions: str|tuple
     """
     global _menus
@@ -78,7 +79,7 @@ def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, 
         else:
             raise KeyError("Menu '{}' already defined in section '{}'.".format(mid, sid))
 
-    if isinstance(permissions, str):
+    if isinstance(permissions, str) and permissions != '*':
         permissions = (permissions,)
 
     _menus[sid].append({
@@ -185,13 +186,12 @@ def _check_permissions(item: dict) -> bool:
     if user.is_anonymous:
         return False
 
-    if isinstance(item['permissions'], str) and item['permissions'] == '*':
+    if item['permissions'] == '*':
         return True
 
-    for p in item['permissions']:
-        if p == '*':
-            return True
-        elif user.has_permission(p):
-            return True
+    elif isinstance(item['permissions'], (list, tuple)):
+        for p in item['permissions']:
+            if user.has_permission(p):
+                return True
 
     return False
