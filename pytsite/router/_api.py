@@ -292,12 +292,15 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Processing response from handler
-        response_from_callable = call_ep(rule.call, rule_args, request().inp)
+        try:
+            response_from_callable = call_ep(rule.call, rule_args, request().inp)
+        except ImportError as e:
+            raise _http.error.NotFound(e)
+
         if isinstance(response_from_callable, str):
             # Minifying output
             if _reg.get('output.minify'):
                 response_from_callable = _util.minify_html(response_from_callable)
-
             wsgi_response.data = response_from_callable
         elif isinstance(response_from_callable, _http.response.Response):
             wsgi_response = response_from_callable
@@ -332,10 +335,11 @@ def dispatch(env: dict, start_response: callable):
 
             code = e.code
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
+            _logger.error('HTTP {} {}: {}'.format(e.code, e.name, e.description))
         else:
             code = 500
             title = _lang.t('pytsite.router@error', {'code': '500'})
-            _logger.error(str(e), exc_info=e)
+            _logger.error(e, exc_info=e)
 
         from pytsite import metatag
         metatag.t_set('title', title)

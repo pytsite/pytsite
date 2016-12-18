@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from os import listdir, path
+    from os import listdir, path, makedirs
     from pytsite import permissions, settings, lang, events, router
     from . import _settings_form, _eh
 
@@ -33,15 +33,15 @@ def _init():
 
     # Initialize themes
     themes_path = get_themes_path()
-    if path.isdir(themes_path):
-        for name in sorted(listdir(themes_path)):
-            if not path.isdir(path.join(themes_path, name)) or name.startswith('_') or name.startswith('.'):
-                continue
 
-            try:
-                register('themes.' + name)
-            except ImportError:
-                pass
+    if not path.isdir(themes_path):
+        makedirs(themes_path, 0o755)
+
+    for name in sorted(listdir(themes_path)):
+        if not path.isdir(themes_path) or name.startswith('_') or name.startswith('.'):
+            continue
+
+        register('themes.' + name)
 
 
 _init()

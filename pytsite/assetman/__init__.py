@@ -1,6 +1,7 @@
 """PytSite Asset Manager.
 """
 # Public API
+from . import _error as error
 from ._api import register_package, add, remove, dump_js, dump_css, url, add_inline, dump_inline, get_urls, \
     get_locations, reset, detect_collection, build, is_package_registered
 

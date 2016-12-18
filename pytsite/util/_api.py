@@ -548,12 +548,11 @@ def get_callable(s: str) -> callable:
 
     module = _import_module(module_name)
     if callable_name not in dir(module):
-        raise ImportError("Cannot get callable for '{}': module '{}' doesn't define '{}'".
-                          format(s, module_name, callable_name))
+        raise ImportError("'{}' is not callable".format(s))
 
     callable_obj = getattr(module, callable_name)
     if not callable(callable_obj):
-        raise ImportError("Object '{}' of module '{}' is not callable".format(callable_name, module_name))
+        raise ImportError("'{}' is not callable".format(s))
 
     return callable_obj
 

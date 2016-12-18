@@ -3,7 +3,7 @@
 import json as _json
 from typing import Dict as _Dict
 from importlib.util import find_spec as _find_module_spec
-from os import path as _path
+from os import path as _path, mkdir as _mkdir
 from pytsite import threading as _threading, logger as _logger, reg as _reg
 from . import _error
 
@@ -34,11 +34,13 @@ def register(package_name: str):
 
     # Check for package existence
     spec = _find_module_spec(package_name)
-    if not spec:
-        raise _error.ThemeRegistrationFailed("Theme package '{}' is not found".format(package_name))
+    if not spec or not spec.loader:
+        raise _error.ThemeRegistrationFailed("Theme package '{}' doesn't exist or it is not a package".
+                                             format(package_name))
 
     # Build paths
-    theme_path = _path.dirname(spec.origin)
+    theme_path = _path.dirname(_path.join(_reg.get('paths.root'), spec.origin))
+    theme_path = theme_path.replace('{}.{}'.format(_path.sep, _path.sep), _path.sep)
     info_path = _path.join(theme_path, 'theme.json')
 
     # Load info file
@@ -64,16 +66,17 @@ def register(package_name: str):
     if not theme_name:
         raise _error.ThemeRegistrationFailed('Theme name is not specified in {}'.format(info_path))
 
+    # Create directories for resources
+    for n in 'lang', 'tpl', 'assets':
+        n_path = _path.join(theme_path, n)
+        if not _path.exists(n_path):
+            _mkdir(n_path, 0o755)
+
     # Register resources
-    if _path.exists(_path.join(theme_path, 'lang')):
-        from pytsite import lang
-        lang.register_package(package_name, 'lang')
-    if _path.exists(_path.join(theme_path, 'tpl')):
-        from pytsite import tpl
-        tpl.register_package(package_name, 'tpl')
-    if _path.exists(_path.join(theme_path, 'assets')):
-        from pytsite import assetman
-        assetman.register_package(package_name, 'assets')
+    from pytsite import lang, tpl, assetman
+    lang.register_package(package_name, 'lang')
+    tpl.register_package(package_name, 'tpl')
+    assetman.register_package(package_name, 'assets')
 
     _themes[package_name] = {
         'name': theme_name,
@@ -86,7 +89,10 @@ def register(package_name: str):
         set_current(package_name)
 
     # Start theme
-    __import__(package_name)
+    try:
+        __import__(package_name)
+    except ImportError as e:
+        raise _error.ThemeRegistrationFailed("Error while registering theme package '{}': {}".format(package_name, e))
 
     _logger.info("Theme '{}' successfully loaded from '{}'".format(theme_name, package_name))
 

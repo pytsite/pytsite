@@ -1,5 +1,20 @@
 # PytSite Changelog
 
+## 0.98.11 (2016-12-18)
+### Added
+- `router`: logging HTTP exceptions.
+- `theme`: automatic resource directories creation.
+
+### Fixed
+- `assetman`: `errors` revealed for public usage.
+- `metatag`: checking for `assetman`'s package registration while setting favicon.
+- `router`: processing non existent endpoints via HTTP exception.
+- `theme`: checks while theme registration and paths detection.
+
+### Removed
+- `mp`: removed completely.
+
+
 ## 0.98.10 (2016-12-16)
 ### Added
 - `widget`: new constructor's argument **language_titles** in `select.LanguageNav`.
