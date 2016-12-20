@@ -2,71 +2,62 @@
 """
 import zipfile as _zipfile
 import json as _json
-import pip as _pip
+import requests as _requests
+import subprocess as _subprocess
 from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
-from pytsite import reg as _reg, github as _github, semver as _semver, logger as _logger, util as _util, \
-    cache as _cache, reload as _reload, assetman as _assetman
+from pytsite import reg as _reg, logger as _logger, cache as _cache, reload as _reload, assetman as _assetman, \
+    settings as _settings, lang as _lang, util as _util
 from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_DEV_MODE = _reg.get('plugman.dev')
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
+_PLUGINS_API_HOST = _reg.get('plugman.api_host', 'https://plugins.pytsite.xyz')
+_PLUGINS_API_URL = _PLUGINS_API_HOST + '/api/1/'
 
 _plugins_cache = _cache.create_pool('pytsite.plugman')
 _started = []
 _installing = []
 _uninstalling = []
+_required = _reg.get('plugins', set())
 
-if _reg.get('plugman.devmode'):
-    _PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins-installed')
-    _PLUGINS_PACKAGE_NAME = 'plugins-installed'
-    _PLUGINS_PATH_DEV = _path.join(_reg.get('paths.root'), 'plugins')
-    _PLUGINS_PACKAGE_NAME_DEV = 'plugins'
-else:
-    _PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins')
-    _PLUGINS_PACKAGE_NAME = 'plugins'
-    _PLUGINS_PATH_DEV = _path.join(_reg.get('paths.root'), 'plugins-dev')
-    _PLUGINS_PACKAGE_NAME_DEV = 'plugins-dev'
+_PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins')
+_PLUGINS_PACKAGE_NAME = 'plugins'
 
 
-def _get_plugin_path(plugin_name: str, dev: bool = False) -> str:
+def _get_plugin_path(plugin_name: str) -> str:
     """Calculate local path of a plugin.
     """
-    return _path.join(_PLUGINS_PATH_DEV, plugin_name) if dev else _path.join(_PLUGINS_PATH, plugin_name)
+    return _path.join(_PLUGINS_PATH, plugin_name)
 
 
-def _get_plugin_info_path(plugin_name: str, dev: bool = False) -> str:
+def _get_plugin_info_path(plugin_name: str) -> str:
     """Calculate local path of a plugin's info file.
     """
-    return _path.join(_get_plugin_path(plugin_name, dev), 'plugin.json')
+    return _path.join(_get_plugin_path(plugin_name), 'plugin.json')
 
 
-def _get_local_info(plugin_name: str, dev: bool = False) -> dict:
+def _read_plugin_json(plugin_name: str) -> dict:
     """Get information about locally installed plugin.
     """
-    if not dev and not is_installed(plugin_name):
+    if not is_installed(plugin_name):
         raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
 
-    plugin_info_path = _get_plugin_info_path(plugin_name, dev)
-    data = {}
+    plugin_info_path = _get_plugin_info_path(plugin_name)
 
-    if not _path.exists(plugin_info_path):
-        # Create the info file if it doest not exist
-        with open(plugin_info_path, 'wt') as f:
-            f.write('{}\n')
-    else:
-        # Load data from the info file
-        with open(plugin_info_path, encoding='utf-8') as f:
-            data = _json.load(f)  # type: dict
+    # Load data from plugin.json file
+    with open(plugin_info_path, encoding='utf-8') as f:
+        data = _json.load(f)  # type: dict
 
-        if not isinstance(data, dict):
-            raise TypeError('{} should contain dictionary, got {}'.format(plugin_info_path, type(data)))
+    if not isinstance(data, dict):
+        raise TypeError('{} should contain dictionary, got {}'.format(plugin_info_path, type(data)))
 
     if 'requires' not in data:
         data['requires'] = {'packages': [], 'plugins': []}
@@ -79,7 +70,7 @@ def _get_local_info(plugin_name: str, dev: bool = False) -> dict:
     return data
 
 
-def _write_local_info(plugin_name: str, data: dict):
+def _write_plugin_json(plugin_name: str, data: dict):
     """Update plugin's info file.
     """
     if not is_installed(plugin_name):
@@ -89,38 +80,20 @@ def _write_local_info(plugin_name: str, data: dict):
         _json.dump(data, f)
 
 
-def _get_remote_info() -> dict:
-    """Load data about available plugins from GitHub.
-    """
-    if _plugins_cache.has('github'):
-        return _plugins_cache.get('github')
+def _plugins_api_request(ep: str):
+    r = _requests.get(_PLUGINS_API_URL + ep, {'l': _settings.get('plugman.license')})
 
-    r = {}
+    if not r.ok:
+        if r.status_code == 403:
+            raise _error.InvalidLicense('Plugins API license is invalid or expired.')
+        else:
+            raise _error.ApiRequestError(r.content)
 
-    gh = _github.Session()
+    return r.json()
 
-    for repo in gh.org_repos(_GITHUB_ORG):
-        if not repo['name'].startswith(_GITHUB_PLUGIN_REPO_PREFIX):
-            continue
 
-        name = repo['name'].replace(_GITHUB_PLUGIN_REPO_PREFIX, '')
-
-        # Load versions from repo's tags
-        versions = {v['name']: v['zipball_url'] for v in gh.repo_tags(repo['owner']['login'], repo['name'])}
-        if not versions:
-            continue
-
-        latest_version = _semver.latest(versions.keys())
-
-        r[name] = {
-            'name': name,
-            'home_url': repo['html_url'],
-            'description': repo['description'],
-            'latest_version': latest_version,
-            'latest_version_url': versions[latest_version],
-        }
-
-    return _plugins_cache.put('github', r, 3600)  # GitHub allows only 60 requests per hour
+def get_license_info() -> dict:
+    return _plugins_api_request('license/info')
 
 
 def get_plugins_path() -> str:
@@ -138,32 +111,34 @@ def is_installed(plugin_name: str) -> bool:
 def is_started(plugin_name: str) -> bool:
     """Check if the plugin is started.
     """
+    global _started
+
     return plugin_name in _started
 
 
-def start(plugin_name: str, dev: bool = False) -> object:
+def get_required_plugins() -> set:
+    global _required
+
+    return _required
+
+
+def start(plugin_name: str) -> object:
     """Start a plugin.
     """
-    if not dev and not is_installed(plugin_name):
-        raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
+    global _required, _started
 
     if plugin_name in _started:
         raise _error.PluginAlreadyStarted("Plugin '{}' is already started.".format(plugin_name))
 
     # Start required plugins
-    if dev:
-        for req in get_info_dev(plugin_name)['requires']['plugins']:
-            if not is_started(req):
-                _logger.debug("Plugin '{}' requires '{}'".format(plugin_name, req))
-                start(req, dev)
-    else:
-        for req in get_info(plugin_name)['requires']['plugins']:
-            if not is_started(req):
-                _logger.debug("Plugin '{}' requires '{}'".format(plugin_name, req))
-                start(req)
+    for req in _read_plugin_json(plugin_name)['requires']['plugins']:
+        _required.add(req)
+        if not is_started(req):
+            _logger.debug("Plugin '{}' requires '{}'".format(plugin_name, req))
+            start(req)
 
     # Load plugin's package
-    pkg_name = (_PLUGINS_PACKAGE_NAME_DEV if dev else _PLUGINS_PACKAGE_NAME) + '.' + plugin_name
+    pkg_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
     try:
         module = _import_module(pkg_name)
         _started.append(plugin_name)
@@ -175,26 +150,34 @@ def start(plugin_name: str, dev: bool = False) -> object:
         raise _error.PluginStartError("Error while starting plugin '{}' ({}): {}".format(plugin_name, pkg_name, e))
 
 
-def get_info(plugin_name: str = None) -> dict:
+def get_remote_plugins() -> dict:
+    return _plugins_api_request('plugin/list')
+
+
+def get_installed_plugins() -> dict:
+    r = {}
+
+    for n in _listdir(_PLUGINS_PATH):
+        if _path.isdir(_path.join(_PLUGINS_PATH, n)) and not (n.startswith('.') or n.startswith('_')):
+            r[n] = _read_plugin_json(n)
+
+    return r
+
+
+def get_plugins(plugin_name: str = None) -> dict:
     """Get combined information about remotely available and locally installed plugin(s).
     """
-    required = _reg.get('plugins', ())
+    # Remotely available plugins list
+    r = _util.dict_merge(get_remote_plugins(), get_installed_plugins())
 
-    # Fetch data about existing plugins from GitHub
-    r = _get_remote_info()
-
-    # Add
     for name, info in r.items():
-        local_info = _get_local_info(name) if is_installed(name) else {}
-        installed_version = local_info.get('version')
-
+        iv = r[name].get('installed_version')
+        lv = r[name].get('latest_version')
         r[name].update({
-            'installed_version': installed_version,
-            'installing': name in _installing,
-            'uninstalling': name in _uninstalling,
-            'upgradable': bool(installed_version and r[name]['latest_version'] != installed_version),
-            'required': name in required,
-            'requires': local_info.get('requires'),
+            'installed_version': iv,
+            'latest_version': lv,
+            'upgradable': bool(iv and (iv != lv)),
+            'required': name in _required,
         })
 
     if plugin_name:
@@ -202,34 +185,6 @@ def get_info(plugin_name: str = None) -> dict:
             return r[plugin_name]
         except KeyError:
             raise _error.UnknownPlugin("Plugin '{}' does not exist.".format(plugin_name))
-    else:
-        return r
-
-
-def get_info_dev(plugin_name: str = None) -> dict:
-    """Get information about plugin in development.
-    """
-    r = {}
-
-    if not _path.exists(_PLUGINS_PATH_DEV):
-        return r
-
-    for item in _listdir(_PLUGINS_PATH_DEV):
-        abs_path = _path.join(_PLUGINS_PATH_DEV, item)
-        if not _path.isdir(abs_path):
-            continue
-
-        r[item] = {
-            'path': abs_path,
-        }
-
-        r[item].update(_get_local_info(item, True))
-
-    if plugin_name:
-        try:
-            r = r[plugin_name]
-        except KeyError:
-            raise _error.UnknownPlugin("Development plugin '{}' does not exist.".format(plugin_name))
 
     return r
 
@@ -238,6 +193,9 @@ def install(plugin_name: str):
     """Install latest version of a plugin.
     """
     global _installing
+
+    if _DEV_MODE:
+        raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
     # Check if the plugin is not installing at this moment
     if plugin_name in _installing:
@@ -259,11 +217,9 @@ def install(plugin_name: str):
             _mkdir(tmp_dir_path, 0o755)
 
         # Prepare all necessary data
-        plugin_info = get_info(plugin_name)
-        description = plugin_info['description']
+        plugin_info = get_plugins(plugin_name)
         version = plugin_info['latest_version']
-        zip_url = plugin_info['latest_version_url']
-        home_url = plugin_info['home_url']
+        zip_url = plugin_info['zip_url']
         tmp_file_path = _path.join(tmp_dir_path, '{}-{}.zip'.format(plugin_name, version))
 
         # Download archive
@@ -293,36 +249,31 @@ def install(plugin_name: str):
             _rename(source_dir_path, target_dir_path)
             _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
 
-            # Update info file
-            local_info = _get_local_info(plugin_name)
+            # Store installed version in plugin.json
+            local_info = _read_plugin_json(plugin_name)
             local_info.update({
-                'name': plugin_name,
-                'description': description,
-                'version': version,
-                'home_url': home_url,
-                'zip_url': zip_url,
-                'installed': _util.w3c_datetime_str(),
+                'installed_version': version,
             })
-            _write_local_info(plugin_name, local_info)
+            _write_plugin_json(plugin_name, local_info)
 
-        # Reload info file after plugin extraction
-        info = get_info(plugin_name)
+        # Load plugin info
+        info = _read_plugin_json(plugin_name)
 
         # Install required packages
-        if 'packages' in info['requires'] and info['requires']['packages']:
-            for pkg_name in info['requires']['packages']:
-                _logger.info('Installing required package: {}'.format(pkg_name))
-                r = _pip.main(['install', pkg_name, '-qqq'])
-                if r != 0:
-                    _logger.warn('There were errors while installing package {}'.format(pkg_name))
+        for pkg_name in info['requires']['packages']:
+            _logger.info('Installing required pip package: {}'.format(pkg_name))
+            r = _subprocess.run(['pip', 'install', pkg_name], stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+            if r.returncode != 0:
+                err_msg = r.stderr.decode('utf-8')
+                raise _error.PackageInstallError("Pip package '{}' was not installed: {}".format(pkg_name, err_msg))
+            else:
                 _logger.info('Required package {} has been successfully installed'.format(pkg_name))
 
         # Install required plugins
-        if 'plugins' in info['requires'] and info['requires']['plugins']:
-            for plg_name in info['requires']['plugins']:
-                if not is_installed(plg_name):
-                    _logger.info('Installing required plugin: {}'.format(plg_name))
-                    install(plg_name)
+        for plg_name in info['requires']['plugins']:
+            if not is_installed(plg_name):
+                _logger.info('Installing required plugin: {}'.format(plg_name))
+                install(plg_name)
 
         _logger.info("Plugin '{}' successfully installed".format(plugin_name))
 
@@ -349,6 +300,11 @@ def install(plugin_name: str):
 def uninstall(plugin_name: str):
     """Uninstall a plugin.
     """
+    global _uninstalling
+
+    if _DEV_MODE:
+        raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
+
     # Check if the plugin is not installing at this moment
     if plugin_name in _uninstalling:
         raise _error.PluginUninstallationInProgress(
@@ -375,11 +331,13 @@ def uninstall(plugin_name: str):
 def upgrade(plugin_name: str):
     """Upgrade a locally installed plugin.
     """
+    if _DEV_MODE:
+        raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
+
     if not is_installed(plugin_name):
         raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
 
-    # Uninstall
-    uninstall(plugin_name)
-
-    # Install
-    install(plugin_name)
+    info = get_plugins(plugin_name)
+    if info['upgradable']:
+        uninstall(plugin_name)
+        install(plugin_name)

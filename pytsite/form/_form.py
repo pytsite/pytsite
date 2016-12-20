@@ -110,6 +110,11 @@ class Form(_ABC):
         """
         pass
 
+    def _on_submit(self):
+        """Hook.
+        """
+        pass
+
     @property
     def areas(self) -> tuple:
         """Get form's areas.
@@ -357,6 +362,15 @@ class Form(_ABC):
 
         if errors:
             raise error.ValidationError(errors)
+
+        return self
+
+    def submit(self):
+        """Should be called in endpoint when they processing form submit.
+         """
+        self._on_submit()
+
+        return self
 
     def render(self) -> str:
         """Render the form.

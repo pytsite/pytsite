@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.98.16 (2016-12-20)
+### Added
+- `form`: new hook method: 'Form.'
+- `odm`: automatic collections reindexing on `pytsite.update` event.
+- `widget`: new properties in base widget: `has_success`, 'has_warning' and `has_error`.
+
+### Changed
+- `plugman`: refactored to use new plugin API.
+
+
 ## 0.98.15 (2016-12-19)
 ### Added
 - `github`: new `Session`'s method: `repo_contents()`.

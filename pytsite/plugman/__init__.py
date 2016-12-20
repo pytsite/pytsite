@@ -2,11 +2,30 @@
 """
 # Public API
 from . import _error as error
-from ._api import get_plugins_path, get_info, get_info_dev, install, uninstall, is_installed, start, is_started
+from ._api import get_plugins_path, get_plugins, install, uninstall, is_installed, start, is_started, \
+    get_license_info, get_installed_plugins, get_remote_plugins, get_required_plugins
+
+# Locally necessary imports
+from pytsite import reload as _reload, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+_plugman_started = False
+_DEV_MODE = _reg.get('plugman.dev')
+
+
+def _cron_check_license():
+    global _plugman_started
+
+    try:
+        get_license_info()
+        if not _plugman_started:
+            _reload.reload()
+    except error.InvalidLicense:
+        if _plugman_started:
+            _reload.reload()
 
 
 def _init():
@@ -34,29 +53,36 @@ def _init():
     # HTTP API
     http_api.register_handler('plugman', 'pytsite.plugman.http_api')
 
-    # Event handlers
-    events.listen('pytsite.update', _eh.update)
+    if not _DEV_MODE:
+        # Periodically check license
+        events.listen('pytsite.cron.1min', _cron_check_license)
 
-    # Install required plugins
-    for p_name in reg.get('plugins', ()):
-        if not is_installed(p_name):
-            install(p_name)
+        # Check license
+        try:
+            get_license_info()
+        except error.InvalidLicense:
+            logger.error('Plugins license expired or invalid. Plugins will not be loaded.')
+            return
 
-    # Start development plugins
-    for p_name in get_info_dev():
+        # Event handlers
+        events.listen('pytsite.update', _eh.update)
+        events.listen('pytsite.update.after', _eh.update_after)
+
+        # Install required plugins
+        for p_name in reg.get('plugins', ()):
+            if not is_installed(p_name):
+                install(p_name)
+
+    # Start installed plugins
+    for p_name in get_installed_plugins():
         try:
             if not is_started(p_name):
-                start(p_name, True)
+                start(p_name)
         except error.PluginStartError as e:
             logger.error(e, exc_info=e)
 
-    # Start installed plugins
-    for p_name in get_info():
-        if is_installed(p_name) and not is_started(p_name):
-            try:
-                start(p_name)
-            except error.PluginStartError as e:
-                logger.error(e, exc_info=e)
+    global _plugman_started
+    _plugman_started = True
 
 
 _init()

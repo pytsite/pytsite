@@ -6,6 +6,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+class ApiRequestError(Exception):
+    pass
+
+
+class InvalidLicense(Exception):
+    pass
+
+
 class UnknownPlugin(Exception):
     pass
 
@@ -27,6 +35,10 @@ class PluginUninstallationInProgress(Exception):
 
 
 class PluginInstallError(Exception):
+    pass
+
+
+class PackageInstallError(Exception):
     pass
 
 

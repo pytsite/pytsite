@@ -13,10 +13,25 @@ $(function () {
             var endpoint = btn.attr('data-ep');
             var iconClass = icon.attr('class');
 
-            if (endpoint.indexOf('upgrade') >= 0 && !confirm(t('pytsite.plugman@confirm_plugin_upgrade')))
-                return;
-            else if (endpoint.indexOf('uninstall') >= 0 && !confirm(t('pytsite.plugman@confirm_plugin_uninstall')))
-                return;
+            switch (endpoint) {
+                case 'plugman/install':
+                    if (!confirm(t('pytsite.plugman@confirm_plugin_install')))
+                        return;
+                    break;
+
+                case 'plugman/upgrade':
+                    if (!confirm(t('pytsite.plugman@confirm_plugin_upgrade')))
+                        return;
+                    break;
+
+                case 'plugman/uninstall':
+                    if (!confirm(t('pytsite.plugman@confirm_plugin_uninstall')))
+                        return;
+                    break;
+
+                default:
+                    return;
+            }
 
             // Disable all action buttons
             actionBtns.attr('disabled', true);

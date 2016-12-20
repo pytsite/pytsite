@@ -22,7 +22,8 @@ def __init():
     # Console commands
     console.register_command(_console_command.ODM())
 
-    # Reindex collections on every update
-    events.listen('pytsite.db.restore', _eh.pytsite_db_restore)
+    # Event listeners
+    events.listen('pytsite.update', _eh.update)
+    events.listen('pytsite.db.restore', _eh.db_restore)
 
 __init()

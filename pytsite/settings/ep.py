@@ -55,6 +55,9 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
             value[k] = v
 
     _api.put(uid, value)
+
+    frm.submit()
+
     _router.session().add_success_message(_lang.t('pytsite.settings@settings_has_been_saved'))
 
     return _http.response.Redirect(_router.ep_url('pytsite.settings@form', {'uid': uid}))

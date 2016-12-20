@@ -32,6 +32,9 @@ class Abstract(_ABC):
         self._placeholder = kwargs.get('placeholder')
         self._css = kwargs.get('css', '')
         self._data = kwargs.get('data', {})
+        self._has_success = kwargs.get('has_success', False)
+        self._has_warning = kwargs.get('has_warning', False)
+        self._has_error = kwargs.get('has_error', False)
         self._help = kwargs.get('help')
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
@@ -249,10 +252,52 @@ class Abstract(_ABC):
         self._css = value
 
     @property
+    def has_success(self):
+        """Get has_success property of the widget.
+        """
+        return self._has_success
+
+    @has_success.setter
+    def has_success(self, value: str):
+        """Set has_success property of the widget.
+        """
+        self._has_success = value
+    
+    @property
+    def has_warning(self):
+        """Get has_warning property of the widget.
+        """
+        return self._has_warning
+
+    @has_warning.setter
+    def has_warning(self, value: str):
+        """Set has_warning property of the widget.
+        """
+        self._has_warning = value
+
+    @property
+    def has_error(self):
+        """Get has_error property of the widget.
+        """
+        return self._has_error
+
+    @has_error.setter
+    def has_error(self, value: str):
+        """Set has_error property of the widget.
+        """
+        self._has_error = value
+
+    @property
     def help(self):
         """Get help string of the widget.
         """
         return self._help
+
+    @help.setter
+    def help(self, value: str):
+        """Set help string of the widget.
+        """
+        self._help = value
 
     @property
     def form_area(self) -> str:
@@ -379,7 +424,14 @@ class Abstract(_ABC):
             content = content.wrap(_html.Div(cls=self._h_size))
             content = content.wrap(_html.Div(cls='row'))
 
-        wrap = _html.Div(cls='form-group')
+        wrap_css = 'group_wrap'
+        if self._has_success:
+            wrap_css += ' has-success'
+        if self._has_warning:
+            wrap_css += ' has-warning'
+        if self._has_error:
+            wrap_css += ' has-error'
+        wrap = _html.Div(cls=wrap_css)
 
         # Place placeholder instead of label
         if not self._label and self._placeholder:

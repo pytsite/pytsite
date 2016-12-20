@@ -79,6 +79,8 @@ def m_form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     finally:
         entity.unlock()
 
+    frm.submit()
+
     # Process 'special' redirect endpoint
     if frm.redirect == 'ENTITY_VIEW':
         frm.redirect = entity.odm_ui_view_url()

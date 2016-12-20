@@ -25,17 +25,19 @@ class ODM(_console.command.Abstract):
     def get_options_help(self) -> str:
         """Get help for the command.
         """
-        return '--reindex'
+        return '--reindex [--no-maint]'
 
     def get_options(self) -> tuple:
         """Get command options.
         """
         return (
             ('reindex', _validation.rule.Pass()),
+            ('no-maint', _validation.rule.Pass()),
         )
 
-    def _reindex(self):
-        _maintenance.enable()
+    def _reindex(self, no_maint: bool = False):
+        if not no_maint:
+            _maintenance.enable()
 
         for model in _api.get_registered_models():
             msg = _lang.t('pytsite.odm@reindex_model', {'model': model})
@@ -43,7 +45,8 @@ class ODM(_console.command.Abstract):
             _logger.info(msg)
             _api.dispense(model).reindex()
 
-        _maintenance.disable()
+        if not no_maint:
+            _maintenance.disable()
 
     def execute(self, args: tuple=(), **kwargs):
         """Execute the command.
@@ -53,4 +56,4 @@ class ODM(_console.command.Abstract):
 
         for arg in kwargs:
             if arg == 'reindex':
-                self._reindex()
+                self._reindex(kwargs.get('no-maint', False))
