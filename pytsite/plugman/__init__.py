@@ -63,6 +63,10 @@ def _init():
         except error.InvalidLicense:
             logger.error('Plugins license expired or invalid. Plugins will not be loaded.')
             return
+        except error.ApiRequestError as e:
+            logger.error('Error while communicating with plugin API. Plugins will not be loaded.')
+            logger.error(e)
+            return
 
         # Event handlers
         events.listen('pytsite.update', _eh.update)

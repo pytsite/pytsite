@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.17 (2016-12-20)
+### Fixed
+- `plugman`: plugin API request errors handling.
+
+
 ## 0.98.16 (2016-12-20)
 ### Added
 - `form`: new hook method: 'Form.'
