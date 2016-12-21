@@ -340,7 +340,8 @@ def dispatch(env: dict, start_response: callable):
 
             code = e.code
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
-            _logger.error('HTTP {} {}: {}'.format(e.code, e.name, e.description))
+            _logger.error('HTTP {} {} ({}): {}'.
+                          format(e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
         else:
             code = 500
             title = _lang.t('pytsite.router@error', {'code': '500'})

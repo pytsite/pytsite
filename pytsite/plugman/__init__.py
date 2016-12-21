@@ -55,7 +55,7 @@ def _init():
 
     if not _DEV_MODE:
         # Periodically check license
-        events.listen('pytsite.cron.1min', _cron_check_license)
+        events.listen('pytsite.cron.hourly', _cron_check_license)
 
         # Check license
         try:

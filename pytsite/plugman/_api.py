@@ -8,8 +8,8 @@ from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _u
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
-from pytsite import reg as _reg, logger as _logger, cache as _cache, reload as _reload, assetman as _assetman, \
-    settings as _settings, lang as _lang, util as _util
+from pytsite import reg as _reg, logger as _logger, reload as _reload, assetman as _assetman, settings as _settings, \
+    lang as _lang, util as _util, router as _router
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -22,7 +22,6 @@ _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 _PLUGINS_API_HOST = _reg.get('plugman.api_host', 'https://plugins.pytsite.xyz')
 _PLUGINS_API_URL = _PLUGINS_API_HOST + '/api/1/'
 
-_plugins_cache = _cache.create_pool('pytsite.plugman')
 _started = []
 _installing = []
 _uninstalling = []
@@ -81,7 +80,10 @@ def _write_plugin_json(plugin_name: str, data: dict):
 
 
 def _plugins_api_request(ep: str):
-    r = _requests.get(_PLUGINS_API_URL + ep, {'l': _settings.get('plugman.license')})
+    r = _requests.get(_PLUGINS_API_URL + ep, {
+        'l': _settings.get('plugman.license'),
+        'h': _router.server_name(),
+    })
 
     if not r.ok:
         if r.status_code == 403:

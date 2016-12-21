@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.98.20 (2016-12-22)
+### Added
+- `plugman`: hostname sending in requests to plugin API. 
+
+### Fixed
+- `plugman`: license checking period.
+- `router`: HTTP errors log message details.
+
+
 ## 0.98.19 (2016-12-22)
 ### Fixed
 - `odm`: collections reindexing on 'pytsite.update' event. 
