@@ -91,6 +91,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         self._caption_field = kwargs.get('caption_field')
         self._exclude = kwargs.get('exclude', ())
         self._sort_field = kwargs.get('sort_field', self._caption_field)
+        self._translate_captions = kwargs.get('translate_captions', False)
 
         if not self._model:
             raise ValueError('Model is not specified.')
@@ -144,6 +145,9 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         for entity in finder.get():
             if entity not in self._exclude:
                 k = entity.model + ':' + str(entity.id)
-                self._items.append((k, _lang.t(str(entity.get_field(self._caption_field)))))
+                caption = str(entity.get_field(self._caption_field))
+                if self._translate_captions:
+                    caption = _lang.t(caption)
+                self._items.append((k, caption))
 
         return super().get_html_em()

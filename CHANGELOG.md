@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.98.18 (2016-12-21)
+### Added
+- `odm_ui`: new argument `translate_captions` in `widget.EntityCheckboxes`.
+
+### Changed
+- `odm_ui`: captions is not translated by default now in `widget.EntityCheckboxes`.
+
+### Fixed
+- `widget`: form group class name in base widget.
+
+
 ## 0.98.17 (2016-12-20)
 ### Fixed
 - `plugman`: plugin API request errors handling.
