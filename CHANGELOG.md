@@ -1,6 +1,15 @@
 # PytSite Changelog
 
-## 0.98.20 (2016-12-22)
+## 0.98.21 (2016-12-21)
+### Added
+- `widget`: new argument in `select.LanguageNav`: **dropup**.
+
+### Fixed
+- `content`: processing exception in case of no comments driver registered.
+- `semver`: processing `IndexError` in `latest()` function.
+
+
+## 0.98.20 (2016-12-21)
 ### Added
 - `plugman`: hostname sending in requests to plugin API. 
 
@@ -9,7 +18,7 @@
 - `router`: HTTP errors log message details.
 
 
-## 0.98.19 (2016-12-22)
+## 0.98.19 (2016-12-21)
 ### Fixed
 - `odm`: collections reindexing on 'pytsite.update' event. 
 

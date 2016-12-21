@@ -734,7 +734,7 @@ class Content(Base):
         # Delete comments
         try:
             _comments.delete_thread(self.route_alias.alias)
-        except NotImplementedError:
+        except (NotImplementedError, _comments.error.NoDriverRegistered):
             pass
 
         # Enable permissions check

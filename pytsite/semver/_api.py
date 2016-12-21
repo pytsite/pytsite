@@ -55,4 +55,7 @@ def compare(a: str, b: str) -> int:
 def latest(v: _Iterable) -> str:
     """Get latest version from list of versions.
     """
-    return sorted(v, key=to_int)[-1]
+    try:
+        return sorted(v, key=to_int)[-1]
+    except IndexError:
+        return None

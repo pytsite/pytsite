@@ -174,6 +174,7 @@ class LanguageNav(_base.Abstract):
 
         self._wrap_em = _html.Ul()
         self._dropdown = kwargs.get('dropdown')
+        self._dropup = kwargs.get('dropup')
         self._css += ' nav navbar-nav widget-select-language-nav'
         self._language_titles = kwargs.get('language_titles', {})
 
@@ -184,9 +185,9 @@ class LanguageNav(_base.Abstract):
         root = _html.TagLessElement()
 
         # Dropdown menu
-        if self._dropdown:
+        if self._dropdown or self._dropup:
             # Root element
-            dropdown_root = _html.Li(cls='dropdown')
+            dropdown_root = _html.Li(cls='dropdown' if self._dropdown else 'dropup')
             toggle_a = _html.A(
                 self._language_titles.get(self._language) or _lang.lang_title(self.language),
                 cls='dropdown-toggle lang-' + self.language,
