@@ -23,7 +23,7 @@ def __init():
     console.register_command(_console_command.ODM())
 
     # Event listeners
-    events.listen('pytsite.update', _eh.update)
+    events.listen('pytsite.update.after', _eh.update_after)
     events.listen('pytsite.db.restore', _eh.db_restore)
 
 __init()

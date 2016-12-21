@@ -5,7 +5,7 @@ from pytsite import console as _console, lang as _lang
 from . import _api
 
 
-def update(version: str):
+def update_after():
     _console.run_command('odm', reindex=True, no_maint=True)
 
 

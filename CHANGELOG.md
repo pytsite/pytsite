@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.19 (2016-12-22)
+### Fixed
+- `odm`: collections reindexing on 'pytsite.update' event. 
+
+
 ## 0.98.18 (2016-12-21)
 ### Added
 - `odm_ui`: new argument `translate_captions` in `widget.EntityCheckboxes`.
