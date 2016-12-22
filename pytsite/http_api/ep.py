@@ -12,6 +12,7 @@ def entry(args: dict, inp: dict):
     version = args.pop('version')
     endpoint = args.pop('endpoint')  # type: str
     method = _router.request().method.lower()
+    current_path = _router.current_path(resolve_alias=False, strip_lang=False)
 
     try:
         if 'language' in inp:
@@ -33,16 +34,19 @@ def entry(args: dict, inp: dict):
         _logger.warn(_router.current_path() + ': ' + str(e))
         response = _http.response.JSON({'error': str(e)}, 404)
         response.headers.add('PytSite-HTTP-API', version)
+
         return response
 
     except _http.error.Base as e:
-        _logger.error(_router.current_path() + ': ' + str(e.description), exc_info=e)
-        response = _http.response.JSON({'error': str(e.description)}, e.code)
+        _logger.error(current_path + ': ' + e.description)
+        response = _http.response.JSON({'error': e.description}, e.code)
         response.headers.add('PytSite-HTTP-API', version)
+
         return response
 
     except Exception as e:
-        _logger.error(_router.current_path() + ': ' + str(e), exc_info=e)
+        _logger.error(current_path + ': ' + str(e), exc_info=e)
         response = _http.response.JSON({'error': str(e)}, 500)
         response.headers.add('PytSite-HTTP-API', version)
+
         return response

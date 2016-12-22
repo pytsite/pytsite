@@ -11,16 +11,13 @@ __license__ = 'MIT'
 def _init():
     """Init wrapper.
     """
-    from pytsite import assetman, tpl
+    from pytsite import assetman
     from . import _libs
 
     # Assets
     assetman.register_package(__name__)
     assetman.add(__name__ + '@pytsite/js/common.js', permanent=True, weight=-999)
     assetman.add(__name__ + '@pytsite/js/lang.js', permanent=True, weight=-998)
-
-    # Tpl globals
-    tpl.register_global('add_lib', include)
 
     # Libraries available out of the box
     register('jquery', _libs.jquery)

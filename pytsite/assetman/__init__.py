@@ -25,7 +25,6 @@ def _init():
     events.listen('pytsite.update.after', build)
 
     # Tpl globals
-    tpl.register_global('add_asset', add)
     tpl.register_global('asset_url', url)
     tpl.register_global('css_links', dump_css)
     tpl.register_global('js_links', dump_js)

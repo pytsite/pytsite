@@ -1,5 +1,16 @@
 # PytSite Changelog
 
+## 0.98.22 (2016-12-22)
+### Fixed
+- `browser`: Bootstrap CSS add-ons.
+- `http_api`: verbose log messages while processing HTTP exceptions.
+
+### Removed
+- `assetman`: **add_asset** tpl global.
+- `browser`: **add_lib** tpl global.
+- `plugman`: support for automatic plugin installation during application boot.
+
+
 ## 0.98.21 (2016-12-21)
 ### Added
 - `widget`: new argument in `select.LanguageNav`: **dropup**.

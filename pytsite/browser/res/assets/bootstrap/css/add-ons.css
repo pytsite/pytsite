@@ -23,14 +23,12 @@
     text-align: justify;
 }
 
-@media (max-width: 478px) {
-    .hidden-xs-B {
-        display: none !important;
-    }
+.hidden-xs-B {
+    display: none !important;
+}
 
-    .visible-xs-B {
-        display: initial !important;
-    }
+.visible-xs-B {
+    display: initial !important;
 }
 
 @media (min-width: 480px) {
@@ -52,6 +50,15 @@
 
     .text-xs-justify {
         text-align: justify;
+    }
+
+    .hidden-xs-B {
+        display: initial !important;
+    }
+
+    .visible-xs-B {
+
+        display: none !important;
     }
 }
 

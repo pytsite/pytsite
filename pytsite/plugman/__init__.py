@@ -30,7 +30,7 @@ def _cron_check_license():
 
 def _init():
     from os import mkdir, path
-    from pytsite import reg, settings, lang, assetman, permissions, http_api, logger, events
+    from pytsite import settings, lang, assetman, permissions, http_api, logger, events
     from . import _settings_form, _eh
 
     # Resources
@@ -71,11 +71,6 @@ def _init():
         # Event handlers
         events.listen('pytsite.update', _eh.update)
         events.listen('pytsite.update.after', _eh.update_after)
-
-        # Install required plugins
-        for p_name in reg.get('plugins', ()):
-            if not is_installed(p_name):
-                install(p_name)
 
     # Start installed plugins
     for p_name in get_installed_plugins():
