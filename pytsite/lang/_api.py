@@ -28,7 +28,7 @@ _default_regions = {
 }
 
 
-def _call_func_re_handler(match: _re) -> str:
+def _global_re_handler(match: _re) -> str:
     f_name = match.group(1)
     if f_name not in _globals:
         return match.group(0)
@@ -166,11 +166,16 @@ def is_translation_defined(msg_id: str, language: str = None, use_fallback=True)
 def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, use_fallback=True) -> str:
     """Translate a message ID.
     """
+    global _globals
+
     if not language:
         language = get_current()
 
     if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
+
+    if msg_id in _globals:
+        return _globals[msg_id](language, args)
 
     # Determining package name and message ID
     package_name, msg_id = _split_msg_id(msg_id)
@@ -200,7 +205,7 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, us
     msg = _sub_trans_token_re.sub(lambda match: t(match.group(1)), msg)
 
     # Call functions
-    msg = _func_token_re.sub(_call_func_re_handler, msg)
+    msg = _func_token_re.sub(_global_re_handler, msg)
 
     return msg
 

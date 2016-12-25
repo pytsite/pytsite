@@ -57,9 +57,8 @@ def _init():
     app_path = path.join(root_path, 'app')
     reg.put('paths.root', root_path)
     reg.put('paths.app', app_path)
-    reg.put('paths.static', path.join(root_path, 'static'))
-    for n in ['config', 'log', 'storage', 'tmp']:
-        reg.put('paths.' + n, path.join(app_path, n))
+    for n in ['config', 'log', 'static', 'storage', 'tmp']:
+        reg.put('paths.' + n, path.join(root_path, n))
 
     # Additional filesystem paths
     reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))
@@ -110,13 +109,18 @@ def _init():
         mkdir(app_lng_dir, 0o755)
         for lng in lang.langs():
             with open(path.join(app_lng_dir, '{}.yml'.format(lng)), 'w') as f:
-                f.write("app_name: 'PytSite Application'\n")
+                f.write('')
 
     # Register application's language directory
     lang.register_package('app', 'lang')
 
     # Initialize 'app' package
     import_module('app')
+
+    # Core event handlers
+    from pytsite import events
+    from . import _eh
+    events.listen('pytsite.update', _eh.update)
 
 
 _init()

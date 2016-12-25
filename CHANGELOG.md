@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.98.25 (2016-12-25)
+### Added
+- `lang`: processing message IDs as globals.
+
+### Changed
+- `core`: 'config', 'log', 'static', 'storage', 'tmp' directories moved from the 'app' root.
+
+
 ## 0.98.24 (2016-12-25)
 ### Fixed
 - `theme`: settings widgets values set. 
