@@ -23,7 +23,11 @@ def get_settings_widgets(**kwargs):
         for w in pkg.get_settings_widgets():
             setting_uid = 'theme_setting_{}_{}'.format(theme, w.uid).replace('.', '_')
             w.uid = 'setting_' + setting_uid
-            w.value = _settings.get('theme.' + setting_uid)
+
+            setting_val = _settings.get('theme.' + setting_uid)
+            if setting_val:
+                w.value = setting_val
+
             r.append(w.render())
 
     except AttributeError:

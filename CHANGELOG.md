@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.24 (2016-12-25)
+### Fixed
+- `theme`: settings widgets values set. 
+
+
 ## 0.98.23 (2016-12-25)
 ### Added
 - `assetman`: new API function: `register_global`.
