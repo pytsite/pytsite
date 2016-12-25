@@ -257,7 +257,7 @@ class I(Span):
 
 
 class Button(Span):
-    def _get_required_attrs(self):
+    def _get_valid_attrs(self):
         return 'type',
 
 

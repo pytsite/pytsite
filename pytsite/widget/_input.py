@@ -38,13 +38,18 @@ class Hidden(Input):
         """Render the widget.
         :param **kwargs:
         """
-        return _html.Input(
+        inp = _html.Input(
             type='hidden',
             uid=self.uid,
             name=self.name,
             value=self.value,
             required=self.required
         )
+
+        for k, v in self._data.items():
+            inp.set_attr('data_' + k, v)
+
+        return inp
 
 
 class TextArea(_base.Abstract):
@@ -73,6 +78,9 @@ class TextArea(_base.Abstract):
             rows=self._rows,
             required=self._required
         )
+
+        for k, v in self._data.items():
+            html_input.set_attr('data_' + k, v)
 
         if self._max_length:
             html_input.set_attr('maxlength', self._max_length)
@@ -107,6 +115,9 @@ class Text(Input):
             placeholder=self.placeholder,
             required=self._required
         )
+
+        for k, v in self._data.items():
+            inp.set_attr('data_' + k, v)
 
         if not self._enabled:
             inp.set_attr('disabled', True)

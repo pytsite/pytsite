@@ -6,6 +6,7 @@ from os import path as _path, walk as _walk, makedirs as _makedirs
 from shutil import rmtree as _rmtree, copy as _copy
 from webassets import Environment as _Environment, Bundle as _Bundle
 from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
+from webassets.filter.less import Less as LessFilter
 from importlib.util import find_spec as _find_spec
 from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, logger as _logger, \
     events as _events, maintenance as _maintenance, console as _console, lang as _lang, theme as _theme
@@ -25,6 +26,8 @@ _last_p_weight = 0
 
 _inline = {}
 _last_i_weight = {}
+
+_globals = {}
 
 
 def register_package(package_name: str, assets_dir: str = 'res/assets', alias: str = None):
@@ -244,12 +247,27 @@ def get_urls(collection: str = None, filter_path: bool = True) -> list:
     return [url(l[0]) for l in get_locations(collection, filter_path)]
 
 
+def register_global(name: str, value, overwrite: bool = False):
+    """Define a global variable which can be user by LESS compiler, etc.
+    """
+    global _globals
+
+    if name in _globals and not overwrite:
+        raise KeyError("Global '{}' is already defined with value {}".format(name, value))
+
+    _globals[name] = value
+
+
 def build(package_name: str = None, maintenance: bool = True, cache: bool = True):
     """Compile assets.
     """
+    global _globals
+
     # Check for LESS compiler existence
     if _subprocess.run(['which', 'lessc'], stdout=_subprocess.PIPE).returncode:
         raise RuntimeError('lessc executable is not found. Check http://lesscss.org/#using-less-installation.')
+
+    _events.fire('pytsite.assetman.build.before')
 
     # Paths
     assets_dir = _path.join(_reg.get('paths.static'), 'assets')
@@ -298,7 +316,8 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
 
                 # LESS compiler
                 if ext == '.less':
-                    filters.append('less')
+                    args = ['--modify-var={}={}'.format(k, v) for k, v in _globals.items()]
+                    filters.append(LessFilter(extra_args=args))
                     dst_path = _re.sub(r'\.less$', '.css', dst_path)
                     ext = '.css'
 

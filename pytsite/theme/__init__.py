@@ -2,7 +2,8 @@
 """
 # Public API
 from . import _error as error
-from ._api import get_themes_path, register, get_list, get_current, set_current, is_registered
+from ._api import get_themes_path, register, get_list, get_current, set_current, is_registered, get_theme_settings, \
+    get_theme_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,11 +12,12 @@ __license__ = 'MIT'
 
 def _init():
     from os import listdir, path, makedirs
-    from pytsite import permissions, settings, lang, events, router
-    from . import _settings_form, _eh
+    from pytsite import permissions, settings, lang, events, router, assetman, http_api
+    from . import _settings_form, _eh, _http_api
 
     # Resources
     lang.register_package(__name__)
+    assetman.register_package(__name__)
 
     # Permissions
     permissions.define_permission('pytsite.theme.manage', 'pytsite.theme@manage_themes', 'app')
@@ -27,6 +29,9 @@ def _init():
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
     events.listen('pytsite.router.response', _eh.router_response)
     events.listen('pytsite.update', _eh.update)
+
+    # HTTP API handlers
+    http_api.register_handler('theme', _http_api)
 
     # Default home page handler
     router.add_rule('/', '$theme@home')

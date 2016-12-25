@@ -2,9 +2,10 @@
 """
 import json as _json
 from typing import Dict as _Dict
+from importlib import import_module as _import_module
 from importlib.util import find_spec as _find_module_spec
 from os import path as _path, mkdir as _mkdir
-from pytsite import threading as _threading, logger as _logger, reg as _reg
+from pytsite import threading as _threading, logger as _logger, reg as _reg, settings as _settings
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -90,7 +91,7 @@ def register(package_name: str):
 
     # Start theme
     try:
-        __import__(package_name)
+        _themes[package_name]['package'] = _import_module(package_name)
     except ImportError as e:
         raise _error.ThemeRegistrationFailed("Error while registering theme package '{}': {}".format(package_name, e))
 
@@ -103,13 +104,26 @@ def get_list() -> _Dict[str, _Dict]:
     return _themes.copy()
 
 
-def get_info(package_name: str) -> dict:
+def get_theme_settings(theme: str) -> dict:
+    r = {}
+    theme = theme.replace('.', '_')
+
+    for k, v in _settings.get('theme').items():
+        if k.startswith('theme_setting_'):
+            r[k.replace('theme_setting_{}_'.format(theme), '')] = v
+
+    return r
+
+
+def get_theme_info(theme: str) -> dict:
     """Get information about theme.
     """
-    if package_name not in _themes:
-        raise _error.ThemeNotRegistered("Theme '{}' is not registered".format(package_name))
+    if theme not in _themes:
+        raise _error.ThemeNotRegistered("Theme '{}' is not registered".format(theme))
 
-    return _themes[package_name].copy()
+    r = _themes[theme].copy()
+
+    return r
 
 
 def is_registered(package_name: str) -> bool:

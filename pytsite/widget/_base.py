@@ -421,7 +421,7 @@ class Abstract(_ABC):
             content = content.get_html_em()
 
         if self._h_size:
-            content = content.wrap(_html.Div(cls=self._h_size))
+            content = content.wrap(_html.Div(cls='h-sizer ' + self._h_size))
             content = content.wrap(_html.Div(cls='row'))
 
         wrap_css = 'form-group'

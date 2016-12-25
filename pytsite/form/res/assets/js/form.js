@@ -155,34 +155,52 @@ pytsite.form = {
         };
 
         // Add a widget to the form
-        self.loadWidget = function (widgetData, index) {
+        self.loadWidget = function (widgetData, addAfterLoad, showAfterAdd) {
             var deffer = $.Deferred();
 
             // Initialize widget
             var widget = new pytsite.widget.Widget(widgetData);
 
-            $(widget)
-                .on('ready', function () {
-                    if (widget.uid in self.widgets) {
-                        if (widget.replaces == widget.uid)
-                            self.removeWidget(widget.uid);
-                        else
-                            throw "Widget '" + widget.uid + "' already exists.";
-                    }
+            $(widget).on('ready', function () {
+                if (widget.uid in self.widgets) {
+                    if (widget.replaces == widget.uid)
+                        self.removeWidget(widget.uid);
+                    else
+                        throw "Widget '" + widget.uid + "' already exists.";
+                }
 
-                    // Append widget to the form
-                    widget.hide();
-                    self.widgets[widget.uid] = widget;
+                // Append widget to the list of loaded widgets
+                widget.hide();
+                self.widgets[widget.uid] = widget;
 
-                    $(self).trigger('widgetReady', [widget]);
+                $(self).trigger('widgetReady', [widget]);
 
-                    deffer.resolve(index);
-                })
-                .on('initError', function () {
-                    deffer.reject(index);
-                });
+                if (addAfterLoad) {
+                    self.addWidget(widget, showAfterAdd);
+                }
+
+                deffer.resolve(self, widget);
+            }).on('initError', function () {
+                deffer.reject();
+            });
 
             return deffer;
+        };
+
+        // Place widget to the form
+        self.addWidget = function (widget, showAfterAdd) {
+            if (widget.parentUid) {
+                if (widget.parentUid in self.widgets)
+                    self.widgets[widget.parentUid].em.append(widget.em);
+                else
+                    throw "Parent widget '{}' is not found".format(widget.parentUid)
+            }
+            else {
+                self.areas[widget.formArea].append(widget.em);
+            }
+
+            if (showAfterAdd)
+                widget.show();
         };
 
         // Get widget of the form
@@ -227,7 +245,7 @@ pytsite.form = {
 
                 for (var i = 0; i < numWidgetsToLoad; i++) {
                     // Append widget
-                    self.loadWidget(resp[i], i).done(function (index) {
+                    self.loadWidget(resp[i], i).done(function () {
                         // Increase progress bar value
                         var percents = (100 / numWidgetsToLoad) * progressCount++;
                         progressBar.width(percents + '%');
@@ -244,19 +262,9 @@ pytsite.form = {
                                 return a.weight - b.weight
                             });
 
-                            // Place loaded widgets to the form
+                            // Add loaded widgets to the form
                             for (var k = 0; k < sortedWidgets.length; k++) {
-                                var formArea = sortedWidgets[k].formArea;
-                                var widget = sortedWidgets[k];
-
-                                if (widget.parentUid) {
-                                    if (widget.parentUid in self.widgets)
-                                        self.widgets[widget.parentUid].em.append(widget.em);
-                                    else
-                                        throw "Parent widget '{0}' is not found".format(widget.parentUid)
-                                }
-                                else
-                                    self.areas[formArea].append(widget.em);
+                                self.addWidget(sortedWidgets[k]);
                             }
 
                             // Hide progress bar

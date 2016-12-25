@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.98.23 (2016-12-25)
+### Added
+- `assetman`: new API function: `register_global`.
+- `theme`: support for settings in themes.
+- `widget`: new widget `ColorPicker`.
+
+### Changed
+- `browser`: **inputmask** library updated from 3.1.64 to 3.3.4.
+
+
 ## 0.98.22 (2016-12-22)
 ### Fixed
 - `browser`: Bootstrap CSS add-ons.

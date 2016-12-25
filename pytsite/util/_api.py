@@ -4,6 +4,7 @@ import random as _random
 import re as _re
 import pytz as _pytz
 from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
+from frozendict import frozendict as _frozendict
 from importlib import import_module as _import_module
 from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
@@ -261,8 +262,13 @@ def dict_merge(a: dict, b: dict) -> dict:
     on both values and the result stored in the returned dictionary.
     https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
 
-    if not isinstance(a, dict) or not isinstance(b, dict):
+    if not isinstance(a, (dict, _frozendict)) or not isinstance(b, (dict, _frozendict)):
         raise TypeError('Expected both dictionaries as arguments.')
+
+    if isinstance(a, _frozendict):
+        a = dict(a)
+    if isinstance(b, _frozendict):
+        b = dict(b)
 
     result = _deepcopy(a)
 
@@ -535,18 +541,20 @@ def to_snake_case(s: str) -> str:
     return _re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
 
 
-def get_callable(s: str) -> callable:
+def get_callable(s: str, module=None) -> callable:
     """Get callable object described by a string.
     """
     if not _re.match('^[a-zA-Z0-1\.\-_]+$', s):
         raise RuntimeError('Invalid format of callable string: {}'.format(s))
 
-    s_split = s.split('.')
+    if not module:
+        s_split = s.split('.')
+        module_name = '.'.join(s_split[:-1])
+        callable_name = ''.join(s_split[-1:])
+        module = _import_module(module_name)
+    else:
+        callable_name = s
 
-    module_name = '.'.join(s_split[:-1])
-    callable_name = ''.join(s_split[-1:])
-
-    module = _import_module(module_name)
     if callable_name not in dir(module):
         raise ImportError("'{}' is not callable".format(s))
 

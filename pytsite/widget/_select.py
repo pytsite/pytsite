@@ -486,3 +486,28 @@ class TrafficLightScore(Score):
             'pytsite.widget@css/traffic-light-score.css',
             'pytsite.widget@js/traffic-light-score.js',
         ])
+
+
+class ColorPicker(_input.Text):
+    def __init__(self, uid: str, **kwargs):
+        """Hook.
+        """
+        super().__init__(uid, **kwargs)
+
+        self.css += ' widget-color-picker'
+
+
+
+        self.assets.extend(_browser.get_assets('jquery-ui'))
+        self.assets.extend([
+            'pytsite.widget@jquery-color-picker/jquery.colorpicker.css',
+            'pytsite.widget@jquery-color-picker/jquery.colorpicker.js',
+            'pytsite.widget@jquery-color-picker/i18n/jquery.ui.colorpicker-{}.js'.format(_lang.get_current()),
+            'pytsite.widget@css/color-picker.css',
+            'pytsite.widget@js/color-picker.js',
+        ])
+
+    def get_html_em(self, **kwargs):
+        self._data['color'] = self.value
+
+        return super().get_html_em()

@@ -56,7 +56,7 @@ def get(uid: str, default=None) -> _Any:
 
     setting_value = entity.f_get('value')
     if len(uid_split) == 2:
-        return setting_value.get(uid_split[1]) or default  # 'or' is important here because value can contain None!
+        return setting_value.get(uid_split[1], default)
     else:
         return setting_value
 

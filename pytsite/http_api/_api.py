@@ -11,7 +11,7 @@ __license__ = 'MIT'
 _handlers = {}
 
 
-def register_handler(prefix: str, module_name: str):
+def register_handler(prefix: str, module):
     """Register API requests handler.
     """
     if prefix in _handlers:
@@ -19,11 +19,12 @@ def register_handler(prefix: str, module_name: str):
                            .format(prefix, _handlers[prefix]))
 
     try:
-        _import_module(module_name)
+        if isinstance(module, str):
+            module = _import_module(module)
     except ImportError:
-        raise RuntimeError("Module '{}' is not found.".format(module_name))
+        raise RuntimeError("Module '{}' is not found.".format(module))
 
-    _handlers[prefix] = module_name
+    _handlers[prefix] = module
 
 
 def url(endpoint: str, version: int = 1, **kwargs):
@@ -54,14 +55,14 @@ def call_endpoint(endpoint: str, method: str, version: int = 1, **kwargs) -> tup
     if prefix not in _handlers:
         raise _error.EndpointNotFound('Endpoint not found: {}'.format(endpoint))
 
-    module_name = _handlers[prefix]
+    module = _handlers[prefix]
 
     # Searching for callable in module.
     # First, try '{module}.{method}_{func}', i. e. 'app.get_hello_world()'.
     # Second, try '{module}.v{N}_{method}_{func}', i. e. 'app.v1_get_hello_world()'.
     for v in ('', 'v' + str(version) + '_'):
         try:
-            callback_obj = _util.get_callable('{}.{}{}_{}'.format(module_name, v, method, callback_name))
+            callback_obj = _util.get_callable('{}{}_{}'.format(v, method, callback_name), module)
             break
         except ImportError:
             pass

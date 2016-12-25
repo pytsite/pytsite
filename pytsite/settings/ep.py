@@ -2,7 +2,7 @@
 """
 import re as _re
 from pytsite import auth as _auth, metatag as _metatag, lang as _lang, router as _router, http as _http, \
-    admin as _admin
+    admin as _admin, util as _util
 from . import _api, _frm
 
 __author__ = 'Alexander Shepetko'
@@ -49,12 +49,13 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
     frm = _build_form(uid).fill(inp)
 
     value = {}
-    for k, v in frm.values.items():
+    for k, v in inp.items():
+        # Here we process ALL input, not only form's widgets, because widgets can be added by JS on client side
         if k.startswith('setting_'):
             k = _re.sub('^setting_', '', k)
             value[k] = v
 
-    _api.put(uid, value)
+    _api.put(uid, _util.dict_merge(_api.get(uid), value))
 
     frm.submit()
 
