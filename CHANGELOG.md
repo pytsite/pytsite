@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.98.26 (2017-01-04)
+### Removed
+- `currency`: moved to separate [plugin](https://github.com/pytsite/plugin-currency).
+- `wallet`: moved to separate [plugin](https://github.com/pytsite/plugin-wallet).
+
+
 ## 0.98.25 (2016-12-25)
 ### Added
 - `lang`: processing message IDs as globals.

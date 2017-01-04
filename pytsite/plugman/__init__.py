@@ -44,16 +44,18 @@ def _init():
         with open(path.join(plugins_path, '__init__.py'), 'wt') as f:
             f.write('"""Pytsite Application Plugins.\n"""\n')
 
-    # Permissions
-    permissions.define_permission('pytsite.plugman.manage', 'pytsite.plugman@plugin_management', 'app')
-
-    # Settings
-    settings.define('plugman', _settings_form.Form, 'pytsite.plugman@plugins', 'fa fa-plug', 'pytsite.plugman.manage')
 
     # HTTP API
     http_api.register_handler('plugman', 'pytsite.plugman.http_api')
 
     if not _DEV_MODE:
+        # Permissions
+        permissions.define_permission('pytsite.plugman.manage', 'pytsite.plugman@plugin_management', 'app')
+
+        # Settings
+        settings.define('plugman', _settings_form.Form, 'pytsite.plugman@plugins', 'fa fa-plug',
+                        'pytsite.plugman.manage')
+
         # Periodically check license
         events.listen('pytsite.cron.hourly', _cron_check_license)
 

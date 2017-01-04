@@ -1,1 +1,0 @@
-# PytSite Currency
