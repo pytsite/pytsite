@@ -161,7 +161,10 @@ def get_installed_plugins() -> dict:
 
     for n in _listdir(_PLUGINS_PATH):
         if _path.isdir(_path.join(_PLUGINS_PATH, n)) and not (n.startswith('.') or n.startswith('_')):
-            r[n] = _read_plugin_json(n)
+            try:
+                r[n] = _read_plugin_json(n)
+            except FileNotFoundError:
+                pass
 
     return r
 

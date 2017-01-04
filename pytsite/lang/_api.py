@@ -19,7 +19,6 @@ _fallback = None
 _packages = {}
 _globals = {}
 _sub_trans_token_re = _re.compile('{:([_a-z0-9]+)}')
-_func_token_re = _re.compile('{::([a-z0-9_]+)}')
 
 _default_regions = {
     'en': 'US',
@@ -203,9 +202,6 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, us
 
     # Replacing sub-translations
     msg = _sub_trans_token_re.sub(lambda match: t(match.group(1)), msg)
-
-    # Call functions
-    msg = _func_token_re.sub(_global_re_handler, msg)
 
     return msg
 

@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.98.27 (2017-01-04)
+### Fixed
+- `plugman`: absent plugin.json exception handling.
+
+### Removed
+- `lang`: support of {::callback} syntax.
+
+
 ## 0.98.26 (2017-01-04)
 ### Removed
 - `currency`: moved to separate [plugin](https://github.com/pytsite/plugin-currency).
