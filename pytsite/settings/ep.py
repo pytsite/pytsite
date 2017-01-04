@@ -48,14 +48,23 @@ def form_submit(args: dict, inp: dict) -> _http.response.Redirect:
 
     frm = _build_form(uid).fill(inp)
 
-    value = {}
-    for k, v in inp.items():
-        # Here we process ALL input, not only form's widgets, because widgets can be added by JS on client side
+    # We'll process ALL input, not only form's widgets, because widgets can be added by JS on client side
+    inp_values = _util.dict_merge(dict(frm.values), inp)
+
+    setting_value = {}
+    for k, v in inp_values.items():
         if k.startswith('setting_'):
             k = _re.sub('^setting_', '', k)
-            value[k] = v
 
-    _api.put(uid, _util.dict_merge(_api.get(uid), value))
+            if isinstance(v, (list, tuple)):
+                v = _util.cleanup_list(v)
+
+            if isinstance(v, dict):
+                v = _util.cleanup_dict(v)
+
+            setting_value[k] = v
+
+    _api.put(uid, _util.dict_merge(_api.get(uid), setting_value))
 
     frm.submit()
 

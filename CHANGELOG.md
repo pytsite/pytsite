@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.28 (2017-01-04)
+### Fixed
+- `settings`: processing form's values.
+
+
 ## 0.98.27 (2017-01-04)
 ### Fixed
 - `plugman`: absent plugin.json exception handling.
