@@ -54,11 +54,18 @@ def _init():
 
     # Base filesystem paths
     root_path = getcwd()
+    virtualenv_path = path.join(root_path, 'env')
     app_path = path.join(root_path, 'app')
     reg.put('paths.root', root_path)
+    reg.put('paths.virtualenv', virtualenv_path)
     reg.put('paths.app', app_path)
     for n in ['config', 'log', 'static', 'storage', 'tmp']:
         reg.put('paths.' + n, path.join(root_path, n))
+
+    # uWSGI does not export virtualenv paths, do it by ourselves
+    if 'VIRTUAL_ENV' not in environ:
+        environ['VIRTUAL_ENV'] = virtualenv_path
+        environ['PATH'] = path.join(virtualenv_path, 'bin') + ':' + environ['PATH']
 
     # Additional filesystem paths
     reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))

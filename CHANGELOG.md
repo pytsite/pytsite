@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.31 (2017-01-06)
+### Fixed
+- `plugman`: 'Permission denied' error while installing pip packages.
+
+
 ## 0.98.30 (2017-01-06)
 ### Added
 - `plugman`:
