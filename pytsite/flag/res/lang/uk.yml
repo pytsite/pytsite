@@ -1,8 +1,0 @@
-flag: 'Відмітки'
-like: 'Подобається'
-dislike: 'Не подобається'
-dislike_confirmation: 'Ви дійсно хочете видалити вашу оцінку?'
-
-odm_perm_create_flag: 'Створення відміток'
-odm_perm_delete_flag: 'Видалення БУДЬ-ЯКИХ відміток'
-odm_perm_delete_own_flag: 'Видалення СВОЇХ відміток'

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.29 (2017-01-06)
+## Removed
+- `flag`: moved to separate [plugin](https://github.com/pytsite/plugin-flag).
+
+
 ## 0.98.28 (2017-01-04)
 ### Fixed
 - `settings`: processing form's values.

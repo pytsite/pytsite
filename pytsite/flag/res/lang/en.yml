@@ -1,8 +1,0 @@
-flag: 'Flag'
-like: 'Like'
-dislike: 'Dislike'
-dislike_confirmation: 'Do you really want to cancel your like?'
-
-odm_perm_create_flag: 'Create flags'
-odm_perm_delete_flag: 'Delete ANY flags'
-odm_perm_delete_own_flag: 'Delete OWN flags'
