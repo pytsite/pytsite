@@ -1,7 +1,14 @@
 # PytSite Changelog
 
+## 0.98.30 (2017-01-06)
+### Added
+- `plugman`:
+    - new registry parameters: **plugman.license**, **plugman.plugins**;
+    - automatic install of required plugins at application boot.
+
+
 ## 0.98.29 (2017-01-06)
-## Removed
+### Removed
 - `flag`: moved to separate [plugin](https://github.com/pytsite/plugin-flag).
 
 

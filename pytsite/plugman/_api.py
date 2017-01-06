@@ -25,7 +25,7 @@ _PLUGINS_API_URL = _PLUGINS_API_HOST + '/api/1/'
 _started = []
 _installing = []
 _uninstalling = []
-_required = _reg.get('plugins', set())
+_required = set(_reg.get('plugman.plugins', []))
 
 _PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins')
 _PLUGINS_PACKAGE_NAME = 'plugins'
@@ -81,7 +81,7 @@ def _write_plugin_json(plugin_name: str, data: dict):
 
 def _plugins_api_request(ep: str):
     r = _requests.get(_PLUGINS_API_URL + ep, {
-        'l': _settings.get('plugman.license'),
+        'l': _settings.get('plugman.license') or _reg.get('plugman.license'),
         'h': _router.server_name(),
     })
 
@@ -172,7 +172,7 @@ def get_installed_plugins() -> dict:
 def get_plugins(plugin_name: str = None) -> dict:
     """Get combined information about remotely available and locally installed plugin(s).
     """
-    # Remotely available plugins list
+    # Available plugins
     r = _util.dict_merge(get_remote_plugins(), get_installed_plugins())
 
     for name, info in r.items():

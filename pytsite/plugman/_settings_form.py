@@ -40,7 +40,7 @@ class Form(_settings.Form):
             uid='setting_license',
             weight=20,
             label=_lang.t('pytsite.plugman@license'),
-            required=True,
+            default=_reg.get('plugman.license', ''),
         )
 
         try:

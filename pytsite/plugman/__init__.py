@@ -44,7 +44,6 @@ def _init():
         with open(path.join(plugins_path, '__init__.py'), 'wt') as f:
             f.write('"""Pytsite Application Plugins.\n"""\n')
 
-
     # HTTP API
     http_api.register_handler('plugman', 'pytsite.plugman.http_api')
 
@@ -55,6 +54,11 @@ def _init():
         # Settings
         settings.define('plugman', _settings_form.Form, 'pytsite.plugman@plugins', 'fa fa-plug',
                         'pytsite.plugman.manage')
+
+        # Install required plugins
+        for plugin_name in _reg.get('plugman.plugins', set()):
+            if not is_installed(plugin_name):
+                install(plugin_name)
 
         # Periodically check license
         events.listen('pytsite.cron.hourly', _cron_check_license)
