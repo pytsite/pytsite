@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.33 (2017-01-08)
+### Added
+- `github`: support for paginated requests.
+
+
 ## 0.98.32 (2017-01-08)
 ### Added
 - `plugman`: remembering erroneous plugins.
