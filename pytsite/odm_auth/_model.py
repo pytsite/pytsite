@@ -38,10 +38,10 @@ class AuthorizableEntity(_odm.model.Entity):
             if self.has_field(f_name) and not self.f_get(f_name):
                 c_user = _auth.get_current_user()
                 if not c_user.is_anonymous:
-                    if self.is_new and c_user.has_permission('pytsite.odm_perm.create.' + self.model):
+                    if self.is_new and c_user.has_permission('pytsite.odm_auth.create.' + self.model):
                         # Entity is new and user has permission to create it
                         self.f_set(f_name, c_user)
-                    elif not self.is_new and c_user.has_permission('pytsite.odm_perm.modify.' + self.model):
+                    elif not self.is_new and c_user.has_permission('pytsite.odm_auth.modify.' + self.model):
                         # Entity is not new and user has permission to modify any entity of this model
                         self.f_set(f_name, c_user)
                     else:

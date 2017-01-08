@@ -39,17 +39,17 @@ word_yes: 'Так'
 word_no: 'Ні'
 you_cannot_delete_yourself: "Ви не можете видалити свій обліковий запис"
 
-odm_perm_group_description: 'Безпека'
+odm_auth_group_description: 'Безпека'
 
-odm_perm_view_user: 'Перегляд користувачів'
-odm_perm_create_user: 'Створення користувачів'
-odm_perm_modify_user: 'Зміна користувачів'
-odm_perm_delete_user: 'Видалення користувачів'
+odm_auth_view_user: 'Перегляд користувачів'
+odm_auth_create_user: 'Створення користувачів'
+odm_auth_modify_user: 'Зміна користувачів'
+odm_auth_delete_user: 'Видалення користувачів'
 
-odm_perm_view_role: 'Перегляд ролей'
-odm_perm_create_role: 'Створення ролей'
-odm_perm_modify_role: 'Зміна ролей'
-odm_perm_delete_role: 'Видалення ролей'
+odm_auth_view_role: 'Перегляд ролей'
+odm_auth_create_role: 'Створення ролей'
+odm_auth_modify_role: 'Зміна ролей'
+odm_auth_delete_role: 'Видалення ролей'
 
 odm_ui_browser_title_user: 'Огляд користувачів'
 odm_ui_form_title_create_user : 'Створення користувача'

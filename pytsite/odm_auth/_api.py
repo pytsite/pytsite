@@ -21,12 +21,12 @@ def check_permissions(action: str, model: str, ids: _Iterable = None, user: _aut
         ids = (ids,)
 
     if action == 'create':
-        create_perm_name = 'pytsite.odm_perm.create.' + model
+        create_perm_name = 'pytsite.odm_auth.create.' + model
         if _permission.is_permission_defined(create_perm_name) and user.has_permission(create_perm_name):
             return True
     else:
         # If 'global' permission was not defined
-        global_perm_name = 'pytsite.odm_perm.' + action + '.' + model
+        global_perm_name = 'pytsite.odm_auth.' + action + '.' + model
         if not _permission.is_permission_defined(global_perm_name):
             return False
 
@@ -35,7 +35,7 @@ def check_permissions(action: str, model: str, ids: _Iterable = None, user: _aut
             return True
 
         # If 'personal' permission was not defined
-        personal_perm_name = 'pytsite.odm_perm.' + action + '_own.' + model
+        personal_perm_name = 'pytsite.odm_auth.' + action + '_own.' + model
         if not _permission.is_permission_defined(personal_perm_name):
             return False
 

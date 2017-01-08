@@ -20,14 +20,14 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
     """Register new ODM model.
     """
     if isinstance(cls, str):
-        cls = _util.get_class(cls)
+        cls = _util.get_class(cls)  # type: _model.Entity
 
     if not issubclass(cls, _model.Entity):
         raise TypeError("Unable to register model '{}': subclass of pytsite.odm.model.Entity expected."
                         .format(model))
 
     if is_model_registered(model) and not replace:
-        raise _error.ModelAlreadyRegistered("Model '{}' already is registered.".format(model))
+        raise _error.ModelAlreadyRegistered("Model '{}' is already registered.".format(model))
 
     # Create finder cache pool for each newly registered model
     if not replace:
@@ -35,7 +35,8 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
 
     _registered_models[model] = cls
 
-    _events.fire('pytsite.odm.register_model', model=model, cls=cls, replace=replace)
+    cls.on_register(model)
+    _events.fire('pytsite.odm.register', model=model, cls=cls, replace=replace)
 
     # Automatically create indices on new collections
     mock = dispense(model)

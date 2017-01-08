@@ -412,7 +412,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Login
-        if current_user.has_permission('pytsite.odm_perm.modify.user'):
+        if current_user.has_permission('pytsite.odm_auth.modify.user'):
             content_wrapper.add_widget(_widget.input.Email(
                 weight=30,
                 uid='login',
@@ -510,7 +510,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Status
-        if current_user.has_permission('pytsite.odm_perm.modify.user'):
+        if current_user.has_permission('pytsite.odm_auth.modify.user'):
             content_wrapper.add_widget(_widget.select.Select(
                 weight=120,
                 uid='status',
@@ -533,7 +533,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         frm.add_rule('urls', _validation.rule.Url())
 
         # Roles
-        if current_user.has_permission('pytsite.odm_perm.modify.user'):
+        if current_user.has_permission('pytsite.odm_auth.modify.user'):
             content_wrapper.add_widget(_auth.widget.RoleCheckboxes(
                 weight=140,
                 uid='roles',
@@ -542,7 +542,7 @@ class ODMUser(_odm_ui.model.UIEntity):
             ))
 
         # Token
-        if not self.is_new and current_user.has_permission('pytsite.odm_perm.modify.user'):
+        if not self.is_new and current_user.has_permission('pytsite.odm_auth.modify.user'):
             content_wrapper.add_widget(_widget.input.Text(
                 weight=150,
                 uid='acs_token',

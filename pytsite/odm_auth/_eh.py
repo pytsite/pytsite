@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def odm_register_model(model: str, cls, replace: bool):
-    """pytsite.odm.register_model
+    """pytsite.odm.register
     """
     # Check if the model supports permissions
     if not issubclass(cls, _model.AuthorizableEntity):
@@ -32,9 +32,9 @@ def odm_register_model(model: str, cls, replace: bool):
             if perm_name.endswith('_own') and not mock.has_field('author') and not mock.has_field('owner'):
                 continue
 
-            p_name = 'pytsite.odm_perm.' + perm_name + '.' + model
+            p_name = 'pytsite.odm_auth.' + perm_name + '.' + model
             if not _permission.is_permission_defined(p_name):
-                p_description = cls.resolve_msg_id('odm_perm_' + perm_name + '_' + model)
+                p_description = cls.resolve_msg_id('odm_auth_' + perm_name + '_' + model)
                 _permission.define_permission(p_name, p_description, perm_group)
 
 

@@ -1,14 +1,14 @@
 """PytSite Plugin Manager Settings Form.
 """
 from pytsite import settings as _settings, widget as _widget, lang as _lang, html as _html, assetman as _assetman, \
-    reload as _reload, reg as _reg
+    reload as _reload, reg as _reg, router as _router
 from . import _api, _error, _plugman_started
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_DEV_MODE = _reg.get('plugman.dev')
+_DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 
 class Form(_settings.Form):

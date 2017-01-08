@@ -16,7 +16,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_DEV_MODE = _reg.get('plugman.dev')
+_DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 _PLUGINS_API_HOST = _reg.get('plugman.api_host', 'https://plugins.pytsite.xyz')
@@ -25,6 +25,7 @@ _PLUGINS_API_URL = _PLUGINS_API_HOST + '/api/1/'
 _started = []
 _installing = []
 _uninstalling = []
+_erroneous = []
 _required = set(_reg.get('plugman.plugins', []))
 
 _PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins')
@@ -132,6 +133,9 @@ def start(plugin_name: str) -> object:
     if plugin_name in _started:
         raise _error.PluginAlreadyStarted("Plugin '{}' is already started.".format(plugin_name))
 
+    if plugin_name in _erroneous:
+        raise _error.PluginStartError("Plugin '{}' marked as erroneous and cannot be started.".format(plugin_name))
+
     # Start required plugins
     for req in _read_plugin_json(plugin_name)['requires']['plugins']:
         _required.add(req)
@@ -149,6 +153,7 @@ def start(plugin_name: str) -> object:
         return module
 
     except Exception as e:
+        _erroneous.append(plugin_name)
         raise _error.PluginStartError("Error while starting plugin '{}' ({}): {}".format(plugin_name, pkg_name, e))
 
 

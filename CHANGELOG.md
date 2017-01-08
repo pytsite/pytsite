@@ -1,5 +1,21 @@
 # PytSite Changelog
 
+## 0.98.32 (2017-01-08)
+### Added
+- `plugman`: remembering erroneous plugins.
+- `odm`: new hook method `model.Entity.on_register()`.
+
+### Changed
+- `odm_auth`: 'odm_perm_' permissions names changed to 'odm_auth'.
+- `odm`: event name **pytsite.odm.register_model** changed to **pytsite.odm.register**.
+
+### Removed
+- `taxonomy`: moved to separate [plugin](https://github.com/pytsite/plugin-taxonomy).
+- `content`: moved to separate [plugin](https://github.com/pytsite/plugin-content).
+- `comments`: moved to separate [plugin](https://github.com/pytsite/plugin-comments).
+- `comments_native`: moved to separate [plugin](https://github.com/pytsite/plugin-comments_native).
+
+
 ## 0.98.31 (2017-01-06)
 ### Fixed
 - `plugman`: 'Permission denied' error while installing pip packages.

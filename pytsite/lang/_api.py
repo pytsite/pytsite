@@ -125,13 +125,14 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
     if not _path.isdir(lng_dir):
         raise RuntimeError("Language directory '{}' is not found".format(lng_dir))
 
-    if alias:
-        pkg_name = alias
-
     if pkg_name in _packages:
         raise RuntimeError("Package '{}' already registered.".format(pkg_name))
-
     _packages[pkg_name] = {'__path': lng_dir}
+
+    if alias:
+        if alias in _packages:
+            raise RuntimeError("Package alias '{}' already registered.".format(pkg_name))
+        _packages[alias] = {'__path': lng_dir}
 
 
 def register_global(name: str, handler: _Callable):

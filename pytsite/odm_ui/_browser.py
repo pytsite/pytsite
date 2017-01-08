@@ -123,7 +123,7 @@ class Browser(_widget.misc.BootstrapTable):
 
         # Permission based limitations if current user can work with only its OWN entities
         show_all = False
-        for perm_prefix in ('pytsite.odm_perm.modify.', 'pytsite.odm_perm.delete.'):
+        for perm_prefix in ('pytsite.odm_auth.modify.', 'pytsite.odm_auth.delete.'):
             perm_name = perm_prefix + self._model
             if _permission.is_permission_defined(perm_name) and self._current_user.has_permission(perm_name):
                 show_all = True

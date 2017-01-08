@@ -6,14 +6,14 @@ from ._api import get_plugins_path, get_plugins, install, uninstall, is_installe
     get_license_info, get_installed_plugins, get_remote_plugins, get_required_plugins
 
 # Locally necessary imports
-from pytsite import reload as _reload, reg as _reg
+from pytsite import reload as _reload, reg as _reg, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _plugman_started = False
-_DEV_MODE = _reg.get('plugman.dev')
+_DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 
 def _cron_check_license():

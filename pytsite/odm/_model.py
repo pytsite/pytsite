@@ -73,6 +73,10 @@ class Entity(_ABC):
         if obj_id:
             self._load_data_from_db(obj_id)
 
+    @classmethod
+    def on_register(cls, model: str):
+        pass
+
     @property
     def locked(self) -> bool:
         """Check if the entity is locked.
