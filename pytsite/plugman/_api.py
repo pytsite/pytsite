@@ -9,7 +9,7 @@ from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
 from pytsite import reg as _reg, logger as _logger, reload as _reload, assetman as _assetman, settings as _settings, \
-    lang as _lang, util as _util, router as _router
+    lang as _lang, util as _util, router as _router, console as _console
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -219,7 +219,8 @@ def install(plugin_name: str):
     try:
         # Flag start of the installation process
         _installing.append(plugin_name)
-        _logger.info("Installation of plugin '{}' started".format(plugin_name))
+        _console.print_info(_lang.t('pytsite.plugman@installing_plugin', {'plugin': plugin_name}))
+        _logger.debug("Installation of plugin '{}' started".format(plugin_name))
 
         # Create temporary directory to store plugin's content
         tmp_dir_path = _path.join(_reg.get('paths.tmp'), 'plugman')
@@ -285,7 +286,7 @@ def install(plugin_name: str):
                 _logger.info('Installing required plugin: {}'.format(plg_name))
                 install(plg_name)
 
-        _logger.info("Plugin '{}' successfully installed".format(plugin_name))
+        _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {'plugin': plugin_name}))
 
         # Start installed plugin
         if not is_started(plugin_name):
@@ -293,7 +294,7 @@ def install(plugin_name: str):
 
         # Compile plugin's assets
         if _assetman.is_package_registered(plugin_name):
-            _assetman.build(plugin_name, False)
+            _assetman.build(plugin_name, maintenance=False, console_notify=False)
 
     except Exception as e:
         try:
@@ -301,7 +302,14 @@ def install(plugin_name: str):
         except _error.PluginNotInstalled:
             pass
 
-        raise _error.PluginInstallError("Error while installing plugin '{}': {}".format(plugin_name, e))
+        msg = _lang.t('pytsite.plugman@plugin_install_error', {
+            'plugin': plugin_name,
+            'msg': e,
+        })
+
+        _console.print_error(msg)
+
+        raise _error.PluginInstallError(msg)
 
     finally:
         _installing.remove(plugin_name)

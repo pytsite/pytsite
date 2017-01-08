@@ -30,7 +30,7 @@ def _cron_check_license():
 
 def _init():
     from os import mkdir, path
-    from pytsite import settings, lang, assetman, permissions, http_api, logger, events
+    from pytsite import settings, lang, assetman, permissions, http_api, logger, events, console
     from . import _settings_form, _eh
 
     # Resources

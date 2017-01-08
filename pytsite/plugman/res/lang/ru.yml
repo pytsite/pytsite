@@ -14,5 +14,8 @@ confirm_plugin_uninstall: 'Вы действительно хотите удал
 license: 'Лицензия'
 invalid_license: 'Несуществующая или просроченная лицензия'
 license_expires_at: 'Истекает :date'
-upgrading_plugin: 'Обновляю плагин :name (:old_ver -> :new_ver)'
+upgrading_plugin: 'Обновление плагина :name (:old_ver -> :new_ver)'
 cannot_manage_plugins_in_dev_mode: 'Невозможно управлять плагинами в режиме разработки'
+installing_plugin: "Установка плагина ':plugin'"
+plugin_install_success: "Плагин ':plugin' был успешно установлен"
+plugin_install_error: "Ошибка при установке плагина ':plugin': :msg"

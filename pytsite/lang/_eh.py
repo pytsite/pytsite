@@ -9,9 +9,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def assetman_build():
-    # Compile translations
-    _console.print_info(_lang.t('pytsite.assetman@compiling_translations'))
+def assetman_build(console_notify: bool):
+    if console_notify:
+        _console.print_info(_lang.t('pytsite.assetman@compiling_translations'))
+
     translations = {}
     for lang_code in _lang.langs():
         translations[lang_code] = {}

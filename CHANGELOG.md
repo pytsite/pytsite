@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+## 0.98.35 (2017-01-08)
+### Added
+- `assetman`: new argument **console_notify** in **pytsite.assetman.build** events.
+- `console`: logging of console messages.
+
+### Fixed
+- `plugman`: console notification and logging.
+
+
 ## 0.98.34 (2017-01-08)
 ### Fixed
 - `router`: endpoint callable resolving. 

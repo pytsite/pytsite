@@ -258,7 +258,7 @@ def register_global(name: str, value, overwrite: bool = False):
     _globals[name] = value
 
 
-def build(package_name: str = None, maintenance: bool = True, cache: bool = True):
+def build(package_name: str = None, maintenance: bool = True, cache: bool = True, console_notify: bool = True):
     """Compile assets.
     """
     global _globals
@@ -267,7 +267,7 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
     if _subprocess.run(['which', 'lessc'], stdout=_subprocess.PIPE).returncode:
         raise RuntimeError('lessc executable is not found. Check http://lesscss.org/#using-less-installation.')
 
-    _events.fire('pytsite.assetman.build.before')
+    _events.fire('pytsite.assetman.build.before', console_notify=console_notify)
 
     # Paths
     assets_dir = _path.join(_reg.get('paths.static'), 'assets')
@@ -288,7 +288,9 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
     if not package_name and _path.exists(assets_dir):
         _rmtree(assets_dir)
 
-    _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+    if console_notify:
+        _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+
     for pkg_name, source_dir_path in packages_list.items():
         # Initialize cache storage
         cache_dir = None
@@ -351,7 +353,7 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
             raise RuntimeError("Error while compiling assets for package '{}'. Check logs for details.".
                                format(pkg_name))
 
-    _events.fire('pytsite.assetman.build')
+    _events.fire('pytsite.assetman.build', console_notify=console_notify)
 
     if maintenance:
         _maintenance.disable()

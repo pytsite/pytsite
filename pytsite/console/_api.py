@@ -119,20 +119,24 @@ def run():
 
 
 def print_info(msg: str):
+    _logger.info(msg)
     if _reg.get('env.type') == 'console':
         print('{}{}{}'.format(COLOR_INFO, msg, COLOR_END))
 
 
 def print_success(msg: str):
+    _logger.info(msg)
     if _reg.get('env.type') == 'console':
         print('{}{}{}'.format(COLOR_SUCCESS, msg, COLOR_END))
 
 
 def print_warning(msg: str):
+    _logger.warn(msg)
     if _reg.get('env.type') == 'console':
         print('{}{}{}'.format(COLOR_WARNING, msg, COLOR_END))
 
 
 def print_error(msg: str):
+    _logger.error(msg)
     if _reg.get('env.type') == 'console':
         print('{}{}{}'.format(COLOR_ERROR, msg, COLOR_END))
