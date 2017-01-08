@@ -176,8 +176,14 @@ def resolve_ep_callable(ep_name: str) -> callable:
 
 
 def call_ep(ep_name: str, args: dict = None, inp: dict = None):
-    """Call a callable.
+    """Call an endpoint.
     """
+    # Try to resolve exact endpoint callable
+    try:
+        ep_name = list(_routes.iter_rules(ep_name))[0].call
+    except KeyError:
+        pass
+
     if args is not None:
         if '_call' in args:
             args['_call_orig'] = args['_call']

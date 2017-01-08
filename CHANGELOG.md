@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.34 (2017-01-08)
+### Fixed
+- `router`: endpoint callable resolving. 
+
+
 ## 0.98.33 (2017-01-08)
 ### Added
 - `github`: support for paginated requests.
