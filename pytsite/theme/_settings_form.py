@@ -25,3 +25,5 @@ class Form(_settings.Form):
 
     def _on_submit(self):
         _assetman.build(self.values.get('setting_default_theme'), cache=False)
+
+        return super()._on_submit()
