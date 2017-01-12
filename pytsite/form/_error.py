@@ -18,5 +18,5 @@ class ValidationError(Exception):
         return self._errors
 
 
-class WidgetNotFound(Exception):
+class WidgetNotExist(Exception):
     pass

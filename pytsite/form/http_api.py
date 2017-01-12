@@ -1,51 +1,24 @@
 """PytSite Form AJAX Endpoints.
 """
-from pytsite import util as _util
-from . import _error, _form
+from . import _error, _form, _cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
+def _dispense_form(inp: dict, fill_mode: str = None) -> _form.Form:
     """Create and fill form based on the request input.
     """
-    args = {}
-    for k, v in inp.items():
-        # Extract all input start from '__form_data_' to args variable
-        if k.startswith('__form_data_'):
-            k = _util.to_snake_case(k.replace('__form_data_', ''))
+    # Get form's UID
+    try:
+        uid = inp['__form_data_uid']
+        del inp['__form_data_uid']
+    except KeyError:
+        raise KeyError('Form UID is not specified.')
 
-            if k not in ('get_widgets_ep', 'validation_ep', 'steps'):
-                if v == 'None':
-                    v = None
-                elif v == 'False':
-                    v = False
-                elif v == 'True':
-                    v = True
-
-            args[k] = v
-
-    # Get form class ID
-    if 'cid' not in args:
-        raise ValueError('Form CID is not specified. Arguments was: {}'.format(args))
-    cid = args['cid']
-    del args['cid']
-
-    # Get form UID
-    if 'uid' not in args:
-        raise ValueError('Form UID is not specified.')
-    uid = args['uid']
-    del args['uid']
-
-    # Check form class inheritance
-    frm_cls = _util.get_class(cid)
-    if not issubclass(frm_cls, _form.Form):
-        raise TypeError('Invalid form class ID: ' + inp['__form_cid'])
-
-    # Create form
-    frm = frm_cls(uid, **args)  # type: _form.Form
+    # Get form from the cache
+    frm = _cache.get(uid)
 
     # Filter out non-widget (form-related) data
     values = {}
@@ -53,21 +26,25 @@ def _create_form(inp: dict, fill_mode: str = None) -> _form.Form:
         if not k.startswith('__form_data_'):
             values[k] = v
 
+    # Setup widgets
+    frm.step = int(inp.get('__form_data_step', 1))
+    frm.setup_widgets()
+
     return frm.fill(values, mode=fill_mode)
 
 
-def post_widgets(**kwargs) -> dict:
+def post_get_widgets(**kwargs) -> dict:
     """Get widgets of the form for particular step.
 
     We use POST method here due to large request size in some cases.
     """
-    frm = _create_form(kwargs)
+    frm = _dispense_form(kwargs)
 
     r = []
-    for widget in frm.get_widgets(step=frm.step, recursive=True).values():
-        # Return widgets as flat list, without rendering children of containers,
-        # due to requirements of JavaScript code on client side.
-        r.append(widget.render(skip_children=True))
+    for w in frm.get_widgets():
+        # Return only top widgets, because they render their children's HTML code by themselves
+        if not w.parent:
+            r.append(w.render())
 
     return r
 
@@ -76,7 +53,7 @@ def post_validate(**kwargs) -> dict:
     """Default form's AJAX validator.
     """
     try:
-        _create_form(kwargs, 'validation').validate()
+        _dispense_form(kwargs, 'validation').validate()
         return {'status': True}
 
     except _error.ValidationError as e:

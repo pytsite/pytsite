@@ -12,15 +12,15 @@ _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 
 class Form(_settings.Form):
-    def _setup_form(self, **kwargs):
+    def _on_setup_form(self, **kwargs):
         """Hook.
         """
-        super()._setup_form(**kwargs)
+        super()._on_setup_form(**kwargs)
 
         _assetman.add('pytsite.plugman@css/settings-form.css')
         _assetman.add('pytsite.plugman@js/settings-form.js')
 
-    def _setup_widgets(self):
+    def _on_setup_widgets(self):
         """Hook.
         """
         if _DEV_MODE:
@@ -108,7 +108,7 @@ class Form(_settings.Form):
 
         self.add_widget(lic_input)
 
-        super()._setup_widgets()
+        super()._on_setup_widgets()
 
     def _on_submit(self):
         if _DEV_MODE:

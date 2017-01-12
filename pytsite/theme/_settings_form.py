@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 class Form(_settings.Form):
-    def _setup_widgets(self):
+    def _on_setup_widgets(self):
         self.add_widget(_widget.select.Select(
             uid='setting_default_theme',
             weight=10,
@@ -21,7 +21,7 @@ class Form(_settings.Form):
             assets=['pytsite.theme@js/settings-form.js'],
         ))
 
-        super()._setup_widgets()
+        super()._on_setup_widgets()
 
     def _on_submit(self):
         _assetman.build(self.values.get('setting_default_theme'), cache=False)

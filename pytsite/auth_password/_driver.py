@@ -10,7 +10,7 @@ __license__ = 'MIT'
 class _SignInForm(_form.Form):
     """Password Login Form.
     """
-    def _setup_widgets(self):
+    def _on_setup_widgets(self):
         """Hook.
         """
         for k, v in _router.request().inp.items():

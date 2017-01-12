@@ -1,8 +1,7 @@
 """PytSite Base Widget.
 """
-from collections import OrderedDict as _OrderedDict
 from json import dumps as _json_dumps
-from typing import Iterable as _Iterable, Tuple as _Tuple, Union as _Union, Dict as _Dict
+from typing import Iterable as _Iterable, Tuple as _Tuple, List as _List
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
 from pytsite import html as _html, validation as _validation, assetman as _assetman, lang as _lang
@@ -15,6 +14,7 @@ __license__ = 'MIT'
 class Abstract(_ABC):
     """Abstract Base Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -40,12 +40,14 @@ class Abstract(_ABC):
         self._hidden = kwargs.get('hidden', False)
         self._rules = kwargs.get('rules', [])
         self._form_area = kwargs.get('form_area', 'body')
-        self._form_step = kwargs.get('form_step', 1)
         self._assets = kwargs.get('assets', [])
         self._replaces = kwargs.get('replaces', None)
         self._required = kwargs.get('required', False)
         self._enabled = kwargs.get('enabled', True)
         self._parent = kwargs.get('parent')
+        self._child_sep = kwargs.get('child_sep', '')
+        self._children = []  # type: _List[Abstract]
+        self._children_uids = []  # type: _List[str]
 
         # Check validation rules
         if not isinstance(self._rules, (list, tuple)):
@@ -79,7 +81,6 @@ class Abstract(_ABC):
         self._wrap_em.set_attr('data_uid', self._uid)
         self._wrap_em.set_attr('data_weight', self._weight)
         self._wrap_em.set_attr('data_form_area', self._form_area)
-        self._wrap_em.set_attr('data_form_step', self._form_step)
         self._wrap_em.set_attr('data_hidden', self._hidden)
         self._wrap_em.set_attr('data_enabled', self._enabled)
         self._wrap_em.set_attr('data_parent_uid', self._parent.uid if self._parent else None)
@@ -122,6 +123,9 @@ class Abstract(_ABC):
 
     def __str__(self) -> str:
         return self.render()
+
+    def __repr__(self) -> str:
+        return "{}.{}(uid='{}', name='{}')".format(__name__, self.__class__.__name__, self.uid, self.name)
 
     def get_val(self, **kwargs):
         """Get value of the widget.
@@ -262,7 +266,7 @@ class Abstract(_ABC):
         """Set has_success property of the widget.
         """
         self._has_success = value
-    
+
     @property
     def has_warning(self):
         """Get has_warning property of the widget.
@@ -306,18 +310,6 @@ class Abstract(_ABC):
     @form_area.setter
     def form_area(self, area: str):
         self._form_area = area
-
-    @property
-    def form_step(self) -> _Union[str, tuple]:
-        """Get current form step.
-        """
-        return self._form_step
-
-    @form_step.setter
-    def form_step(self, value: int):
-        """Set current form step.
-        """
-        self._form_step = value
 
     @property
     def h_size(self) -> str:
@@ -376,6 +368,70 @@ class Abstract(_ABC):
     @enabled.setter
     def enabled(self, value: bool):
         self._enabled = value
+
+    @property
+    def children(self):
+        """Get children widgets.
+
+        :rtype: _List[Abstract]
+        """
+        return self._children
+
+    def has_child(self, uid: str) -> bool:
+        """Check if the widget has a child.
+        """
+        return uid in self._children_uids
+
+    def has_descendant(self, uid: str) -> bool:
+        """Check if the widget has a child.
+        """
+        for w in self._children:
+            if w.uid == uid:
+                return True
+            else:
+                return w.has_descendant(uid)
+
+        return False
+
+    def append_child(self, widget):
+        """Append a child widget.
+
+        :type widget: Abstract
+        :rtype: Abstract
+        """
+        if self.has_descendant(widget.uid):
+            raise RuntimeError("Widget '{}' already contains descendant '{}'.".format(self.uid, widget.uid))
+
+        widget.form_area = self.form_area
+        widget.parent = self
+
+        self._children.append(widget)
+        self._children_uids.append(widget.uid)
+        self._children.sort(key=lambda x: x.weight)
+
+        return widget
+
+    def get_child(self, uid: str):
+        """Get child widget by uid.
+
+        :rtype: Abstract
+        """
+        if not self.has_child(uid):
+            raise RuntimeError("Widget '{}' doesn't contain child '{}'.".format(self.uid, uid))
+
+        for w in self._children:
+            if w.uid == uid:
+                return w
+
+    def remove_child(self, uid: str):
+        """Remove child widget.
+        """
+        if not self.has_child(uid):
+            raise RuntimeError("Widget '{}' doesn't contain child '{}'.".format(self.uid, uid))
+
+        self._children = [w for w in self._children if w.uid != uid]
+
+        return self
 
     def add_rule(self, rule: _validation.rule.Base):
         """Add single validation rule.
@@ -458,75 +514,18 @@ class Abstract(_ABC):
 
 
 class Container(Abstract):
-    """Container Widget.
+    """Simple Container Widget.
     """
 
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
-        self._child_sep = kwargs.get('child_sep', '')
-        self._children = {}
         self._css += ' widget-container'
-        self._data['container'] = True
-
-    @property
-    def form_step(self) -> _Union[str, tuple]:
-        """Get current form step.
-        """
-        return self._form_step
-
-    @form_step.setter
-    def form_step(self, value: int):
-        """Set current form step.
-        """
-        self._form_step = value
-        for w in self.get_widgets().values():
-            w.form_step = value
-
-    def get_widgets(self) -> _Dict[str, Abstract]:
-        """Get children widgets.
-        """
-        return _OrderedDict([(w.uid, w) for w in sorted(self._children.values(), key=lambda x: x.weight)])
-
-    def has_widget(self, uid: str) -> bool:
-        return uid in self._children
-
-    def add_widget(self, widget: Abstract):
-        """Append a child widget.
-        """
-        if self.has_widget(widget.uid):
-            raise RuntimeError("Container '{}' already contains widget '{}'.".format(self.uid, widget.uid))
-
-        widget.form_step = self.form_step
-        widget.form_area = self.form_area
-        widget.parent = self
-        self._children[widget.uid] = widget
-
-        return self
-
-    def get_widget(self, uid: str) -> Abstract:
-        """Get child widget by uid.
-        """
-        if not self.has_widget(uid):
-            raise RuntimeError("Container '{}' doesn't contain widget '{}'.".format(self.uid, uid))
-
-        return self._children[uid]
-
-    def remove_widget(self, uid: str):
-        """Remove child widget.
-        """
-        if not self.has_widget(uid):
-            raise RuntimeError("Container '{}' doesn't contain widget '{}'.".format(self.uid, uid))
-
-        del self._children[uid]
-
-        return self
 
     def get_html_em(self, **kwargs) -> _html.Element:
         cont = _html.TagLessElement(child_sep=self._child_sep)
 
-        if not kwargs.get('skip_children'):
-            for w in self.get_widgets().values():
-                cont.append(_html.TagLessElement(w.render()))
+        for w in self.children:
+            cont.append(_html.TagLessElement(w.render()))
 
         return cont

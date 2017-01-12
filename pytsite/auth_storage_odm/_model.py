@@ -105,7 +105,13 @@ class ODMRole(_odm_ui.model.UIEntity):
         ))
 
         # Permissions tabs
-        perms_tabs = _widget.select.Tabs('permissions-tabs', weight=30, label=self.t('permissions'))
+        perms_tabs = _widget.select.Tabs(
+            uid='permissions-tabs',
+            weight=30,
+            label=self.t('permissions')
+        )
+
+        # Permissions tabs content
         for g_name, g_desc in sorted(_permissions.get_permission_groups().items(), key=lambda x: x[0]):
             if g_name == 'auth':
                 continue
@@ -114,20 +120,22 @@ class ODMRole(_odm_ui.model.UIEntity):
             if not perms:
                 continue
 
-            tab_content = _html.Div()
+            # Tab
+            tab_id = 'permissions-' + g_name
+            perms_tabs.add_tab(tab_id, _lang.t(g_desc))
             for perm in perms:
                 p_name = perm[0]
-                tab_content.append(
-                    _html.Div(cls='checkbox').append(
-                        _html.Label(_lang.t(perm[1]), label_for='permissions-checkbox-' + p_name).append(
-                            _html.Input(type='checkbox', uid='permissions-checkbox-' + p_name,
-                                        name='permissions', value=p_name, checked=p_name in self.f_get('permissions'))
-                        )
-                    )
-                )
-            perms_tabs.add_tab('permissions-' + g_name, _lang.t(g_desc), tab_content.render())
+                p_desc = perm[1]
 
-        frm.add_widget(_widget.input.Hidden('permissions', value=''))
+                # Tab's content
+                perms_tabs.append_child(_widget.select.Checkbox(
+                    uid='permissions-checkbox-' + p_name,
+                    name='permissions',
+                    label=_lang.t(p_desc),
+                    value=p_name,
+                    checked=p_name in self.f_get('permissions'),
+                ), tab_id)
+
         frm.add_widget(perms_tabs)
 
     def odm_ui_mass_action_entity_description(self) -> str:
@@ -393,7 +401,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         frm.add_widget(content_wrapper)
 
         # Image
-        pic_wrapper.add_widget(_file.widget.ImagesUpload(
+        pic_wrapper.append_child(_file.widget.ImagesUpload(
             weight=10,
             uid='picture',
             value=self.f_get('picture'),
@@ -404,7 +412,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Profile is public
-        content_wrapper.add_widget(_widget.select.Checkbox(
+        content_wrapper.append_child(_widget.select.Checkbox(
             weight=10,
             uid='profile_is_public',
             value=self.f_get('profile_is_public'),
@@ -413,7 +421,7 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         # Login
         if current_user.has_permission('pytsite.odm_auth.modify.user'):
-            content_wrapper.add_widget(_widget.input.Email(
+            content_wrapper.append_child(_widget.input.Email(
                 weight=30,
                 uid='login',
                 value=self.f_get('login'),
@@ -428,7 +436,7 @@ class ODMUser(_odm_ui.model.UIEntity):
             ))
 
         # Nickname
-        content_wrapper.add_widget(_widget.input.Text(
+        content_wrapper.append_child(_widget.input.Text(
             weight=40,
             uid='nickname',
             value=self.f_get('nickname'),
@@ -446,7 +454,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # First name
-        content_wrapper.add_widget(_widget.input.Text(
+        content_wrapper.append_child(_widget.input.Text(
             weight=50,
             uid='first_name',
             value=self.f_get('first_name'),
@@ -455,7 +463,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Last name
-        content_wrapper.add_widget(_widget.input.Text(
+        content_wrapper.append_child(_widget.input.Text(
             weight=60,
             uid='last_name',
             value=self.f_get('last_name'),
@@ -463,7 +471,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Email
-        content_wrapper.add_widget(_widget.input.Email(
+        content_wrapper.append_child(_widget.input.Email(
             weight=70,
             uid='email',
             value=self.f_get('email'),
@@ -478,14 +486,14 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Password
-        content_wrapper.add_widget(_widget.input.Password(
+        content_wrapper.append_child(_widget.input.Password(
             weight=80,
             uid='password',
             label=self.t('new_password'),
         ))
 
         # Country
-        content_wrapper.add_widget(_widget.input.Text(
+        content_wrapper.append_child(_widget.input.Text(
             weight=90,
             uid='country',
             label=self.t('country'),
@@ -493,7 +501,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # City
-        content_wrapper.add_widget(_widget.input.Text(
+        content_wrapper.append_child(_widget.input.Text(
             weight=100,
             uid='city',
             label=self.t('city'),
@@ -501,7 +509,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         ))
 
         # Description
-        content_wrapper.add_widget(_widget.input.TextArea(
+        content_wrapper.append_child(_widget.input.TextArea(
             weight=110,
             uid='description',
             value=self.f_get('description'),
@@ -511,7 +519,7 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         # Status
         if current_user.has_permission('pytsite.odm_auth.modify.user'):
-            content_wrapper.add_widget(_widget.select.Select(
+            content_wrapper.append_child(_widget.select.Select(
                 weight=120,
                 uid='status',
                 value=self.f_get('status'),
@@ -522,7 +530,7 @@ class ODMUser(_odm_ui.model.UIEntity):
             ))
 
         # URLs
-        content_wrapper.add_widget(_widget.input.StringList(
+        content_wrapper.append_child(_widget.input.StringList(
             weight=130,
             uid='urls',
             label=self.t('social_links'),
@@ -534,7 +542,7 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         # Roles
         if current_user.has_permission('pytsite.odm_auth.modify.user'):
-            content_wrapper.add_widget(_auth.widget.RoleCheckboxes(
+            content_wrapper.append_child(_auth.widget.RoleCheckboxes(
                 weight=140,
                 uid='roles',
                 label=self.t('roles'),
@@ -543,7 +551,7 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         # Token
         if not self.is_new and current_user.has_permission('pytsite.odm_auth.modify.user'):
-            content_wrapper.add_widget(_widget.input.Text(
+            content_wrapper.append_child(_widget.input.Text(
                 weight=150,
                 uid='acs_token',
                 value=self.f_get('acs_token'),

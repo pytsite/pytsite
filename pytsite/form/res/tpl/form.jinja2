@@ -11,8 +11,6 @@
       id="{{ form.uid }}"
       name="{{ form.name }}"
       class="{{ form.css }}"
-      data-cid="{{ form.cid }}"
-      data-uid="{{ form.uid }}"
       data-path="{{ form.path }}"
       data-get-widgets-ep="{{ form.get_widgets_ep }}"
       data-validation-ep="{{ form.validation_ep }}"
@@ -26,7 +24,9 @@
 >
 
     {#  Hidden area  #}
-    <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden"></div>
+    <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden">
+        <input type="hidden" name="__form_data_uid" value="{{ form.uid }}">
+    </div>
 
     {#  Header area  #}
     <div class="form-area box-header {% if form.modal %}modal-header{% endif %} {{ form.area_header_css }}"

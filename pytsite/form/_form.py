@@ -1,11 +1,12 @@
 """PytSite Base Form.
 """
-from typing import Dict as _Dict, Union as _Union
+from typing import List as _List
 from abc import ABC as _ABC
 from collections import OrderedDict as _OrderedDict
-from pytsite import util as _util, widget as _widget, html as _html, router as _router, validation as _validation, \
-    tpl as _tpl, events as _events, lang as _lang, assetman as _assetman, browser as _browser
-from . import _error as error
+from datetime import datetime as _datetime
+from pytsite import util as _util, widget as _widget, router as _router, validation as _validation, tpl as _tpl, \
+    events as _events, lang as _lang, assetman as _assetman, browser as _browser
+from . import _error, _cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -22,10 +23,8 @@ class Form(_ABC):
         if not _router.request():
             raise RuntimeError('Form cannot be created without HTTP request context.')
 
-        self._widgets_added = False
-
         # Widgets
-        self._widgets = {}  # type: _Dict[str, _widget.Abstract]
+        self._widgets = []  # type: _List[_widget.Abstract]
 
         # Form areas where widgets can be placed
         self._areas = ('hidden', 'header', 'body', 'footer')
@@ -39,11 +38,12 @@ class Form(_ABC):
         # Messages area CSS
         self._messages_css = kwargs.get('messages_css', 'form-messages')
 
-        self._uid = uid or _util.md5_hex_digest(self.cid)
+        self._uid = _util.random_str(64)
+        self._created = _datetime.now()
         self._name = kwargs.get('name') or self._uid
         self._path = kwargs.get('path', _router.current_path(True))
         self._method = kwargs.get('method', 'post')
-        self._action = kwargs.get('action', '#')
+        self._action = kwargs.get('action', _router.ep_url('pytsite.form@submit', {'uid': self.uid}))
         self._steps = int(kwargs.get('steps', 1))
         self._step = int(kwargs.get('step', 1))
         self._modal = kwargs.get('modal', False)
@@ -53,7 +53,7 @@ class Form(_ABC):
         self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
 
         # AJAX endpoint to load form's widgets
-        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'form/widgets')
+        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'form/get_widgets')
 
         # AJAX endpoint to perform form validation
         self._validation_ep = kwargs.get('validation_ep', 'form/validate')
@@ -80,32 +80,82 @@ class Form(_ABC):
                     v = ','.join(v)
                 self._data.update({k: v})
 
-        # 'Submit' button for the last step
-        self.add_widget(_widget.button.Submit(
-            weight=20,
-            uid='action-submit',
-            value=_lang.t('pytsite.form@save'),
-            color='primary',
-            icon='fa fa-fw fa-save',
-            form_area='footer',
-            css='form-action-submit',
-        ))
-
         # Assets
         _browser.include('scrollto')
         _assetman.add('pytsite.form@css/form.css')
         _assetman.add('pytsite.form@js/form.js')
 
         # Setup form
-        self._setup_form(**kwargs)
+        self._on_setup_form(**kwargs)
 
-    def _setup_form(self, **kwargs):
+        # Put form into the cache
+        _cache.put(self)
+
+    def setup_widgets(self, remove_existing: bool = True):
+        """Setup form's widgets.
+        """
+        # Remove all previously added widgets
+        if remove_existing:
+            self.remove_widgets()
+
+        # 'Submit' button for the last step
+        if self._steps == self._step:
+            self.add_widget(_widget.button.Submit(
+                weight=20,
+                uid='action-submit',
+                value=_lang.t('pytsite.form@save'),
+                color='primary',
+                icon='fa fa-fw fa-save',
+                form_area='footer',
+                css='form-action-submit',
+            ))
+
+        # 'Next' button for all steps except the last one
+        if self._step < self._steps:
+            self.add_widget(_widget.button.Submit(
+                weight=20,
+                uid='action-forward-' + str(self._step + 1),
+                value=_lang.t('pytsite.form@forward'),
+                form_area='footer',
+                color='primary',
+                icon='fa fa-fw fa-forward',
+                css='form-action-forward',
+                data={
+                    'to-step': self._step + 1,
+                }
+            ))
+
+        # 'Back' button for all steps except the first one
+        if self._step > 1:
+            self.add_widget(_widget.button.Button(
+                weight=10,
+                uid='action-backward-' + str(self._step - 1),
+                value=_lang.t('pytsite.form@backward'),
+                form_area='footer',
+                form_step=self._step,
+                icon='fa fa-fw fa-backward',
+                css='form-action-backward',
+                data={
+                    'to-step': self._step - 1,
+                }
+            ))
+
+        self._on_setup_widgets()
+
+        _events.fire('pytsite.form.setup_widgets.' + self.uid.replace('-', '_'), frm=self)
+
+    def _on_setup_form(self, **kwargs):
         """Hook.
         :param **kwargs:
         """
         pass
 
-    def _setup_widgets(self):
+    def _on_setup_widgets(self):
+        """Hook.
+        """
+        pass
+
+    def _on_validate(self):
         """Hook.
         """
         pass
@@ -126,6 +176,10 @@ class Form(_ABC):
         """Get form ID.
         """
         return self._uid
+
+    @property
+    def created(self) -> _datetime:
+        return self._created
 
     @property
     def cid(self) -> str:
@@ -238,14 +292,14 @@ class Form(_ABC):
         self._validation_ep = value
 
     @property
-    def values(self) -> dict:
-        return _OrderedDict([(w.uid, w.get_val()) for w in self.get_widgets(recursive=True).values()])
+    def values(self) -> _OrderedDict:
+        return _OrderedDict([(w.name, w.get_val()) for w in self.get_widgets()])
 
     @property
     def fields(self) -> list:
         """Get list of names of all widgets.
         """
-        return self.get_widgets().keys()
+        return [w.uid for w in self.get_widgets()]
 
     @property
     def steps(self) -> int:
@@ -314,13 +368,9 @@ class Form(_ABC):
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
-        self.setup_widgets()
-
-        for field_name, field_value in values.items():
-            try:
-                self.get_widget(field_name).set_val(field_value, **kwargs)
-            except error.WidgetNotFound:
-                pass
+        for widget in self.get_widgets():
+            if widget.name in values:
+                widget.set_val(values[widget.name], **kwargs)
 
         return self
 
@@ -352,25 +402,30 @@ class Form(_ABC):
         errors = {}
 
         # Validate each widget
-        for f_name, widget in self.get_widgets(recursive=True).items():
+        for w in self.get_widgets():
             try:
-                widget.validate()
+                w.validate()
             except _validation.error.RuleError as e:
-                if f_name not in errors:
-                    errors[f_name] = []
-                errors[f_name].append(str(e))
+                if w.uid not in errors:
+                    errors[w.uid] = []
+                errors[w.uid].append(str(e))
 
         if errors:
-            raise error.ValidationError(errors)
+            raise _error.ValidationError(errors)
+
+        self._on_validate()
 
         return self
 
     def submit(self):
-        """Should be called in endpoint when they processing form submit.
+        """Should be called by endpoint when it processing form submit.
          """
-        self._on_submit()
+        response = self._on_submit()
 
-        return self
+        # Remove submitted form from the cache
+        _cache.rm(self.uid)
+
+        return response
 
     def render(self) -> str:
         """Render the form.
@@ -393,7 +448,8 @@ class Form(_ABC):
         if widget.uid in self._widgets:
             raise KeyError("Widget '{}' is already added.".format(widget.uid))
 
-        self._widgets[widget.uid] = widget
+        self._widgets.append(widget)
+        self._widgets.sort(key=lambda x: x.weight)
 
         return self
 
@@ -411,46 +467,6 @@ class Form(_ABC):
 
         return self
 
-    def _search_widget(self, root, uid: str) -> _Union[_widget.Abstract, None]:
-        """Recursively search for widget.
-        """
-        if root is self and uid in self._widgets:
-            return self._widgets[uid]
-
-        elif root is self and uid not in self._widgets:
-            for w in self._widgets.values():
-                if isinstance(w, _widget.Container):
-                    r = self._search_widget(w, uid)
-                    if r:
-                        return r
-
-        elif isinstance(root, _widget.Container):
-            for w in root.get_widgets().values():
-                if w.uid == uid:
-                    return w
-                elif isinstance(w, _widget.Container):
-                    r = self._search_widget(w, uid)
-                    if r:
-                        return r
-
-    def get_widget(self, uid: str) -> _widget.Abstract:
-        """Get a widget.
-        """
-        r = self._search_widget(self, uid)
-        if not r:
-            raise error.WidgetNotFound("Widget '{}' does not exist.".format(uid))
-
-        return r
-
-    def has_widget(self, uid: str) -> bool:
-        """Check if the form has widget.
-        """
-        try:
-            self.get_widget(uid)
-            return True
-        except error.WidgetNotFound:
-            return False
-
     def hide_widget(self, uid):
         """Hide a widget.
          """
@@ -458,34 +474,46 @@ class Form(_ABC):
 
         return self
 
-    def get_widgets(self, area: str = None, step: int = None, recursive: bool = False,
-                    _container: _widget.Container = None, _accumulator: list = None) -> _Dict[str, _widget.Abstract]:
+    def get_widgets(self, filter_by: str = None, filter_val=None, _parent: _widget.Abstract = None):
         """Get widgets.
-         """
-        # Only if this is NOT recursive call
-        if not _container:
-            self.setup_widgets()
 
-        widgets = []
+        :rtype: _List[_widget.Abstract]
+        """
+        r = []
 
-        # Non-recursive call
-        if _container is None and _accumulator is None:
-            for w in self._widgets.values():
-                # Filter by area and step
-                if (area is None or w.form_area == area) and (step is None or step == w.form_step):
-                    widgets.append(w)
-                    if recursive and isinstance(w, _widget.Container):
-                        self.get_widgets(area, step, recursive, w, widgets)
+        # Recursion depth > 0
+        if _parent:
+            # Filter by some widget's attribute
+            if not filter_by or (filter_by and getattr(_parent, filter_by) == filter_val):
+                r.append(_parent)
 
-        # Recursive call
+            for widget in _parent.children:
+                r += self.get_widgets(filter_by, filter_val, widget)
+
+        # Recursion depth == 0
         else:
-            for w in _container.get_widgets().values():
-                _accumulator.append(w)
-                if isinstance(w, _widget.Container):
-                    self.get_widgets(area, step, recursive, w, _accumulator)
+            for widget in self._widgets:
+                r += self.get_widgets(filter_by, filter_val, widget)
 
-        # Sort by weight
-        return _OrderedDict([(w.uid, w) for w in sorted(widgets, key=lambda x: x.weight)])
+        return r
+
+    def get_widget(self, uid: str) -> _widget.Abstract:
+        """Get a widget.
+        """
+        r = self.get_widgets(filter_by='uid', filter_val=uid)
+        if not r:
+            raise _error.WidgetNotExist("Widget '{}' does not exist.".format(uid))
+
+        return r[0]
+
+    def has_widget(self, uid: str) -> bool:
+        """Check if the form has widget.
+        """
+        try:
+            self.get_widget(uid)
+            return True
+        except _error.WidgetNotExist:
+            return False
 
     def remove_widget(self, uid: str):
         """Remove widget from the form.
@@ -494,62 +522,15 @@ class Form(_ABC):
         w.clr_rules()
 
         if w.parent:
-            w.parent.remove_widget(uid)
+            w.parent.remove_child(uid)
         else:
-            del self._widgets[uid]
+            self._widgets = [w for w in self._widgets if w.uid != uid]
 
         return self
 
-    def render_widget(self, widget_uid: str) -> _html.Element:
-        """Render form's widget.
+    def remove_widgets(self):
+        """Remove all added widgets.
         """
-        return self.get_widget(widget_uid).get_html_em()
-
-    def setup_widgets(self):
-        """Should be called when widgets has to be added.
-        """
-        if self._widgets_added:
-            return self
-
-        self._setup_widgets()
-
-        _events.fire('pytsite.form.setup_widgets.' + self.uid.replace('-', '_'), frm=self)
-
-        if self._steps > 1:
-            # Submit button appears only on the last step
-            self.get_widget('action-submit').form_step = self.steps
-
-            # 'Next' button for all steps except the last one
-            for i in range(1, self._steps):
-                self.add_widget(_widget.button.Submit(
-                    weight=20,
-                    uid='action-forward-' + str(i + 1),
-                    value=_lang.t('pytsite.form@forward'),
-                    form_area='footer',
-                    form_step=i,
-                    color='primary',
-                    icon='fa fa-fw fa-forward',
-                    css='form-action-forward',
-                    data={
-                        'to-step': i + 1,
-                    }
-                ))
-
-            # 'Back' button for all steps except the first one
-            for i in range(2, self._steps + 1):
-                self.add_widget(_widget.button.Button(
-                    weight=10,
-                    uid='action-backward-' + str(i - 1),
-                    value=_lang.t('pytsite.form@backward'),
-                    form_area='footer',
-                    form_step=i,
-                    icon='fa fa-fw fa-backward',
-                    css='form-action-backward',
-                    data={
-                        'to-step': i - 1,
-                    }
-                ))
-
-        self._widgets_added = True
+        self._widgets = []
 
         return self

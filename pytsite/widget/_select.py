@@ -1,6 +1,7 @@
 """PytSite Select Widgets.
 """
 from typing import Union as _Union, List as _List, Tuple as _Tuple
+from collections import OrderedDict as _OrderedDict
 from math import ceil as _ceil
 from datetime import datetime as _datetime
 from pytsite import browser as _browser, html as _html, lang as _lang, validation as _validation, util as _util, \
@@ -19,13 +20,26 @@ class Checkbox(_input.Input):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(uid, **kwargs)
         self._label_disabled = True
+        self._checked = bool(kwargs.get('checked', False))
+
+        super().__init__(uid, **kwargs)
 
     def set_val(self, value, **kwargs):
-        """Set value of the widget.
-        """
-        self._value = bool(value)
+        if value in (True, 'True'):
+            self._checked = self._value = True
+        elif value in (False, 'False'):
+            self._checked = self._value = False
+        else:
+            super().set_val(value, **kwargs)
+
+    @property
+    def checked(self) -> bool:
+        return self._checked
+
+    @checked.setter
+    def checked(self, value: bool):
+        self._checked = bool(value)
 
     def get_html_em(self, **kwargs) -> _html.Element:
         """Render the widget.
@@ -34,10 +48,12 @@ class Checkbox(_input.Input):
         div = _html.Div(cls='checkbox')
         div.append(_html.Input(type='hidden', name=self._name))
         label = _html.Label(self._label, label_for=self._uid)
-        label.append(_html.Input(uid=self._uid, name=self._name, type='checkbox', checked=self._value))
+        label.append(_html.Input(
+            uid=self._uid, name=self._name, type='checkbox', value=self._value, checked=self._checked
+        ))
         div.append(label)
 
-        return self._group_wrap(div)
+        return div
 
 
 class Select(_input.Input):
@@ -245,6 +261,8 @@ class DateTime(_input.Text):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
+        kwargs['default'] = kwargs.get('default', _datetime.now())
+
         super().__init__(uid, **kwargs)
 
         self.assets.extend(_browser.get_assets('datetimepicker'))
@@ -403,35 +421,59 @@ class Tabs(_base.Abstract):
         """Init.
         """
         super().__init__(uid, **kwargs)
-        self._tabs = []
 
-    def add_tab(self, tid: str, title: str, content: str):
+        self._tabs = _OrderedDict()
+
+    def add_tab(self, tab_id: str, title: str):
         """Add a tab.
         """
-        tid = tid.replace('.', '-')
-        self._tabs.append((tid, title, content))
+        tab_id = tab_id.replace('.', '-')
+        if tab_id in self._tabs:
+            raise RuntimeError("Tab '{}' is already added".format(tab_id))
+
+        self._tabs[tab_id] = {'title': title, 'widgets': []}
+
         return self
 
-    def get_html_em(self, **kwargs) -> str:
-        wrapper = _html.Div(role='tabpanel')
-        tabs_ul = _html.Ul(cls='nav nav-tabs', role='tablist')
-        content = _html.Div(cls='tab-content')
-        wrapper.append(tabs_ul).append(content)
+    def append_child(self, widget: _base.Abstract, tab_id: str = None) -> _base.Abstract:
+        """Add a child widget.
+        """
+        if not self._tabs:
+            raise RuntimeError('At least one tab should exists before you can add widgets')
 
-        i = 0
-        for tab in self._tabs:
-            tab_uid = 'tab-uid-' + tab[0]
-            tabs_ul.append(
-                _html.Li(role='presentation', cls='active' if i == 0 else '').append(
-                    _html.A(tab[1], href='#' + tab_uid, role='tab', data_toggle='tab')
+        if not tab_id:
+            tab_id = list(self._tabs.keys())[0]
+
+        super().append_child(widget)
+
+        self._tabs[tab_id]['widgets'].append(widget)
+
+        return widget
+
+    def get_html_em(self, **kwargs) -> _html.Element:
+        tab_panel = _html.Div(role='tabpanel')
+        tabs_nav = _html.Ul(cls='nav nav-tabs', role='tablist')
+        tabs_content = _html.Div(cls='tab-content')
+        tab_panel.append(tabs_nav).append(tabs_content)
+
+        tab_count = 0
+        for tab_id, tab in self._tabs.items():
+            tabs_nav.append(
+                _html.Li(role='presentation', cls='active' if tab_count == 0 else '').append(
+                    _html.A(tab['title'], href='#tab-uid-' + tab_id, role='tab', data_toggle='tab')
                 )
             )
-            content_cls = 'tabpanel tab-pane'
-            content_cls += ' active' if i == 0 else ''
-            content.append(_html.Div(tab[2], cls=content_cls, uid=tab_uid))
-            i += 1
+            tab_content_cls = 'tabpanel tab-pane'
+            tab_content_cls += ' active' if tab_count == 0 else ''
+            tab_content_div = _html.Div('', cls=tab_content_cls, uid='tab-uid-' + tab_id)
+            tabs_content.append(tab_content_div)
 
-        return self._group_wrap(wrapper)
+            for widget in sorted(tab['widgets'], key=lambda x: x.weight):
+                tab_content_div.append(_html.TagLessElement(widget.render()))
+
+            tab_count += 1
+
+        return self._group_wrap(tab_panel)
 
 
 class Score(_base.Abstract):
@@ -495,8 +537,6 @@ class ColorPicker(_input.Text):
         super().__init__(uid, **kwargs)
 
         self.css += ' widget-color-picker'
-
-
 
         self.assets.extend(_browser.get_assets('jquery-ui'))
         self.assets.extend([

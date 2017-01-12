@@ -219,7 +219,7 @@ class List(Abstract):
         if type(value) not in (list, tuple):
             raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, type(value)))
 
-        # In internals value is always a list
+        # Internal value is always a list
         if isinstance(value, tuple):
             value = list(value)
 

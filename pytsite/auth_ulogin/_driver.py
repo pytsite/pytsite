@@ -33,7 +33,7 @@ class _LoginWidget(_widget.Abstract):
 class _LoginForm(_form.Form):
     """ULogin Login Form.
     """
-    def _setup_widgets(self):
+    def _on_setup_widgets(self):
         """_setup() hook.
         """
         self.add_widget(_widget.input.Hidden(

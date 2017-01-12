@@ -23,20 +23,11 @@ def _init():
     # Route: get ODM browser table rows
     router.add_rule(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows', filters=auth_filter)
 
-    # Route: 'create/modify' ODM entity form show
+    # Route: 'create/modify' ODM entity form display
     router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', filters=auth_filter)
 
-    # Route: 'create/modify' ODM entity form submit
-    # IMPORTANT: admin path prefix is not used here.
-    router.add_rule('/odm_ui/<model>/modify/<id>/submit', 'pytsite.odm_ui@m_form_submit', methods='POST',
-                    filters=auth_filter)
-
-    # Route: 'delete' form show
+    # Route: 'delete' form display
     router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', filters=auth_filter)
-
-    # Route: 'delete' form submit
-    # IMPORTANT: admin path prefix is not used here.
-    router.add_rule('/odm_ui/<model>/delete/submit', 'pytsite.odm_ui@d_form_submit', filters=auth_filter)
 
     # Resources
     lang.register_package(__name__)

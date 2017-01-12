@@ -13,9 +13,12 @@ $(function () {
             if (!themeName)
                 return;
 
-            pytsite.httpApi.get('theme/settings_widgets', {'theme': themeName}).done(function (r) {
+            pytsite.httpApi.get('theme/settings_widgets', {theme: themeName}).done(function (r) {
                 $.each(r, function (i, widgetData) {
-                    form.loadWidget(widgetData, true, true);
+                    form.initWidget(widgetData).done(function(widget) {
+                        form.addWidget(widget);
+                        widget.show();
+                    });
                 });
             });
         });

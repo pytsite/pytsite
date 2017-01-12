@@ -8,7 +8,7 @@ __license__ = 'MIT'
 
 
 class Form(_settings.Form):
-    def _setup_widgets(self):
+    def _on_setup_widgets(self):
         self.add_widget(_widget.input.Email(
             uid='setting_from',
             weight=10,
@@ -16,4 +16,4 @@ class Form(_settings.Form):
             required=True,
         ))
 
-        super()._setup_widgets()
+        super()._on_setup_widgets()

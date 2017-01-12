@@ -16,6 +16,7 @@ class Input(_base.Abstract):
         """Init.
         """
         super().__init__(uid, **kwargs)
+
         self._max_length = kwargs.get('max_length')
 
     @property

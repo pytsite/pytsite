@@ -1,4 +1,11 @@
 pytsite.widget = {
+    init: function () {
+        // Initialize all widgets found on a page
+        $('.pytsite-widget').not('.initialized').each(function () {
+            new pytsite.widget.Widget(this);
+        });
+    },
+
     Widget: function (em) {
         var self = this;
         self.em = em = $(em);
@@ -6,13 +13,12 @@ pytsite.widget = {
         self.uid = em.data('uid');
         self.replaces = em.data('replaces');
         self.formArea = em.data('formArea');
-        self.formStep = em.data('formStep');
         self.parentUid = em.data('parentUid');
         self.alwaysHidden = em.data('hidden') == 'True';
         self.weight = em.data('weight');
         self.assets = em.data('assets') ? self.em.data('assets') : [];
         self.messagesEm = em.find('.widget-messages').first();
-        self.childWidgets = {};
+        self.children = {};
 
         // Clear state fo the widget
         self.clearState = function () {
@@ -62,13 +68,15 @@ pytsite.widget = {
             return self;
         };
 
-        // Load children widgets
-        if (self.em.data('container') == 'True') {
-            self.em.find('> .pytsite-widget:not(.initialized)').each(function () {
-                var w = new pytsite.widget.Widget(this);
-                self.childWidgets[w.uid] = w;
-            });
-        }
+        /*
+         * Add a child widget
+         */
+        self.addChild = function (child) {
+            if (self.children.hasOwnProperty(child.uid))
+                throw 'Widget ' + self.uid + ' already has child widget ' + child.uid;
+
+            self.children[child.uid] = child;
+        };
 
         // Load widget's assets
         pytsite.browser.loadAssets(self.assets).done(function () {
@@ -76,6 +84,11 @@ pytsite.widget = {
             $(window).trigger('pytsite.widget.init:' + self.cid, [self]);
             $(self).trigger('ready', [self]);
             self.em.addClass('initialized');
+
+            // Initialize children widgets
+            self.em.find(".pytsite-widget[data-parent-uid='" + self.uid + "']:not(.initialized)").each(function () {
+                self.addChild(new pytsite.widget.Widget(this));
+            });
         }).fail(function () {
             $(self).trigger('initError', [self]);
         });
@@ -83,8 +96,5 @@ pytsite.widget = {
 };
 
 $(function () {
-    // Initialize all widgets found on a page
-    $('.pytsite-widget').not('.initialized').each(function () {
-        new pytsite.widget.Widget(this);
-    });
+    pytsite.widget.init();
 });

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.36 (2017-01-12)
+### Changed
+- `form`: refactored.
+- `widget`: refactored.
+
 ## 0.98.35 (2017-01-08)
 ### Added
 - `assetman`: new argument **console_notify** in **pytsite.assetman.build** events.

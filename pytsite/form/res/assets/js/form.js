@@ -21,7 +21,6 @@ pytsite.form = {
         self.isModal = em.data('modal') == 'True';
         self.submitEp = em.attr('submitEp');
         self.totalSteps = em.data('steps');
-        self.loadedSteps = [];
         self.currentStep = 0;
         self.isCurrentStepValidated = true;
         self.readyToSubmit = false;
@@ -116,20 +115,20 @@ pytsite.form = {
             data['__form_data_step'] = self.currentStep;
             data['__form_data_location'] = formLocation;
 
-            return pytsite.httpApi.request(method, ep, data)
-                .fail(function (resp) {
-                    if ('responseJSON' in resp && 'error' in resp.responseJSON)
-                        self.addMessage(resp.responseJSON.error, 'danger');
-                    else
-                        self.addMessage(resp.statusText, 'danger');
-                });
+            return pytsite.httpApi.request(method, ep, data).fail(function (resp) {
+                if ('responseJSON' in resp && 'error' in resp.responseJSON)
+                    self.addMessage(resp.responseJSON.error, 'danger');
+                else
+                    self.addMessage(resp.statusText, 'danger');
+            });
         };
 
-        // Count widgets for current step
-        self.count = function () {
+        // Count widgets for the step
+        self.countWidgets = function (step) {
             var r = 0;
+
             for (var uid in self.widgets) {
-                if (self.widgets[uid].formStep == self.currentStep)
+                if (self.widgets[uid].formStep == step)
                     ++r;
             }
 
@@ -155,31 +154,26 @@ pytsite.form = {
         };
 
         // Add a widget to the form
-        self.loadWidget = function (widgetData, addAfterLoad, showAfterAdd) {
+        self.initWidget = function (widgetData) {
             var deffer = $.Deferred();
 
             // Initialize widget
             var widget = new pytsite.widget.Widget(widgetData);
 
             $(widget).on('ready', function () {
-                if (widget.uid in self.widgets) {
-                    if (widget.replaces == widget.uid)
-                        self.removeWidget(widget.uid);
-                    else
-                        throw "Widget '" + widget.uid + "' already exists.";
-                }
+                // Widget replaces another one with different UID
+                if (widget.replaces == widget.uid)
+                    self.removeWidget(widget.uid);
+
+                // Widget replaces another one with same UID
+                if (widget.uid in self.widgets)
+                    self.removeWidget(widget.uid);
 
                 // Append widget to the list of loaded widgets
                 widget.hide();
                 self.widgets[widget.uid] = widget;
 
-                $(self).trigger('widgetReady', [widget]);
-
-                if (addAfterLoad) {
-                    self.addWidget(widget, showAfterAdd);
-                }
-
-                deffer.resolve(self, widget);
+                deffer.resolve(widget);
             }).on('initError', function () {
                 deffer.reject();
             });
@@ -188,7 +182,7 @@ pytsite.form = {
         };
 
         // Place widget to the form
-        self.addWidget = function (widget, showAfterAdd) {
+        self.addWidget = function (widget) {
             if (widget.parentUid) {
                 if (widget.parentUid in self.widgets)
                     self.widgets[widget.parentUid].em.append(widget.em);
@@ -198,9 +192,6 @@ pytsite.form = {
             else {
                 self.areas[widget.formArea].append(widget.em);
             }
-
-            if (showAfterAdd)
-                widget.show();
         };
 
         // Get widget of the form
@@ -221,7 +212,7 @@ pytsite.form = {
         };
 
         // Load widgets for the current step
-        self.loadWidgets = function (showAfterLoad) {
+        self.loadWidgets = function () {
             var deffer = $.Deferred();
             var progress = self.areas['body'].find('.progress');
             var progressBar = progress.find('.progress-bar');
@@ -240,19 +231,21 @@ pytsite.form = {
             }, 250);
 
             self._request('POST', self.getWidgetsEp).done(function (resp) {
-                var numWidgetsToLoad = resp.length;
+                var numWidgetsToInit = resp.length;
                 var progressCount = 1;
 
-                for (var i = 0; i < numWidgetsToLoad; i++) {
-                    // Append widget
-                    self.loadWidget(resp[i], i).done(function () {
+                for (var i = 0; i < numWidgetsToInit; i++) {
+                    // Create widget from raw HTML data
+                    self.initWidget(resp[i]).done(function (widget) {
+                        widget.formStep = self.currentStep;
+
                         // Increase progress bar value
-                        var percents = (100 / numWidgetsToLoad) * progressCount++;
+                        var percents = (100 / numWidgetsToInit) * progressCount++;
                         progressBar.width(percents + '%');
                         progressBar.attr('aria-valuenow', percents);
 
                         // This widget is the last one
-                        if (self.count() == numWidgetsToLoad) {
+                        if (self.countWidgets(self.currentStep) == numWidgetsToInit) {
                             // Sort all loaded widgets by weight
                             var sortedWidgets = [];
                             for (var uid in self.widgets) {
@@ -273,10 +266,6 @@ pytsite.form = {
 
                             // Fill widgets with data from location string
                             self.fill(pytsite.browser.parseLocation().query);
-
-                            // Show loaded widgets
-                            if (showAfterLoad == true)
-                                self.showWidgets();
 
                             deffer.resolve();
                         }
@@ -312,60 +301,58 @@ pytsite.form = {
                 for (var uid in self.widgets)
                     self.widgets[uid].clearState().clearMessages();
 
-                self._request('POST', self.validationEp)
-                    .done(function (resp) {
-                        if (resp.status) {
-                            deffer.resolve();
-                        }
-                        else {
-                            // Add error messages for widgets
-                            for (var widget_uid in resp.messages) {
-                                var widget, widget_message;
-                                if (widget_uid in self.widgets)
-                                    widget = self.widgets[widget_uid];
+                self._request('POST', self.validationEp).done(function (resp) {
+                    if (resp.status) {
+                        deffer.resolve();
+                    }
+                    else {
+                        // Add error messages for widgets
+                        for (var widget_uid in resp.messages) {
+                            var widget, widget_message;
+                            if (widget_uid in self.widgets)
+                                widget = self.widgets[widget_uid];
 
-                                // Convert single message to array for convenience
-                                if (typeof resp.messages[widget_uid] == 'string') {
-                                    resp.messages[widget_uid] = [resp.messages[widget_uid]];
-                                }
+                            // Convert single message to array for convenience
+                            if (typeof resp.messages[widget_uid] == 'string') {
+                                resp.messages[widget_uid] = [resp.messages[widget_uid]];
+                            }
 
-                                // Iterate over multiple messages for the same widget
-                                for (var i = 0; i < resp.messages[widget_uid].length; i++) {
-                                    widget_message = resp.messages[widget_uid][i];
+                            // Iterate over multiple messages for the same widget
+                            for (var i = 0; i < resp.messages[widget_uid].length; i++) {
+                                widget_message = resp.messages[widget_uid][i];
 
-                                    // If widget exists
-                                    if (widget) {
-                                        if (!widget.alwaysHidden) {
-                                            widget.setState('error');
-                                            widget.addMessage(widget_message);
-                                        }
-                                        else {
-                                            self.addMessage(widget_uid + ': ' + widget_message, 'danger');
-                                        }
+                                // If widget exists
+                                if (widget) {
+                                    if (!widget.alwaysHidden) {
+                                        widget.setState('error');
+                                        widget.addMessage(widget_message);
                                     }
-                                    // Widget does not exist
                                     else {
                                         self.addMessage(widget_uid + ': ' + widget_message, 'danger');
                                     }
                                 }
+                                // Widget does not exist
+                                else {
+                                    self.addMessage(widget_uid + ': ' + widget_message, 'danger');
+                                }
                             }
-
-                            var scrollObject = $(window);
-                            if (self.isModal)
-                                scrollObject = self.em.closest('.modal');
-
-                            var scrollToTarget = self.em.find('.has-error').first();
-                            if (!scrollToTarget.length)
-                                scrollToTarget = self.messages;
-
-                            scrollObject.scrollTo(scrollToTarget, 250);
-                            deffer.reject();
                         }
-                    })
-                    .fail(function () {
-                        $(window).scrollTo(0, 250);
+
+                        var scrollObject = $(window);
+                        if (self.isModal)
+                            scrollObject = self.em.closest('.modal');
+
+                        var scrollToTarget = self.em.find('.has-error').first();
+                        if (!scrollToTarget.length)
+                            scrollToTarget = self.messages;
+
+                        scrollObject.scrollTo(scrollToTarget, 250);
                         deffer.reject();
-                    });
+                    }
+                }).fail(function () {
+                    $(window).scrollTo(0, 250);
+                    deffer.reject();
+                });
             }
             else {
                 deffer.resolve();
@@ -376,9 +363,6 @@ pytsite.form = {
 
         // Show widgets for the step
         self.showWidgets = function (step) {
-            if (step == undefined)
-                step = self.currentStep;
-
             for (var uid in self.widgets) {
                 if (self.widgets[uid].formStep == step)
                     self.widgets[uid].show();
@@ -389,9 +373,6 @@ pytsite.form = {
 
         // Hide widgets for the step
         self.hideWidgets = function (step) {
-            if (step == undefined)
-                step = self.currentStep;
-
             for (var uid in self.widgets) {
                 if (self.widgets[uid].formStep == step)
                     self.widgets[uid].hide();
@@ -416,46 +397,36 @@ pytsite.form = {
             // Validating the form for the current step
             submitButton.attr('disabled', true);
             self.validate().done(function () {
+                // Disable user activity while widgets are loading
                 submitButton.attr('disabled', false);
 
-                // It is not a last step, so just load (if necessary) and show widgets for the next step
+                // It is not a last step, so just load and show widgets for the next step
                 if (self.currentStep < self.totalSteps) {
                     // Hide widgets for the current step
-                    self.hideWidgets();
+                    self.hideWidgets(self.currentStep);
 
                     // Step change
                     ++self.currentStep;
 
-                    // Load widgets via AJAX request, if necessary
-                    if ($.inArray(self.currentStep, self.loadedSteps) < 0 || self.reloadOnForward) {
-                        // First, remove all existing widgets for the current step
-                        self.removeWidgets(self.currentStep);
+                    // Load widgets for the current step
+                    self.loadWidgets().done(function () {
+                        // Attach click handler to the 'Backward' button
+                        self.em.find('.form-action-backward').click(self.backward);
 
-                        // Load widgets for the current step
-                        self.loadWidgets().done(function () {
-                            if ($.inArray(self.currentStep, self.loadedSteps) < 0)
-                                self.loadedSteps.push(self.currentStep);
-
-                            // Attach click handler to the 'Backward' button
-                            self.em.find('.form-action-backward').click(self.backward);
-
-                            // Show widgets
-                            self.isCurrentStepValidated = false;
-                            self.showWidgets();
-                            $(self).trigger('pytsite.form.forward');
-                            $(self.em).trigger('pytsite.form.forward', [self]);
-                            deffer.resolve();
-                        });
-                    }
-                    // Just show widgets, if they already loaded
-                    else {
-                        // Show widgets
+                        // Mark current step as is not validated
                         self.isCurrentStepValidated = false;
-                        self.showWidgets();
+
+                        // Show widgets
+                        self.showWidgets(self.currentStep);
+
+                        // Notify listeners
                         $(self).trigger('pytsite.form.forward');
                         $(self.em).trigger('pytsite.form.forward', [self]);
                         deffer.resolve();
-                    }
+
+                        // Scroll to top of the page
+                        window.scrollTo(0, 0);
+                    });
                 }
                 // It is a last step, just allowing submit the form
                 else {
@@ -472,9 +443,9 @@ pytsite.form = {
 
         // Move to the previous step
         self.backward = function () {
-            self.hideWidgets(self.currentStep);
-            --self.currentStep;
-            self.showWidgets(self.currentStep)
+            self.removeWidgets(self.currentStep);
+            self.showWidgets(--self.currentStep);
+            window.scrollTo(0, 0);
         };
     }
 };
