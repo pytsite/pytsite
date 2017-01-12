@@ -48,7 +48,6 @@ class Form(_ABC):
         self._step = int(kwargs.get('step', 1))
         self._modal = kwargs.get('modal', False)
         self._modal_close_btn = kwargs.get('modal_close_btn', True)
-        self._reload_on_forward = kwargs.get('reload_on_forward', False)
         self._prevent_submit = kwargs.get('prevent_submit', False)
         self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
 
@@ -332,14 +331,6 @@ class Form(_ABC):
     @modal_close_btn.setter
     def modal_close_btn(self, value: bool):
         self._modal_close_btn = value
-
-    @property
-    def reload_on_forward(self) -> bool:
-        return self._reload_on_forward
-
-    @reload_on_forward.setter
-    def reload_on_forward(self, val: bool):
-        self._reload_on_forward = val
 
     @property
     def prevent_submit(self) -> bool:

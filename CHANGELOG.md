@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.37 (2017-01-12)
+### Fixed
+- `theme`: theme's settings loading via AJAX request.
+
+
 ## 0.98.36 (2017-01-12)
 ### Changed
 - `form`: refactored.

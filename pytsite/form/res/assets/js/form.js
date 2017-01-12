@@ -16,7 +16,6 @@ pytsite.form = {
         self.weight = parseInt(em.data('weight'));
         self.getWidgetsEp = em.data('getWidgetsEp');
         self.validationEp = em.data('validationEp');
-        self.reloadOnForward = em.data('reloadOnForward') == 'True';
         self.preventSubmit = em.data('preventSubmit') == 'True';
         self.isModal = em.data('modal') == 'True';
         self.submitEp = em.attr('submitEp');
@@ -99,7 +98,7 @@ pytsite.form = {
             // Add form's data-attributes
             var emDataAttrs = self.em.data();
             for (var k in emDataAttrs) {
-                if ($.inArray(k, ['getWidgetsEp', 'validationEp', 'reloadOnForward', 'steps']) < 0)
+                if ($.inArray(k, ['getWidgetsEp', 'validationEp', 'steps']) < 0)
                     data['__form_data_' + k] = emDataAttrs[k];
             }
 
