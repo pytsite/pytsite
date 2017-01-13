@@ -44,7 +44,7 @@ class Password(_auth.driver.Authentication):
         """
         return 'password'
 
-    def get_sign_up_form(self, form_uid: str, **kwargs) -> _form.Form:
+    def get_sign_up_form(self, **kwargs) -> _form.Form:
         # TODO
         pass
 

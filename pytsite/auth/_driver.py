@@ -22,7 +22,7 @@ class Authentication(_ABC):
         return self.get_name()
 
     @_abstractmethod
-    def get_sign_up_form(self, form_uid: str, **kwargs) -> _form.Form:
+    def get_sign_up_form(self, **kwargs) -> _form.Form:
         """Get sign in form.
         """
         pass

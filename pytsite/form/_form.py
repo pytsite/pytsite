@@ -1,5 +1,6 @@
 """PytSite Base Form.
 """
+import re as _re
 from typing import List as _List
 from abc import ABC as _ABC
 from collections import OrderedDict as _OrderedDict
@@ -11,6 +12,8 @@ from . import _error, _cache
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+_form_name_sub_re = _re.compile('[\._]{1,}')
 
 
 class Form(_ABC):
@@ -40,7 +43,7 @@ class Form(_ABC):
 
         self._uid = _util.random_str(64)
         self._created = _datetime.now()
-        self._name = kwargs.get('name') or self._uid
+        self._name = kwargs.get('name') or _form_name_sub_re.sub('-', self.cid.lower())
         self._path = kwargs.get('path', _router.current_path(True))
         self._method = kwargs.get('method', 'post')
         self._action = kwargs.get('action', _router.ep_url('pytsite.form@submit', {'uid': self.uid}))

@@ -128,7 +128,7 @@ def patch_follow(**kwargs) -> bool:
 
 def get_login_form(**kwargs) -> dict:
     frm = _api.get_sign_in_form(
-        auth_driver_name=kwargs.get('driver'),
+        driver_name=kwargs.get('driver'),
         uid=kwargs.get('uid'),
         title=kwargs.get('title'),
         css=kwargs.get('css', ''),

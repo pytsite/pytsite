@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.98.40 (2017-01-13)
+### Fixed
+- `auth`: form names and UIDs usage.
+- `form`: form's name usage.
+
+
 ## 0.98.39 (2017-01-13)
 ### Changed
 - `form`: base form's class constructor's signature changed.
