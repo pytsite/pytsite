@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.42 (2017-01-14)
+### Fixed
+- `odm_ui`: invalid form constructors signature's calls.
+
+
 ## 0.98.41 (2017-01-13)
 ### Fixed
 - `auth`: exception in `get_sign_in_form()`.
