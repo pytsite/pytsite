@@ -14,12 +14,12 @@ class Form(_form.Form):
     """Base settings form.
     """
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
         self._setting_uid = kwargs.get('setting_uid')
 
-        super().__init__(uid, css='settings-form setting-uid-' + self._setting_uid, **kwargs)
+        super().__init__(css='settings-form setting-uid-' + self._setting_uid, **kwargs)
 
     def _on_setup_widgets(self):
         # Fill form widgets with values

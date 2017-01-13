@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.39 (2017-01-13)
+### Changed
+- `form`: base form's class constructor's signature changed.
+
+
 ## 0.98.38 (2017-01-12)
 ### Fixed
 - `theme`: theme's settings form submit.

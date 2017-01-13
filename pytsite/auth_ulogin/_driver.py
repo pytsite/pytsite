@@ -59,15 +59,15 @@ class ULogin(_auth.driver.Authentication):
         """
         return 'ulogin'
 
-    def get_sign_up_form(self, form_uid: str, **kwargs) -> _form.Form:
+    def get_sign_up_form(self, **kwargs) -> _form.Form:
         """Get the sign up form form.
         """
-        return _LoginForm(uid=form_uid, **kwargs)
+        return _LoginForm(**kwargs)
 
-    def get_sign_in_form(self, form_uid: str, **kwargs) -> _form.Form:
+    def get_sign_in_form(self, **kwargs) -> _form.Form:
         """Get the sign in form form.
         """
-        return self.get_sign_up_form(form_uid, **kwargs)
+        return self.get_sign_up_form(**kwargs)
 
     def sign_up(self, data: dict) -> _auth.model.AbstractUser:
         # Searching for token in input data

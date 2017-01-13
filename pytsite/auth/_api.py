@@ -105,20 +105,17 @@ def get_storage_driver() -> _driver.Storage:
     return _storage_driver
 
 
-def get_sign_in_form(auth_driver_name: str = None, uid: str = None, **kwargs) -> _form.Form:
+def get_sign_in_form(auth_driver_name: str = None, **kwargs) -> _form.Form:
     """Get a login form.
     """
     driver = get_auth_driver(auth_driver_name)
 
     kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-sign-in driver-' + driver.name
 
-    if not uid:
-        uid = 'pytsite-auth-sign-in'
-
     if not kwargs.get('title'):
         kwargs['title'] = _lang.t('pytsite.auth@authentication')
 
-    form = driver.get_sign_in_form(uid, **kwargs)
+    form = driver.get_sign_in_form(**kwargs)
     form.action = _router.ep_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
 
     return form

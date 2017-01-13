@@ -28,7 +28,7 @@ class Authentication(_ABC):
         pass
 
     @_abstractmethod
-    def get_sign_in_form(self, form_uid: str, **kwargs) -> _form.Form:
+    def get_sign_in_form(self, **kwargs) -> _form.Form:
         """Get sign in form.
         """
         pass

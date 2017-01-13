@@ -17,7 +17,7 @@ class Form(_ABC):
     """Base Form.
     """
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
         if not _router.request():

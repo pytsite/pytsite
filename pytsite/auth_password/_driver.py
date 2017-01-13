@@ -48,10 +48,10 @@ class Password(_auth.driver.Authentication):
         # TODO
         pass
 
-    def get_sign_in_form(self, form_uid: str, **kwargs) -> _form.Form:
+    def get_sign_in_form(self, **kwargs) -> _form.Form:
         """Get the login form.
         """
-        return _SignInForm(uid=form_uid, **kwargs)
+        return _SignInForm(**kwargs)
 
     def sign_up(self, data: dict):
         # TODO

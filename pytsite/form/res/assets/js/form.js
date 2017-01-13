@@ -35,7 +35,6 @@ pytsite.form = {
 
         // Form submit handler
         self.em.submit(function (event) {
-            // If form has more than 1 step and it is not last step.
             // Just move one step forward.
             if (!self.readyToSubmit) {
                 event.preventDefault();
@@ -43,6 +42,7 @@ pytsite.form = {
             }
             else {
                 $(window).trigger('pytsite.form.submit', [self]);
+                $(window).trigger('pytsite.form.submit:' + self.cid, [self]);
 
                 if (self.preventSubmit)
                     event.preventDefault();

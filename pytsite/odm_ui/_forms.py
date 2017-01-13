@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 class Modify(_form.Form):
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
         self._model = kwargs.get('model')
@@ -20,7 +20,7 @@ class Modify(_form.Form):
         self._eid = kwargs.get('eid')
         self._update_meta_title = kwargs.get('update_meta_title', True)
 
-        super().__init__(uid, **kwargs)
+        super().__init__(**kwargs)
 
     @property
     def update_meta_title(self) -> bool:
@@ -155,7 +155,7 @@ class MassAction(_form.Form):
     """ODM UI Mass Action Form.
     """
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, **kwargs):
         """Init.
         """
         self._model = kwargs.get('model')
@@ -166,7 +166,7 @@ class MassAction(_form.Form):
         if isinstance(self._eids, str):
             self._eids = self._eids.split(',')
 
-        super().__init__(uid, **kwargs)
+        super().__init__(**kwargs)
 
     def _on_setup_form(self, **kwargs):
         """Hook.
