@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.41 (2017-01-13)
+### Fixed
+- `auth`: exception in `get_sign_in_form()`.
+
+
 ## 0.98.40 (2017-01-13)
 ### Fixed
 - `auth`: form names and UIDs usage.

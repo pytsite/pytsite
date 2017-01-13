@@ -110,11 +110,11 @@ def get_sign_in_form(driver_name: str = None, **kwargs) -> _form.Form:
     """
     driver = get_auth_driver(driver_name)
 
-    kwargs['name'] = kwargs.get('name', 'pytsite-auth-sign-in-' + driver_name)
-    kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-sign-in driver-' + driver_name
+    kwargs['name'] = kwargs.get('name', 'pytsite-auth-sign-in-' + driver.name)
+    kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-sign-in driver-' + driver.name
 
     form = driver.get_sign_in_form(**kwargs)
-    form.action = _router.ep_url('pytsite.auth@sign_in_submit', {'driver': driver_name})
+    form.action = _router.ep_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
 
     if not form.title:
         form.title = _lang.t('pytsite.auth@authentication')
