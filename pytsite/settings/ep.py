@@ -25,6 +25,6 @@ def form(args: dict, inp: dict) -> str:
     _metatag.t_set('title', _lang.t(setting_def['title']))
 
     # Instantiate form
-    frm = setting_def['form']('settings-form', setting_uid=uid)  # type: _frm.Form
+    frm = setting_def['form'](setting_uid=uid)  # type: _frm.Form
 
     return _admin.render_form(frm)
