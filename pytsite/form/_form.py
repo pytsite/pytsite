@@ -65,6 +65,7 @@ class Form(_ABC):
 
         # <form>'s tag CSS class
         self._css = str(kwargs.get('css', '') + ' pytsite-form').strip()
+        self._css += ' form-name-{} form-cid-{}'.format(self._name, _form_name_sub_re.sub('-', self.cid.lower()))
 
         # Title
         self._title = kwargs.get('title')

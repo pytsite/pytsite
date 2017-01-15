@@ -1,7 +1,7 @@
-$('.settings-form').on('pytsite.form.forward', function (e, form) {
+$('.settings-form').on('pytsiteFormForward', function (e, form) {
     var themeSelect = form.em.find('select[name=setting_default_theme]');
 
-    themeSelect.change(function (e) {
+    themeSelect.change(function () {
         $.each(form.widgets, function (i, widget) {
             if (widget.uid.indexOf('setting_theme_') == 0) {
                 form.removeWidget(widget.uid);

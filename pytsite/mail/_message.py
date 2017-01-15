@@ -4,6 +4,7 @@ import threading
 from os import path as _path
 from mimetypes import guess_type as _guess_mime_type
 from smtplib import SMTP as _SMTP
+from email.header import Header as _Header
 from email.mime.multipart import MIMEMultipart as _MIMEMultipart
 from email.mime.image import MIMEImage as _MIMEImage
 from email.mime.text import MIMEText as _MIMEText
@@ -29,7 +30,8 @@ class Message(_MIMEMultipart):
         if from_addr:
             self.from_addr = from_addr
         else:
-            self.from_addr = '{} <{}>'.format(*_api.mail_from())
+            from_name, from_addr = _api.mail_from()
+            self.from_addr = '{} <{}>'.format(_Header(from_name).encode(), from_addr)
 
         self.to_addrs = to_addrs
         self.subject = subject

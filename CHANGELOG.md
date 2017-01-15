@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.98.44 (2017-01-15)
+### Changed
+- `form`: JS event names and targets.
+
+### Fixed
+- `mail`: default 'From' header encoding.
+
+
 ## 0.98.43 (2017-01-14)
 ### Fixed
 - `settings`: invalid form constructors signature's calls.
