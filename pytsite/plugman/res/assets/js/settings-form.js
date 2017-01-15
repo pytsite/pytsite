@@ -1,4 +1,4 @@
-$('.pytsite-form.setting-uid-plugman').on('pytsiteFormForward', function (e, form) {
+$('.pytsite-form.setting-uid-plugman').on('formForward', function (e, form) {
     var actionBtn = form.em.find('.action-btn');
 
     actionBtn.click(function (e) {

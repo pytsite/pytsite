@@ -1,4 +1,4 @@
-$('.settings-form').on('pytsiteFormForward', function (e, form) {
+$('.settings-form').on('formForward', function (e, form) {
     var themeSelect = form.em.find('select[name=setting_default_theme]');
 
     themeSelect.change(function () {

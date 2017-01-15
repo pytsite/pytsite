@@ -34,7 +34,7 @@ pytsite.form = {
         });
 
         // Notify about form creation
-        self.em.trigger('pytsiteFormReady', [self]);
+        self.em.trigger('formReady', [self]);
 
         // Form submit handler
         self.em.submit(function (event) {
@@ -44,7 +44,7 @@ pytsite.form = {
                 self.forward();
             }
             else {
-                self.em.trigger('pytsiteFormSubmit', [self]);
+                self.em.trigger('formSubmit', [self]);
 
                 if (self.preventSubmit)
                     event.preventDefault();
@@ -173,6 +173,9 @@ pytsite.form = {
                 // Append widget to the list of loaded widgets
                 widget.hide();
                 self.widgets[widget.uid] = widget;
+
+                self.em.trigger('widgetReady', [self, widget]);
+                self.em.trigger('widgetReady:' + widget.uid, [self, widget]);
 
                 deffer.resolve(widget);
             }).on('initError', function () {
@@ -421,7 +424,7 @@ pytsite.form = {
                         self.showWidgets(self.currentStep);
 
                         // Notify listeners
-                        $(self.em).trigger('pytsiteFormForward', [self]);
+                        $(self.em).trigger('formForward', [self]);
                         deffer.resolve();
 
                         // Scroll to top of the page
@@ -451,7 +454,7 @@ pytsite.form = {
         /**
          * Reset form's HTML element
          */
-        self.reset = function() {
+        self.reset = function () {
             self.em[0].reset();
         }
     }
@@ -470,7 +473,7 @@ $(function () {
         // If requested to walk to particular step automatically
         var q = pytsite.browser.parseLocation().query;
         var walkToStep = '__form_data_step' in q ? parseInt(q['__form_data_step']) : 1;
-        $(form.em).on('pytsiteFormForward', function () {
+        $(form.em).on('formForward', function () {
             // When form will make its first step, move it automatically to the requested step
             if (form.currentStep < walkToStep)
                 form.forward();

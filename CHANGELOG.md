@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.45 (2017-01-15)
+### Changed
+- `form`: JS event names.
+
+
 ## 0.98.44 (2017-01-15)
 ### Changed
 - `form`: JS event names and targets.
