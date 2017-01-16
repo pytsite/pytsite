@@ -104,8 +104,7 @@ def _init():
     })
 
     # Initialize required core packages. Order is important.
-    autoload = ('theme', 'cron', 'reload', 'update', 'setup', 'cleanup', 'auth_password', 'auth_ulogin',
-                'odm_http_api', 'plugman')
+    autoload = ('theme', 'cron', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api', 'plugman')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 
@@ -123,6 +122,10 @@ def _init():
 
     # Initialize 'app' package
     import_module('app')
+
+    # Initialize authentication subsystem
+    import_module('pytsite.auth_password')
+    import_module('pytsite.auth_ulogin')
 
     # Core event handlers
     from pytsite import events

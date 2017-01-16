@@ -13,7 +13,9 @@ def post_sign_in(**kwargs) -> dict:
     """
     try:
         # Try to sign in user via driver
-        return {'access_token': _api.sign_in(kwargs.get('driver'), kwargs).access_token}
+        user = _api.sign_in(kwargs.get('driver'), kwargs)
+
+        return {'access_token': _api.generate_access_token(user)}
 
     except _error.AuthenticationError as e:
         raise _http.error.Unauthorized(str(e))
@@ -24,9 +26,12 @@ def post_sign_out(**kwargs) -> dict:
     """
     try:
         _api.sign_out(_api.get_current_user())
+        _api.revoke_access_token(kwargs.get('access_token'))
 
-    except _error.UserNotExist as e:
-        raise _http.error.Unauthorized(e)
+        return {'status': True}
+
+    except (_error.UserNotExist, _error.InvalidAccessToken) as e:
+        raise _http.error.Unauthorized(str(e))
 
 
 def get_access_token_info(**kwargs) -> dict:
@@ -36,7 +41,7 @@ def get_access_token_info(**kwargs) -> dict:
         return _api.get_access_token_info(kwargs.get('access_token', ''))
 
     except _error.InvalidAccessToken as e:
-        raise _http.error.Unauthorized(e)
+        raise _http.error.Unauthorized(str(e))
 
 
 def get_user(**kwargs) -> dict:

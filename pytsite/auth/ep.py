@@ -13,12 +13,9 @@ __license__ = 'MIT'
 def sign_in(args: dict, inp: dict) -> str:
     """Page with login form.
     """
-    # Redirect user if it already authorized
+    # Redirect user if it already authenticated
     if not _api.get_current_user().is_anonymous:
-        redirect_url = _router.base_url()
-        if 'redirect' in inp:
-            redirect_url = _router.url(inp['redirect'])
-        return _http.response.Redirect(redirect_url)
+        return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 
     _assetman.add('pytsite.auth@css/common.css')
     _metatag.t_set('title', _lang.t('pytsite.auth@authentication'))
@@ -28,6 +25,7 @@ def sign_in(args: dict, inp: dict) -> str:
             'driver': args['driver'],
             'form': _api.get_sign_in_form(args.get('driver')),
         })
+
     except _error.DriverNotRegistered:
         raise _http.error.NotFound()
 
@@ -44,10 +42,12 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
 
     try:
         _api.sign_in(driver, inp)
+
         return _http.response.Redirect(redirect)
 
     except _error.AuthenticationError:
         _router.session().add_error_message(_lang.t('pytsite.auth@authentication_error'))
+
         return _http.response.Redirect(_router.ep_url('pytsite.auth@sign_in', route_args={
             'driver': driver,
             '__redirect': redirect,

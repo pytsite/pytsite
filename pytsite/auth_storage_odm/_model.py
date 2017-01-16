@@ -202,7 +202,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('email', required=True))
         self.define_field(_odm.field.String('password', required=True))
         self.define_field(_odm.field.String('nickname', required=True))
-        self.define_field(_odm.field.String('acs_token'))
+        self.define_field(_odm.field.StringList('access_tokens'))
         self.define_field(_odm.field.Bool('profile_is_public', default=False))
         self.define_field(_odm.field.String('first_name'))
         self.define_field(_odm.field.String('last_name'))
@@ -229,7 +229,6 @@ class ODMUser(_odm_ui.model.UIEntity):
         """
         self.define_index([('login', _odm.I_ASC)], unique=True)
         self.define_index([('nickname', _odm.I_ASC)], unique=True)
-        self.define_index([('acs_token', _odm.I_ASC)])
         self.define_index([('last_sign_in', _odm.I_DESC)])
 
     def _on_f_get(self, field_name: str, value, **kwargs):
@@ -553,7 +552,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         if not self.is_new and current_user.has_permission('pytsite.odm_auth.modify.user'):
             content_wrapper.append_child(_widget.input.Text(
                 weight=150,
-                uid='acs_token',
+                uid='access_tokens',
                 value=self.f_get('acs_token'),
                 label=self.t('token'),
             ))
@@ -598,14 +597,6 @@ class User(_auth.model.AbstractUser):
     @property
     def created(self) -> str:
         return self.get_field('_created')
-
-    @property
-    def access_token(self) -> str:
-        return self.get_field('acs_token')
-
-    @access_token.setter
-    def access_token(self, value: str):
-        self.set_field('acs_token', value)
 
     def has_field(self, field_name: str) -> bool:
         return self._entity.has_field(field_name)

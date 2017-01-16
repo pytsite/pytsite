@@ -74,7 +74,7 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def get_user(self, login: str = None, nickname: str = None, access_token: str = None) -> _model.AbstractUser:
+    def get_user(self, login: str = None, nickname: str = None, uid: str = None) -> _model.AbstractUser:
         pass
 
     @_abstractmethod

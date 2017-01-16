@@ -125,16 +125,26 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         return self.odm_ui_view_url()
 
     @property
-    def edit_url(self) -> str:
+    def modify_url(self) -> str:
         return self.odm_ui_m_form_url()
 
     def as_jsonable(self, **kwargs) -> dict:
         r = super().as_jsonable(**kwargs)
 
-        if self.check_permissions('view'):
+        view_perm = self.check_permissions('view')
+        modify_perm = self.check_permissions('modify')
+        delete_perm = self.check_permissions('delete')
+
+        r['permissions'] = {
+            'view': view_perm,
+            'modify': modify_perm,
+            'delete': delete_perm,
+        }
+
+        if view_perm:
             r['url'] = self.url
 
-        if self.check_permissions('modify'):
-            r['edit_url'] = self.edit_url
+        if modify_perm:
+            r['modify_url'] = self.modify_url
 
         return r

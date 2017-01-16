@@ -1,5 +1,13 @@
 # PytSite Changelog
 
+## 0.98.46 (2017-01-16)
+### Fixed
+- `auth`: initialization order in `pytsite` package init.
+
+### Changed
+- `auth`: work with access tokens refactored.
+
+
 ## 0.98.45 (2017-01-15)
 ### Changed
 - `form`: JS event names.

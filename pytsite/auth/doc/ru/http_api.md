@@ -57,7 +57,6 @@ https://test.com/api/1/auth/sign_in
 Объект.
 
 - **str** `uid`. Уникальный идентификатор учётной записи, к которой относится токен.
-- **int** `ttl`. Время жизни токена в секундах.
 
 
 ### Примеры
@@ -74,8 +73,7 @@ https://test.com/api/1/auth/access_token_info
 
 ```
 {
-    "uid": "576563ef523af52badc5beac",
-    "ttl": 3600
+  "uid": "576563ef523af52badc5beac",
 }
 ```
 
@@ -210,7 +208,7 @@ https://test.com/api/1/auth/user
 
 ### Формат ответа
 
-Метод не возвращает данных.
+В случае отсутствия ошибок метод всегда возвращает объект вида `{status: true}`.
 
 
 ### Примеры
@@ -219,4 +217,13 @@ https://test.com/api/1/auth/user
 
 ```
 curl -d access_token=0dc80160c916e629a712132d17880831 https://test.com/api/1/auth/sign_out
+```
+
+
+Ответ:
+
+```
+{
+  status: true
+}
 ```

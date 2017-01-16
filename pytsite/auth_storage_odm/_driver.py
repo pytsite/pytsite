@@ -68,8 +68,7 @@ class Driver(_auth.driver.Storage):
 
         return _model.User(user_entity)
 
-    def get_user(self, login: str = None, nickname: str = None, access_token: str = None,
-                 uid: str = None) -> _auth.model.AbstractUser:
+    def get_user(self, login: str = None, nickname: str = None, uid: str = None) -> _auth.model.AbstractUser:
 
         # Don't cache finder results due to frequent user updates in database
         f = _odm.find('user').cache(0)
@@ -77,8 +76,6 @@ class Driver(_auth.driver.Storage):
             f.eq('login', login)
         elif nickname is not None:
             f.eq('nickname', nickname)
-        elif access_token is not None:
-            f.eq('acs_token', access_token)
         elif uid is not None:
             f.eq('_id', uid)
         else:

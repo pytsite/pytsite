@@ -160,14 +160,6 @@ class AbstractUser(AuthEntity):
         self.set_field('nickname', value)
 
     @property
-    def access_token(self) -> str:
-        return self.get_field('access_token')
-
-    @access_token.setter
-    def access_token(self, value: str):
-        self.set_field('access_token', value)
-
-    @property
     def first_name(self) -> str:
         return self.get_field('first_name')
 
@@ -416,7 +408,7 @@ class AbstractUser(AuthEntity):
             'uid': self.uid,
         }
 
-        if self.profile_is_public:
+        if self.profile_is_public or current_user == self or current_user.is_admin:
             r.update({
                 'profile_url': self.profile_view_url,
                 'nickname': self.nickname,

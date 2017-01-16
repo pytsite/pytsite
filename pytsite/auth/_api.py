@@ -18,9 +18,10 @@ _permission_groups = []
 _permissions = []
 _anonymous_user = None
 _system_user = None
-_access_tokens = _cache.create_pool('pytsite.auth.access_tokens')
+_access_tokens = _cache.create_pool('pytsite.auth.token_user')  # user.uid: token
 _current_user = {}  # user object, per thread
 _previous_user = {}  # user object, per thread
+_access_token_ttl = _reg.get('auth.access_token_ttl', 86400)  # 24 hours
 
 user_login_rule = _validation.rule.Email()
 user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_rules',
@@ -155,14 +156,14 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         return user
 
 
-def get_user(login: str = None, nickname: str = None, access_token: str = None, uid: str = None) -> _model.AbstractUser:
+def get_user(login: str = None, nickname: str = None, uid: str = None, access_token: str = None) -> _model.AbstractUser:
     """Get user by login, nickname, access token or UID.
     """
-    # Check if the access token is valid
-    if access_token and not _access_tokens.has(access_token):
-        raise _error.InvalidAccessToken('Invalid access token.')
+    # Convert access token to user UID
+    if access_token:
+        return get_user(uid=get_access_token_info(access_token)['user_uid'])
 
-    user = get_storage_driver().get_user(login, nickname, access_token, uid)
+    user = get_storage_driver().get_user(login, nickname, uid)
 
     c_user = get_current_user()
     if user == c_user and user.status != 'active':
@@ -228,20 +229,13 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
             user = get_auth_driver(auth_driver_name).sign_in(data)
 
             if user.status != 'active':
-                raise _error.AuthenticationError("Status of user account '{}' is not active.".format(user.login))
+                raise _error.AuthenticationError("User account '{}' is not active.".format(user.login))
 
             switch_user(user)
 
         except _error.AuthenticationError as e:
             _logger.warn(str(e))
             raise e
-
-        # Generate new token or prolong existing one
-        if not _access_tokens.has(user.access_token):
-            user.access_token = create_access_token(user.uid)
-            user.save()
-        else:
-            prolong_access_token(user.access_token)
 
         # Update statistics
         user.sign_in_count += 1
@@ -270,23 +264,32 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
 def get_access_token_info(token: str) -> dict:
     """Get access token's metadata.
     """
-    if not _access_tokens.has(token):
-        raise _error.InvalidAccessToken('Invalid access token.')
+    try:
+        return _access_tokens.get(token)
 
-    return _access_tokens.get(token)
+    except _cache.error.KeyNotExist:
+        raise _error.InvalidAccessToken('Invalid access token')
 
 
-def create_access_token(uid: str) -> str:
+def generate_access_token(user: _model.AbstractUser) -> str:
     """Generate new access token.
     """
-    ttl = _reg.get('router.session.ttl', 21600)  # 6 hours
-
     with _threading.get_shared_r_lock():
         while True:
             token = _util.random_str(32)
+
             if not _access_tokens.has(token):
-                _access_tokens.put(token, {'uid': uid, 'ttl': ttl}, ttl)
+                _access_tokens.put(token, {'user_uid': user.uid}, _access_token_ttl)
+
                 return token
+
+
+def revoke_access_token(token: str):
+    if not token or not _access_tokens.has(token):
+        raise _error.InvalidAccessToken('Invalid access token')
+
+    with _threading.get_shared_r_lock():
+        _access_tokens.rm(token)
 
 
 def prolong_access_token(token: str):
@@ -294,7 +297,7 @@ def prolong_access_token(token: str):
     """
     with _threading.get_shared_r_lock():
         token_info = get_access_token_info(token)
-        _access_tokens.put(token, token_info, token_info['ttl'])
+        _access_tokens.put(token, token_info, _access_token_ttl)
 
 
 def sign_out(user: _model.AbstractUser):
@@ -310,16 +313,6 @@ def sign_out(user: _model.AbstractUser):
     # Ask drivers to perform necessary operations
     for driver in _authentication_drivers.values():
         driver.sign_out(user)
-
-    # Remove access token
-    if user.access_token:
-        _access_tokens.rm(user.access_token)
-        user.access_token = ''
-        user.save()
-
-    # Remove session's data
-    if _router.session().get('pytsite.auth.login'):
-        del _router.session()['pytsite.auth.login']
 
     # Notify listeners
     _events.fire('pytsite.auth.sign_out', user=user)

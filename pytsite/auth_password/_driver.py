@@ -1,6 +1,6 @@
 """PytSite Auth Password Driver.
 """
-from pytsite import auth as _auth, form as _form, router as _router, widget as _widget, lang as _lang
+from pytsite import auth as _auth, form as _form, router as _router, widget as _widget, lang as _lang, logger as _logger
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -63,16 +63,18 @@ class Password(_auth.driver.Authentication):
         login = data.get('login')
         password = data.get('password')
 
-        if not login or not password:
+        if not (login and password):
             raise _auth.error.AuthenticationError('Login or password is not specified.')
 
         # Check if the user exists
         user = _auth.get_user(login)
         if not user:
+            _logger.warn("User with login '{}' is not found".format(login))
             raise _auth.error.AuthenticationError(_lang.t('pytsite.auth@authentication_error'))
 
         # Check password
         if not _auth.verify_password(password, user.password):
+            _logger.warn("Incorrect password provided for user with login '{}'".format(login))
             raise _auth.error.AuthenticationError(_lang.t('pytsite.auth@authentication_error'))
 
         return user

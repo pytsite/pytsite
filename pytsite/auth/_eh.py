@@ -41,11 +41,15 @@ def router_dispatch():
     user = _api.get_anonymous_user()
 
     # Determine current user based on request's argument
-    if 'access_token' in _router.request().inp:
+    access_token = _router.request().get('access_token')
+    if access_token:
         try:
-            user = _api.get_user(access_token=_router.request().inp['access_token'])
+            user = _api.get_user(access_token=access_token)
+            _api.prolong_access_token(access_token)
+
         except (_error.InvalidAccessToken, _error.UserNotExist) as e:
             raise _http.error.Unauthorized(response=_http.response.JSON({'error': str(e)}))
+
         except _error.AuthenticationError as e:
             raise _http.error.Forbidden(response=_http.response.JSON({'error': str(e)}))
 
@@ -64,12 +68,6 @@ def router_dispatch():
         if user.status == 'active':
             # Disable page caching for signed in users
             _router.set_no_cache(True)
-
-            # Prolong access token or generate a new one
-            try:
-                _api.prolong_access_token(user.access_token)
-            except _error.InvalidAccessToken:
-                user.access_token = _api.create_access_token(user.uid)
 
             # Update user's activity timestamp
             user.last_activity = _datetime.now()
