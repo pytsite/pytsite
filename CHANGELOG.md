@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.47 (2017-01-16)
+### Fixed
+- `auth`: error while getting access token in **router.dispatch** event handler. 
+
+
 ## 0.98.46 (2017-01-16)
 ### Fixed
 - `auth`: initialization order in `pytsite` package init.

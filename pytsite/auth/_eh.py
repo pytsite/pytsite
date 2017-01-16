@@ -41,7 +41,7 @@ def router_dispatch():
     user = _api.get_anonymous_user()
 
     # Determine current user based on request's argument
-    access_token = _router.request().get('access_token')
+    access_token = _router.request().inp.get('access_token')
     if access_token:
         try:
             user = _api.get_user(access_token=access_token)
