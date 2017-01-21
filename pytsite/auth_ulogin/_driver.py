@@ -23,7 +23,7 @@ class _LoginWidget(_widget.Abstract):
         self._assets.append('pytsite.auth_ulogin@css/widget.css')
         self._css += 'widget-ulogin'
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """

@@ -43,7 +43,7 @@ class Button(_base.Abstract):
     def color(self, value: str):
         self._color = value
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """

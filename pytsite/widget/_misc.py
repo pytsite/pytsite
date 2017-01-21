@@ -107,7 +107,7 @@ class BootstrapTable(_base.Abstract):
         """
         pass
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Get browser table skeleton.
         """
         # Table skeleton
@@ -163,7 +163,7 @@ class VideoPlayer(_base.Abstract):
     """Video player widget.
     """
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """

@@ -93,7 +93,7 @@ class Location(_widget.Abstract):
 
         return super().set_val(val, **kwargs)
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
@@ -107,4 +107,4 @@ class Location(_widget.Abstract):
             inp_val = self._value[k] if k in self._value else ''
             inputs.append(_html.Input(type='hidden', cls=k, name=self._uid + '[' + k + ']', value=inp_val))
 
-        return self._group_wrap(inputs)
+        return inputs

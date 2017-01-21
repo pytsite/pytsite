@@ -123,7 +123,7 @@ class FilesUpload(_widget.Abstract):
     def dnd(self, value: bool):
         self._dnd = value
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         self._data.update({
             'url': _http_api.url('file/upload'),
             'max_files': self._max_files if self._max_files else 1,
@@ -136,9 +136,7 @@ class FilesUpload(_widget.Abstract):
             'dnd': self._dnd,
         })
 
-        widget_em = _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
-
-        return self._group_wrap(widget_em)
+        return _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
 
     def set_val(self, value: _Iterable, **kwargs):
         """Set value of the widget.

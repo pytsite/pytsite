@@ -482,8 +482,11 @@ class Form(_ABC):
             if not filter_by or (filter_by and getattr(_parent, filter_by) == filter_val):
                 r.append(_parent)
 
-            for widget in _parent.children:
-                r += self.get_widgets(filter_by, filter_val, widget)
+            try:
+                for widget in _parent.children:
+                    r += self.get_widgets(filter_by, filter_val, widget)
+            except NotImplementedError:
+                pass
 
         # Recursion depth == 0
         else:

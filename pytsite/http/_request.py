@@ -6,10 +6,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_dict_list_key_re = _re.compile('([^\[]+)\[(\w+)\]\[\]$')
+_dict_key_re = _re.compile('([^\[]+)\[(\w+)\]$')
+_list_key_re = _re.compile('([^\[]+)\[\]$')
+
 
 class Request(_Request):
     """HTTP request.
     """
+
     @_cached_property
     def inp(self) -> dict:
         r = {}
@@ -18,13 +23,23 @@ class Request(_Request):
             k = part[0]  # type: str
             v = part[1]  # type: list
 
-            is_list_key = _re.match('([^\[]+)\[\]', k)
-            is_dict_key = _re.match('([^\[]+)\[(\w+)\]', k)
+            is_dict_list_key = _dict_list_key_re.match(k)
+            is_dict_key = _dict_key_re.match(k)
+            is_list_key = _list_key_re.match(k)
 
-            # Key has form 'key[]'. Value will be a list.
-            if is_list_key:
-                k = is_list_key.group(1)
-                r[k] = v
+            # Key has form 'key[sub_key][]'. Value will be be a list inside of dict.
+            if is_dict_list_key:
+                k = is_dict_list_key.group(1)
+                sub_k = is_dict_list_key.group(2)
+                if k not in r:
+                    r[k] = {}
+                if sub_k not in r[k]:
+                    r[k][sub_k] = []
+
+                if len(v) > 1:
+                    r[k][sub_k] += v
+                else:
+                    r[k][sub_k].append(v[0])
 
             # Key has form 'key[sub_key]'. Value will be be a dict.
             elif is_dict_key:
@@ -33,6 +48,11 @@ class Request(_Request):
                 if k not in r:
                     r[k] = {}
                 r[k][sub_k] = v if len(v) > 1 else v[0]
+
+            # Key has form 'key[]'. Value will be a list.
+            elif is_list_key:
+                k = is_list_key.group(1)
+                r[k] = v
 
             # Key is simple string. Value will be uses as-is.
             else:

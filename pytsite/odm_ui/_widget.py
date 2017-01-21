@@ -64,7 +64,7 @@ class EntitySelect(_widget.select.Select):
 
         return caption
 
-    def get_html_em(self, **kwargs):
+    def _get_element(self, **kwargs):
         """Render the widget.
         :param **kwargs:
         """
@@ -74,7 +74,7 @@ class EntitySelect(_widget.select.Select):
         for entity in finder.get():
             self._items.append((entity.ref_str, self._get_caption(entity)))
 
-        return super().get_html_em()
+        return super()._get_element()
 
 
 class EntityCheckboxes(_widget.select.Checkboxes):
@@ -140,7 +140,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
 
         return self
 
-    def get_html_em(self, **kwargs):
+    def _get_element(self, **kwargs):
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
             if entity not in self._exclude:
@@ -150,4 +150,4 @@ class EntityCheckboxes(_widget.select.Checkboxes):
                     caption = _lang.t(caption)
                 self._items.append((k, caption))
 
-        return super().get_html_em()
+        return super()._get_element()

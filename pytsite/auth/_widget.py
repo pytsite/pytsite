@@ -95,7 +95,7 @@ class Profile(_widget.Abstract):
 
         _assetman.add('pytsite.auth@css/widget/profile.css')
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
@@ -146,7 +146,7 @@ class Follow(_widget.Abstract):
             'pytsite.auth@js/widget/follow.js',
         ])
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """

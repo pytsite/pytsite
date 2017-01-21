@@ -47,12 +47,9 @@ class Form(_form.Form):
         if setting_def['perm_name'] != '*' and not user.has_permission(setting_def['perm_name']):
             raise _http.error.Forbidden()
 
-        # We'll process ALL input, not only form's widgets, because widgets can be added by JS on client side
-        inp_values = _util.dict_merge(dict(self.values), _router.request().inp)
-
         # Extract all values who's name starts with 'setting_'
         setting_value = {}
-        for k, v in inp_values.items():
+        for k, v in self.values.items():
             if k.startswith('setting_'):
                 k = _re.sub('^setting_', '', k)
 

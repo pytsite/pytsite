@@ -23,7 +23,7 @@ class HTML(_base.Abstract):
         if not self._em:
             raise ValueError('Element is not specified.')
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         return self._em
 
 
@@ -37,7 +37,7 @@ class Text(_base.Abstract):
         super().__init__(uid, **kwargs)
         self._css = ' '.join((self._css, 'widget-static-control'))
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
@@ -45,7 +45,7 @@ class Text(_base.Abstract):
         container.append(_html.Input(type='hidden', uid=self.uid, name=self.name, value=self.value))
         container.append(_html.P(self.title, cls='form-control-static'))
 
-        return self._group_wrap(container)
+        return container
 
 
 class Table(_base.Abstract):
@@ -72,7 +72,7 @@ class Table(_base.Abstract):
         else:
             self._tbody.insert(index, cells)
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         table = _html.Table(cls='table table-bordered table-hover')
 
         for part in self._thead, self._tbody, self._tfoot:

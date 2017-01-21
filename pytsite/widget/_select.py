@@ -41,7 +41,7 @@ class Checkbox(_input.Input):
     def checked(self, value: bool):
         self._checked = bool(value)
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
@@ -85,11 +85,11 @@ class Select(_input.Input):
 
         return select
 
-    def get_html_em(self, **kwargs):
+    def _get_element(self, **kwargs):
         """Render the widget.
         :param **kwargs:
         """
-        return self._group_wrap(self._get_select_html_em())
+        return self._get_select_html_em()
 
 
 class Select2(Select):
@@ -107,7 +107,7 @@ class Select2(Select):
         self._ajax_data_type = kwargs.get('ajax_data_type', 'json')
         self._css += ' widget-select-select2'
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         select = self._get_select_html_em()
         select.set_attr('style', 'width: 100%;')
 
@@ -117,7 +117,7 @@ class Select2(Select):
             select.set_attr('data_ajax_delay', self._ajax_delay)
             select.set_attr('data_ajax_data_type', self._ajax_data_type)
 
-        return self._group_wrap(select)
+        return select
 
 
 class Checkboxes(Select):
@@ -146,7 +146,7 @@ class Checkboxes(Select):
 
         self._selected_items = self.get_val()
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
@@ -162,7 +162,7 @@ class Checkboxes(Select):
                 )
             )
 
-        return self._group_wrap(container)
+        return container
 
 
 class Language(Select):
@@ -189,12 +189,13 @@ class LanguageNav(_base.Abstract):
         super().__init__(uid, **kwargs)
 
         self._wrap_em = _html.Ul()
+        self._group_wrap = False
         self._dropdown = kwargs.get('dropdown')
         self._dropup = kwargs.get('dropup')
         self._css += ' nav navbar-nav widget-select-language-nav'
         self._language_titles = kwargs.get('language_titles', {})
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         if len(_lang.langs()) == 1:
             return _html.TagLessElement()
 
@@ -288,7 +289,7 @@ class DateTime(_input.Text):
         """
         return super().get_val(**kwargs)
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget
         :param **kwargs:
         """
@@ -301,7 +302,7 @@ class DateTime(_input.Text):
             required=self._required,
         )
 
-        return self._group_wrap(html_input)
+        return html_input
 
 
 class Pager(_base.Abstract):
@@ -341,7 +342,7 @@ class Pager(_base.Abstract):
             'pytsite.widget@js/pager.js'
         ])
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
@@ -450,7 +451,7 @@ class Tabs(_base.Abstract):
 
         return widget
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         tab_panel = _html.Div(role='tabpanel')
         tabs_nav = _html.Ul(cls='nav nav-tabs', role='tablist')
         tabs_content = _html.Div(cls='tab-content')
@@ -473,7 +474,7 @@ class Tabs(_base.Abstract):
 
             tab_count += 1
 
-        return self._group_wrap(tab_panel)
+        return tab_panel
 
 
 class Score(_base.Abstract):
@@ -493,7 +494,7 @@ class Score(_base.Abstract):
             'pytsite.widget@js/score.js',
         ])
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         cont = _html.Div(cls='switches-wrap')
 
         if self._enabled:
@@ -511,7 +512,7 @@ class Score(_base.Abstract):
 
             cont.append(a)
 
-        return self._group_wrap(cont)
+        return cont
 
 
 class TrafficLightScore(Score):
@@ -547,7 +548,7 @@ class ColorPicker(_input.Text):
             'pytsite.widget@js/color-picker.js',
         ])
 
-    def get_html_em(self, **kwargs):
+    def _get_element(self, **kwargs):
         self._data['color'] = self.value
 
-        return super().get_html_em()
+        return super()._get_element()

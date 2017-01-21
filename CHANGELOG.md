@@ -1,5 +1,20 @@
 # PytSite Changelog
 
+## 0.98.48 (2017-01-21)
+### Added
+- `http`: processing of 'list in dict' input from client side.
+- `widget`: new widget: `MultiRow`.
+
+### Changed
+- `widget`: base class hook names.
+
+### Fixed
+- `form`: HTML escaping of error messages.
+
+### Removed
+- `settings`: processing all input values, not only widget-related.
+
+
 ## 0.98.47 (2017-01-16)
 ### Fixed
 - `auth`: error while getting access token in **router.dispatch** event handler. 

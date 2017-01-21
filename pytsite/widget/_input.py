@@ -35,7 +35,7 @@ class Hidden(Input):
         super().__init__(uid, **kwargs)
         self._hidden = True
 
-    def get_html_em(self, **kwargs) -> _html.Input:
+    def _get_element(self, **kwargs) -> _html.Input:
         """Render the widget.
         :param **kwargs:
         """
@@ -66,7 +66,7 @@ class TextArea(_base.Abstract):
         self._max_length = kwargs.get('max_length')
         self._css = ' '.join((self._css, 'widget-textarea-input'))
 
-    def get_html_em(self, **kwargs) -> str:
+    def _get_element(self, **kwargs) -> str:
         """Render the widget.
         :param **kwargs:
         """
@@ -86,7 +86,7 @@ class TextArea(_base.Abstract):
         if self._max_length:
             html_input.set_attr('maxlength', self._max_length)
 
-        return self._group_wrap(html_input)
+        return html_input
 
 
 class Text(Input):
@@ -103,7 +103,7 @@ class Text(Input):
         self._type = 'text'
         self.assets.append('pytsite.widget@js/text.js')
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget
         :param **kwargs:
         """
@@ -135,7 +135,7 @@ class Text(Input):
                 group.append(_html.Div(self._append, cls='input-group-addon'))
             inp = group
 
-        return self._group_wrap(inp)
+        return inp
 
 
 class Password(Text):
@@ -303,11 +303,11 @@ class StringList(_base.Abstract):
 
         return super().set_val(_util.cleanup_list(value, self._unique), **kwargs)
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
-        return self._group_wrap(_html.Div(_tpl.render('pytsite.widget@string_list', {'widget': self})))
+        return _html.Div(_tpl.render('pytsite.widget@string_list', {'widget': self}))
 
 
 class ListList(StringList):
@@ -375,11 +375,11 @@ class ListList(StringList):
 
         return super().set_val(new_value, **kwargs)
 
-    def get_html_em(self, **kwargs) -> _html.Element:
+    def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
-        return self._group_wrap(_html.Div(_tpl.render('pytsite.widget@list_list', {'widget': self})))
+        return _html.Div(_tpl.render('pytsite.widget@list_list', {'widget': self}))
 
 
 class Tokens(Input):
@@ -413,7 +413,7 @@ class Tokens(Input):
 
         return super().set_val(value)
 
-    def get_html_em(self, **kwargs) -> str:
+    def _get_element(self, **kwargs) -> str:
         """Render the widget.
         :param **kwargs:
         """
@@ -425,4 +425,4 @@ class Tokens(Input):
             cls=' '.join(('form-control', self._css)),
         )
 
-        return self._group_wrap(html_input)
+        return html_input

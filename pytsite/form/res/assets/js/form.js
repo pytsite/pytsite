@@ -1,4 +1,21 @@
 pytsite.form = {
+    htmlEntityMap: {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '/': '&#x2F;',
+        '`': '&#x60;',
+        '=': '&#x3D;'
+    },
+
+    escapeHtml: function (s) {
+        return String(s).replace(/[&<>"'`=\/]/g, function (s) {
+            return pytsite.form.htmlEntityMap[s];
+        });
+    },
+
     forms: {},
 
     getForm: function (id) {
@@ -46,6 +63,9 @@ pytsite.form = {
             else {
                 self.em.trigger('formSubmit', [self]);
 
+                // Remove all elements which should not be processed
+                self.em.find('[data-skip-serialization=True]').remove();
+
                 if (self.preventSubmit)
                     event.preventDefault();
                 else
@@ -71,17 +91,36 @@ pytsite.form = {
                 if (skipTags instanceof Array && this.tagName in skipTags)
                     return;
 
-                if (!(this.name in r)) {
-                    if (this.name.indexOf('[]') > 0)
-                        r[this.name] = [getEmValue(this)];
+                if ($(this).attr('data-skip-serialization') == 'True')
+                    return;
+
+                var dictListMatch = this.name.match(/([^\[]+)\[(\w+)\]\[\]$/);
+                var listMatch = this.name.match(/\[\]$/);
+
+                var fName = this.name;
+                if (dictListMatch)
+                    fName = dictListMatch[1];
+
+                if (!(fName in r)) {
+                    if (dictListMatch) {
+                        r[fName] = {};
+                        r[fName][dictListMatch[2]] = [getEmValue(this)];
+                    }
+                    else if (listMatch)
+                        r[fName] = [getEmValue(this)];
                     else
-                        r[this.name] = getEmValue(this);
+                        r[fName] = getEmValue(this);
                 }
                 else {
-                    if (r[this.name] instanceof Array)
-                        r[this.name].push(getEmValue(this));
+                    if (dictListMatch) {
+                        if (!(dictListMatch[2] in r[fName]))
+                            r[fName][dictListMatch[2]] = [];
+                        r[fName][dictListMatch[2]].push(getEmValue(this));
+                    }
+                    else if (listMatch)
+                        r[fName].push(getEmValue(this));
                     else
-                        r[this.name] = getEmValue(this);
+                        r[fName] = getEmValue(this);
                 }
             });
 
@@ -150,6 +189,8 @@ pytsite.form = {
         self.addMessage = function (msg, type) {
             if (!type)
                 type = 'info';
+
+            msg = pytsite.form.escapeHtml(msg);
 
             self.messages.append('<div class="alert alert-' + type + '" role="alert">' + msg + '</div>')
         };
