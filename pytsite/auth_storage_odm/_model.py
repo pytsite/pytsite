@@ -548,23 +548,6 @@ class ODMUser(_odm_ui.model.UIEntity):
                 value=self.f_get('roles'),
             ))
 
-        # Token
-        if not self.is_new and current_user.has_permission('pytsite.odm_auth.modify.user'):
-            content_wrapper.append_child(_widget.input.Text(
-                weight=150,
-                uid='access_tokens',
-                value=self.f_get('acs_token'),
-                label=self.t('token'),
-            ))
-            frm.add_rules('acs_token', (
-                _validation.rule.Regex(pattern='^[a-f0-9]{32}$'),
-                _odm.validation.FieldUnique(
-                    msg_id='pytsite.auth_storage_odm@this_token_already_used',
-                    model=self.model,
-                    field='acs_token',
-                    exclude_ids=self.id)
-            ))
-
     def odm_ui_mass_action_entity_description(self) -> str:
         return '{} ({} {})'.format(self.f_get('login'), self.f_get('first_name'), self.f_get('last_name'))
 

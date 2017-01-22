@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+
+## 0.98.49 (2017-01-22)
+### Fixed
+- `auth_storage_odm`: non-existent field usage.
+
+
 ## 0.98.48 (2017-01-21)
 ### Added
 - `http`: processing of 'list in dict' input from client side.
