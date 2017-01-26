@@ -92,7 +92,7 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None, methods=None, filters=None):
+def add_rule(path: str, name: str = None, call: str = None, defaults: dict = None, methods=None, filters=None):
     """Add a rule to the router.
 
     :param methods: str|tuple|list
@@ -118,17 +118,17 @@ def add_rule(pattern: str, name: str = None, call: str = None, args: dict = None
     if not call:
         call = name
 
-    if not args:
-        args = {}
+    if not defaults:
+        defaults = {}
 
-    args['_name'] = name
-    args['_call'] = call
+    defaults['_name'] = name
+    defaults['_call'] = call
 
     rule = Rule(
-        url_path=pattern,
+        url_path=path,
         endpoint=name,
         call=call,
-        defaults=args,
+        defaults=defaults,
         methods=methods,
         filters=filters
     )

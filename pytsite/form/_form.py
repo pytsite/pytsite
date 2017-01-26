@@ -55,7 +55,7 @@ class Form(_ABC):
         self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
 
         # AJAX endpoint to load form's widgets
-        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'form/get_widgets')
+        self._get_widgets_ep = kwargs.get('get_widgets_ep', 'form/widgets')
 
         # AJAX endpoint to perform form validation
         self._validation_ep = kwargs.get('validation_ep', 'form/validate')

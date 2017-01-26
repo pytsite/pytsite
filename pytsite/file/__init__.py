@@ -11,13 +11,16 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import assetman, tpl, lang, http_api
+    from . import _http_api
 
     # Resources
     assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    http_api.register_handler('file', 'pytsite.file.http_api')
-    # http_api.register_package('image', 'pytsite.image.http_api')
+
+    # HTTP API handlers
+    http_api.handle('POST', 'file', _http_api.upload, 'pytsite.file@upload')
+    http_api.handle('GET', 'file/<uid>', _http_api.get, 'pytsite.file@get')
 
 
 _init()

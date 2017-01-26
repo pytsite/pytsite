@@ -30,8 +30,8 @@ def _cron_check_license():
 
 def _init():
     from os import mkdir, path
-    from pytsite import settings, lang, assetman, permissions, http_api, logger, events, console
-    from . import _settings_form, _eh
+    from pytsite import settings, lang, assetman, permissions, http_api, logger, events
+    from . import _settings_form, _eh, _http_api
 
     # Resources
     lang.register_package(__name__)
@@ -45,7 +45,9 @@ def _init():
             f.write('"""Pytsite Application Plugins.\n"""\n')
 
     # HTTP API
-    http_api.register_handler('plugman', 'pytsite.plugman.http_api')
+    http_api.handle('POST', 'plugman/install/<name>', _http_api.post_install, 'pytsite.plugman@post_install')
+    http_api.handle('POST', 'plugman/uninstall/<name>', _http_api.post_uninstall, 'pytsite.plugman@post_uninstall')
+    http_api.handle('POST', 'plugman/upgrade/<name>', _http_api.post_upgrade, 'pytsite.plugman@post_upgrade')
 
     if not _DEV_MODE:
         # Permissions

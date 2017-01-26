@@ -8,18 +8,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_settings_widgets(**kwargs):
+def get_settings(inp: dict, theme: str):
     if not _auth.get_current_user().has_permission('pytsite.theme.manage'):
         raise _http.error.Forbidden()
 
     r = []
 
-    theme = kwargs.get('theme')
-    if not theme:
-        raise RuntimeError('Theme name is not specified')
-
     try:
-        pkg = _api.get_theme_info(kwargs.get('theme'))['package']
+        pkg = _api.get_theme_info(theme)['package']
         for w in pkg.get_settings_widgets():
             setting_uid = 'theme_setting_{}_{}'.format(theme, w.uid).replace('.', '_')
             w.uid = 'setting_' + setting_uid

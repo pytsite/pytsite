@@ -31,7 +31,7 @@ def _init():
     events.listen('pytsite.update', _eh.update)
 
     # HTTP API handlers
-    http_api.register_handler('theme', _http_api)
+    http_api.handle('GET', 'theme/settings/<theme>', _http_api.get_settings, 'pytsite.theme@get_settings')
 
     # Default home page handler
     router.add_rule('/', '$theme@home')

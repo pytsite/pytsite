@@ -10,13 +10,15 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import lang, console, permissions, http_api, events, assetman
-    from . import _console_command, _eh
+    from . import _console_command, _eh, _http_api
 
     lang.register_package(__name__)
     console.register_command(_console_command.Reload())
     assetman.register_package(__name__)
-    permissions.define_permission('pytsite.reload.reload', 'pytsite.reload@reload_application_permission', 'app')
-    http_api.register_handler('reload', 'pytsite.reload.http_api')
+    permissions.define_permission('pytsite.reload', 'pytsite.reload@reload_application_permission', 'app')
+
+    http_api.handle('POST', 'reload', _http_api.post_reload, 'pytsite.reload@post_reload')
+
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
 
 

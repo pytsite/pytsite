@@ -2,7 +2,7 @@
 """
 from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
-from datetime import datetime as _datetime
+from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import reg as _reg, form as _form, lang as _lang, router as _router, cache as _cache, \
     events as _events, validation as _validation, logger as _logger, util as _util, threading as _threading
 from . import _error, _model, _driver
@@ -279,7 +279,14 @@ def generate_access_token(user: _model.AbstractUser) -> str:
             token = _util.random_str(32)
 
             if not _access_tokens.has(token):
-                _access_tokens.put(token, {'user_uid': user.uid}, _access_token_ttl)
+                now = _datetime.now()
+                t_info = {
+                    'user_uid': user.uid,
+                    'ttl': _access_token_ttl,
+                    'created': now,
+                    'expires': now + _timedelta(seconds=_access_token_ttl),
+                }
+                _access_tokens.put(token, t_info, _access_token_ttl)
 
                 return token
 

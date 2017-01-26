@@ -1,31 +1,29 @@
-# PytSite File
-
-## HTTP API
+# PytSite File HTTP API
 
 Перед изучением этого документа убедитесь, что разобрались с принципами работы 
 [PytSite HTTP API](../../../http_api/doc/ru/index.md).
 
 
-### POST file/upload
+## POST file/upload
 
 Загрузка файлов. Для работы с этим методом **должен** использоваться 
 [HTTP Multipart Content-Type](https://www.ietf.org/rfc/rfc2388.txt)
 
 
-#### Аргументы
+### Параметры
 
 - *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
 - *required* **binary** `file{N}`. Загружаемый файл, где `{N}` -- порядковый номер файла.  
 
 
-#### Формат ответа
+### Формат ответа
 
 Массив объектов.
 
 - **str** `uid`. Уникальный идентификатор файла.
 
 
-#### Примеры
+### Примеры
 
 Запрос:
 
@@ -47,19 +45,23 @@ http://test.com/api/1/file/upload
 ```
 
 
-### GET file/info
+## GET file/<uid>
 
 Получение информации о файле.
 
 
-#### Аргументы
+### Аргументы
 
-* *required* **str** `uid`. Уникальный идентификатор файла.  
+* `uid`. Уникальный идентификатор файла.
+
+  
+### Параметры
+
 * *optional* **int** `thumb_width`. Ширина изображения предварительного просмотра.
 * *optional* **int** `thumb_height`. Высота изображения предварительного просмотра.
 
 
-#### Формат ответа
+### Формат ответа
 
 Объект.
 
@@ -78,16 +80,15 @@ http://test.com/api/1/file/upload
 - **int** `height`. Высота изображения в пикселях.
 
 
-#### Примеры
+### Примеры
 
 Запрос:
 
 ```
 curl -X GET \
--d uid=file_image:57fcda463e7d89205a0c8d8f \
 -d thumb_width=800 \
 -d thumb_height=600 \
-http://test.com/api/1/file/info
+http://test.com/api/1/file/file_image:57fcda463e7d89205a0c8d8f
 ```
 
 

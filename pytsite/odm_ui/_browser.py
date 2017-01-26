@@ -30,7 +30,7 @@ class Browser(_widget.misc.BootstrapTable):
                 not _odm_auth.check_permissions('delete', self._model):
             raise _http.error.Forbidden()
 
-        self._data_url = _http_api.url('odm_ui/browser_rows', model=self._model)
+        self._data_url = _http_api.url('pytsite.odm_ui@get_rows', {'model': self._model})
         self._current_user = auth.get_current_user()
         self._finder_adjust = self._default_finder_adjust
 

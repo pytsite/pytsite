@@ -275,7 +275,7 @@ pytsite.form = {
                 }
             }, 250);
 
-            self._request('POST', self.getWidgetsEp).done(function (resp) {
+            self._request('GET', self.getWidgetsEp + '/' + self.id).done(function (resp) {
                 var numWidgetsToInit = resp.length;
                 var progressCount = 1;
 
@@ -346,7 +346,7 @@ pytsite.form = {
                 for (var uid in self.widgets)
                     self.widgets[uid].clearState().clearMessages();
 
-                self._request('POST', self.validationEp).done(function (resp) {
+                self._request('POST', self.validationEp + '/' + self.id).done(function (resp) {
                     if (resp.status) {
                         deffer.resolve();
                     }

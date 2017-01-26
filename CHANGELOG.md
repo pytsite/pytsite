@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.50 (2017-01-26)
+### Changed
+- `http_api`: totally reworked.
+
+
 ## 0.98.49 (2017-01-22)
 ### Fixed
 - `auth_storage_odm`: non-existent field usage.

@@ -3,12 +3,12 @@
 Перед изучением этого документа убедитесь, что разобрались с [PytSite HTTP API](../../../http_api/doc/ru/index.md).
 
 
-## POST auth/sign_in
+## POST auth/access-token
 
-Аутентификация учётной записи.
+Создание токена доступа.
 
 
-### Аргументы
+### Параметры
 
 - *optional* **str** `driver`. Имя драйвера аутентификации.
 - *required* аргументы драйвера аутентификации.
@@ -18,7 +18,11 @@
 
 Объект.
 
-- **str** `access_token`. Токен доступа.
+- **str** `token`. Токен доступа.
+- **str** `user_uid`. Идентификатор учётной записи владельца токена доступа.
+- **int** `ttl`. Срок действия токена доступа в секундах.
+- **str** `created`. Время создания токена доступа в формате W3C.
+- **str** `expires`. Время истечения токена доступа в формате W3C.
 
 
 ### Примеры
@@ -26,11 +30,11 @@
 Запрос. В данном примере аргументы `login` и `password` являются аргументами драйвера `password`:
 
 ```
-curl \
+curl -X POST \
 -d driver=password \
 -d login=vasya@pupkeen.com \
 -d password=Very5tr0ngP@ssw0rd \
-https://test.com/api/1/auth/sign_in
+https://test.com/api/1/auth/access-token
 ```
 
 
@@ -38,25 +42,33 @@ https://test.com/api/1/auth/sign_in
 
 ```
 {
-    "access_token": "0dc80160c916e629a712132d17880831"
+    "token": "e51081bc4632d8c2a31ac5bd8080af1b",
+    "user_uid": "586aa6a0523af53799474d0d",
+    "ttl": 86400,
+    "created": "2017-01-25T14:04:35+0200",
+    "expires": "2017-01-26T14:04:35+0200"
 }
 ```
 
 
-## GET auth/access_token_info
+## GET auth/access-token/<token>
 
 Получение информации о токене доступа.
 
 
 ### Аргументы
-- *required* **str** `access_token`. Токен доступа.
+- `token`. Токен доступа.
 
 
 ### Фомат ответа
 
 Объект.
 
-- **str** `uid`. Уникальный идентификатор учётной записи, к которой относится токен.
+- **str** `token`. Токен доступа.
+- **str** `user_uid`. Идентификатор учётной записи владельца токена доступа.
+- **int** `ttl`. Срок действия токена доступа в секундах.
+- **str** `created`. Время создания токена доступа в формате W3C.
+- **str** `expires`. Время истечения токена доступа в формате W3C.
 
 
 ### Примеры
@@ -64,34 +76,69 @@ https://test.com/api/1/auth/sign_in
 Запрос:
 
 ```
-curl -X GET \
--d access_token=0dc80160c916e629a712132d17880831 \
-https://test.com/api/1/auth/access_token_info
+curl -X GET https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd8080af1b
 ```
 
 Ответ:
 
 ```
 {
-  "uid": "576563ef523af52badc5beac",
+    "token": "e51081bc4632d8c2a31ac5bd8080af1b",
+    "user_uid": "586aa6a0523af53799474d0d",
+    "ttl": 86400,
+    "created": "2017-01-25T14:04:35+0200",
+    "expires": "2017-01-26T14:04:35+0200"
 }
 ```
 
 
-## GET auth/user
+## DELETE auth/access-token/<token>
 
-Информация об учётной записи пользователя.
+Удаление ранее выданного токена доступа.
 
 
 ### Аргументы
 
-**При выполнении данного запроса обязательно передавать как минимум один из двух аргументов.**
+- `token`. Токен доступа.
 
-- *optional* **str** `access_token`. Токен доступа, полученный в результате вызова `auth/sign_in`. Если не 
-  указан, запрос будет выполняться от имени анонимной учётной записи.
-- *optional* **str** `uid`. UID учётной записи, информацию о которой необходимо получить. Если не указан, будет 
-  использоваться учётная запись, от имени которой выполняется запрос, то есть, в этом случа передача аргумента 
-  `access_token` является обязательной. 
+
+### Формат ответа
+
+В случае отсутствия ошибок метод всегда возвращает объект вида `{status: true}`.
+
+
+### Примеры
+
+Запрос:
+
+```
+curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd8080af1b
+```
+
+
+Ответ:
+
+```
+{
+  status: true
+}
+```
+
+
+
+## GET auth/user/<uid>
+
+Получение информации об учётной записи пользователя.
+
+
+### Аргументы
+
+- `uid`. Уникальный идентификатор учётной записи.
+
+
+### Параметры
+
+- *required* **str** `access_token`. Токен доступа.
 
 
 ### Формат ответа
@@ -116,7 +163,7 @@ https://test.com/api/1/auth/access_token_info
 - **str** `first_name`. Имя.
 - **str** `last_name`. Фамилия.
 - **str** `full_name`. Имя и фамилия.
-- **str** `birth_date`. Дата рождения в формате [RFC822](https://www.w3.org/Protocols/rfc822/#z28).
+- **str** `birth_date`. Дата рождения в формате W3C.
 - **str** `gender`. Пол. 'm' -- мальчик, 'f' -- девочка.
 - **str** `phone`. Номер телефона.
 - **array[str]** `follows`. UID учётных записей, на которые подписан пользователь.
@@ -126,12 +173,11 @@ https://test.com/api/1/auth/access_token_info
 Дополнительные поля, возвращаемые в случае, если запрашивающая учётная запись является администратором или владельцем 
 запрашиваемой учётной записи.
 
-- **str** `created`. Время созания учётной записи в формате [RFC822](https://www.w3.org/Protocols/rfc822/#z28).
+- **str** `created`. Время созания учётной записи в формате W3C.
 - **str** `login`. Логин.
 - **str** `email`. Email.
-- **str** `last_sign_in`. Время последней успешной аутентификации в формате 
-  [RFC822](https://www.w3.org/Protocols/rfc822/#z28). 
-- **str** `last_activity`. Время последней активности в формате [RFC822](https://www.w3.org/Protocols/rfc822/#z28).
+- **str** `last_sign_in`. Время последней успешной аутентификации в формате W3C. 
+- **str** `last_activity`. Время последней активности в формате W3C.
 - **int** `sign_in_count`. Общее количество успешных аутентификации.
 - **str** `status`. Статус учётной записи: 'active', 'waiting' или 'disabled'.
 - **bool** `profile_is_public`. Доступность профиля для всех пользователей.
@@ -145,9 +191,7 @@ https://test.com/api/1/auth/access_token_info
 Запрос:
 
 ```
-curl -X GET \
--d access_token=0dc80160c916e629a712132d17880831 \
-https://test.com/api/1/auth/user
+curl -X GET https://test.com/api/1/auth/user/576563ef523af52badc5beac
 ```
 
 
@@ -192,38 +236,5 @@ https://test.com/api/1/auth/user
   [
       "57d665063e7d8960ed762231"
   ]
-}
-```
-
-
-## POST auth/sign_out
-
-Удаление ранее выданного токена доступа.
-
-
-### Аргументы
-
-- *required* **str** `access_token`. Токен доступа.
-
-
-### Формат ответа
-
-В случае отсутствия ошибок метод всегда возвращает объект вида `{status: true}`.
-
-
-### Примеры
-
-Запрос:
-
-```
-curl -d access_token=0dc80160c916e629a712132d17880831 https://test.com/api/1/auth/sign_out
-```
-
-
-Ответ:
-
-```
-{
-  status: true
 }
 ```

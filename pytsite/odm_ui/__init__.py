@@ -13,6 +13,7 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import assetman, tpl, lang, router, admin, http_api
+    from . import _http_api
 
     abp = admin.base_path()
     auth_filter = 'pytsite.auth@f_authorize'
@@ -33,7 +34,9 @@ def _init():
     lang.register_package(__name__)
     tpl.register_package(__name__)
     assetman.register_package(__name__)
-    http_api.register_handler('odm_ui', 'pytsite.odm_ui.http_api')
+
+    # HTTP API handlers
+    http_api.handle('GET', 'odm_ui/rows/<model>', _http_api.get_rows, 'pytsite.odm_ui@get_rows')
 
 
 _init()

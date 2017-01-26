@@ -66,14 +66,9 @@ def get_entity(**kwargs) -> dict:
     return entity.as_jsonable(**kwargs)
 
 
-def post_entity(**kwargs) -> dict:
+def post_entity(inp: dict, model: str) -> dict:
     """Create new entity.
     """
-    # Required arguments
-    model = kwargs.get('model')
-    if not model:
-        raise _http.error.InternalServerError('Model is not specified.')
-
     # Check permissions
     if not _odm_auth.check_permissions('create', model):
         raise _http.error.Forbidden("Insufficient permissions.")
@@ -86,7 +81,7 @@ def post_entity(**kwargs) -> dict:
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Fill entity's fields with values
-    _fill_entity_fields(entity, kwargs)
+    _fill_entity_fields(entity, inp)
 
     # Save the entity
     entity.save()
@@ -94,19 +89,9 @@ def post_entity(**kwargs) -> dict:
     return entity.as_jsonable()
 
 
-def patch_entity(**kwargs) -> dict:
+def patch_entity(inp: dict, model: str, uid: str) -> dict:
     """Update entity.
     """
-    # Model is required
-    model = kwargs.get('model')
-    if not model:
-        raise RuntimeError('Model is not specified.')
-
-    # Entity ID is required
-    uid = kwargs.get('uid')
-    if not uid:
-        raise RuntimeError('UID is not specified.')
-
     # Dispense existing entity
     entity = _odm.dispense(model, uid)  # type: _odm_auth.model.AuthorizableEntity
 
@@ -120,32 +105,14 @@ def patch_entity(**kwargs) -> dict:
 
     # Fill fields with values
     with entity as e:
-        _fill_entity_fields(e, kwargs)
+        _fill_entity_fields(e, inp)
         e.save()
 
     return entity.as_jsonable()
 
 
-def delete_entity(**kwargs):
+def delete_entity(inp: dict, model: str, uid: str):
     """Delete one or more entities.
     """
-    model = kwargs.get('model')
-    ids = kwargs.get('uid')
-
-    if not model:
-        raise RuntimeError('Model is not specified.')
-
-    if not ids:
-        raise RuntimeError('IDs are not specified.')
-
-    if isinstance(ids, str):
-        ids = (ids,)
-
-    count = 0
-    for eid in ids:
-        entity = _odm.dispense(model, eid)
-        with entity as e:
-            e.delete()
-        count += 1
-
-    return count
+    with _odm.dispense(model, uid) as e:
+        e.delete()

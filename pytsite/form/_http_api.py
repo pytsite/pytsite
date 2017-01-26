@@ -7,16 +7,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _dispense_form(inp: dict, fill_mode: str = None) -> _form.Form:
+def _dispense_form(uid:str, inp: dict, fill_mode: str = None) -> _form.Form:
     """Create and fill form based on the request input.
     """
-    # Get form's UID
-    try:
-        uid = inp['__form_data_uid']
-        del inp['__form_data_uid']
-    except KeyError:
-        raise KeyError('Form UID is not specified.')
-
     # Get form from the cache
     frm = _cache.get(uid)
 
@@ -33,12 +26,12 @@ def _dispense_form(inp: dict, fill_mode: str = None) -> _form.Form:
     return frm.fill(values, mode=fill_mode)
 
 
-def post_get_widgets(**kwargs) -> dict:
+def get_widgets(inp: dict, uid: str) -> dict:
     """Get widgets of the form for particular step.
 
     We use POST method here due to large request size in some cases.
     """
-    frm = _dispense_form(kwargs)
+    frm = _dispense_form(uid, inp)
 
     r = []
     for w in frm.get_widgets():
@@ -49,11 +42,11 @@ def post_get_widgets(**kwargs) -> dict:
     return r
 
 
-def post_validate(**kwargs) -> dict:
+def post_validate(inp: dict, uid: str) -> dict:
     """Default form's AJAX validator.
     """
     try:
-        _dispense_form(kwargs, 'validation').validate()
+        _dispense_form(uid, inp, 'validation').validate()
         return {'status': True}
 
     except _error.ValidationError as e:

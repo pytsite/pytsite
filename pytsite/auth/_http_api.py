@@ -1,6 +1,6 @@
 """PytSite Auth HTTP API.
 """
-from pytsite import http as _http, events as _events, util as _util, assetman as _assetman
+from pytsite import http as _http, events as _events, util as _util
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -8,25 +8,46 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def post_sign_in(**kwargs) -> dict:
+def _get_access_token_info(token: str) -> dict:
+    r = _api.get_access_token_info(token)
+    r.update({
+        'token': token,
+        'created': _util.w3c_datetime_str(r['created']),
+        'expires': _util.w3c_datetime_str(r['expires']),
+    })
+
+    return r
+
+
+def post_access_token(inp: dict) -> dict:
     """Sign in user.
     """
     try:
         # Try to sign in user via driver
-        user = _api.sign_in(kwargs.get('driver'), kwargs)
+        user = _api.sign_in(inp.get('driver'), inp)
 
-        return {'access_token': _api.generate_access_token(user)}
+        return _get_access_token_info(_api.generate_access_token(user))
 
     except _error.AuthenticationError as e:
         raise _http.error.Unauthorized(str(e))
 
 
-def post_sign_out(**kwargs) -> dict:
+def get_access_token(inp: dict, token: str) -> dict:
+    """Get information about user's access token.
+    """
+    try:
+        return _get_access_token_info(token)
+
+    except _error.InvalidAccessToken as e:
+        raise _http.error.Unauthorized(str(e))
+
+
+def delete_access_token(inp: dict, token: str) -> dict:
     """Sign out user.
     """
     try:
         _api.sign_out(_api.get_current_user())
-        _api.revoke_access_token(kwargs.get('access_token'))
+        _api.revoke_access_token(token)
 
         return {'status': True}
 
@@ -34,29 +55,14 @@ def post_sign_out(**kwargs) -> dict:
         raise _http.error.Unauthorized(str(e))
 
 
-def get_access_token_info(**kwargs) -> dict:
-    """Get information about user's access token.
-    """
-    try:
-        return _api.get_access_token_info(kwargs.get('access_token', ''))
-
-    except _error.InvalidAccessToken as e:
-        raise _http.error.Unauthorized(str(e))
-
-
-def get_user(**kwargs) -> dict:
+def get_user(inp: dict, uid: str) -> dict:
     """Get information about user.
     """
-    try:
-        current_user = _api.get_current_user()
+    if _api.get_current_user().is_anonymous:
+        raise _http.error.Forbidden('Authentication required')
 
-        uid = kwargs.get('uid')
-        if uid:
-            user = _api.get_user(uid=uid)
-        elif not current_user.is_anonymous:
-            user = current_user
-        else:
-            raise RuntimeError('You should either specify the UID or authorize yourself.')
+    try:
+        user = _api.get_user(uid=uid)
 
     except _error.UserNotExist:
         raise _http.error.Unauthorized()
@@ -68,7 +74,7 @@ def get_user(**kwargs) -> dict:
     return r
 
 
-def patch_user(**kwargs) -> dict:
+def patch_user(inp: dict, uid: str) -> dict:
     """Update user.
     """
     allowed_fields = ('login', 'email', 'password', 'nickname', 'first_name', 'last_name', 'description', 'birth_date',
@@ -77,19 +83,12 @@ def patch_user(**kwargs) -> dict:
 
     # Check permissions
     if c_user.is_anonymous:
-        raise _http.error.Forbidden('Insufficient permissions')
+        raise _http.error.Forbidden('Authentication required')
 
-    # By default we'll work with current user
-    user = c_user
-
-    # Change user to work with
-    if 'uid' in kwargs:
-        user = _api.get_user(uid=kwargs.pop('uid'))
-
-    return user.as_jsonable()
+    raise NotImplementedError('Not implemented yet')
 
 
-def patch_follow(**kwargs) -> bool:
+def patch_follow(inp: dict, **kwargs) -> bool:
     """Follow.
     """
     op = kwargs.get('op')  # What to do: follow or unfollow
@@ -129,23 +128,3 @@ def patch_follow(**kwargs) -> bool:
 
     else:
         raise _http.error.InternalServerError("Invalid operation: 'follow' or 'unfollow' expected.")
-
-
-def get_login_form(**kwargs) -> dict:
-    frm = _api.get_sign_in_form(
-        driver_name=kwargs.get('driver'),
-        uid=kwargs.get('uid'),
-        title=kwargs.get('title'),
-        css=kwargs.get('css', ''),
-        modal=kwargs.get('modal', False)
-    )
-
-    return {
-        'form': _util.minify_html(frm.render()),
-        '_css': _assetman.get_urls('css'),
-        '_js': _assetman.get_urls('js')
-    }
-
-
-def get_is_anonymous(**kwargs) -> bool:
-    return _api.get_current_user().is_anonymous

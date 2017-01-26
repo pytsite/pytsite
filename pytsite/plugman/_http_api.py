@@ -8,31 +8,29 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _check_args(**kwargs):
+def _check_permissions():
     if not _auth.get_current_user().has_permission('pytsite.plugman.manage'):
         raise _http.error.Forbidden('Insufficient permissions')
 
-    if not kwargs.get('name'):
-        raise _http.error.InternalServerError('Plugin name is not specified')
 
-    return kwargs
-
-
-def post_install(**kwargs) -> dict:
-    info = _api.install(_check_args(**kwargs).get('name'))
+def post_install(inp: dict, name: str) -> dict:
+    _check_permissions()
+    info = _api.install(name)
 
     return info
 
 
-def post_uninstall(**kwargs) -> dict:
-    _api.uninstall(_check_args(**kwargs).get('name'))
+def post_uninstall(inp: dict, name: str) -> dict:
+    _check_permissions()
+    _api.uninstall(name)
     _reload.reload(False)
 
     return {'status': True}
 
 
-def post_upgrade(**kwargs) -> dict:
-    info = _api.upgrade(_check_args(**kwargs).get('name'))
+def post_upgrade(inp: dict, name: str) -> dict:
+    _check_permissions()
+    info = _api.upgrade(name)
     _reload.reload(False)
 
     return info

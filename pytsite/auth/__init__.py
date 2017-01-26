@@ -18,7 +18,7 @@ def __init():
     """
     from pytsite import assetman, events, tpl, lang, router, robots, console, http_api, permissions
     from ._console_command import Passwd as AuthConsoleCommand
-    from . import _eh
+    from . import _eh, _http_api
 
     # Resources
     tpl.register_package(__name__)
@@ -30,7 +30,19 @@ def __init():
     permissions.define_group('security', 'pytsite.auth@security')
 
     # HTTP API handlers
-    http_api.register_handler('auth', 'pytsite.auth.http_api')
+    http_api.handle('POST', 'auth/access-token', _http_api.post_access_token,
+                    'pytsite.auth@post_access_token')
+    http_api.handle('GET', 'auth/access-token/<token>', _http_api.get_access_token,
+                    'pytsite.auth@get_access_token')
+    http_api.handle('DELETE', 'auth/access-token/<token>', _http_api.delete_access_token,
+                    'pytsite.auth@delete_access_token')
+    http_api.handle('GET', 'auth/user/<uid>', _http_api.get_user,
+                    'pytsite.auth@get_user')
+    http_api.handle('PATCH', 'auth/user/<uid>', _http_api.patch_user,
+                    'pytsite.auth@patch_user')
+
+    # ???
+    http_api.handle('PATCH', 'auth/follow/<uid>', _http_api.patch_follow, 'pytsite.auth@patch_follow')
 
     # Common routes
     bp = base_path()
