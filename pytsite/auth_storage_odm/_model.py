@@ -202,7 +202,6 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.String('email', required=True))
         self.define_field(_odm.field.String('password', required=True))
         self.define_field(_odm.field.String('nickname', required=True))
-        self.define_field(_odm.field.StringList('access_tokens'))
         self.define_field(_odm.field.Bool('profile_is_public', default=False))
         self.define_field(_odm.field.String('first_name'))
         self.define_field(_odm.field.String('last_name'))

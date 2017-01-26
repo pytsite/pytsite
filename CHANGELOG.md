@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.51 (2017-01-27)
+### Fixed
+- `auth_storage_odm`: outdated access token usage.
+
+
 ## 0.98.50 (2017-01-26)
 ### Changed
 - `http_api`: totally reworked.
