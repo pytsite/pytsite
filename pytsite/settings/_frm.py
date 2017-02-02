@@ -35,7 +35,7 @@ class Form(_form.Form):
             value=_lang.t('pytsite.settings@cancel'),
             icon='fa fa-fw fa-ban',
             href=_router.ep_url('pytsite.admin@dashboard'),
-            form_area='footer'
+            form_area='footer',
         ))
 
     def _on_submit(self):

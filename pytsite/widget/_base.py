@@ -195,8 +195,6 @@ class Abstract(_ABC):
     def uid(self, value):
         """Set UID of the widget.
         """
-        if self.uid == self.name:
-            self.name = value
         self._uid = value
 
     @property

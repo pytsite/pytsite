@@ -1,6 +1,6 @@
 """PytSite Meta Tags Support.
 """
-from pytsite import lang as _lang, util as _util, reg as _reg, events as _events, assetman as _assetman, \
+from pytsite import lang as _lang, util as _util, events as _events, assetman as _assetman, \
     threading as _threading
 
 __author__ = 'Alexander Shepetko'
@@ -8,26 +8,22 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _tags = {}
-_favicon_url = _reg.get('metatag.favicon.href', '$theme@img/favicon.png')
 
 
 def reset():
     """Reset tags.
     """
-    _tags[_threading.get_id()] = {'link': []}
+    global _tags
+    _tags = {}
 
     t_set('charset', 'UTF-8')
     t_set('title', _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-
-    try:
-        t_set('link', rel='icon', type='image/png', href=_assetman.url(_favicon_url))
-    except _assetman.error.PackageNotRegistered:
-        pass
+    t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
 
 
 def t_set(tag: str, value: str = None, **kwargs):
-    """Set tag value.
+    """Set tag's value.
     """
     tid = _threading.get_id()
 
@@ -35,19 +31,11 @@ def t_set(tag: str, value: str = None, **kwargs):
         _tags[tid] = {tag: None}
 
     if tag == 'link':
-        if not kwargs.get('rel'):
-            raise ValueError("<link> tag must contain 'rel' attribute")
-        if not kwargs.get('href'):
-            raise ValueError("<link> tag must contain 'href' attribute")
+        if tag not in _tags[tid] or _tags[tid][tag] is None:
+            _tags[tid][tag] = []
 
-        value = ''
-        for k, v in kwargs.items():
-            value += ' {}="{}"'.format(k, v)
+        _tags[tid][tag].append(kwargs)
 
-        if _tags[tid]['link'] is None:
-            _tags[tid]['link'] = []
-
-        _tags[tid]['link'].append(value)
     else:
         _tags[tid][tag] = _util.escape_html(value)
 
@@ -56,6 +44,27 @@ def get(tag: str) -> str:
     """Get value of the tag.
     """
     return _tags[_threading.get_id()].get(tag, '')
+
+
+def rm(tag: str, **kwargs):
+    tid = _threading.get_id()
+    if tid not in _tags or tag not in _tags[tid]:
+        return
+
+    if tag == 'link':
+        if not _tags[tid][tag]:
+            return
+
+        values_to_rm = []
+        for v in _tags[tid][tag]:
+            if set(kwargs.items()).issubset(set(v.items())):
+                values_to_rm.append(v)
+
+        for v in values_to_rm:
+            _tags[tid][tag].remove(v)
+
+    else:
+        del _tags[tid][tag]
 
 
 def dump(tag: str) -> str:
@@ -82,7 +91,8 @@ def dump(tag: str) -> str:
     elif tag == 'link':
         r = ''
         for value in _tags[tid][tag]:
-            r += '<{}{}>\n'.format(tag, value)
+            args_str = ' '.join(['{}="{}"'.format(k, v) for k, v in value.items()])
+            r += '<{} {}>\n'.format(tag, args_str)
 
     # Other
     else:

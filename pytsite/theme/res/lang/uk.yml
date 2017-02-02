@@ -1,3 +1,5 @@
-themes: 'Теми'
+theme: 'Тема'
 manage_themes: 'Керування темами'
 default_theme: 'Тема за замовчуванням'
+logo: 'Лого'
+favicon: 'Favicon'

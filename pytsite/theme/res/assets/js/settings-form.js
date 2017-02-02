@@ -12,7 +12,7 @@ $('.settings-form').on('formForward', function (e, form) {
         if (!themeName)
             return;
 
-        pytsite.httpApi.get('theme/settings_widgets', {theme: themeName}).done(function (r) {
+        pytsite.httpApi.get('theme/settings/' + themeName).done(function (r) {
             $.each(r, function (i, widgetData) {
                 form.initWidget(widgetData).done(function (widget) {
                     form.addWidget(widget);

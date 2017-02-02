@@ -3,7 +3,7 @@
 from typing import Iterable as _Iterable
 from pytsite import widget as _widget, tpl as _tpl, browser as _browser, html as _html, router as _router, \
     http_api as _http_api
-from . import _api, _model
+from . import _api, _model, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -164,7 +164,10 @@ class FilesUpload(_widget.Abstract):
             if isinstance(to_delete, str):
                 to_delete = [to_delete]
             for uid in to_delete:
-                _api.get(uid).delete()
+                try:
+                    _api.get(uid).delete()
+                except _error.FileNotFound:
+                    pass
 
         super().set_val(clean_val, **kwargs)
 

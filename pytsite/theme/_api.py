@@ -1,6 +1,7 @@
 """PytSite Theme API.
 """
 import json as _json
+import re as _re
 from typing import Dict as _Dict
 from importlib import import_module as _import_module
 from importlib.util import find_spec as _find_module_spec
@@ -58,7 +59,7 @@ def register(package_name: str):
         raise _error.ThemeRegistrationFailed('Dictionary expected in {}'.format(info_path))
 
     # Extract data
-    theme_name = info_data.get('name')
+    theme_name = _re.sub('[^\w]+', '_', info_data.get('name', '').lower())
     theme_desc = info_data.get('description')
     theme_author = info_data.get('author')
     theme_url = info_data.get('url')
@@ -104,24 +105,17 @@ def get_list() -> _Dict[str, _Dict]:
     return _themes.copy()
 
 
-def get_theme_settings(theme: str) -> dict:
-    r = {}
-    theme = theme.replace('.', '_')
-
-    for k, v in _settings.get('theme').items():
-        if k.startswith('theme_setting_'):
-            r[k.replace('theme_setting_{}_'.format(theme), '')] = v
-
-    return r
+def get_theme_settings(package_name: str) -> dict:
+    return _settings.get('theme.theme_' + get_info(package_name)['name'], {})
 
 
-def get_theme_info(theme: str) -> dict:
+def get_info(package_name: str) -> dict:
     """Get information about theme.
     """
-    if theme not in _themes:
-        raise _error.ThemeNotRegistered("Theme '{}' is not registered".format(theme))
+    if package_name not in _themes:
+        raise _error.ThemeNotRegistered("Theme '{}' is not registered".format(package_name))
 
-    r = _themes[theme].copy()
+    r = _themes[package_name].copy()
 
     return r
 

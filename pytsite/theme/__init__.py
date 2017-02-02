@@ -3,7 +3,7 @@
 # Public API
 from . import _error as error
 from ._api import get_themes_path, register, get_list, get_current, set_current, is_registered, get_theme_settings, \
-    get_theme_info
+    get_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -23,7 +23,7 @@ def _init():
     permissions.define_permission('pytsite.theme.manage', 'pytsite.theme@manage_themes', 'app')
 
     # Settings
-    settings.define('theme', _settings_form.Form, 'pytsite.theme@themes', 'fa fa-paint-brush', 'pytsite.theme.manage')
+    settings.define('theme', _settings_form.Form, 'pytsite.theme@theme', 'fa fa-paint-brush', 'pytsite.theme.manage')
 
     # Event listeners
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
@@ -31,7 +31,7 @@ def _init():
     events.listen('pytsite.update', _eh.update)
 
     # HTTP API handlers
-    http_api.handle('GET', 'theme/settings/<theme>', _http_api.get_settings, 'pytsite.theme@get_settings')
+    http_api.handle('GET', 'theme/settings/<theme_package_name>', _http_api.get_settings, 'pytsite.theme@get_settings')
 
     # Default home page handler
     router.add_rule('/', '$theme@home')

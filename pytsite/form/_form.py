@@ -180,6 +180,12 @@ class Form(_ABC):
         """
         return self._uid
 
+    @uid.setter
+    def uid(self, value: str):
+        """Set form uid.
+        """
+        self._uid = value
+
     @property
     def created(self) -> _datetime:
         return self._created
@@ -195,6 +201,12 @@ class Form(_ABC):
         """Get form name.
         """
         return self._name
+
+    @name.setter
+    def name(self, value: str):
+        """Set form name.
+        """
+        self._name = value
 
     @property
     def method(self) -> str:

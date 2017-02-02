@@ -1,6 +1,16 @@
 # PytSite Changelog
 
 
+## 0.98.53 (2017-02-02)
+### Added
+- `metatag`: new API function: `rm()`.
+- `theme`: support for favicon and logo upload.
+
+### Fixed
+- `plugman`: HTTP API calls from JS code.
+- `theme`: settings load.
+
+
 ## 0.98.52 (2017-02-02)
 ### Fixed
 - `form`: error while retrieving widgets in multi-step forms.

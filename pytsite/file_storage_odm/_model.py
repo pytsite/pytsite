@@ -202,7 +202,7 @@ class AnyFile(_file.model.AbstractFile):
 
 
 class ImageFile(_file.model.AbstractImage):
-    """Imge File Model.
+    """Image File Model.
     """
 
     def __init__(self, entity: ImageFileODMEntity):

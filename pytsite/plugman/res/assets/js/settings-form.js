@@ -36,7 +36,7 @@ $('.pytsite-form.setting-uid-plugman').on('formForward', function (e, form) {
         // Add spinner to the clicked button
         icon.attr('class', 'fa fa-spin fa-spinner');
 
-        pytsite.httpApi.post(endpoint, {name: btn.data('name')}).done(function () {
+        pytsite.httpApi.post(endpoint + '/' + btn.data('name')).done(function () {
             // Wait some time while application finishes reloading
             setTimeout(function () {
                 location.reload();
