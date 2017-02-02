@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.54 (2017-02-02)
+### Fixed
+- `plugman`: dependencies management while upgrading plugins. 
+
+
 ## 0.98.53 (2017-02-02)
 ### Added
 - `metatag`: new API function: `rm()`.

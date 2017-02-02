@@ -14,8 +14,10 @@ confirm_plugin_uninstall: 'Ви дійсно хотите видалити це�
 license: 'Ліцензія'
 invalid_license: 'Неіснуюча або прострочена ліцензія'
 license_expires_at: 'Закінчується :date'
-upgrading_plugin: 'Оновлення плагіна :name (:old_ver -> :new_ver)'
+upgrading_plugin: 'Оновлення плагіна :name (:old_ver -> :new_ver)...'
 cannot_manage_plugins_in_dev_mode: 'Неможливо керувати плагінами в режимі розробки'
-installing_plugin: "Встановлення плагіна ':plugin'"
+installing_plugin: "Встановлення плагіна ':plugin'..."
 plugin_install_success: "Плагін ':plugin' було успішно встановлено"
 plugin_install_error: "Помилка при встановленні плагіна ':plugin': :msg"
+uninstalling_plugin: "Видалення плагіна ':plugin'..."
+plugin_uninstall_success: "Плагін ':plugin' було успішно видалено"

@@ -59,7 +59,7 @@ class Form(_settings.Form):
                 {'content': _lang.t('pytsite.plugman@actions'), 'style': 'width: 1%;'},
             ), part='thead')
 
-            for name, info in sorted(_api.get_plugins().items()):
+            for name, info in sorted(_api.get_plugin_info().items()):
                 description = str(_html.Span(info['description'].get(lng)))
 
                 actions = ''

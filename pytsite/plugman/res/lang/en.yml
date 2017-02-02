@@ -14,8 +14,10 @@ confirm_plugin_uninstall: 'Do you really want to uninstall this plugin?'
 license: 'License'
 invalid_license: 'Invalid or expired license'
 license_expires_at: 'Expires at :date'
-upgrading_plugin: 'Upgrading plugin :name (:old_ver -> :new_ver)'
+upgrading_plugin: 'Upgrading plugin :name (:old_ver -> :new_ver)...'
 cannot_manage_plugins_in_dev_mode: 'Unable to manage plugins in development mode'
-installing_plugin: "Installing plugin ':plugin'"
+installing_plugin: "Installing plugin ':plugin'..."
 plugin_install_success: "Plugin ':plugin' has been successfully installed"
 plugin_install_error: "Error while installing plugin ':plugin': :msg"
+uninstalling_plugin: "Uninstalling plugin ':plugin'..."
+plugin_uninstall_success: "Plugin ':plugin' has been successfully uninstalled"

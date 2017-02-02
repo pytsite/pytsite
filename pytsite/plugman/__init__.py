@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _error as error
-from ._api import get_plugins_path, get_plugins, install, uninstall, is_installed, start, is_started, \
+from ._api import get_plugins_path, get_plugin_info, install, uninstall, is_installed, start, is_started, \
     get_license_info, get_installed_plugins, get_remote_plugins, get_required_plugins
 
 # Locally necessary imports

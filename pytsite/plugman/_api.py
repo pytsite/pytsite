@@ -95,6 +95,22 @@ def _plugins_api_request(ep: str):
     return r.json()
 
 
+def _install_pip_package(pkg_name: str, upg: bool = False):
+    _logger.info('Installing/upgrading pip package: {}'.format(pkg_name))
+
+    cmd = ['pip', 'install', pkg_name]
+    if upg:
+        cmd.insert(2, '-U')
+
+    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+
+    if r.returncode != 0:
+        err_msg = r.stderr.decode('utf-8')
+        raise _error.PackageInstallError("Pip package '{}' was not installed: {}".format(pkg_name, err_msg))
+    else:
+        _logger.info('Required package {} has been successfully installed/upgraded'.format(pkg_name))
+
+
 def get_license_info() -> dict:
     return _plugins_api_request('license/info')
 
@@ -174,7 +190,7 @@ def get_installed_plugins() -> dict:
     return r
 
 
-def get_plugins(plugin_name: str = None) -> dict:
+def get_plugin_info(plugin_name: str = None) -> dict:
     """Get combined information about remotely available and locally installed plugin(s).
     """
     # Available plugins
@@ -228,7 +244,7 @@ def install(plugin_name: str):
             _mkdir(tmp_dir_path, 0o755)
 
         # Prepare all necessary data
-        plugin_info = get_plugins(plugin_name)
+        plugin_info = get_plugin_info(plugin_name)
         version = plugin_info['latest_version']
         zip_url = plugin_info['zip_url']
         tmp_file_path = _path.join(tmp_dir_path, '{}-{}.zip'.format(plugin_name, version))
@@ -272,13 +288,7 @@ def install(plugin_name: str):
 
         # Install required packages
         for pkg_name in info['requires']['packages']:
-            _logger.info('Installing required pip package: {}'.format(pkg_name))
-            r = _subprocess.run(['pip', 'install', pkg_name], stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
-            if r.returncode != 0:
-                err_msg = r.stderr.decode('utf-8')
-                raise _error.PackageInstallError("Pip package '{}' was not installed: {}".format(pkg_name, err_msg))
-            else:
-                _logger.info('Required package {} has been successfully installed'.format(pkg_name))
+            _install_pip_package(pkg_name)
 
         # Install required plugins
         for plg_name in info['requires']['plugins']:
@@ -334,10 +344,12 @@ def uninstall(plugin_name: str):
     try:
         _uninstalling.append(plugin_name)
 
+        _console.print_info(_lang.t('pytsite.plugman@uninstalling_plugin', {'plugin': plugin_name}))
+
         # Delete plugin's files
         _rmtree(_get_plugin_path(plugin_name))
 
-        _logger.info("Plugin '{}' successfully uninstalled".format(plugin_name))
+        _console.print_success(_lang.t('pytsite.plugman@plugin_uninstall_success', {'plugin': plugin_name}))
 
         # Application should be reloaded to deactivate installed plugin
         _reload.set_flag()
@@ -355,7 +367,24 @@ def upgrade(plugin_name: str):
     if not is_installed(plugin_name):
         raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
 
-    info = get_plugins(plugin_name)
+    info = get_plugin_info(plugin_name)
     if info['upgradable']:
+        _console.print_info(_lang.t('pytsite.plugman@upgrading_plugin', {
+            'name': plugin_name,
+            'old_ver': info['installed_version'],
+            'new_ver': info['latest_version'],
+        }))
+
+        # Uninstall current version
         uninstall(plugin_name)
+
+        # Upgrade required plugins
+        for required_plugin in info['requires']['plugins']:
+            upgrade(required_plugin)
+
+        # Upgrade required packages
+        for required_pkg in info['requires']['packages']:
+            _install_pip_package(required_pkg, True)
+
+        # Install latest version
         install(plugin_name)

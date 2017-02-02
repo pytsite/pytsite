@@ -18,13 +18,8 @@ def update(version: str):
 
 
 def update_after():
-    for name, info in _api.get_plugins().items():
+    for name, info in _api.get_plugin_info().items():
         if info.get('upgradable'):
-            _console.print_info(_lang.t('pytsite.plugman@upgrading_plugin', {
-                'name': name,
-                'old_ver': info['installed_version'],
-                'new_ver': info['latest_version'],
-            }))
             _api.upgrade(name)
 
 
