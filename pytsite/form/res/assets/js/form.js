@@ -275,7 +275,7 @@ pytsite.form = {
                 }
             }, 250);
 
-            self._request('GET', self.getWidgetsEp + '/' + self.id).done(function (resp) {
+            self._request('POST', self.getWidgetsEp + '/' + self.id).done(function (resp) {
                 var numWidgetsToInit = resp.length;
                 var progressCount = 1;
 

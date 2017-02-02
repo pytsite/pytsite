@@ -20,7 +20,7 @@ def _init():
 
     router.add_rule('/form/submit/<uid>', 'pytsite.form@submit')
 
-    http_api.handle('GET', 'form/widgets/<uid>', _http_api.get_widgets, 'pytsite.form@get_widgets')
+    http_api.handle('POST', 'form/widgets/<uid>', _http_api.get_widgets, 'pytsite.form@post_get_widgets')
     http_api.handle('POST', 'form/validate/<uid>', _http_api.post_validate, 'pytsite.form@post_validate')
 
     events.listen('pytsite.cron.1min', cache.cleanup)
