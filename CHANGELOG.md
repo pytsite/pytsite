@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.58 (2017-02-07)
+### Fixed
+- `theme`: settings form.
+
+
 ## 0.98.57 (2017-02-07)
 ### Fixed
 - `admin`: 'app@app_name' message ID usage.

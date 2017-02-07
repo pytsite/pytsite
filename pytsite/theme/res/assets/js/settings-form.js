@@ -1,5 +1,5 @@
 $('.settings-form').on('formForward', function (e, form) {
-    var themeSelect = form.em.find('select[name=setting_default_theme]');
+    var themeSelect = form.em.find('select[name=setting_current_theme]');
 
     themeSelect.change(function () {
         $.each(form.widgets, function (i, widget) {
