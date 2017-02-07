@@ -81,7 +81,7 @@ def dump(tag: str) -> str:
 
     # Page title
     elif tag == 'title':
-        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app_name'))
+        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app@app_name'))
 
     # OpenGraph tags
     elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):

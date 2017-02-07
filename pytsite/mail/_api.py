@@ -10,4 +10,4 @@ __license__ = 'MIT'
 def mail_from() -> tuple:
     """Get default mail sender's address and name.
     """
-    return _lang.t('app_name'), _settings.get('mail.from', 'info@' + _router.server_name())
+    return _lang.t('app@app_name'), _settings.get('mail.from', 'info@' + _router.server_name())

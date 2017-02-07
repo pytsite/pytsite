@@ -1,6 +1,6 @@
 pytsite.httpApi = {
     url: function (endpoint, data, version) {
-        if (!version) {
+        if (typeof version === 'undefined' || version == null) {
             version = '1';
         }
 
@@ -15,9 +15,11 @@ pytsite.httpApi = {
         return r;
     },
 
-    request: function (method, endpoint, data, version) {
+    request: function (method, endpoint, data, version, includeUA) {
         data = data || {};
-        data['__user_agent'] = navigator.userAgent;
+
+        if (typeof includeUA === 'undefined' || includeUA == true)
+            data['__user_agent'] = navigator.userAgent;
 
         return $.ajax({
             url: pytsite.httpApi.url(endpoint, null, version),
