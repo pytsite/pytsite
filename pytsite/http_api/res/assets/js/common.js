@@ -28,23 +28,23 @@ pytsite.httpApi = {
         });
     },
 
-    get: function (endpoint, data, version) {
-        return pytsite.httpApi.request('GET', endpoint, data, version)
+    get: function (endpoint, data, version, includeUA) {
+        return pytsite.httpApi.request('GET', endpoint, data, version, includeUA)
     },
 
-    post: function (endpoint, data, version) {
-        return pytsite.httpApi.request('POST', endpoint, data, version)
+    post: function (endpoint, data, version, includeUA) {
+        return pytsite.httpApi.request('POST', endpoint, data, version, includeUA)
     },
 
-    put: function (endpoint, data, version) {
-        return pytsite.httpApi.request('PUT', endpoint, data, version)
+    put: function (endpoint, data, version, includeUA) {
+        return pytsite.httpApi.request('PUT', endpoint, data, version, includeUA)
     },
 
-    patch: function (endpoint, data, version) {
-        return pytsite.httpApi.request('PATCH', endpoint, data, version)
+    patch: function (endpoint, data, version, includeUA) {
+        return pytsite.httpApi.request('PATCH', endpoint, data, version, includeUA)
     },
 
-    delete: function (endpoint, data, version) {
-        return pytsite.httpApi.request('DELETE', endpoint, data, version)
+    delete: function (endpoint, data, version, includeUA) {
+        return pytsite.httpApi.request('DELETE', endpoint, data, version, includeUA)
     }
 };

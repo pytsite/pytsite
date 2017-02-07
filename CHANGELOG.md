@@ -1,12 +1,17 @@
 # PytSite Changelog
 
 
+## 0.98.57 (2017-02-07)
+### Fixed
+- `admin`: 'app@app_name' message ID usage.
+
+
 ## 0.98.56 (2017-02-07)
 ### Added
 - `http_api`: new argument **includeUA** in `pytsite.httpApi.request()` function.
 
 ### Fixed
-- 'app@app_name' message ID usage.
+- 'app@app_name' message ID usage in several places.
 
 
 ## 0.98.55 (2017-02-07)
