@@ -3,7 +3,7 @@
 # Public API
 from . import _error as error
 from ._api import get_themes_path, register, get_list, get_current, set_current, is_registered, get_theme_settings, \
-    get_info
+    get_info, load
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -27,7 +27,6 @@ def _init():
 
     # Event listeners
     events.listen('pytsite.router.dispatch', _eh.router_dispatch)
-    events.listen('pytsite.router.response', _eh.router_response)
     events.listen('pytsite.update', _eh.update)
 
     # HTTP API handlers
@@ -47,6 +46,9 @@ def _init():
             continue
 
         register('themes.' + name)
+
+    # Set current theme from settings or keep previous if settings are absent
+    set_current(settings.get('theme.current_theme', get_current()))
 
 
 _init()

@@ -1,5 +1,6 @@
 """PytSite Permission Package.
 """
+from . import _error as error
 from ._api import define_permission, define_group, get_permission, is_permission_group_defined, \
     get_permission_groups, get_permissions, is_permission_defined
 

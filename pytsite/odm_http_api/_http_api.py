@@ -60,7 +60,7 @@ def get_entity(**kwargs) -> dict:
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Check for permissions
-    if not entity.check_permissions('view'):
+    if not (entity.odm_auth_check_permission('view') or entity.odm_auth_check_permission('view_own')):
         raise _http.error.Forbidden('Insufficient permissions.')
 
     return entity.as_jsonable(**kwargs)
@@ -69,10 +69,6 @@ def get_entity(**kwargs) -> dict:
 def post_entity(inp: dict, model: str) -> dict:
     """Create new entity.
     """
-    # Check permissions
-    if not _odm_auth.check_permissions('create', model):
-        raise _http.error.Forbidden("Insufficient permissions.")
-
     # Dispense new entity
     entity = _odm.dispense(model)  # type: _odm_auth.model.AuthorizableEntity
 
@@ -100,7 +96,7 @@ def patch_entity(inp: dict, model: str, uid: str) -> dict:
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Check permissions
-    if not entity.check_permissions('modify'):
+    if not (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
         raise _http.error.Forbidden("Insufficient permissions.")
 
     # Fill fields with values

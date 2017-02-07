@@ -24,11 +24,11 @@ class AuthorizableEntity(_odm.model.Entity):
         """
         return 'create', 'view', 'modify', 'delete', 'view_own', 'modify_own', 'delete_own'
 
-    def check_permissions(self, action: str, user: _auth.model.AbstractUser = None) -> bool:
+    def odm_auth_check_permission(self, perm: str, user: _auth.model.AbstractUser = None) -> bool:
         """Check user's permissions.
         """
         from . import _api
-        return _api.check_permissions(action, self.model, self.id, user)
+        return _api.check_permission(perm, self.model, self.id, user)
 
     def _pre_save(self, **kwargs):
         super()._pre_save(**kwargs)

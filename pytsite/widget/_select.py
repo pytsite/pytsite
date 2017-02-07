@@ -218,11 +218,7 @@ class LanguageNav(_base.Abstract):
 
             # Children
             dropdown_menu = _html.Ul(cls='dropdown-menu')
-            for lng in _lang.langs():
-                # Skip current language
-                if lng == self.language:
-                    continue
-
+            for lng in _lang.langs(False, False):
                 hl = _hreflang.get(lng)
                 lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
                 if hl:
@@ -237,7 +233,7 @@ class LanguageNav(_base.Abstract):
             root.append(dropdown_root)
         else:
             # Simple list
-            for lng in _lang.langs():
+            for lng in _lang.langs(True, False):
                 lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
                 if lng == self.language:
                     # Active language

@@ -2,8 +2,7 @@
 """
 from os import path as _path
 from shutil import move as _move
-from pytsite import http as _http, router as _router, settings as _settings, reg as _reg, console as _console, \
-    file as _file, metatag as _metatag
+from pytsite import settings as _settings, reg as _reg, console as _console, file as _file, metatag as _metatag
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -14,18 +13,6 @@ __license__ = 'MIT'
 def router_dispatch():
     """pytsite.router.dispatch
     """
-    request_input = _router.request().inp
-    request_cookies = _router.request().cookies
-    theme_setting = _settings.get('theme.default_theme')
-
-    # Change theme from input, cookie or settings
-    if '__theme' in request_input and _api.is_registered(request_input['__theme']):
-        _api.set_current(request_input['__theme'])
-    elif 'PYTSITE_THEME' in request_cookies and _api.is_registered(request_cookies['PYTSITE_THEME']):
-        _api.set_current(request_cookies['PYTSITE_THEME'])
-    elif theme_setting and _api.is_registered(theme_setting):
-        _api.set_current(theme_setting)
-
     # Set favicon URL
     favicon_fid = _settings.get('theme.favicon_fid')
     if favicon_fid:
@@ -35,17 +22,6 @@ def router_dispatch():
             _metatag.t_set('link', rel='icon', type=f.mime, href=f.get_url(width=50, height=50))
         except _file.error.FileNotFound:
             pass
-
-
-
-def router_response(response: _http.response.Response):
-    """pytsite.router.response
-    """
-    request_input = _router.request().inp
-
-    # Store selected theme in cookie
-    if '__theme' in request_input and _api.is_registered(request_input['__theme']):
-        response.set_cookie('PYTSITE_THEME', request_input['__theme'])
 
 
 def update(version: str):

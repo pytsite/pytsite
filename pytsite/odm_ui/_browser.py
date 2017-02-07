@@ -24,19 +24,24 @@ class Browser(_widget.misc.BootstrapTable):
         if not self._model:
             raise RuntimeError('No model has been specified.')
 
-        # Checking current user's permissions
-        if not _odm_auth.check_permissions('create', self._model) and \
-                not _odm_auth.check_permissions('modify', self._model) and \
-                not _odm_auth.check_permissions('delete', self._model):
+        # Model class and mock instance
+        self._model_class = _api.get_model_class(self._model)
+        self._mock = _api.dispense_entity(self._model)
+
+        # Need at least one permission to show entities browser to user
+        allow = False
+        for p in self._mock.odm_auth_permissions():
+            if _odm_auth.check_permission(p, self._model):
+                allow = True
+                break
+
+        # Was at least one permission found?
+        if not allow:
             raise _http.error.Forbidden()
 
         self._data_url = _http_api.url('pytsite.odm_ui@get_rows', {'model': self._model})
         self._current_user = auth.get_current_user()
         self._finder_adjust = self._default_finder_adjust
-
-        # Model class and mock instance
-        self._model_class = _api.get_model_class(self._model)
-        self._mock = _api.dispense_entity(self._model)
 
         # Browser title
         self._title = self._model_class.t('odm_ui_browser_title_' + self._model)
@@ -44,7 +49,7 @@ class Browser(_widget.misc.BootstrapTable):
         _metatag.t_set('description', '')
 
         # 'Create' toolbar button
-        if self._mock.check_permissions('create'):
+        if self._mock.odm_auth_check_permission('create') and self._mock.odm_ui_creation_allowed():
             create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': self._model,
                 'id': '0',
@@ -57,7 +62,7 @@ class Browser(_widget.misc.BootstrapTable):
             self._toolbar.append(_html.Span('&nbsp;'))
 
         # 'Delete' toolbar button
-        if self._mock.check_permissions('delete'):
+        if self._mock.odm_auth_check_permission('delete') and self._mock.odm_ui_deletion_allowed():
             delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
             btn = _html.A(href=delete_form_url, cls='hidden btn btn-danger mass-action-button', title=title)
@@ -108,10 +113,10 @@ class Browser(_widget.misc.BootstrapTable):
 
     def _build_head_row(self, row: _html.Tr):
         # Actions column
-        if self._model_class.odm_ui_model_actions_enabled():
+        if self._model_class.odm_ui_entity_actions_enabled():
             row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
-    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str]=None,
+    def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str] = None,
                  search: str = None) -> list:
         """Get browser rows.
         """
@@ -173,7 +178,7 @@ class Browser(_widget.misc.BootstrapTable):
                 cell[f_name] = cell_content
 
             # Action buttons
-            if self._model_class.odm_ui_model_actions_enabled():
+            if self._model_class.odm_ui_entity_actions_enabled():
                 actions = self._get_entity_action_buttons(entity)
                 for btn_data in entity.odm_ui_browser_entity_actions():
                     color = 'btn btn-xs btn-' + btn_data.get('color', 'default')
@@ -200,7 +205,8 @@ class Browser(_widget.misc.BootstrapTable):
         """
         group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
 
-        if entity.check_permissions('modify'):
+        if entity.odm_ui_modification_allowed() and \
+                (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
             m_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': entity.model,
                 'id': str(entity.id),
@@ -212,7 +218,8 @@ class Browser(_widget.misc.BootstrapTable):
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
-        if entity.check_permissions('delete'):
+        if entity.odm_ui_deletion_allowed() and \
+                (entity.odm_auth_check_permission('delete') or entity.odm_auth_check_permission('delete_own')):
             d_form_url = _router.ep_url('pytsite.odm_ui@d_form', {
                 'model': entity.model,
                 'ids': str(entity.id),

@@ -134,6 +134,7 @@ class ODMRole(_odm_ui.model.UIEntity):
                     label=_lang.t(p_desc),
                     value=p_name,
                     checked=p_name in self.f_get('permissions'),
+                    label_disabled=True,
                 ), tab_id)
 
         frm.add_widget(perms_tabs)
@@ -550,15 +551,15 @@ class ODMUser(_odm_ui.model.UIEntity):
     def odm_ui_mass_action_entity_description(self) -> str:
         return '{} ({} {})'.format(self.f_get('login'), self.f_get('first_name'), self.f_get('last_name'))
 
-    def check_permissions(self, action: str, user: _auth.model.AbstractUser = None) -> bool:
+    def odm_auth_check_permission(self, perm: str, user: _auth.model.AbstractUser = None) -> bool:
         if not user:
             user = _auth.get_current_user()
 
         # Users can modify themselves
-        if action == 'modify' and user.uid == str(self.id):
+        if perm in ('modify', 'modify_own') and user.uid == str(self.id):
             return True
 
-        return super().check_permissions(action)
+        return super().odm_auth_check_permission(perm, user)
 
 
 class User(_auth.model.AbstractUser):

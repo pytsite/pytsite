@@ -90,13 +90,21 @@ def register(package_name: str):
     if len(_themes) == 1:
         set_current(package_name)
 
-    # Start theme
+
+def load(package_name: str = None):
+    """Initialize theme.
+    """
+    if not package_name:
+        package_name = get_current()
+
     try:
         _themes[package_name]['package'] = _import_module(package_name)
+    except KeyError:
+        raise _error.ThemeNotRegistered("Theme's package '{}' is not registered".format(package_name))
     except ImportError as e:
-        raise _error.ThemeRegistrationFailed("Error while registering theme package '{}': {}".format(package_name, e))
+        raise _error.ThemeRegistrationFailed("Error while loading theme package '{}': {}".format(package_name, e))
 
-    _logger.info("Theme '{}' successfully loaded from '{}'".format(theme_name, package_name))
+    _logger.info("Theme '{}' successfully loaded from '{}'".format(_themes[package_name]['name'], package_name))
 
 
 def get_list() -> _Dict[str, _Dict]:

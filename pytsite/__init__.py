@@ -132,5 +132,9 @@ def _init():
     from . import _eh
     events.listen('pytsite.update', _eh.update)
 
+    # Initialize theme
+    from pytsite import theme
+    theme.load()
+
 
 _init()

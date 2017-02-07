@@ -44,19 +44,25 @@ def define(languages: list):
     global _languages
     _languages = languages
 
+    # Append 'neutral' language
+    languages.append('n')
+
     set_current(_languages[0])
     set_fallback(_languages[0])
 
 
-def langs(include_current: bool = True) -> _List[str]:
+def langs(include_current: bool = True, include_neutral: bool = True) -> _List[str]:
     """Get all available languages.
     """
-    if include_current:
-        return _languages
-    else:
-        tid = _threading.get_id()
-        return [lng for lng in _languages if lng != _current[tid]]
+    r = _languages.copy()
 
+    if not include_neutral:
+        r.remove('n')
+
+    if not include_current:
+        r.remove(_current[_threading.get_id()])
+
+    return r
 
 def set_current(language: str):
     """Set current default language.
@@ -237,10 +243,14 @@ def lang_title(language: str = None) -> str:
     """
     if not language:
         language = get_current()
+
     try:
-        return t('app@lang_title_' + language, exceptions=True)
+        return t('pytsite.lang@lang_title_' + language, exceptions=True)
     except _error.TranslationError:
-        return language
+        try:
+            return t('app@lang_title_' + language, exceptions=True)
+        except _error.TranslationError:
+            return language
 
 
 def load_lang_file(pkg_name: str, language: str = None):

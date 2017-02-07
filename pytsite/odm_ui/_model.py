@@ -43,7 +43,25 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         return ()
 
     @classmethod
-    def odm_ui_model_actions_enabled(cls) -> bool:
+    def odm_ui_creation_allowed(cls) -> bool:
+        """Should be UI entity creation function be available.
+        """
+        return True
+
+    @classmethod
+    def odm_ui_modification_allowed(cls) -> bool:
+        """Should be UI entity modification function be available.
+        """
+        return True
+
+    @classmethod
+    def odm_ui_deletion_allowed(cls) -> bool:
+        """Should be UI entity deletion function be available.
+        """
+        return True
+
+    @classmethod
+    def odm_ui_entity_actions_enabled(cls) -> bool:
         """Should the 'actions' column be visible in the entities browser.
         """
         return True
@@ -122,18 +140,22 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
 
     @property
     def url(self) -> str:
+        """Shortcut.
+        """
         return self.odm_ui_view_url()
 
     @property
     def modify_url(self) -> str:
+        """Shortcut.
+        """
         return self.odm_ui_m_form_url()
 
     def as_jsonable(self, **kwargs) -> dict:
         r = super().as_jsonable(**kwargs)
 
-        view_perm = self.check_permissions('view')
-        modify_perm = self.check_permissions('modify')
-        delete_perm = self.check_permissions('delete')
+        view_perm = self.odm_auth_check_permission('view')
+        modify_perm = self.odm_auth_check_permission('modify') or self.odm_auth_check_permission('modify_own')
+        delete_perm = self.odm_auth_check_permission('delete') or self.odm_auth_check_permission('delete_own')
 
         r['permissions'] = {
             'view': view_perm,

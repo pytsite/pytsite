@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _model as model
-from ._api import check_permissions
+from ._api import check_permission
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

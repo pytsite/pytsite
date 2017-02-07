@@ -180,8 +180,8 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
     """
     safe_tags = 'a:href,target,rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
                 'dt|em|figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src,width,height|img:src,alt|ins|kbd|li|mark|' \
-                'ol|output|p|param|pre:class|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|' \
-                'tfoot|th|thead|time|tr|u|ul|var|wbr'
+                'ol|output|p|param|pre:class|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table:style|tbody|' \
+                'td:style|tfoot|th|thead|time|tr|u|ul|var|wbr'
 
     if remove_tags:
         for remove_tag in remove_tags.split('|'):

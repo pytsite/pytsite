@@ -4,7 +4,7 @@ $(window).on('pytsite.widget.init:pytsite.ckeditor._widget.CKEditor', function (
             title: false,
             extraPlugins: 'youtube,codesnippet,stylescombo',
             language: pytsite.lang.current(),
-            filebrowserUploadUrl: pytsite.httpApi.url('file/upload'),
+            filebrowserUploadUrl: pytsite.httpApi.url('file'),
             height: 500,
             toolbar: [
                 ['Bold', 'Italic', '-', 'Underline', 'Strike', '-', 'Subscript', 'Superscript', '-', 'Format', 'RemoveFormat'],
@@ -17,7 +17,7 @@ $(window).on('pytsite.widget.init:pytsite.ckeditor._widget.CKEditor', function (
             coreStyles_italic: {
                 element: 'i'
             },
-            extraAllowedContent: 'div p blockquote img ul ol li a i span[data-*,hidden,lang](*);script[*];code(*);pre(*)',
+            extraAllowedContent: 'div p blockquote img ul ol li a i;span[data-*,hidden,lang](*);script[*];code(*);pre(*)',
             disableNativeSpellChecker: false
         }).editor;
 

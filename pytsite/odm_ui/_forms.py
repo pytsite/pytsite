@@ -42,12 +42,19 @@ class Modify(_form.Form):
             raise _http.error.NotFound()
 
         # Check if entities of this model can be created
-        if not self._eid and not entity.check_permissions('create'):
-            raise _http.error.Forbidden()
+
+        if entity.is_new:
+            perms_allow = entity.odm_auth_check_permission('create')
+            odm_ui_allows = entity.odm_ui_creation_allowed()
+            if not (perms_allow and odm_ui_allows):
+                raise _http.error.Forbidden()
 
         # Check if the entity can be modified
-        if self._eid and not entity.check_permissions('modify'):
-            raise _http.error.Forbidden()
+        if not entity.is_new:
+            perms_allow = entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')
+            odm_ui_allows = entity.odm_ui_modification_allowed()
+            if not (perms_allow and odm_ui_allows):
+                raise _http.error.Forbidden()
 
         # Form title
         if entity.is_new:
@@ -215,7 +222,8 @@ class Delete(MassAction):
         super()._on_setup_form()
 
         # Check permissions
-        if not _odm_auth.check_permissions('delete', self._model, self._eids):
+        if not (_odm_auth.check_permission('delete', self._model, self._eids) or
+                _odm_auth.check_permission('delete_own', self._model, self._eids)):
             raise _http.error.Forbidden()
 
         # Page title

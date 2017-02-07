@@ -1,6 +1,23 @@
 # PytSite Changelog
 
 
+## 0.98.55 (2017-02-07)
+### Added
+- `core`: late theme initialization.
+- `lang`: neutral language support.
+- `odm_ui`: `odm_*_allowed` methods in `model.UIEntity`.
+
+### Changed
+- `odm_auth`: checking permissions concept.
+- `util`: support for table styles by default in `tidyfy_html()`.
+
+### Fixed
+- `ckeditor`: images uploading.
+
+### Removed
+- `theme`: on the fly theme switching. 
+
+
 ## 0.98.54 (2017-02-02)
 ### Fixed
 - `plugman`: dependencies management while upgrading plugins. 

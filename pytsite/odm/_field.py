@@ -117,7 +117,7 @@ class Abstract(_ABC):
         """Set value of the field.
         """
         if value is None:
-            self._value = _deepcopy(self._default)
+            self.clr_val()
         else:
             # Pass value through the hook
             self._value = self._on_set(value, **kwargs)

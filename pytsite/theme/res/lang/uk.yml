@@ -1,5 +1,5 @@
 theme: 'Тема'
 manage_themes: 'Керування темами'
-default_theme: 'Тема за замовчуванням'
+current_theme: 'Поточна тема'
 logo: 'Лого'
 favicon: 'Favicon'

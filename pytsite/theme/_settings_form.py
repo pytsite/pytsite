@@ -28,9 +28,9 @@ class Form(_settings.Form):
             ))
 
         self.add_widget(_widget.select.Select(
-            uid='setting_default_theme',
+            uid='setting_current_theme',
             weight=10,
-            label=_lang.t('pytsite.theme@default_theme'),
+            label=_lang.t('pytsite.theme@current_theme'),
             required=True,
             items=sorted([(k, v['description']) for k, v in _api.get_list().items()]),
             h_size='col-xs-12 col-sm-6 col-md-5 col-lg-4',
@@ -66,6 +66,6 @@ class Form(_settings.Form):
         """Hook.
         """
         # Rebuild assets for selected theme
-        _assetman.build(self.values.get('setting_default_theme'), cache=False)
+        _assetman.build(self.values.get('setting_current_theme'), cache=False)
 
         return super()._on_submit()
