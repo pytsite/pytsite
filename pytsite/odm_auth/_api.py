@@ -25,7 +25,7 @@ def check_permission(perm: str, model: str, ids: _Iterable = None, user: _auth.m
         ids = (ids,)
 
     # Check user's personal permission
-    if perm.find('_own.') and isinstance(ids, (list, tuple)):
+    if perm.find('_own.') > 0 and isinstance(ids, (list, tuple)):
         # Check each entity
         for eid in ids:
             entity = _odm.dispense(model, eid)

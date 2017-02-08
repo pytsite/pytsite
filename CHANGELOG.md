@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.59 (2017-02-08)
+### Fixed
+- `odm_auth`: permissions checking error.  
+
+
 ## 0.98.58 (2017-02-07)
 ### Fixed
 - `theme`: settings form.
