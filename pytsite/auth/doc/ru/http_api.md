@@ -1,14 +1,18 @@
 # PytSite Authentication HTTP API
 
 
-## POST auth/access-token
+## POST auth/access-token/:driver
 
 Создание токена доступа.
 
 
+### Аргументы
+
+- `driver`: имя драйвера аутентификации.
+
+
 ### Параметры
 
-- *optional* **str** `driver`. Имя драйвера аутентификации.
 - *required* аргументы драйвера аутентификации.
 
 
@@ -25,14 +29,13 @@
 
 ### Примеры
 
-Запрос. В данном примере аргументы `login` и `password` являются аргументами драйвера `password`:
+Получение токена доступа через драйвер 'password'. Параметры `login` и `password` являются аргументами драйвера:
 
 ```
 curl -X POST \
--d driver=password \
 -d login=vasya@pupkeen.com \
 -d password=Very5tr0ngP@ssw0rd \
-https://test.com/api/1/auth/access-token
+https://test.com/api/1/auth/access-token/password
 ```
 
 
@@ -49,12 +52,13 @@ https://test.com/api/1/auth/access-token
 ```
 
 
-## GET auth/access-token/<token>
+## GET auth/access-token/:token
 
 Получение информации о токене доступа.
 
 
 ### Аргументы
+
 - `token`. Токен доступа.
 
 
@@ -90,9 +94,9 @@ curl -X GET https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd808
 ```
 
 
-## DELETE auth/access-token/<token>
+## DELETE auth/access-token/:token
 
-Удаление ранее выданного токена доступа.
+Удаление ранее созданного токена доступа.
 
 
 ### Аргументы
@@ -124,7 +128,7 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 
 
 
-## GET auth/user/<uid>
+## GET auth/user/:uid
 
 Получение информации об учётной записи пользователя.
 
@@ -189,7 +193,9 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 Запрос:
 
 ```
-curl -X GET https://test.com/api/1/auth/user/576563ef523af52badc5beac
+curl -X GET \ 
+-d access_token=e51081bc4632d8c2a31ac5bd8080af1b \
+https://test.com/api/1/auth/user/576563ef523af52badc5beac
 ```
 
 
@@ -234,5 +240,103 @@ curl -X GET https://test.com/api/1/auth/user/576563ef523af52badc5beac
   [
       "57d665063e7d8960ed762231"
   ]
+}
+```
+
+
+## (Не реализовано) PATCH auth/user/:uid
+
+Изменение учётной записи пользователя.
+
+
+### Аргументы
+
+- `uid`. Уникальный идентификатор учётной записи.
+
+
+### Параметры
+
+- *required* **str** `access_token`. Токен доступа.
+- *required* изменяемые поля.
+
+
+## POST /auth/follow/:uid
+
+Фолловинг пользователя.
+
+
+### Аргументы
+
+- `uid`. Уникальный идентификатор учётной записи для фолловинга.
+
+
+### Параметры
+
+- *required* **str** `access_token`. Токен доступа.
+
+
+### Формат ответа
+
+Объект.
+
+- **bool** `status`. Результат обработки запроса.
+
+
+### Примеры
+
+Запрос:
+
+```
+curl -X POST \ 
+-d access_token=e51081bc4632d8c2a31ac5bd8080af1b \
+https://test.com/api/1/auth/follow/576563ef523af52badc5beac
+```
+
+Ответ:
+
+```
+{
+    "status": true
+}
+```
+
+
+## POST /auth/follow/:uid
+
+Анфолловинг пользователя.
+
+
+### Аргументы
+
+- `uid`. Уникальный идентификатор учётной записи для анфолловинга.
+
+
+### Параметры
+
+- *required* **str** `access_token`. Токен доступа.
+
+
+### Формат ответа
+
+Объект.
+
+- **bool** `status`. Результат обработки запроса.
+
+
+### Примеры
+
+Запрос:
+
+```
+curl -X POST \ 
+-d access_token=e51081bc4632d8c2a31ac5bd8080af1b \
+https://test.com/api/1/auth/unfollow/576563ef523af52badc5beac
+```
+
+Ответ:
+
+```
+{
+    "status": true
 }
 ```

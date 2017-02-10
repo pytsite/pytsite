@@ -1,11 +1,19 @@
 # PytSite Changelog
 
 
+## 0.98.61 (2017-02-11)
+### Changed
+- `auth`: HTTP API endpoints signature.
+
+### Updated
+- Documentation of `http_api`, `odm_http_api`, `file`, `auth`.
+
+
 ## 0.98.60 (2017-02-10)
 ### Changed
 - `auth`: access token authentication code moved to `http_api`.
 
-### Fixes
+### Fixed
 - `metatag`: HTTP exceptions handling.
 
 

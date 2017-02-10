@@ -1,60 +1,24 @@
 # PytSite ODM HTTP API
 
-## GET odm/entity
 
-Получение сущности.
-
-
-### Аргументы
-
-- *required* **str** `model`. Модель.
-- *required* **str** `uid`. UID сущности.
-- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
-
-
-### Формат ответа
-
-Объект.
-
-
-### Примеры
-
-Запрос:
-
-```
-curl -X GET \
--d model=product \
--d uid=580243983e7d899753249cec \
-http://test.com/api/1/odm/entity
-```
-
-
-Ответ:
-
-```
-{
-    "uid": "580243983e7d899753249cec",
-    "title": "Картошка",
-    "description": "Очень вкусный и полезный продукт."
-}
-```
-
-
-## POST odm/entity
+## POST odm/entity/:model
 
 Создание сущности.
 
 
 ### Аргументы
-
 - *required* **str** `model`. Модель.
-- *required* **object**. Поля сущности.
+
+
+### Параметры
+
+- *required* поля сущности.
 - *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
 
 
 ### Формат ответа
 
-Объект.
+Объект, содержащий поля сущности и их значения.
 
 
 ### Примеры
@@ -63,10 +27,9 @@ http://test.com/api/1/odm/entity
 
 ```
 curl -X POST \
--d model=product \
--d title=Картошка \
+-d title='Картошка' \
 -d description='Очень вкусный и полезный продукт.' \
-http://test.com/api/1/odm/entity
+http://test.com/api/1/odm/entity/product
 ```
 
 
@@ -81,17 +44,69 @@ http://test.com/api/1/odm/entity
 ```
 
 
-## PATCH odm/entity
+## GET odm/entity/:model/:uid
+
+Получение сущности.
+
+
+### Аргументы
+
+- `model`. Модель.
+- `uid`. UID сущности.
+
+
+### Параметры
+
+- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
+
+
+### Формат ответа
+
+Полностью совпадает с форматом ответа **POST odm/entity/:model**.
+
+
+### Примеры
+
+Запрос:
+
+```
+curl -X GET \
+-d access_token=b81de38b9b9589f9a0ec569416e75a25 \
+http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
+```
+
+
+Ответ:
+
+```
+{
+    "uid": "580243983e7d899753249cec",
+    "title": "Картошка",
+    "description": "Очень вкусный и полезный продукт."
+}
+```
+
+
+## PATCH odm/entity/:model/:uid
 
 Изменение сущности.
 
 
 ### Аргументы
 
-- *required* **str** `model`. Модель.
-- *required* **str** `uid`. UID сущности.
+- `model`. Модель.
+- `uid`. UID сущности.
+
+
+### Параметры
+
+- *required* поля сущности.
 - *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
-- *required* **object**. Поля сущности.
+
+
+### Формат ответа
+
+Полностью совпадает с форматом ответа **POST odm/entity/:model**.
 
 
 ### Примеры
@@ -100,11 +115,10 @@ http://test.com/api/1/odm/entity
 
 ```
 curl -X PATCH \
--d model=product \
--d uid=580243983e7d899753249cec \
+-d access_token=b81de38b9b9589f9a0ec569416e75a25 \
 -d title='Уже не картошка' \
 -d description='Это теперь капуста!' \
-http://test.com/api/1/odm/entity
+http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 ```
 
 
@@ -119,13 +133,44 @@ http://test.com/api/1/odm/entity
 ```
 
 
-## DELETE odm/entity
+## DELETE odm/entity/:model/:uid
 
-Удаление сущностей.
+Удаление сущности.
 
 
 ### Аргументы
 
 - *required* **str** `model`. Модель.
-- *required* **str** `uid`. UID сущностей.
+- *required* **str** `uid`. UID сущности.
+
+
+### Параметры
+
 - *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
+
+
+### Формат ответа
+
+Объект.
+
+- **bool** `status`. Результат обработки запроса.
+
+
+### Примеры
+
+Запрос:
+
+```
+curl -X DELETE \
+-d access_token=b81de38b9b9589f9a0ec569416e75a25 \
+http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
+```
+
+
+Ответ:
+
+```
+{
+    "status": true
+}
+```

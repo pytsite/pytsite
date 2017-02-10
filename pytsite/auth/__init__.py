@@ -29,20 +29,21 @@ def __init():
     # Module permission group
     permissions.define_group('security', 'pytsite.auth@security')
 
-    # HTTP API handlers
+    # Access token HTTP API handlers
     http_api.handle('POST', 'auth/access-token', _http_api.post_access_token,
                     'pytsite.auth@post_access_token')
     http_api.handle('GET', 'auth/access-token/<token>', _http_api.get_access_token,
                     'pytsite.auth@get_access_token')
     http_api.handle('DELETE', 'auth/access-token/<token>', _http_api.delete_access_token,
                     'pytsite.auth@delete_access_token')
-    http_api.handle('GET', 'auth/user/<uid>', _http_api.get_user,
-                    'pytsite.auth@get_user')
-    http_api.handle('PATCH', 'auth/user/<uid>', _http_api.patch_user,
-                    'pytsite.auth@patch_user')
 
-    # ???
-    http_api.handle('PATCH', 'auth/follow/<uid>', _http_api.patch_follow, 'pytsite.auth@patch_follow')
+    # User HTTP API handlers
+    http_api.handle('GET', 'auth/user/<uid>', _http_api.get_user, 'pytsite.auth@get_user')
+    http_api.handle('PATCH', 'auth/user/<uid>', _http_api.patch_user, 'pytsite.auth@patch_user')
+
+    # Following HTTP API handlers
+    http_api.handle('POST', 'auth/follow/<uid>', _http_api.follow_user, 'pytsite.auth@follow_user')
+    http_api.handle('DELETE', 'auth/unfollow/<uid>', _http_api.unfollow_user, 'pytsite.auth@unfollow_user')
 
     # Common routes
     bp = base_path()

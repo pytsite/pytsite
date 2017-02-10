@@ -19,12 +19,12 @@ def _get_access_token_info(token: str) -> dict:
     return r
 
 
-def post_access_token(inp: dict) -> dict:
-    """Sign in user.
+def post_access_token(inp: dict, driver: str) -> dict:
+    """Generate access token for user.
     """
     try:
         # Try to sign in user via driver
-        user = _api.sign_in(inp.get('driver'), inp)
+        user = _api.sign_in(driver, inp)
 
         return _get_access_token_info(_api.generate_access_token(user))
 
@@ -43,7 +43,7 @@ def get_access_token(inp: dict, token: str) -> dict:
 
 
 def delete_access_token(inp: dict, token: str) -> dict:
-    """Sign out user.
+    """Delete access token.
     """
     try:
         _api.sign_out(_api.get_current_user())
@@ -88,43 +88,43 @@ def patch_user(inp: dict, uid: str) -> dict:
     raise NotImplementedError('Not implemented yet')
 
 
-def patch_follow(inp: dict, **kwargs) -> bool:
-    """Follow.
+def follow_user(inp: dict, uid: str) -> dict:
+    """Follow user.
     """
-    op = kwargs.get('op')  # What to do: follow or unfollow
-    uid = kwargs.get('uid')  # Who to (un)follow
-
-    # Does all required arguments present?
-    if not op or not uid:
-        raise _http.error.InternalServerError('Insufficient arguments.')
-
     # Is current user authorized
     current_user = _api.get_current_user()
     if current_user.is_anonymous:
         raise _http.error.Unauthorized()
 
-    # Load user
+    # Load user to follow
     user = _api.get_user(uid=uid)
 
-    if op == 'follow':
-        _api.switch_user_to_system()
-        user.add_follower(current_user).save()
-        current_user.add_follows(user).save()
-        _api.restore_user()
+    _api.switch_user_to_system()
+    user.add_follower(current_user).save()
+    current_user.add_follows(user).save()
+    _api.restore_user()
 
-        _events.fire('pytsite.auth.follow', user=user, follower=current_user)
+    _events.fire('pytsite.auth.follow', user=user, follower=current_user)
 
-        return True
+    return {'status': True}
 
-    elif op == 'unfollow':
-        _api.switch_user_to_system()
-        user.remove_follower(current_user).save()
-        current_user.remove_follows(user).save()
-        _api.restore_user()
 
-        _events.fire('pytsite.auth.unfollow', user=user, follower=current_user)
+def unfollow_user(inp: dict, uid: str) -> dict:
+    """Unfollow user.
+    """
+    # Is current user authorized
+    current_user = _api.get_current_user()
+    if current_user.is_anonymous:
+        raise _http.error.Unauthorized()
 
-        return True
+    # Load user to unfollow
+    user = _api.get_user(uid=uid)
 
-    else:
-        raise _http.error.InternalServerError("Invalid operation: 'follow' or 'unfollow' expected.")
+    _api.switch_user_to_system()
+    user.remove_follower(current_user).save()
+    current_user.remove_follows(user).save()
+    _api.restore_user()
+
+    _events.fire('pytsite.auth.unfollow', user=user, follower=current_user)
+
+    return {'status': True}

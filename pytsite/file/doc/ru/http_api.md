@@ -42,7 +42,7 @@ http://test.com/api/1/file
 ```
 
 
-## GET file/<uid>
+## GET file/:uid
 
 Получение информации о файле.
 
