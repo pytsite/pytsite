@@ -10,14 +10,14 @@ __license__ = 'MIT'
 _tags = {}
 
 
-def reset():
+def reset(title: str = None):
     """Reset tags.
     """
     global _tags
     _tags = {}
 
     t_set('charset', 'UTF-8')
-    t_set('title', _lang.t('pytsite.metatag@untitled_document'))
+    t_set('title', title or _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
     t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
 

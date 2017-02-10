@@ -1,4 +1,4 @@
-"""
+"""PytSite Admin Event Handlers
 """
 from pytsite import lang as _lang, auth as _auth, router as _router, hreflang as _hreflang, http as _http
 from . import _api
@@ -9,6 +9,8 @@ __license__ = 'MIT'
 
 
 def router_dispatch():
+    """'pytsite.router.dispatch' event handler
+    """
     if _router.current_path(True).startswith(_api.base_path()):
         c_user = _auth.get_current_user()
 

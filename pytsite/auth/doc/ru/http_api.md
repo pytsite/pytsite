@@ -1,7 +1,5 @@
 # PytSite Authentication HTTP API
 
-Перед изучением этого документа убедитесь, что разобрались с [PytSite HTTP API](../../../http_api/doc/ru/index.md).
-
 
 ## POST auth/access-token
 

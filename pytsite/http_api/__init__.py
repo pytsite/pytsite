@@ -20,7 +20,7 @@ def _init():
     assetman.add('pytsite.http_api@js/common.js', True)
 
     # Event listeners
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    events.listen('pytsite.router.dispatch', _eh.router_dispatch, priority=-999)
     events.listen('pytsite.router.response', _eh.router_response)
 
 

@@ -12,6 +12,7 @@ def _init():
 
     lang.register_package(__name__)
     events.listen('pytsite.router.dispatch', reset)
+    events.listen('pytsite.router.exception', lambda args: reset(args.get('title')))
 
     tpl.register_global('metatag', dump)
     tpl.register_global('metatags', dump_all)

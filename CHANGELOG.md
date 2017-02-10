@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.98.60 (2017-02-10)
+### Changed
+- `auth`: access token authentication code moved to `http_api`.
+
+### Fixes
+- `metatag`: HTTP exceptions handling.
+
+
 ## 0.98.59 (2017-02-08)
 ### Fixed
 - `odm_auth`: permissions checking error.  

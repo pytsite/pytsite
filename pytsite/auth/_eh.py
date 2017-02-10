@@ -40,21 +40,8 @@ def router_dispatch():
     """
     user = _api.get_anonymous_user()
 
-    # Determine current user based on request's argument
-    access_token = _router.request().inp.get('access_token')
-    if access_token:
-        try:
-            user = _api.get_user(access_token=access_token)
-            _api.prolong_access_token(access_token)
-
-        except (_error.InvalidAccessToken, _error.UserNotExist) as e:
-            raise _http.error.Unauthorized(response=_http.response.JSON({'error': str(e)}))
-
-        except _error.AuthenticationError as e:
-            raise _http.error.Forbidden(response=_http.response.JSON({'error': str(e)}))
-
     # Determine current user based on session's data
-    elif 'pytsite.auth.login' in _router.session():
+    if 'pytsite.auth.login' in _router.session():
         try:
             user = _api.get_user(_router.session()['pytsite.auth.login'])
         except _error.UserNotExist:

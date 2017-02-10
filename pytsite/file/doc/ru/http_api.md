@@ -1,10 +1,7 @@
 # PytSite File HTTP API
 
-Перед изучением этого документа убедитесь, что разобрались с принципами работы 
-[PytSite HTTP API](../../../http_api/doc/ru/index.md).
 
-
-## POST file/upload
+## POST file
 
 Загрузка файлов. Для работы с этим методом **должен** использоваться 
 [HTTP Multipart Content-Type](https://www.ietf.org/rfc/rfc2388.txt)
@@ -12,7 +9,7 @@
 
 ### Параметры
 
-- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md#post-pytsiteauthsign_in).
+- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
 - *required* **binary** `file{N}`. Загружаемый файл, где `{N}` -- порядковый номер файла.  
 
 
@@ -32,7 +29,7 @@ curl \
 -F access_token=b81de38b9b9589f9a0ec569416e75a25 \
 -F file1=@/home/user/HelloWorld.jpg \
 -F file2=@/home/user/HereWeGo.png \
-http://test.com/api/1/file/upload
+http://test.com/api/1/file
 ```
 
 Ответ:
