@@ -1,6 +1,20 @@
 # PytSite Changelog
 
 
+## 0.98.62 (2017-02-12)
+### Added
+- New package: `stats`.
+- `cron`: events API shortcuts.
+- `events`: value return in `fire()`.
+- `odm`: entities cache cleanup.
+
+### Changed
+- `form`: default form's cache TTL increased to 6 hours.
+
+### Fixed
+- `metatag`: multithreading issue in `reset()`.
+
+
 ## 0.98.61 (2017-02-11)
 ### Changed
 - `auth`: HTTP API endpoints signature.

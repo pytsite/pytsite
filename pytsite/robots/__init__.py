@@ -10,10 +10,10 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import events
+    from pytsite import cron
     from . import _eh
 
-    events.listen('pytsite.cron.daily', _eh.cron_daily)
+    cron.daily(_eh.cron_daily)
 
 
 _init()

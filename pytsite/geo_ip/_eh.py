@@ -16,7 +16,7 @@ def pytsite_update(version: str):
         _db.get_collection('geo_ips').drop()
 
 
-def pytsite_cron_weekly():
+def cron_weekly():
     """'pytsite.cron.weekly' event handler.
     """
     # Delete expired entities

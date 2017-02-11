@@ -2,6 +2,7 @@
 """
 from datetime import datetime as _datetime
 from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, auth as _auth
+from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -43,6 +44,7 @@ def _update_stats(part: str) -> dict:
 
 if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
     from uwsgidecorators import timer as _uwsgi_timer
+
 
     @_uwsgi_timer(60)
     def _cron_worker(num):

@@ -1,4 +1,4 @@
-"""PytSite Threading.
+"""PytSite Threading
 """
 import threading as _python_threading
 
@@ -6,7 +6,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
+# Ready to use re-entrant lock
 _shared_r_lock = _python_threading.RLock()
 
 
@@ -23,11 +23,13 @@ def create_thread(target, **kwargs) -> _python_threading.Thread:
 
 
 def create_r_lock():
+    """Create re-entrant lock.
+    """
     return _python_threading.RLock()
 
 
 def get_shared_r_lock():
-    """Get re-entrant lock.
+    """Get shared re-entrant lock.
     """
     return _shared_r_lock
 

@@ -26,16 +26,18 @@ def listen(event: str, listener: callable, call_once: bool = False, priority: in
         _logger.debug("Listener attached to event '{}': {}.{}()".format(event, listener.__module__, listener.__name__))
 
 
-def fire(event: str, stop_after: int = None, **kwargs):
+def fire(event: str, stop_after: int = None, **kwargs) -> list:
     """Fires an event to listeners.
     """
+    r = []
+
     if event not in _listeners:
-        return
+        return r
 
     count = 0
     for handler, call_once, priority in _listeners[event]:
         # Call handler
-        handler(**kwargs)
+        r.append(handler(**kwargs))
 
         # Count called handler and stop if it is necessary
         count += 1
@@ -44,6 +46,8 @@ def fire(event: str, stop_after: int = None, **kwargs):
 
     # Remove handlers which should be called once
     _listeners[event] = [item for item in _listeners[event] if not item[1]]
+
+    return r
 
 
 def first(event: str, **kwargs):

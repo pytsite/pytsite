@@ -7,8 +7,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_TTL = _reg.get('form.cache.ttl', 21600)
 _forms = {}
-_ttl = _reg.get('form.ttl', 3600)
 
 
 def put(frm):
@@ -45,8 +45,12 @@ def cleanup():
     uids_to_rm = []
 
     for frm in _forms.values():
-        if (_datetime.now() - frm.created).seconds > _ttl:
+        if (_datetime.now() - frm.created).seconds > _TTL:
             uids_to_rm.append(frm.uid)
 
     for uid in uids_to_rm:
         rm(uid)
+
+
+def get_size() -> int:
+    return len(_forms)

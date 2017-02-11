@@ -122,7 +122,7 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 
 ```
 {
-  status: true
+  "status": true
 }
 ```
 
@@ -260,7 +260,7 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 - *required* изменяемые поля.
 
 
-## POST /auth/follow/:uid
+## POST auth/follow/:uid
 
 Фолловинг пользователя.
 
@@ -301,7 +301,7 @@ https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 ```
 
 
-## POST /auth/follow/:uid
+## POST auth/follow/:uid
 
 Анфолловинг пользователя.
 

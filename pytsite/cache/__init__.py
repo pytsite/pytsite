@@ -8,5 +8,4 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _events.listen('pytsite.cron.1min', cleanup_pools)

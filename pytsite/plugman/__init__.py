@@ -30,7 +30,7 @@ def _cron_check_license():
 
 def _init():
     from os import mkdir, path
-    from pytsite import settings, lang, assetman, permissions, http_api, logger, events
+    from pytsite import settings, lang, assetman, permissions, http_api, logger, events, cron
     from . import _settings_form, _eh, _http_api
 
     # Resources
@@ -63,7 +63,7 @@ def _init():
                 install(plugin_name)
 
         # Periodically check license
-        events.listen('pytsite.cron.hourly', _cron_check_license)
+        cron.hourly(_cron_check_license)
 
         # Check license
         try:

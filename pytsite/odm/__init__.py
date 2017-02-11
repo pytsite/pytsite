@@ -12,9 +12,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
-    from pytsite import console, lang, events
-    from . import _console_command, _eh
+def _init():
+    from pytsite import console, lang, events, stats, cron
+    from . import _console_command, _eh, _cache
 
     # Resources
     lang.register_package(__name__)
@@ -26,4 +26,11 @@ def __init():
     events.listen('pytsite.update.after', _eh.update_after)
     events.listen('pytsite.db.restore', _eh.db_restore)
 
-__init()
+    # Cron tasks
+    cron.every_min(_cache.cleanup)
+
+    # Stats update
+    stats.on_update(lambda: 'ODM entities cache size: {}'.format(_cache.get_size()))
+
+
+_init()
