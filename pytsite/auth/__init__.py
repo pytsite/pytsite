@@ -61,8 +61,8 @@ def __init():
 
     # Event handlers
     events.listen('pytsite.setup', _eh.setup)
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch, priority=-999)
-    events.listen('pytsite.router.response', _eh.router_response)
+    router.on_dispatch(_eh.router_dispatch, -999)
+    router.on_response(_eh.router_response)
 
     # Console commands
     console.register_command(AuthConsoleCommand())

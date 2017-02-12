@@ -13,14 +13,13 @@ _tags = {}
 def reset(title: str = None):
     """Reset tags.
     """
-    with _threading.get_shared_r_lock():
-        global _tags
-        _tags = {}
+    tid = _threading.get_id()
+    _tags[tid] = {}
 
-        t_set('charset', 'UTF-8')
-        t_set('title', title or _lang.t('pytsite.metatag@untitled_document'))
-        t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-        t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
+    t_set('charset', 'UTF-8')
+    t_set('title', title or _lang.t('pytsite.metatag@untitled_document'))
+    t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
+    t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
 
 
 def t_set(tag: str, value: str = None, **kwargs):
@@ -28,15 +27,11 @@ def t_set(tag: str, value: str = None, **kwargs):
     """
     tid = _threading.get_id()
 
-    if tid not in _tags:
-        _tags[tid] = {tag: None}
+    if tag not in _tags[tid]:
+        _tags[tid][tag] = [] if tag == 'link' else ''
 
     if tag == 'link':
-        if tag not in _tags[tid] or _tags[tid][tag] is None:
-            _tags[tid][tag] = []
-
         _tags[tid][tag].append(kwargs)
-
     else:
         _tags[tid][tag] = _util.escape_html(value)
 

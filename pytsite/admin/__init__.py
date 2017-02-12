@@ -46,7 +46,7 @@ def _init():
     robots.disallow(bp + '/')
 
     # Event handlers
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    router.on_dispatch(_eh.router_dispatch)
 
 
 # Initialization

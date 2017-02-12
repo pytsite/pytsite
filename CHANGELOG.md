@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.98.63 (2017-02-12)
+### Added
+- `router`: events API shortcuts.
+
+### Fixed
+- `metatag`: multithreading issue in `reset()`.
+
+
 ## 0.98.62 (2017-02-12)
 ### Added
 - New package: `stats`.

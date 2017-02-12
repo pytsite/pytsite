@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import router, assetman, events
+    from pytsite import assetman, router
     from . import _eh
 
     # HTTP entry point route
@@ -20,8 +20,8 @@ def _init():
     assetman.add('pytsite.http_api@js/common.js', True)
 
     # Event listeners
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch, priority=-999)
-    events.listen('pytsite.router.response', _eh.router_response)
+    router.on_dispatch(_eh.router_dispatch, -998)  # This handler must be attached exactly AFTER metatag's handler
+    router.on_response(_eh.router_response)
 
 
 _init()

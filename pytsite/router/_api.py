@@ -9,7 +9,7 @@ from werkzeug.routing import Map as _Map, Rule as _Rule, MapAdapter as _MapAdapt
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, theme as _theme, setup as _setup
+    threading as _threading, theme as _theme, setup as _setup, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -205,7 +205,6 @@ def call_ep(ep_name: str, args: dict = None, inp: dict = None):
 def dispatch(env: dict, start_response: callable):
     """Dispatch a request.
     """
-    from pytsite import events
     tid = _threading.get_id()
 
     # Check if the setup completed
@@ -254,7 +253,7 @@ def dispatch(env: dict, start_response: callable):
             _lang.set_current(languages[0])
 
     # Notify listeners
-    events.fire('pytsite.router.pre_dispatch', path_info=env['PATH_INFO'])
+    _events.fire('pytsite.router.pre_dispatch', path_info=env['PATH_INFO'])
 
     # Loading path alias, if it exists or use current one
     env['PATH_INFO'] = _path_aliases.get(env['PATH_INFO'], env['PATH_INFO'])
@@ -279,7 +278,7 @@ def dispatch(env: dict, start_response: callable):
     # Processing request
     try:
         # Notify listeners
-        events.fire('pytsite.router.dispatch')
+        _events.fire('pytsite.router.dispatch')
 
         # Search for rule
         rule, rule_args = _map_adapters[tid].match(return_rule=True)
@@ -330,7 +329,7 @@ def dispatch(env: dict, start_response: callable):
             _session_store.save(session())
             wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
 
-        events.fire('pytsite.router.response', response=wsgi_response)
+        _events.fire('pytsite.router.response', response=wsgi_response)
 
         return wsgi_response(env, start_response)
 
@@ -358,7 +357,7 @@ def dispatch(env: dict, start_response: callable):
             'traceback': _format_exc()
         }
 
-        events.fire('pytsite.router.exception', args=args)
+        _events.fire('pytsite.router.exception', args=args)
 
         # User defined exception handler
         if is_ep_callable('$theme@exception'):
@@ -545,3 +544,19 @@ def ep_url(ep_name: str, route_args: dict = None, **kwargs) -> str:
     """Get URL for an endpoint.
     """
     return url(ep_path(ep_name, route_args), **kwargs)
+
+
+def on_pre_dispatch(handler, priority: int = 0):
+    _events.listen('pytsite.router.pre_dispatch', handler, priority=priority)
+
+
+def on_dispatch(handler, priority: int = 0):
+    _events.listen('pytsite.router.dispatch', handler, priority=priority)
+
+
+def on_response(handler, priority: int = 0):
+    _events.listen('pytsite.router.response', handler, priority=priority)
+
+
+def on_exception(handler, priority: int = 0):
+    _events.listen('pytsite.router.exception', handler, priority=priority)

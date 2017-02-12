@@ -11,11 +11,11 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, events
+    from pytsite import odm, router
     from . import _eh
 
     odm.register_model('route_alias', model.RouteAlias)
-    events.listen('pytsite.router.pre_dispatch', _eh.router_pre_dispatch)
+    router.on_pre_dispatch(_eh.router_pre_dispatch)
 
 
 _init()

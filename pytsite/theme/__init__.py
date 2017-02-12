@@ -26,7 +26,7 @@ def _init():
     settings.define('theme', _settings_form.Form, 'pytsite.theme@theme', 'fa fa-paint-brush', 'pytsite.theme.manage')
 
     # Event listeners
-    events.listen('pytsite.router.dispatch', _eh.router_dispatch)
+    router.on_dispatch(_eh.router_dispatch)
     events.listen('pytsite.update', _eh.update)
 
     # HTTP API handlers

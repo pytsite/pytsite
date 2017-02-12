@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, events, lang, tpl
+    from pytsite import console, events, lang, tpl, router
     from . import _console_command, _api
 
     # Resources
@@ -21,7 +21,7 @@ def _init():
     console.register_command(_console_command.Build())
 
     # Event handlers
-    events.listen('pytsite.router.dispatch', reset, priority=-999)
+    router.on_dispatch(reset, -999)
     events.listen('pytsite.update.after', build)
 
     # Tpl globals
