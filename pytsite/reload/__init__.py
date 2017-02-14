@@ -17,7 +17,7 @@ def _init():
     assetman.register_package(__name__)
     permissions.define_permission('pytsite.reload', 'pytsite.reload@reload_application_permission', 'app')
 
-    http_api.handle('POST', 'reload', _http_api.post_reload, 'pytsite.reload@post_reload')
+    http_api.handle('POST', 'reload', _http_api.reload, 'pytsite.reload@reload')
 
     router.on_dispatch(_eh.router_dispatch)
 

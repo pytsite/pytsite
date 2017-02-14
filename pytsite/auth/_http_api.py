@@ -29,7 +29,7 @@ def post_access_token(inp: dict, driver: str) -> dict:
         return _get_access_token_info(_api.generate_access_token(user))
 
     except _error.AuthenticationError as e:
-        raise _http.error.Unauthorized(str(e))
+        raise _http.error.Forbidden(str(e))
 
 
 def get_access_token(inp: dict, token: str) -> dict:
@@ -39,7 +39,7 @@ def get_access_token(inp: dict, token: str) -> dict:
         return _get_access_token_info(token)
 
     except _error.InvalidAccessToken as e:
-        raise _http.error.Unauthorized(str(e))
+        raise _http.error.Forbidden(str(e))
 
 
 def delete_access_token(inp: dict, token: str) -> dict:
@@ -52,20 +52,20 @@ def delete_access_token(inp: dict, token: str) -> dict:
         return {'status': True}
 
     except (_error.UserNotExist, _error.InvalidAccessToken) as e:
-        raise _http.error.Unauthorized(str(e))
+        raise _http.error.Forbidden(str(e))
 
 
 def get_user(inp: dict, uid: str) -> dict:
     """Get information about user.
     """
     if _api.get_current_user().is_anonymous:
-        raise _http.error.Forbidden('Authentication required')
+        raise _http.error.Forbidden()
 
     try:
         user = _api.get_user(uid=uid)
 
     except _error.UserNotExist:
-        raise _http.error.Unauthorized()
+        raise _http.error.Forbidden()
 
     r = user.as_jsonable()
 
@@ -83,7 +83,7 @@ def patch_user(inp: dict, uid: str) -> dict:
 
     # Check permissions
     if c_user.is_anonymous:
-        raise _http.error.Forbidden('Authentication required')
+        raise _http.error.Forbidden()
 
     raise NotImplementedError('Not implemented yet')
 
@@ -94,7 +94,7 @@ def follow_user(inp: dict, uid: str) -> dict:
     # Is current user authorized
     current_user = _api.get_current_user()
     if current_user.is_anonymous:
-        raise _http.error.Unauthorized()
+        raise _http.error.Forbidden()
 
     # Load user to follow
     user = _api.get_user(uid=uid)
@@ -115,7 +115,7 @@ def unfollow_user(inp: dict, uid: str) -> dict:
     # Is current user authorized
     current_user = _api.get_current_user()
     if current_user.is_anonymous:
-        raise _http.error.Unauthorized()
+        raise _http.error.Forbidden()
 
     # Load user to unfollow
     user = _api.get_user(uid=uid)

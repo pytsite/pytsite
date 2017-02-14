@@ -1,6 +1,6 @@
 """PytSite HTTP API Functions.
 """
-from pytsite import router as _router, http as _http, routing as _routing, logger as _logger
+from pytsite import router as _router, http as _http, routing as _routing, logger as _logger, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -38,3 +38,15 @@ def call(name: str, inp: dict = None, **args) -> tuple:
     """Call an HTTP API endpoint.
     """
     return _rule_map.get(name).handler(inp or {}, **args)
+
+
+def on_pre_request(handler, priority: int = 0):
+    """Register handler which will be called before handling every request to HTTP API.
+    """
+    _events.listen('pytsite.http_api.pre_request', handler, priority=priority)
+
+
+def on_request(handler, priority: int = 0):
+    """Register handler which will be called on every request to HTTP API.
+    """
+    _events.listen('pytsite.http_api.request', handler, priority=priority)

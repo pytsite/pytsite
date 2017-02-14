@@ -43,7 +43,7 @@ class Entity(_ABC):
         self._model = model
         self._id = None  # type: _ObjectId
         self._is_new = True
-        self._is_modified = False
+        self._is_modified = True
         self._is_deleted = False
         self._indexes = []
         self._has_text_index = False
@@ -138,8 +138,9 @@ class Entity(_ABC):
                 field.set_val(value)
                 field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
 
-        # Of course, loaded entity cannot be 'new'
+        # Of course, just loaded entity cannot be 'new' and 'modified'
         self._is_new = False
+        self._is_modified = False
 
         if _dbg:
             _logger.debug("[ENTITY DATA LOADED FROM DB] {}: {}.".format(self.ref_str, data))

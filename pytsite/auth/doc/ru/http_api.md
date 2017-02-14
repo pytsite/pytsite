@@ -130,17 +130,12 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 
 ## GET auth/user/:uid
 
-Получение информации об учётной записи пользователя.
+Получение информации об учётной записи пользователя. Обязательна авторизация.
 
 
 ### Аргументы
 
 - `uid`. Уникальный идентификатор учётной записи.
-
-
-### Параметры
-
-- *required* **str** `access_token`. Токен доступа.
 
 
 ### Формат ответа
@@ -193,8 +188,8 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 Запрос:
 
 ```
-curl -X GET \ 
--d access_token=e51081bc4632d8c2a31ac5bd8080af1b \
+curl -X GET \
+-H 'PytSite-Auth: e51081bc4632d8c2a31ac5bd8080af1b' \  
 https://test.com/api/1/auth/user/576563ef523af52badc5beac
 ```
 
@@ -246,7 +241,7 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 
 ## (Не реализовано) PATCH auth/user/:uid
 
-Изменение учётной записи пользователя.
+Изменение учётной записи пользователя. Обязательна авторизация
 
 
 ### Аргументы
@@ -256,23 +251,17 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 
 ### Параметры
 
-- *required* **str** `access_token`. Токен доступа.
 - *required* изменяемые поля.
 
 
 ## POST auth/follow/:uid
 
-Фолловинг пользователя.
+Фолловинг пользователя. Обязательна авторизация.
 
 
 ### Аргументы
 
 - `uid`. Уникальный идентификатор учётной записи для фолловинга.
-
-
-### Параметры
-
-- *required* **str** `access_token`. Токен доступа.
 
 
 ### Формат ответа
@@ -287,8 +276,8 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 Запрос:
 
 ```
-curl -X POST \ 
--d access_token=e51081bc4632d8c2a31ac5bd8080af1b \
+curl -X POST \
+-H 'PytSite-Auth: e51081bc4632d8c2a31ac5bd8080af1b' \
 https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 ```
 
@@ -301,19 +290,14 @@ https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 ```
 
 
-## POST auth/follow/:uid
+## DELETE auth/follow/:uid
 
-Анфолловинг пользователя.
+Анфолловинг пользователя. Обязательна авторизация. 
 
 
 ### Аргументы
 
 - `uid`. Уникальный идентификатор учётной записи для анфолловинга.
-
-
-### Параметры
-
-- *required* **str** `access_token`. Токен доступа.
 
 
 ### Формат ответа
@@ -328,9 +312,9 @@ https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 Запрос:
 
 ```
-curl -X POST \ 
--d access_token=e51081bc4632d8c2a31ac5bd8080af1b \
-https://test.com/api/1/auth/unfollow/576563ef523af52badc5beac
+curl -X DELETE \ 
+-H 'PytSite-Auth: e51081bc4632d8c2a31ac5bd8080af1b' \
+https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 ```
 
 Ответ:

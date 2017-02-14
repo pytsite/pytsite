@@ -51,6 +51,12 @@ def define(languages: list):
     set_fallback(_languages[0])
 
 
+def is_defined(language: str):
+    """Check whether a language is defined.
+    """
+    return language in _languages
+
+
 def langs(include_current: bool = True, include_neutral: bool = True) -> _List[str]:
     """Get all available languages.
     """
@@ -63,6 +69,7 @@ def langs(include_current: bool = True, include_neutral: bool = True) -> _List[s
         r.remove(_current[_threading.get_id()])
 
     return r
+
 
 def set_current(language: str):
     """Set current default language.

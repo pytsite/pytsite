@@ -8,10 +8,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity, inp: dict):
+def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity, inp: dict) -> _odm_auth.model.AuthorizableEntity:
     for k, v in inp.items():
         # Fields to skip
-        if k in ('access_token', 'model', 'uid') or k.startswith('_'):
+        if k == 'access_token' or k.startswith('_'):
             continue
 
         field = entity.get_field(k)
@@ -38,18 +38,32 @@ def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity, inp: dict):
         except (TypeError, ValueError) as e:
             raise _http.error.InternalServerError("Invalid format of field '{}': {}".format(k, e))
 
+    return entity
 
-def get_entity(**kwargs) -> dict:
+
+def post_entity(inp: dict, model: str) -> dict:
+    """Create new entity.
+    """
+    # Check for permissions
+    if not _odm_auth.check_permission('create', model):
+        raise _http.error.Forbidden('Insufficient permissions')
+
+    # Dispense new entity
+    entity = _odm.dispense(model)  # type: _odm_auth.model.AuthorizableEntity
+
+    # Only authorizable entities can be accessed via HTTP API
+    if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
+        raise _http.error.Forbidden("Model '{}' does not support transfer via HTTP.")
+
+    # Fill entity's fields with values and save
+    _fill_entity_fields(entity, inp).save()
+
+    return entity.as_jsonable()
+
+
+def get_entity(inp: dict, model: str, uid: str) -> dict:
     """Get entity.
     """
-    model = kwargs.get('model')
-    if not model:
-        raise _http.error.InternalServerError('Model is not specified.')
-
-    uid = kwargs.get('uid')
-    if not uid:
-        raise _http.error.InternalServerError('UID is not specified.')
-
     # Search for entity
     entity = _odm.find(model).eq('_id', uid).first()  # type: _odm_auth.model.AuthorizableEntity
     if not entity:
@@ -61,54 +75,48 @@ def get_entity(**kwargs) -> dict:
 
     # Check for permissions
     if not (entity.odm_auth_check_permission('view') or entity.odm_auth_check_permission('view_own')):
-        raise _http.error.Forbidden('Insufficient permissions.')
+        raise _http.error.Forbidden('Insufficient permissions')
 
-    return entity.as_jsonable(**kwargs)
-
-
-def post_entity(inp: dict, model: str) -> dict:
-    """Create new entity.
-    """
-    # Dispense new entity
-    entity = _odm.dispense(model)  # type: _odm_auth.model.AuthorizableEntity
-
-    # Check for entity's class
-    if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
-        raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
-
-    # Fill entity's fields with values
-    _fill_entity_fields(entity, inp)
-
-    # Save the entity
-    entity.save()
-
-    return entity.as_jsonable()
+    return entity.as_jsonable(**inp)
 
 
 def patch_entity(inp: dict, model: str, uid: str) -> dict:
     """Update entity.
     """
     # Dispense existing entity
-    entity = _odm.dispense(model, uid)  # type: _odm_auth.model.AuthorizableEntity
+    entity = _odm.dispense(model, uid)
 
-    # Check for entity's class
+    # Only authorizable entities can be accessed via HTTP API
     if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Check permissions
     if not (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
-        raise _http.error.Forbidden("Insufficient permissions.")
+        raise _http.error.Forbidden('Insufficient permissions')
 
-    # Fill fields with values
-    with entity as e:
-        _fill_entity_fields(e, inp)
-        e.save()
+    # Fill fields with values and save
+    with entity:
+        _fill_entity_fields(entity, inp).save()
 
     return entity.as_jsonable()
 
 
-def delete_entity(inp: dict, model: str, uid: str):
+def delete_entity(inp: dict, model: str, uid: str) -> dict:
     """Delete one or more entities.
     """
-    with _odm.dispense(model, uid) as e:
-        e.delete()
+    # Dispense existing entity
+    entity = _odm.dispense(model, uid)
+
+    # Only authorizable entities can be accessed via HTTP API
+    if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
+        raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
+
+    # Check permissions
+    if not (entity.odm_auth_check_permission('delete') or entity.odm_auth_check_permission('delete_own')):
+        raise _http.error.Forbidden('Insufficient permissions')
+
+    # Delete entity
+    with entity:
+        entity.delete()
+
+    return {'status': True}

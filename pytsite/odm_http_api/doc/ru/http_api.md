@@ -7,13 +7,13 @@
 
 
 ### Аргументы
-- *required* **str** `model`. Модель.
+
+- `model`. Модель.
 
 
 ### Параметры
 
 - *required* поля сущности.
-- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
 
 
 ### Формат ответа
@@ -52,12 +52,7 @@ http://test.com/api/1/odm/entity/product
 ### Аргументы
 
 - `model`. Модель.
-- `uid`. UID сущности.
-
-
-### Параметры
-
-- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
+- `uid`. UID.
 
 
 ### Формат ответа
@@ -70,9 +65,7 @@ http://test.com/api/1/odm/entity/product
 Запрос:
 
 ```
-curl -X GET \
--d access_token=b81de38b9b9589f9a0ec569416e75a25 \
-http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
+curl -X GET http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 ```
 
 
@@ -95,13 +88,12 @@ http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 ### Аргументы
 
 - `model`. Модель.
-- `uid`. UID сущности.
+- `uid`. UID.
 
 
 ### Параметры
 
-- *required* поля сущности.
-- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
+- *required* поля сущности, которые необходимо изменить.
 
 
 ### Формат ответа
@@ -115,7 +107,6 @@ http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 
 ```
 curl -X PATCH \
--d access_token=b81de38b9b9589f9a0ec569416e75a25 \
 -d title='Уже не картошка' \
 -d description='Это теперь капуста!' \
 http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
@@ -144,11 +135,6 @@ http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 - *required* **str** `uid`. UID сущности.
 
 
-### Параметры
-
-- *optional* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
-
-
 ### Формат ответа
 
 Объект.
@@ -161,9 +147,7 @@ http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 Запрос:
 
 ```
-curl -X DELETE \
--d access_token=b81de38b9b9589f9a0ec569416e75a25 \
-http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
+curl -X DELETE http://test.com/api/1/odm/entity/product/580243983e7d899753249cec
 ```
 
 

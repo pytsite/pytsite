@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 0.98.64 (2017-02-14)
+### Added
+- `http_api`: events.
+- `lang`: new API function: `is_defined()`.
+
+### Fixed
+- `auth`: HTTP API issues.
+
+
 ## 0.98.63 (2017-02-12)
 ### Added
 - `router`: events API shortcuts.

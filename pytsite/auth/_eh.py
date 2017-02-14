@@ -74,3 +74,18 @@ def router_dispatch():
 def router_response(response: _http.response.Response):
     if 'PYTSITE_SESSION' in _router.request().cookies and _api.get_current_user().is_anonymous:
         response.delete_cookie('PYTSITE_SESSION')
+
+
+def http_api_pre_request():
+    # Authorize user by access token
+    access_token = _router.request().headers.get('PytSite-Auth')
+
+    if not access_token:
+        return
+
+    try:
+        _api.switch_user(_api.get_user(access_token=access_token))
+        _api.prolong_access_token(access_token)
+
+    except (_error.InvalidAccessToken, _error.UserNotExist, _error.AuthenticationError) as e:
+        raise _http.error.Forbidden(response=_http.response.JSON({'error': str(e)}))

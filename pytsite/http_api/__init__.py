@@ -1,7 +1,7 @@
 """PytSite HTTP API Package.
 """
 # Public API
-from ._api import handle, url, call
+from ._api import handle, url, call, on_pre_request, on_request
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -20,7 +20,6 @@ def _init():
     assetman.add('pytsite.http_api@js/common.js', True)
 
     # Event listeners
-    router.on_dispatch(_eh.router_dispatch, -998)  # This handler must be attached exactly AFTER metatag's handler
     router.on_response(_eh.router_response)
 
 

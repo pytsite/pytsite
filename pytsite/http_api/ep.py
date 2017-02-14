@@ -1,6 +1,7 @@
-"""PytSite HTTP API Endpoints.
+"""PytSite HTTP API Endpoints
 """
-from pytsite import router as _router, http as _http, logger as _logger, lang as _lang
+from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events, \
+    metatag as _metatag, reg as _reg
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -13,11 +14,17 @@ def entry(args: dict, inp: dict):
     endpoint = args.pop('endpoint')  # type: str
     current_path = _router.current_path(resolve_alias=False, strip_lang=False)
 
+    # Switch language
+    language = _router.request().headers.get('PytSite-Lang')
+    if language and _lang.is_defined(language):
+        _lang.set_current(language)
+
     try:
-        if 'language' in inp:
-            _lang.set_current(inp['language'])
+        _events.fire('pytsite.http_api.pre_request')
 
         rule = _api.match(_router.request().method, endpoint, int(version))
+
+        _events.fire('pytsite.http_api.request')
 
         status = 200
         r = rule.handler(_router.request().inp, **rule.args)

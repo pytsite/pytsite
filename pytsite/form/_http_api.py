@@ -7,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _dispense_form(uid:str, inp: dict, fill_mode: str = None) -> _form.Form:
+def _dispense_form(uid: str, inp: dict, fill_mode: str = None) -> _form.Form:
     """Create and fill form based on the request input.
     """
     # Get form from the cache
