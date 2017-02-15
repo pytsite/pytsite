@@ -99,7 +99,7 @@ class ODMRole(_odm_ui.model.UIEntity):
         frm.add_widget(_widget.input.Text(
             weight=20,
             uid='description',
-            value=self.f_get('name'),
+            value=self.f_get('description'),
             label=self.t('description'),
             required=True,
         ))

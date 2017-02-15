@@ -21,10 +21,6 @@ class EntityNotStored(Exception):
     pass
 
 
-class ForbidEntityOperation(Exception):
-    pass
-
-
 class FieldNotDefined(Exception):
     pass
 

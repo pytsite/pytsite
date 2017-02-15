@@ -1,5 +1,12 @@
 # PytSite Changelog
 
+## 0.98.65 (2017-02-15)
+### Added
+- `auth_storage_odm`: support for anonymous and system user in `field.User`.
+
+### Fixed
+- `auth_storage_odm`: description translation in `model.ODMRole`.
+
 
 ## 0.98.64 (2017-02-14)
 ### Added

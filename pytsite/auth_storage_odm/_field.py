@@ -4,7 +4,6 @@ from bson import DBRef as _DBRef
 from typing import Tuple as _Tuple, List as _List, Iterable as _Iterable
 from pytsite import odm as _odm, auth as _auth
 
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -55,7 +54,7 @@ class Roles(_odm.field.UniqueStringList):
 
     def _on_sub(self, internal_value, value_to_sub, **kwargs):
         return super()._on_sub(internal_value, self._get_role(value_to_sub).uid)
-    
+
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.
         """
@@ -76,6 +75,18 @@ class Roles(_odm.field.UniqueStringList):
 class User(_odm.field.Abstract):
     """Field to store reference to user.
     """
+    def __init__(self, name: str, **kwargs):
+        """Init.
+
+        :param default:
+        :param nonempty: bool
+        :param allow_anonymous: bool
+        :param allow_system: bool
+        """
+        self._allow_anonymous = kwargs.get('allow_anonymous', False)
+        self._allow_system = kwargs.get('allow_system', False)
+
+        super().__init__(name, **kwargs)
 
     def _resolve_user_uid(self, value) -> str:
         if isinstance(value, str):
@@ -83,7 +94,16 @@ class User(_odm.field.Abstract):
         elif isinstance(value, _DBRef):
             return str(value.id)
         elif isinstance(value, _auth.model.AbstractUser):
-            return value.uid
+            if value.is_anonymous:
+                if not self._allow_anonymous:
+                    raise ValueError('Anonymous user is not allowed here')
+                return 'ANONYMOUS'
+            elif value.is_system:
+                if not self._allow_system:
+                    raise ValueError('System user is not allowed here')
+                return 'SYSTEM'
+            else:
+                return value.uid
         else:
             raise TypeError("Field '{}': user object, str or DB ref expected, got {}.".
                             format(self._name, type(value)))
@@ -97,13 +117,25 @@ class User(_odm.field.Abstract):
     def _on_get(self, internal_value: str, **kwargs) -> _auth.model.AbstractUser:
         """Hook. Transforms internal value to external one.
         """
-        return _auth.get_user(uid=internal_value) if internal_value else None
+        if internal_value == 'ANONYMOUS':
+            return _auth.get_anonymous_user()
+        elif internal_value == 'SYSTEM':
+            return _auth.get_system_user()
+        elif internal_value:
+            return _auth.get_user(uid=internal_value)
+        else:
+            return None
 
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.
         """
         if isinstance(arg, _auth.model.AbstractUser):
-            return arg.uid
+            if arg.is_anonymous:
+                return 'ANONYMOUS'
+            elif arg.is_system:
+                return 'SYSTEM'
+            else:
+                return arg.uid
         elif isinstance(arg, (list, tuple)):
             clean_arg = []
             for user in arg:

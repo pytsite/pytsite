@@ -6,13 +6,17 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ForbidCreation(RuntimeError):
+class ForbidOperation(RuntimeError):
     pass
 
 
-class ForbidModification(RuntimeError):
+class ForbidCreation(ForbidOperation):
     pass
 
 
-class ForbidDeletion(RuntimeError):
+class ForbidModification(ForbidOperation):
+    pass
+
+
+class ForbidDeletion(ForbidOperation):
     pass
