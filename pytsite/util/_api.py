@@ -507,6 +507,12 @@ def rfc822_datetime_str(dt: _datetime = None) -> str:
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
 
 
+def parse_w3c_datetime_str(s: str) -> _datetime:
+    """Parse date/time string according to RFC-822.
+    """
+    return _datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
+
+
 def w3c_datetime_str(dt: _datetime = None, date_only: bool = False) -> str:
     """Format date/time string according to W3C.
     """

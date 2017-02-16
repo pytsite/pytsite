@@ -6,7 +6,8 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
     register_auth_driver, user_nickname_rule, sign_in, get_auth_driver, create_role, get_sign_in_url, get_sign_out_url,\
     verify_password, hash_password, sign_out, get_access_token_info, switch_user, get_anonymous_user, \
     get_system_user, get_users, get_storage_driver, count_users, count_roles, get_first_admin_user, get_roles, \
-    get_user_modify_form, base_path, switch_user_to_system, switch_user_to_anonymous, restore_user, prolong_access_token
+    get_user_modify_form, base_path, switch_user_to_system, switch_user_to_anonymous, restore_user, \
+    generate_access_token, prolong_access_token
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -42,8 +43,8 @@ def __init():
     http_api.handle('PATCH', 'auth/user/<uid>', _http_api.patch_user, 'pytsite.auth@patch_user')
 
     # Following HTTP API
-    http_api.handle('POST', 'auth/follow/<uid>', _http_api.follow_user, 'pytsite.auth@follow_user')
-    http_api.handle('DELETE', 'auth/follow/<uid>', _http_api.unfollow_user, 'pytsite.auth@unfollow_user')
+    http_api.handle('POST', 'auth/follow/<uid>', _http_api.post_follow, 'pytsite.auth@post_follow')
+    http_api.handle('DELETE', 'auth/follow/<uid>', _http_api.delete_follow, 'pytsite.auth@delete_follow')
 
     # Routes
     bp = base_path()

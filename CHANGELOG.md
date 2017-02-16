@@ -1,5 +1,22 @@
 # PytSite Changelog
 
+## 0.98.66 (2017-02-??)
+### Added
+- New package: `unittest`.
+- `auth`:
+    - some tests;
+    - new methods in `model.AbstractUser`: `add_role()`, `remove_role()`.
+- `auth_password`: some tests.
+- `util`: new API function: `parse_w3c_datetime_str`.
+
+### Changed
+- `auth`: return values of 'follow' HTTP endpoints.
+
+### Fixed
+- `auth`: missed exception handling in HTTP API endpoint.
+
+
+
 ## 0.98.65 (2017-02-15)
 ### Added
 - `auth_storage_odm`: support for anonymous and system user in `field.User`.

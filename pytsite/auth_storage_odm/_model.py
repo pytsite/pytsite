@@ -615,6 +615,18 @@ class User(_auth.model.AbstractUser):
 
         return self
 
+    def add_role(self, role: _auth.model.AbstractRole):
+        with self._entity as e:
+            e.f_add('roles', role)
+
+        return self
+
+    def remove_role(self, role: _auth.model.AbstractRole):
+        with self._entity as e:
+            e.f_sub('roles', role)
+
+        return self
+
     def add_follower(self, follower: _auth.model.AbstractUser):
         with self._entity as e:
             e.f_add('followers', follower)

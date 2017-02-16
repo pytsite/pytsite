@@ -389,8 +389,11 @@ class DateTime(Base):
             try:
                 self._value = _util.parse_rfc822_datetime_str(self._value)
             except ValueError:
-                if self._value and not _re.match('\d{2}\.\d{2}\.\d{4} \d{2}\.\d{2}', self._value):
-                    raise _error.RuleError(self._msg_id, self._msg_args)
+                try:
+                    self._value = _util.parse_w3c_datetime_str(self._value)
+                except ValueError:
+                    if self._value and not _re.match('\d{2}\.\d{2}\.\d{4} \d{2}\.\d{2}', self._value):
+                        raise _error.RuleError(self._msg_id, self._msg_args)
 
         elif not isinstance(self._value, datetime):
             raise _error.RuleError(self._msg_id, self._msg_args)

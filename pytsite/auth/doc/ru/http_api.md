@@ -268,7 +268,7 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 
 Объект.
 
-- **bool** `status`. Результат обработки запроса.
+- **array** `follows`. Список UID учётных записей, фолловером которых является учётная запись, выполнявшая запрос.
 
 
 ### Примеры
@@ -285,7 +285,7 @@ https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 
 ```
 {
-    "status": true
+    "follows": ["576563ef523af52badc5beac"]
 }
 ```
 
@@ -304,7 +304,7 @@ https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 
 Объект.
 
-- **bool** `status`. Результат обработки запроса.
+- **array** `follows`. Список UID учётных записей, фолловером которых является учётная запись, выполнявшая запрос.
 
 
 ### Примеры
@@ -321,6 +321,6 @@ https://test.com/api/1/auth/follow/576563ef523af52badc5beac
 
 ```
 {
-    "status": true
+    "follows": []
 }
 ```

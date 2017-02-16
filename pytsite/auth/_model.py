@@ -352,6 +352,20 @@ class AbstractUser(AuthEntity):
         return _router.ep_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
 
     @_abstractmethod
+    def add_role(self, role: AbstractRole):
+        """
+        :rtype: AbstractUser
+        """
+        pass
+
+    @_abstractmethod
+    def remove_role(self, role: AbstractRole):
+        """
+        :rtype: AbstractUser
+        """
+        pass
+
+    @_abstractmethod
     def add_follower(self, follower):
         """
         :rtype: AbstractUser

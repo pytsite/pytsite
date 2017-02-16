@@ -17,16 +17,14 @@ _database = None
 
 
 def get_config() -> dict:
-    default = {
-        'host': 'localhost',
-        'port': 27017,
-        'ssl': False,
-        'database': 'test',
-        'user': None,
-        'password': None,
+    return {
+        'host': _reg.get('db.host', 'localhost'),
+        'port': _reg.get('db.port', 27017),
+        'ssl': _reg.get('db.ssl', False),
+        'database': _reg.get('db.database', 'test'),
+        'user': _reg.get('db.user'),
+        'password': _reg.get('db.password'),
     }
-
-    return _util.dict_merge(default, _reg.get('db', {}))
 
 
 def get_client() -> _MongoClient:

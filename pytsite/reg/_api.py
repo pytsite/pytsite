@@ -1,5 +1,6 @@
 """PytSite Registry Functions.
 """
+from os import environ as _environ
 from .driver import Abstract as _RegistryDriver, Memory as _MemoryDriver
 
 __author__ = 'Alexander Shepetko'
@@ -26,7 +27,7 @@ def put(key: str, value):
 def get(key: str, default=None):
     """Get registry's value.
     """
-    return _current_driver.get(key, default)
+    return _environ.get('PYTSITE_CONFIG_' + key.replace('.', '__'), _current_driver.get(key, default))
 
 
 def get_all() -> dict:

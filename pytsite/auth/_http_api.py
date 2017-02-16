@@ -1,6 +1,6 @@
 """PytSite Auth HTTP API.
 """
-from pytsite import http as _http, events as _events, util as _util
+from pytsite import http as _http, events as _events, util as _util, logger as _logger
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -28,8 +28,9 @@ def post_access_token(inp: dict, driver: str) -> dict:
 
         return _get_access_token_info(_api.generate_access_token(user))
 
-    except _error.AuthenticationError as e:
-        raise _http.error.Forbidden(str(e))
+    except (_error.AuthenticationError, _error.UserNotExist) as e:
+        _logger.warn(e)
+        raise _http.error.Forbidden()
 
 
 def get_access_token(inp: dict, token: str) -> dict:
@@ -88,7 +89,7 @@ def patch_user(inp: dict, uid: str) -> dict:
     raise NotImplementedError('Not implemented yet')
 
 
-def follow_user(inp: dict, uid: str) -> dict:
+def post_follow(inp: dict, uid: str) -> dict:
     """Follow user.
     """
     # Is current user authorized
@@ -106,10 +107,10 @@ def follow_user(inp: dict, uid: str) -> dict:
 
     _events.fire('pytsite.auth.follow', user=user, follower=current_user)
 
-    return {'status': True}
+    return {'follows': current_user.as_jsonable()['follows']}
 
 
-def unfollow_user(inp: dict, uid: str) -> dict:
+def delete_follow(inp: dict, uid: str) -> dict:
     """Unfollow user.
     """
     # Is current user authorized
@@ -127,4 +128,4 @@ def unfollow_user(inp: dict, uid: str) -> dict:
 
     _events.fire('pytsite.auth.unfollow', user=user, follower=current_user)
 
-    return {'status': True}
+    return {'follows': current_user.as_jsonable()['follows']}
