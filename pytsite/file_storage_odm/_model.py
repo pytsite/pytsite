@@ -19,6 +19,7 @@ class AnyFileODMEntity(_odm.model.Entity):
     def _setup_fields(self):
         """_setup() hook.
         """
+        self.define_field(_odm.field.Virtual('uid'))
         self.define_field(_odm.field.String('path', required=True))
         self.define_field(_odm.field.String('name', required=True))
         self.define_field(_odm.field.String('description'))
@@ -39,8 +40,12 @@ class AnyFileODMEntity(_odm.model.Entity):
     def _on_f_get(self, field_name: str, value, **kwargs):
         """Hook.
         """
+        # File UID
+        if field_name == 'uid':
+            return self.ref_str
+
         # Absolute file path on the filesystem
-        if field_name == 'local_path':
+        elif field_name == 'local_path':
             return _path.join(_reg.get('paths.storage'), self.f_get('path'))
 
         # File download URL
@@ -179,10 +184,6 @@ class AnyFile(_file.model.AbstractFile):
 
         self._entity = entity
 
-    @property
-    def uid(self) -> str:
-        return str(self._entity.ref_str)
-
     def get_field(self, field_name: str, **kwargs):
         return self._entity.f_get(field_name, **kwargs)
 
@@ -196,9 +197,6 @@ class AnyFile(_file.model.AbstractFile):
     def delete(self):
         with self._entity as e:
             e.delete()
-
-    def as_jsonable(self, **kwargs):
-        return self._entity.as_jsonable()
 
 
 class ImageFile(_file.model.AbstractImage):
@@ -211,10 +209,6 @@ class ImageFile(_file.model.AbstractImage):
 
         self._entity = entity
 
-    @property
-    def uid(self) -> str:
-        return str(self._entity.ref_str)
-
     def get_field(self, field_name: str, **kwargs):
         return self._entity.f_get(field_name, **kwargs)
 
@@ -228,6 +222,3 @@ class ImageFile(_file.model.AbstractImage):
     def delete(self):
         with self._entity as e:
             e.delete()
-
-    def as_jsonable(self, **kwargs):
-        return self._entity.as_jsonable()

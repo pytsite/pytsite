@@ -106,14 +106,14 @@ class AbstractFile(_ABC):
         pass
 
     def as_jsonable(self, **kwargs) -> dict:
-        return {
-            'uid': self.uid,
-            'mime': self.mime,
-            'length': self.length,
-            'url': self.get_url(),
-            'thumb_url': self.get_thumb_url(width=kwargs.get('thumb_width', 450),
-                                            height=kwargs.get('thumb_height', 450)),
-        }
+        r = {}
+        for k in 'uid', 'name', 'description', 'mime', 'length', 'url', 'thumb_url':
+            try:
+                r[k] = self.get_field(k, **kwargs)
+            except NotImplementedError:
+                pass
+
+        return r
 
 
 class AbstractImage(AbstractFile):
@@ -181,6 +181,7 @@ class AbstractImage(AbstractFile):
 
     def as_jsonable(self, **kwargs) -> dict:
         r = super().as_jsonable(**kwargs)
+
         r.update({
             'width': self.width,
             'height': self.height,

@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.67 (2017-02-17)
+### Fixed
+- `file_storage_odm`: model JSON formatting. 
+
+
 ## 0.98.66 (2017-02-17)
 ### Added
 - New package: `unittest`.
