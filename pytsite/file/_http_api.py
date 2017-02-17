@@ -10,7 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def upload(inp: dict) -> _List[str]:
+def post(inp: dict) -> _List[str]:
     """Upload file endpoint.
     """
     files = _router.request().files
@@ -20,7 +20,7 @@ def upload(inp: dict) -> _List[str]:
     # It is important to accept files from authenticated users only.
     # At this moment there is no way to store info about file's owner, but in the future things may be changed.
     if _auth.get_current_user().is_anonymous:
-        raise _http.error.Forbidden('Access denied.')
+        raise _http.error.Forbidden()
 
     r = []
     for field_name, f in files.items():
@@ -48,8 +48,10 @@ def upload(inp: dict) -> _List[str]:
 def get(inp: dict, uid: str) -> dict:
     """Get information about file.
     """
-    if not uid:
-        raise RuntimeError('File UID is not specified.')
+    # It is important to accept files from authenticated users only.
+    # At this moment there is no way to store info about file's owner, but in the future things may be changed.
+    if _auth.get_current_user().is_anonymous:
+        raise _http.error.Forbidden()
 
     try:
         return _api.get(uid).as_jsonable(**inp)

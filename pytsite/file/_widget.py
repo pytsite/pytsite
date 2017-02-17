@@ -125,7 +125,7 @@ class FilesUpload(_widget.Abstract):
 
     def _get_element(self, **kwargs) -> _html.Element:
         self._data.update({
-            'url': _http_api.url('pytsite.file@upload'),
+            'url': _http_api.url('pytsite.file@post'),
             'max_files': self._max_files if self._max_files else 1,
             'max_file_size': self._max_file_size,
             'accept_files': self._accept_files,

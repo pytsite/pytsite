@@ -1,16 +1,18 @@
 # PytSite Changelog
 
-## 0.98.66 (2017-02-??)
+## 0.98.66 (2017-02-17)
 ### Added
 - New package: `unittest`.
 - `auth`:
     - some tests;
     - new methods in `model.AbstractUser`: `add_role()`, `remove_role()`.
 - `auth_password`: some tests.
+- `file`: some tests.
 - `util`: new API function: `parse_w3c_datetime_str`.
 
 ### Changed
 - `auth`: return values of 'follow' HTTP endpoints.
+- `file`: HTTP API endpoint names and authentication.
 
 ### Fixed
 - `auth`: missed exception handling in HTTP API endpoint.

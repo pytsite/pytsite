@@ -57,7 +57,7 @@ def is_defined(language: str):
     return language in _languages
 
 
-def langs(include_current: bool = True, include_neutral: bool = True) -> _List[str]:
+def langs(include_current: bool = True, include_neutral: bool = False) -> _List[str]:
     """Get all available languages.
     """
     r = _languages.copy()

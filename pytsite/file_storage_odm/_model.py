@@ -55,14 +55,11 @@ class AnyFileODMEntity(_odm.model.Entity):
         """
         r = super().as_jsonable(**kwargs)
 
-        r.update({
-            'name': self.f_get('name'),
-            'description': self.f_get('description'),
-            'mime': self.f_get('mime'),
-            'length': self.f_get('length'),
-            'url': self.f_get('url'),
-            'thumb_url': self.f_get('thumb_url'),
-        })
+        for k in 'name', 'description', 'mime', 'length', 'url', 'thumb_url':
+            try:
+                r[k] = self.f_get(k)
+            except NotImplementedError:
+                pass
 
         return r
 
@@ -200,6 +197,9 @@ class AnyFile(_file.model.AbstractFile):
         with self._entity as e:
             e.delete()
 
+    def as_jsonable(self, **kwargs):
+        return self._entity.as_jsonable()
+
 
 class ImageFile(_file.model.AbstractImage):
     """Image File Model.
@@ -228,3 +228,6 @@ class ImageFile(_file.model.AbstractImage):
     def delete(self):
         with self._entity as e:
             e.delete()
+
+    def as_jsonable(self, **kwargs):
+        return self._entity.as_jsonable()

@@ -12,8 +12,8 @@ __license__ = 'MIT'
 
 class TestCase(_TestCase):
     def prepare_http_request(self, method: str, url: str, headers: dict = None, data: dict = None,
-                             params: dict = None) -> _requests.PreparedRequest:
-        return _requests.Request(method, url, headers, data=data, params=params).prepare()
+                             params: dict = None, files: dict = None) -> _requests.PreparedRequest:
+        return _requests.Request(method, url, headers, files, data, params).prepare()
 
     def send_http_request(self, request: _requests.PreparedRequest):
         with _requests.Session() as s:
@@ -37,6 +37,34 @@ class TestCase(_TestCase):
 
         raise self.failureException(msg)
 
+    def assertIsDict(self, d: dict):
+        if not isinstance(d, dict):
+            raise self.failureException("{} is not a dict".format(d))
+
+    def assertDictContainsField(self, d: dict, key: str):
+        self.assertIsDict(d)
+
+        if key not in d:
+            raise self.failureException("Dictionary does not contain field '{}'".format(key))
+
+    def assertDictFieldNotEmpty(self, d: dict, key: str):
+        self.assertDictContainsField(d, key)
+
+        if not d[key]:
+            raise self.failureException("Dictionary field '{}' is empty".format(key))
+
+    def assertDictFieldIsInt(self, d: dict, key: str):
+        self.assertDictContainsField(d, key)
+
+        if not isinstance(d[key], int):
+            raise self.failureException("Dictionary field '{}' is not an integer".format(key))
+
+    def assertDictFieldIsStr(self, d: dict, key: str):
+        self.assertDictContainsField(d, key)
+
+        if not isinstance(d[key], str):
+            raise self.failureException("Dictionary field '{}' is not a string".format(key))
+
     def assertHttpRespCodeEquals(self, resp: _requests.Response, expected: int):
         if resp.status_code != expected:
             self._raiseHttpException('HTTP response code {} != {}'.format(resp.status_code, expected), resp=resp)
@@ -45,7 +73,31 @@ class TestCase(_TestCase):
         if str(resp.content) != expected:
             self._raiseHttpException('HTTP response content {} != {}'.format(resp.content, expected), resp=resp)
 
+    def assertHttpRespIsJson(self, resp: _requests.Response):
+        if resp.headers.get('Content-Type') != 'application/json':
+            self._raiseHttpException('HTTP response is not JSON', resp=resp)
+
+    def assertHttpRespJsonIsNotEmpty(self, resp: _requests.Response):
+        self.assertHttpRespIsJson(resp)
+
+        if not resp.json():
+            self._raiseHttpException('HTTP response JSON is empty', resp=resp)
+
+    def assertHttpRespJsonIsList(self, resp: _requests.Response):
+        self.assertHttpRespIsJson(resp)
+
+        if not isinstance(resp.json(), list):
+            self._raiseHttpException('HTTP response JSON is not a list', resp=resp)
+
+    def assertHttpRespJsonIsDict(self, resp: _requests.Response):
+        self.assertHttpRespIsJson(resp)
+
+        if not isinstance(resp.json(), dict):
+            self._raiseHttpException('HTTP response JSON is not a dict', resp=resp)
+
     def assertHttpRespJsonHasField(self, resp: _requests.Response, expected: str):
+        self.assertHttpRespJsonIsDict(resp)
+
         if expected not in resp.json():
             self._raiseHttpException("HTTP response JSON does not contain key '{}'".format(expected), resp=resp)
 

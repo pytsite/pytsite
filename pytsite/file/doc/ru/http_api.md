@@ -4,12 +4,11 @@
 ## POST file
 
 Загрузка файлов. Для работы с этим методом **должен** использоваться 
-[HTTP Multipart Content-Type](https://www.ietf.org/rfc/rfc2388.txt)
+[HTTP Multipart Content-Type](https://www.ietf.org/rfc/rfc2388.txt). Обязательна авторизация.
 
 
 ### Параметры
 
-- *required* **str** `access_token`. [Токен доступа](../../../auth/doc/ru/http_api.md).
 - *required* **binary** `file{N}`. Загружаемый файл, где `{N}` -- порядковый номер файла.  
 
 
@@ -26,7 +25,7 @@
 
 ```
 curl \
--F access_token=b81de38b9b9589f9a0ec569416e75a25 \
+-H 'PytSite-Auth: b81de38b9b9589f9a0ec569416e75a25' \
 -F file1=@/home/user/HelloWorld.jpg \
 -F file2=@/home/user/HereWeGo.png \
 http://test.com/api/1/file
@@ -44,7 +43,7 @@ http://test.com/api/1/file
 
 ## GET file/:uid
 
-Получение информации о файле.
+Получение информации о файле. Обязательна авторизация.
 
 
 ### Аргументы
@@ -83,6 +82,7 @@ http://test.com/api/1/file
 
 ```
 curl -X GET \
+-H 'PytSite-Auth: b81de38b9b9589f9a0ec569416e75a25' \
 -d thumb_width=800 \
 -d thumb_height=600 \
 http://test.com/api/1/file/file_image:57fcda463e7d89205a0c8d8f

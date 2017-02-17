@@ -19,7 +19,7 @@ def _init():
     tpl.register_package(__name__)
 
     # HTTP API handlers
-    http_api.handle('POST', 'file', _http_api.upload, 'pytsite.file@upload')
+    http_api.handle('POST', 'file', _http_api.post, 'pytsite.file@post')
     http_api.handle('GET', 'file/<uid>', _http_api.get, 'pytsite.file@get')
 
 
