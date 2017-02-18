@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.68 (2017-02-18)
+### Fixed
+- `http_api`: incorrect URL building in JS function.
+
+
 ## 0.98.67 (2017-02-17)
 ### Fixed
 - `file_storage_odm`: model JSON formatting. 

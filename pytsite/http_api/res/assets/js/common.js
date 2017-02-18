@@ -4,11 +4,7 @@ pytsite.httpApi = {
             version = '1';
         }
 
-        var url_prefix = '/';
-        if (pytsite.lang.current() != pytsite.lang.fallback())
-            url_prefix += pytsite.lang.current() + '/';
-
-        var r = url_prefix + 'api/' + version + '/' + endpoint;
+        var r = '/api/' + version + '/' + endpoint;
         if (data instanceof Object)
             r += '?' + $.param(data);
 
