@@ -12,7 +12,7 @@ __license__ = 'MIT'
 def _init():
     """Init wrapper.
     """
-    from pytsite import assetman, tpl, lang, router, robots, events, browser, permissions
+    from pytsite import assetman, tpl, lang, router, robots, browser, permissions
     from . import _eh
 
     # Resources
@@ -35,10 +35,10 @@ def _init():
     permissions.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
 
     # Dashboard route
-    router.add_rule(bp, __name__ + '@dashboard')
+    router.add_rule(bp, 'pytsite.admin@dashboard')
 
     # Tpl globals
-    tpl.register_global('admin_url', base_path)
+    tpl.register_global('admin_url', bp)
 
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 

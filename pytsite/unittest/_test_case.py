@@ -24,13 +24,13 @@ class TestCase(_TestCase):
     def _raiseHttpException(self, msg: str, req: _requests.PreparedRequest = None, resp: _requests.Response = None):
         msg += '\n'
 
-        if req:
+        if req is not None:
             msg += 'Request method: {}\n'.format(req.method)
             msg += 'Request URL: {}\n'.format(req.url)
             msg += 'Request headers: {}\n'.format(req.headers)
             msg += 'Request body: {}\n'.format(req.body)
 
-        if resp:
+        if resp is not None:
             msg += 'Response code: {}\n'.format(resp.status_code)
             msg += 'Response headers: {}\n'.format(resp.headers)
             msg += 'Response content: {}\n'.format(resp.content)
@@ -143,17 +143,35 @@ class TestCase(_TestCase):
         if not isinstance(resp.json()[key], str):
             self._raiseHttpException("HTTP response JSON field '{}' is not a string".format(key), resp=resp)
 
+    def assertHttpRespJsonFieldIsNonEmptyStr(self, resp: _requests.Response, key: str):
+        self.assertHttpRespJsonFieldIsStr(resp, key)
+
+        if not resp.json()[key]:
+            self._raiseHttpException("HTTP response JSON field '{}' is empty string".format(key), resp=resp)
+
     def assertHttpRespJsonFieldIsList(self, resp: _requests.Response, key: str):
         self.assertHttpRespJsonHasField(resp, key)
 
         if not isinstance(resp.json()[key], list):
             self._raiseHttpException("HTTP response JSON field '{}' is not a list".format(key), resp=resp)
 
+    def assertHttpRespJsonFieldListLen(self, resp: _requests.Response, key: str, length: int):
+        self.assertHttpRespJsonFieldIsList(resp, key)
+
+        if len(resp.json()[key]) != length:
+            self._raiseHttpException("HTTP response JSON field '{}' length != {}".format(key, length), resp=resp)
+
     def assertHttpRespJsonFieldIsDict(self, resp: _requests.Response, key: str):
         self.assertHttpRespJsonHasField(resp, key)
 
         if not isinstance(resp.json()[key], dict):
             self._raiseHttpException("HTTP response JSON field '{}' is not a dict".format(key), resp=resp)
+
+    def assertHttpRespJsonFieldIsNonEmptyDict(self, resp: _requests.Response, key: str):
+        self.assertHttpRespJsonFieldIsDict(resp, key)
+
+        if not resp.json()[key]:
+            self._raiseHttpException("HTTP response JSON field '{}' is empty dict".format(key), resp=resp)
 
     def assertHttpRespJsonFieldIsDateTime(self, resp: _requests.Response, key: str):
         self.assertHttpRespJsonHasField(resp, key)
@@ -189,7 +207,7 @@ class TestCase(_TestCase):
             self._raiseHttpException("HTTP response JSON field '{}' != {}".format(key, expected), resp=resp)
 
     def assertHttpRespJsonFieldMatches(self, resp: _requests.Response, key: str, expected: str):
-        self.assertHttpRespJsonHasField(resp, key)
+        self.assertHttpRespJsonFieldIsStr(resp, key)
 
         if not _re.match(expected, resp.json()[key]):
             self._raiseHttpException("HTTP response JSON field '{}' does not match pattern '{}'".format(key, expected),

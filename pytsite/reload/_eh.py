@@ -9,6 +9,6 @@ __license__ = 'MIT'
 
 
 def router_dispatch():
-    if _api.get_flag() and _auth.get_current_user().has_permission('pytsite.reload.reload'):
+    if _api.get_flag() and _auth.get_current_user().has_permission('pytsite.reload'):
         _assetman.add('pytsite.reload@js/reload.js')
         _router.session().add_warning_message(_lang.t(_api.RELOAD_MSG_ID))

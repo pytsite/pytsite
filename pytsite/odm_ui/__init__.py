@@ -19,16 +19,16 @@ def _init():
     auth_filter = 'pytsite.auth@f_authorize'
 
     # Route: ODM browser page
-    router.add_rule(abp + '/odm_ui/<model>', 'pytsite.odm_ui@browse', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<model>', 'pytsite.odm_ui@browse', filters=[auth_filter])
 
     # Route: get ODM browser table rows
-    router.add_rule(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows', filters=[auth_filter])
 
     # Route: 'create/modify' ODM entity form display
-    router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', filters=[auth_filter])
 
     # Route: 'delete' form display
-    router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', filters=auth_filter)
+    router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', method='POST', filters=[auth_filter])
 
     # Resources
     lang.register_package(__name__)

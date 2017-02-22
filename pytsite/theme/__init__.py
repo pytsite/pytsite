@@ -33,7 +33,7 @@ def _init():
     http_api.handle('GET', 'theme/settings/<theme_package_name>', _http_api.get_settings, 'pytsite.theme@get_settings')
 
     # Default home page handler
-    router.add_rule('/', '$theme@home')
+    router.add_rule('/', '$theme@home', 'home')
 
     # Initialize themes
     themes_path = get_themes_path()

@@ -134,7 +134,6 @@ class ODMRole(_odm_ui.model.UIEntity):
                     label=_lang.t(p_desc),
                     value=p_name,
                     checked=p_name in self.f_get('permissions'),
-                    label_disabled=True,
                 ), tab_id)
 
         frm.add_widget(perms_tabs)

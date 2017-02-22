@@ -13,7 +13,15 @@ class AuthenticationError(Exception):
         _events.fire('pytsite.auth.sign_in_error', exception=self, user=kwargs.get('user'))
 
 
+class NoDriverRegistered(Exception):
+    pass
+
+
 class DriverNotRegistered(Exception):
+    pass
+
+
+class DriverRegistered(Exception):
     pass
 
 

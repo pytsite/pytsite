@@ -6,18 +6,18 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_rule_map = _routing.RuleMap()
+_rules_map = _routing.RulesMap()
 
 
 def handle(method: str, path: str, handler: callable, name: str = None, version: int = 0):
     """Register API requests handler.
     """
-    _rule_map.add(_routing.Rule(path, handler, name, method=method, attrs={'version': version}))
+    _rules_map.add(_routing.Rule(path, handler, name, method=method, attrs={'version': version}))
 
 
 def match(method: str, path: str, version: int) -> _routing.Rule:
     try:
-        rule = _rule_map.match(path, method)
+        rule = _rules_map.match(path, method)
         if rule.attrs['version'] != 0 and rule.attrs['version'] != version:
             raise _http.error.NotFound()
 
@@ -31,13 +31,13 @@ def match(method: str, path: str, version: int) -> _routing.Rule:
 def url(name: str, args: dict = None, version: int = 1):
     """Generate URL for an HTTP API endpoint.
     """
-    return _router.ep_url('pytsite.http_api@entry', {'version': version, 'endpoint': _rule_map.path(name, args)})
+    return _router.ep_url('pytsite.http_api@entry', {'version': version, 'endpoint': _rules_map.path(name, args)})
 
 
 def call(name: str, inp: dict = None, **args) -> tuple:
     """Call an HTTP API endpoint.
     """
-    return _rule_map.get(name).handler(inp or {}, **args)
+    return _rules_map.get(name).handler(inp or {}, **args)
 
 
 def on_pre_request(handler, priority: int = 0):

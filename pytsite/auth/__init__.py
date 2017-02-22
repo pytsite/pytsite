@@ -7,7 +7,7 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
     verify_password, hash_password, sign_out, get_access_token_info, switch_user, get_anonymous_user, \
     get_system_user, get_users, get_storage_driver, count_users, count_roles, get_first_admin_user, get_roles, \
     get_user_modify_form, base_path, switch_user_to_system, switch_user_to_anonymous, restore_user, \
-    generate_access_token, prolong_access_token
+    generate_access_token, prolong_access_token, register_storage_driver
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -39,6 +39,7 @@ def __init():
                     'pytsite.auth@delete_access_token')
 
     # User HTTP API
+    http_api.handle('GET', 'auth/is_anonymous', _http_api.is_anonymous, 'pytsite.auth@is_anonymous')
     http_api.handle('GET', 'auth/user/<uid>', _http_api.get_user, 'pytsite.auth@get_user')
     http_api.handle('PATCH', 'auth/user/<uid>', _http_api.patch_user, 'pytsite.auth@patch_user')
 
@@ -49,11 +50,10 @@ def __init():
     # Routes
     bp = base_path()
     router.add_rule(bp + '/sign-in/<driver>', 'pytsite.auth@sign_in')
-    router.add_rule(bp + '/sign-in/<driver>/post', 'pytsite.auth@sign_in_submit', methods='POST')
+    router.add_rule(bp + '/sign-in/<driver>/post', 'pytsite.auth@sign_in_submit', method='POST')
     router.add_rule(bp + '/sign-out/<driver>', 'pytsite.auth@sign_out')
     router.add_rule(bp + '/profile/<nickname>', 'pytsite.auth@profile_view')
-    router.add_rule(bp + '/profile/<nickname>/edit', 'pytsite.auth@profile_edit', filters='pytsite.auth@f_authorize')
-    router.add_rule(bp + '/profile/<nickname>/edit/submit', 'pytsite.auth@profile_edit_submit', methods='POST')
+    router.add_rule(bp + '/profile/<nickname>/edit', 'pytsite.auth@profile_edit', filters=['pytsite.auth@f_authorize'])
 
     # Template engine globals
     tpl.register_global('auth_current_user', get_current_user)

@@ -1,38 +1,47 @@
 """PytSite Routing Rule Map.
 """
 import re as _re
-from typing import Dict as _Dict
+from typing import Dict as _Dict, Hashable as _Hashable
 from . import _rule, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_rule_arg_re = _re.compile('<([\w\-]+)>')
+_rule_arg_re = _re.compile('<((\w+:)?[\w\-]+)>')
+_rule_arg_param_re = _re.compile('\w+:')
 
 
-class RuleMap:
+class RulesMap:
     def __init__(self):
-        self._rules = {}  # type: _Dict[str, _rule.Rule]
+        self._rules_by_method_path = {}  # type: _Dict[_Hashable, _rule.Rule]
+        self._rules_by_name = {}  # type: _Dict[_Hashable, _rule.Rule]
 
     def add(self, rule: _rule.Rule):
-        if rule.name in self._rules:
-            raise _error.RuleExists("Rule with name '{}' is already added".format(rule.name))
+        rule_k = (rule.method if rule.method != '*' else 'ANY', rule.path)
 
-        self._rules[rule.name] = rule
+        # Check if the rule with same pattern but for all methods has been added already
+        if rule_k[0] != 'ANY' and ('ANY', rule_k) in self._rules_by_method_path:
+            raise _error.RuleExists("Rule '{}' is already added".format(rule_k))
+
+        if rule_k in self._rules_by_method_path:
+            raise _error.RuleExists("Rule '{}' is already added".format(rule_k))
+
+        self._rules_by_method_path[rule_k] = rule
+        self._rules_by_name[rule.name] = rule
 
     def get(self, name: str):
         """Get rule by name.
         """
-        if name not in self._rules:
+        if name not in self._rules_by_name:
             raise _error.RuleNotFound("Rule with name '{}' is not found".format(name))
 
-        return self._rules[name]
+        return self._rules_by_name[name]
 
     def match(self, path: str, method: str = 'GET') -> _rule.Rule:
-        for rule in self._rules.values():
+        for rule in self._rules_by_name.values():
             m = rule.regex.match(path)
-            if not m or rule.method != method.upper():
+            if not m or rule.method not in (method.upper(), '*'):
                 continue
 
             rule.arg_values = m.groups()
@@ -47,12 +56,12 @@ class RuleMap:
         def repl(match):
             nonlocal rule
 
-            arg_k = match.group(1)
+            arg_k = _rule_arg_param_re.sub('', match.group(1))
 
             if arg_k in args:
-                return args.pop(arg_k)
+                return str(args.pop(arg_k))
             elif arg_k in rule.defaults:
-                return rule.defaults[arg_k]
+                return str(rule.defaults[arg_k])
             else:
                 raise _error.RulePathBuildError("Argument '{}' for rule '{}' is not provided".format(arg_k, name))
 

@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, lang, router, admin
+    from pytsite import odm, lang, router, admin, auth
 
     # Resources
     lang.register_package(__name__)
@@ -31,5 +31,9 @@ def _init():
     url = router.ep_path('pytsite.odm_ui@browse', {'model': 'role'})
     admin.sidebar.add_menu('auth', 'roles', 'pytsite.auth_storage_odm@roles', url, 'fa fa-key', weight=20,
                            permissions='pytsite.odm_auth.view.role')
+
+    # Register storage driver
+    auth.register_storage_driver(Driver())
+
 
 _init()

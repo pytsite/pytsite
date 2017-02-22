@@ -1,5 +1,19 @@
 # PytSite Changelog
 
+## 0.98.69 (2017-02-22)
+### Added
+- `auth`:
+    - storage driver registration;
+    - new methods in `model.AbstractRole`: `add_permission()`, `remove_permission()`.
+
+### Changed
+- `router`: routing moved from Werkzeug's to own `routing` package.
+
+### Fixed
+- `auth`: missing **GET auth/is_anonymous** HTTP API endpoint.
+- `reload`: HTTP API handler.
+
+
 ## 0.98.68 (2017-02-18)
 ### Fixed
 - `http_api`: incorrect URL building in JS function.

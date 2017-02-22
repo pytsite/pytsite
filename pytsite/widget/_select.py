@@ -20,7 +20,7 @@ class Checkbox(_input.Input):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        self._label_disabled = True
+        kwargs.setdefault('label_disabled', True)
         self._checked = bool(kwargs.get('checked', False))
 
         super().__init__(uid, **kwargs)
@@ -43,7 +43,6 @@ class Checkbox(_input.Input):
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
-        :param **kwargs:
         """
         div = _html.Div(cls='checkbox')
         div.append(_html.Input(type='hidden', name=self._name))

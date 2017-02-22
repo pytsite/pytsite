@@ -52,7 +52,7 @@ def register_auth_driver(driver: _driver.Authentication):
     """Register authentication driver.
     """
     if not isinstance(driver, _driver.Authentication):
-        raise TypeError('Instance of pytsite.driver.Authentication expected.')
+        raise TypeError('Instance of pytsite.auth.driver.Authentication expected.')
 
     name = driver.get_name()
     if name in _authentication_drivers:
@@ -66,9 +66,9 @@ def get_auth_driver(name: str = None) -> _driver.Authentication:
     """
     if name is None:
         if _authentication_drivers:
-            name = _reg.get('auth.authentication_driver', list(_authentication_drivers)[-1])
+            name = _reg.get('auth.auth_driver', list(_authentication_drivers)[-1])
         else:
-            raise _error.DriverNotRegistered('No authentication driver registered.')
+            raise _error.NoDriverRegistered('No authentication driver registered')
 
     if name not in _authentication_drivers:
         raise _error.DriverNotRegistered("Authentication driver '{}' is not registered.".format(name))
@@ -76,32 +76,26 @@ def get_auth_driver(name: str = None) -> _driver.Authentication:
     return _authentication_drivers[name]
 
 
+def register_storage_driver(driver: _driver.Storage):
+    """Register storage driver.
+    """
+    global _storage_driver
+
+    if _storage_driver:
+        raise _error.DriverRegistered('Storage driver is already registered')
+
+    if not isinstance(driver, _driver.Storage):
+        raise TypeError('Instance of pytsite.auth.driver.Storage expected')
+
+    _storage_driver = driver
+
+
 def get_storage_driver() -> _driver.Storage:
     """Get driver instance.
     """
     # Load storage driver if it is not loaded yet
-    global _storage_driver
     if not _storage_driver:
-        driver_class = _util.get_class(_reg.get('auth.storage_driver', 'pytsite.auth_storage_odm.Driver'))
-        driver = driver_class()
-
-        if not isinstance(driver, _driver.Storage):
-            raise TypeError('Instance of pytsite.driver.Storage expected.')
-
-        _storage_driver = driver
-
-        # Set system user as current
-        switch_user_to_system()
-
-        # Check if required roles exist
-        for r_name in ('anonymous', 'user', 'admin'):
-            try:
-                get_role(r_name)
-            except _error.RoleNotExist:
-                create_role(r_name, 'pytsite.auth@{}_role_description'.format(r_name)).save()
-
-        # Set system user as anonymous
-        switch_user_to_anonymous()
+        raise _error.NoDriverRegistered('No storage driver registered')
 
     return _storage_driver
 
@@ -146,9 +140,11 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
             # Automatic roles for new users
             roles = []
             for role_name in _reg.get('auth.signup.roles', ['user']):
-                role = get_role(role_name)
-                if role:
-                    roles.append(role)
+                try:
+                    roles.append(get_role(role_name))
+                except _error.RoleNotExist:
+                    pass
+
             user.roles = roles
 
             user.save()
@@ -217,6 +213,15 @@ def create_role(name: str, description: str = ''):
 def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
     """Get role by name or UID.
     """
+    # These roles must always exist
+    if name in ('anonymous', 'user', 'admin'):
+        try:
+            get_storage_driver().get_role(name)
+        except _error.RoleNotExist:
+            switch_user_to_system()
+            get_storage_driver().create_role(name, 'pytsite.auth@{}_role_description'.format(name)).save()
+            restore_user()
+
     return get_storage_driver().get_role(name, uid)
 
 

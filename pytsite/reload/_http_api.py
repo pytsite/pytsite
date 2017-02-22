@@ -8,7 +8,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def reload() -> dict:
+def reload(inp: dict) -> dict:
     if not _auth.get_current_user().has_permission('pytsite.reload'):
         raise _http.error.Forbidden('Insufficient permissions.')
 

@@ -7,7 +7,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_remove_slashes_re = _re.compile('(^/+|/+$)')
+_sanitize_slashes_re = _re.compile('(/+$)')
 _rule_arg_re = _re.compile('<([\w\-:]+)>')
 
 
@@ -32,14 +32,17 @@ def _rule_arg_repl(match):
 class Rule:
     def __init__(self, path: str, handler, name: str = None, defaults: dict = None, method: str = 'GET',
                  attrs: dict = None):
-        if not callable(handler):
-            raise RuntimeError("HTTP API handler for '{}' is not callable".format(path))
+        if not (isinstance(handler, str) or callable(handler)):
+            raise RuntimeError("Handler of path '{}' should be either a callable or a str".format(path))
 
         if not name:
             name = _util.random_str()
 
         # Remove leading and trailing slashes
-        path = _remove_slashes_re.sub('', path)
+        if path != '/':
+            path = _sanitize_slashes_re.sub('', path)
+            if not path.startswith('/'):
+                path = '/' + path
 
         self._path = path
         self._handler = handler

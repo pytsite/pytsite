@@ -56,6 +56,12 @@ def delete_access_token(inp: dict, token: str) -> dict:
         raise _http.error.Forbidden(str(e))
 
 
+def is_anonymous(inp: dict) -> bool:
+    """Check if the current user is anonymous.
+    """
+    return _api.get_current_user().is_anonymous
+
+
 def get_user(inp: dict, uid: str) -> dict:
     """Get information about user.
     """

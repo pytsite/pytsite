@@ -17,7 +17,7 @@ def _init():
     assetman.register_package(__name__)
     tpl.register_package(__name__)
 
-    router.add_rule('/form/submit/<uid>', 'pytsite.form@submit')
+    router.add_rule('/form/submit/<uid>', 'pytsite.form@submit', method='POST')
 
     http_api.handle('POST', 'form/widgets/<uid>', _http_api.get_widgets, 'pytsite.form@post_get_widgets')
     http_api.handle('POST', 'form/validate/<uid>', _http_api.post_validate, 'pytsite.form@post_validate')

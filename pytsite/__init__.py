@@ -104,9 +104,14 @@ def _init():
     })
 
     # Initialize required core packages. Order is important.
-    autoload = ('theme', 'cron', 'stats', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api', 'plugman')
+    autoload = ('theme', 'cron', 'stats', 'auth_storage_odm', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api',
+                'plugman')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
+
+    # Initialize authentication subsystem
+    import_module('pytsite.auth_password')
+    import_module('pytsite.auth_ulogin')
 
     # Create application's language directory
     from pytsite import lang
@@ -117,15 +122,11 @@ def _init():
             with open(path.join(app_lng_dir, '{}.yml'.format(lng)), 'w') as f:
                 f.write('')
 
-    # Register application's language directory
-    lang.register_package('app', 'lang')
-
     # Initialize 'app' package
+    lang.register_package('app', 'lang')
     import_module('app')
 
-    # Initialize authentication subsystem
-    import_module('pytsite.auth_password')
-    import_module('pytsite.auth_ulogin')
+
 
     # Core event handlers
     from pytsite import events

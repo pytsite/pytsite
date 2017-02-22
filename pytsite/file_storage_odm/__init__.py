@@ -19,10 +19,8 @@ def _init():
     # Event handlers
     events.listen('pytsite.update', _eh.update)
 
-    router.add_rule(
-        '/image/resize/<int:width>/<int:height>/<string(length=2):p1>/<string(length=2):p2>/<string:filename>',
-        'pytsite.file_storage_odm@image',
-    )
+    router.add_rule('/image/resize/<int:width>/<int:height>/<p1>/<p2>/<filename>', 'pytsite.file_storage_odm@image',
+                    defaults={'width': 0, 'height': 0})
 
 
 _init()

@@ -1,7 +1,6 @@
 """PytSite HTTP API Endpoints
 """
-from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events, \
-    metatag as _metatag, reg as _reg
+from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -11,7 +10,7 @@ __license__ = 'MIT'
 
 def entry(args: dict, inp: dict):
     version = args.pop('version')
-    endpoint = args.pop('endpoint')  # type: str
+    endpoint = '/' + args.pop('endpoint')  # type: str
     current_path = _router.current_path(resolve_alias=False, strip_lang=False)
 
     # Switch language
@@ -47,7 +46,7 @@ def entry(args: dict, inp: dict):
         return response
 
     except _http.error.Base as e:
-        _logger.error(current_path + ': ' + e.description)
+        _logger.error('{} {}: {}'.format(_router.request().method, current_path, e.description))
         response = _http.response.JSON({'error': e.description}, e.code)
         response.headers.add('PytSite-HTTP-API', version)
 

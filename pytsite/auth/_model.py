@@ -73,6 +73,13 @@ class AbstractRole(AuthEntity):
     def permissions(self, value: _Union[_List, _Tuple]):
         self.set_field('permissions', value)
 
+    def add_permission(self, perm: str):
+        if perm not in self.permissions:
+            self.permissions = list(self.permissions) + [_permission.get_permission(perm)[0]]
+
+    def remove_permission(self, perm: str):
+        self.permissions = [p[0] for p in self.permissions if p[0] != perm]
+
 
 class AbstractUser(AuthEntity):
     """User ODM Model.
