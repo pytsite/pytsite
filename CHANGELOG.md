@@ -1,5 +1,15 @@
 # PytSite Changelog
 
+## 0.98.70 (2017-02-25)
+### Added
+- `theme`: new tpl's global: `theme_logo_url()`.
+
+### Fixed
+- `http_api`: missed localization header in JS requests.
+- `router`: calls to named routes.
+- `theme`: assets compilation order on setting form submit.
+
+
 ## 0.98.69 (2017-02-22)
 ### Added
 - `auth`:

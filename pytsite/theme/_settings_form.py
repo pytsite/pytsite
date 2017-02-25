@@ -44,8 +44,6 @@ class Form(_settings.Form):
             uid='setting_logo_fid',
             weight=10,
             label=_lang.t('pytsite.theme@logo'),
-            show_numbers=False,
-            dnd=False,
         ))
 
         # Favicon
@@ -53,8 +51,6 @@ class Form(_settings.Form):
             uid='setting_favicon_fid',
             weight=20,
             label=_lang.t('pytsite.theme@favicon'),
-            show_numbers=False,
-            dnd=False,
         ))
 
         try:
@@ -65,7 +61,11 @@ class Form(_settings.Form):
     def _on_submit(self):
         """Hook.
         """
+        # First, process settings form to store values
+        r = super()._on_submit()
+
         # Rebuild assets for selected theme
         _assetman.build(self.values.get('setting_current_theme'), cache=False)
 
-        return super()._on_submit()
+        return r
+

@@ -12,12 +12,20 @@ __license__ = 'MIT'
 
 def _init():
     from os import listdir, path, makedirs
-    from pytsite import permissions, settings, lang, events, router, assetman, http_api
+    from pytsite import permissions, settings, lang, events, router, assetman, http_api, tpl, file
     from . import _settings_form, _eh, _http_api
 
     # Resources
     lang.register_package(__name__)
     assetman.register_package(__name__)
+
+    # App's logo URL resolver
+    def logo_url(width: int = 50, height: int = 50):
+        s = settings.get('theme.logo_fid')
+        return file.get(s).get_url(width=width, height=height) if s else assetman.url('$theme@img/appicon.png')
+
+    # Tpl globals
+    tpl.register_global('theme_logo_url', logo_url)
 
     # Permissions
     permissions.define_permission('pytsite.theme.manage', 'pytsite.theme@manage_themes', 'app')

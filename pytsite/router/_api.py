@@ -14,6 +14,8 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
+
 # Routes map
 _routes = _routing.RulesMap()
 
@@ -69,16 +71,14 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def add_rule(path: str, handler, name: str = None, defaults: dict = None, method: str = 'GET', filters: list = None):
+def add_rule(path: str, handler: str, name: str = None, defaults: dict = None, method: str = 'GET',
+             filters: list = None):
     """Add a rule to the router.
     """
-    if not name and isinstance(handler, str):
+    if not name:
         name = handler
 
-    if filters is None:
-        filters = []
-
-    _routes.add(_routing.Rule(path, handler, name, defaults, method, {'filters': filters}))
+    _routes.add(_routing.Rule(path, handler, name, defaults, method, {'filters': filters or []}))
 
 
 def add_path_alias(alias: str, target: str):
@@ -104,14 +104,14 @@ def is_ep_callable(ep_name: str) -> bool:
         return False
 
 
-def resolve_ep_callable(ep_name: str) -> callable:
-    if '$theme' in ep_name:
-        ep_name = ep_name.replace('$theme', _theme.get_current())
+def resolve_ep_callable(handler: str) -> callable:
+    if '$theme' in handler:
+        handler = handler.replace('$theme', _theme.get_current())
 
-    if '@' in ep_name:
-        ep_name = ep_name.replace('@', '.ep.')
+    if '@' in handler:
+        handler = handler.replace('@', '.ep.')
 
-    return _util.get_callable(ep_name)
+    return _util.get_callable(handler)
 
 
 def call_ep(ep_name: str, args: dict = None, inp: dict = None):
@@ -152,7 +152,7 @@ def dispatch(env: dict, start_response: callable):
     # Detect language from path
     languages = _lang.langs()
     if len(languages) > 1:
-        if _re.search('^/[a-z]{2}(/|$)', req.path):
+        if _LANG_CODE_RE.search(req.path):
             # Extract language code as first two-letters of the path
             lang_code = req.path[1:3]
             try:
@@ -196,12 +196,32 @@ def dispatch(env: dict, start_response: callable):
         # Search for rule
         try:
             rule = _routes.match(req.path, req.method)
+            rule_handler = rule.handler
+            rule_args = rule.args.copy()
+            rule_attrs = rule.attrs.copy()
+
+            # Try to find referenced rule by name
+            try:
+
+                ref_rule = _routes.get(rule_handler)
+
+                rule_handler = ref_rule.handler
+
+                ref_rule_args = ref_rule.args.copy()
+                ref_rule_args.update(rule_args)
+                rule_args = ref_rule_args
+
+                ref_rule_attrs = ref_rule.attrs.copy()
+                ref_rule_attrs.update(rule_attrs)
+                rule_attrs = ref_rule_attrs
+            except _routing.error.RuleNotFound:
+                pass
         except _routing.error.RuleNotFound as e:
             raise _http.error.NotFound(e)
 
         # Processing rule filters
-        for flt in rule.attrs['filters']:
-            flt_args = rule.args
+        for flt in rule_attrs['filters']:
+            flt_args = rule_args
             flt_split = flt.split(':')
             flt_endpoint = flt_split[0]
             if len(flt_split) > 1:
@@ -219,7 +239,7 @@ def dispatch(env: dict, start_response: callable):
 
         # Processing response from handler
         try:
-            handler_resp = resolve_ep_callable(rule.handler)(rule.args, request().inp)
+            handler_resp = resolve_ep_callable(rule_handler)(rule_args, request().inp)
         except ImportError as e:
             raise _http.error.NotFound(e)
 
@@ -407,25 +427,23 @@ def url(s: str, **kwargs) -> str:
 def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str = None) -> str:
     """Get current path.
     """
-    if not _requests:
+    req = request()
+    if not req:
         return '/'
 
-    r = _urlparse.urlparse(request().url)
-    path = _urlparse.urlunparse(('', '', r[2], r[3], '', ''))
-    query = _urlparse.urlunparse(('', '', '', '', r[4], r[5]))
+    r = req.path
 
     if resolve_alias:
-        for k, v in _path_aliases.items():
-            if path == v:
-                path = k
+        for alias, target in _path_aliases.items():
+            if r == target:
+                r = alias
                 break
 
     if not strip_lang:
-        path = str(base_path(lang) + path).replace('//', '/')
+        r = '/' + (lang or _lang.get_current()) + r
 
-    r = str(path)
-    if not strip_query:
-        r += str(query)
+    if not strip_query and req.query_string:
+        r += '?' + req.query_string.decode('utf-8')
 
     return r
 

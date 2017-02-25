@@ -33,18 +33,23 @@ class RulesMap:
     def get(self, name: str):
         """Get rule by name.
         """
-        if name not in self._rules_by_name:
+        try:
+            return self._rules_by_name[name]
+        except KeyError:
             raise _error.RuleNotFound("Rule with name '{}' is not found".format(name))
 
-        return self._rules_by_name[name]
-
     def match(self, path: str, method: str = 'GET') -> _rule.Rule:
+        if not path.startswith('/'):
+            path = '/' + path
+
         for rule in self._rules_by_name.values():
             m = rule.regex.match(path)
             if not m or rule.method not in (method.upper(), '*'):
                 continue
 
-            rule.arg_values = m.groups()
+            # Fill rule's arguments
+            for group_n, group_i in rule.regex.groupindex.items():
+                rule.args[group_n] = m.group(group_n)
 
             return rule
 

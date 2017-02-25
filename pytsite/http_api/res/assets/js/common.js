@@ -20,7 +20,8 @@ pytsite.httpApi = {
         return $.ajax({
             url: pytsite.httpApi.url(endpoint, null, version),
             method: method,
-            data: data
+            data: data,
+            headers: {'PytSite-Lang': pytsite.lang.current()}
         });
     },
 

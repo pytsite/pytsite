@@ -12,21 +12,24 @@ _rule_arg_re = _re.compile('<([\w\-:]+)>')
 
 
 def _rule_arg_repl(match):
-    arg_t = 'common'
+    arg_type = 'common'
     arg = match.group(1).split(':')
     if len(arg) > 1:
-        arg_t = arg[0]
-
-    if arg_t == 'common':
-        return '([^/]+)'
-    elif arg_t == 'int':
-        return '(\d+)'
-    elif arg_t == 'hex':
-        return '([0-9a-fA-F]+)'
-    elif arg_t == 'path':
-        return '(.+)'
+        arg_type = arg[0]
+        arg_name = arg[1]
     else:
-        raise RuntimeError('Unknown argument type: {}'.format(arg_t))
+        arg_name = arg[0]
+
+    if arg_type == 'common':
+        return '(?P<{}>[^/]+)'.format(arg_name)
+    elif arg_type == 'int':
+        return '(?P<{}>\d+)'.format(arg_name)
+    elif arg_type == 'hex':
+        return '(?P<{}>[0-9a-fA-F]+)'.format(arg_name)
+    elif arg_type == 'path':
+        return '(?P<{}>.+)'.format(arg_name)
+    else:
+        raise RuntimeError('Unknown argument type: {}'.format(arg_type))
 
 
 class Rule:
@@ -47,14 +50,19 @@ class Rule:
         self._path = path
         self._handler = handler
         self._name = name
-        self._defaults = defaults if defaults else {}
         self._method = method.upper()
         self._attrs = attrs if attrs else {}
-        self._arg_names = [_re.sub('\w+:', '', r) for r in _rule_arg_re.findall(path)]
-        self._arg_values = []
 
-        rule_regex = _rule_arg_re.sub(_rule_arg_repl, path)
-        self._regex = _re.compile('^{}$'.format(rule_regex))
+        # Build regular expression
+        rule_regex_str = _rule_arg_re.sub(_rule_arg_repl, path)
+        self._regex = _re.compile('^{}$'.format(rule_regex_str))
+
+        # Build arguments dictionary based on regular expression
+        self._args = dict.fromkeys(self._regex.groupindex.keys())
+
+        # Fill arguments with defaults
+        if defaults:
+            self._args.update(defaults)
 
     @property
     def path(self) -> str:
@@ -69,10 +77,6 @@ class Rule:
         return self._name
 
     @property
-    def defaults(self) -> str:
-        return self._defaults
-
-    @property
     def method(self) -> str:
         return self._method
 
@@ -85,17 +89,5 @@ class Rule:
         return self._regex
 
     @property
-    def arg_names(self) -> list:
-        return self._arg_names
-
-    @property
-    def arg_values(self) -> list:
-        return self._arg_values
-
-    @arg_values.setter
-    def arg_values(self, value: list):
-        self._arg_values = value
-
-    @property
     def args(self) -> dict:
-        return dict(zip(self._arg_names, self._arg_values))
+        return self._args

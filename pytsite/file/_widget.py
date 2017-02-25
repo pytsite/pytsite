@@ -31,8 +31,8 @@ class FilesUpload(_widget.Abstract):
         self._image_max_width = kwargs.get('image_max_width', 0)
         self._image_max_height = kwargs.get('image_max_height', 0)
         self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
-        self._show_numbers = kwargs.get('show_numbers', True)
-        self._dnd = kwargs.get('dnd', True)
+        self._show_numbers = False if self._max_files == 1 else kwargs.get('show_numbers', True)
+        self._dnd = False if self._max_files == 1 else kwargs.get('dnd', True)
 
         self._assets.extend(_browser.get_assets('jquery-ui'))
         self._assets.extend(_browser.get_assets('imagesloaded'))

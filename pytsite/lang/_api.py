@@ -75,7 +75,7 @@ def set_current(language: str):
     """Set current default language.
     """
     if language not in _languages:
-        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
+        raise _error.LanguageNotSupported("Language '{}' is not supported".format(language))
 
     _current[_threading.get_id()] = language
 
@@ -84,7 +84,7 @@ def set_fallback(language: str):
     """Set fallback language.
     """
     if language not in _languages:
-        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
+        raise _error.LanguageNotSupported("Language '{}' is not supported".format(language))
 
     global _fallback
     _fallback = language
@@ -94,7 +94,7 @@ def get_current() -> str:
     """Get current language.
     """
     if not _languages:
-        raise RuntimeError("No languages are defined.")
+        raise RuntimeError("No languages are defined")
 
     tid = _threading.get_id()
     if tid not in _current:
@@ -107,7 +107,7 @@ def get_primary() -> str:
     """Get primary language.
     """
     if not _languages:
-        raise RuntimeError("No languages are defined.")
+        raise RuntimeError("No languages are defined")
 
     return _languages[0]
 
@@ -116,7 +116,7 @@ def get_fallback() -> str:
     """Get fallback language.
     """
     if not _languages:
-        raise RuntimeError("No languages are defined.")
+        raise RuntimeError("No languages are defined")
 
     return _fallback
 
@@ -132,19 +132,19 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
     """
     spec = _find_spec(pkg_name)
     if not spec or not spec.loader:
-        raise RuntimeError("Package '{}' is not found.".format(pkg_name))
+        raise RuntimeError("Package '{}' is not found".format(pkg_name))
 
     lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)
     if not _path.isdir(lng_dir):
         raise RuntimeError("Language directory '{}' is not found".format(lng_dir))
 
     if pkg_name in _packages:
-        raise RuntimeError("Package '{}' already registered.".format(pkg_name))
+        raise RuntimeError("Package '{}' already registered".format(pkg_name))
     _packages[pkg_name] = {'__path': lng_dir}
 
     if alias:
         if alias in _packages:
-            raise RuntimeError("Package alias '{}' already registered.".format(pkg_name))
+            raise RuntimeError("Package alias '{}' already registered".format(pkg_name))
         _packages[alias] = {'__path': lng_dir}
 
 
@@ -185,7 +185,7 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, us
         language = get_current()
 
     if language not in _languages:
-        raise _error.LanguageNotSupported("Language '{}' is not supported.".format(language))
+        raise _error.LanguageNotSupported("Language '{}' is not supported".format(language))
 
     if msg_id in _globals:
         return _globals[msg_id](language, args)
@@ -267,7 +267,7 @@ def load_lang_file(pkg_name: str, language: str = None):
     """
     # Is the package registered?
     if not is_package_registered(pkg_name):
-        raise _error.PackageNotRegistered("Package '{}' is not registered.".format(pkg_name))
+        raise _error.PackageNotRegistered("Package '{}' is not registered".format(pkg_name))
 
     if not language:
         language = get_current()
