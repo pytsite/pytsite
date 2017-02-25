@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.71 (2017-02-25)
+### Fixed
+- `router`: language related issues.
+
+
 ## 0.98.70 (2017-02-25)
 ### Added
 - `theme`: new tpl's global: `theme_logo_url()`.

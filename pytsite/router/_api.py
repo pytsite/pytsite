@@ -323,16 +323,12 @@ def base_path(lang: str = None) -> str:
     if len(available_langs) == 1:
         return '/'
 
-    if not lang:
-        lang = _lang.get_current()
+    lang = lang or _lang.get_current()
+
     if lang not in available_langs:
         raise RuntimeError("Language '{}' is not supported.".format(lang))
 
-    r = '/'
-    if lang != available_langs[0]:
-        r += lang + '/'
-
-    return r
+    return '/' if lang == _lang.get_primary() else '/' + lang
 
 
 def server_name():
@@ -427,11 +423,10 @@ def url(s: str, **kwargs) -> str:
 def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str = None) -> str:
     """Get current path.
     """
+    lang = lang or _lang.get_current()
     req = request()
-    if not req:
-        return '/'
 
-    r = req.path
+    r = req.path if req else '/'
 
     if resolve_alias:
         for alias, target in _path_aliases.items():
@@ -439,8 +434,8 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: s
                 r = alias
                 break
 
-    if not strip_lang:
-        r = '/' + (lang or _lang.get_current()) + r
+    if not strip_lang and lang != _lang.get_primary():
+        r = '/' + lang + (r if r != '/' else '')
 
     if not strip_query and req.query_string:
         r += '?' + req.query_string.decode('utf-8')
