@@ -20,7 +20,7 @@ _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 _PLUGINS_API_HOST = _reg.get('plugman.api_host', 'plugins.pytsite.xyz')
-_PLUGINS_API_URL = _router.scheme() + '//' + _PLUGINS_API_HOST + '/api/1/'
+_PLUGINS_API_URL = _router.scheme() + '://' + _PLUGINS_API_HOST + '/api/1/'
 _PLUGINS_API_DEV_HOST = _reg.get('plugman.api_host', 'local.plugins.pytsite.xyz')
 
 _started = []

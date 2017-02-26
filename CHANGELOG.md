@@ -1,6 +1,11 @@
 # PytSite Changelog
 
-## 0.98.71 (2017-02-27)
+## 0.98.73 (2017-02-27)
+### Fixed
+- `plugman`: missed colon.
+
+
+## 0.98.72 (2017-02-27)
 ### Fixed
 - `plugman`: app start fail on plugins API host.
 
