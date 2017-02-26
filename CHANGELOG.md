@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.71 (2017-02-27)
+### Fixed
+- `plugman`: app start fail on plugins API host.
+
+
 ## 0.98.71 (2017-02-25)
 ### Fixed
 - `router`: language related issues.

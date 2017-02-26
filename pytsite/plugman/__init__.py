@@ -3,17 +3,16 @@
 # Public API
 from . import _error as error
 from ._api import get_plugins_path, get_plugin_info, install, uninstall, is_installed, start, is_started, \
-    get_license_info, get_installed_plugins, get_remote_plugins, get_required_plugins
+    get_license_info, get_installed_plugins, get_remote_plugins, get_required_plugins, is_api_host, is_api_dev_host
 
 # Locally necessary imports
-from pytsite import reload as _reload, reg as _reg, router as _router
+from pytsite import reload as _reload, reg as _reg
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _plugman_started = False
-_DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 
 def _cron_check_license():
@@ -49,7 +48,7 @@ def _init():
     http_api.handle('POST', 'plugman/uninstall/<name>', _http_api.post_uninstall, 'pytsite.plugman@post_uninstall')
     http_api.handle('POST', 'plugman/upgrade/<name>', _http_api.post_upgrade, 'pytsite.plugman@post_upgrade')
 
-    if not _DEV_MODE:
+    if not is_api_dev_host():
         # Permissions
         permissions.define_permission('pytsite.plugman.manage', 'pytsite.plugman@plugin_management', 'app')
 
@@ -62,19 +61,18 @@ def _init():
             if not is_installed(plugin_name):
                 install(plugin_name)
 
-        # Periodically check license
-        cron.hourly(_cron_check_license)
-
-        # Check license
-        try:
-            get_license_info()
-        except error.InvalidLicense:
-            logger.error('Plugins license expired or invalid. Plugins will not be loaded.')
-            return
-        except error.ApiRequestError as e:
-            logger.error('Error while communicating with plugin API. Plugins will not be loaded.')
-            logger.error(e)
-            return
+        # Check license at start and then by cron, but don't do this at plugins host
+        if not is_api_host():
+            try:
+                get_license_info()
+                cron.hourly(_cron_check_license)
+            except error.InvalidLicense:
+                logger.error('Plugins license expired or invalid. Plugins will not be loaded.')
+                return
+            except error.ApiRequestError as e:
+                logger.error('Error while communicating with plugin API. Plugins will not be loaded.')
+                logger.error(e)
+                return
 
         # Event handlers
         events.listen('pytsite.update', _eh.update)
