@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.74 (2017-02-28)
+### Fixed
+- `auth`: incorrect template names.
+
+
 ## 0.98.73 (2017-02-27)
 ### Fixed
 - `plugman`: missed colon.
