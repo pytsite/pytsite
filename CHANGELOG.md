@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+## 0.98.75 (2017-02-28)
+### Fixed
+- `odm`: exception description.
+- `odm_ui`: route method.
+
+
 ## 0.98.74 (2017-02-28)
 ### Fixed
 - `auth`: incorrect template names.

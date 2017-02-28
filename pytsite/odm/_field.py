@@ -520,7 +520,8 @@ class RefsList(List):
             entity = get_by_ref(dbref)
             if entity:
                 if self._model != '*' and entity.model != self._model:
-                    raise TypeError("Entity of model '{}' expected.".format(self._model))
+                    raise TypeError("Entity of model '{}' expected, but entity of model '{}' given".
+                                    format(self._model, entity.model))
                 r.append(entity)
 
         sort_by = kwargs.get('sort_by')

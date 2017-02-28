@@ -28,7 +28,7 @@ def _init():
     router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', filters=[auth_filter])
 
     # Route: 'delete' form display
-    router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', method='POST', filters=[auth_filter])
+    router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', method='*', filters=[auth_filter])
 
     # Resources
     lang.register_package(__name__)
