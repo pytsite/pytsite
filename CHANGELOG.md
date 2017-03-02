@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.77 (2017-03-02)
+### Fixed
+- `router`: work of `current_path()` in non web environment. 
+
+
 ## 0.98.76 (2017-03-02)
 ### Changed
 - `admin`: `admin_url` tpl's global renamed to `admin_base_path`.

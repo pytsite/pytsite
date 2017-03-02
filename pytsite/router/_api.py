@@ -437,7 +437,7 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: s
     if not strip_lang and lang != _lang.get_primary():
         r = '/' + lang + (r if r != '/' else '')
 
-    if not strip_query and req.query_string:
+    if not strip_query and req and req.query_string:
         r += '?' + req.query_string.decode('utf-8')
 
     return r
