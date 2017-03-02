@@ -38,7 +38,7 @@ def _init():
     router.add_rule(bp, 'pytsite.admin@dashboard')
 
     # Tpl globals
-    tpl.register_global('admin_url', bp)
+    tpl.register_global('admin_base_path', bp)
 
     sidebar.add_section('misc', 'pytsite.admin@miscellaneous', 500)
 

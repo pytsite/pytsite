@@ -1,5 +1,14 @@
 # PytSite Changelog
 
+
+## 0.98.76 (2017-03-02)
+### Changed
+- `admin`: `admin_url` tpl's global renamed to `admin_base_path`.
+
+### Fixed
+- `router`: current language autodetection in `url()`. 
+
+
 ## 0.98.75 (2017-02-28)
 ### Fixed
 - `odm`: exception description.

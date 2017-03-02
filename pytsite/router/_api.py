@@ -372,7 +372,7 @@ def url(s: str, **kwargs) -> str:
     if not s:
         raise ValueError('url_str cannot be empty.')
 
-    lang = kwargs.get('lang')  # type: str
+    lang = kwargs.get('lang', _lang.get_current())  # type: str
     strip_lang = kwargs.get('strip_lang', False)  # type: bool
     strip_query = kwargs.get('strip_query')  # type: bool
     query = kwargs.get('query')  # type: dict
