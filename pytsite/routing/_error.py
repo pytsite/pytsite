@@ -1,4 +1,4 @@
-"""PytSite Routing Errors.
+"""PytSite Routing Errors
 """
 
 __author__ = 'Alexander Shepetko'
@@ -15,4 +15,8 @@ class RuleExists(Exception):
 
 
 class RulePathBuildError(Exception):
+    pass
+
+
+class RuleArgumentError(Exception):
     pass

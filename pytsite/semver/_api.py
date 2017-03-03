@@ -1,4 +1,4 @@
-"""PytSite Semantic Versioning Tools Functions.
+"""PytSite Semantic Versioning Tools Functions
 """
 from typing import Iterable as _Iterable
 from . import _error

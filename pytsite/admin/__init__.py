@@ -35,7 +35,7 @@ def _init():
     permissions.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
 
     # Dashboard route
-    router.add_rule(bp, 'pytsite.admin@dashboard')
+    router.handle(bp, 'pytsite.admin@dashboard', 'pytsite.admin@dashboard')
 
     # Tpl globals
     tpl.register_global('admin_base_path', bp)

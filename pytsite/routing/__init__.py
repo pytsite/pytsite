@@ -1,4 +1,4 @@
-"""PytSite Routing.
+"""PytSite Routing
 """
 from . import _error as error
 from ._rule import Rule

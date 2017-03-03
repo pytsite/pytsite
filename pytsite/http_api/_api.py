@@ -1,4 +1,4 @@
-"""PytSite HTTP API Functions.
+"""PytSite HTTP API Functions
 """
 from pytsite import router as _router, http as _http, routing as _routing, logger as _logger, events as _events
 
@@ -10,9 +10,9 @@ _rules_map = _routing.RulesMap()
 
 
 def handle(method: str, path: str, handler: callable, name: str = None, version: int = 0):
-    """Register API requests handler.
+    """Register API requests handler
     """
-    _rules_map.add(_routing.Rule(path, handler, name, method=method, attrs={'version': version}))
+    _rules_map.add(_routing.Rule(path, handler, name, methods=method, attrs={'version': version}))
 
 
 def match(method: str, path: str, version: int) -> _routing.Rule:

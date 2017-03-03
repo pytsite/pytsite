@@ -1,6 +1,18 @@
 # PytSite Changelog
 
 
+## 0.98.78 (2017-03-03)
+### Added
+- `routing`: support for new rule formatters: **float**, **alpha**, **alnum**, **choice**.
+
+### Changed
+- `router`:
+    - API function `add_rule()` renamed to `handle()`;
+    - `handle()`'s **name** argument is generated as random string by default now.
+    - `handle()`'s **method** argument renamed to **methods** and now accepts multiple values.
+- `routing`: refactored.
+
+
 ## 0.98.77 (2017-03-02)
 ### Fixed
 - `router`: work of `current_path()` in non web environment. 

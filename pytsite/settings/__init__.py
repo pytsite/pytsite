@@ -21,7 +21,7 @@ def _init():
     odm.register_model('setting', _model.Setting)
 
     # Routing
-    router.add_rule(admin.base_path() + '/settings/<uid>', 'pytsite.settings@form')
+    router.handle(admin.base_path() + '/settings/<uid>', 'pytsite.settings@form', 'pytsite.settings@form')
 
     # Admin sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, sort_items_by='title')

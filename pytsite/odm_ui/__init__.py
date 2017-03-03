@@ -5,7 +5,6 @@ from . import _widget as widget, _forms as forms, _model as model
 from ._browser import Browser
 from ._api import get_m_form, get_d_form, get_model_class
 
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -19,16 +18,19 @@ def _init():
     auth_filter = 'pytsite.auth@f_authorize'
 
     # Route: ODM browser page
-    router.add_rule(abp + '/odm_ui/<model>', 'pytsite.odm_ui@browse', filters=[auth_filter])
+    router.handle(abp + '/odm_ui/<model>', 'pytsite.odm_ui@browse', 'pytsite.odm_ui@browse', filters=auth_filter)
 
     # Route: get ODM browser table rows
-    router.add_rule(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows', filters=[auth_filter])
+    router.handle(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows',
+                    'pytsite.odm_ui@browse_get_rows', filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form display
-    router.add_rule(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', filters=[auth_filter])
+    router.handle(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', 'pytsite.odm_ui@m_form',
+                  filters=auth_filter)
 
     # Route: 'delete' form display
-    router.add_rule(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', method='*', filters=[auth_filter])
+    router.handle(abp + '/odm_ui/<model>/delete', 'pytsite.odm_ui@d_form', 'pytsite.odm_ui@d_form',
+                  methods=('GET', 'POST'), filters=auth_filter)
 
     # Resources
     lang.register_package(__name__)

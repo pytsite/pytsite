@@ -23,7 +23,7 @@ def find_package_data():
     return r
 
 setup(
-    name='PytSite',
+    name='pytsite',
     version=version,
     description='The Simple Web Framework',
     url='https://github.com/pytsite/pytsite',

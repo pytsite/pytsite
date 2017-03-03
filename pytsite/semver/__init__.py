@@ -1,4 +1,4 @@
-"""PytSite Semantic Versioning Tools.
+"""PytSite Semantic Versioning Tools
 
 http://semver.org/
 """

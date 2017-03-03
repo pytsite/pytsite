@@ -71,14 +71,13 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def add_rule(path: str, handler: str, name: str = None, defaults: dict = None, method: str = 'GET',
-             filters: list = None):
+def handle(path: str, handler: str, name: str = None, defaults: dict = None, methods='GET', filters=None):
     """Add a rule to the router.
     """
-    if not name:
-        name = handler
+    if isinstance(filters, str):
+        filters = (filters,)
 
-    _routes.add(_routing.Rule(path, handler, name, defaults, method, {'filters': filters or []}))
+    _routes.add(_routing.Rule(path, handler, name, defaults, methods, {'filters': filters or ()}))
 
 
 def add_path_alias(alias: str, target: str):

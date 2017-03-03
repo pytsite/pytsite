@@ -1,4 +1,4 @@
-"""PytSite Semantic Versioning Errors.
+"""PytSite Semantic Versioning Errors
 """
 
 __author__ = 'Alexander Shepetko'
