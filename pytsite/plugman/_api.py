@@ -147,6 +147,10 @@ def start(plugin_name: str) -> object:
     """
     global _required, _started
 
+    # Automatically install plugin if it is not installed
+    if not is_installed(plugin_name):
+        install(plugin_name)
+
     if plugin_name in _started:
         raise _error.PluginAlreadyStarted("Plugin '{}' is already started.".format(plugin_name))
 

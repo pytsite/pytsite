@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.98.79 (2017-03-03)
+### Added
+- `plugman`: missing plugin automatic installation in `start()`. 
+
+### Fixed
+- `routing`: rule path's slashes cleanup.
+
+
 ## 0.98.78 (2017-03-03)
 ### Added
 - `routing`: support for new rule formatters: **float**, **alpha**, **alnum**, **choice**.

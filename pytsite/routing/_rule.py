@@ -45,6 +45,12 @@ class Rule:
     """
 
     def __init__(self, path: str, handler, name: str = None, defaults: dict = None, methods='GET', attrs: dict = None):
+        if not path.startswith('/'):
+            path = '/' + path
+
+        if path.endswith('/'):
+            path = path[:-1]
+
         if not name:
             name = _util.random_str()
 
