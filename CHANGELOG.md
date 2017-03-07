@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.81 (2017-03-08)
+### Fixed
+- `odm`: geo point distance object default values.
+
+
 ## 0.98.80 (2017-03-07)
 ### Fixed
 - `core`: application's root path detection.
