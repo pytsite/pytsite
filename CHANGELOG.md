@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.80 (2017-03-07)
+### Fixed
+- `core`: application's root path detection.
+
+
 ## 0.98.79 (2017-03-03)
 ### Added
 - `plugman`: missing plugin automatic installation in `start()`. 

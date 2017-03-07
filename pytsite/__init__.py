@@ -38,6 +38,7 @@ def core_version_str() -> str:
 def _init():
     """Init wrapper.
     """
+    import sys
     from importlib import import_module
     from os import path, environ, getcwd, mkdir
     from getpass import getuser
@@ -52,8 +53,20 @@ def _init():
     if '/usr/local/bin' not in environ['PATH'] and path.exists('/usr/local/bin'):
         environ['PATH'] += ':/usr/local/bin'
 
+    # Detecting app's root path
+    cwd = getcwd()
+    pd = path.abspath(path.join(cwd, path.pardir))
+    if path.isdir(path.join(cwd, 'env')):
+        root_path = cwd
+    elif path.isdir(path.join(pd, 'env')):
+        root_path = pd
+    else:
+        raise FileNotFoundError('Cannot locate virtualenv directory')
+
+    # It is important for correct importing of packages inside 'themes', 'plugins', etc
+    sys.path.append(root_path)
+
     # Base filesystem paths
-    root_path = getcwd()
     virtualenv_path = path.join(root_path, 'env')
     app_path = path.join(root_path, 'app')
     reg.put('paths.root', root_path)
@@ -125,8 +138,6 @@ def _init():
     # Initialize 'app' package
     lang.register_package('app', 'lang')
     import_module('app')
-
-
 
     # Core event handlers
     from pytsite import events
