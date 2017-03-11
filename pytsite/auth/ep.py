@@ -23,7 +23,7 @@ def sign_in(args: dict, inp: dict) -> str:
     try:
         return _tpl.render('pytsite.auth@sign-in', {
             'driver': args['driver'],
-            'form': _api.get_sign_in_form(args.get('driver')),
+            'form': _api.get_sign_in_form(args.get('driver'), nocache=True),
         })
 
     except _error.DriverNotRegistered:

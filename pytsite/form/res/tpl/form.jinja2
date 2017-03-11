@@ -17,6 +17,7 @@
       data-validation-ep="{{ form.validation_ep }}"
       data-steps="{{ form.steps }}"
       data-prevent-submit="{{ form.prevent_submit }}"
+      data-nocache="{{ form.nocache }}"
 
       {% for k, v in form.data.items() %}
           data-{{ k }}="{{ v }}"

@@ -35,6 +35,7 @@ pytsite.form = {
         self.validationEp = em.data('validationEp');
         self.preventSubmit = em.data('preventSubmit') == 'True';
         self.isModal = em.data('modal') == 'True';
+        self.nocache = em.data('nocache') == 'True';
         self.submitEp = em.attr('submitEp');
         self.totalSteps = em.data('steps');
         self.currentStep = 0;
@@ -154,6 +155,7 @@ pytsite.form = {
 
             data['__form_data_step'] = self.currentStep;
             data['__form_data_location'] = formLocation;
+            data['__form_data_uid'] = self.id;
 
             return pytsite.httpApi.request(method, ep, data).fail(function (resp) {
                 if ('responseJSON' in resp && 'error' in resp.responseJSON)

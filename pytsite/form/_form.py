@@ -41,7 +41,7 @@ class Form(_ABC):
         # Messages area CSS
         self._messages_css = kwargs.get('messages_css', 'form-messages')
 
-        self._uid = _util.random_str(64)
+        self._uid = kwargs.get('uid', _util.random_str(64))
         self._created = _datetime.now()
         self._name = kwargs.get('name') or _form_name_sub_re.sub('-', self.cid.lower())
         self._path = kwargs.get('path', _router.current_path(True))
@@ -53,6 +53,7 @@ class Form(_ABC):
         self._modal_close_btn = kwargs.get('modal_close_btn', True)
         self._prevent_submit = kwargs.get('prevent_submit', False)
         self._redirect = _router.request().inp.get('__redirect', kwargs.get('redirect'))
+        self._nocache = kwargs.get('nocache', False)
 
         # AJAX endpoint to load form's widgets
         self._get_widgets_ep = kwargs.get('get_widgets_ep', 'form/widgets')
@@ -76,7 +77,9 @@ class Form(_ABC):
         # Convert kwargs to data-attributes. It is convenient method to export additional form constructor's arguments
         # in child classes. It is necessary to pass arguments back via AJAX requests when validating forms.
         skip_data_kwargs = ('area_hidden_css', 'area_header_css', 'area_body_css', 'area_footer_css', 'messages_css',
-                            'name', 'method', 'action', 'tpl', 'css', 'title', 'redirect')
+                            'name', 'path', 'method', 'action', 'steps', 'step', 'modal', 'modal_close_btn',
+                            'prevent_submit', 'redirect', 'nocache', 'get_widgets_ep', 'validation_ep', 'tpl', 'css',
+                            'title', 'title_css', 'data')
         for k, v in kwargs.items():
             if k not in skip_data_kwargs:
                 if isinstance(v, (tuple, list)):
@@ -92,7 +95,8 @@ class Form(_ABC):
         self._on_setup_form(**kwargs)
 
         # Put form into the cache
-        _cache.put(self)
+        if not self._nocache:
+            _cache.put(self)
 
     def setup_widgets(self, remove_existing: bool = True):
         """Setup form's widgets.
@@ -372,6 +376,14 @@ class Form(_ABC):
     def path(self) -> str:
         return self._path
 
+    @property
+    def nocache(self) -> bool:
+        return self. _nocache
+
+    @nocache.setter
+    def nocache(self, value: bool):
+        self._nocache = value
+
     def fill(self, values: dict, **kwargs):
         """Fill form's widgets with values.
         """
@@ -430,7 +442,8 @@ class Form(_ABC):
         response = self._on_submit()
 
         # Remove submitted form from the cache
-        _cache.rm(self.uid)
+        if not self.nocache:
+            _cache.rm(self.uid)
 
         return response
 

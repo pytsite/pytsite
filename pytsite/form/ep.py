@@ -1,6 +1,6 @@
 """PytSite Form Endpoints.
 """
-from . import _cache
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -10,14 +10,14 @@ __license__ = 'MIT'
 def submit(args: dict, inp: dict):
     """Default submit endpoint.
     """
-    # Dispense the form
-    frm = _cache.get(args.get('uid'))
+    frm = _api.dispense(inp)
 
-    # Setup widgets for all steps
-    frm.remove_widgets()
-    for step in range(1, frm.steps + 1):
-        frm.step = step
-        frm.setup_widgets(False)
+    # Rebuild form
+    if not frm.nocache:
+        frm.remove_widgets()
+        for step in range(1, frm.steps + 1):
+            frm.step = step
+            frm.setup_widgets(False)
 
     # Validate the form
     frm.fill(inp, mode='validation').validate()

@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.82 (2017-03-11)
+### Added
+- `form`: support of non-cached forms.
+
+
 ## 0.98.81 (2017-03-08)
 ### Fixed
 - `odm`: geo point distance object default values.
