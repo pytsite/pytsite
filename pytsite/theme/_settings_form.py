@@ -21,20 +21,20 @@ class Form(_settings.Form):
         return v
 
     def _on_setup_widgets(self):
-        for t_info in _api.get_list().values():
+        for theme in _api.get_all().values():
             self.add_widget(_widget.input.Hidden(
-                uid='setting_theme_' + t_info['name'],
+                uid='setting_theme_' + theme.name,
                 form_area='hidden',
             ))
 
         self.add_widget(_widget.select.Select(
-            uid='setting_current_theme',
+            uid='setting_default_theme',
             weight=10,
-            label=_lang.t('pytsite.theme@current_theme'),
+            label=_lang.t('pytsite.theme@default_theme'),
             required=True,
-            items=sorted([(k, v['description']) for k, v in _api.get_list().items()]),
+            items=sorted([(pkg_name, theme.description) for pkg_name, theme in _api.get_all().items()]),
             h_size='col-xs-12 col-sm-6 col-md-5 col-lg-4',
-            default=_api.get_current(),
+            default=_api.get().package_name,
             assets=['pytsite.theme@js/settings-form.js'],
             append_none_item=False,
         ))
@@ -64,8 +64,14 @@ class Form(_settings.Form):
         # First, process settings form to store values
         r = super()._on_submit()
 
+        # Current theme
+        default_theme_package = self.values.get('setting_default_theme')
+
         # Rebuild assets for selected theme
-        _assetman.build(self.values.get('setting_current_theme'), cache=False)
+        _assetman.build(default_theme_package, cache=False)
+
+        # Set default theme
+        _api.set_default(_api.get(default_theme_package))
 
         return r
 

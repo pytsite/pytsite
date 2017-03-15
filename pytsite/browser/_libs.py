@@ -1,11 +1,15 @@
 """PytSite Browser Core Libraries.
 """
-from pytsite import lang as _lang
+from pytsite import lang as _lang, reg as _reg
 from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+
+def requirejs() -> list:
+    return ['pytsite.browser@js/require/require.min.js']
 
 
 def jquery() -> list:
@@ -107,13 +111,6 @@ def waypoints() -> list:
     return ['pytsite.browser@js/jquery.waypoints.min.js']
 
 
-def slippry() -> list:
-    return [
-        'pytsite.browser@slippry/slippry.min.js',
-        'pytsite.browser@slippry/slippry.css',
-    ]
-
-
 def slick() -> list:
     return [
         'pytsite.browser@slick/slick.min.js',
@@ -138,21 +135,23 @@ def gotop() -> list:
     return ['pytsite.browser@js/jquery.gotop.min.js']
 
 
-def highlight(**kwargs):
+def highlight(**kwargs) -> list:
     return [
         'pytsite.browser@highlight/styles/' + kwargs.get('style', 'default') + '.css',
         'pytsite.browser@highlight/highlight.pack.js',
     ]
 
 
-def magnific_popup():
+def magnific_popup() -> list:
     return [
         'pytsite.browser@magnific-popup/magnific-popup.css',
         'pytsite.browser@magnific-popup/jquery.magnific-popup.min.js',
     ]
 
 
-def js_cookie():
-    return [
-        'pytsite.browser@js/js.cookie.js'
-    ]
+def js_cookie() -> list:
+    return ['pytsite.browser@js/js.cookie.js']
+
+
+def vue():
+    return ['pytsite.browser@js/' + 'vue.js' if _reg.get('debug') else 'vue.min.js']

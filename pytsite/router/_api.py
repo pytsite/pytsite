@@ -105,7 +105,7 @@ def is_ep_callable(ep_name: str) -> bool:
 
 def resolve_ep_callable(handler: str) -> callable:
     if '$theme' in handler:
-        handler = handler.replace('$theme', _theme.get_current())
+        handler = handler.replace('$theme', _theme.get().package_name)
 
     if '@' in handler:
         handler = handler.replace('@', '.ep.')

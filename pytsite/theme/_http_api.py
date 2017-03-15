@@ -1,6 +1,6 @@
 """PytSite Theme HTTP API.
 """
-from pytsite import auth as _auth, http as _http, settings as _settings
+from pytsite import auth as _auth, http as _http
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -15,15 +15,18 @@ def get_settings(inp: dict, theme_package_name: str):
     r = []
 
     try:
-        t_info = _api.get_info(theme_package_name)
-        t_name = t_info['name']
-        for w in t_info['package'].get_settings_widgets():
-            setting_val = _settings.get('theme.theme_' + t_name, {}).get(w.uid)
+        theme = _api.get(theme_package_name)
+
+        if not theme.is_loaded:
+            theme.load()
+
+        for w in theme.package.get_settings_widgets():
+            setting_val = theme.settings.get(w.uid)
             if setting_val:
                 w.value = setting_val
 
-            w.uid = 'setting_{}_{}'.format(t_name, w.uid).replace('.', '_')
-            w.name = 'setting_theme_{}[{}]'.format(t_name, w.name)
+            w.uid = 'setting_theme_{}_{}'.format(theme.name, w.uid).replace('.', '_')
+            w.name = 'setting_theme_{}[{}]'.format(theme.name, w.name)
 
             r.append(w.render())
 

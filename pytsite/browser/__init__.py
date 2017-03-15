@@ -20,6 +20,7 @@ def _init():
     assetman.add(__name__ + '@pytsite/js/lang.js', permanent=True, weight=-998)
 
     # Libraries available out of the box
+    register('requirejs', _libs.requirejs)
     register('jquery', _libs.jquery)
     register('jquery-ui', _libs.jquery_ui)
     register('font-awesome', _libs.font_awesome)
@@ -36,13 +37,13 @@ def _init():
     register('mousewheel', _libs.mousewheel)
     register('scrollto', _libs.scrollto)
     register('waypoints', _libs.waypoints)
-    register('slippry', _libs.slippry)
     register('slick', _libs.slick)
     register('select2', _libs.select2)
     register('gotop', _libs.gotop)
     register('highlight', _libs.highlight)
     register('magnific-popup', _libs.magnific_popup)
     register('js-cookie', _libs.js_cookie)
+    register('vue', _libs.vue)
 
     # jQuery is ultimately required
     include('jquery', permanent=True)

@@ -267,8 +267,6 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
     if _subprocess.run(['which', 'lessc'], stdout=_subprocess.PIPE).returncode:
         raise RuntimeError('lessc executable is not found. Check http://lesscss.org/#using-less-installation.')
 
-    _events.fire('pytsite.assetman.build.before', console_notify=console_notify)
-
     # Paths
     assets_dir = _path.join(_reg.get('paths.static'), 'assets')
 
@@ -290,6 +288,8 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
 
     if console_notify:
         _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+
+    _events.fire('pytsite.assetman.build.before')
 
     for pkg_name, source_dir_path in packages_list.items():
         # Initialize cache storage
@@ -318,7 +318,8 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
 
                 # LESS compiler
                 if ext == '.less':
-                    args = ['--modify-var={}={}'.format(k, v) for k, v in _globals.items()]
+                    args = ['--global-var={}={}'.format(k, v) for k, v in _globals.items()]
+                    args += ['--modify-var={}={}'.format(k, v) for k, v in _globals.items()]
                     filters.append(LessFilter(extra_args=args))
                     dst_path = _re.sub(r'\.less$', '.css', dst_path)
                     ext = '.css'
@@ -353,7 +354,7 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
             raise RuntimeError("Error while compiling assets for package '{}'. Check logs for details.".
                                format(pkg_name))
 
-    _events.fire('pytsite.assetman.build', console_notify=console_notify)
+    _events.fire('pytsite.assetman.build')
 
     if maintenance:
         _maintenance.disable()
@@ -366,7 +367,7 @@ def _split_asset_location_info(location: str) -> dict:
         location = '$theme@' + location
 
     if '$theme' in location:
-        location = location.replace('$theme', _theme.get_current())
+        location = location.replace('$theme', _theme.get().package_name)
 
     pkg_name, asset_path = location.split('@')[:2]
 

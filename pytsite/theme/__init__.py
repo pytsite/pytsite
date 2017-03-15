@@ -2,8 +2,7 @@
 """
 # Public API
 from . import _error as error
-from ._api import get_themes_path, register, get_list, get_current, set_current, is_registered, get_theme_settings, \
-    get_info, load
+from ._api import get_themes_path, register, get_all, set_default, get
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -49,6 +48,7 @@ def _init():
     if not path.isdir(themes_path):
         makedirs(themes_path, 0o755)
 
+    # Register all themes found in themes directory
     for name in sorted(listdir(themes_path)):
         if not path.isdir(themes_path) or name.startswith('_') or name.startswith('.'):
             continue
@@ -56,7 +56,10 @@ def _init():
         register('themes.' + name)
 
     # Set current theme from settings or keep previous if settings are absent
-    set_current(settings.get('theme.current_theme', get_current()))
+    try:
+        set_default(get(settings.get('theme.default_theme')))
+    except error.ThemeNotRegistered:
+        pass
 
 
 _init()

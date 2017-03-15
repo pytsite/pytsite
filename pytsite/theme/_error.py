@@ -1,4 +1,4 @@
-"""PytSite Theme Engine Errors.
+"""PytSite Theme Errors
 """
 
 __author__ = 'Alexander Shepetko'
@@ -15,4 +15,8 @@ class ThemeNotRegistered(Exception):
 
 
 class NoThemesRegistered(Exception):
+    pass
+
+
+class ThemeAlreadyLoaded(Exception):
     pass

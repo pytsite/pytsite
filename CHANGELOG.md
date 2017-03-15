@@ -1,6 +1,17 @@
 # PytSite Changelog
 
 
+## 0.98.83 (2017-03-15)
+### Added
+- `browser`: new libraries: **requirejs** and **vue**. 
+
+### Changed
+- `theme`: refactored.
+
+### Removed
+- `browser`: **slippry** library.
+
+
 ## 0.98.82 (2017-03-11)
 ### Added
 - `form`: support of non-cached forms.

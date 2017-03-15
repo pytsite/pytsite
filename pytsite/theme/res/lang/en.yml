@@ -1,5 +1,5 @@
 theme: 'Theme'
 manage_themes: 'Manage themes'
-current_theme: 'Current theme'
+default_theme: 'Default theme'
 logo: 'Logo'
 favicon: 'Favicon'
