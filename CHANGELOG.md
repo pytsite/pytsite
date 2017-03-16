@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.84 (2017-03-16)
+### Fixed
+- `assetman`: cache directory deletion.
+
+
 ## 0.98.83 (2017-03-15)
 ### Added
 - `browser`: new libraries: **requirejs** and **vue**. 

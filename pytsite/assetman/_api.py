@@ -293,11 +293,16 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
 
     for pkg_name, source_dir_path in packages_list.items():
         # Initialize cache storage
-        cache_dir = None
+        cache_dir = _path.join(_reg.get('paths.tmp'), 'assetman', pkg_name)
         if cache:
-            cache_dir = _path.join(_reg.get('paths.tmp'), 'assetman', pkg_name)
+            # Create cache directory
             if not _path.isdir(cache_dir):
                 _makedirs(cache_dir, 0o755)
+        else:
+            # Remove existing cache directory
+            if _path.isdir(cache_dir):
+                _rmtree(cache_dir)
+            cache_dir = None
 
         # Building package's assets absolute paths list
         src_file_paths = []
