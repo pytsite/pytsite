@@ -74,7 +74,7 @@ class TextArea(_base.Abstract):
             content=self.get_val(),
             uid=self._uid,
             name=self._name,
-            cls=' '.join(('form-control', self._css)),
+            css=' '.join(('form-control', self._css)),
             placeholder=self.placeholder,
             rows=self._rows,
             required=self._required
@@ -112,7 +112,7 @@ class Text(Input):
             uid=self._uid,
             name=self._name,
             value=self.get_val(),
-            cls='form-control',
+            css='form-control',
             placeholder=self.placeholder,
             required=self._required
         )
@@ -127,12 +127,12 @@ class Text(Input):
             inp.set_attr('maxlength', self._max_length)
 
         if self._prepend or self._append:
-            group = _html.Div(cls='input-group')
+            group = _html.Div(css='input-group')
             if self._prepend:
-                group.append(_html.Div(self._prepend, cls='input-group-addon'))
+                group.append(_html.Div(self._prepend, css='input-group-addon'))
             group.append(inp)
             if self._append:
-                group.append(_html.Div(self._append, cls='input-group-addon'))
+                group.append(_html.Div(self._append, css='input-group-addon'))
             inp = group
 
         return inp
@@ -422,7 +422,7 @@ class Tokens(Input):
             uid=self._uid,
             name=self._name,
             value=','.join(self.get_val()) if self.get_val() else '',
-            cls=' '.join(('form-control', self._css)),
+            css=' '.join(('form-control', self._css)),
         )
 
         return html_input

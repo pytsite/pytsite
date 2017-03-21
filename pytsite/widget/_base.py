@@ -108,9 +108,7 @@ class Abstract(_ABC):
         wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
         if self._hidden:
             wrap_css += ' hidden'
-        if isinstance(em, _html.TagLessElement) and not em.content:
-            wrap_css += ' empty'
-        self._wrap_em.set_attr('cls', wrap_css)
+        self._wrap_em.set_attr('css', wrap_css)
 
         # Data attributes
         if isinstance(self._data, dict):
@@ -493,8 +491,8 @@ class Abstract(_ABC):
             content = content._get_element()
 
         if self._h_size:
-            content = content.wrap(_html.Div(cls='h-sizer ' + self._h_size))
-            content = content.wrap(_html.Div(cls='row'))
+            content = content.wrap(_html.Div(css='h-sizer ' + self._h_size))
+            content = content.wrap(_html.Div(css='row'))
 
         wrap_css = 'form-group'
         if self._has_success:
@@ -503,7 +501,7 @@ class Abstract(_ABC):
             wrap_css += ' has-warning'
         if self._has_error:
             wrap_css += ' has-error'
-        wrap = _html.Div(cls=wrap_css)
+        wrap = _html.Div(css=wrap_css)
 
         # Place placeholder instead of label
         if not self._label and self._placeholder:
@@ -513,7 +511,7 @@ class Abstract(_ABC):
         if self.label and not self._label_disabled:
             label = _html.Label(self.label, label_for=self.uid)
             if self._label_hidden:
-                label.set_attr('cls', 'sr-only')
+                label.set_attr('css', 'sr-only')
             wrap.append(label)
 
         # Append widget's content
@@ -521,10 +519,10 @@ class Abstract(_ABC):
 
         # Append help block
         if self._help:
-            wrap.append(_html.Span(self._help, cls='help-block'))
+            wrap.append(_html.Span(self._help, css='help-block'))
 
         # Append messages placeholder
-        wrap.append(_html.Div(cls='widget-messages'))
+        wrap.append(_html.Div(css='widget-messages'))
 
         return wrap
 
@@ -536,6 +534,7 @@ class Container(Abstract):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
+        self._group_wrap = False
         self._css += ' widget-container'
 
     def validate(self):
@@ -659,9 +658,9 @@ class MultiRow(Abstract):
         pass
 
     def _get_element(self, **kwargs) -> _html.Element:
-        def _build_row(widgets: _List[Abstract], i: int = 0, add_cls: str='') -> _html.Tr:
-            slot_tr = _html.Tr(cls='slot ' + add_cls)
-            slot_tr.append(_html.Td('[{}]'.format(i + 1), cls='order-col'))
+        def _build_row(widgets: _List[Abstract], i: int = 0, add_css: str='') -> _html.Tr:
+            slot_tr = _html.Tr(css='slot ' + add_css)
+            slot_tr.append(_html.Td('[{}]'.format(i + 1), css='order-col'))
 
             # Widgets
             for w in widgets:
@@ -669,39 +668,39 @@ class MultiRow(Abstract):
                 w.group_wrap = False
                 w.css += ' widget-row-col'
 
-                w_td = _html.Td(cls='widget-col')
+                w_td = _html.Td(css='widget-col')
                 w_td.append(w.get_element())
 
                 slot_tr.append(w_td)
 
             # Actions
-            actions_td = _html.Td(cls='actions-col')
-            remove_btn = _html.A(href='#', cls='button-remove-slot btn btn-xs btn-danger')
-            remove_btn.append(_html.I(cls='fa fa-icon fa-remove'))
+            actions_td = _html.Td(css='actions-col')
+            remove_btn = _html.A(href='#', css='button-remove-slot btn btn-xs btn-danger')
+            remove_btn.append(_html.I(css='fa fa-icon fa-remove'))
             actions_td.append(remove_btn)
             slot_tr.append(actions_td)
 
             return slot_tr
 
-        table = _html.Table(cls='content-table')
+        table = _html.Table(css='content-table')
 
         # Header
-        thead = _html.THead(cls='hidden slots-header')
+        thead = _html.THead(css='hidden slots-header')
         table.append(thead)
         row = _html.Tr()
         thead.append(row)
-        row.append(_html.Th('#', cls='order-col'))
+        row.append(_html.Th('#', css='order-col'))
         for v in self._get_headers_row():
-            row.append(_html.Th(v, cls='widget-col'))
-        row.append(_html.Th(cls='widget-col'))
+            row.append(_html.Th(v, css='widget-col'))
+        row.append(_html.Th(css='widget-col'))
 
         # Table body
-        tbody = _html.TBody(cls='slots')
+        tbody = _html.TBody(css='slots')
         table.append(tbody)
 
         # Sample slot
         sample_row = self._get_widgets_row()
-        tbody.append(_build_row(sample_row, add_cls='sample hidden'))
+        tbody.append(_build_row(sample_row, add_css='sample hidden'))
 
         # Rows
         for i in range(0, len(self._children)):
@@ -711,8 +710,8 @@ class MultiRow(Abstract):
         tfoot = _html.TFoot()
         tr = _html.Tr()
         td = _html.Td(colspan=len(self._get_widgets_row()) + 2)
-        add_btn = _html.A(self._add_btn_title or '', href='#', cls='button-add-slot btn btn-default btn-xs')
-        add_btn.append(_html.I(cls='fa fa-plus'))
+        add_btn = _html.A(self._add_btn_title or '', href='#', css='button-add-slot btn btn-default btn-xs')
+        add_btn.append(_html.I(css='fa fa-plus'))
         td.append(add_btn)
         tr.append(td)
         tfoot.append(tr)

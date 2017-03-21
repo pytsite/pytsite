@@ -56,8 +56,8 @@ class Browser(_widget.misc.BootstrapTable):
                 '__redirect': _router.current_url(),
             })
             title = _lang.t('pytsite.odm_ui@create')
-            btn = _html.A(href=create_form_url, cls='btn btn-default add-button', title=title)
-            btn.append(_html.I(cls='fa fa-fw fa-plus'))
+            btn = _html.A(href=create_form_url, css='btn btn-default add-button', title=title)
+            btn.append(_html.I(css='fa fa-fw fa-plus'))
             self._toolbar.append(btn)
             self._toolbar.append(_html.Span('&nbsp;'))
 
@@ -65,8 +65,8 @@ class Browser(_widget.misc.BootstrapTable):
         if self._mock.odm_auth_check_permission('delete') and self._mock.odm_ui_deletion_allowed():
             delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
             title = _lang.t('pytsite.odm_ui@delete_selected')
-            btn = _html.A(href=delete_form_url, cls='hidden btn btn-danger mass-action-button', title=title)
-            btn.append(_html.I(cls='fa fa-fw fa-remove'))
+            btn = _html.A(href=delete_form_url, css='hidden btn btn-danger mass-action-button', title=title)
+            btn.append(_html.I(css='fa fa-fw fa-remove'))
             self._toolbar.append(btn)
             self._toolbar.append(_html.Span('&nbsp;'))
 
@@ -74,11 +74,11 @@ class Browser(_widget.misc.BootstrapTable):
         for btn_data in self._model_class.odm_ui_browser_mass_action_buttons():
             ep = btn_data.get('ep')
             url = _router.ep_url(ep) if ep else '#'
-            cls = 'btn btn-{} mass-action-button'.format(btn_data.get('color', 'default'))
+            css = 'btn btn-{} mass-action-button'.format(btn_data.get('color', 'default'))
             icon = 'fa fa-fw fa-' + btn_data.get('icon', 'question')
-            button = _html.A(href=url, cls=cls, title=btn_data.get('title'))
+            button = _html.A(href=url, css=css, title=btn_data.get('title'))
             if icon:
-                button.append(_html.I(cls=icon))
+                button.append(_html.I(css=icon))
             self.toolbar.append(button)
             self._toolbar.append(_html.Span('&nbsp;'))
 
@@ -185,13 +185,13 @@ class Browser(_widget.misc.BootstrapTable):
                     title = btn_data.get('title', '')
                     ep = btn_data.get('ep')
                     url = _router.ep_url(ep, {'ids': str(entity.id)}) if ep else '#'
-                    cls = btn_data.get('cls', '')
-                    i = _html.I(cls='fa fa-fw fa-' + btn_data.get('icon', 'question'))
-                    btn = _html.A(href=url, cls=color + cls, title=title).append(i)
+                    css = btn_data.get('css', '')
+                    i = _html.I(css='fa fa-fw fa-' + btn_data.get('icon', 'question'))
+                    btn = _html.A(href=url, css=color + css, title=title).append(i)
                     actions.append(btn).append(_html.TagLessElement('&nbsp;'))
 
                 if not len(actions.children):
-                    actions.set_attr('cls', actions.get_attr('cls') + ' empty')
+                    actions.set_attr('css', actions.get_attr('css') + ' empty')
 
                 cell['__actions'] = actions.render()
 
@@ -203,7 +203,7 @@ class Browser(_widget.misc.BootstrapTable):
     def _get_entity_action_buttons(entity: _odm_ui.model.UIEntity) -> _html.Div:
         """Get action buttons for entity.
         """
-        group = _html.Div(cls='entity-actions', data_entity_id=str(entity.id))
+        group = _html.Div(css='entity-actions', data_entity_id=str(entity.id))
 
         if entity.odm_ui_modification_allowed() and \
                 (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
@@ -213,8 +213,8 @@ class Browser(_widget.misc.BootstrapTable):
                 '__redirect': _router.ep_url('pytsite.odm_ui@browse', {'model': entity.model}),
             })
             title = _lang.t('pytsite.odm_ui@modify')
-            a = _html.A(cls='btn btn-xs btn-default', href=m_form_url, title=title)
-            a.append(_html.I(cls='fa fa-edit'))
+            a = _html.A(css='btn btn-xs btn-default', href=m_form_url, title=title)
+            a.append(_html.I(css='fa fa-edit'))
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 
@@ -226,8 +226,8 @@ class Browser(_widget.misc.BootstrapTable):
                 '__redirect': _router.ep_url('pytsite.odm_ui@browse', {'model': entity.model}),
             })
             title = _lang.t('pytsite.odm_ui@delete')
-            a = _html.A(cls='btn btn-xs btn-danger', href=d_form_url, title=title)
-            a.append(_html.I(cls='fa fa-remove'))
+            a = _html.A(css='btn btn-xs btn-danger', href=d_form_url, title=title)
+            a.append(_html.I(css='fa fa-remove'))
             group.append(a)
             group.append(_html.TagLessElement('&nbsp;'))
 

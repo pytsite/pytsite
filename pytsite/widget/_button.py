@@ -47,11 +47,11 @@ class Button(_base.Abstract):
         """Render the widget.
         :param **kwargs:
         """
-        self._html_em.set_attr('cls', 'btn btn-' + self._color)
+        self._html_em.set_attr('css', 'btn btn-' + self._color)
 
         self._html_em.content = self.get_val()
         if self._icon and not self._html_em.children:
-            self._html_em.append(_html.I(cls=self._icon))
+            self._html_em.append(_html.I(css=self._icon))
 
         for k, v in self._data.items():
             self._html_em.set_attr('data_' + k, v)

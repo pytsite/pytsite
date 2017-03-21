@@ -43,7 +43,7 @@ class Text(_base.Abstract):
         """
         container = _html.TagLessElement()
         container.append(_html.Input(type='hidden', uid=self.uid, name=self.name, value=self.value))
-        container.append(_html.P(self.title, cls='form-control-static'))
+        container.append(_html.P(self.title, css='form-control-static'))
 
         return container
 
@@ -73,7 +73,7 @@ class Table(_base.Abstract):
             self._tbody.insert(index, cells)
 
     def _get_element(self, **kwargs) -> _html.Element:
-        table = _html.Table(cls='table table-bordered table-hover')
+        table = _html.Table(css='table table-bordered table-hover')
 
         for part in self._thead, self._tbody, self._tfoot:
             if not part:

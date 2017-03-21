@@ -71,10 +71,10 @@ class ODMRole(_odm_ui.model.UIEntity):
                 continue
 
             perm = _permissions.get_permission(perm_name)
-            cls = 'label label-default permission-' + perm[0]
+            css = 'label label-default permission-' + perm[0]
             if perm[0] == 'admin':
-                cls += ' label-danger'
-            perms.append(str(_html.Span(_lang.t(perm[1]), cls=cls)))
+                css += ' label-danger'
+            perms.append(str(_html.Span(_lang.t(perm[1]), css=css)))
 
         return self.f_get('name'), _lang.t(self.f_get('description')), ' '.join(perms)
 
@@ -348,14 +348,14 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         roles = ''
         for role in sorted(self.f_get('roles'), key=lambda rl: rl.name):
-            cls = 'label label-default'
+            css = 'label label-default'
             if role.name == 'admin':
-                cls += ' label-danger'
-            roles += str(_html.Span(_lang.t(role.description), cls=cls)) + ' '
+                css += ' label-danger'
+            roles += str(_html.Span(_lang.t(role.description), css=css)) + ' '
 
-        status_cls = 'info' if self.f_get('status') == 'active' else 'default'
+        status_css = 'info' if self.f_get('status') == 'active' else 'default'
         status_word = _lang.t('pytsite.auth@status_' + self.f_get('status'))
-        status = '<span class="label label-{}">{}</span>'.format(status_cls, status_word)
+        status = '<span class="label label-{}">{}</span>'.format(status_css, status_word)
 
         p_is_public = '<span class="label label-info">{}</span>'.format(yes) if self.f_get('profile_is_public') else '',
         is_online = '<span class="label label-success">{}</span>'.format(yes) \

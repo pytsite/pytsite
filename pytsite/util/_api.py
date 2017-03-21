@@ -472,11 +472,11 @@ def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
     li = html.Li()
 
     if not url.startswith('#') and router.url(url, strip_query=True) == router.current_url(strip_query=True):
-        li.set_attr('cls', 'active')
+        li.set_attr('css', 'active')
 
     a = html.A(escape_html(anchor), href=url, **kwargs)
     if icon:
-        a.append(html.I(cls=icon))
+        a.append(html.I(css=icon))
 
     li.append(a)
 

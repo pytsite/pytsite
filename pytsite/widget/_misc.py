@@ -112,7 +112,7 @@ class BootstrapTable(_base.Abstract):
         """
         # Table skeleton
         table = _html.Table(
-            cls='hidden',
+            css='hidden',
             data_url=self._data_url,
             data_toolbar='#bootstrap-table-toolbar',
             data_show_refresh='true',
@@ -191,7 +191,7 @@ class VideoPlayer(_base.Abstract):
         if match:
             src = '//www.youtube.com/embed/{}?html5=1'.format(match.group(2))
             return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
-                                cls='iframe-responsive')
+                                css='iframe-responsive')
 
         raise ValueError(_html.Div('Invalid video link: ' + url))
 
@@ -203,7 +203,7 @@ class VideoPlayer(_base.Abstract):
         if match:
             src = 'https://www.facebook.com/plugins/video.php?href={}'.format(_util.url_quote(url))
             return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
-                                cls='iframe-responsive')
+                                css='iframe-responsive')
 
         raise ValueError(_html.Div('Invalid video link: ' + url))
 
@@ -215,7 +215,7 @@ class VideoPlayer(_base.Abstract):
         if match:
             src = '//player.vimeo.com/video/{}'.format(match.group(1))
             return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
-                                cls='iframe-responsive')
+                                css='iframe-responsive')
 
         raise ValueError(_html.Div('Invalid video link: ' + url))
 
@@ -227,6 +227,6 @@ class VideoPlayer(_base.Abstract):
         if match:
             src = '//rutube.ru/video/embed/{}'.format(match.group(1))
             return _html.Iframe(src=src, frameborder='0', width=width, height=height, allowfullscreen=True,
-                                cls='iframe-responsive')
+                                css='iframe-responsive')
 
         raise ValueError(_html.Div('Invalid video link: ' + url))

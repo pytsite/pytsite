@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.85 (2017-03-21)
+### Changed
+- `html`: **cls** element's attribute renamed to **css**.
+
+
 ## 0.98.84 (2017-03-16)
 ### Fixed
 - `assetman`: cache directory deletion.

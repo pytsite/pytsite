@@ -121,11 +121,11 @@ def del_menu(sid: str, mid: str):
 def render() -> _html.Aside:
     """Render the admin sidebar.
     """
-    aside_em = _html.Aside(cls='main-sidebar')
-    sidebar_section_em = _html.Section(cls='sidebar')
+    aside_em = _html.Aside(css='main-sidebar')
+    sidebar_section_em = _html.Section(css='sidebar')
     aside_em.append(sidebar_section_em)
 
-    root_menu_ul = _html.Ul(cls='sidebar-menu')
+    root_menu_ul = _html.Ul(css='sidebar-menu')
     sidebar_section_em.append(root_menu_ul)
 
     render_sections = []
@@ -147,7 +147,7 @@ def render() -> _html.Aside:
     # Do actual rendering
     for section in render_sections:
         root_menu_ul.append(
-            _html.Li(_lang.t(section['title']), cls='header', data_section_weight=section['weight']))
+            _html.Li(_lang.t(section['title']), css='header', data_section_weight=section['weight']))
 
         # Building top level menu item
         for menu in render_menus[section['sid']]:
@@ -157,7 +157,7 @@ def render() -> _html.Aside:
 
             # Icon
             if menu['icon']:
-                a.append(_html.I(cls=menu['icon']))
+                a.append(_html.I(css=menu['icon']))
 
             # Title
             a.append(_html.Span(_lang.t(menu['title'])))
@@ -165,7 +165,7 @@ def render() -> _html.Aside:
             # Label
             if menu['label']:
                 label_class = 'label pull-right label-' + menu['label_class']
-                a.append(_html.Span(_lang.t(menu['label']), cls=label_class))
+                a.append(_html.Span(_lang.t(menu['label']), css=label_class))
 
             # List element
             li = _html.Li(data_menu_weight=menu['weight'])
@@ -174,7 +174,7 @@ def render() -> _html.Aside:
             abp = _reg.get('admin.base_path', '/admin')
             current_path = _router.current_path()
             if current_path != abp and href.endswith(current_path):
-                li.set_attr('cls', 'active')
+                li.set_attr('css', 'active')
 
             root_menu_ul.append(li.append(a))
 

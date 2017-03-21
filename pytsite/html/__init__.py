@@ -8,7 +8,7 @@ __license__ = 'MIT'
 
 _common_tag_attrs = (
     'accesskey',
-    'cls',
+    'css',
     'contenteditable',
     'contextmenu',
     'dir',
@@ -154,7 +154,7 @@ class Element(_ABC):
     def _render_open_tag(self) -> str:
         return "<{}{}>".format(self._tag_name, _util.html_attrs_str(self._attrs, {
             'uid': 'id',
-            'cls': 'class',
+            'css': 'class',
             'label_for': 'for',
         }))
 

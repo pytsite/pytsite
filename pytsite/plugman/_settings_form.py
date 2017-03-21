@@ -64,26 +64,26 @@ class Form(_settings.Form):
 
                 actions = ''
                 if not _api.is_installed(name):
-                    btn = _html.A(cls='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
+                    btn = _html.A(css='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
                                   href='#', data_name=name, data_ep='plugman/install')
-                    btn.append(_html.I(cls='fa fa-download'))
-                    btn.append(_html.Span(_lang.t('pytsite.plugman@install'), cls='text'))
+                    btn.append(_html.I(css='fa fa-download'))
+                    btn.append(_html.Span(_lang.t('pytsite.plugman@install'), css='text'))
                     actions += str(btn)
                 else:
                     # Upgrade button
                     if info['upgradable']:
-                        btn = _html.A(cls='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
+                        btn = _html.A(css='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
                                       href='#', data_name=name, data_ep='plugman/upgrade')
-                        btn.append(_html.I(cls='fa fa-arrow-up'))
-                        btn.append(_html.Span(_lang.t('pytsite.plugman@upgrade'), cls='text'))
+                        btn.append(_html.I(css='fa fa-arrow-up'))
+                        btn.append(_html.Span(_lang.t('pytsite.plugman@upgrade'), css='text'))
                         actions += str(btn)
 
                     # Uninstall button
                     if not info['required']:
-                        btn = _html.A(cls='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
+                        btn = _html.A(css='btn btn-xs btn-default action-btn', child_sep='&nbsp;',
                                       href='#', data_name=name, data_ep='plugman/uninstall')
-                        btn.append(_html.I(cls='fa fa-trash'))
-                        btn.append(_html.Span(_lang.t('pytsite.plugman@uninstall'), cls='text'))
+                        btn.append(_html.I(css='fa fa-trash'))
+                        btn.append(_html.Span(_lang.t('pytsite.plugman@uninstall'), css='text'))
                         actions += str(btn)
 
                 if info['installed_version']:
@@ -95,8 +95,8 @@ class Form(_settings.Form):
 
                 table.add_row((
                     description,
-                    {'content': version, 'cls': 'cell-version'},
-                    {'content': actions, 'cls': 'cell-actions'},
+                    {'content': version, 'css': 'cell-version'},
+                    {'content': actions, 'css': 'cell-actions'},
                 ))
 
             self.add_widget(table)
