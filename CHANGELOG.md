@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.87 (2017-03-22)
+### Fixed
+- `form`: **cid** argument processing for non-cached forms.
+
+
 ## 0.98.86 (2017-03-22)
 ### Fixed
 - `form`: **nocache** argument processing.
