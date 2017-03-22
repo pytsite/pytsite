@@ -1,6 +1,17 @@
 # PytSite Changelog
 
 
+## 0.98.88 (2017-03-22)
+### Added
+- `odm`: new fields: `MultiLineString`, `Email`.
+- `odm_ui`: default implementation of `model.UIEntity.odm_ui_m_form_setup_widgets()`.
+- `router`: new `tpl`'s global: `base_url`.
+
+### Fixed
+- `mail`: `mail_from()` API function. 
+- `odm`: translations.
+
+
 ## 0.98.87 (2017-03-22)
 ### Fixed
 - `form`: **cid** argument processing for non-cached forms.

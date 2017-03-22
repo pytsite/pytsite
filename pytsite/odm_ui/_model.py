@@ -1,7 +1,7 @@
 """PytSite ODM UI Entity.
 """
 from typing import Tuple as _Tuple, Dict as _Dict
-from pytsite import odm as _odm, odm_auth as _odm_auth, router as _router, form as _form
+from pytsite import odm as _odm, odm_auth as _odm_auth, router as _router, form as _form, widget as _widget
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -85,7 +85,77 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
     def odm_ui_m_form_setup_widgets(self, frm: _form.Form):
         """Hook.
         """
-        pass
+        weight = 0
+        for uid, field in self.fields.items():
+            if uid.startswith('_') or field is None:
+                continue
+
+            weight += 10
+
+            if isinstance(field, _odm.field.Bool):
+                frm.add_widget(_widget.select.Checkbox(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    default=field.default,
+                    value=field.get_val(),
+                ))
+            elif isinstance(field, _odm.field.Integer):
+                frm.add_widget(_widget.input.Integer(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    default=field.default,
+                    value=field.get_val(),
+                ))
+            elif isinstance(field, _odm.field.Decimal):
+                frm.add_widget(_widget.input.Decimal(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    default=field.default,
+                    value=field.get_val(),
+                ))
+            elif isinstance(field, _odm.field.Email):
+                frm.add_widget(_widget.input.Email(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    default=field.default,
+                    value=field.get_val(),
+                ))
+            elif isinstance(field, _odm.field.MultiLineString):
+                frm.add_widget(_widget.input.TextArea(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    default=field.default,
+                    value=field.get_val(),
+                ))
+            elif isinstance(field, _odm.field.String):
+                frm.add_widget(_widget.input.Text(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    default=field.default,
+                    value=field.get_val(),
+                ))
+            elif isinstance(field, _odm.field.Enum):
+                frm.add_widget(_widget.select.Select(
+                    uid=uid,
+                    weight=weight,
+                    label=self.t(uid),
+                    required=field.required,
+                    items=[(x, self.t(x)) for x in field.valid_values],
+                    default=field.default,
+                    value=field.get_val(),
+                ))
 
     def odm_ui_m_form_validate(self, frm: _form.Form):
         """Hook.

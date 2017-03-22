@@ -23,6 +23,9 @@ def _init():
     if not path.exists(session_storage_path):
         makedirs(session_storage_path, 0o755, True)
 
+    # Lang globals
+    lang.register_global('base_url', lambda language, args: base_url(language))
+
     # Tpl globals
     tpl.register_global('url', url)
     tpl.register_global('ep_url', ep_url)

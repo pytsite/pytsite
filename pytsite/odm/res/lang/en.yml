@@ -5,3 +5,4 @@ entities_cache_cleared: 'ODM entities cache cleared.'
 finder_cache_cleared: "ODM finder cache of model ':model' cleared."
 validation_field_string_min_length: "Length of the field ':field' should be more than :min_length characters"
 validation_field_string_max_length: "Length of the field ':field' should be less than :max_length characters"
+validation_field_email: "Field ':field' can contain email only"

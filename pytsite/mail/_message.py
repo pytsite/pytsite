@@ -27,12 +27,7 @@ class Message(_MIMEMultipart):
 
         self._from_addr = self._to_addrs = self._subject = self._body = self._reply_to = None
 
-        if from_addr:
-            self.from_addr = from_addr
-        else:
-            from_name, from_addr = _api.mail_from()
-            self.from_addr = '{} <{}>'.format(_Header(from_name).encode(), from_addr)
-
+        self.from_addr = from_addr if from_addr else _api.mail_from()
         self.to_addrs = to_addrs
         self.subject = subject
         self.body = body

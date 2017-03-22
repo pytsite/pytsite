@@ -13,13 +13,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _dbg = _reg.get('odm.debug.field')
 
 
 class Abstract(_ABC):
     """Base field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
 
@@ -193,6 +193,7 @@ class Abstract(_ABC):
 class List(Abstract):
     """List field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -296,6 +297,7 @@ class List(Abstract):
 class UniqueList(List):
     """Unique List.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -305,6 +307,7 @@ class UniqueList(List):
 class Dict(Abstract):
     """Dictionary field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
 
@@ -364,20 +367,17 @@ class Dict(Abstract):
 class Enum(Abstract):
     """Enumerated field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
-
-        :param default: dict
-        :param keys: tuple
-        :param nonempty_keys: tuple
         """
         super().__init__(name, **kwargs)
 
         self._valid_types = (int, float, str)
 
         self._valid_values = kwargs.get('valid_values')
-        if not self._valid_values or not isinstance(self._valid_values, tuple):
-            raise RuntimeError("You must specify a tuple of valid values for enumerated field '{}'.".format(self.name))
+        if not self._valid_values or not isinstance(self._valid_values, (list, tuple)):
+            raise RuntimeError("You must specify a list of valid values for enumerated field '{}'.".format(self.name))
 
         for v in self._valid_values:
             if not isinstance(v, self._valid_types):
@@ -391,14 +391,19 @@ class Enum(Abstract):
 
         if value not in self._valid_values:
             raise ValueError(
-                "Value of the field '{}' can be only one of these: {}".format(self.name, self._valid_values))
+                "Value of the field '{}' can be only one of the following: {}".format(self.name, self._valid_values))
 
         return value
+
+    @property
+    def valid_values(self) -> tuple:
+        return self._valid_values
 
 
 class Ref(Abstract):
     """Ref Field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -473,6 +478,7 @@ class Ref(Abstract):
 class RefsList(List):
     """List of DBRefs field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -580,6 +586,7 @@ class RefsList(List):
 class RefsUniqueList(RefsList):
     """Unique list of DBRefs field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -589,6 +596,7 @@ class RefsUniqueList(RefsList):
 class DateTime(Abstract):
     """Datetime field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
 
@@ -632,6 +640,7 @@ class DateTime(Abstract):
 class String(Abstract):
     """String field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -734,9 +743,32 @@ class String(Abstract):
         return value
 
 
+class MultiLineString(String):
+    """Multi line string.
+    """
+
+    def __init__(self, name: str, **kwargs):
+        """Init.
+        """
+        super().__init__(name, strip_html=True, **kwargs)
+
+
+class Email(String):
+    """Email field.
+    """
+
+    def _on_set(self, value: str, **kwargs):
+        v_msg_id = 'pytsite.odm@validation_field_email'
+        v_msg_args = {'field': self.name}
+        _validation.rule.Email(value, v_msg_id, v_msg_args).validate()
+
+        return value
+
+
 class Integer(Abstract):
     """Integer field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -770,6 +802,7 @@ class Integer(Abstract):
 class Decimal(Abstract):
     """Decimal Field.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
 
@@ -856,6 +889,7 @@ class Bool(Abstract):
 class StringList(List):
     """List of Strings.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -865,6 +899,7 @@ class StringList(List):
 class UniqueStringList(UniqueList):
     """Unique String List.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -874,6 +909,7 @@ class UniqueStringList(UniqueList):
 class IntegerList(List):
     """List of Integers.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -883,6 +919,7 @@ class IntegerList(List):
 class UniqueIntegerList(UniqueList):
     """Unique String List.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -892,6 +929,7 @@ class UniqueIntegerList(UniqueList):
 class DecimalList(List):
     """List of Floats.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """
@@ -925,6 +963,7 @@ class DecimalList(List):
 class ListList(List):
     """List of Lists.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
         """

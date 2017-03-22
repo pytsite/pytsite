@@ -261,6 +261,7 @@ class GreaterOrEqual(Greater):
 class Regex(Base):
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         super().__init__(value, msg_id, msg_args)
+
         self._pattern = kwargs.get('pattern')
         self._ignore_case = kwargs.get('ignore_case', False)
         self._msg_args.update({'pattern': self._pattern})
@@ -368,8 +369,8 @@ class Email(Regex):
     """Email rule.
     """
 
-    def __init__(self, value: str = None, msg_id: str = None):
-        super().__init__(value, msg_id, pattern='^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-\.]+$', ignore_case=True)
+    def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None):
+        super().__init__(value, msg_id, msg_args, pattern='^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-\.]+$', ignore_case=True)
 
 
 class DateTime(Base):
