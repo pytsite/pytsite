@@ -62,15 +62,19 @@ pytsite.form = {
                 self.forward();
             }
             else {
+                // Notify listeners about upcoming form submit
                 self.em.trigger('formSubmit', [self]);
 
                 // Remove all elements which should not be processed
                 self.em.find('[data-skip-serialization=True]').remove();
 
-                if (self.preventSubmit)
+                if (self.preventSubmit) {
                     event.preventDefault();
-                else
+                }
+                else {
+                    // Disable submit button to prevent clicking it more than once while waiting for server response
                     self.em.find('.form-action-submit button').attr('disabled', true);
+                }
             }
         });
 

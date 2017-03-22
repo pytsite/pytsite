@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.86 (2017-03-22)
+### Fixed
+- `form`: **nocache** argument processing.
+
+
 ## 0.98.85 (2017-03-21)
 ### Changed
 - `html`: **cls** element's attribute renamed to **css**.
