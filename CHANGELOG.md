@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.89 (2017-03-27)
+### Fixed
+- `auth_storage_odm`: exception while getting non-existent user in `field.Users`.
+
+
 ## 0.98.88 (2017-03-22)
 ### Added
 - `odm`: new fields: `MultiLineString`, `Email`.

@@ -176,7 +176,14 @@ class Users(User):
         if internal_value is None:
             internal_value = []
 
-        return tuple([_auth.get_user(uid=uid) for uid in internal_value])
+        r = []
+        for uid in internal_value:
+            try:
+                r.append(_auth.get_user(uid=uid))
+            except _auth.error.UserNotExist:
+                pass
+
+        return tuple(r)
 
     def _on_add(self, internal_value: list, value_to_add, **kwargs):
         if internal_value is None:
