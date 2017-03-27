@@ -28,27 +28,17 @@ $(window).on('pytsite.widget.init:pytsite.auth._widget.Follow', function (e, wid
             if (!confirm(t('pytsite.auth@unfollow_confirmation')))
                 return;
 
-            pytsite.httpApi.patch('auth/follow', {
-                op: 'unfollow',
-                uid: em.data('userId')
-            }).done(function (data) {
-                if (data === true) {
-                    btn.removeClass('btn-danger').addClass('btn-default').removeClass('following').addClass('non-following');
-                    btn.find('.icon').addClass('fa-plus');
-                    btn.find('.text').text(t(follow_msg_id));
-                }
+            pytsite.httpApi.delete('auth/follow/' + em.data('userId')).done(function (data) {
+                btn.removeClass('btn-danger').addClass('btn-default').removeClass('following').addClass('non-following');
+                btn.find('.icon').addClass('fa-plus');
+                btn.find('.text').text(t(follow_msg_id));
             });
         }
         else if (btn.hasClass('non-following')) {
-            pytsite.httpApi.patch('auth/follow', {
-                op: 'follow',
-                uid: em.data('userId')
-            }).done(function (r) {
-                if (r === true) {
-                    btn.removeClass('btn-default').addClass('btn-danger').removeClass('non-following').addClass('following');
-                    btn.find('.icon').removeClass('fa-plus').addClass('fa-remove');
-                    btn.find('.text').text(t(unfollow_msg_id));
-                }
+            pytsite.httpApi.post('auth/follow/' + em.data('userId')).done(function (data) {
+                btn.removeClass('btn-default').addClass('btn-danger').removeClass('non-following').addClass('following');
+                btn.find('.icon').removeClass('fa-plus').addClass('fa-remove');
+                btn.find('.text').text(t(unfollow_msg_id));
             });
         }
     });

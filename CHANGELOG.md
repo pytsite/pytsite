@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.90 (2017-03-27)
+### Fixed
+- `auth`: non working JS code of the follow widget.
+
+
 ## 0.98.89 (2017-03-27)
 ### Fixed
 - `auth_storage_odm`: exception while getting non-existent user in `field.Users`.
