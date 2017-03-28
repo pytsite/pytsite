@@ -35,6 +35,7 @@ pytsite.form = {
         self.validationEp = em.data('validationEp');
         self.preventSubmit = em.data('preventSubmit') == 'True';
         self.isModal = em.data('modal') == 'True';
+        self.modalEm = null;
         self.nocache = em.data('nocache') == 'True';
         self.submitEp = em.attr('submitEp');
         self.totalSteps = em.data('steps');
@@ -45,6 +46,9 @@ pytsite.form = {
         self.title = self.em.find('.form-title');
         self.messages = self.em.find('.form-messages').first();
         self.widgets = {};
+
+        if (self.isModal)
+            self.modalEm = em.closest('.modal');
 
         // Initialize areas
         em.find('.form-area').each(function () {

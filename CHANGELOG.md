@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.91 (2017-03-28)
+### Added
+- `form`: modal form element reference in JS code.
+
+
 ## 0.98.90 (2017-03-27)
 ### Fixed
 - `auth`: non working JS code of the follow widget.
