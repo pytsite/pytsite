@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.98.92 (2017-03-30)
+### Added
+- `events`: wildcard event subscriptions.
+- `router`: new events.
+
+
 ## 0.98.91 (2017-03-28)
 ### Added
 - `form`: modal form element reference in JS code.

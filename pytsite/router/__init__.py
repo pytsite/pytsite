@@ -3,7 +3,7 @@
 from ._api import handle, add_path_alias, base_path, base_url, call_ep, current_path, current_url, dispatch, ep_path, \
     ep_url, is_base_url, is_ep_callable, get_no_cache, set_no_cache, remove_path_alias, resolve_ep_callable, scheme, \
     server_name, url, session, request, set_request, get_session_store, on_pre_dispatch, on_dispatch, on_response, \
-    on_exception
+    on_exception, on_xhr_dispatch, on_xhr_pre_dispatch, on_xhr_response
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

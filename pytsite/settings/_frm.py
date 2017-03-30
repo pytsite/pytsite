@@ -45,7 +45,7 @@ class Form(_form.Form):
         setting_def = _api.get_definition(setting_uid)
 
         if setting_def['perm_name'] != '*' and not user.has_permission(setting_def['perm_name']):
-            raise _http.error.Forbidden()
+            raise _http.error.Forbidden("Current user does not have permission '{}'".format(setting_def['perm_name']))
 
         # Extract all values who's name starts with 'setting_'
         setting_value = {}

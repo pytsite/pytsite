@@ -64,8 +64,10 @@ def __init():
 
     # Event handlers
     events.listen('pytsite.setup', _eh.setup)
-    router.on_dispatch(_eh.router_dispatch, -999)
-    router.on_response(_eh.router_response)
+    router.on_dispatch(_eh.router_dispatch, -999, '*')
+    router.on_xhr_dispatch(_eh.router_dispatch, -999, '*')
+    router.on_response(_eh.router_response, -999, '*')
+    router.on_xhr_response(_eh.router_response, -999, '*')
     http_api.on_pre_request(_eh.http_api_pre_request)
 
     # Console commands

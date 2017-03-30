@@ -22,6 +22,7 @@ def _init():
 
     # Event handlers
     router.on_dispatch(reset, -999)
+    router.on_xhr_dispatch(reset, -999, 'post')  # Workaround for forms
     events.listen('pytsite.update.after', build)
 
     # Tpl globals
