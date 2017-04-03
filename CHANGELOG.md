@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.94 (2017-04-03)
+### Fixed
+- `events`: regular expression scope.
+
+
 ## 0.98.93 (2017-04-03)
 ### Fixed
 - `events`: events processing order.

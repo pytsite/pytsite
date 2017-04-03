@@ -16,7 +16,7 @@ def listen(event_name: str, handler: callable, priority: int = 0):
     """
     global _listeners
 
-    re = _re.compile(event_name.replace('.', '\.').replace('*', '.*'))
+    re = _re.compile(event_name.replace('.', '\.').replace('*', '.*?') + '$')
     _listeners.append((handler, priority, re))
     _listeners = sorted(_listeners, key=lambda x: x[1])  # Sort by priority
 
