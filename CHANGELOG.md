@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.98.93 (2017-04-03)
+### Fixed
+- `events`: events processing order.
+
+
 ## 0.98.92 (2017-03-30)
 ### Added
 - `events`: wildcard event subscriptions.

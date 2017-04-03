@@ -1,4 +1,4 @@
-"""PytSite Response Objects.
+"""PytSite Response Objects
 """
 import json
 from werkzeug.wrappers import Response as _BaseResponse
@@ -17,7 +17,8 @@ class Response(_BaseResponse):
 class Redirect(Response):
     """Redirect HTTP response.
     """
-    def __init__(self, location: str, status: int=302):
+
+    def __init__(self, location: str, status: int = 302):
         """Init.
         """
         headers = {'Location': location}
@@ -27,7 +28,8 @@ class Redirect(Response):
 class JSON(Response):
     """JSON HTTP response.
     """
-    def __init__(self, content, status: int=200):
+
+    def __init__(self, content, status: int = 200):
         """Init.
         """
         super().__init__(json.dumps(content), content_type='application/json', status=status)

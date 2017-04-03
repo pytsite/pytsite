@@ -17,7 +17,7 @@ def router_dispatch():
         if c_user.is_anonymous:
             r_url = _router.ep_url('pytsite.auth@sign_in', {
                 'driver': _auth.get_auth_driver().get_name(),
-                '__redirect': _router.current_path()
+                '__redirect': _router.current_path(strip_lang=False)
             })
             raise _http.error.Forbidden(response=_http.response.Redirect(r_url))
 
