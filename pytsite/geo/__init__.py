@@ -1,7 +1,7 @@
 """PytSite Geo Package
 """
 # Public API
-from . import _widget as widget, _field as field, _validation_rule as validation_rule, _interface as interface
+from . import _widget as widget, _field as field, _validation_rule as validation_rule
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

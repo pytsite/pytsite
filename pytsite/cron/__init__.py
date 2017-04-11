@@ -1,7 +1,8 @@
 """PytSite Cron.
 """
 from datetime import datetime as _datetime
-from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, auth as _auth
+from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, auth as _auth, \
+    threading as _threading
 from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
 
 __author__ = 'Alexander Shepetko'
@@ -9,6 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _cache_pool = _cache.create_pool('pytsite.cron')
+_working = False
 
 
 def _get_stats() -> dict:
@@ -42,18 +44,23 @@ def _update_stats(part: str) -> dict:
     return data
 
 
-if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    from uwsgidecorators import timer as _uwsgi_timer
+def _cron_worker():
+    """Cron worker.
+    """
+    global _working
 
+    # Check lock
+    if _working:
+        _logger.warn('Cron is still working')
+        return
 
-    @_uwsgi_timer(60)
-    def _cron_worker(num):
-        """Cron worker.
-        """
-        # Disable permissions checking
+    try:
+        # Lock
+        _working = True
+
+        # Disable permission checking
         _auth.switch_user_to_system()
 
-        # Starting worker
         stats = _get_stats()
         now = _datetime.now()
         for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
@@ -83,3 +90,16 @@ if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
 
         # Enable permissions checking
         _auth.restore_user()
+
+    finally:
+        # Unlock
+        _working = False
+
+
+if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
+    import uwsgidecorators
+
+
+    @uwsgidecorators.timer(60)
+    def cron_thread(n):
+        _threading.create_thread(_cron_worker).start()

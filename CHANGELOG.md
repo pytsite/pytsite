@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 0.98.95 (2017-04-11)
+### Added
+- `cron`:
+    - run worker in a separate thread;
+    - check for running instance.
+
+
 ## 0.98.94 (2017-04-03)
 ### Fixed
 - `events`: regular expression scope.
