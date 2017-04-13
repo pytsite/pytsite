@@ -1,6 +1,7 @@
 """PytSite HTTP API Package.
 """
 # Public API
+from ._controller import Controller
 from ._api import handle, url, call, on_pre_request, on_request
 
 __author__ = 'Alexander Shepetko'

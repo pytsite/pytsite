@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 0.98.96 (2017-04-13)
+### Added
+- New package: `formatter`.
+- `router`, `http_api`: support for class-based controllers.
+- `validation`: new rule: `Choice`.
+
+
 ## 0.98.95 (2017-04-11)
 ### Added
 - `cron`:

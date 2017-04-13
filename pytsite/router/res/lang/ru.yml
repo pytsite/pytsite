@@ -4,3 +4,4 @@ http_error_403: 'Доступ запрещён'
 http_error_404: 'Страница не найдена'
 http_error_405: 'Метод запрещён'
 we_are_in_maintenance: 'Мы временно закрыты на обслуживание. Попробуйте зайти через минуту.'
+input_validation_error: "Поле ':field_name': :error"

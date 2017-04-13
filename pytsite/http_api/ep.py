@@ -1,7 +1,7 @@
 """PytSite HTTP API Endpoints
 """
-from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events
-from . import _api
+from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events, util as _util
+from . import _api, _controller
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def entry(args: dict, inp: dict):
-    version = args.pop('version')
+    version = int(args.pop('version'))
     endpoint = '/' + args.pop('endpoint')  # type: str
     current_path = _router.current_path(resolve_alias=False, strip_lang=False)
 
@@ -21,19 +21,30 @@ def entry(args: dict, inp: dict):
     try:
         _events.fire('pytsite.http_api.pre_request')
 
-        rule = _api.match(_router.request().method, endpoint, int(version))
+        rule = _api.match(_router.request().method, endpoint, version)
 
         _events.fire('pytsite.http_api.request')
 
+        handler = rule.handler
+        if isinstance(handler, str):
+            handler = _util.get_callable(handler)
+
         status = 200
-        r = rule.handler(_router.request().inp, **rule.args)
-        if isinstance(r, tuple):
-            if len(r) > 1:
-                body, status = r[0], r[1]
-            else:
-                body = r[0]
+        if issubclass(handler, _controller.Controller):
+            controller = handler()  # type: _controller.Controller
+            controller.args = rule.args
+            controller.inp = _router.request().inp
+            handler_response = controller.exec()
         else:
-            body = r
+            handler_response = handler(_router.request().inp, **rule.args)
+
+        if isinstance(handler_response, tuple):
+            if len(handler_response) > 1:
+                body, status = handler_response[0], handler_response[1]
+            else:
+                body = handler_response[0]
+        else:
+            body = handler_response
 
         # Simple string should be returned as text/html
         if isinstance(body, str):

@@ -550,7 +550,7 @@ def to_snake_case(s: str) -> str:
 def get_callable(s: str, module=None) -> callable:
     """Get callable object described by a string.
     """
-    if not _re.match('^[a-zA-Z0-1\.\-_]+$', s):
+    if not _re.match('^[a-zA-Z0-9\.\-_]+$', s):
         raise RuntimeError('Invalid format of callable string: {}'.format(s))
 
     if not module:

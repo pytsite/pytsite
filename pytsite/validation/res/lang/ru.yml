@@ -22,6 +22,7 @@ validation_regex_row: 'Не соответствует шаблону :pattern (
 validation_length: 'Длина значения должна находиться между :min_length и :max_length'
 validation_minlength: 'Значение должно быть длиннее :min_length'
 validation_maxlength: 'Значение должно быть короче :max_length'
+validation_choice: "':value' не является одним из :options"
 
 list_expected: 'Ожидалось list, получено :got'
 dict_expected: 'Ожидалось list, получено :got'

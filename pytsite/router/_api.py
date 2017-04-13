@@ -9,6 +9,7 @@ from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
     threading as _threading, theme as _theme, setup as _setup, events as _events, routing as _routing
+from . import _controller
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -71,9 +72,13 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def handle(path: str, handler: str, name: str = None, defaults: dict = None, methods='GET', filters=None):
+def handle(path: str, handler: _Union[str, _controller.Controller], name: str = None, defaults: dict = None,
+           methods='GET', filters=None):
     """Add a rule to the router.
     """
+    if not isinstance(handler, str) and not issubclass(handler, _controller.Controller):
+        raise RuntimeError('Handler should be a string or a controller class, got {}'.format(type(handler)))
+
     if isinstance(filters, str):
         filters = (filters,)
 
@@ -170,18 +175,18 @@ def dispatch(env: dict, start_response: callable):
             _lang.set_current(languages[0])
 
     # Notify listeners
-    if request().is_xhr:
-        _events.fire('pytsite.router.xhr_pre_dispatch.{}'.format(request().method.lower()))
+    if req.is_xhr:
+        _events.fire('pytsite.router.xhr_pre_dispatch.{}'.format(req.method.lower()))
     else:
-        _events.fire('pytsite.router.pre_dispatch.{}'.format(request().method.lower()))
+        _events.fire('pytsite.router.pre_dispatch.{}'.format(req.method.lower()))
 
     # Loading path alias, if it exists or use current one
     if req.path in _path_aliases:
         req.path = _path_aliases[req.path]
 
     # Shortcuts
-    request_input = request().inp
-    request_cookies = request().cookies
+    request_input = req.inp
+    request_cookies = req.cookies
 
     # Session setup
     sid = request_cookies.get('PYTSITE_SESSION')
@@ -193,10 +198,10 @@ def dispatch(env: dict, start_response: callable):
     # Processing request
     try:
         # Notify listeners
-        if request().is_xhr:
-            _events.fire('pytsite.router.xhr_dispatch.{}'.format(request().method.lower()))
+        if req.is_xhr:
+            _events.fire('pytsite.router.xhr_dispatch.{}'.format(req.method.lower()))
         else:
-            _events.fire('pytsite.router.dispatch.{}'.format(request().method.lower()))
+            _events.fire('pytsite.router.dispatch.{}'.format(req.method.lower()))
 
         # Search for rule
         try:
@@ -206,20 +211,21 @@ def dispatch(env: dict, start_response: callable):
             rule_attrs = rule.attrs.copy()
 
             # Try to find referenced rule by name
-            try:
-                ref_rule = _routes.get(rule_handler)
+            if isinstance(rule_handler, str):
+                try:
+                    ref_rule = _routes.get(rule_handler)
 
-                rule_handler = ref_rule.handler
+                    rule_handler = ref_rule.handler
 
-                ref_rule_args = ref_rule.args.copy()
-                ref_rule_args.update(rule_args)
-                rule_args = ref_rule_args
+                    ref_rule_args = ref_rule.args.copy()
+                    ref_rule_args.update(rule_args)
+                    rule_args = ref_rule_args
 
-                ref_rule_attrs = ref_rule.attrs.copy()
-                ref_rule_attrs.update(rule_attrs)
-                rule_attrs = ref_rule_attrs
-            except _routing.error.RuleNotFound:
-                pass
+                    ref_rule_attrs = ref_rule.attrs.copy()
+                    ref_rule_attrs.update(rule_attrs)
+                    rule_attrs = ref_rule_attrs
+                except _routing.error.RuleNotFound:
+                    pass
         except _routing.error.RuleNotFound as e:
             raise _http.error.NotFound(e)
 
@@ -240,13 +246,26 @@ def dispatch(env: dict, start_response: callable):
 
         # Preparing response object
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
+        handler_resp = None
 
-        # Processing response from handler
-        try:
-            handler_resp = resolve_ep_callable(rule_handler)(rule_args, request().inp)
-        except ImportError as e:
-            raise _http.error.NotFound(e)
+        # Resolve handler's callable
+        if isinstance(rule_handler, str):
+            rule_handler = resolve_ep_callable(rule_handler)
 
+        # Calling the handler
+        if issubclass(rule_handler, _controller.Controller):
+            # Instantiate controller and fill it with values
+            controller = rule_handler()  # type: _controller.Controller
+            controller.args = rule_args
+            controller.inp = req.inp
+            handler_resp = controller.exec()
+        elif callable(rule_handler):
+            try:
+                handler_resp = rule_handler(rule_args, req.inp)
+            except ImportError as e:
+                raise _http.error.NotFound(e)
+
+        # Checking response from the handler
         if isinstance(handler_resp, str):
             # Minifying output
             if _reg.get('output.minify'):
@@ -258,7 +277,7 @@ def dispatch(env: dict, start_response: callable):
             wsgi_response.data = ''
 
         # Cache control
-        if get_no_cache() or request().method != 'GET':
+        if get_no_cache() or req.method != 'GET':
             wsgi_response.headers.set('Cache-Control', 'private, max-age=0, no-cache, no-store')
             wsgi_response.headers.set('Pragma', 'no-cache')
         else:
@@ -269,10 +288,10 @@ def dispatch(env: dict, start_response: callable):
             _session_store.save(session())
             wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
 
-        if request().is_xhr:
-            _events.fire('pytsite.router.xhr_response.{}'.format(request().method.lower()), response=wsgi_response)
+        if req.is_xhr:
+            _events.fire('pytsite.router.xhr_response.{}'.format(req.method.lower()), response=wsgi_response)
         else:
-            _events.fire('pytsite.router.response.{}'.format(request().method.lower()), response=wsgi_response)
+            _events.fire('pytsite.router.response.{}'.format(req.method.lower()), response=wsgi_response)
 
         return wsgi_response(env, start_response)
 
