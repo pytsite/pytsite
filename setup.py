@@ -37,7 +37,6 @@ setup(
         'Werkzeug',
         'Jinja2',
         'pymongo',
-        'webassets',
         'Pillow',
         'ExifRead',
         'python-magic',

@@ -4,26 +4,7 @@
     {{ metatags() }}
     {{ css_links() }}
 </head>
-<!--
-BODY TAG OPTIONS:
-=================
-Apply one or more of the following classes to get the
-desired effect
-|---------------------------------------------------------|
-| SKINS         | skin-blue                               |
-|               | skin-black                              |
-|               | skin-purple                             |
-|               | skin-yellow                             |
-|               | skin-red                                |
-|               | skin-green                              |
-|---------------------------------------------------------|
-|LAYOUT OPTIONS | fixed                                   |
-|               | layout-boxed                            |
-|               | layout-top-nav                          |
-|               | sidebar-collapse                        |
-|               | sidebar-mini                            |
-|---------------------------------------------------------|
--->
+
 <body class="hold-transition skin-blue sidebar-mini{% if sidebar_collapsed %} sidebar-collapse{% endif %}">
 <div class="wrapper">
     {% include 'pytsite.admin@header' %}
@@ -37,10 +18,6 @@ desired effect
                 {{ metatag_get('title') }}
                 <small>{{ metatag_get('description') }}</small>
             </h1>
-            {#            <ol class="breadcrumb">#}
-            {#                <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>#}
-            {#                <li class="active">Here</li>#}
-            {#            </ol>#}
         </section>
 
         <!-- Main content -->

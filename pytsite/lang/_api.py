@@ -15,7 +15,7 @@ __license__ = 'MIT'
 
 _languages = []
 _current = {}  # Thread safe current language
-_fallback = None
+_fallback = None  # type: str
 _packages = {}
 _globals = {}
 _sub_trans_token_re = _re.compile('{:([_a-z0-9]+)}')
@@ -139,12 +139,12 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
         raise RuntimeError("Language directory '{}' is not found".format(lng_dir))
 
     if pkg_name in _packages:
-        raise RuntimeError("Package '{}' already registered".format(pkg_name))
+        raise _error.PackageAlreadyRegistered("Language package '{}' already registered".format(pkg_name))
     _packages[pkg_name] = {'__path': lng_dir}
 
     if alias:
         if alias in _packages:
-            raise RuntimeError("Package alias '{}' already registered".format(pkg_name))
+            raise RuntimeError("Package alias '{}' already registered".format(alias))
         _packages[alias] = {'__path': lng_dir}
 
 

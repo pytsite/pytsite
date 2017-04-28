@@ -14,9 +14,13 @@ def _init():
     from . import _http_api
 
     # Resources
-    assetman.register_package(__name__)
     lang.register_package(__name__)
     tpl.register_package(__name__)
+
+    assetman.register_package(__name__)
+    assetman.t_less(__name__ + '@**/*.less')
+    assetman.t_js(__name__ + '@**/*.js')
+    assetman.js_module('pytsite-file-widget-files-upload', __name__ + '@js/widget-files-upload')
 
     # HTTP API handlers
     http_api.handle('POST', 'file', _http_api.post, 'pytsite.file@post')

@@ -309,7 +309,7 @@ def install(plugin_name: str):
 
         # Compile plugin's assets
         if _assetman.is_package_registered(plugin_name):
-            _assetman.build(plugin_name, maintenance=False, console_notify=False)
+            _assetman.build(plugin_name, maintenance=False)
 
     except Exception as e:
         try:

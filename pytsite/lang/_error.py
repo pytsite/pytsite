@@ -13,5 +13,9 @@ class PackageNotRegistered(Exception):
     pass
 
 
+class PackageAlreadyRegistered(Exception):
+    pass
+
+
 class TranslationError(Exception):
     pass

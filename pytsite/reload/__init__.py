@@ -14,7 +14,10 @@ def _init():
 
     lang.register_package(__name__)
     console.register_command(_console_command.Reload())
+
     assetman.register_package(__name__)
+    assetman.t_js(__name__ + '@**/*.js')
+
     permissions.define_permission('pytsite.reload', 'pytsite.reload@reload_application_permission', 'app')
 
     http_api.handle('POST', 'reload', _http_api.reload, 'pytsite.reload@reload')

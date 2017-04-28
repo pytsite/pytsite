@@ -14,8 +14,12 @@ def _init():
     from . import _http_api
 
     lang.register_package(__name__)
-    assetman.register_package(__name__)
     tpl.register_package(__name__)
+
+    assetman.register_package(__name__)
+    assetman.t_less(__name__ + '@**/*.less')
+    assetman.t_js(__name__ + '@**/*.js')
+    assetman.js_module('pytsite-form', __name__ + '@js/pytsite-form')
 
     router.handle('/form/submit/<uid>', 'pytsite.form@submit', 'pytsite.form@submit', methods='POST')
 

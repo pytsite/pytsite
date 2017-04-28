@@ -87,9 +87,8 @@ class Form(_ABC):
                 self._data.update({k: v})
 
         # Assets
-        _browser.include('scrollto')
-        _assetman.add('pytsite.form@css/form.css')
-        _assetman.add('pytsite.form@js/form.js')
+        _assetman.preload('pytsite.form@css/form.css')
+        _assetman.preload('pytsite.form@js/index.js')
 
         # Setup form
         self._on_setup_form(**kwargs)

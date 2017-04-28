@@ -25,7 +25,10 @@ def __init():
     tpl.register_package(__name__)
     lang.register_package(__name__)
     assetman.register_package(__name__)
-    assetman.add('pytsite.auth@js/auth.js', permanent=True)
+    assetman.t_js('pytsite.auth@**/*.js')
+    assetman.t_less('pytsite.auth@**/*.less')
+    assetman.js_module('pytsite-auth', __name__ + '@js/pytsite-auth')
+    assetman.js_module('pytsite-auth-widget-follow', __name__ + '@js/pytsite-auth-widget-follow')
 
     # Module permission group
     permissions.define_group('security', 'pytsite.auth@security')

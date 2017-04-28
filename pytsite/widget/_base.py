@@ -4,7 +4,7 @@ from json import dumps as _json_dumps
 from typing import Iterable as _Iterable, Tuple as _Tuple, List as _List
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
-from pytsite import html as _html, validation as _validation, assetman as _assetman, lang as _lang
+from pytsite import html as _html, validation as _validation, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -38,10 +38,10 @@ class Abstract(_ABC):
         self._help = kwargs.get('help')
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
-        self._rules = kwargs.get('rules', [])
+        self._rules = kwargs.get('rules', [])  # type: _List[_validation.rule.Base]
         self._form_area = kwargs.get('form_area', 'body')
-        self._assets = kwargs.get('assets', [])
-        self._replaces = kwargs.get('replaces', None)
+        self._js_module = kwargs.get('js_module', '')
+        self._replaces = kwargs.get('replaces')
         self._required = kwargs.get('required', False)
         self._enabled = kwargs.get('enabled', True)
         self._parent = kwargs.get('parent')
@@ -86,16 +86,9 @@ class Abstract(_ABC):
         self._wrap_em.set_attr('data_enabled', self._enabled)
         self._wrap_em.set_attr('data_parent_uid', self._parent.uid if self._parent else None)
 
-        # Assets
-        if self._assets:
-            assets = []
-            for asset in self._assets:
-                if isinstance(asset, (list, tuple)):
-                    assets.append((asset[0], asset[1]))
-                else:
-                    assets.append((asset, _assetman.detect_collection(asset)))
-
-            self._wrap_em.set_attr('data_assets', _json_dumps(assets))
+        # JS modules to load with widget initialization
+        if self._js_module:
+            self._wrap_em.set_attr('data_js_module', self._js_module)
 
         # Replaces
         if self._replaces:
@@ -240,7 +233,7 @@ class Abstract(_ABC):
         return self._title
 
     @title.setter
-    def title(self, value: str) -> str:
+    def title(self, value: str):
         """Set title of the widget.
         """
         self._title = value
@@ -326,10 +319,10 @@ class Abstract(_ABC):
         self._h_size = value
 
     @property
-    def assets(self) -> list:
+    def js_module(self) -> str:
         """Get CSS files list.
         """
-        return self._assets
+        return self._js_module
 
     @property
     def replaces(self) -> str:
@@ -388,7 +381,7 @@ class Abstract(_ABC):
         return self._group_wrap
 
     @group_wrap.setter
-    def group_wrap(self, value: bool) -> bool:
+    def group_wrap(self, value: bool):
         self._group_wrap = value
 
     def has_child(self, uid: str) -> bool:
@@ -562,9 +555,8 @@ class MultiRow(Abstract):
 
         super().__init__(uid, **kwargs)
 
-        self.css += ' widget-multi-row'
-        self.assets.append('pytsite.widget@css/multi-row.css')
-        self.assets.append('pytsite.widget@js/multi-row.js')
+        self._css += ' widget-multi-row'
+        self._js_module = 'pytsite-widget-input-multi-row'
 
     def append_child(self, widget: Abstract):
         raise NotImplementedError('This widget can not contain children')
@@ -658,9 +650,9 @@ class MultiRow(Abstract):
         pass
 
     def _get_element(self, **kwargs) -> _html.Element:
-        def _build_row(widgets: _List[Abstract], i: int = 0, add_css: str='') -> _html.Tr:
+        def _build_row(widgets: _List[Abstract], k: int = 0, add_css: str='') -> _html.Tr:
             slot_tr = _html.Tr(css='slot ' + add_css)
-            slot_tr.append(_html.Td('[{}]'.format(i + 1), css='order-col'))
+            slot_tr.append(_html.Td('[{}]'.format(k + 1), css='order-col'))
 
             # Widgets
             for w in widgets:

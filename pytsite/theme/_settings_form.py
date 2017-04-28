@@ -68,7 +68,7 @@ class Form(_settings.Form):
         default_theme_package = self.values.get('setting_default_theme')
 
         # Rebuild assets for selected theme
-        _assetman.build(default_theme_package, cache=False)
+        _assetman.build(default_theme_package)
 
         # Set default theme
         _api.set_default(_api.get(default_theme_package))

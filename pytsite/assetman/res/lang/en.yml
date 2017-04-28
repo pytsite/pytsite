@@ -1,3 +1,4 @@
-assetman_console_command_description: 'Compile assets'
-compiling_assets: 'Compiling assets'
-compiling_translations: 'Compiling transaltions'
+assetman_setup_console_command_description: 'Setup assetman environment'
+assetman_build_console_command_description: 'Build assets'
+compiling_assets: 'Building assets'
+compiling_translations: 'Building transaltions'

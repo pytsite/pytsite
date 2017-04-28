@@ -1,6 +1,6 @@
 """Settings Plugin Functions
 """
-from typing import Any as _Any
+from typing import Any as _Any, Type as _Type
 from pytsite import admin as _admin, router as _router, odm as _odm
 from . import _frm
 
@@ -17,7 +17,8 @@ def is_defined(uid: str) -> bool:
     return uid in _settings
 
 
-def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permissions: str = '*', menu_weight: int = 0):
+def define(uid: str, frm: _Type[_frm.Form], menu_title: str, menu_icon: str, permissions: str = '*',
+           menu_weight: int = 0):
     """Define setting.
     """
     if uid in _settings:

@@ -16,7 +16,9 @@ def _init():
 
     # Resources
     lang.register_package(__name__)
+
     assetman.register_package(__name__)
+    assetman.t_js(__name__ + '@**/*.js')
 
     # App's logo URL resolver
     def logo_url(width: int = 50, height: int = 50):

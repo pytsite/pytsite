@@ -13,7 +13,10 @@ def _init():
     auth.register_auth_driver(ULogin())
     lang.register_package(__name__)
     tpl.register_package(__name__)
-    assetman.register_package(__name__)
 
+    assetman.register_package(__name__)
+    assetman.js_module('pytsite-auth-ulogin-widget', __name__ + '@widget')
+    assetman.t_js('pytsite.auth_ulogin@**/*.js')
+    assetman.t_less('pytsite.auth_ulogin@**/*.less')
 
 _init()

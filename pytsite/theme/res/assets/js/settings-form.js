@@ -14,7 +14,7 @@ $('.settings-form').on('formForward', function (e, form) {
 
         pytsite.httpApi.get('theme/settings/' + themeName).done(function (r) {
             $.each(r, function (i, widgetData) {
-                form.initWidget(widgetData).done(function (widget) {
+                form.createWidget(widgetData).done(function (widget) {
                     form.addWidget(widget);
                     widget.show();
                 });

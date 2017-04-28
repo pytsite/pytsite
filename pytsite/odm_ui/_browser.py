@@ -82,11 +82,6 @@ class Browser(_widget.misc.BootstrapTable):
             self.toolbar.append(button)
             self._toolbar.append(_html.Span('&nbsp;'))
 
-        # Additional assets
-        self._assets.extend([
-            'pytsite.odm_ui@js/browser.js'
-        ])
-
         # Call model's class to perform setup tasks
         self._model_class.odm_ui_browser_setup(self)
 
@@ -117,7 +112,7 @@ class Browser(_widget.misc.BootstrapTable):
             row.append(_html.Th(_lang.t('pytsite.odm_ui@actions'), data_field='__actions'))
 
     def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: _Union[int, str] = None,
-                 search: str = None) -> list:
+                 search: str = None) -> dict:
         """Get browser rows.
         """
         r = {'total': 0, 'rows': []}

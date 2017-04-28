@@ -14,7 +14,10 @@ def __init():
     from pytsite import assetman, lang
 
     lang.register_package(__name__)
+
     assetman.register_package(__name__)
+    assetman.t_js(__name__ + '@**/*.js')
+    assetman.js_module('pytsite-geo-widget-location', __name__ + '@js/pytsite-geo-widget-location')
 
 
 __init()

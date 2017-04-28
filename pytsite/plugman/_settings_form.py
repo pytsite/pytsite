@@ -17,8 +17,8 @@ class Form(_settings.Form):
         """
         super()._on_setup_form(**kwargs)
 
-        _assetman.add('pytsite.plugman@css/settings-form.css')
-        _assetman.add('pytsite.plugman@js/settings-form.js')
+        _assetman.preload('pytsite.plugman@css/settings-form.css')
+        _assetman.preload('pytsite.plugman@js/settings-form.js')
 
     def _on_setup_widgets(self):
         """Hook.

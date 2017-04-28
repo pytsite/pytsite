@@ -21,22 +21,7 @@ class BootstrapTable(_base.Abstract):
         self._default_sort_order = kwargs.get('default_sort_order', 'asc')
         self._toolbar = _html.Div(uid='bootstrap-table-toolbar')
         self._data_url = kwargs.get('data_url')
-
-        self._assets.extend(_browser.get_assets('bootstrap'))
-        self._assets.extend([
-            'pytsite.widget@bootstrap-table/bootstrap-table.min.css',
-            'pytsite.widget@bootstrap-table/bootstrap-table.min.js',
-            'pytsite.widget@bootstrap-table/extensions/cookie/bootstrap-table-cookie.js',
-            'pytsite.widget@js/bootstrap-table.js',
-        ])
-
-        # Localization
-        current_lang = _lang.get_current()
-        if current_lang != 'en':
-            locale = current_lang + '-' + current_lang.upper()
-            if current_lang == 'uk':
-                locale = 'uk-UA'
-            self._assets.append('pytsite.widget@bootstrap-table/locale/bootstrap-table-{}.min.js'.format(locale))
+        self._js_module = 'pytsite-widget-misc-bootstrap-table'
 
     @property
     def toolbar(self) -> _html.Div:

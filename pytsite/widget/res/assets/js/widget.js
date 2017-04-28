@@ -1,12 +1,11 @@
-pytsite.widget = {
-    init: function () {
-        // Initialize all widgets found on a page
-        $('.pytsite-widget').not('.initialized').each(function () {
-            new pytsite.widget.Widget(this);
-        });
-    },
-
-    Widget: function (em) {
+define(['jquery'], function ($) {
+    /**
+     * Widget constructor.
+     *
+     * @param em
+     * @constructor
+     */
+    function Widget(em) {
         var self = this;
         self.em = em = $(em);
         self.cid = em.data('cid');
@@ -14,13 +13,17 @@ pytsite.widget = {
         self.replaces = em.data('replaces');
         self.formArea = em.data('formArea');
         self.parentUid = em.data('parentUid');
-        self.alwaysHidden = em.data('hidden') == 'True';
+        self.alwaysHidden = em.data('hidden') === 'True';
         self.weight = em.data('weight');
-        self.assets = em.data('assets') ? self.em.data('assets') : [];
+        self.jsModule = em.data('jsModule') ? em.data('jsModule') : [];
         self.messagesEm = em.find('.widget-messages').first();
         self.children = {};
 
-        // Clear state fo the widget
+        /**
+         * Clear state of the widget.
+         *
+         * @returns {Widget}
+         */
         self.clearState = function () {
             self.em.removeClass('has-success');
             self.em.removeClass('has-warning');
@@ -29,7 +32,12 @@ pytsite.widget = {
             return self;
         };
 
-        // Set state of the widget
+        /**
+         * Set state of the widget.
+         *
+         * @param type
+         * @returns {Widget}
+         */
         self.setState = function (type) {
             self.clearState();
             self.em.addClass('has-' + type);
@@ -37,7 +45,11 @@ pytsite.widget = {
             return self;
         };
 
-        // Clear messages of the widget
+        /**
+         * Clear messages of the widget.
+         *
+         * @returns {Widget}
+         */
         self.clearMessages = function () {
             if (self.messagesEm.length)
                 self.messagesEm.html('');
@@ -45,22 +57,35 @@ pytsite.widget = {
             return self;
         };
 
-        // Add message to the widget
+        /**
+         * Add a message to the widget
+         *
+         * @param msg
+         * @returns {Widget}
+         */
         self.addMessage = function (msg) {
             if (self.messagesEm.length)
-                self.messagesEm.append('<span class="help-block">{0}</span>'.format(msg));
+                self.messagesEm.append('<span class="help-block">' + msg + '</span>');
 
             return self;
         };
 
-        // Hide the widget
+        /**
+         * Hide the widget.
+         *
+         * @returns {Widget}
+         */
         self.hide = function () {
             self.em.addClass('hidden');
 
             return self;
         };
 
-        // Show the widget
+        /**
+         * Show the widget.
+         *
+         * @returns {Widget}
+         */
         self.show = function () {
             if (!self.alwaysHidden)
                 self.em.removeClass('hidden');
@@ -69,32 +94,51 @@ pytsite.widget = {
         };
 
         /*
-         * Add a child widget
+         * Add a child widget.
+         *
+         * @returns {Widget}
          */
         self.addChild = function (child) {
             if (self.children.hasOwnProperty(child.uid))
                 throw 'Widget ' + self.uid + ' already has child widget ' + child.uid;
 
             self.children[child.uid] = child;
+
+            return self
         };
 
         // Load widget's assets
-        pytsite.browser.loadAssets(self.assets).done(function () {
-            // Initialize the widget
-            $(window).trigger('pytsite.widget.init:' + self.cid, [self]);
-            $(self).trigger('ready', [self]);
-            self.em.addClass('initialized');
+        if (self.jsModule.length) {
+            require([self.jsModule], function (initCallback) {
+                if ($.isFunction(initCallback)) {
+                    initCallback(self);
 
-            // Initialize children widgets
-            self.em.find(".pytsite-widget[data-parent-uid='" + self.uid + "']:not(.initialized)").each(function () {
-                self.addChild(new pytsite.widget.Widget(this));
+                    self.em.addClass('initialized');
+                    $(self).trigger('ready', [self]);
+
+                    // Initialize children widgets
+                    self.em.find(".pytsite-widget[data-parent-uid='" + self.uid + "']:not(.initialized)").each(function () {
+                        self.addChild(new Widget(this));
+                    });
+                }
+                else {
+                    console.warn(self.jsModule + ' does not return a proper callback');
+                }
             });
-        }).fail(function () {
-            $(self).trigger('initError', [self]);
+        }
+    }
+
+    /**
+     * Initialize all non-initialized widgets found in the DOM
+     */
+    function init() {
+        $('.pytsite-widget').not('.initialized').each(function () {
+            new Widget(this);
         });
     }
-};
 
-$(function () {
-    pytsite.widget.init();
+    return {
+        Widget: Widget,
+        init: init
+    }
 });

@@ -2,8 +2,9 @@
 """
 # Public API
 from . import _error as error
-from ._api import register_package, add, remove, dump_js, dump_css, url, add_inline, dump_inline, get_urls, \
-    get_locations, reset, detect_collection, build, is_package_registered, register_global
+from ._api import register_package, library, preload, remove, dump_js, dump_css, url, add_inline, dump_inline, \
+    get_urls, get_locations, reset, detect_collection, build, is_package_registered, register_global, _add_task, \
+    t_browserify, t_copy, t_copy_static, t_less, t_js, t_css, js_module
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,13 +12,18 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, events, lang, tpl, router
+    from os import path
+    from pytsite import reg, console, events, lang, tpl, router
     from . import _console_command, _api
+
+    # Registry variables
+    reg.put('paths.assets', path.join(reg.get('paths.static'), 'assets'))
 
     # Resources
     lang.register_package(__name__)
 
     # Console commands
+    console.register_command(_console_command.Setup())
     console.register_command(_console_command.Build())
 
     # Event handlers
@@ -25,15 +31,19 @@ def _init():
     router.on_xhr_dispatch(reset, -999, 'post')  # Workaround for forms
     events.listen('pytsite.update.after', build)
 
-    # Tpl globals
+    # Tpl resources
+    tpl.register_package(__name__)
     tpl.register_global('asset_url', url)
     tpl.register_global('css_links', dump_css)
     tpl.register_global('js_links', dump_js)
     tpl.register_global('inline_js', dump_inline)
 
-    # We add this here to avoid cyclic dependency
-    register_package('pytsite.lang')
-    add('pytsite.lang@translations.js', True, weight=-997)
+    # Register assetman itself and add required assets for all pages
+    register_package(__name__)
+    js_module('assetman', __name__ + '@assetman')
+    t_js(__name__ + '@**/*.js')
+    preload(__name__ + '@require.js', True)
+    preload(__name__ + '@require-config.js', True)
 
 
 _init()

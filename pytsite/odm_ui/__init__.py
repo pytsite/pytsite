@@ -35,7 +35,9 @@ def _init():
     # Resources
     lang.register_package(__name__)
     tpl.register_package(__name__)
+
     assetman.register_package(__name__)
+    assetman.t_js(__name__ + '@**/*.js')
 
     # HTTP API handlers
     http_api.handle('GET', 'odm_ui/rows/<model>', _http_api.get_rows, 'pytsite.odm_ui@get_rows')

@@ -92,8 +92,7 @@ class Profile(_widget.Abstract):
         self._col_image_css = kwargs.get('col_image_css', 'col-xs-12 col-sm-4 col-md-3 col-lg-2 text-center')
         self._col_content_css = kwargs.get('col_content_css', 'col-xs-12 col-sm-8 col-md-9 col-lg-10')
         self._following_enabled = kwargs.get('following_enabled', True)
-
-        _assetman.add('pytsite.auth@css/widget/profile.css')
+        self._js_module = 'pytsite-auth-widget-profile'
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
@@ -140,11 +139,7 @@ class Follow(_widget.Abstract):
         self._data['unfollow-msg-id'] = kwargs.get('unfollow_msg_id', 'pytsite.auth@unfollow')
         self._data['following-msg-id'] = 'pytsite.auth@following'
         self._data['user-id'] = str(self._user.uid)
-
-        self._assets.extend([
-            'pytsite.auth@css/widget/follow.css',
-            'pytsite.auth@js/widget/follow.js',
-        ])
+        self._js_module = 'pytsite-auth-widget-follow'
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.

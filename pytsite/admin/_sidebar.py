@@ -17,7 +17,7 @@ def get_section(sid: str) -> dict:
     global _menus
 
     if sid not in _menus:
-        return
+        return {}
 
     for s in _sections:
         if s['sid'] == sid:

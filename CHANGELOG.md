@@ -1,5 +1,10 @@
 # PytSite Changelog
 
+## 0.98.97 (2017-04-28)
+### Changed
+- `assetman`: assets management totally reworked.
+- `admin`: AdminLTE template update to version 2.3.8.
+
 
 ## 0.98.96 (2017-04-13)
 ### Added

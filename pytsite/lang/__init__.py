@@ -12,11 +12,18 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import reg, events
+    from pytsite import reg, events, assetman, tpl
     from . import _eh
 
     # Register itself as a language package
     register_package(__name__)
+
+    tpl.register_package(__name__)
+
+    assetman.register_package(__name__)
+    assetman.t_js(__name__ + '@*.js')
+    assetman.js_module('pytsite-lang-translations', __name__ + '@translations')
+    assetman.js_module('pytsite-lang', __name__ + '@module')
 
     # Define languages based on registry setting or set default
     define(reg.get('languages', ['en']))

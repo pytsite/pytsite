@@ -20,7 +20,7 @@ class _LoginWidget(_widget.Abstract):
         """
         super().__init__(uid, **kwargs)
 
-        self._assets.append('pytsite.auth_ulogin@css/widget.css')
+        self._js_module = 'pytsite-auth-ulogin-widget'
         self._css += 'widget-ulogin'
 
     def _get_element(self, **kwargs) -> _html.Element:

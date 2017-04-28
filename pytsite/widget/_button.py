@@ -21,6 +21,7 @@ class Button(_base.Abstract):
         self._icon = kwargs.get('icon')
         self._color = kwargs.get('color', 'default')
         self._dismiss = kwargs.get('dismiss', None)
+        self._group_wrap = False
 
         self._html_em = _html.Button(uid=self._uid, type='button')
 

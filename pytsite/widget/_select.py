@@ -4,8 +4,8 @@ from typing import Union as _Union, List as _List, Tuple as _Tuple
 from collections import OrderedDict as _OrderedDict
 from math import ceil as _ceil
 from datetime import datetime as _datetime
-from pytsite import browser as _browser, html as _html, lang as _lang, validation as _validation, util as _util, \
-    hreflang as _hreflang, router as _router, http_api as _http_api
+from pytsite import html as _html, lang as _lang, validation as _validation, util as _util, hreflang as _hreflang, \
+    router as _router, http_api as _http_api
 from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
@@ -97,9 +97,7 @@ class Select2(Select):
         """
         super().__init__(uid, **kwargs)
 
-        self.assets.extend(_browser.get_assets('select2'))
-        self.assets.extend(['pytsite.widget@js/select2.js'])
-
+        self._js_module = 'pytsite-widget-select-select2'
         self._theme = kwargs.get('theme', 'bootstrap')
         self._ajax_url = kwargs.get('ajax_url')
         self._ajax_delay = kwargs.get('ajax_delay', 750)
@@ -261,9 +259,7 @@ class DateTime(_input.Text):
 
         super().__init__(uid, **kwargs)
 
-        self.assets.extend(_browser.get_assets('datetimepicker'))
-        self.assets.extend(['pytsite.widget@js/datetime.js'])
-
+        self._js_module = 'pytsite-widget-select-date-time'
         self._css = self._css.replace('widget-input-text', 'widget-select-datetime')
         self.add_rule(_validation.rule.DateTime())
 
@@ -333,9 +329,7 @@ class Pager(_base.Abstract):
         self._data['current_page'] = self._current_page
         self._data['per_page'] = self._items_per_page
 
-        self.assets.extend([
-            'pytsite.widget@js/pager.js'
-        ])
+        self._js_module = 'pytsite-widget-select-pager'
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
@@ -484,10 +478,7 @@ class Score(_base.Abstract):
 
         self.css += ' widget-select-score'
 
-        self.assets.extend([
-            'pytsite.widget@css/score.css',
-            'pytsite.widget@js/score.js',
-        ])
+        self._js_module = 'pytsite-widget-select-score'
 
     def _get_element(self, **kwargs) -> _html.Element:
         cont = _html.Div(css='switches-wrap')
@@ -518,12 +509,8 @@ class TrafficLightScore(Score):
 
         super().__init__(uid, max=3, show_numbers=False, **kwargs)
 
-        self.css += ' widget-select-traffic-light-score'
-
-        self.assets.extend([
-            'pytsite.widget@css/traffic-light-score.css',
-            'pytsite.widget@js/traffic-light-score.js',
-        ])
+        self._css += ' widget-select-traffic-light-score'
+        self._js_module = 'pytsite-widget-select-traffic-light-score'
 
 
 class ColorPicker(_input.Text):
@@ -532,16 +519,8 @@ class ColorPicker(_input.Text):
         """
         super().__init__(uid, **kwargs)
 
-        self.css += ' widget-color-picker'
-
-        self.assets.extend(_browser.get_assets('jquery-ui'))
-        self.assets.extend([
-            'pytsite.widget@jquery-color-picker/jquery.colorpicker.css',
-            'pytsite.widget@jquery-color-picker/jquery.colorpicker.js',
-            'pytsite.widget@jquery-color-picker/i18n/jquery.ui.colorpicker-{}.js'.format(_lang.get_current()),
-            'pytsite.widget@css/color-picker.css',
-            'pytsite.widget@js/color-picker.js',
-        ])
+        self._css += ' widget-color-picker'
+        self._js_module = 'pytsite-widget-select-color-picker'
 
     def _get_element(self, **kwargs):
         self._data['color'] = self.value

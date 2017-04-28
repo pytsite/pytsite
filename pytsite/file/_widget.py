@@ -33,15 +33,12 @@ class FilesUpload(_widget.Abstract):
         self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
         self._show_numbers = False if self._max_files == 1 else kwargs.get('show_numbers', True)
         self._dnd = False if self._max_files == 1 else kwargs.get('dnd', True)
+        self._js_module = 'pytsite-file-widget-files-upload'
 
-        self._assets.extend(_browser.get_assets('jquery-ui'))
-        self._assets.extend(_browser.get_assets('imagesloaded'))
-        self.assets.extend([
-            'pytsite.file@css/upload-widget.css',
-            'pytsite.file@js/load-image.all.min.js',
-            'pytsite.file@js/canvas-to-blob.min.js',
-            'pytsite.file@js/widget-files-upload.js',
-        ])
+        # 'pytsite.file@css/upload-widget.css',
+        # 'pytsite.file@js/load-image.all.min.js',
+        # 'pytsite.file@js/canvas-to-blob.min.js',
+        # 'pytsite.file@js/widget-files-upload.js',
 
     @property
     def accept_files(self) -> str:
@@ -177,5 +174,4 @@ class ImagesUpload(FilesUpload):
     """
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, model='image', accept_files='image/*', **kwargs)
-        self.add_btn_icon = 'fa fa-fw fa-camera'
-        self.assets.append('pytsite.file@js/widget-images-upload.js')
+        self._add_btn_icon = 'fa fa-fw fa-camera'

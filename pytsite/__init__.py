@@ -40,7 +40,7 @@ def _init():
     """
     import sys
     from importlib import import_module
-    from os import path, environ, getcwd, mkdir
+    from os import path, environ, getcwd, mkdir, makedirs
     from getpass import getuser
     from socket import gethostname
     from . import reg
@@ -74,6 +74,10 @@ def _init():
     reg.put('paths.app', app_path)
     for n in ['config', 'log', 'static', 'storage', 'tmp']:
         reg.put('paths.' + n, path.join(root_path, n))
+
+    # Create cache directory
+    reg.put('paths.cache', path.join(reg.get('paths.tmp'), 'cache'))
+    makedirs(reg.get('paths.cache'), 0o755, True)
 
     # uWSGI does not export virtualenv paths, do it by ourselves
     if 'VIRTUAL_ENV' not in environ:

@@ -17,7 +17,7 @@ def sign_in(args: dict, inp: dict) -> str:
     if not _api.get_current_user().is_anonymous:
         return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
 
-    _assetman.add('pytsite.auth@css/common.css')
+    _assetman.preload('pytsite.auth@css/common.css')
     _metatag.t_set('title', _lang.t('pytsite.auth@authentication'))
 
     try:

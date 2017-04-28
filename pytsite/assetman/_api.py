@@ -1,22 +1,26 @@
-"""PytSite Asset Manager.
+"""PytSite Asset Manager
 """
-import re as _re
 import subprocess as _subprocess
-from os import path as _path, walk as _walk, makedirs as _makedirs
-from shutil import rmtree as _rmtree, copy as _copy
-from webassets import Environment as _Environment, Bundle as _Bundle
-from webassets.script import CommandLineEnvironment as _CommandLineEnvironment
-from webassets.filter.less import Less as LessFilter
+import json as _json
+from typing import Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Callable as _Callable, \
+    Iterable as _Iterable
+from os import path as _path, chdir as _chdir, makedirs as _makedirs
+from shutil import rmtree as _rmtree
 from importlib.util import find_spec as _find_spec
-from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, logger as _logger, \
-    events as _events, maintenance as _maintenance, console as _console, lang as _lang, theme as _theme
+from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, events as _events, \
+    maintenance as _maintenance, console as _console, lang as _lang, theme as _theme, tpl as _tpl
 from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_packages = {}
+_package_paths = {}  # type: _Dict[str, str]
+_package_aliases = {}  # type: _Dict[str, str]
+_libraries = {}  # type: _Dict[str, _Union[_Iterable, _Callable[..., _Iterable]]]
+
+_tasks = []  # type: _List[_Tuple]
+_requirejs_modules = {}  # type: _Dict[str, str]
 
 _locations = {}
 _last_weight = {}
@@ -29,37 +33,103 @@ _last_i_weight = {}
 
 _globals = {}
 
+_NODE_BIN_DIR = _path.join(_reg.get('paths.root'), 'node_modules', '.bin')
+_REQUIRED_NPM_PACKAGES = [
+    'gulp', 'gulp-rename', 'gulp-ignore', 'gulp-minify', 'gulp-less', 'gulp-cssmin', 'gulp-babel',
+    'babel-preset-es2015', 'gulp-browserify', 'babelify', 'vue', 'vueify', 'babel-plugin-transform-runtime'
+]
+_GULPFILE = _path.join(_path.realpath(_path.dirname(__file__)), 'gulpfile.js')
+_GULP_TASKS_FILE = _path.join(_reg.get('paths.tmp'), 'gulp-tasks.json')
+
+
+def _run_process(cmd: list, debug: bool = False) -> _subprocess.CompletedProcess:
+    """Run process.
+    """
+    stdout = stderr = _subprocess.PIPE
+
+    if debug and _reg.get('env.type') == 'console':
+        stdout = stderr = None
+
+    return _subprocess.run(cmd, stdout=stdout, stderr=stderr)
+
+
+def _run_node_bin(bin_name: str, *args, **kwargs) -> _subprocess.CompletedProcess:
+    """Run Node's binary.
+    """
+    args_l = []
+    for k, v in kwargs.items():
+        if isinstance(v, bool):
+            v = 'yes' if v else 'no'
+        args_l.append('--{}={}'.format(k, v))
+
+    cmd = ['node', _NODE_BIN_DIR + _path.sep + bin_name] + args_l + list(args)
+
+    try:
+        r = _run_process(cmd, kwargs.get('debug', False))
+        r.check_returncode()
+        return r
+    except _subprocess.CalledProcessError:
+        raise RuntimeError('None-zero exit status while running command {}'.format(cmd))
+
 
 def register_package(package_name: str, assets_dir: str = 'res/assets', alias: str = None):
     """Register assets container.
     """
+    try:
+        resolve_package_name(package_name)
+        raise _error.PackageAlreadyRegistered(package_name)
+    except _error.PackageNotRegistered:
+        pass
+
     pkg_spec = _find_spec(package_name)
     if not pkg_spec:
-        raise RuntimeError("Package '{}' is not found.".format(package_name))
+        raise RuntimeError("Package '{}' is not found".format(package_name))
 
     dir_path = _path.abspath(_path.join(_path.dirname(pkg_spec.origin), assets_dir))
     if not _path.isdir(dir_path):
-        FileNotFoundError("Directory '{}' is not found.".format(dir_path))
+        FileNotFoundError("Directory '{}' is not found".format(dir_path))
+
+    _package_paths[package_name] = dir_path
 
     if alias:
-        package_name = alias
+        if alias in _package_aliases:
+            raise _error.PackageAliasAlreadyUsed(alias)
 
-    if package_name in _packages:
-        raise _error.PackageAlreadyRegistered("Package '{}' is already registered.".format(package_name))
+        _package_aliases[alias] = package_name
 
-    _packages[package_name] = dir_path
+
+def library(name: str, assets: _Union[_List, _Callable[..., _List]]):
+    """Define a library of assets.
+    """
+    if name in _libraries:
+        raise _error.LibraryAlreadyRegistered(name)
+
+    if is_package_registered(name):
+        raise _error.PackageAlreadyRegistered(name)
+
+    _libraries[name] = assets
 
 
 def is_package_registered(package_name_or_alias: str):
     """Check if the package is registered.
     """
-    return package_name_or_alias in _packages
+    return package_name_or_alias in _package_paths or package_name_or_alias in _package_aliases
 
 
-def get_packages() -> dict:
-    """Get registered packages.
-    """
-    return _packages
+def _get_package_path(package_name_or_alias: str) -> str:
+    return _package_paths[resolve_package_name(package_name_or_alias)]
+
+
+def resolve_package_name(package_name_or_alias) -> str:
+    package_name = package_name_or_alias
+
+    if package_name_or_alias in _package_aliases:
+        package_name = _package_aliases[package_name_or_alias]
+
+    if package_name not in _package_paths:
+        raise _error.PackageNotRegistered(package_name_or_alias)
+
+    return package_name
 
 
 def detect_collection(location: str) -> str:
@@ -71,12 +141,25 @@ def detect_collection(location: str) -> str:
         raise ValueError("Cannot determine collection of location '{}'.".format(location))
 
 
-def add(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None,
-        async: bool = False, defer: bool = False):
+def preload(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None,
+            async: bool = False, defer: bool = False, **kwargs):
     """Add an asset.
     """
     if not permanent and not _router.request():
         raise RuntimeError('Non permanent assets only allowed while processing HTTP requests.')
+
+    if location in _libraries:
+        if callable(_libraries[location]):
+            assets = _libraries[location](**kwargs)
+        elif isinstance(_libraries[location], _Iterable):
+            assets = _libraries[location]
+        else:
+            raise TypeError('Iterable expected')
+
+        for asset_location in assets:
+            preload(asset_location, permanent, collection, weight, path_prefix, async, defer)
+
+        return
 
     # Determine collection
     if not collection:
@@ -89,7 +172,7 @@ def add(location: str, permanent: bool = False, collection: str = None, weight: 
     if tid not in _locations:
         _locations[tid] = {}
 
-    location_hash = hash((location, path_prefix))
+    location_hash = _util.md5_hex_digest(str((location, path_prefix)))
 
     if location_hash not in _p_locations and location_hash not in _locations[tid]:
         if permanent:
@@ -155,7 +238,7 @@ def reset():
     _last_i_weight[tid] = 0
 
 
-def get_locations(collection: str = None, filter_path: bool = True) -> tuple:
+def get_locations(collection: str = None, filter_path: bool = True) -> list:
     tid = _threading.get_id()
 
     p_locations = _p_locations.values()
@@ -236,7 +319,7 @@ def url(location: str) -> str:
     if location.startswith('http') or location.startswith('//'):
         return location
 
-    package_name, asset_path = _split_asset_location_info(location)
+    package_name, asset_path = _split_location_info(location)
 
     return _router.url('/assets/{}/{}'.format(package_name, asset_path), strip_lang=True)
 
@@ -258,106 +341,130 @@ def register_global(name: str, value, overwrite: bool = False):
     _globals[name] = value
 
 
-def build(package_name: str = None, maintenance: bool = True, cache: bool = True, console_notify: bool = True):
+def setup():
+    """Setup assetman environment.
+    """
+    # Node modules should be installed exactly to the root of the project to get things work
+    _chdir(_reg.get('paths.root'))
+
+    # Check for NPM existence
+    if _run_process(['which', 'npm']).returncode != 0:
+        raise RuntimeError('NPM executable is not found. Check https://docs.npmjs.com/getting-started/installing-node')
+
+    # Install required public NPM packages
+    if _run_process(['npm', 'install'] + _REQUIRED_NPM_PACKAGES).returncode != 0:
+        raise RuntimeError('Error while installing NPM packages: {}'.format(_REQUIRED_NPM_PACKAGES))
+
+
+def _add_task(location: str, task_name: str, dst: str = '', **kwargs):
+    """Add a transformation task.
+    """
+    pkg_name, src = _split_location_info(location)
+    src = _get_package_path(pkg_name) + _path.sep + src
+    dst = _path.join(_reg.get('paths.assets'), pkg_name, dst)
+
+    _tasks.append((pkg_name, task_name, src, dst, kwargs))
+
+
+def t_copy(location: str, target: str = ''):
+    """Add a location to the copy task.
+    """
+    _add_task(location, 'copy', target)
+
+
+def t_copy_static(location: str, target: str = ''):
+    """Add a location to the copy_static task.
+    """
+    _add_task(location, 'copy_static', target)
+
+
+def t_css(location: str, target: str = ''):
+    """Add a location to the CSS transform task.
+    """
+    _add_task(location, 'css', target)
+
+
+def t_less(location: str, target: str = ''):
+    """Add a location to the LESS transform task.
+    """
+    _add_task(location, 'less', target)
+
+
+def t_js(location: str, target: str = '', babelify: bool = False):
+    """Add a location to the JS transform task.
+    """
+    _add_task(location, 'js', target, babelify=babelify)
+
+
+def t_browserify(location: str, target: str = '', babelify: bool = False, vueify: bool = False):
+    """Add a location to the browserify transform task.
+    """
+    _add_task(location, 'browserify', target, babelify=babelify, vueify=vueify)
+
+
+def js_module(name: str, location: str):
+    """Define a RequireJS module.
+    """
+    if name in _requirejs_modules:
+        raise ValueError("RequireJS module '{}' is already defined")
+
+    _requirejs_modules[name] = location
+
+
+def build(package_name: str = None, maintenance: bool = True):
     """Compile assets.
     """
     global _globals
-
-    # Check for LESS compiler existence
-    if _subprocess.run(['which', 'lessc'], stdout=_subprocess.PIPE).returncode:
-        raise RuntimeError('lessc executable is not found. Check http://lesscss.org/#using-less-installation.')
-
-    # Paths
-    assets_dir = _path.join(_reg.get('paths.static'), 'assets')
-
-    # Determine list of packages to process
-    packages_list = get_packages()
-    if package_name:
-        try:
-            packages_list = {package_name: packages_list[package_name]}
-        except KeyError:
-            raise _error.PackageNotRegistered("Assetman package '{}' is not registered.".format(package_name))
+    assets_static_path = _reg.get('paths.assets')
 
     # Enable maintenance mode
     if maintenance:
         _maintenance.enable()
 
-    # Delete target assets directory if we going to compile all packages
-    if not package_name and _path.exists(assets_dir):
-        _rmtree(assets_dir)
+    if package_name:
+        package_name = resolve_package_name(package_name)
 
-    if console_notify:
-        _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+        package_assets_static_path = _path.join(assets_static_path, package_name)
+
+        if _path.exists(package_assets_static_path):
+            _rmtree(package_assets_static_path)
+    elif _path.exists(assets_static_path):
+        _rmtree(assets_static_path)
+
+    _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
 
     _events.fire('pytsite.assetman.build.before')
 
-    for pkg_name, source_dir_path in packages_list.items():
-        # Initialize cache storage
-        cache_dir = _path.join(_reg.get('paths.tmp'), 'assetman', pkg_name)
-        if cache:
-            # Create cache directory
-            if not _path.isdir(cache_dir):
-                _makedirs(cache_dir, 0o755)
-        else:
-            # Remove existing cache directory
-            if _path.isdir(cache_dir):
-                _rmtree(cache_dir)
-            cache_dir = None
+    # Build tasks file for Gulp
+    tasks_file_content = []
+    for t_info in _tasks:
+        pkg_name, task_name, src, dst, kwargs = t_info
+        if not package_name or package_name == pkg_name:
+            tasks_file_content.append({
+                'name': task_name,
+                'source': src,
+                'destination': dst,
+                'args': kwargs,
+            })
+    with open(_GULP_TASKS_FILE, 'wt') as f:
+        f.write(_json.dumps(tasks_file_content))
 
-        # Building package's assets absolute paths list
-        src_file_paths = []
-        for root, dirs, files in _walk(source_dir_path):
-            for file in files:
-                src_file_paths.append(_path.join(root, file))
+    # Run Gulp tasks
+    debug = _reg.get('debug')
+    _run_node_bin('gulp', '--silent', gulpfile=_GULPFILE, debug=debug, tasksFile=_GULP_TASKS_FILE)
 
-        # Create Webassets environment
-        env = _Environment(directory=source_dir_path, versions=False, manifest=False, cache=cache_dir)
-
-        # Process each package's asset
-        for src_path in src_file_paths:
-            dst_path = _path.join(assets_dir, pkg_name, src_path.replace(source_dir_path + _path.sep, ''))
-
-            ext = _path.splitext(src_path)[1]
-            if ext in ['.js', '.css', '.ts', '.less']:
-                filters = []
-
-                # LESS compiler
-                if ext == '.less':
-                    args = ['--global-var={}={}'.format(k, v) for k, v in _globals.items()]
-                    args += ['--modify-var={}={}'.format(k, v) for k, v in _globals.items()]
-                    filters.append(LessFilter(extra_args=args))
-                    dst_path = _re.sub(r'\.less$', '.css', dst_path)
-                    ext = '.css'
-
-                # TypeScript compiler
-                elif ext == '.ts':
-                    filters.append('typescript')
-                    dst_path = _re.sub(r'\.ts$', '.js', dst_path)
-                    ext = '.js'
-
-                # Minifying JS/CSS
-                if _reg.get('output.minify'):
-                    if ext == '.js' and not src_path.endswith('.min.js') and not src_path.endswith('.pack.js'):
-                        filters.append('jsmin')
-                    if ext == '.css' and not src_path.endswith('.min.css'):
-                        filters.append('cssmin')
-
-                # Add asset to environment as separate bundle
-                bundle = _Bundle(src_path, filters=filters)
-                env.register(dst_path, bundle, output=dst_path)
-
-            # Just copy file as is
-            else:
-                dst_dir = _path.dirname(dst_path)
-                if not _path.exists(dst_dir):
-                    _makedirs(dst_dir, 0o755)
-                _copy(src_path, dst_path)
-
-        # Build environment
-        cmd = _CommandLineEnvironment(env, _logger)
-        if cmd.invoke('build', {}) == 2:
-            raise RuntimeError("Error while compiling assets for package '{}'. Check logs for details.".
-                               format(pkg_name))
+    # Build RequireJS config file
+    requirejs_paths = {}
+    for m_name, m_location in _requirejs_modules.items():
+        m_pkg_name, m_path = _split_location_info(m_location)
+        requirejs_paths[m_name] = '{}/{}'.format(m_pkg_name, m_path)
+    rjs_config = _tpl.render('pytsite.assetman@requirejs-config', {'paths': _json.dumps(requirejs_paths)})
+    rjs_config_path = _path.join(assets_static_path, 'pytsite.assetman', 'require-config.js')
+    rjs_config_dir = _path.dirname(rjs_config_path)
+    if not _path.exists(rjs_config_dir):
+        _makedirs(rjs_config_dir, 0o755, True)
+    with open(rjs_config_path, 'wt') as f:
+        f.write(rjs_config)
 
     _events.fire('pytsite.assetman.build')
 
@@ -365,7 +472,7 @@ def build(package_name: str = None, maintenance: bool = True, cache: bool = True
         _maintenance.disable()
 
 
-def _split_asset_location_info(location: str) -> dict:
+def _split_location_info(location: str) -> _Tuple[str, str]:
     """Split asset path into package name and asset path.
     """
     if '@' not in location:
@@ -374,9 +481,6 @@ def _split_asset_location_info(location: str) -> dict:
     if '$theme' in location:
         location = location.replace('$theme', _theme.get().package_name)
 
-    pkg_name, asset_path = location.split('@')[:2]
+    package_name, assets_path = location.split('@')[:2]
 
-    if pkg_name not in _packages:
-        raise _error.PackageNotRegistered("Assetman package '{}' is not registered.".format(pkg_name))
-
-    return pkg_name, asset_path
+    return resolve_package_name(package_name), assets_path

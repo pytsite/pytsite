@@ -36,7 +36,7 @@ def render(content: str) -> str:
 def render_form(frm: _form.Form) -> str:
     """Render a form within the admin page.
     """
-    _assetman.add('pytsite.admin@css/admin-form.css')
+    _assetman.preload('pytsite.admin@css/admin-form.css')
     frm.css += ' admin-form'
 
     return render(_tpl.render('pytsite.admin@form', {'form': frm}))

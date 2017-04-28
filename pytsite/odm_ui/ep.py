@@ -1,6 +1,6 @@
 """ODM UI Endpoints.
 """
-from pytsite import tpl as _tpl, http as _http, odm as _odm, admin as _admin
+from pytsite import tpl as _tpl, http as _http, odm as _odm, admin as _admin, assetman as _assetman
 from . import _api, _browser
 
 __author__ = 'Alexander Shepetko'
@@ -11,6 +11,8 @@ __license__ = 'MIT'
 def browse(args: dict, inp: dict) -> str:
     """Render browser.
     """
+    _assetman.preload('pytsite.odm_ui@js/odm-ui-browser.js')
+
     return _admin.render(_tpl.render('pytsite.odm_ui@browser', {
         'table': _browser.Browser(args.get('model')).render()
     }))
@@ -39,6 +41,6 @@ def d_form(args: dict, inp: dict) -> str:
 
     # No required arguments has been received
     if not model or not ids:
-        return _http.error.NotFound()
+        raise _http.error.NotFound()
 
     return _admin.render_form(_api.get_d_form(model, ids))
