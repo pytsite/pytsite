@@ -1,6 +1,6 @@
 """PytSite Semantic Versioning Tools Functions
 """
-from typing import Iterable as _Iterable
+from typing import Iterable as _Iterable, Optional as _Optional
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -29,11 +29,11 @@ def normalize(v: str) -> str:
 
 
 def to_int(v: str):
-    """Convert bersion string to integer.
+    """Convert version string to integer.
     """
     v = normalize(v).split('.')
 
-    return int(v[0]) * 100 + int(v[1]) * 10 + int(v[2])
+    return int(v[0]) * 10000 + int(v[1]) * 100 + int(v[2])
 
 
 def compare(a: str, b: str) -> int:
@@ -52,7 +52,7 @@ def compare(a: str, b: str) -> int:
         return 0
 
 
-def latest(v: _Iterable) -> str:
+def latest(v: _Iterable) -> _Optional[str]:
     """Get latest version from list of versions.
     """
     try:
