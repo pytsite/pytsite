@@ -1,5 +1,11 @@
 # PytSite Changelog
 
+
+## 0.98.98 (2017-04-28)
+### Fixed
+- `browser`: autoloading while core initialization. 
+
+
 ## 0.98.97 (2017-04-28)
 ### Changed
 - `assetman`: assets management totally reworked.
