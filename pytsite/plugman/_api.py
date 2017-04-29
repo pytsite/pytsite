@@ -8,8 +8,8 @@ from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _u
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
-from pytsite import reg as _reg, logger as _logger, reload as _reload, assetman as _assetman, settings as _settings, \
-    lang as _lang, util as _util, router as _router, console as _console
+from pytsite import reg as _reg, logger as _logger, reload as _reload, assetman as _assetman, lang as _lang, \
+    util as _util, router as _router, console as _console
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -83,15 +83,11 @@ def _write_plugin_json(plugin_name: str, data: dict):
 
 def _plugins_api_request(ep: str):
     r = _requests.get(_PLUGINS_API_URL + ep, {
-        'l': _settings.get('plugman.license') or _reg.get('plugman.license'),
         'h': _router.server_name(),
     })
 
     if not r.ok:
-        if r.status_code == 403:
-            raise _error.InvalidLicense('Plugins API license is invalid or expired.')
-        else:
-            raise _error.ApiRequestError(r.content)
+        raise _error.ApiRequestError(r.content)
 
     return r.json()
 
@@ -110,10 +106,6 @@ def _install_pip_package(pkg_name: str, upg: bool = False):
         raise _error.PackageInstallError("Pip package '{}' was not installed: {}".format(pkg_name, err_msg))
     else:
         _logger.info('Required package {} has been successfully installed/upgraded'.format(pkg_name))
-
-
-def get_license_info() -> dict:
-    return _plugins_api_request('license/info')
 
 
 def get_plugins_path() -> str:

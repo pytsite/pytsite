@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99 (2017-04-29)
+### Removed
+- `plugman`: licensing.
+
+
 ## 0.98.98 (2017-04-28)
 ### Fixed
 - `semver`: version comparison logic.

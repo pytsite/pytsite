@@ -2,7 +2,7 @@
 """
 from os import path as _path, listdir as _listdir
 from shutil import move as _move, rmtree as _rmtree
-from pytsite import reg as _reg, console as _console, lang as _lang
+from pytsite import reg as _reg, console as _console
 from . import _api
 
 __author__ = 'Alexander Shepetko'

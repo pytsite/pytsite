@@ -1,33 +1,15 @@
-import re
-from os import walk, path
+from os import path
 from setuptools import setup, find_packages
 
 with open(path.join(path.dirname(__file__), 'pytsite', 'VERSION.txt')) as f:
-    version = f.readline().replace('\n', '')
-
-
-def find_package_data():
-    r = {}
-
-    for pkg in find_packages():
-        r[pkg] = []
-        pkg_dir = path.sep.join(pkg.split('.'))
-        for root, dir_name, files in walk(pkg_dir):
-            for file_name in files:
-                sub_path = re.sub('^{}{}'.format(pkg_dir, path.sep), '', path.join(root, file_name))
-                if re.match('res\/', sub_path):
-                    r[pkg].append(sub_path)
-
-    r['pytsite'].append('VERSION.txt')
-
-    return r
+    VERSION = f.readline().replace('\n', '')
 
 setup(
     name='pytsite',
-    version=version,
-    description='The Simple Web Framework',
-    url='https://github.com/pytsite/pytsite',
-    download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(version),
+    version=VERSION,
+    description='Brand New Python Web Framework',
+    url='https://pytsite.xyz',
+    download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(VERSION),
     author='Alexander Shepetko',
     author_email='a@shepetko.com',
     license='MIT',
@@ -41,8 +23,6 @@ setup(
         'ExifRead',
         'python-magic',
         'htmlmin',
-        'jsmin',
-        'cssmin',
         'requests',
         'lxml',
         'pytz',
@@ -65,5 +45,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
     packages=find_packages(),
-    package_data=find_package_data(),
+    package_data={
+        '': ['*.*']
+    }
 )

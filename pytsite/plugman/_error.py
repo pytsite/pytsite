@@ -10,10 +10,6 @@ class ApiRequestError(Exception):
     pass
 
 
-class InvalidLicense(Exception):
-    pass
-
-
 class UnknownPlugin(Exception):
     pass
 
