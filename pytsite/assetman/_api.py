@@ -352,7 +352,8 @@ def setup():
         raise RuntimeError('NPM executable is not found. Check https://docs.npmjs.com/getting-started/installing-node')
 
     # Install required public NPM packages
-    if _run_process(['npm', 'install'] + _REQUIRED_NPM_PACKAGES).returncode != 0:
+    _console.print_info(_lang.t('pytsite.assetman@installing_required_npm_packages'))
+    if _run_process(['npm', 'install'] + _REQUIRED_NPM_PACKAGES, _reg.get('debug', False)).returncode != 0:
         raise RuntimeError('Error while installing NPM packages: {}'.format(_REQUIRED_NPM_PACKAGES))
 
 

@@ -131,7 +131,7 @@ define(['jquery'], function ($) {
     /**
      * Initialize all non-initialized widgets found in the DOM
      */
-    function init() {
+    function initAll() {
         $('.pytsite-widget').not('.initialized').each(function () {
             new Widget(this);
         });
@@ -139,6 +139,6 @@ define(['jquery'], function ($) {
 
     return {
         Widget: Widget,
-        init: init
+        initAll: initAll
     }
 });

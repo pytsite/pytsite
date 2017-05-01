@@ -25,6 +25,9 @@ def reset(title: str = None):
 def t_set(tag: str, value: str = None, **kwargs):
     """Set tag's value.
     """
+    if not _tags:
+        raise RuntimeError('reset() should be called before')
+
     tid = _threading.get_id()
 
     if tag not in _tags[tid]:
@@ -39,6 +42,9 @@ def t_set(tag: str, value: str = None, **kwargs):
 def get(tag: str) -> str:
     """Get value of the tag.
     """
+    if not _tags:
+        raise RuntimeError('reset() should be called before')
+
     return _tags[_threading.get_id()].get(tag, '')
 
 
@@ -66,6 +72,9 @@ def rm(tag: str, **kwargs):
 def dump(tag: str) -> str:
     """ Dump single tag.
     """
+    if not _tags:
+        raise RuntimeError('reset() should be called before')
+
     tid = _threading.get_id()
 
     if tag not in _tags[tid]:
@@ -100,6 +109,9 @@ def dump(tag: str) -> str:
 def dump_all() -> str:
     """Dump all tags.
     """
+    if not _tags:
+        raise RuntimeError('reset() should be called before')
+
     _events.fire('pytsite.metatag.dump_all')
 
     r = str()

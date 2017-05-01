@@ -29,6 +29,7 @@ def __init():
     assetman.t_less('pytsite.auth@**/*.less')
     assetman.js_module('pytsite-auth', __name__ + '@js/pytsite-auth')
     assetman.js_module('pytsite-auth-widget-follow', __name__ + '@js/pytsite-auth-widget-follow')
+    assetman.js_module('pytsite-auth-widget-profile', __name__ + '@js/pytsite-auth-widget-profile')
 
     # Module permission group
     permissions.define_group('security', 'pytsite.auth@security')

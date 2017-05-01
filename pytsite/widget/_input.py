@@ -11,6 +11,7 @@ __license__ = 'MIT'
 class Input(_base.Abstract):
     """Abstract Input Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -30,6 +31,7 @@ class Input(_base.Abstract):
 class Hidden(Input):
     """Hidden Input Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
         self._hidden = True
@@ -55,6 +57,7 @@ class Hidden(Input):
 class TextArea(_base.Abstract):
     """Text Area Input Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -91,6 +94,7 @@ class TextArea(_base.Abstract):
 class Text(Input):
     """Text Input Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -167,6 +171,7 @@ class TypeaheadText(Text):
 class Email(Text):
     """Email Input Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -201,6 +206,7 @@ class Number(Text):
 class Integer(Number):
     """Integer Input Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -229,6 +235,7 @@ class Integer(Number):
 class Decimal(Number):
     """Decimal Input Widget
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -257,6 +264,7 @@ class Decimal(Number):
 class StringList(_base.Abstract):
     """List of strings widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -300,6 +308,7 @@ class StringList(_base.Abstract):
 class ListList(StringList):
     """List of lists widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
@@ -312,8 +321,6 @@ class ListList(StringList):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
         self._css = self._css.replace('widget-string-list', 'widget-list-list')
-
-        self._js_module = 'pytsite-widget-input-list-list'
 
     @property
     def col_titles(self) -> tuple:
@@ -353,7 +360,7 @@ class ListList(StringList):
         new_value = []
         step = len(self.col_format)
         for i in range(0, len(value), step):
-            value_to_append = value[i:i+step]
+            value_to_append = value[i:i + step]
             if _util.cleanup_list(value_to_append):
                 new_value.append(value_to_append)
 
@@ -369,6 +376,7 @@ class ListList(StringList):
 class Tokens(Input):
     """Tokens Text Input Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """

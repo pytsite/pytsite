@@ -1,5 +1,6 @@
 """Pytsite Auth Endpoints.
 """
+from typing import Union as _Union
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
     router as _router, logger as _logger
@@ -10,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def sign_in(args: dict, inp: dict) -> str:
+def sign_in(args: dict, inp: dict) -> _Union[str, _http.response.Redirect]:
     """Page with login form.
     """
     # Redirect user if it already authenticated
@@ -108,6 +109,9 @@ def profile_view(args: dict, inp: dict) -> str:
         })
 
         return _router.call_ep('$theme@auth_profile_view', args, inp)
+
+    # Preload CSS
+    _assetman.preload('pytsite.auth@css/pytsite-auth-widget-profile.css')
 
     # Default response
     return _tpl.render(tpl_name, args)

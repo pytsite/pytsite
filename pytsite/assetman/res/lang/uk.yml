@@ -2,3 +2,4 @@ assetman_setup_console_command_description: 'Налаштування оточе
 assetman_build_console_command_description: 'Компіляція ассетів'
 compiling_assets: 'Компілюю ассети'
 compiling_translations: 'Компілюю переклади'
+installing_required_npm_packages: 'Встановлюю необхідні пакети NPM'

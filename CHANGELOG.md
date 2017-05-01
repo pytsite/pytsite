@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 0.99.1 (2017-05-01)
+### Fixed
+- `auth`: assets preloading.
+- `metatag`: call to `reset()` checking.
+- `widget`: JS assets.
+
+
 ## 0.99 (2017-04-29)
 ### Removed
 - `plugman`: licensing.

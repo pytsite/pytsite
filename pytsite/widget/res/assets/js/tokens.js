@@ -1,4 +1,6 @@
-define(['jquery', 'twitter-bootstrap-tokenfield'], function ($) {
+define(['jquery', 'assetman', 'twitter-bootstrap-tokenfield'], function ($, assetman) {
+    assetman.loadCSS('pytsite.widget@css/tokens.css');
+
     return function (widget) {
         var widgetInput = widget.em.find('input');
         var localSource = widget.em.data('localSource');
