@@ -1,5 +1,3 @@
-define(['assetman', 'typeahead-main'], function(assetman, typeahead) {
+define(['assetman', 'typeahead-main'], function(assetman) {
     assetman.loadCSS('pytsite.browser@typeahead/typeahead.css');
-
-    return typeahead;
 });

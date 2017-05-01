@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.99.2 (2017-05-01)
+### Fixed
+- `geo`: JS part of `Location` widget.
+- `widget`: JS parts of `input.TypeaheadText` and `select.Score` widgets.
+
+
 ## 0.99.1 (2017-05-01)
 ### Fixed
 - `auth`: assets preloading.

@@ -50,7 +50,7 @@ def _init():
     assetman.js_module('cookie', __name__ + '@cookie/js.cookie')
 
     # Font Awesome
-    assetman.js_module('font-awesome', __name__ + '@font-awesome/module')
+    assetman.js_module('font-awesome', __name__ + '@font-awesome/font-awesome')
     assetman.library('font-awesome', [
         'pytsite.browser@font-awesome/css/font-awesome.css'
     ])
@@ -72,7 +72,8 @@ def _init():
     assetman.js_module('twitter-bootstrap-tokenfield', __name__ + '@twitter-bootstrap-tokenfield/index')
 
     # Twitter Typeahead
-    assetman.js_module('typeahead-main', __name__ + '@typeahead/typeahead.bundle')
+    assetman.js_module('bloodhound', __name__ + '@typeahead/bloodhound')
+    assetman.js_module('typeahead-main', __name__ + '@typeahead/typeahead.jquery')
     assetman.js_module('typeahead', __name__ + '@typeahead/typeahead')
 
     # Select2

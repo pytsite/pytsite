@@ -1,4 +1,4 @@
-define(['typeahead'], function () {
+define(['bloodhound', 'typeahead'], function () {
     return function (widget) {
         var input = widget.em.find('input');
 

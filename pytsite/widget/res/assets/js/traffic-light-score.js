@@ -1,5 +1,7 @@
-define(['assetman', 'pytsite-widget-select-score'], function (assetman) {
+define(['assetman', 'pytsite-widget-select-score', 'font-awesome'], function (assetman, widgetScoreInit) {
+    assetman.loadCSS('pytsite.widget@css/traffic-light-score.css');
+
     return function (widget) {
-        assetman.loadCSS('pytsite.widget@css/traffic-light-score.css');
+        return widgetScoreInit(widget);
     }
 });
