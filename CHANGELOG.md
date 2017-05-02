@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.5 (2017-05-03)
+### Fixed
+- `browser`: `jquery-gotop` and `pytsite-responsive` JS code issues.  
+
+
 ## 0.99.4 (2017-05-03)
 ### Added
 - `console`: arguments and options management.

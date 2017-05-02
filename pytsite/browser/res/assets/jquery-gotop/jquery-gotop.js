@@ -4,7 +4,7 @@
  * Licensed under MIT (https://github.com/scottdorman/jquery-gotop/blob/master/LICENSE)
  * Adapted from goUp originally developed by Roger Vila (@_rogervila)
  */
-(function ($) {
+define(['jquery'], function ($) {
     $.fn.goTop = function (options) {
 
         $.fn.goTop.defaults = {
@@ -76,4 +76,4 @@
             });
         });
     };
-})(jQuery);
+});

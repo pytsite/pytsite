@@ -89,6 +89,9 @@ define(['jquery'], function ($) {
         responsiveIframes(iframesSelector);
     }
 
+    // Automatically process all images and iframes found in DOM right after DOM is ready
+    $(responsiveAll);
+
     return {
         images: responsiveImages,
         iframes: responsiveIframes,
