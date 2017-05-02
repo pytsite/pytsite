@@ -17,7 +17,7 @@ class Option:
         self._formatters = []  # type: _List[_formatter.Formatter]
         self._rules = []  # type: _List[_validation.rule.Rule]
 
-        if default is not None and self._formatters:
+        if default is not None:
             self.value = default  # Pass default value through formatters
 
     @property

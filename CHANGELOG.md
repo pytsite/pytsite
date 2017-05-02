@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 0.99.6 (2017-05-03)
+### Fixed
+- `assetman`: non-necessary maintenance switching while application update.
+- `browser`: error in `pytsite-responsive` JS code.
+- `console`: maximum arguments length checking. 
+
+
 ## 0.99.5 (2017-05-03)
 ### Fixed
 - `browser`: `jquery-gotop` and `pytsite-responsive` JS code issues.  

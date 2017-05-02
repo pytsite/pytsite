@@ -72,7 +72,9 @@ class Command(_ABC):
             raise _error.InvalidOption(name)
 
     def set_argument_value(self, index: int, value: str):
-        if len(self._arguments) < index:
+        max_args = len(self._arguments)
+
+        if not max_args or (index + 1) > max_args:
             raise _error.TooManyArguments()
 
         self._arguments[index].value = value

@@ -17,7 +17,7 @@ class Update(_console.Command):
 
     def __init__(self):
         super().__init__()
-        self._define_option(_console.option.PositiveInt('stage', default=0))
+        self._define_option(_console.option.PositiveInt('stage', default=0, maximum=2))
 
     @property
     def name(self) -> str:
@@ -46,6 +46,7 @@ class Update(_console.Command):
             # Call second step automatically only if '--stage=1' option was not explicitly provided
             if stage == 0:
                 _subprocess.call(['./console', 'update', '--stage=2'])
+
         elif stage == 2:
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
