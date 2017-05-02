@@ -1,6 +1,10 @@
 # PytSite Changelog
 
 
+## 0.99.3 (2017-05-01)
+Fixed `setup.py`.
+
+
 ## 0.99.2 (2017-05-01)
 ### Fixed
 - `geo`: JS part of `Location` widget.
