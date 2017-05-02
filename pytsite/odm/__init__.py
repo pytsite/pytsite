@@ -20,7 +20,7 @@ def _init():
     lang.register_package(__name__)
 
     # Console commands
-    console.register_command(_console_command.ODM())
+    console.register_command(_console_command.Reindex())
 
     # Event listeners
     events.listen('pytsite.update.after', _eh.update_after)

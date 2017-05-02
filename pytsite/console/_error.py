@@ -15,10 +15,35 @@ class CommandNotFound(Error):
     pass
 
 
+class MissingRequiredOption(Error):
+    def __init__(self, opt_name: str):
+        self._opt_name = opt_name
+
+    def __str__(self):
+        return _lang.t('pytsite.console@required_option_not_specified', {'opt_name': self._opt_name})
+
+
 class InvalidOption(Error):
-    pass
+    def __init__(self, opt_name: str):
+        self._opt_name = opt_name
+
+    def __str__(self):
+        return _lang.t('pytsite.console@invalid_option', {'opt_name': self._opt_name})
 
 
 class InsufficientArguments(Error):
-    def __init__(self, *args, **kwargs):
-        super().__init__(_lang.t('pytsite.console@insufficient_arguments'), *args, **kwargs)
+    def __str__(self):
+        return _lang.t('pytsite.console@insufficient_arguments')
+
+
+class TooManyArguments(Error):
+    def __str__(self):
+        return _lang.t('pytsite.console@too_many_arguments')
+
+
+class MissingRequiredArgument(Error):
+    def __init__(self, arg_name: str):
+        self._arg_name = arg_name
+
+    def __str__(self):
+        return _lang.t('pytsite.console@required_argument_not_specified', {'arg_name': self._arg_name})

@@ -18,9 +18,7 @@ def update(version: str):
 
 
 def update_after():
-    for name, info in _api.get_plugin_info().items():
-        if info.get('upgradable'):
-            _api.upgrade(name)
+    _console.run_command('plugman:upgrade')
 
 
 def _update_0_95_5():

@@ -159,11 +159,11 @@ def start(plugin_name: str) -> object:
     # Load plugin's package
     pkg_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
     try:
-        module = _import_module(pkg_name)
+        mod = _import_module(pkg_name)
         _started.append(plugin_name)
         _logger.info("Plugin '{}' ({}) started".format(plugin_name, pkg_name))
 
-        return module
+        return mod
 
     except Exception as e:
         _erroneous.append(plugin_name)
@@ -293,7 +293,10 @@ def install(plugin_name: str):
                 _logger.info('Installing required plugin: {}'.format(plg_name))
                 install(plg_name)
 
-        _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {'plugin': plugin_name}))
+        _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
+            'plugin': plugin_name,
+            'version': version,
+        }))
 
         # Start installed plugin
         if not is_started(plugin_name):
@@ -365,26 +368,28 @@ def upgrade(plugin_name: str):
         raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
 
     info = get_plugin_info(plugin_name)
-    if info['upgradable']:
-        _console.print_info(_lang.t('pytsite.plugman@upgrading_plugin', {
-            'name': plugin_name,
-            'old_ver': info['installed_version'],
-            'new_ver': info['latest_version'],
-        }))
+    if not info['upgradable']:
+        return
 
-        # Uninstall current version
-        uninstall(plugin_name)
+    _console.print_info(_lang.t('pytsite.plugman@upgrading_plugin', {
+        'name': plugin_name,
+        'old_ver': info['installed_version'],
+        'new_ver': info['latest_version'],
+    }))
 
-        # Upgrade required plugins
-        for required_plugin in info['requires']['plugins']:
-            upgrade(required_plugin)
+    # Uninstall current version
+    uninstall(plugin_name)
 
-        # Upgrade required packages
-        for required_pkg in info['requires']['packages']:
-            _install_pip_package(required_pkg, True)
+    # Upgrade required plugins
+    for required_plugin in info['requires']['plugins']:
+        upgrade(required_plugin)
 
-        # Install latest version
-        install(plugin_name)
+    # Upgrade required packages
+    for required_pkg in info['requires']['packages']:
+        _install_pip_package(required_pkg, True)
+
+    # Install latest version
+    install(plugin_name)
 
 
 def is_api_host() -> bool:

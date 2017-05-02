@@ -16,7 +16,7 @@ class Controller(_ABC):
         """Init.
         """
         self._formatters = {}  # type: _Dict[str, _List[_formatter.Formatter]]
-        self._rules = {}  # type: _Dict[str, _List[_validation.rule.Base]]
+        self._rules = {}  # type: _Dict[str, _List[_validation.rule.Rule]]
         self._args = {}
         self._inp = {}
 
@@ -35,7 +35,7 @@ class Controller(_ABC):
 
         self._formatters[name].append(formatter)
 
-    def add_rule(self, name: str, r: _validation.rule.Base):
+    def add_rule(self, name: str, r: _validation.rule.Rule):
         """Add a validation rule.
         """
         if name not in self._rules:

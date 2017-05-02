@@ -392,7 +392,7 @@ class Form(_ABC):
 
         return self
 
-    def add_rule(self, widget_uid: str, rule: _validation.rule.Base):
+    def add_rule(self, widget_uid: str, rule: _validation.rule.Rule):
         """Add a rule to the widget.
         """
         self.get_widget(widget_uid).add_rule(rule)

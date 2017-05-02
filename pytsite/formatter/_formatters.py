@@ -81,8 +81,16 @@ class PositiveFloat(Float):
 
 
 class Str(Formatter):
+    def __init__(self, max_len: int):
+        super().__init__()
+        self._max_len = max_len
+
     def set_val(self, value: str):
-        return super().set_val(str(value).strip())
+        value = str(value).strip()
+        if self._max_len is not None and len(value) > self._max_len:
+            value = value[:self._max_len]
+
+        return super().set_val(value)
 
 
 class JSON(Formatter):

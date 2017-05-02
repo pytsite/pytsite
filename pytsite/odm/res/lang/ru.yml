@@ -1,4 +1,4 @@
-console_command_description: 'Работа с ODM'
+console_command_description_reindex: 'Индексация коллекций'
 reindex_model: "Индексирую модель ':model'"
 validation_field_unique: "Значение поля ':field' должно быть уникальным"
 entities_cache_cleared: 'Кеш сущностей ODM очищен.'

@@ -1,7 +1,6 @@
 """ODM Console Commands.
 """
-from pytsite import console as _console, lang as _lang, logger as _logger, maintenance as _maintenance, \
-    validation as _validation
+from pytsite import console as _console, lang as _lang, logger as _logger, maintenance as _maintenance
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -9,33 +8,32 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ODM(_console.command.Abstract):
+class Reindex(_console.Command):
     """Cleanup All Command.
     """
-    def get_name(self) -> str:
+
+    def __init__(self):
+        super().__init__()
+
+        self._define_option(_console.option.Bool('no-maint'))
+
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
-        return 'odm'
+        return 'odm:reindex'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        return _lang.t('pytsite.odm@console_command_description')
+        return 'pytsite.odm@console_command_description_reindex'
 
-    def get_options_help(self) -> str:
-        """Get help for the command.
+    def execute(self):
+        """Execute the command.
         """
-        return '--reindex [--no-maint]'
+        no_maint = self.get_option_value('no-maint')
 
-    def get_options(self) -> tuple:
-        """Get command options.
-        """
-        return (
-            ('reindex', _validation.rule.Pass()),
-            ('no-maint', _validation.rule.Pass()),
-        )
-
-    def _reindex(self, no_maint: bool = False):
         if not no_maint:
             _maintenance.enable()
 
@@ -47,13 +45,3 @@ class ODM(_console.command.Abstract):
 
         if not no_maint:
             _maintenance.disable()
-
-    def execute(self, args: tuple=(), **kwargs):
-        """Execute the command.
-        """
-        if not kwargs:
-            raise _console.error.InsufficientArguments()
-
-        for arg in kwargs:
-            if arg == 'reindex':
-                self._reindex(kwargs.get('no-maint', False))

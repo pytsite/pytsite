@@ -1,6 +1,6 @@
 """PytSite Reload Console Commands.
 """
-from pytsite import console as _console, lang as _lang
+from pytsite import console as _console
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -8,19 +8,21 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Reload(_console.command.Abstract):
+class Reload(_console.Command):
     """Reload Command.
     """
 
-    def get_name(self) -> str:
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'reload'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        return _lang.t('pytsite.reload@reload_console_command_description')
+        return 'pytsite.reload@reload_console_command_description'
 
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self):
         _api.reload()

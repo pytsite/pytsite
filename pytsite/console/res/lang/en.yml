@@ -1,4 +1,11 @@
 unknown_command: "Unknown command: ':name'"
 help_command_description: 'Shows help for command usage'
+
+invalid_option: 'Invalid option: --:opt_name'
+required_option_not_specified: "Required option ':opt_name' is not specified"
+
 insufficient_arguments: 'Insufficient arguments'
-invalid_option: 'Invalid option: --:option'
+too_many_arguments: 'Too many arguments'
+required_argument_not_specified: "Required argument ':arg_name' is not specified"
+
+error_argument_choice: "':arg_name' can be only one of the following: :options"

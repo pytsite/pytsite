@@ -2,42 +2,39 @@
 """
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
-from pytsite import console as _console, reg as _reg, events as _events, lang as _lang, validation as _validation
+from pytsite import console as _console, reg as _reg, events as _events, lang as _lang
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Setup(_console.command.Abstract):
+class Setup(_console.Command):
     """Setup Console Command
     """
-    def get_name(self) -> str:
+
+    def __init__(self):
+        super().__init__()
+
+        self._define_option(_console.option.Bool('force'))
+
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'setup'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        from pytsite.lang import t
-        return t('pytsite.setup@setup_console_command_description')
+        return 'pytsite.setup@setup_console_command_description'
 
-    def get_options_help(self) -> str:
-        """Get help for the command.
-        """
-        return '[--force]'
-
-    def get_options(self) -> tuple:
-        return (
-            ('force', _validation.rule.Pass()),
-        )
-
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self):
         """Execute the command.
         """
         lock_path = _reg.get('paths.setup.lock')
-        if _path.exists(lock_path) and not kwargs.get('force'):
+        if _path.exists(lock_path) and not self.get_option_value('force'):
             raise _console.error.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
         _events.fire('pytsite.setup')
@@ -52,4 +49,4 @@ class Setup(_console.command.Abstract):
         _console.print_info(_lang.t('pytsite.setup@setup_has_been_completed'))
 
         # Run 'update' to build updates info file
-        _console.run_command('update', stage=2)
+        _console.run_command('update', {'stage': 2})

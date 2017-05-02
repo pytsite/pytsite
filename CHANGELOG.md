@@ -1,6 +1,16 @@
 # PytSite Changelog
 
 
+## 0.99.4 (2017-05-03)
+### Added
+- `console`: arguments and options management.
+- `formatter`: `max_len` option to `Str` formatter.
+- `plugman`: console commands: `install` and `upgrade`.
+
+### Changed
+- `validation`: `rule.Base` renamed to `rule.Rule`.
+
+
 ## 0.99.3 (2017-05-01)
 Fixed `setup.py`.
 

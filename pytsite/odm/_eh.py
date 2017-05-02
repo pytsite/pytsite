@@ -6,7 +6,7 @@ from . import _api
 
 
 def update_after():
-    _console.run_command('odm', reindex=True, no_maint=True)
+    _console.run_command('odm:reindex', {'no_maint': True})
 
 
 def db_restore():

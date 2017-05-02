@@ -4,53 +4,49 @@ import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path
 from pytsite import console as _console, events as _events, lang as _lang, core_version as _pytsite_ver, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, validation as _validation, reload as _reload
+    logger as _logger, maintenance as _maintenance, reload as _reload
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Update(_console.command.Abstract):
+class Update(_console.Command):
     """Setup Command.
     """
 
-    def get_name(self) -> str:
+    def __init__(self):
+        super().__init__()
+        self._define_option(_console.option.PositiveInt('stage', default=0))
+
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'update'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        return _lang.t('pytsite.update@update_console_command_description')
+        return 'pytsite.update@update_console_command_description'
 
-    def get_options(self) -> tuple:
-        """Get command's options.
-        """
-        return (
-            ('stage', _validation.rule.Integer()),
-        )
-
-    def get_options_help(self) -> str:
-        """Get command options help.
-        """
-        return '[--stage=num]'
-
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self, args: tuple = (), **kwargs):
         """Execute the command.
         """
+        stage = self.get_option_value('stage')
+
         _maintenance.enable()
 
-        if kwargs.get('stage', '1') in (1, '1'):
+        if stage in (0, 1):
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
             # Call second step automatically only if '--stage=1' option was not explicitly provided
-            if 'stage' not in kwargs:
+            if stage == 0:
                 _subprocess.call(['./console', 'update', '--stage=2'])
-        elif kwargs.get('stage') in (2, '2'):
+        elif stage == 2:
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
             state = self._get_state()

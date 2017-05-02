@@ -1,35 +1,34 @@
 """Help Command.
 """
-from . import _command, _api
+from . import _command, _api, _argument
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Help(_command.Abstract):
+class Help(_command.Command):
     """Help Command.
     """
-    def get_name(self) -> str:
+
+    def __init__(self):
+        super().__init__()
+
+        self._define_argument(_argument.Argument('command', required=True))
+
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'help'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        from pytsite import lang
-        return lang.t('pytsite.console@help_command_description')
+        return 'pytsite.console@help_command_description'
 
-    def get_options_help(self) -> str:
-        """Get help for the command.
-        """
-        return '<command>'
-
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self):
         """Execute the command.
-        :param args:
         """
-        for arg in args:
-            cmd = _api.get_command(arg)
-            _api.print_info('./console {} {}'.format(cmd.get_name(), cmd.get_options_help()))
+        _api.print_info(_api.get_command(self.get_argument_value(0)).signature)

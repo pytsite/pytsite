@@ -15,7 +15,7 @@ _re_int_num = _re.compile('^\-?\d+$')
 _re_decimal_num = _re.compile('^\-?\d+\.\d+$')
 
 
-class Base(_ABC):
+class Rule(_ABC):
     """Base Rule.
     """
 
@@ -49,7 +49,7 @@ class Base(_ABC):
         pass
 
 
-class Pass(Base):
+class Pass(Rule):
     """Rule which always passes.
     """
 
@@ -59,7 +59,7 @@ class Pass(Base):
         pass
 
 
-class NonEmpty(Base):
+class NonEmpty(Rule):
     """Not empty rule.
     """
 
@@ -80,7 +80,7 @@ class NonEmpty(Base):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Length(Base):
+class Length(Rule):
     def __init__(self, value=None, msg_id: str = None, msg_args: dict = None, **kwargs):
         """Init.
         """
@@ -122,7 +122,7 @@ class MaxLength(Length):
         super().__init__(value, msg_id, msg_args, max_length=kwargs.get('max_length'))
 
 
-class DictPartsNonEmpty(Base):
+class DictPartsNonEmpty(Rule):
     """Check if a dict particular keys' values are not empty.
     """
 
@@ -147,7 +147,7 @@ class DictPartsNonEmpty(Base):
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Number(Base):
+class Number(Rule):
     """Number validation rule.
     """
 
@@ -162,7 +162,7 @@ class Number(Base):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Integer(Base):
+class Integer(Rule):
     """Integer Validation Rule.
     """
 
@@ -179,7 +179,7 @@ class Integer(Base):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Decimal(Base):
+class Decimal(Rule):
     """Float Validation Rule.
     """
 
@@ -196,7 +196,7 @@ class Decimal(Base):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Less(Base):
+class Less(Rule):
     def __init__(self, value: float = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         """Init.
         """
@@ -227,7 +227,7 @@ class LessOrEqual(Less):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Greater(Base):
+class Greater(Rule):
     def __init__(self, value: float = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         """Init.
         """
@@ -258,7 +258,7 @@ class GreaterOrEqual(Greater):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Choice(Base):
+class Choice(Rule):
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         super().__init__(value, msg_id, msg_args)
 
@@ -276,7 +276,7 @@ class Choice(Base):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Regex(Base):
+class Regex(Rule):
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         super().__init__(value, msg_id, msg_args)
 
@@ -391,7 +391,7 @@ class Email(Regex):
         super().__init__(value, msg_id, msg_args, pattern='^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-\.]+$', ignore_case=True)
 
 
-class DateTime(Base):
+class DateTime(Rule):
     """Date/time Rule.
     """
 
@@ -418,7 +418,7 @@ class DateTime(Base):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class ListListItemNotEmpty(Base):
+class ListListItemNotEmpty(Rule):
     def __init__(self, value: list = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         """Init.
         """

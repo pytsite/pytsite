@@ -1,4 +1,11 @@
 unknown_command: "Невідома команда: ':name'"
 help_command_description: 'Показує довідку по роботі з командою'
+
+invalid_option: 'Невідомий параметр: --:opt_name'
+required_options_not_specified: "Обов'язковий параметр ':opt_name' не визначено"
+
 insufficient_arguments: 'Недостатньо аргументів'
-invalid_option: 'Невідомий параметр: --:option'
+too_many_arguments: 'Надто багато аргументів'
+required_argument_not_specified: "Обов'язковий аргумент ':arg_name' не визначено"
+
+error_argument_choice: "':arg_name' може мати лише одне з наступних значень: :options"

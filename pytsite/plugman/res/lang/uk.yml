@@ -17,7 +17,9 @@ license_expires_at: 'Закінчується :date'
 upgrading_plugin: 'Оновлення плагіна :name (:old_ver -> :new_ver)...'
 cannot_manage_plugins_in_dev_mode: 'Неможливо керувати плагінами в режимі розробки'
 installing_plugin: "Встановлення плагіна ':plugin'..."
-plugin_install_success: "Плагін ':plugin' було успішно встановлено"
+plugin_install_success: "Плагін :plugin-:version було успішно встановлено"
 plugin_install_error: "Помилка при встановленні плагіна ':plugin': :msg"
 uninstalling_plugin: "Видалення плагіна ':plugin'..."
 plugin_uninstall_success: "Плагін ':plugin' було успішно видалено"
+console_command_description_install: 'Встановлення плагін'
+console_command_description_upgrade: 'Оновлення плагін'

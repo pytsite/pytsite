@@ -38,7 +38,7 @@ class Abstract(_ABC):
         self._help = kwargs.get('help')
         self._h_size = kwargs.get('h_size')
         self._hidden = kwargs.get('hidden', False)
-        self._rules = kwargs.get('rules', [])  # type: _List[_validation.rule.Base]
+        self._rules = kwargs.get('rules', [])  # type: _List[_validation.rule.Rule]
         self._form_area = kwargs.get('form_area', 'body')
         self._js_module = kwargs.get('js_module', '')
         self._replaces = kwargs.get('replaces')
@@ -56,7 +56,7 @@ class Abstract(_ABC):
         if isinstance(self._rules, tuple):
             self._rules = list(self._rules)
         for rule in self._rules:
-            if not isinstance(rule, _validation.rule.Base):
+            if not isinstance(rule, _validation.rule.Rule):
                 raise TypeError('Instance of pytsite.validation.rule.Base expected.')
 
         if self.required:
@@ -440,7 +440,7 @@ class Abstract(_ABC):
 
         return self
 
-    def add_rule(self, rule: _validation.rule.Base):
+    def add_rule(self, rule: _validation.rule.Rule):
         """Add single validation rule.
         """
         self._rules.append(rule)
@@ -455,7 +455,7 @@ class Abstract(_ABC):
 
         return self
 
-    def get_rules(self) -> _Tuple[_validation.rule.Base]:
+    def get_rules(self) -> _Tuple[_validation.rule.Rule]:
         """Get validation rules.
         """
         return tuple(self._rules)

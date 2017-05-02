@@ -1,6 +1,6 @@
 """PytSite Assetman Console Commands.
 """
-from pytsite import console as _console, validation as _validation
+from pytsite import console as _console
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -8,20 +8,21 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Setup(_console.command.Abstract):
+class Setup(_console.Command):
     """assetman:setup Console Command.
     """
 
-    def get_name(self) -> str:
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'assetman:setup'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        from pytsite.lang import t
-        return t('pytsite.assetman@assetman_setup_console_command_description')
+        return 'pytsite.assetman@assetman_setup_console_command_description'
 
     def execute(self, args: tuple = (), **kwargs):
         """Execute The Command.
@@ -32,39 +33,32 @@ class Setup(_console.command.Abstract):
             raise _console.error.Error(e)
 
 
-class Build(_console.command.Abstract):
+class Build(_console.Command):
     """assetman:build Console Command.
     """
+    def __init__(self):
+        super().__init__()
 
-    def get_name(self) -> str:
+        self._define_option(_console.option.Bool('no-maint'))
+        self._define_option(_console.option.Str('package'))
+
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'assetman:build'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        from pytsite.lang import t
-        return t('pytsite.assetman@assetman_build_console_command_description')
+        return 'pytsite.assetman@assetman_build_console_command_description'
 
-    def get_options_help(self) -> str:
-        """Get help for the command.
-        """
-        return '[--package=NAME] [--no-maint] [--no-cache]'
-
-    def get_options(self) -> tuple:
-        """Get command options.
-        """
-        return (
-            ('package', _validation.rule.Pass()),
-            ('no-maint', _validation.rule.Pass()),
-        )
-
-    def execute(self, args: tuple = (), **kwargs):
+    def execute(self):
         """Execute The Command.
         """
         try:
-            _api.build(kwargs.get('package'), not kwargs.get('no-maint'))
+            _api.build(self.get_option_value('package'), not self.get_option_value('no-maint'))
 
         except (RuntimeError, _error.PackageNotRegistered, _error.PackageAlreadyRegistered) as e:
             raise _console.error.Error(e)

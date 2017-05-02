@@ -4,41 +4,33 @@ import subprocess as _subprocess
 import shutil as _shutil
 from os import path as _path
 from datetime import datetime as _datetime
-from pytsite import console as _console, reg as _reg, validation as _validation, maintenance as _maintenance, \
-    events as _events
+from pytsite import console as _console, reg as _reg, maintenance as _maintenance, events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Db(_console.command.Abstract):
+class Db(_console.Command):
     """Database Dump Command.
     """
-    def get_name(self) -> str:
+
+    def __init__(self):
+        super().__init__()
+
+        self._define_argument(_console.argument.Choice('action', True, options=['dump', 'restore']))
+
+    @property
+    def name(self) -> str:
         """Get name of the command.
         """
         return 'db'
 
-    def get_description(self) -> str:
+    @property
+    def description(self) -> str:
         """Get description of the command.
         """
-        from pytsite.lang import t
-
-        return t('pytsite.db@db_console_command_description')
-
-    def get_options_help(self) -> str:
-        """Get help for the command.
-        """
-        return '--dump | --restore'
-
-    def get_options(self) -> tuple:
-        """Get command options.
-        """
-        return (
-            ('dump', _validation.rule.Pass()),
-            ('restore', _validation.rule.Pass())
-        )
+        return 'pytsite.db@db_console_command_description'
 
     def _dump(self):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
@@ -83,7 +75,7 @@ class Db(_console.command.Abstract):
         from . import _api
         config = _api.get_config()
 
-        command = 'mongorestore -h {}:{} --drop --gzip --stopOnError --dir {} -d {}'.\
+        command = 'mongorestore -h {}:{} --drop --gzip --stopOnError --dir {} -d {}'. \
             format(config['host'], config['port'], source_dir, db_name)
 
         if config['user']:
@@ -99,14 +91,12 @@ class Db(_console.command.Abstract):
 
         return r
 
-    def execute(self, args: tuple=(), **kwargs):
+    def execute(self):
         """Execute the command.
         """
-        if not kwargs:
-            raise _console.error.InsufficientArguments()
+        action = self.get_argument_value(0)
 
-        for k in kwargs:
-            if k == 'dump':
-                self._dump()
-            if k == 'restore':
-                self._restore()
+        if action == 'dump':
+            self._dump()
+        if action == 'restore':
+            self._restore()

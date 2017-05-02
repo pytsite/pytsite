@@ -10,10 +10,10 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import console, lang
-    from . import _command
+    from . import _console_command
 
     lang.register_package(__name__)
-    console.register_command(_command.Maintenance())
+    console.register_command(_console_command.Maintenance())
 
 
 _init()

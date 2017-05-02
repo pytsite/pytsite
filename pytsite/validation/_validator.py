@@ -16,7 +16,7 @@ class Validator:
         """
         self._rules = {}
 
-    def add_rule(self, field: str, rule: _rule.Base):
+    def add_rule(self, field: str, rule: _rule.Rule):
         """Add a rule.
         """
         if field not in self._rules:
@@ -31,7 +31,7 @@ class Validator:
         """
         return field in self._rules
 
-    def get_rules(self, field: str) -> _Tuple[_rule.Base]:
+    def get_rules(self, field: str) -> _Tuple[_rule.Rule]:
         """Get validator's rules.
         """
         if not self.has_field(field):

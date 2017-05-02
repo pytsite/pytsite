@@ -9,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ODMEntitiesList(_pytsite_validation.rule.Base):
+class ODMEntitiesList(_pytsite_validation.rule.Rule):
     """Check if the value is a list of references to entities.
     """
 
@@ -38,7 +38,7 @@ class ODMEntitiesList(_pytsite_validation.rule.Base):
                 raise _pytsite_validation.error.RuleError(self._msg_id, m_args)
 
 
-class FieldUnique(_pytsite_validation.rule.Base):
+class FieldUnique(_pytsite_validation.rule.Rule):
     def __init__(self, value=None, msg_id: str = None, msg_args: dict = None, **kwargs):
         """Init.
 
