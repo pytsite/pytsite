@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.8 (2017-05-03)
+### Fixed
+- `widget`: missing CSS loading in `input.ListList` and base widget.
+
+
 ## 0.99.7 (2017-05-03)
 ### Fixed
 - `router`: missing slash in some cases in `url()` function.

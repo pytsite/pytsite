@@ -314,13 +314,15 @@ class ListList(StringList):
 
         self._col_titles = kwargs.get('col_titles', ())
         self._col_format = kwargs.get('col_format', ())
+        self._css = self._css.replace('widget-string-list', 'widget-list-list')
+        self._js_module = 'pytsite-widget-input-list-list'
 
         if not self._col_titles or not self._col_format:
             raise ValueError("'col_titles' and 'col_format' cannot be empty.")
         if len(self._col_titles) != len(self._col_format):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
-        self._css = self._css.replace('widget-string-list', 'widget-list-list')
+
 
     @property
     def col_titles(self) -> tuple:
