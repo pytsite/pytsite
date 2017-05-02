@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.99.7 (2017-05-03)
+### Fixed
+- `router`: missing slash in some cases in `url()` function.
+- `widget`: incorrect language processing in `select.LanguageNav`.
+
+
 ## 0.99.6 (2017-05-03)
 ### Fixed
 - `assetman`: non-necessary maintenance switching while application update.

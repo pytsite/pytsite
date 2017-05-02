@@ -442,7 +442,7 @@ def url(s: str, **kwargs) -> str:
     if not parsed_url[0] and not strip_lang:
         lang_re = '^/({})/'.format('|'.join(_lang.langs()))
         if not _re.search(lang_re, parsed_url[2]):
-            r[2] = str(base_path(lang) + parsed_url[2]).replace('//', '/')
+            r[2] = str(base_path(lang) + '/' + parsed_url[2]).replace('//', '/')
 
     return _urlparse.urlunparse(r)
 

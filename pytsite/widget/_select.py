@@ -215,16 +215,17 @@ class LanguageNav(_base.Abstract):
 
             # Children
             dropdown_menu = _html.Ul(css='dropdown-menu')
-            for lng in _lang.langs(False):
-                hl = _hreflang.get(lng)
-                lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
-                if hl:
-                    dropdown_menu.append(
-                        _html.Li().append(_html.A(lng_title, css='lang-' + lng, href=hl)))
-                else:
-                    # Link to homepage
-                    dropdown_menu.append(_html.Li().append(
-                        _html.A(lng_title, css='lang-' + lng, href=_router.base_url(lang=lng))))
+            for lng in _lang.langs():
+                if lng != self._language:
+                    hl = _hreflang.get(lng)
+                    lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
+                    if hl:
+                        dropdown_menu.append(
+                            _html.Li().append(_html.A(lng_title, css='lang-' + lng, href=hl)))
+                    else:
+                        # Link to homepage
+                        dropdown_menu.append(_html.Li().append(
+                            _html.A(lng_title, css='lang-' + lng, href=_router.base_url(lang=lng))))
 
             dropdown_root.append(toggle_a).append(dropdown_menu)
             root.append(dropdown_root)
@@ -232,7 +233,7 @@ class LanguageNav(_base.Abstract):
             # Simple list
             for lng in _lang.langs(True):
                 lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
-                if lng == self.language:
+                if lng == self._language:
                     # Active language
                     root.append(_html.Li(css='active').append(
                         _html.A(lng_title, css='lang-' + lng, href=_router.current_url(), title=lng_title)))
