@@ -72,7 +72,7 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def handle(path: str, handler: _Union[str, _Type[_controller.Controller]], name: str = None, defaults: dict = None,
+def handle(path: str, handler: _Union[str, _controller.Controller], name: str = None, defaults: dict = None,
            methods='GET', filters=None):
     """Add a rule to the router.
     """

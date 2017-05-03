@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.99.10 (2017-05-03)
+### Fixed
+- `core`: missing required `jsmin` in package requirements.
+- `router`: non-supporting type hinting by Python 3.5.  
+
+
 ## 0.99.9 (2017-05-03)
 ### Fixed
 - `plugman`: non-working settings form.

@@ -60,6 +60,7 @@ setup(
         'ExifRead',
         'python-magic',
         'htmlmin',
+        'jsmin',
         'requests',
         'lxml',
         'pytz',
