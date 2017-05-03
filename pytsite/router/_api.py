@@ -1,7 +1,7 @@
 """PytSite Router API.
 """
 import re as _re
-from typing import Dict as _Dict, Union as _Union
+from typing import Dict as _Dict, Union as _Union, Type as _Type
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
@@ -72,7 +72,7 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def handle(path: str, handler: _Union[str, _controller.Controller], name: str = None, defaults: dict = None,
+def handle(path: str, handler: _Union[str, _Type[_controller.Controller]], name: str = None, defaults: dict = None,
            methods='GET', filters=None):
     """Add a rule to the router.
     """
@@ -442,7 +442,10 @@ def url(s: str, **kwargs) -> str:
     if not parsed_url[0] and not strip_lang:
         lang_re = '^/({})/'.format('|'.join(_lang.langs()))
         if not _re.search(lang_re, parsed_url[2]):
-            r[2] = str(base_path(lang) + '/' + parsed_url[2]).replace('//', '/')
+            b_path = base_path(lang)
+            if not b_path.endswith('/') and not parsed_url[2].startswith('/'):
+                b_path += '/'
+            r[2] = str(b_path + parsed_url[2]).replace('//', '/')
 
     return _urlparse.urlunparse(r)
 

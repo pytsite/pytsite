@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 0.99.9 (2017-05-03)
+### Fixed
+- `plugman`: non-working settings form.
+- `router`: unwanted slash in some cases in `url()` function.
+- `widget` initialization of child widgets in JS code. 
+
+
 ## 0.99.8 (2017-05-03)
 ### Fixed
 - `widget`: missing CSS loading in `input.ListList` and base widget.

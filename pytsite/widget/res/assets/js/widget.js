@@ -114,20 +114,21 @@ define(['jquery', 'assetman'], function ($, assetman) {
             require([self.jsModule], function (initCallback) {
                 if ($.isFunction(initCallback)) {
                     initCallback(self);
-
-                    self.em.addClass('initialized');
-                    $(self).trigger('ready', [self]);
-
-                    // Initialize children widgets
-                    self.em.find(".pytsite-widget[data-parent-uid='" + self.uid + "']:not(.initialized)").each(function () {
-                        self.addChild(new Widget(this));
-                    });
                 }
                 else {
                     console.warn(self.jsModule + ' does not return a proper callback');
                 }
             });
         }
+
+        // Mark widget as initialized
+        self.em.addClass('initialized');
+        $(self).trigger('ready', [self]);
+
+        // Create children widgets
+        self.em.find(".pytsite-widget[data-parent-uid='" + self.uid + "']:not(.initialized)").each(function () {
+            self.addChild(new Widget(this));
+        });
     }
 
     /**
