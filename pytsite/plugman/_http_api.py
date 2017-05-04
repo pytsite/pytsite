@@ -23,7 +23,7 @@ def post_install(inp: dict, name: str) -> dict:
 def post_uninstall(inp: dict, name: str) -> dict:
     _check_permissions()
     _api.uninstall(name)
-    _reload.reload(False)
+    _reload.reload()
 
     return {'status': True}
 
@@ -31,6 +31,6 @@ def post_uninstall(inp: dict, name: str) -> dict:
 def post_upgrade(inp: dict, name: str) -> dict:
     _check_permissions()
     info = _api.upgrade(name)
-    _reload.reload(False)
+    _reload.reload()
 
     return info

@@ -556,7 +556,7 @@ class MultiRow(Abstract):
         super().__init__(uid, **kwargs)
 
         self._css += ' widget-multi-row'
-        self._js_module = 'pytsite-widget-input-multi-row'
+        self._js_module = 'pytsite-widget-multi-row'
 
     def append_child(self, widget: Abstract):
         raise NotImplementedError('This widget can not contain children')

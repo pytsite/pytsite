@@ -1,6 +1,6 @@
+"""PytSite Plugin Manager Console Commands 
 """
-"""
-from pytsite import console as _console, reg as _reg
+from pytsite import console as _console, reg as _reg, reload as _reload
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -9,6 +9,9 @@ __license__ = 'MIT'
 
 
 class Install(_console.Command):
+    """plugman:install
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -39,6 +42,9 @@ class Install(_console.Command):
 
 
 class Upgrade(_console.Command):
+    """plugman:upgrade
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -65,3 +71,5 @@ class Upgrade(_console.Command):
             for name, info in _api.get_plugin_info().items():
                 if info.get('installed_version'):
                     _api.upgrade(name)
+
+        _reload.reload()

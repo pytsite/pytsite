@@ -12,6 +12,6 @@ def reload(inp: dict) -> dict:
     if not _auth.get_current_user().has_permission('pytsite.reload'):
         raise _http.error.Forbidden('Insufficient permissions.')
 
-    _api.reload(False)
+    _api.reload()
 
     return {'status': True}

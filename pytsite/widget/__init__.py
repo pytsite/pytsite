@@ -21,7 +21,7 @@ def _init():
     assetman.t_js(__name__ + '@js/*', 'js')
 
     assetman.js_module('pytsite-widget', __name__ + '@js/widget')
-    assetman.js_module('pytsite-widget-base-multi-row', __name__ + '@js/multi-row')
+    assetman.js_module('pytsite-widget-multi-row', __name__ + '@js/multi-row')
     assetman.js_module('pytsite-widget-input-text', __name__ + '@js/text')
     assetman.js_module('pytsite-widget-input-typeahead-text', __name__ + '@js/typeahead-text')
     assetman.js_module('pytsite-widget-input-integer', __name__ + '@js/integer')

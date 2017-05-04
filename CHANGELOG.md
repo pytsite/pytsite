@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.99.11 (2017-05-04)
+### Added
+- `plugman`: automatic application reloading after plugins upgrading from console. 
+
+### Fixed
+- `widget`: invalid asset paths and names of `MultiRow`.
+
+
 ## 0.99.10 (2017-05-03)
 ### Fixed
 - `core`: missing required `jsmin` in package requirements.
