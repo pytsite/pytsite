@@ -11,14 +11,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def image(args: dict, inp: dict) -> _http.response.Redirect:
+def image(**kwargs) -> _http.response.Redirect:
     """Download image file.
     """
-    requested_width = int(args['width'])
-    requested_height = int(args['height'])
-    p1 = args['p1']
-    p2 = args['p2']
-    filename = args['filename']
+    requested_width = int(kwargs['width'])
+    requested_height = int(kwargs['height'])
+    p1 = kwargs['p1']
+    p2 = kwargs['p2']
+    filename = kwargs['filename']
     uid = 'file_image:' + _path.splitext(filename)[0]
 
     try:

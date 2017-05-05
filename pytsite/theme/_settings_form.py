@@ -1,7 +1,7 @@
 """PytSite Theme Settings Form.
 """
 from collections import OrderedDict as _OrderedDict
-from pytsite import widget as _widget, lang as _lang, settings as _settings, assetman as _assetman, file as _file
+from pytsite import widget as _widget, lang as _lang, settings as _settings, file as _file, reload as _reload
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -10,7 +10,6 @@ __license__ = 'MIT'
 
 
 class Form(_settings.Form):
-
     @property
     def values(self) -> _OrderedDict:
         v = super().values
@@ -20,21 +19,18 @@ class Form(_settings.Form):
 
         return v
 
-    def _on_setup_widgets(self):
-        for theme in _api.get_all().values():
-            self.add_widget(_widget.input.Hidden(
-                uid='setting_theme_' + theme.name,
-                form_area='hidden',
-            ))
+    def _on_setup_form(self, **kwargs):
+        self.nocache = True
 
+    def _on_setup_widgets(self):
         self.add_widget(_widget.select.Select(
-            uid='setting_default_theme',
+            uid='setting_current',
             weight=10,
             label=_lang.t('pytsite.theme@default_theme'),
             required=True,
-            items=sorted([(pkg_name, theme.description) for pkg_name, theme in _api.get_all().items()]),
+            items=sorted([(pkg_name, theme.description) for pkg_name, theme in _api.get_registered().items()]),
             h_size='col-xs-12 col-sm-6 col-md-5 col-lg-4',
-            default=_api.get().package_name,
+            default=_api.get().name,
             assets=['pytsite.theme@js/settings-form.js'],
             append_none_item=False,
         ))
@@ -64,14 +60,6 @@ class Form(_settings.Form):
         # First, process settings form to store values
         r = super()._on_submit()
 
-        # Current theme
-        default_theme_package = self.values.get('setting_default_theme')
-
-        # Rebuild assets for selected theme
-        _assetman.build(default_theme_package)
-
-        # Set default theme
-        _api.set_default(_api.get(default_theme_package))
+        _api.switch(self.values.get('setting_current'))
 
         return r
-

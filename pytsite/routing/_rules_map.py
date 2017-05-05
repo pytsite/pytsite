@@ -31,7 +31,7 @@ class RulesMap:
         # Add a rule
         self._rules[rule.name] = rule
 
-    def get(self, name: str):
+    def get(self, name: str) -> _rule.Rule:
         """Get rule by name
         """
         try:

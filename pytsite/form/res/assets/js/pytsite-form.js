@@ -60,22 +60,32 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
 
         // Form submit handler
         self.em.submit(function (event) {
-            // Just move one step forward.
+            // Form isn;t ready to submit, just move one step forward.
             if (!self.readyToSubmit) {
                 event.preventDefault();
                 self.forward();
             }
+            // Form is ready to submit
             else {
                 // Notify listeners about upcoming form submit
                 self.em.trigger('formSubmit', [self]);
 
-                // Remove all elements which should not be processed
-                self.em.find('[data-skip-serialization=True]').remove();
-
                 if (self.preventSubmit) {
+                    // Do nothing
                     event.preventDefault();
                 }
                 else {
+                    // Remove all elements which should not be transfered to server
+                    self.em.find('[data-skip-serialization=True]').remove();
+
+                    // Add form data attributes as input elements
+                    var formData = self.em.data();
+                    for (var k in formData) {
+                        if (formData.hasOwnProperty(k)) {
+                            self.areas['hidden'].append($('<input name="__form_data_' + k + '" value="' + formData[k] + '">'));
+                        }
+                    }
+
                     // Disable submit button to prevent clicking it more than once while waiting for server response
                     self.em.find('.form-action-submit button').attr('disabled', true);
                 }
@@ -148,8 +158,9 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
             // Add form's data-attributes
             var emDataAttrs = self.em.data();
             for (var k in emDataAttrs) {
-                if (emDataAttrs.hasOwnProperty(k) && $.inArray(k, ['getWidgetsEp', 'validationEp', 'steps']) < 0)
+                if (emDataAttrs.hasOwnProperty(k)) {
                     data['__form_data_' + k] = emDataAttrs[k];
+                }
             }
 
             // Merge data from location query

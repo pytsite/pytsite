@@ -8,9 +8,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def entry(args: dict, inp: dict):
-    version = int(args.pop('version'))
-    endpoint = '/' + args.pop('endpoint')  # type: str
+def entry(version: str, endpoint: str):
+    version = int(version)
+    endpoint = '/' + endpoint
     current_path = _router.current_path(resolve_alias=False, strip_lang=False)
 
     # Switch language

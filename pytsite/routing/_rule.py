@@ -59,11 +59,14 @@ class Rule:
                 methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
             else:
                 methods = [methods]
+        elif not isinstance(methods, (list, tuple)):
+            raise TypeError('List or type expected, got {}'.format(type(methods)))
 
         self._path = path
         self._handler = handler
         self._name = name
-        self._method = set([m.upper() for m in methods])
+        self._defaults = defaults or {}
+        self._methods = set([m.upper() for m in methods])
         self._attrs = attrs if attrs else {}
 
         # Build regular expression
@@ -90,8 +93,12 @@ class Rule:
         return self._name
 
     @property
+    def defaults(self) -> dict:
+        return self._defaults
+
+    @property
     def methods(self) -> set:
-        return self._method
+        return self._methods
 
     @property
     def attrs(self) -> dict:

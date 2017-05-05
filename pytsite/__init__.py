@@ -148,9 +148,9 @@ def _init():
     from . import _eh
     events.listen('pytsite.update', _eh.update)
 
-    # Initialize default theme
+    # Load theme
     from pytsite import theme
-    theme.get().load()
+    theme.load()
 
 
 _init()

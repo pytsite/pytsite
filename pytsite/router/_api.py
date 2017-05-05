@@ -110,7 +110,7 @@ def is_ep_callable(ep_name: str) -> bool:
 
 def resolve_ep_callable(handler: str) -> callable:
     if '$theme' in handler:
-        handler = handler.replace('$theme', _theme.get().package_name)
+        handler = handler.replace('$theme', _theme.get().name)
 
     if '@' in handler:
         handler = handler.replace('@', '.ep.')
@@ -118,10 +118,10 @@ def resolve_ep_callable(handler: str) -> callable:
     return _util.get_callable(handler)
 
 
-def call_ep(ep_name: str, args: dict = None, inp: dict = None):
+def call_ep(ep_name: str, **kwargs):
     """Call an endpoint.
     """
-    return resolve_ep_callable(ep_name)(args, inp)
+    return resolve_ep_callable(ep_name)(**kwargs)
 
 
 def dispatch(env: dict, start_response: callable):
@@ -240,7 +240,7 @@ def dispatch(env: dict, start_response: callable):
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_ep(flt_endpoint, flt_args, request_input)
+            flt_response = call_ep(flt_endpoint, **flt_args)
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
@@ -261,7 +261,7 @@ def dispatch(env: dict, start_response: callable):
             handler_resp = controller.exec()
         elif callable(rule_handler):
             try:
-                handler_resp = rule_handler(rule_args, req.inp)
+                handler_resp = rule_handler(**rule_args)
             except ImportError as e:
                 raise _http.error.NotFound(e)
 
@@ -324,7 +324,7 @@ def dispatch(env: dict, start_response: callable):
 
         # User defined exception handler
         if is_ep_callable('$theme@exception'):
-            wsgi_response = call_ep('$theme@exception', args)
+            wsgi_response = call_ep('$theme@exception', **args)
 
         # Builtin exception handler
         else:

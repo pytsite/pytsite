@@ -6,7 +6,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def dashboard(args: dict, inp: dict):
+def dashboard():
     """Dashboard endpoint.
     """
     _metatag.t_set('title', _lang.t('pytsite.admin@dashboard'))

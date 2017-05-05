@@ -8,17 +8,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_settings(inp: dict, theme_package_name: str):
+def get_settings(inp: dict, theme_name: str):
     if not _auth.get_current_user().has_permission('pytsite.theme.manage'):
         raise _http.error.Forbidden()
 
     r = []
 
     try:
-        theme = _api.get(theme_package_name)
-
-        if not theme.is_loaded:
-            theme.load()
+        theme = _api.get(theme_name)
 
         for w in theme.package.get_settings_widgets():
             setting_val = theme.settings.get(w.uid)

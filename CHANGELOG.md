@@ -1,6 +1,16 @@
 # PytSite Changelog
 
 
+## 0.99.12 (2017-05-05)
+### Changed
+- `theme`: refactored.
+- `router`: way of passing arguments to controllers.
+
+### Fixed
+- `formatter`: **max_len** argument of `Str` formatter made optional.
+- `widget`: removed unnecessary group wrapping in `input.Hidden`.
+
+
 ## 0.99.11 (2017-05-04)
 ### Added
 - `plugman`: automatic application reloading after plugins upgrading from console. 

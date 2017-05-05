@@ -8,10 +8,9 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def form(args: dict, inp: dict) -> str:
+def form(uid: str) -> str:
     """Render settings form.
     """
-    uid = args.get('uid')
     user = _auth.get_current_user()
     setting_def = _api.get_definition(uid)
 

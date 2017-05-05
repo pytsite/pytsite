@@ -6,14 +6,14 @@ from abc import ABC as _ABC
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
 from pytsite import util as _util, widget as _widget, router as _router, validation as _validation, tpl as _tpl, \
-    events as _events, lang as _lang, assetman as _assetman, browser as _browser
+    events as _events, lang as _lang, assetman as _assetman
 from . import _error, _cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_form_name_sub_re = _re.compile('[\._]{1,}')
+_form_name_sub_re = _re.compile('[._]+')
 
 
 class Form(_ABC):
@@ -38,7 +38,7 @@ class Form(_ABC):
         self._area_body_css = kwargs.get('area_body_css', '')
         self._area_footer_css = kwargs.get('area_footer_css', '')
 
-        # Messages area CSS
+        # Messages CSS
         self._messages_css = kwargs.get('messages_css', 'form-messages')
 
         self._uid = kwargs.get('uid', _util.random_str(64))
@@ -87,8 +87,9 @@ class Form(_ABC):
                 self._data.update({k: v})
 
         # Assets
-        _assetman.preload('pytsite.form@css/form.css')
-        _assetman.preload('pytsite.form@js/index.js')
+        if _router.request().method == 'GET' and not _router.request().is_xhr:
+            _assetman.preload('pytsite.form@css/form.css')
+            _assetman.preload('pytsite.form@js/index.js')
 
         # Setup form
         self._on_setup_form(**kwargs)
@@ -286,7 +287,7 @@ class Form(_ABC):
         return self._area_footer_css
 
     @area_footer_css.setter
-    def area_footer_css(self, value: str) -> str:
+    def area_footer_css(self, value: str):
         self._area_footer_css = value
 
     @property

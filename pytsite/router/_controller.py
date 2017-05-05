@@ -1,4 +1,4 @@
-"""
+"""PytSite Router Controller
 """
 
 from typing import List as _List, Dict as _Dict

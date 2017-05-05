@@ -11,6 +11,7 @@
       id="{{ form.uid }}"
       name="{{ form.name }}"
       class="{{ form.css }}"
+      data-uid="{{ form.uid }}"
       data-cid="{{ form.cid }}"
       data-path="{{ form.path }}"
       data-get-widgets-ep="{{ form.get_widgets_ep }}"
@@ -25,11 +26,7 @@
 >
 
     {#  Hidden area  #}
-    <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden">
-        <input type="hidden" name="__form_data_cid" value="{{ form.cid }}">
-        <input type="hidden" name="__form_data_uid" value="{{ form.uid }}">
-        <input type="hidden" name="__form_data_nocache" value="{{ form.nocache }}">
-    </div>
+    <div class="form-area box-hidden hidden {{ form.area_hidden_css }}" data-form-area="hidden"></div>
 
     {#  Header area  #}
     <div class="form-area box-header {% if form.modal %}modal-header{% endif %} {{ form.area_header_css }}"

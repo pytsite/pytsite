@@ -35,6 +35,7 @@ class Hidden(Input):
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
         self._hidden = True
+        self._group_wrap = False
 
     def _get_element(self, **kwargs) -> _html.Input:
         """Render the widget.

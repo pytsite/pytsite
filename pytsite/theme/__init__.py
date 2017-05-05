@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _error as error
-from ._api import get_themes_path, register, get_all, set_default, get
+from ._api import get_themes_path, register, get_registered, switch, get, load
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -44,24 +44,17 @@ def _init():
     # Default home page handler
     router.handle('/', '$theme@home', 'home')
 
-    # Initialize themes
+    # Create themes directory
     themes_path = get_themes_path()
-
     if not path.isdir(themes_path):
         makedirs(themes_path, 0o755)
 
-    # Register all themes found in themes directory
+    # Register all themes found in the themes directory
     for name in sorted(listdir(themes_path)):
         if not path.isdir(themes_path) or name.startswith('_') or name.startswith('.'):
             continue
 
         register('themes.' + name)
-
-    # Set current theme from settings or keep previous if settings are absent
-    try:
-        set_default(get(settings.get('theme.default_theme')))
-    except error.ThemeNotRegistered:
-        pass
 
 
 _init()

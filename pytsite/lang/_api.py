@@ -364,6 +364,6 @@ def _split_msg_id(msg_id: str) -> list:
         msg_id = '$theme@' + msg_id
 
     if '$theme' in msg_id:
-        msg_id = msg_id.replace('$theme', _theme.get().package_name)
+        msg_id = msg_id.replace('$theme', _theme.get().name)
 
     return msg_id.split('@')[:2]

@@ -412,14 +412,14 @@ def js_module(name: str, location: str):
     _requirejs_modules[name] = location
 
 
-def build(package_name: str = None, maintenance: bool = True):
+def build(package_name: str = None, switch_maintenance: bool = True):
     """Compile assets.
     """
     global _globals
     assets_static_path = _reg.get('paths.assets')
 
     # Enable maintenance mode
-    if maintenance:
+    if switch_maintenance:
         _maintenance.enable()
 
     if package_name:
@@ -469,7 +469,7 @@ def build(package_name: str = None, maintenance: bool = True):
 
     _events.fire('pytsite.assetman.build')
 
-    if maintenance:
+    if switch_maintenance:
         _maintenance.disable()
 
 
@@ -480,7 +480,7 @@ def _split_location_info(location: str) -> _Tuple[str, str]:
         location = '$theme@' + location
 
     if '$theme' in location:
-        location = location.replace('$theme', _theme.get().package_name)
+        location = location.replace('$theme', _theme.get().name)
 
     package_name, assets_path = location.split('@')[:2]
 

@@ -81,7 +81,7 @@ class PositiveFloat(Float):
 
 
 class Str(Formatter):
-    def __init__(self, max_len: int):
+    def __init__(self, max_len: int = None):
         super().__init__()
         self._max_len = max_len
 

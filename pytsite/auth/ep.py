@@ -1,6 +1,6 @@
 """Pytsite Auth Endpoints.
 """
-from typing import Union as _Union
+from typing import Union as _Union, Optional as _Optional
 from werkzeug.utils import escape as _escape
 from pytsite import lang as _lang, http as _http, metatag as _metatag, tpl as _tpl, assetman as _assetman, \
     router as _router, logger as _logger
@@ -11,34 +11,35 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def sign_in(args: dict, inp: dict) -> _Union[str, _http.response.Redirect]:
+def sign_in(driver: str) -> _Union[str, _http.response.Redirect]:
     """Page with login form.
     """
     # Redirect user if it already authenticated
     if not _api.get_current_user().is_anonymous:
-        return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
+        return _http.response.Redirect(_router.request().inp.get('__redirect', _router.base_url()))
 
     _assetman.preload('pytsite.auth@css/common.css')
     _metatag.t_set('title', _lang.t('pytsite.auth@authentication'))
 
     try:
         return _tpl.render('pytsite.auth@sign-in', {
-            'driver': args['driver'],
-            'form': _api.get_sign_in_form(args.get('driver'), nocache=True),
+            'driver': driver,
+            'form': _api.get_sign_in_form(driver, nocache=True),
         })
 
     except _error.DriverNotRegistered:
         raise _http.error.NotFound()
 
 
-def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
+def sign_in_submit(driver: str) -> _http.response.Redirect:
     """Process login form submit.
     """
+    inp = _router.request().inp
+
     for i in ('__form_steps', '__form_step'):
         if i in inp:
             del inp[i]
 
-    driver = args.pop('driver')
     redirect = inp.pop('__redirect', _router.base_url())
 
     try:
@@ -63,19 +64,19 @@ def sign_in_submit(args: dict, inp: dict) -> _http.response.Redirect:
         }))
 
 
-def sign_out(args: dict, inp: dict) -> _http.response.Redirect:
+def sign_out() -> _http.response.Redirect:
     """Logout endpoint.
     """
     _api.sign_out(_api.get_current_user())
 
-    return _http.response.Redirect(inp.get('__redirect', _router.base_url()))
+    return _http.response.Redirect(_router.request().inp.get('__redirect', _router.base_url()))
 
 
-def profile_view(args: dict, inp: dict) -> str:
+def profile_view(**kwargs) -> str:
     """Profile view endpoint.
     """
     try:
-        profile_owner = _api.get_user(nickname=args.get('nickname'))
+        profile_owner = _api.get_user(nickname=kwargs.get('nickname'))
     except _error.UserNotExist:
         raise _http.error.NotFound()
 
@@ -96,7 +97,7 @@ def profile_view(args: dict, inp: dict) -> str:
     # Widgets
     profile_widget = _auth_widget.Profile('auth-ui-profile-widget', user=profile_owner)
 
-    args.update({
+    kwargs.update({
         'profile_is_editable': c_user == profile_owner or c_user.is_admin,
         'user': profile_owner,
         'profile_widget': profile_widget,
@@ -104,24 +105,24 @@ def profile_view(args: dict, inp: dict) -> str:
 
     # Give control of the response to an alternate endpoint
     if _router.is_ep_callable('$theme@auth_profile_view'):
-        args.update({
+        kwargs.update({
             'tpl': tpl_name,
         })
 
-        return _router.call_ep('$theme@auth_profile_view', args, inp)
+        return _router.call_ep('$theme@auth_profile_view', **kwargs)
 
     # Preload CSS
     _assetman.preload('pytsite.auth@css/pytsite-auth-widget-profile.css')
 
     # Default response
-    return _tpl.render(tpl_name, args)
+    return _tpl.render(tpl_name, kwargs)
 
 
-def profile_edit(args: dict, inp: dict) -> str:
+def profile_edit(**kwargs) -> str:
     """Profile edit endpoint.
     """
     # Check if the profile owner is exists
-    profile_owner = _api.get_user(nickname=args.get('nickname'))
+    profile_owner = _api.get_user(nickname=kwargs.get('nickname'))
     if not profile_owner:
         raise _http.error.NotFound()
 
@@ -135,18 +136,18 @@ def profile_edit(args: dict, inp: dict) -> str:
 
     # Give control of the response to an alternate endpoint
     if _router.is_ep_callable('$theme@auth_profile_edit'):
-        args.update({
+        kwargs.update({
             'tpl': tpl_name,
             'user': profile_owner,
             'frm': frm,
         })
-        return _router.call_ep('$theme@auth_profile_edit', args, inp)
+        return _router.call_ep('$theme@auth_profile_edit', **kwargs)
 
     # Default response
     return _tpl.render(tpl_name, {'frm': frm})
 
 
-def f_authorize(args: dict, inp: dict) -> _http.response.Redirect:
+def f_authorize(**kwargs) -> _Optional[_http.response.Redirect]:
     """Authorization filter.
     """
     user = _api.get_current_user()
@@ -154,7 +155,7 @@ def f_authorize(args: dict, inp: dict) -> _http.response.Redirect:
     # If user already authenticated, check its permissions
     if not user.is_anonymous:
         # Checking permissions if this is necessary
-        req_perms_str = args.get('perms', '')
+        req_perms_str = kwargs.get('perms', '')
         if req_perms_str:
             for perm in req_perms_str.split(','):
                 if not user.has_permission(perm.strip()):
@@ -164,6 +165,7 @@ def f_authorize(args: dict, inp: dict) -> _http.response.Redirect:
         return
 
     # Redirecting to the authorization endpoint
+    inp = _router.request().inp
     inp['__redirect'] = _escape(_router.current_url(True))
     inp['driver'] = _api.get_auth_driver().name
 

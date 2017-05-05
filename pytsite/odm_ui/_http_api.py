@@ -1,6 +1,5 @@
 """PytSite ODM UI HTTP API Endpoints.
 """
-from pytsite import router as _router
 from . import _browser
 
 __author__ = 'Alexander Shepetko'
@@ -8,7 +7,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def get_rows(inp: dict, model: str) -> list:
+def get_rows(inp: dict, model: str) -> dict:
     """Get browser rows via AJAX request.
     """
     offset = int(inp.get('offset', 0))

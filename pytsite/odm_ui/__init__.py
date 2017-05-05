@@ -22,10 +22,10 @@ def _init():
 
     # Route: get ODM browser table rows
     router.handle(abp + '/odm_ui/browse_get_rows/<model>', 'pytsite.odm_ui@browse_get_rows',
-                    'pytsite.odm_ui@browse_get_rows', filters=auth_filter)
+                  'pytsite.odm_ui@browse_get_rows', filters=auth_filter)
 
     # Route: 'create/modify' ODM entity form display
-    router.handle(abp + '/odm_ui/<model>/modify/<id>', 'pytsite.odm_ui@m_form', 'pytsite.odm_ui@m_form',
+    router.handle(abp + '/odm_ui/<model>/modify/<eid>', 'pytsite.odm_ui@m_form', 'pytsite.odm_ui@m_form',
                   filters=auth_filter)
 
     # Route: 'delete' form display

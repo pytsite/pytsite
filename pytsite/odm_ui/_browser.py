@@ -44,43 +44,44 @@ class Browser(_widget.misc.BootstrapTable):
         self._finder_adjust = self._default_finder_adjust
 
         # Browser title
-        self._title = self._model_class.t('odm_ui_browser_title_' + self._model)
-        _metatag.t_set('title', self._title)
-        _metatag.t_set('description', '')
+        if not _router.request().is_xhr:
+            self._title = self._model_class.t('odm_ui_browser_title_' + self._model)
+            _metatag.t_set('title', self._title)
+            _metatag.t_set('description', '')
 
-        # 'Create' toolbar button
-        if self._mock.odm_auth_check_permission('create') and self._mock.odm_ui_creation_allowed():
-            create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
-                'model': self._model,
-                'id': '0',
-                '__redirect': _router.current_url(),
-            })
-            title = _lang.t('pytsite.odm_ui@create')
-            btn = _html.A(href=create_form_url, css='btn btn-default add-button', title=title)
-            btn.append(_html.I(css='fa fa-fw fa-plus'))
-            self._toolbar.append(btn)
-            self._toolbar.append(_html.Span('&nbsp;'))
+            # 'Create' toolbar button
+            if self._mock.odm_auth_check_permission('create') and self._mock.odm_ui_creation_allowed():
+                create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
+                    'model': self._model,
+                    'eid': '0',
+                    '__redirect': _router.current_url(),
+                })
+                title = _lang.t('pytsite.odm_ui@create')
+                btn = _html.A(href=create_form_url, css='btn btn-default add-button', title=title)
+                btn.append(_html.I(css='fa fa-fw fa-plus'))
+                self._toolbar.append(btn)
+                self._toolbar.append(_html.Span('&nbsp;'))
 
-        # 'Delete' toolbar button
-        if self._mock.odm_auth_check_permission('delete') and self._mock.odm_ui_deletion_allowed():
-            delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
-            title = _lang.t('pytsite.odm_ui@delete_selected')
-            btn = _html.A(href=delete_form_url, css='hidden btn btn-danger mass-action-button', title=title)
-            btn.append(_html.I(css='fa fa-fw fa-remove'))
-            self._toolbar.append(btn)
-            self._toolbar.append(_html.Span('&nbsp;'))
+            # 'Delete' toolbar button
+            if self._mock.odm_auth_check_permission('delete') and self._mock.odm_ui_deletion_allowed():
+                delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
+                title = _lang.t('pytsite.odm_ui@delete_selected')
+                btn = _html.A(href=delete_form_url, css='hidden btn btn-danger mass-action-button', title=title)
+                btn.append(_html.I(css='fa fa-fw fa-remove'))
+                self._toolbar.append(btn)
+                self._toolbar.append(_html.Span('&nbsp;'))
 
-        # Additional toolbar buttons
-        for btn_data in self._model_class.odm_ui_browser_mass_action_buttons():
-            ep = btn_data.get('ep')
-            url = _router.ep_url(ep) if ep else '#'
-            css = 'btn btn-{} mass-action-button'.format(btn_data.get('color', 'default'))
-            icon = 'fa fa-fw fa-' + btn_data.get('icon', 'question')
-            button = _html.A(href=url, css=css, title=btn_data.get('title'))
-            if icon:
-                button.append(_html.I(css=icon))
-            self.toolbar.append(button)
-            self._toolbar.append(_html.Span('&nbsp;'))
+            # Additional toolbar buttons
+            for btn_data in self._model_class.odm_ui_browser_mass_action_buttons():
+                ep = btn_data.get('ep')
+                url = _router.ep_url(ep) if ep else '#'
+                css = 'btn btn-{} mass-action-button'.format(btn_data.get('color', 'default'))
+                icon = 'fa fa-fw fa-' + btn_data.get('icon', 'question')
+                button = _html.A(href=url, css=css, title=btn_data.get('title'))
+                if icon:
+                    button.append(_html.I(css=icon))
+                self.toolbar.append(button)
+                self._toolbar.append(_html.Span('&nbsp;'))
 
         # Call model's class to perform setup tasks
         self._model_class.odm_ui_browser_setup(self)
@@ -204,7 +205,7 @@ class Browser(_widget.misc.BootstrapTable):
                 (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
             m_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
                 'model': entity.model,
-                'id': str(entity.id),
+                'eid': str(entity.id),
                 '__redirect': _router.ep_url('pytsite.odm_ui@browse', {'model': entity.model}),
             })
             title = _lang.t('pytsite.odm_ui@modify')

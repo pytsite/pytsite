@@ -1,5 +1,6 @@
 """PytSite Form Endpoints.
 """
+from pytsite import router as _router
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -7,9 +8,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def submit(args: dict, inp: dict):
+def submit(uid: str):
     """Default submit endpoint.
     """
+    inp = _router.request().inp
+    inp['uid'] = uid
     frm = _api.dispense(inp)
 
     # Rebuild form
