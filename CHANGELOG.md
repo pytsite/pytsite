@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 0.99.14 (2017-05-06)
+### Added
+- `assetman`: handling of 'pytsite.setup' event.
+
+### Fixed
+- `maintenance`: lock dir existence checking.
+- `theme`: theme building error at first start.
+
+
 ## 0.99.13 (2017-05-06)
 ### Added
 - `router`: new shortcut function `handle_post()`.

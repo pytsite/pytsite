@@ -17,7 +17,7 @@ __license__ = 'MIT'
 def __init():
     """Init wrapper.
     """
-    from pytsite import assetman, events, tpl, lang, router, robots, console, http_api, permissions
+    from pytsite import assetman, tpl, lang, router, robots, console, http_api, permissions, setup
     from ._console_command import Passwd as AuthConsoleCommand
     from . import _eh, _http_api
 
@@ -66,7 +66,7 @@ def __init():
     tpl.register_global('auth_sign_out_url', get_sign_out_url)
 
     # Event handlers
-    events.listen('pytsite.setup', _eh.setup)
+    setup.on_setup(_eh.setup)
     router.on_dispatch(_eh.router_dispatch, -999, '*')
     router.on_xhr_dispatch(_eh.router_dispatch, -999, '*')
     router.on_response(_eh.router_response, -999, '*')

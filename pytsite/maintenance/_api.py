@@ -1,18 +1,22 @@
-"""PytSite Maintenance Mode API.
+"""PytSite Maintenance Mode API
 """
+from datetime import datetime as _datetime
+from os import unlink as _unlink, path as _path, makedirs as _makedirs
+from pytsite import reg as _reg, console as _console, lang as _lang
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from datetime import datetime as _datetime
-from os import unlink as _unlink, path as _path
-from pytsite import reg as _reg, console as _console, lang as _lang
-
 _lock_path = _reg.get('paths.maintenance.lock')
+
+_lock_dir = _path.dirname(_lock_path)
+if not _path.exists(_lock_dir):
+    _makedirs(_lock_dir, 0o755, True)
 
 
 def is_enabled() -> bool:
-    """Check whenter maintenance mode is enabled.
+    """Check whether maintenance mode is enabled.
     """
     return _path.exists(_lock_path)
 

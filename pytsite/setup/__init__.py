@@ -4,7 +4,7 @@ from pytsite import console as _console, lang as _lang
 from . import _console_command
 
 # Public API
-from ._api import is_setup_completed
+from ._api import is_setup_completed, on_setup
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

@@ -110,7 +110,7 @@ def load(name: str = None):
         raise _error.ThemeLoadError("Error while loading theme package '{}': {}".format(theme.name, e))
 
     # Compile assets
-    if not _settings.get('theme.compiled'):
+    if _settings.get('theme.compiled') is False:
         _assetman.build(theme.name)
         _settings.put('theme.compiled', True)
 
