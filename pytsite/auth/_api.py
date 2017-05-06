@@ -397,13 +397,10 @@ def get_sign_in_url(auth_driver_name: str = None, add_query: dict = None, add_fr
     })
 
 
-def get_sign_out_url(auth_driver_name: str = None) -> str:
+def get_sign_out_url() -> str:
     """Get sign out URL.
     """
-    if not auth_driver_name:
-        auth_driver_name = list(_authentication_drivers)[-1]
-
-    return _router.ep_url('pytsite.auth@sign_out', {'driver': auth_driver_name, '__redirect': _router.current_url()})
+    return _router.ep_url('pytsite.auth@sign_out', {'__redirect': _router.current_url()})
 
 
 def get_users(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,

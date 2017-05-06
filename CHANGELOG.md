@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.99.13 (2017-05-06)
+### Added
+- `router`: new shortcut function `handle_post()`.
+
+### Changed
+- `auth`: removed driver name usage from logout related functions.
+
+
 ## 0.99.12 (2017-05-05)
 ### Changed
 - `theme`: refactored.

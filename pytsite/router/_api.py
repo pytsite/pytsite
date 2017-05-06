@@ -1,7 +1,7 @@
 """PytSite Router API.
 """
 import re as _re
-from typing import Dict as _Dict, Union as _Union, Type as _Type
+from typing import Dict as _Dict, Union as _Union
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
@@ -83,6 +83,13 @@ def handle(path: str, handler: _Union[str, _controller.Controller], name: str = 
         filters = (filters,)
 
     _routes.add(_routing.Rule(path, handler, name, defaults, methods, {'filters': filters or ()}))
+
+
+def handle_post(path: str, handler: _Union[str, _controller.Controller], name: str = None, defaults: dict = None,
+                filters=None):
+    """Shortcut.
+    """
+    handle(path, handler, name, defaults, 'POST', filters)
 
 
 def add_path_alias(alias: str, target: str):

@@ -1,7 +1,7 @@
 """Auth UI Widgets.
 """
 from typing import Union as _Union, List as _List, Tuple as _Tuple
-from pytsite import widget as _widget, html as _html, tpl as _tpl, assetman as _assetman, lang as _lang
+from pytsite import widget as _widget, html as _html, tpl as _tpl, lang as _lang
 from . import _model, _api
 
 __author__ = 'Alexander Shepetko'
@@ -38,6 +38,7 @@ class RoleCheckboxes(_widget.select.Checkboxes):
 class UserSelect(_widget.select.Select):
     """User Select Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
@@ -70,6 +71,7 @@ class UserSelect(_widget.select.Select):
 class Profile(_widget.Abstract):
     """User Profile Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
 
@@ -94,6 +96,10 @@ class Profile(_widget.Abstract):
         self._following_enabled = kwargs.get('following_enabled', True)
         self._js_module = 'pytsite-auth-widget-profile'
 
+        current_user = _api.get_current_user()
+        if not self._user.profile_is_public:
+            self._hidden = current_user.login != self._user.login and not current_user.is_admin
+
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
@@ -101,7 +107,7 @@ class Profile(_widget.Abstract):
         current_user = _api.get_current_user()
 
         # Hidden profiles are visible only for owners and administrators
-        if not self._user.profile_is_public and current_user.login != self._user.login and not current_user.is_admin:
+        if self._hidden:
             return _html.TagLessElement()
 
         # Rendering widget's template
@@ -120,6 +126,7 @@ class Profile(_widget.Abstract):
 class Follow(_widget.Abstract):
     """Follow Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
 

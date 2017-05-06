@@ -54,9 +54,8 @@ def __init():
     # Routes
     bp = base_path()
     router.handle(bp + '/sign-in/<driver>', 'pytsite.auth@sign_in', 'pytsite.auth@sign_in')
-    router.handle(bp + '/sign-in/<driver>/post', 'pytsite.auth@sign_in_submit', 'pytsite.auth@sign_in_submit',
-                  methods='POST')
-    router.handle(bp + '/sign-out/<driver>', 'pytsite.auth@sign_out', 'pytsite.auth@sign_out')
+    router.handle_post(bp + '/sign-in/<driver>/post', 'pytsite.auth@sign_in_submit', 'pytsite.auth@sign_in_submit')
+    router.handle(bp + '/sign-out', 'pytsite.auth@sign_out', 'pytsite.auth@sign_out')
     router.handle(bp + '/profile/<nickname>', 'pytsite.auth@profile_view', 'pytsite.auth@profile_view')
     router.handle(bp + '/profile/<nickname>/edit', 'pytsite.auth@profile_edit', 'pytsite.auth@profile_edit',
                   filters='pytsite.auth@f_authorize')

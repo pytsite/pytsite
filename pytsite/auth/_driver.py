@@ -2,7 +2,7 @@
 """
 from typing import Iterable as _Iterable
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import form as _form, widget as _widget
+from pytsite import form as _form
 from . import _model
 
 __author__ = 'Alexander Shepetko'
