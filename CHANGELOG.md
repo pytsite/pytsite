@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.16 (2017-05-11)
+### Fixed
+- `admin`: missing external JS in template's head.
+
+
 ## 0.99.15 (2017-05-11)
 ### Added
 - `assetman`: **head** argument in `preload()` function. 
