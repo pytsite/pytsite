@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.99.15 (2017-05-11)
+### Added
+- `assetman`: **head** argument in `preload()` function. 
+
+### Fixed
+- `widget`: CSS asset preloading.
+
+
 ## 0.99.14 (2017-05-06)
 ### Added
 - `assetman`: handling of 'pytsite.setup' event.

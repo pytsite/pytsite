@@ -37,14 +37,15 @@ def _init():
     tpl.register_global('asset_url', url)
     tpl.register_global('css_links', dump_css)
     tpl.register_global('js_links', dump_js)
+    tpl.register_global('js_head_links', lambda: dump_js(head=True))
     tpl.register_global('inline_js', dump_inline)
 
     # Register assetman itself and add required assets for all pages
     register_package(__name__)
     js_module('assetman', __name__ + '@assetman')
     t_js(__name__ + '@**')
-    preload(__name__ + '@require.js', True)
-    preload(__name__ + '@require-config.js', True)
+    preload(__name__ + '@require.js', permanent=True, head=True)
+    preload(__name__ + '@require-config.js', permanent=True, head=True)
 
 
 _init()

@@ -1,6 +1,4 @@
-define(['jquery', 'assetman'], function ($, assetman) {
-    assetman.loadCSS('pytsite.widget@css/widget.css');
-
+define(['jquery'], function ($) {
     /**
      * Widget constructor.
      *

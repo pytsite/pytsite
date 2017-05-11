@@ -142,7 +142,7 @@ def detect_collection(location: str) -> str:
 
 
 def preload(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None,
-            async: bool = False, defer: bool = False, **kwargs):
+            async: bool = False, defer: bool = False, head: bool = False, **kwargs):
     """Add an asset.
     """
     if not permanent and not _router.request():
@@ -157,7 +157,7 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
             raise TypeError('Iterable expected')
 
         for asset_location in assets:
-            preload(asset_location, permanent, collection, weight, path_prefix, async, defer)
+            preload(asset_location, permanent, collection, weight, path_prefix, async, defer, head)
 
         return
 
@@ -184,7 +184,7 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
             elif weight > _last_p_weight:
                 _last_p_weight = weight
 
-            _p_locations[location_hash] = (location, collection, weight, path_prefix, async, defer)
+            _p_locations[location_hash] = (location, collection, weight, path_prefix, async, defer, head)
         else:
             if not weight:
                 _last_weight[tid] += 10
@@ -192,7 +192,7 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
             elif weight > _last_weight[tid]:
                 _last_weight[tid] = weight
 
-            _locations[tid][location_hash] = (location, collection, weight, path_prefix, async, defer)
+            _locations[tid][location_hash] = (location, collection, weight, path_prefix, async, defer, head)
 
 
 def add_inline(s: str, weight=0):
@@ -275,7 +275,7 @@ def get_inline() -> list:
     return sorted(_inline[tid], key=lambda x: x[1])
 
 
-def dump_js(html_escape: bool = True) -> str:
+def dump_js(html_escape: bool = True, head: bool = False) -> str:
     """Dump JS links.
     """
     r = ''
@@ -283,8 +283,10 @@ def dump_js(html_escape: bool = True) -> str:
         l_url = url(_util.escape_html(loc[0])) if html_escape else url(loc[0])
         l_async = ' async' if loc[4] else ''
         l_defer = ' defer' if loc[5] else ''
+        l_head = loc[6]
 
-        r += '<script type="text/javascript" src="{}"{}{}></script>\n'.format(l_url, l_async, l_defer)
+        if (not head and not l_head) or (head and l_head):
+            r += '<script type="text/javascript" src="{}"{}{}></script>\n'.format(l_url, l_async, l_defer)
 
     return r
 
