@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.19 (2017-05-13)
+### Fixed
+- `widget`: HTTP API loading issues.
+
+
 ## 0.99.18 (2017-05-13)
 ### Fixed
 - `widget`: numbering issues. 
