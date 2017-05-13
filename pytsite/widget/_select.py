@@ -313,7 +313,10 @@ class Pager(_base.Abstract):
         self._items_per_page = per_page
         self._http_api_ep = http_api_ep
         self._total_pages = int(_ceil(self._total_items / self._items_per_page))
-        self._visible_numbers = visible_numbers - 1
+        self._visible_numbers = visible_numbers
+
+        if self._visible_numbers > self._total_pages:
+            self._visible_numbers = self._total_pages
 
         # Detect current page
         try:
@@ -331,7 +334,7 @@ class Pager(_base.Abstract):
         self._data['current_page'] = self._current_page
         self._data['total_pages'] = self._total_pages
         self._data['per_page'] = self._items_per_page
-        self._data['visible_numbers'] = self._visible_numbers + 1
+        self._data['visible_numbers'] = self._visible_numbers
 
         self._js_module = 'pytsite-widget-select-pager'
 
@@ -339,17 +342,17 @@ class Pager(_base.Abstract):
         """Render the widget.
         :param **kwargs:
         """
-        if self._total_pages == 1:
+        if self._total_pages < 2:
             return _html.TagLessElement()
 
-        start_visible_num = self._current_page - _ceil(self._visible_numbers / 2)
+        start_visible_num = self._current_page - _ceil((self._visible_numbers - 1) / 2)
         if start_visible_num < 1:
             start_visible_num = 1
-        end_visible_num = start_visible_num + self._visible_numbers
+        end_visible_num = start_visible_num + (self._visible_numbers - 1)
 
         if end_visible_num > self._total_pages:
             end_visible_num = self._total_pages
-            start_visible_num = end_visible_num - self._visible_numbers
+            start_visible_num = end_visible_num - (self._visible_numbers - 1)
 
         ul = _html.Ul(css='pagination')
         links_url = _router.current_url()

@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.18 (2017-05-13)
+### Fixed
+- `widget`: numbering issues. 
+
+
 ## 0.99.17 (2017-05-13)
 ### Added
 - `http_api`: processing shortcuts in string handler definitions.
