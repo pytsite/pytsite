@@ -46,5 +46,17 @@ class PluginStartError(Exception):
     pass
 
 
-class PluginAlreadyStarted(PluginStartError):
-    pass
+class PluginAlreadyStarted(Exception):
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
+
+    def __str__(self) -> str:
+        return "Plugin '{}' is already started".format(self._name)
+
+
+class PluginNotStarted(Exception):
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
+
+    def __str__(self) -> str:
+        return "Plugin '{}' is not started".format(self._name)

@@ -1,10 +1,10 @@
-define(['pytsite-lang-translations'], function(translations) {
+define(['pytsite-lang-translations'], function (translations) {
     function current() {
         return document.documentElement.getAttribute('lang');
     }
 
     function fallback() {
-        return langs[0];
+        return translations.langs[0];
     }
 
     function t(msg_id, args, language) {
@@ -28,28 +28,40 @@ define(['pytsite-lang-translations'], function(translations) {
             msg_id = msg_parts[1];
         }
 
-        // Search for package
+        // If package is not found in translations for given language
         if (!(pkg in translations.translations[language])) {
-            if (translations.langs.length && language !== fallback())
+            if (language !== fallback()) {
+                // Try to translate via fallback language
                 return t(pkg + '@' + msg_id, args, fallback());
-            else
+            }
+            else {
+                // Return string as is
+                console.warn("Translations is not found for package '" + pkg + "', language '" + language + "'");
                 return pkg + '@' + msg_id;
+            }
         }
 
-        // Search for message ID
+        // Get all translations for package
         var pkg_strings = translations.translations[language][pkg];
-        if(!(msg_id in pkg_strings)) {
-            if (translations.langs.length && language !== fallback())
+
+        // If message ID is not found in package translations
+        if (!(msg_id in pkg_strings)) {
+            if (language !== fallback()) {
+                // Try to translate via fallback language
                 return t(pkg + '@' + msg_id, args, fallback());
-            else
+            }
+            else {
+                // Return string as is
+                console.warn("Translation message ID '" + msg_id + "' is not found for package '" + pkg + "', language '" + language + "'");
                 return pkg + '@' + msg_id;
+            }
         }
 
         // Processing placeholders
         var translation = pkg_strings[msg_id];
         for (var k in args) {
             if (args.hasOwnProperty(k))
-                translation = translation.replace(':' + k, args.k);
+                translation = translation.replace(':' + k, args[k]);
         }
 
         return translation;

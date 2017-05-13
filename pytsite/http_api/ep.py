@@ -1,6 +1,7 @@
 """PytSite HTTP API Endpoints
 """
-from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events, util as _util
+from pytsite import router as _router, http as _http, logger as _logger, lang as _lang, events as _events, \
+    util as _util, theme as _theme
 from . import _api, _controller
 
 __author__ = 'Alexander Shepetko'
@@ -27,6 +28,8 @@ def entry(version: str, endpoint: str):
 
         handler = rule.handler
         if isinstance(handler, str):
+            handler = handler.replace('$theme', _theme.get().name)
+            handler = handler.replace('@', '.http_api_ep.')
             handler = _util.get_callable(handler)
 
         status = 200

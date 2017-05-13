@@ -144,7 +144,7 @@ def start(plugin_name: str) -> object:
         install(plugin_name)
 
     if plugin_name in _started:
-        raise _error.PluginAlreadyStarted("Plugin '{}' is already started.".format(plugin_name))
+        raise _error.PluginAlreadyStarted(plugin_name)
 
     if plugin_name in _erroneous:
         raise _error.PluginStartError("Plugin '{}' marked as erroneous and cannot be started.".format(plugin_name))

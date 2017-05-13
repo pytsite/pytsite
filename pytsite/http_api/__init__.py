@@ -19,8 +19,8 @@ def _init():
 
     # JavaScript helpers
     assetman.register_package(__name__)
-    assetman.t_js(__name__ + '@**/*.js')
-    assetman.js_module('pytsite-http-api', 'pytsite.http_api@module')
+    assetman.t_js(__name__ + '@**')
+    assetman.js_module('pytsite-http-api', __name__ + '@pytsite-http-api')
 
     # Event listeners
     router.on_response(_eh.router_response)

@@ -23,7 +23,7 @@ def _init():
     assetman.register_package(__name__)
     assetman.t_js(__name__ + '@*.js')
     assetman.js_module('pytsite-lang-translations', __name__ + '@translations')
-    assetman.js_module('pytsite-lang', __name__ + '@module')
+    assetman.js_module('pytsite-lang', __name__ + '@pytsite-lang')
 
     # Define languages based on registry setting or set default
     define(reg.get('languages', ['en']))

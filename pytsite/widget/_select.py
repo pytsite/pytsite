@@ -5,7 +5,7 @@ from collections import OrderedDict as _OrderedDict
 from math import ceil as _ceil
 from datetime import datetime as _datetime
 from pytsite import html as _html, lang as _lang, validation as _validation, util as _util, hreflang as _hreflang, \
-    router as _router, http_api as _http_api
+    router as _router
 from . import _input, _base
 
 __author__ = 'Alexander Shepetko'
@@ -301,19 +301,19 @@ class Pager(_base.Abstract):
     """Pager Widget.
     """
 
-    def __init__(self, uid: str, **kwargs):
+    def __init__(self, uid: str, total_items: int, per_page: int = 100, visible_numbers: int = 5,
+                 http_api_ep: str = None, **kwargs):
         """Init.
         """
         super().__init__(uid, **kwargs)
 
-        self._total_items = int(kwargs.get('total_items'))
-        if self._total_items is None:
-            raise ValueError("'total_items' is required argument.")
+        self._group_wrap = False
 
-        self._items_per_page = int(kwargs.get('per_page', 100))
+        self._total_items = total_items
+        self._items_per_page = per_page
+        self._http_api_ep = http_api_ep
         self._total_pages = int(_ceil(self._total_items / self._items_per_page))
-        self._visible_numbers = int(kwargs.get('visible_numbers', 5)) - 1
-        self._ajax = kwargs.get('ajax', '')
+        self._visible_numbers = visible_numbers - 1
 
         # Detect current page
         try:
@@ -326,9 +326,12 @@ class Pager(_base.Abstract):
         if self._current_page < 1:
             self._current_page = 1
 
-        self._data['ajax'] = self._ajax
+        self._data['http_api_ep'] = self._http_api_ep
+        self._data['total_items'] = self._total_items
         self._data['current_page'] = self._current_page
+        self._data['total_pages'] = self._total_pages
         self._data['per_page'] = self._items_per_page
+        self._data['visible_numbers'] = self._visible_numbers + 1
 
         self._js_module = 'pytsite-widget-select-pager'
 
@@ -346,43 +349,42 @@ class Pager(_base.Abstract):
 
         if end_visible_num > self._total_pages:
             end_visible_num = self._total_pages
+            start_visible_num = end_visible_num - self._visible_numbers
 
         ul = _html.Ul(css='pagination')
-        links_url = _http_api.url(self._ajax) if self._ajax else _router.current_url()
+        links_url = _router.current_url()
 
-        if start_visible_num > 1:
-            # Link to the first page
-            li = _html.Li(css='first-page')
-            a = _html.A('«', title=_lang.t('pytsite.widget@first_page'), data_page=1,
-                        href=_router.url(links_url, query={'page': 1}))
-            ul.append(li.append(a))
+        # Link to the first page
+        li = _html.Li(css='first-page')
+        a = _html.A('«', title=_lang.t('pytsite.widget@first_page'), href=_router.url(links_url, query={'page': 1}))
+        ul.append(li.append(a))
 
-            # Link to the previous page
-            li = _html.Li(css='previous-page')
-            a = _html.A('‹', title=_lang.t('pytsite.widget@previous_page'), data_page=self._current_page - 1,
-                        href=_router.url(links_url, query={'page': self._current_page - 1}))
-            ul.append(li.append(a))
+        # Link to the previous page
+        li = _html.Li(css='previous-page')
+        a = _html.A('‹', title=_lang.t('pytsite.widget@previous_page'),
+                    href=_router.url(links_url, query={'page': self._current_page - 1}))
+        ul.append(li.append(a))
 
         # Links to visible pages
         for num in range(start_visible_num, end_visible_num + 1):
-            li = _html.Li()
+            li = _html.Li(css='page', data_page=num)
             if self._current_page == num:
-                li.set_attr('css', 'active')
-            a = _html.A(str(num), data_page=num, href=_router.url(links_url, query={'page': num}))
+                li.set_attr('css', 'page active')
+            a = _html.A(str(num), title=_lang.t('pytsite.widget@page_num', {'num': num}),
+                        href=_router.url(links_url, query={'page': num}))
             ul.append(li.append(a))
 
-        if end_visible_num < self._total_pages:
-            # Link to the next page
-            li = _html.Li(css='next-page')
-            a = _html.A('›', title=_lang.t('pytsite.widget@next_page'), data_page=self._current_page + 1,
-                        href=_router.url(links_url, query={'page': self._current_page + 1}))
-            ul.append(li.append(a))
+        # Link to the next page
+        li = _html.Li(css='next-page')
+        a = _html.A('›', title=_lang.t('pytsite.widget@next_page'),
+                    href=_router.url(links_url, query={'page': self._current_page + 1}))
+        ul.append(li.append(a))
 
-            # Link to the last page
-            li = _html.Li(css='last-page')
-            a = _html.A('»', title=_lang.t('pytsite.widget@last_page'), data_page=self._total_pages,
-                        href=_router.url(links_url, query={'page': self._total_pages}))
-            ul.append(li.append(a))
+        # Link to the last page
+        li = _html.Li(css='last-page')
+        a = _html.A('»', title=_lang.t('pytsite.widget@page_num', {'num': self._total_pages}),
+                    href=_router.url(links_url, query={'page': self._total_pages}))
+        ul.append(li.append(a))
 
         return ul
 

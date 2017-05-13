@@ -1,6 +1,16 @@
 # PytSite Changelog
 
 
+## 0.99.17 (2017-05-13)
+### Added
+- `http_api`: processing shortcuts in string handler definitions.
+- `lang`: console warnings in JS code.
+
+### Fixed
+- `lang`: fallback language detection in JS code.
+- `widget`: JS part of `select.Pager`. 
+
+
 ## 0.99.16 (2017-05-11)
 ### Fixed
 - `admin`: missing external JS in template's head.
