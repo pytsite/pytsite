@@ -27,8 +27,8 @@ def _init():
     console.register_command(_console_command.Build())
 
     # Event handlers
-    router.on_dispatch(reset, -999)
-    router.on_xhr_dispatch(reset, -999, 'post')  # Workaround for forms
+    router.on_dispatch(reset, -999, '*')
+    router.on_xhr_dispatch(reset, -999, '*')
     pytsite_setup.on_setup(setup)
     events.listen('pytsite.update.after', lambda: build(switch_maintenance=False))
 

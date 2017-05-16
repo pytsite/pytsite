@@ -11,7 +11,8 @@ def _init():
     from pytsite import lang, router, tpl
 
     lang.register_package(__name__)
-    router.on_dispatch(reset, -999)
+    router.on_dispatch(reset, -999, '*')
+    router.on_xhr_dispatch(reset, -999, '*')
     router.on_exception(lambda args: reset(args.get('title')), -999)
 
     tpl.register_global('metatag', dump)

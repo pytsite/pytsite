@@ -87,9 +87,8 @@ class Form(_ABC):
                 self._data.update({k: v})
 
         # Assets
-        if _router.request().method == 'GET' and not _router.request().is_xhr:
-            _assetman.preload('pytsite.form@css/form.css')
-            _assetman.preload('pytsite.form@js/index.js')
+        _assetman.preload('pytsite.form@css/form.css')
+        _assetman.preload('pytsite.form@js/index.js')
 
         # Setup form
         self._on_setup_form(**kwargs)

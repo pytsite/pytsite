@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.20 (2017-05-16)
+### Fixed
+- `form`: loading assets in POST-requests.
+
+
 ## 0.99.19 (2017-05-13)
 ### Fixed
 - `widget`: HTTP API loading issues.
