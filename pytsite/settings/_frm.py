@@ -61,7 +61,7 @@ class Form(_form.Form):
 
                 setting_value[k] = v
 
-        # Set setting
+        # Update settings
         _api.put(setting_uid, _util.dict_merge(_api.get(setting_uid), setting_value))
 
         _router.session().add_success_message(_lang.t('pytsite.settings@settings_has_been_saved'))

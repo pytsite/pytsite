@@ -1,5 +1,6 @@
 """File Model.
 """
+from typing import Any as _Any
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util
 
@@ -52,7 +53,7 @@ class AbstractFile(_ABC):
         return self.get_field('local_path')
 
     @local_path.setter
-    def local_path(self, value: str) -> str:
+    def local_path(self, value: str):
         self.set_field('local_path', value)
 
     @property
@@ -90,7 +91,7 @@ class AbstractFile(_ABC):
         return self.get_thumb_url()
 
     @_abstractmethod
-    def get_field(self, field_name: str, **kwargs):
+    def get_field(self, field_name: str, **kwargs) -> _Any:
         pass
 
     @_abstractmethod

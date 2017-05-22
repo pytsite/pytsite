@@ -222,7 +222,7 @@ class TagLessElement(Element):
     def _render_close_tag(self) -> str:
         return ''
 
-    def _get_valid_children(self) -> tuple:
+    def _get_valid_children(self) -> str:
         return 'any'
 
 
@@ -376,7 +376,7 @@ class Td(BlockElement):
     def _get_valid_attrs(self) -> tuple:
         return 'colspan', 'rowspan'
 
-    def _get_valid_children(self) -> tuple:
+    def _get_valid_children(self) -> str:
         return 'any'
 
 

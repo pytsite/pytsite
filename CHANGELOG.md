@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.21 (2017-05-22)
+### Fixed
+- `widget`: setting value of `select.Checkbox`.
+
+
 ## 0.99.20 (2017-05-16)
 ### Fixed
 - `form`: loading assets in POST-requests.

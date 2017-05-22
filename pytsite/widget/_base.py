@@ -146,10 +146,7 @@ class Abstract(_ABC):
     def set_val(self, value, **kwargs):
         """Set value of the widget.
         """
-        if value is not None:
-            self._value = value
-        else:
-            self._value = _deepcopy(self._default)
+        self._value = value if value is not None else _deepcopy(self._default)
 
         return self
 

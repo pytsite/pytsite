@@ -21,25 +21,23 @@ class Checkbox(_input.Input):
         """Init.
         """
         kwargs.setdefault('label_disabled', True)
-        self._checked = bool(kwargs.get('checked', False))
-
         super().__init__(uid, **kwargs)
 
     def set_val(self, value, **kwargs):
-        if value in (True, 'True'):
-            self._checked = self._value = True
-        elif value in (False, 'False'):
-            self._checked = self._value = False
-        else:
-            super().set_val(value, **kwargs)
+        # If checkbox is checked on client side, we get list of 2 two items: ['', 'True'],
+        # or empty string otherwise
+        if isinstance(value, list):
+            value = value[-1] if value else False
+
+        super().set_val(True if value in (True, 'True') else False, **kwargs)
 
     @property
     def checked(self) -> bool:
-        return self._checked
+        return self.get_val()
 
     @checked.setter
     def checked(self, value: bool):
-        self._checked = bool(value)
+        self.set_val(value)
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
@@ -48,7 +46,7 @@ class Checkbox(_input.Input):
         div.append(_html.Input(type='hidden', name=self._name))
         label = _html.Label(self._label, label_for=self._uid)
         label.append(_html.Input(
-            uid=self._uid, name=self._name, type='checkbox', value=self._value, checked=self._checked
+            uid=self._uid, name=self._name, type='checkbox', value='True', checked=self.checked
         ))
         div.append(label)
 
