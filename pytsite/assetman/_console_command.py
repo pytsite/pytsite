@@ -1,4 +1,4 @@
-"""PytSite Assetman Console Commands.
+"""PytSite Assetman Console Commands
 """
 from pytsite import console as _console
 from . import _api, _error

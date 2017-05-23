@@ -1,6 +1,7 @@
 """PytSite Authorization ODM Storage Models.
 """
 import hashlib as _hashlib
+from typing import Optional as _Optional, Tuple as _Tuple
 from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
@@ -60,7 +61,7 @@ class ODMRole(_odm_ui.model.UIEntity):
 
         browser.default_sort_field = 'name'
 
-    def odm_ui_browser_row(self) -> tuple:
+    def odm_ui_browser_row(self) -> _Optional[_Tuple]:
         if self.f_get('name') == 'admin':
             return
 
@@ -123,18 +124,14 @@ class ODMRole(_odm_ui.model.UIEntity):
             # Tab
             tab_id = 'permissions-' + g_name
             perms_tabs.add_tab(tab_id, _lang.t(g_desc))
-            for perm in perms:
-                p_name = perm[0]
-                p_desc = perm[1]
 
-                # Tab's content
-                perms_tabs.append_child(_widget.select.Checkbox(
-                    uid='permissions-checkbox-' + p_name,
-                    name='permissions',
-                    label=_lang.t(p_desc),
-                    value=p_name,
-                    checked=p_name in self.f_get('permissions'),
-                ), tab_id)
+            # Tab's content
+            perms_tabs.append_child(_widget.select.Checkboxes(
+                uid='permission-checkboxes-' + tab_id,
+                name='permissions',
+                items=[(p[0], _lang.t(p[1])) for p in perms],
+                value=self.f_get('permissions'),
+            ), tab_id)
 
         frm.add_widget(perms_tabs)
 
@@ -341,7 +338,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         browser.default_sort_field = 'last_activity'
         browser.default_sort_order = 'desc'
 
-    def odm_ui_browser_row(self) -> dict:
+    def odm_ui_browser_row(self) -> _Tuple:
         yes = _lang.t('pytsite.auth_storage_odm@word_yes')
 
         login = '<a href="' + self.url + '">' + self.f_get('login') + '</a>'

@@ -1,4 +1,4 @@
-"""Event Subsystem.
+"""Events Subsystem
 """
 import re as _re
 from pytsite import reg as _reg, logger as _logger

@@ -42,8 +42,12 @@ def _init():
 
     # Register assetman itself and add required assets for all pages
     register_package(__name__)
+
+    js_module('assetman-build-timestamps', __name__ + '@build-timestamps')
     js_module('assetman', __name__ + '@assetman')
+
     t_js(__name__ + '@**')
+
     preload(__name__ + '@require.js', permanent=True, head=True)
     preload(__name__ + '@require-config.js', permanent=True, head=True)
 

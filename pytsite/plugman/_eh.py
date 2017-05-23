@@ -10,6 +10,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def setup():
+    _console.run_command('plugman:install')
+
+
 def update(version: str):
     """pytsite.update
     """

@@ -127,7 +127,7 @@ class Entity(_ABC):
         # Try to load fields data directly from DB
         data = self.collection.find_one({'_id': eid})
         if not data:
-            raise _error.EntityNotFound("Entity '{}:{}' does not exist.".format(self.model, eid))
+            raise _error.EntityNotFound("Entity '{}:{}' does not exist.".format(self._model, eid))
 
         # Fill fields with retrieved data
         for f_name, value in data.items():
@@ -289,7 +289,7 @@ class Entity(_ABC):
             raise _error.EntityNotStored("Entity of model '{}' must be stored before you can get its ref."
                                          .format(self._model))
 
-        return _DBRef(self.collection.name, self.id)
+        return _DBRef(self.collection.name, self._id)
 
     @property
     def ref_str(self) -> str:
@@ -297,7 +297,7 @@ class Entity(_ABC):
             raise _error.EntityNotStored("Entity of model '{}' must be stored before you can get its ref."
                                          .format(self._model))
 
-        return '{}:{}'.format(self._model, self.id)
+        return '{}:{}'.format(self._model, self._id)
 
     @property
     def model(self) -> str:
@@ -738,7 +738,7 @@ class Entity(_ABC):
 
         # Actual deletion from the database
         if not self._is_new:
-            self.collection.delete_one({'_id': self.id})
+            self.collection.delete_one({'_id': self._id})
 
         # Clearing parent reference from orphaned children
         for child in children:
@@ -797,7 +797,7 @@ class Entity(_ABC):
         """Get JSONable dictionary representation of the entity.
         """
         return {
-            'uid': str(self.id),
+            'uid': str(self._id),
         }
 
     @classmethod
@@ -828,6 +828,11 @@ class Entity(_ABC):
                     return full_msg_id
 
         return cls.get_package_name() + '@' + partly_msg_id
+
+    def __str__(self):
+        """__str__ overloading.
+        """
+        return self.ref_str
 
     def __eq__(self, other) -> bool:
         """__eq__ overloading.

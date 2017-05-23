@@ -1,4 +1,4 @@
-"""Event Handlers.
+"""PytSite Auth Event Handlers
 """
 from datetime import datetime as _datetime
 from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util, \

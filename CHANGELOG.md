@@ -1,6 +1,16 @@
 # PytSite Changelog
 
 
+## 0.99.23 (2017-05-24)
+### Added
+- `plugman`: automatic plugin install on **setup** console command invoke.
+- `setup`: shortcut API methods for attaching event handlers.
+
+### Fixed
+- `assetman`: versioned assets URLs on client side.
+- `widget`: issues with `select.Checkboxes`.
+
+
 ## 0.99.22 (2017-05-23)
 ### Added
 - `asetman`: version info in assets URLs.

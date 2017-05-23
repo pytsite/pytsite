@@ -122,37 +122,29 @@ class Checkboxes(Select):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        if 'default' not in kwargs:
-            kwargs['default'] = ()
+        kwargs.setdefault('default', ())
 
         self._unique = kwargs.get('unique', False)
 
         super().__init__(uid, **kwargs)
 
-        self._selected_items = kwargs.get('selected_items', self.get_val())
-
     def set_val(self, value: _Union[_List, _Tuple], **kwargs):
         """Set value of the widget.
         """
-        if not isinstance(value, (list, tuple)):
-            raise TypeError('List or tuple expected.')
-
         super().set_val(_util.cleanup_list(value, self._unique))
-
-        self._selected_items = self.get_val()
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget.
         :param **kwargs:
         """
         container = _html.TagLessElement()
-        container.append(_html.Input(type='hidden', name=self.uid + '[]'))
+        container.append(_html.Input(type='hidden', name=self.name + '[]'))
         for item in self._items:
-            checked = True if item[0] in self._selected_items else False
+            checked = True if item[0] in self.value else False
             container.append(
                 _html.Div(css='checkbox').append(
                     _html.Label(item[1]).append(
-                        _html.Input(type='checkbox', name=self.uid + '[]', value=item[0], checked=checked)
+                        _html.Input(type='checkbox', name=self.name + '[]', value=item[0], checked=checked)
                     )
                 )
             )

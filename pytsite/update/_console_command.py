@@ -1,4 +1,4 @@
-"""PytSite Update Console Commands.
+"""PytSite Update Console Commands
 """
 import pickle as _pickle
 import subprocess as _subprocess

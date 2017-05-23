@@ -479,11 +479,21 @@ def build(package_name: str = None, switch_maintenance: bool = True):
     debug = _reg.get('debug')
     _run_node_bin('gulp', '--silent', gulpfile=_GULPFILE, debug=debug, tasksFile=_GULP_TASKS_FILE)
 
+    # Update timestamps
+    for pkg_name in [package_name] if package_name else _package_paths:
+        try:
+            with open(_path.join(_get_assets_destination(pkg_name), 'timestamp'), 'wt') as f:
+                ts = _util.md5_hex_digest(str(_time()))
+                f.write(ts)
+                _build_timestamps[pkg_name] = ts
+        except FileNotFoundError as e:
+            _console.print_warning(str(e))
+
     # Build RequireJS config file
     requirejs_paths = {}
     for m_name, m_location in _requirejs_modules.items():
         m_pkg_name, m_path = _split_location_info(m_location)
-        requirejs_paths[m_name] = '{}/{}'.format(m_pkg_name, m_path)
+        requirejs_paths[m_name] = '{}/{}.js?v={}'.format(m_pkg_name, m_path, _build_timestamps[m_pkg_name])
     rjs_config = _tpl.render('pytsite.assetman@requirejs-config', {'paths': _json.dumps(requirejs_paths)})
     rjs_config_path = _path.join(assets_static_path, 'pytsite.assetman', 'require-config.js')
     rjs_config_dir = _path.dirname(rjs_config_path)
@@ -492,13 +502,12 @@ def build(package_name: str = None, switch_maintenance: bool = True):
     with open(rjs_config_path, 'wt') as f:
         f.write(rjs_config)
 
-    # Update timestamps
-    for pkg_name in [package_name] if package_name else _package_paths:
-        try:
-            with open(_path.join(_get_assets_destination(pkg_name), 'timestamp'), 'wt') as f:
-                f.write(_util.md5_hex_digest(str(_time())))
-        except FileNotFoundError as e:
-            _console.print_warning(str(e))
+    # Update build timestamps in JS file
+    t_stamps = {}
+    for pkg_name in _package_paths:
+        t_stamps[pkg_name] = _get_build_timestamp(pkg_name)
+    with open(_path.join(_get_assets_destination('pytsite.assetman'), 'build-timestamps.js'), 'wt') as f:
+        f.write(_tpl.render('pytsite.assetman@build-timestamps', {'json': _json.dumps(t_stamps)}))
 
     _events.fire('pytsite.assetman.build')
 

@@ -1,5 +1,6 @@
 """ODM UI Widgets.
 """
+from typing import List as _List
 from bson.dbref import DBRef as _DBRef
 from pytsite import widget as _widget, odm as _odm, lang as _lang
 
@@ -89,7 +90,6 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         self.set_val(kwargs.get('value'))
         self._model = kwargs.get('model')
         self._caption_field = kwargs.get('caption_field')
-        self._exclude = kwargs.get('exclude', ())
         self._sort_field = kwargs.get('sort_field', self._caption_field)
         self._translate_captions = kwargs.get('translate_captions', False)
 
@@ -98,7 +98,13 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         if not self._caption_field:
             raise ValueError('Caption field is not specified.')
 
-        # Available items
+        self._exclude = []  # type: _List[_odm.model.Entity]
+        for e in kwargs.get('exclude', ()):
+            entity = _odm.get_by_ref(_odm.resolve_ref(e))
+            if entity:
+                self._exclude.append(entity)
+
+        # Available items will be set during call to self._get_element()
         self._items = []
 
     @property
@@ -126,25 +132,25 @@ class EntityCheckboxes(_widget.select.Checkboxes):
         if not isinstance(value, (list, tuple)):
             raise TypeError("List of entities expected as a value of the widget '{}'.".format(self.name))
 
-        self._selected_items = []
         clean_val = []
         for v in value:
             if not v:
                 continue
+
+            # Check entity for existence
             entity = _odm.get_by_ref(_odm.resolve_ref(v))
+
+            # Append entity reference as string
             if entity:
-                clean_val.append(entity)
-                self._selected_items.append(entity.model + ':' + str(entity.id))
+                clean_val.append(str(entity))
 
-        self._value = clean_val
-
-        return self
+        return super().set_val(clean_val, **kwargs)
 
     def _get_element(self, **kwargs):
         finder = _odm.find(self._model).sort([(self._sort_field, _odm.I_ASC)])
         for entity in finder.get():
-            if entity not in self._exclude:
-                k = entity.model + ':' + str(entity.id)
+            k = str(entity)
+            if k not in self._exclude:
                 caption = str(entity.get_field(self._caption_field))
                 if self._translate_captions:
                     caption = _lang.t(caption)

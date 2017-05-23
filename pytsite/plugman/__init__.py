@@ -14,7 +14,7 @@ _plugman_started = False
 
 def _init():
     from os import mkdir, path
-    from pytsite import settings, lang, assetman, permissions, http_api, logger, events, console
+    from pytsite import settings, lang, assetman, permissions, http_api, logger, console, setup, update
     from . import _settings_form, _eh, _http_api, _console_command
 
     # Resources
@@ -49,8 +49,9 @@ def _init():
                         'pytsite.plugman.manage')
 
         # Event handlers
-        events.listen('pytsite.update', _eh.update)
-        events.listen('pytsite.update.after', _eh.update_after)
+        setup.on_setup(_eh.setup, 999)
+        update.on_update(_eh.update)
+        update.on_update_after(_eh.update_after)
 
     # Start installed plugins
     for p_name in get_installed_plugins():

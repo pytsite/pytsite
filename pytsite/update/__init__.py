@@ -1,5 +1,8 @@
-"""PytSite Update Package.
+"""PytSite Update
 """
+# API functions
+from ._api import on_update, on_update_after
+
 from pytsite import console as _console, lang as _lang
 from . import _console_command
 

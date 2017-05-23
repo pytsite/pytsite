@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
     function assetUrl(url) {
         if (url.indexOf('/') === 0 || url.indexOf('http') === 0)
             return url;
@@ -12,7 +12,7 @@ define(['jquery'], function ($) {
             assetPath = urlParts[1];
         }
 
-        return location.origin + '/assets/' + pkgName + '/' + assetPath;
+        return location.origin + '/assets/' + pkgName + '/' + assetPath + '?v=' + tStamps[pkgName];
     }
 
     function loadAssets(loc) {
