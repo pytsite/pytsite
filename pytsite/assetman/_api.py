@@ -7,6 +7,7 @@ from typing import Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Unio
 from os import path as _path, chdir as _chdir, makedirs as _makedirs
 from shutil import rmtree as _rmtree
 from importlib.util import find_spec as _find_spec
+from time import time as _time
 from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, events as _events, \
     maintenance as _maintenance, console as _console, lang as _lang, theme as _theme, tpl as _tpl
 from . import _error
@@ -15,7 +16,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_package_paths = {}  # type: _Dict[str, str]
+_package_paths = {}  # type: _Dict[str, _Tuple[str, str]]
 _package_aliases = {}  # type: _Dict[str, str]
 _libraries = {}  # type: _Dict[str, _Union[_Iterable, _Callable[..., _Iterable]]]
 
@@ -32,6 +33,8 @@ _inline = {}
 _last_i_weight = {}
 
 _globals = {}
+
+_build_timestamps = {}  # type: _Dict[str, str]
 
 _NODE_BIN_DIR = _path.join(_reg.get('paths.root'), 'node_modules', '.bin')
 _REQUIRED_NPM_PACKAGES = [
@@ -85,11 +88,15 @@ def register_package(package_name: str, assets_dir: str = 'res/assets', alias: s
     if not pkg_spec:
         raise RuntimeError("Package '{}' is not found".format(package_name))
 
-    dir_path = _path.abspath(_path.join(_path.dirname(pkg_spec.origin), assets_dir))
-    if not _path.isdir(dir_path):
-        FileNotFoundError("Directory '{}' is not found".format(dir_path))
+    # Absolute path to package's assets source directory
+    assets_src_path = _path.abspath(_path.join(_path.dirname(pkg_spec.origin), assets_dir))
+    if not _path.isdir(assets_src_path):
+        FileNotFoundError("Directory '{}' is not found".format(assets_src_path))
 
-    _package_paths[package_name] = dir_path
+    # Absolute path to package's assets destination directory
+    assets_dst_path = _path.join(_reg.get('paths.assets'), package_name)
+
+    _package_paths[package_name] = (assets_src_path, assets_dst_path)
 
     if alias:
         if alias in _package_aliases:
@@ -116,8 +123,22 @@ def is_package_registered(package_name_or_alias: str):
     return package_name_or_alias in _package_paths or package_name_or_alias in _package_aliases
 
 
-def _get_package_path(package_name_or_alias: str) -> str:
-    return _package_paths[resolve_package_name(package_name_or_alias)]
+def _get_assets_source(package_name_or_alias: str) -> str:
+    return _package_paths[resolve_package_name(package_name_or_alias)][0]
+
+
+def _get_assets_destination(package_name_or_alias: str) -> str:
+    return _package_paths[resolve_package_name(package_name_or_alias)][1]
+
+
+def _get_build_timestamp(package_name_or_alias: str) -> str:
+    pkg_name = resolve_package_name(package_name_or_alias)
+
+    if pkg_name not in _build_timestamps:
+        with open(_path.join(_get_assets_destination(pkg_name), 'timestamp'), 'rt') as f:
+            _build_timestamps[pkg_name] = f.readline()
+
+    return _build_timestamps[pkg_name]
 
 
 def resolve_package_name(package_name_or_alias) -> str:
@@ -150,9 +171,9 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
 
     if location in _libraries:
         if callable(_libraries[location]):
-            assets = _libraries[location](**kwargs)
+            assets = _libraries[location](**kwargs)  # type: _Iterable
         elif isinstance(_libraries[location], _Iterable):
-            assets = _libraries[location]
+            assets = _libraries[location]  # type: _Iterable
         else:
             raise TypeError('Iterable expected')
 
@@ -323,7 +344,9 @@ def url(location: str) -> str:
 
     package_name, asset_path = _split_location_info(location)
 
-    return _router.url('/assets/{}/{}'.format(package_name, asset_path), strip_lang=True)
+    return _router.url('/assets/{}/{}'.format(package_name, asset_path), strip_lang=True, query={
+        'v': _get_build_timestamp(package_name)
+    })
 
 
 def get_urls(collection: str = None, filter_path: bool = True) -> list:
@@ -363,8 +386,8 @@ def _add_task(location: str, task_name: str, dst: str = '', **kwargs):
     """Add a transformation task.
     """
     pkg_name, src = _split_location_info(location)
-    src = _get_package_path(pkg_name) + _path.sep + src
-    dst = _path.join(_reg.get('paths.assets'), pkg_name, dst)
+    src = _path.join(_get_assets_source(pkg_name), src)
+    dst = _path.join(_get_assets_destination(pkg_name), dst)
 
     _tasks.append((pkg_name, task_name, src, dst, kwargs))
 
@@ -425,20 +448,20 @@ def build(package_name: str = None, switch_maintenance: bool = True):
         _maintenance.enable()
 
     if package_name:
+        # Assets will be built for particular package, remove assets directory only for that package
         package_name = resolve_package_name(package_name)
-
-        package_assets_static_path = _path.join(assets_static_path, package_name)
-
-        if _path.exists(package_assets_static_path):
-            _rmtree(package_assets_static_path)
+        assets_dst_path = _get_assets_destination(package_name)
+        if _path.exists(assets_dst_path):
+            _rmtree(assets_dst_path)
     elif _path.exists(assets_static_path):
+        # Assets will be built for all packages, remove entire assets directory
         _rmtree(assets_static_path)
 
+    # Notify about start of assets building process
     _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
-
     _events.fire('pytsite.assetman.build.before')
 
-    # Build tasks file for Gulp
+    # Create tasks file for Gulp
     tasks_file_content = []
     for t_info in _tasks:
         pkg_name, task_name, src, dst, kwargs = t_info
@@ -468,6 +491,14 @@ def build(package_name: str = None, switch_maintenance: bool = True):
         _makedirs(rjs_config_dir, 0o755, True)
     with open(rjs_config_path, 'wt') as f:
         f.write(rjs_config)
+
+    # Update timestamps
+    for pkg_name in [package_name] if package_name else _package_paths:
+        try:
+            with open(_path.join(_get_assets_destination(pkg_name), 'timestamp'), 'wt') as f:
+                f.write(_util.md5_hex_digest(str(_time())))
+        except FileNotFoundError as e:
+            _console.print_warning(str(e))
 
     _events.fire('pytsite.assetman.build')
 

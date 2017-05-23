@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.22 (2017-05-23)
+### Added
+- `asetman`: version info in assets URLs.
+
+
 ## 0.99.21 (2017-05-22)
 ### Fixed
 - `widget`: setting value of `select.Checkbox`.
