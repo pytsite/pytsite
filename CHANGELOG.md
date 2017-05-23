@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.24 (2017-05-24)
+### Fixed
+- `assetman`: error while building assets for single package. 
+
+
 ## 0.99.23 (2017-05-24)
 ### Added
 - `plugman`: automatic plugin install on **setup** console command invoke.

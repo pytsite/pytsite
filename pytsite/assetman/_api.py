@@ -493,7 +493,7 @@ def build(package_name: str = None, switch_maintenance: bool = True):
     requirejs_paths = {}
     for m_name, m_location in _requirejs_modules.items():
         m_pkg_name, m_path = _split_location_info(m_location)
-        requirejs_paths[m_name] = '{}/{}.js?v={}'.format(m_pkg_name, m_path, _build_timestamps[m_pkg_name])
+        requirejs_paths[m_name] = '{}/{}.js?v={}'.format(m_pkg_name, m_path, _get_build_timestamp(m_pkg_name))
     rjs_config = _tpl.render('pytsite.assetman@requirejs-config', {'paths': _json.dumps(requirejs_paths)})
     rjs_config_path = _path.join(assets_static_path, 'pytsite.assetman', 'require-config.js')
     rjs_config_dir = _path.dirname(rjs_config_path)
