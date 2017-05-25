@@ -1,9 +1,17 @@
 # PytSite Changelog
 
 
+## 0.99.26 (2017-05-25)
+### Fixed
+- `assetman`: error while building assets at first time.
+
+### Changed
+- `lang`: refactored.
+
+
 ## 0.99.25 (2017-05-25)
 ### Fixed
-- `assetman`: error while building assets for single package.
+- `assetman`: error #2 while building assets for single package.
 
 
 ## 0.99.24 (2017-05-24)

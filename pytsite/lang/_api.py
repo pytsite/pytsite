@@ -2,11 +2,12 @@
 """
 import yaml as _yaml
 import re as _re
+import json as _json
 from typing import List as _List, Callable as _Callable
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
-from os import path as _path
-from pytsite import threading as _threading, theme as _theme
+from os import path as _path, makedirs as _makedirs
+from pytsite import lang as _lang, logger as _logger, theme as _theme, threading as _threading
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -355,6 +356,35 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
         region = _default_regions[language] if language in _default_regions else language
 
     return language.lower() + sep + region.upper()
+
+
+def build():
+    """Compile translations.
+    """
+    from pytsite import assetman, console, tpl
+
+    console.print_info(_lang.t('pytsite.assetman@compiling_translations'))
+
+    translations = {}
+    for lang_code in _lang.langs():
+        translations[lang_code] = {}
+        for pkg_name, info in _lang.get_packages().items():
+            _logger.info('Compiling translations for {} ({})'.format(pkg_name, lang_code))
+            translations[lang_code][pkg_name] = _lang.load_lang_file(pkg_name, lang_code)
+
+    # Write translations to static file
+    output_file = _path.join(assetman.get_dst_dir_path('pytsite.lang'), 'translations.js')
+    output_dir = _path.dirname(output_file)
+
+    if not _path.exists(output_dir):
+        _makedirs(output_dir, 0o755, True)
+
+    with open(output_file, 'wt', encoding='utf-8') as f:
+        _logger.info("Writing translations into '{}'".format(output_file))
+        f.write(tpl.render('pytsite.lang@translations-js', {
+            'langs_json': _json.dumps(_lang.langs()),
+            'translations_json': _json.dumps(translations),
+        }))
 
 
 def _split_msg_id(msg_id: str) -> list:

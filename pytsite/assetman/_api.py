@@ -123,11 +123,11 @@ def is_package_registered(package_name_or_alias: str):
     return package_name_or_alias in _package_paths or package_name_or_alias in _package_aliases
 
 
-def _get_assets_source(package_name_or_alias: str) -> str:
+def get_src_dir_path(package_name_or_alias: str) -> str:
     return _package_paths[resolve_package_name(package_name_or_alias)][0]
 
 
-def _get_assets_destination(package_name_or_alias: str) -> str:
+def get_dst_dir_path(package_name_or_alias: str) -> str:
     return _package_paths[resolve_package_name(package_name_or_alias)][1]
 
 
@@ -135,7 +135,7 @@ def _get_build_timestamp(package_name_or_alias: str) -> str:
     pkg_name = resolve_package_name(package_name_or_alias)
 
     if pkg_name not in _build_timestamps:
-        with open(_path.join(_get_assets_destination(pkg_name), 'timestamp'), 'rt') as f:
+        with open(_path.join(get_dst_dir_path(pkg_name), 'timestamp'), 'rt') as f:
             _build_timestamps[pkg_name] = f.readline()
 
     return _build_timestamps[pkg_name]
@@ -386,8 +386,8 @@ def _add_task(location: str, task_name: str, dst: str = '', **kwargs):
     """Add a transformation task.
     """
     pkg_name, src = _split_location_info(location)
-    src = _path.join(_get_assets_source(pkg_name), src)
-    dst = _path.join(_get_assets_destination(pkg_name), dst)
+    src = _path.join(get_src_dir_path(pkg_name), src)
+    dst = _path.join(get_dst_dir_path(pkg_name), dst)
 
     _tasks.append((pkg_name, task_name, src, dst, kwargs))
 
@@ -437,7 +437,7 @@ def js_module(name: str, location: str):
     _requirejs_modules[name] = location
 
 
-def build(package_name: str = None, switch_maintenance: bool = True):
+def build(package_name: str = None, switch_maintenance: bool = True, _partly: bool = False):
     """Compile assets.
     """
     global _globals
@@ -450,7 +450,7 @@ def build(package_name: str = None, switch_maintenance: bool = True):
     if package_name:
         # Assets will be built for particular package, remove assets directory only for that package
         package_name = resolve_package_name(package_name)
-        assets_dst_path = _get_assets_destination(package_name)
+        assets_dst_path = get_dst_dir_path(package_name)
         if _path.exists(assets_dst_path):
             _rmtree(assets_dst_path)
     elif _path.exists(assets_static_path):
@@ -458,8 +458,11 @@ def build(package_name: str = None, switch_maintenance: bool = True):
         _rmtree(assets_static_path)
 
     # Notify about start of assets building process
-    _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
     _events.fire('pytsite.assetman.build.before')
+    if package_name:
+        _console.print_info(_lang.t('pytsite.assetman@compiling_assets_for_package', {'package': package_name}))
+    else:
+        _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
 
     # Create tasks file for Gulp
     tasks_file_content = []
@@ -481,8 +484,9 @@ def build(package_name: str = None, switch_maintenance: bool = True):
 
     # Update timestamps
     for pkg_name in _package_paths:
-        ts_file_path = _path.join(_get_assets_destination(pkg_name), 'timestamp')
+        ts_file_path = _path.join(get_dst_dir_path(pkg_name), 'timestamp')
 
+        # Assets building was requested only for package_name and for pkg_name they are already built
         if package_name and pkg_name != package_name and _path.exists(ts_file_path):
             continue
 
@@ -492,7 +496,15 @@ def build(package_name: str = None, switch_maintenance: bool = True):
                 f.write(ts)
                 _build_timestamps[pkg_name] = ts
         except FileNotFoundError as e:
-            _console.print_warning(str(e))
+            if package_name:
+                # Probably package_name depends on pkg_name and assets for pkg_name was not built yet
+                build(pkg_name, switch_maintenance, True)
+            else:
+                # This is abnormal situation and should be reported
+                raise e
+
+    if _partly:
+        return
 
     # Build RequireJS config file
     requirejs_paths = {}
@@ -511,8 +523,11 @@ def build(package_name: str = None, switch_maintenance: bool = True):
     t_stamps = {}
     for pkg_name in _package_paths:
         t_stamps[pkg_name] = _get_build_timestamp(pkg_name)
-    with open(_path.join(_get_assets_destination('pytsite.assetman'), 'build-timestamps.js'), 'wt') as f:
+    with open(_path.join(get_dst_dir_path('pytsite.assetman'), 'build-timestamps.js'), 'wt') as f:
         f.write(_tpl.render('pytsite.assetman@build-timestamps', {'json': _json.dumps(t_stamps)}))
+
+    # Rebuild translations
+    _lang.build()
 
     _events.fire('pytsite.assetman.build')
 
