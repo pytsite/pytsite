@@ -480,9 +480,14 @@ def build(package_name: str = None, switch_maintenance: bool = True):
     _run_node_bin('gulp', '--silent', gulpfile=_GULPFILE, debug=debug, tasksFile=_GULP_TASKS_FILE)
 
     # Update timestamps
-    for pkg_name in [package_name] if package_name else _package_paths:
+    for pkg_name in _package_paths:
+        ts_file_path = _path.join(_get_assets_destination(pkg_name), 'timestamp')
+
+        if package_name and pkg_name != package_name and _path.exists(ts_file_path):
+            continue
+
         try:
-            with open(_path.join(_get_assets_destination(pkg_name), 'timestamp'), 'wt') as f:
+            with open(ts_file_path, 'wt') as f:
                 ts = _util.md5_hex_digest(str(_time()))
                 f.write(ts)
                 _build_timestamps[pkg_name] = ts
