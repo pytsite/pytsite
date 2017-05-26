@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.27 (2017-05-26)
+### Added
+- `plugman`: ability to specify multiple plugin names in `is_installed()`, `start()`, `upgrade()`.
+
+
 ## 0.99.26 (2017-05-25)
 ### Fixed
 - `assetman`: error while building assets at first time.

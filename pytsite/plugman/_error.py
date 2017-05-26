@@ -15,11 +15,20 @@ class UnknownPlugin(Exception):
 
 
 class PluginNotInstalled(Exception):
-    pass
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
+
+    def __str__(self) -> str:
+        return "Plugin '{}' is not installed".format(self._name)
 
 
 class PluginAlreadyInstalled(Exception):
-    pass
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
+
+    def __str__(self) -> str:
+        return "Plugin '{}' is already installed".format(self._name)
+
 
 
 class PluginInstallationInProgress(Exception):

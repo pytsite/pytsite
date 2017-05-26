@@ -4,6 +4,7 @@ import zipfile as _zipfile
 import json as _json
 import requests as _requests
 import subprocess as _subprocess
+from typing import Union as _Union
 from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
@@ -49,7 +50,7 @@ def _read_plugin_json(plugin_name: str) -> dict:
     """Get information about locally installed plugin.
     """
     if not is_installed(plugin_name):
-        raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
+        raise _error.PluginNotInstalled(plugin_name)
 
     plugin_info_path = _get_plugin_info_path(plugin_name)
 
@@ -75,7 +76,7 @@ def _write_plugin_json(plugin_name: str, data: dict):
     """Update plugin's info file.
     """
     if not is_installed(plugin_name):
-        raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
+        raise _error.PluginNotInstalled(plugin_name)
 
     with open(_get_plugin_info_path(plugin_name), 'wt') as f:
         _json.dump(data, f)
@@ -114,10 +115,17 @@ def get_plugins_path() -> str:
     return _PLUGINS_PATH
 
 
-def is_installed(plugin_name: str) -> bool:
+def is_installed(plugin_name: _Union[str, list, tuple]) -> bool:
     """Check if the plugin is installed.
     """
-    return _path.isdir(_get_plugin_path(plugin_name))
+    if isinstance(plugin_name, (list, tuple)):
+        for p_name in plugin_name:
+            if not is_installed(p_name):
+                return False
+
+        return True
+
+    return _path.isdir(_get_plugin_path(plugin_name)) if plugin_name else False
 
 
 def is_started(plugin_name: str) -> bool:
@@ -134,14 +142,17 @@ def get_required_plugins() -> set:
     return _required
 
 
-def start(plugin_name: str) -> object:
+def start(plugin_name: _Union[str, list, tuple]) -> object:
     """Start a plugin.
     """
     global _required, _started
 
-    # Automatically install plugin if it is not installed
+    if isinstance(plugin_name, (list, tuple)):
+        for p_name in plugin_name:
+            start(p_name)
+
     if not is_installed(plugin_name):
-        install(plugin_name)
+        raise _error.PluginNotInstalled(plugin_name)
 
     if plugin_name in _started:
         raise _error.PluginAlreadyStarted(plugin_name)
@@ -227,7 +238,7 @@ def install(plugin_name: str):
 
     # Check if the plugin is already installed
     if is_installed(plugin_name):
-        raise _error.PluginAlreadyInstalled("Plugin '{}' is already installed".format(plugin_name))
+        raise _error.PluginAlreadyInstalled(plugin_name)
 
     try:
         # Flag start of the installation process
@@ -339,7 +350,7 @@ def uninstall(plugin_name: str):
             "Uninstallation of the plugin '{}' is already started".format(plugin_name))
 
     if not is_installed(plugin_name):
-        raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
+        raise _error.PluginNotInstalled(plugin_name)
 
     try:
         _uninstalling.append(plugin_name)
@@ -358,14 +369,18 @@ def uninstall(plugin_name: str):
         _uninstalling.remove(plugin_name)
 
 
-def upgrade(plugin_name: str):
+def upgrade(plugin_name: _Union[str, list, tuple]):
     """Upgrade a locally installed plugin.
     """
     if _DEV_MODE:
         raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
+    if isinstance(plugin_name, (list, tuple)):
+        for p_name in plugin_name:
+            upgrade(p_name)
+
     if not is_installed(plugin_name):
-        raise _error.PluginNotInstalled("Plugin '{}' is not installed".format(plugin_name))
+        raise _error.PluginNotInstalled(plugin_name)
 
     info = get_plugin_info(plugin_name)
     if not info['upgradable']:

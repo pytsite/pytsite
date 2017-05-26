@@ -21,8 +21,8 @@ def _init():
     lang.register_package(__name__)
 
     assetman.register_package(__name__)
-    assetman.t_less(__name__ + '@**/*.less')
-    assetman.t_js(__name__ + '@**/*.js')
+    assetman.t_less(__name__ + '@**')
+    assetman.t_js(__name__ + '@**')
 
     # Create 'plugins' package
     plugins_path = get_plugins_path()
