@@ -76,16 +76,14 @@ define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
 
     function loadJS(loc) {
         loc = assetUrl(loc);
-        if (!$('script[src="' + loc + '"]').length) {
-            $.ajaxSetup({cache: true});
+        if (!$('script[src^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
             $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
-            $.ajaxSetup({cache: false});
         }
     }
 
     function loadCSS(loc) {
         loc = assetUrl(loc);
-        if (!$('link[href="' + loc + '"]').length) {
+        if (!$('link[href^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
             $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
         }
     }

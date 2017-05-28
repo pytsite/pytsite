@@ -14,8 +14,8 @@ def _init():
 
     # Assets
     assetman.register_package(__name__)
-    assetman.t_css(__name__ + '@**/*.css')
-    assetman.t_js(__name__ + '@**/*.js')
+    assetman.t_css(__name__ + '@**')
+    assetman.t_js(__name__ + '@**')
     assetman.t_copy_static(__name__ + '@**')
 
     # PytSite Responsive

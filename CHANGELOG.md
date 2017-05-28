@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.28 (2017-05-28)
+### Fixed
+- `assetman`: duplicate assets loading in some cases.
+
+
 ## 0.99.27 (2017-05-26)
 ### Added
 - `plugman`: ability to specify multiple plugin names in `is_installed()`, `start()`, `upgrade()`.
