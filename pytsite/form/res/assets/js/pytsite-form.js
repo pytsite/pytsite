@@ -478,7 +478,9 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
                         deffer.resolve();
 
                         // Scroll to top of the page
-                        window.scrollTo(0, 0);
+                        if (self.currentStep > 1) {
+                            $.scrollTo(self.em, 250);
+                        }
                     });
                 }
                 // It is a last step, just allowing submit the form
@@ -498,7 +500,7 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
         self.backward = function () {
             self.removeWidgets(self.currentStep);
             self.showWidgets(--self.currentStep);
-            window.scrollTo(0, 0);
+            $.scrollTo(self.em, 250);
         };
 
         /**

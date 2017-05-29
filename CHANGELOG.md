@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.29 (2017-05-29)
+### Fixed
+- `form`: page scrolling in JS code.
+
+
 ## 0.99.28 (2017-05-28)
 ### Fixed
 - `assetman`: duplicate assets loading in some cases.
