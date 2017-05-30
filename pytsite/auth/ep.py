@@ -22,10 +22,13 @@ def sign_in(driver: str) -> _Union[str, _http.response.Redirect]:
     _metatag.t_set('title', _lang.t('pytsite.auth@authentication'))
 
     try:
-        return _tpl.render('pytsite.auth@sign-in', {
-            'driver': driver,
-            'form': _api.get_sign_in_form(driver, nocache=True),
-        })
+        frm = _api.get_sign_in_form(driver, nocache=True)
+        args = {'driver': driver, 'form': frm}
+
+        try:
+            return _tpl.render('$theme@auth/sign-in', args)
+        except _tpl.error.TemplateNotFound:
+            return _tpl.render('pytsite.auth@sign-in', args)
 
     except _error.DriverNotRegistered:
         raise _http.error.NotFound()

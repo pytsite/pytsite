@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.30 (2017-05-30)
+### Added
+- `auth`: hook for alternative template of sign-in page.
+
+
 ## 0.99.29 (2017-05-29)
 ### Fixed
 - `form`: page scrolling in JS code.
