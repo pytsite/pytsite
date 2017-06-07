@@ -1,6 +1,8 @@
 """PytSite Asset Manager.
 """
 # Public API
+from os import path as _path
+from pytsite import reg as _reg
 from . import _error as error
 from ._api import register_package, library, preload, remove, dump_js, dump_css, url, add_inline, dump_inline, \
     get_urls, get_locations, reset, detect_collection, build, is_package_registered, register_global, t_browserify, \
@@ -10,14 +12,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+# It is important to call this before any other imports from pytsite
+_reg.put('paths.assets', _path.join(_reg.get('paths.static'), 'assets'))
+
 
 def _init():
-    from os import path
-    from pytsite import reg, console, events, lang, tpl, router, setup as pytsite_setup
+    from pytsite import console, lang, tpl, router, setup as pytsite_setup, update as pytsite_update
     from . import _console_command, _api
-
-    # Registry variables
-    reg.put('paths.assets', path.join(reg.get('paths.static'), 'assets'))
 
     # Resources
     lang.register_package(__name__)
@@ -36,7 +37,7 @@ def _init():
     router.on_dispatch(reset, -999, '*')
     router.on_xhr_dispatch(reset, -999, '*')
     pytsite_setup.on_setup(setup)
-    events.listen('pytsite.update.after', lambda: build(switch_maintenance=False))
+    pytsite_update.on_update_after(build)
 
     # Tpl resources
     tpl.register_package(__name__)

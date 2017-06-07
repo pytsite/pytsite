@@ -23,3 +23,4 @@ uninstalling_plugin: "Удаление плагина ':plugin'..."
 plugin_uninstall_success: "Плагин ':plugin' был успешно удалён"
 console_command_description_install: 'Установка плагин'
 console_command_description_upgrade: 'Обновление плагин'
+upgrading_plugins: 'Обновляю плагины'

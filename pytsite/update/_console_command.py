@@ -2,9 +2,9 @@
 """
 import pickle as _pickle
 import subprocess as _subprocess
-from os import path as _path
+from os import path as _path, chdir as _chdir
 from pytsite import console as _console, events as _events, lang as _lang, core_version as _pytsite_ver, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, reload as _reload
+    logger as _logger, maintenance as _maintenance, reload as _reload, theme as _theme
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -34,18 +34,33 @@ class Update(_console.Command):
     def execute(self, args: tuple = (), **kwargs):
         """Execute the command.
         """
+        app_path = _reg.get('paths.app')
+        theme_path = _theme.get().path
         stage = self.get_option_value('stage')
 
+        _chdir(app_path)
         _maintenance.enable()
 
         if stage in (0, 1):
+            # Update pip and pytsite
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
+            # Update application, if applicable
+            if _path.exists(_path.join(app_path, '.git')):
+                _console.print_info(_lang.t('pytsite.update@updating_application'))
+                _subprocess.call(['git', '-C', app_path, 'pull'])
+
+            if _path.exists(_path.join(theme_path, '.git')):
+                _console.print_info(_lang.t('pytsite.update@updating_theme'))
+                _subprocess.call(['git', '-C', theme_path, 'pull'])
+
             # Call second step automatically only if '--stage=1' option was not explicitly provided
             if stage == 0:
                 _subprocess.call(['./console', 'update', '--stage=2'])
+            else:
+                _maintenance.disable()
 
         elif stage == 2:
             _console.print_info(_lang.t('pytsite.update@applying_updates'))

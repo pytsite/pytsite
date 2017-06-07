@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.99.31 (2017-06-07)
+### Added
+- `update`: automatic application and theme update.
+
+### Fixed 
+- `assetman`: exception handling during timestamps update.
+
+
 ## 0.99.30 (2017-05-30)
 ### Added
 - `auth`: hook for alternative template of sign-in page.

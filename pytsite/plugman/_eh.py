@@ -22,7 +22,7 @@ def update(version: str):
 
 
 def update_after():
-    _console.run_command('plugman:upgrade')
+    _api.upgrade()
 
 
 def _update_0_95_5():

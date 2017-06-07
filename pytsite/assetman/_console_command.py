@@ -1,6 +1,6 @@
 """PytSite Assetman Console Commands
 """
-from pytsite import console as _console
+from pytsite import console as _console, lang as _lang, maintenance as _maintenance
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -57,8 +57,21 @@ class Build(_console.Command):
     def execute(self):
         """Execute The Command.
         """
+        maint = not self.get_option_value('no-maint')
+
         try:
-            _api.build(self.get_option_value('package'), not self.get_option_value('no-maint'))
+            if maint:
+                _maintenance.enable()
+
+            # Compile assets
+            _api.build(self.get_option_value('package'))
+
+            # Compile translations
+            _lang.build()
 
         except (RuntimeError, _error.PackageNotRegistered, _error.PackageAlreadyRegistered) as e:
             raise _console.error.Error(e)
+
+        finally:
+            if maint:
+                _maintenance.disable()

@@ -315,7 +315,11 @@ def install(plugin_name: str):
 
         # Compile plugin's assets
         if _assetman.is_package_registered(plugin_name):
-            _assetman.build(plugin_name, switch_maintenance=False)
+            _assetman.build(plugin_name)
+
+        # Rebuild translations
+        if _lang.is_package_registered(plugin_name):
+            _lang.build()
 
     except Exception as e:
         try:
@@ -369,19 +373,29 @@ def uninstall(plugin_name: str):
         _uninstalling.remove(plugin_name)
 
 
-def upgrade(plugin_name: _Union[str, list, tuple]):
+def upgrade(plugin_name: _Union[None, str, list, tuple] = None):
     """Upgrade a locally installed plugin.
     """
     if _DEV_MODE:
         raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
-    if isinstance(plugin_name, (list, tuple)):
+    # Upgrade all installed plugins
+    if plugin_name is None:
+        for name, info in get_plugin_info().items():
+            if info.get('installed_version'):
+                upgrade(name)
+        return
+
+    # Upgrade bunch of plugin
+    elif isinstance(plugin_name, (list, tuple)):
         for p_name in plugin_name:
             upgrade(p_name)
+        return
 
     if not is_installed(plugin_name):
         raise _error.PluginNotInstalled(plugin_name)
 
+    # Check if the plugin can be upgraded
     info = get_plugin_info(plugin_name)
     if not info['upgradable']:
         return

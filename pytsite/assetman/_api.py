@@ -9,7 +9,7 @@ from shutil import rmtree as _rmtree
 from importlib.util import find_spec as _find_spec
 from time import time as _time
 from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, events as _events, \
-    maintenance as _maintenance, console as _console, lang as _lang, theme as _theme, tpl as _tpl
+    console as _console, lang as _lang, theme as _theme, tpl as _tpl
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -94,7 +94,10 @@ def register_package(package_name: str, assets_dir: str = 'res/assets', alias: s
         FileNotFoundError("Directory '{}' is not found".format(assets_src_path))
 
     # Absolute path to package's assets destination directory
-    assets_dst_path = _path.join(_reg.get('paths.assets'), package_name)
+    assets_path = _reg.get('paths.assets')
+    if not assets_path:
+        raise RuntimeError("It seems you call register_package('{}') too early".format(package_name))
+    assets_dst_path = _path.join(assets_path, package_name)
 
     _package_paths[package_name] = (assets_src_path, assets_dst_path)
 
@@ -437,15 +440,11 @@ def js_module(name: str, location: str):
     _requirejs_modules[name] = location
 
 
-def build(package_name: str = None, switch_maintenance: bool = True, _partly: bool = False):
+def build(package_name: str = None, _partly: bool = False):
     """Compile assets.
     """
     global _globals
     assets_static_path = _reg.get('paths.assets')
-
-    # Enable maintenance mode
-    if switch_maintenance:
-        _maintenance.enable()
 
     if package_name:
         # Assets will be built for particular package, remove assets directory only for that package
@@ -483,25 +482,17 @@ def build(package_name: str = None, switch_maintenance: bool = True, _partly: bo
     _run_node_bin('gulp', '--silent', gulpfile=_GULPFILE, debug=debug, tasksFile=_GULP_TASKS_FILE)
 
     # Update timestamps
-    for pkg_name in _package_paths:
+    for pkg_name in ([package_name] if package_name else _package_paths):
         ts_file_path = _path.join(get_dst_dir_path(pkg_name), 'timestamp')
-
-        # Assets building was requested only for package_name and for pkg_name they are already built
-        if package_name and pkg_name != package_name and _path.exists(ts_file_path):
-            continue
 
         try:
             with open(ts_file_path, 'wt') as f:
                 ts = _util.md5_hex_digest(str(_time()))
                 f.write(ts)
                 _build_timestamps[pkg_name] = ts
-        except FileNotFoundError as e:
-            if package_name:
-                # Probably package_name depends on pkg_name and assets for pkg_name was not built yet
-                build(pkg_name, switch_maintenance, True)
-            else:
-                # This is abnormal situation and should be reported
-                raise e
+        except FileNotFoundError:
+            # This is abnormal situation and should be reported
+            raise RuntimeError("It seems package '{}' doesn't define any assetman task".format(pkg_name))
 
     if _partly:
         return
@@ -526,13 +517,7 @@ def build(package_name: str = None, switch_maintenance: bool = True, _partly: bo
     with open(_path.join(get_dst_dir_path('pytsite.assetman'), 'build-timestamps.js'), 'wt') as f:
         f.write(_tpl.render('pytsite.assetman@build-timestamps', {'json': _json.dumps(t_stamps)}))
 
-    # Rebuild translations
-    _lang.build()
-
     _events.fire('pytsite.assetman.build')
-
-    if switch_maintenance:
-        _maintenance.disable()
 
 
 def _split_location_info(location: str) -> _Tuple[str, str]:
