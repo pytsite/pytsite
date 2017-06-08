@@ -19,7 +19,7 @@ _current = {}  # Thread safe current language
 _fallback = None  # type: str
 _packages = {}
 _globals = {}
-_sub_trans_token_re = _re.compile('{:([_a-z0-9]+)}')
+_sub_trans_token_re = _re.compile('{:([_a-z0-9@]+)}')
 
 _default_regions = {
     'en': 'US',
