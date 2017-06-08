@@ -74,7 +74,7 @@ def get_entity(inp: dict, model: str, uid: str) -> dict:
         raise _http.error.InternalServerError("Model '{}' does not support transfer via HTTP.")
 
     # Check for permissions
-    if not (entity.odm_auth_check_permission('view') or entity.odm_auth_check_permission('view_own')):
+    if not entity.odm_auth_check_permission('view'):
         raise _http.error.Forbidden('Insufficient permissions')
 
     return entity.as_jsonable(**inp)

@@ -224,8 +224,8 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         r = super().as_jsonable(**kwargs)
 
         view_perm = self.odm_auth_check_permission('view')
-        modify_perm = self.odm_auth_check_permission('modify') or self.odm_auth_check_permission('modify_own')
-        delete_perm = self.odm_auth_check_permission('delete') or self.odm_auth_check_permission('delete_own')
+        modify_perm = self.odm_auth_check_permission('modify')
+        delete_perm = self.odm_auth_check_permission('delete')
 
         r['permissions'] = {
             'view': view_perm,

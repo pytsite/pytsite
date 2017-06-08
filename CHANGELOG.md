@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.35 (2017-06-08)
+### Fixed
+- `odm_auth`: permissions checking logic.
+
+
 ## 0.99.34 (2017-06-08)
 ### Fixed
 - `odm_auth`: permissions checking logic.

@@ -58,7 +58,7 @@ def odm_entity_pre_save(entity: _model.AuthorizableEntity):
                                      format(entity.model))
 
     # Check current user's permissions to MODIFY entities
-    if not entity.is_new and not (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
+    if not entity.is_new and not entity.odm_auth_check_permission('modify'):
         _logger.info('Current user login: {}'.format(_auth.get_current_user().login))
         raise _errors.ForbidModification("Insufficient permissions to modify entity '{}:{}'.".
                                          format(entity.model, entity.id))
@@ -78,7 +78,7 @@ def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
         return
 
     # Check current user's permissions to DELETE entities
-    if not (entity.odm_auth_check_permission('delete') or entity.odm_auth_check_permission('delete_own')):
+    if not entity.odm_auth_check_permission('delete'):
         _logger.debug('Current user login: {}'.format(_auth.get_current_user().login))
         raise _errors.ForbidDeletion("Insufficient permissions to delete entity '{}:{}'.".
                                      format(entity.model, entity.id))
