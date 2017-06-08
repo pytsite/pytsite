@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.99.33 (2017-06-08)
+### Fixed
+- `odm`: incorrect string format usage.
+- `odm_auth`: type conversion.
+
+
 ## 0.99.32 (2017-06-08)
 ### Added
 - `http_api`: request method in error log messages.

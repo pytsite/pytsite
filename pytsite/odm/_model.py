@@ -8,7 +8,6 @@ from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, 
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from bson import errors as _bson_errors
-from frozendict import frozendict as _frozendict
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, errors as _errors, \
@@ -26,7 +25,7 @@ class Entity(_ABC):
     """ODM Model.
     """
 
-    def __init__(self, model: str, obj_id: _Union[str, _ObjectId]=None):
+    def __init__(self, model: str, obj_id: _Union[str, _ObjectId, None] = None):
         """Init.
         """
         # Let developer to specify collection name manually
@@ -202,7 +201,7 @@ class Entity(_ABC):
             self.collection.create_index(index_data[0], **index_data[1])
 
     @property
-    def indexes(self) -> _frozendict:
+    def indexes(self) -> list:
         """Get index information.
         """
         return self._indexes
@@ -532,7 +531,8 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_clr(), called by {}.".format(self._model, field_name, caller))
+                _logger.debug(
+                    "[ODM NON-STORED ENTITY] {}.f_clr(), called by {}.".format(self._model, field_name, caller))
             else:
                 _logger.debug("[ODM STORED ENTITY] {}.f_clr(), called by {}.".format(self.ref_str, field_name, caller))
 
@@ -592,10 +592,10 @@ class Entity(_ABC):
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug('[ODM NON-STORED ENTITY] {}.remove_child({}), called by {}.'.
-                              format(self._model, repr(child)), caller)
+                              format(self._model, repr(child), caller))
             else:
                 _logger.debug('[ODM STORED ENTITY] {}.remove_child({}), called by {}.'.
-                              format(self.ref_str, repr(child)), caller)
+                              format(self.ref_str, repr(child), caller))
 
         self.f_sub('_children', child)
         child.f_clr('_parent')

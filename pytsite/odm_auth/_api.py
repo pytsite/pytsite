@@ -1,6 +1,7 @@
 """PytSite ODM Auth API Functions
 """
-from typing import Optional as _Optional
+from typing import Union as _Union
+from bson.objectid import ObjectId as _ObjectId
 from pytsite import auth as _auth, odm as _odm, permissions as _permissions
 
 __author__ = 'Alexander Shepetko'
@@ -8,7 +9,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def check_permission(perm: str, model: str, ids: _Optional[str, list, tuple] = None,
+def check_permission(perm: str, model: str, ids: _Union[_ObjectId, str, list, tuple, None] = None,
                      user: _auth.model.AbstractUser = None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
@@ -22,7 +23,8 @@ def check_permission(perm: str, model: str, ids: _Optional[str, list, tuple] = N
     if not _permissions.is_permission_defined(full_perm):
         return False
 
-    if isinstance(ids, str):
+    # Convert single entity ID to iterable object
+    if isinstance(ids, (_ObjectId, str)):
         ids = (ids,)
 
     # Check user's personal permission

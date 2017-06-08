@@ -132,7 +132,7 @@ def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_model.Entity, None]:
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def dispense(model: str, uid=None) -> _model.Entity:
+def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Entity:
     """Dispense an entity.
     """
     if not is_model_registered(model):
