@@ -222,9 +222,10 @@ class Delete(MassAction):
         super()._on_setup_form()
 
         # Check permissions
-        if not (_odm_auth.check_permission('delete', self._model, self._eids) or
-                _odm_auth.check_permission('delete_own', self._model, self._eids)):
-            raise _http.error.Forbidden()
+        for eid in self._eids:
+            if not (_odm_auth.check_permission('delete', self._model) or
+                    _odm_auth.check_permission('delete_own', self._model, eid)):
+                raise _http.error.Forbidden()
 
         # Page title
         model_class = _odm.get_model_class(self._model)  # type: _model.UIEntity

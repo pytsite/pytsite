@@ -9,50 +9,33 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def check_permission(perm: str, model: str, ids: _Union[_ObjectId, str, list, tuple, None] = None,
+def check_permission(perm_type: str, model: str, entity_id: _Union[_ObjectId, str, None] = None,
                      user: _auth.model.AbstractUser = None) -> bool:
     """Check current user's permissions to operate with entity(es).
     """
-    full_perm = 'pytsite.odm_auth.{}.{}'.format(perm, model)
+    global_perm_name = 'pytsite.odm_auth.{}.{}'.format(perm_type, model)
+    personal_perm_name = 'pytsite.odm_auth.{}_own.{}'.format(perm_type, model)
 
     # Get current user
     if not user:
         user = _auth.get_current_user()
 
-    # Check for permission existence
-    if not _permissions.is_permission_defined(full_perm):
-        return False
-
-    # Convert single entity ID to iterable object
-    if isinstance(ids, (_ObjectId, str)):
-        ids = (ids,)
-
-    # Check user's personal permission
-    if perm.endswith('_own'):
-        if ids is None:
-            raise RuntimeError('Entity IDs must be provided')
-
-        # Check each entity
-        for eid in ids:
-            entity = _odm.dispense(model, eid)
-
-            # Anyone cannot do anything with non-existent entities
-            if not entity:
-                return False
-
-            # Searching for author of the entity
-            for author_field in 'author', 'owner':
-                if entity.has_field(author_field):
-                    author = entity.f_get(author_field)
-
-                    if not isinstance(author, _auth.model.AbstractUser) and author is not None:
-                        raise RuntimeError('Entity must return user object or None here')
-
-                    if author != user:
-                        return False
-
-    # Check global permission
-    elif user.has_permission(full_perm):
+    # Check if the user has global permission
+    if _permissions.is_permission_defined(global_perm_name) and user.has_permission(global_perm_name):
         return True
+
+    # Check user's personal permission for particular entity
+    if entity_id and _permissions.is_permission_defined(personal_perm_name) and user.has_permission(personal_perm_name):
+        # Load entity
+        entity = _odm.dispense(model, entity_id)
+
+        # Nobody can do anything with non-existent entities
+        if not entity:
+            return False
+
+        # Check author of the entity
+        for author_field in 'author', 'owner':
+            if entity.has_field(author_field) and entity.f_get(author_field) == user:
+                return True
 
     return False
