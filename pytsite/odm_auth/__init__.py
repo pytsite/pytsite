@@ -1,4 +1,4 @@
-"""PytSite ODM Permissions Package.
+"""PytSite ODM Auth Package
 """
 # Public API
 from . import _model as model

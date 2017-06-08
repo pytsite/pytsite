@@ -1,4 +1,4 @@
-"""PytSite ODM UI Event Handlers.
+"""PytSite ODM Auth Event Handlers
 """
 from pytsite import lang as _lang, odm as _odm, permissions as _permission, logger as _logger, auth as _auth, \
     errors as _errors

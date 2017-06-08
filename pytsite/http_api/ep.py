@@ -13,6 +13,7 @@ def entry(version: str, endpoint: str):
     version = int(version)
     endpoint = '/' + endpoint
     current_path = _router.current_path(resolve_alias=False, strip_lang=False)
+    request_method = _router.request().method
 
     # Switch language
     language = _router.request().headers.get('PytSite-Lang')
@@ -60,14 +61,14 @@ def entry(version: str, endpoint: str):
         return response
 
     except _http.error.Base as e:
-        _logger.error('{} {}: {}'.format(_router.request().method, current_path, e.description))
+        _logger.error('{} {}: {}'.format(request_method, current_path, e.description))
         response = _http.response.JSON({'error': e.description}, e.code)
         response.headers.add('PytSite-HTTP-API', version)
 
         return response
 
     except Exception as e:
-        _logger.error(current_path + ': ' + str(e), exc_info=e)
+        _logger.error('{} {}: {}'.format(request_method, current_path, e), exc_info=e)
         response = _http.response.JSON({'error': str(e)}, 500)
         response.headers.add('PytSite-HTTP-API', version)
 

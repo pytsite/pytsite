@@ -13,7 +13,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, lang, events, stats, cron
+    from pytsite import console, lang, events, stats, cron, update
     from . import _console_command, _eh, _cache
 
     # Resources
@@ -23,7 +23,7 @@ def _init():
     console.register_command(_console_command.Reindex())
 
     # Event listeners
-    events.listen('pytsite.update.after', _eh.update_after)
+    update.on_update_after(_eh.update_after, 999)  # Low priority to wait while plugman finish upgrade
     events.listen('pytsite.db.restore', _eh.db_restore)
 
     # Cron tasks

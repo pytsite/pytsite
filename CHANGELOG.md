@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 0.99.32 (2017-06-08)
+### Added
+- `http_api`: request method in error log messages.
+
+### Fixed
+- `odm_auth`: incorrect return value of `check_permission()`. 
+
+
 ## 0.99.31 (2017-06-07)
 ### Added
 - `update`: automatic application and theme update.
