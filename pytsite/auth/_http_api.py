@@ -65,9 +65,6 @@ def is_anonymous(inp: dict) -> bool:
 def get_user(inp: dict, uid: str) -> dict:
     """Get information about user.
     """
-    if _api.get_current_user().is_anonymous:
-        raise _http.error.Forbidden()
-
     try:
         user = _api.get_user(uid=uid)
 

@@ -1,7 +1,7 @@
 """PytSite Auth Models
 """
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from typing import Union as _Union, Tuple as _Tuple, List as _List
+from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
 from datetime import datetime as _datetime
 from pytsite import geo_ip as _geo_ip, permissions as _permission, router as _router, util as _util, file as _file
 
@@ -29,7 +29,7 @@ class AuthEntity(_ABC):
         pass
 
     @_abstractmethod
-    def get_field(self, field_name: str):
+    def get_field(self, field_name: str) -> _Any:
         pass
 
     @_abstractmethod
@@ -430,6 +430,9 @@ class AbstractUser(AuthEntity):
         }
 
         if self.profile_is_public or current_user == self or current_user.is_admin:
+            follows = [f.uid for f in self.follows]
+            followers = [f.uid for f in self.followers]
+
             r.update({
                 'profile_url': self.profile_view_url,
                 'nickname': self.nickname,
@@ -439,8 +442,10 @@ class AbstractUser(AuthEntity):
                 'birth_date': _util.w3c_datetime_str(self.birth_date),
                 'gender': self.gender,
                 'phone': self.phone,
-                'follows': [f.uid for f in self.follows],
-                'followers': [f.uid for f in self.followers],
+                'follows': follows,
+                'follows_count': len(follows),
+                'followers': followers,
+                'followers_count': len(followers),
                 'picture': {
                     'url': self.picture.get_url(),
                     'width': self.picture.width,

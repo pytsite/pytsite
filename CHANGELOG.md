@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.37 (2017-06-10)
+### Added
+- `auth`: new fields in `AbstractUser`: `follows_count` and `followers_count`.
+
+
 ## 0.99.36 (2017-06-08)
 ### Fixed
 - `lang`: sub-translations for message IDs with '@' sign.

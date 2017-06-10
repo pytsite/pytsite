@@ -130,7 +130,7 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 
 ## GET auth/user/:uid
 
-Получение информации об учётной записи пользователя. Обязательна авторизация.
+Получение информации об учётной записи пользователя.
 
 
 ### Аргументы
@@ -164,7 +164,9 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 - **str** `gender`. Пол. 'm' -- мальчик, 'f' -- девочка.
 - **str** `phone`. Номер телефона.
 - **array[str]** `follows`. UID учётных записей, на которые подписан пользователь.
+- **int** `follows_count`. Количество учётных записей, на которые подписан пользователь.
 - **array[str]** `followers`. UID учётных записей, которые подписаны на пользователя.
+- **int** `followers_count`. Количество учётных записей, которые подписаны на пользователя.
 - **array[str]** `urls`. URL профилей пользователя в других местах.
 
 Дополнительные поля, возвращаемые в случае, если запрашивающая учётная запись является администратором или владельцем 
@@ -175,7 +177,7 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 - **str** `email`. Email.
 - **str** `last_sign_in`. Время последней успешной аутентификации в формате W3C. 
 - **str** `last_activity`. Время последней активности в формате W3C.
-- **int** `sign_in_count`. Общее количество успешных аутентификации.
+- **int** `sign_in_count`. Общее количество успешных аутентификаций.
 - **str** `status`. Статус учётной записи: 'active', 'waiting' или 'disabled'.
 - **bool** `profile_is_public`. Доступность профиля для всех пользователей.
 - **array[str]** `roles`. UID назначенных ролей.
@@ -215,10 +217,12 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
   "gender": "m",
   "phone": "+380501234567",
   "follows": [],
+  "follows_count": 0,
   "followers":
   [
       "576562d9523af52985715b6b"
   ],
+  "followers_count": 1,
   "urls":
   [
       "https://plus.google.com/+Vasyok"
