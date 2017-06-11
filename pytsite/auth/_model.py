@@ -436,6 +436,13 @@ class AbstractUser(AuthEntity):
             r.update({
                 'profile_url': self.profile_view_url,
                 'nickname': self.nickname,
+                'picture': {
+                    'url': self.picture.get_url(),
+                    'width': self.picture.width,
+                    'height': self.picture.height,
+                    'length': self.picture.length,
+                    'mime': self.picture.mime,
+                },
                 'first_name': self.first_name,
                 'last_name': self.last_name,
                 'full_name': self.full_name,
@@ -446,13 +453,8 @@ class AbstractUser(AuthEntity):
                 'follows_count': len(follows),
                 'followers': followers,
                 'followers_count': len(followers),
-                'picture': {
-                    'url': self.picture.get_url(),
-                    'width': self.picture.width,
-                    'height': self.picture.height,
-                    'length': self.picture.length,
-                    'mime': self.picture.mime,
-                },
+                'is_followed': current_user.uid in followers,
+                'is_follows': current_user.uid in follows,
                 'urls': self.urls,
             })
 

@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.38 (2017-06-11)
+### Added
+- `auth`: new fields in `AbstractUser`: `is_follows` and `is_followed`.
+
+
 ## 0.99.37 (2017-06-10)
 ### Added
 - `auth`: new fields in `AbstractUser`: `follows_count` and `followers_count`.
