@@ -85,6 +85,10 @@ class RulesMap:
             args = {}
 
         rule = self.get(name)
+
+        if not rule.path:
+            raise _error.RulePathBuildError("Rule '{}' has no path")
+
         path = _rule_arg_re.sub(repl, rule.path)
 
         # Add remaining args as query string

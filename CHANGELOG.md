@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.40 (2017-06-15)
+### Fixed
+- `routing`: path checking in `RulesMap.path()` method.
+
+
 ## 0.99.39 (2017-06-15)
 ### Changed
 - `router`: refactored.
