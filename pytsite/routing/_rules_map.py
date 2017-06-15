@@ -87,7 +87,7 @@ class RulesMap:
         rule = self.get(name)
 
         if not rule.path:
-            raise _error.RulePathBuildError("Rule '{}' has no path")
+            raise _error.RulePathBuildError("Rule '{}' has no path".format(name))
 
         path = _rule_arg_re.sub(repl, rule.path)
 
