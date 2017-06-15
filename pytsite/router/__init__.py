@@ -1,10 +1,9 @@
-"""PytSite Router.
+"""PytSite Router
 """
-from ._controller import Controller
-from ._api import handle, add_path_alias, base_path, base_url, call_ep, current_path, current_url, dispatch, ep_path, \
-    ep_url, is_base_url, is_ep_callable, get_no_cache, set_no_cache, remove_path_alias, resolve_ep_callable, scheme, \
-    server_name, url, session, request, set_request, get_session_store, on_pre_dispatch, on_dispatch, on_response, \
-    on_exception, on_xhr_dispatch, on_xhr_pre_dispatch, on_xhr_response, handle_post
+from ._api import handle, add_path_alias, base_path, base_url, call, current_path, current_url, dispatch, rule_path, \
+    rule_url, is_base_url, has_rule, get_no_cache, set_no_cache, remove_path_alias, scheme, server_name, url, \
+    session, request, set_request, get_session_store, on_pre_dispatch, on_dispatch, on_response, on_exception, \
+    on_xhr_dispatch, on_xhr_pre_dispatch, on_xhr_response
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -29,7 +28,7 @@ def _init():
 
     # Tpl globals
     tpl.register_global('url', url)
-    tpl.register_global('ep_url', ep_url)
+    tpl.register_global('rule_url', rule_url)
     tpl.register_global('current_url', current_url)
     tpl.register_global('current_path', current_path)
     tpl.register_global('base_url', base_url)

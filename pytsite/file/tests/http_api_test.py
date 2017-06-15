@@ -1,14 +1,14 @@
 """
 """
 from os import path
-from pytsite import unittest, auth, http_api
+from pytsite import testing, auth, http_api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class HttpApiTest(unittest.TestCase):
+class HttpApiTest(testing.TestCase):
     def test_post_get(self):
         headers = {'PytSite-Auth': auth.generate_access_token(auth.get_user('user1@test.com'))}
 

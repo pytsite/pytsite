@@ -51,7 +51,7 @@ class Browser(_widget.misc.BootstrapTable):
 
             # 'Create' toolbar button
             if self._mock.odm_auth_check_permission('create') and self._mock.odm_ui_creation_allowed():
-                create_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
+                create_form_url = _router.rule_url('pytsite.odm_ui@m_form', {
                     'model': self._model,
                     'eid': '0',
                     '__redirect': _router.current_url(),
@@ -64,7 +64,7 @@ class Browser(_widget.misc.BootstrapTable):
 
             # 'Delete' toolbar button
             if self._mock.odm_auth_check_permission('delete') and self._mock.odm_ui_deletion_allowed():
-                delete_form_url = _router.ep_url('pytsite.odm_ui@d_form', {'model': self._model})
+                delete_form_url = _router.rule_url('pytsite.odm_ui@d_form', {'model': self._model})
                 title = _lang.t('pytsite.odm_ui@delete_selected')
                 btn = _html.A(href=delete_form_url, css='hidden btn btn-danger mass-action-button', title=title)
                 btn.append(_html.I(css='fa fa-fw fa-remove'))
@@ -74,7 +74,7 @@ class Browser(_widget.misc.BootstrapTable):
             # Additional toolbar buttons
             for btn_data in self._model_class.odm_ui_browser_mass_action_buttons():
                 ep = btn_data.get('ep')
-                url = _router.ep_url(ep) if ep else '#'
+                url = _router.rule_url(ep) if ep else '#'
                 css = 'btn btn-{} mass-action-button'.format(btn_data.get('color', 'default'))
                 icon = 'fa fa-fw fa-' + btn_data.get('icon', 'question')
                 button = _html.A(href=url, css=css, title=btn_data.get('title'))
@@ -180,7 +180,7 @@ class Browser(_widget.misc.BootstrapTable):
                     color = 'btn btn-xs btn-' + btn_data.get('color', 'default')
                     title = btn_data.get('title', '')
                     ep = btn_data.get('ep')
-                    url = _router.ep_url(ep, {'ids': str(entity.id)}) if ep else '#'
+                    url = _router.rule_url(ep, {'ids': str(entity.id)}) if ep else '#'
                     css = btn_data.get('css', '')
                     i = _html.I(css='fa fa-fw fa-' + btn_data.get('icon', 'question'))
                     btn = _html.A(href=url, css=color + css, title=title).append(i)
@@ -203,10 +203,10 @@ class Browser(_widget.misc.BootstrapTable):
 
         if entity.odm_ui_modification_allowed() and \
                 (entity.odm_auth_check_permission('modify') or entity.odm_auth_check_permission('modify_own')):
-            m_form_url = _router.ep_url('pytsite.odm_ui@m_form', {
+            m_form_url = _router.rule_url('pytsite.odm_ui@m_form', {
                 'model': entity.model,
                 'eid': str(entity.id),
-                '__redirect': _router.ep_url('pytsite.odm_ui@browse', {'model': entity.model}),
+                '__redirect': _router.rule_url('pytsite.odm_ui@browse', {'model': entity.model}),
             })
             title = _lang.t('pytsite.odm_ui@modify')
             a = _html.A(css='btn btn-xs btn-default', href=m_form_url, title=title)
@@ -216,10 +216,10 @@ class Browser(_widget.misc.BootstrapTable):
 
         if entity.odm_ui_deletion_allowed() and \
                 (entity.odm_auth_check_permission('delete') or entity.odm_auth_check_permission('delete_own')):
-            d_form_url = _router.ep_url('pytsite.odm_ui@d_form', {
+            d_form_url = _router.rule_url('pytsite.odm_ui@d_form', {
                 'model': entity.model,
                 'ids': str(entity.id),
-                '__redirect': _router.ep_url('pytsite.odm_ui@browse', {'model': entity.model}),
+                '__redirect': _router.rule_url('pytsite.odm_ui@browse', {'model': entity.model}),
             })
             title = _lang.t('pytsite.odm_ui@delete')
             a = _html.A(css='btn btn-xs btn-danger', href=d_form_url, title=title)

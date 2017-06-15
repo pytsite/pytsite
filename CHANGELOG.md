@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.39 (2017-06-15)
+### Changed
+- `router`: refactored.
+
+
 ## 0.99.38 (2017-06-11)
 ### Added
 - `auth`: new fields in `AbstractUser`: `is_follows` and `is_followed`.

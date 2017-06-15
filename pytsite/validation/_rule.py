@@ -1,6 +1,7 @@
 """Basic Validation Rules.
 """
 import re as _re
+from typing import Any as _Any
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from decimal import Decimal as _Decimal
 from pytsite import util as _util, lang as _lang
@@ -36,7 +37,7 @@ class Rule(_ABC):
         """
         self._value = value
 
-    def validate(self, value=None):
+    def validate(self, value=None) -> _Any:
         if value is not None:
             self._value = value
 

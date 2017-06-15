@@ -1,13 +1,13 @@
 """
 """
-from pytsite import unittest, http_api
+from pytsite import testing, http_api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class TestHttpApi(unittest.TestCase):
+class TestHttpApi(testing.TestCase):
     def test_post_access_token(self):
         url = http_api.url('pytsite.auth@post_access_token', {'driver': 'password'})
         resp = self.send_http_request(self.prepare_http_request('POST', url, data={

@@ -1,6 +1,6 @@
 """PytSite ODM File Storage Fields.
 """
-from typing import Tuple as _Tuple
+from typing import Tuple as _Tuple, Optional as _Optional
 from bson import DBRef as _DBRef
 from pytsite import odm as _odm, file as _file
 
@@ -37,7 +37,7 @@ def _get_file(value) -> _file.model.AbstractFile:
     # To directly support HTTP API requests
     elif isinstance(value, dict):
         if 'uid' not in value:
-            raise ValueError("Dictionary must contain 'uid' key.")
+            raise ValueError("Dictionary must contain 'uid' key")
 
         value = _file.get(value['uid'])
 
@@ -46,10 +46,10 @@ def _get_file(value) -> _file.model.AbstractFile:
         if value.collection == 'images':
             value = _file.get('file_image:' + str(value.id))
         else:
-            raise ValueError('Cannot determine collection of DB reference: {}.'.format(value))
+            raise ValueError('Cannot determine collection of DB reference: {}'.format(value))
 
     elif value is None:
-        raise _file.error.FileNotFound("File for '{}' is not found.".format(value))
+        raise _file.error.FileNotFound("File for '{}' is not found".format(value))
 
     else:
         raise TypeError('File object, string UID, dict or None expected, got {}'.format(type(value)))
@@ -69,7 +69,7 @@ class AnyFile(_odm.field.Abstract):
 
         super().__init__(name, **kwargs)
 
-    def _on_set(self, value, **kwargs) -> str:
+    def _on_set(self, value, **kwargs) -> _Optional[str]:
         """Hook. Transforms externally set value to internal value.
         """
         try:
@@ -84,7 +84,7 @@ class AnyFile(_odm.field.Abstract):
             return self._file.uid
 
         except _file.error.FileNotFound:
-            return None
+            return
 
     def _on_get(self, internal_value: str, **kwargs) -> _file.model.AbstractFile:
         """Hook. Transforms internal value to external one.
@@ -109,7 +109,7 @@ class AnyFiles(_odm.field.UniqueStringList):
 
         super().__init__(name, **kwargs)
 
-    def _on_set(self, value, **kwargs) -> str:
+    def _on_set(self, value, **kwargs) -> list:
         """Hook. Transforms externally set value to internal value.
         """
         if not isinstance(value, (list, tuple)):
@@ -132,7 +132,7 @@ class AnyFiles(_odm.field.UniqueStringList):
 
         return clean_value
 
-    def _on_get(self, internal_value: str, **kwargs) -> _Tuple[_file.model.AbstractFile]:
+    def _on_get(self, internal_value: str, **kwargs) -> _Tuple[_file.model.AbstractFile, ...]:
         """Hook. Transforms internal value to external one.
         """
         return tuple(self._files)

@@ -34,7 +34,7 @@ class Form(_form.Form):
             weight=10,
             value=_lang.t('pytsite.settings@cancel'),
             icon='fa fa-fw fa-ban',
-            href=_router.ep_url('pytsite.admin@dashboard'),
+            href=_router.rule_url('pytsite.admin@dashboard'),
             form_area='footer',
         ))
 
@@ -66,4 +66,4 @@ class Form(_form.Form):
 
         _router.session().add_success_message(_lang.t('pytsite.settings@settings_has_been_saved'))
 
-        return _http.response.Redirect(_router.ep_url('pytsite.settings@form', {'uid': setting_uid}))
+        return _http.response.Redirect(_router.rule_url('pytsite.settings@form', {'uid': setting_uid}))

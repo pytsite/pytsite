@@ -19,7 +19,6 @@ def reset(title: str = None):
     t_set('charset', 'UTF-8')
     t_set('title', title or _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-    t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
 
 
 def t_set(tag: str, value: str = None, **kwargs):

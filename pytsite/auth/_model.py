@@ -10,6 +10,9 @@ SYSTEM_USER_LOGIN = 'system@system.system'
 
 
 class AuthEntity(_ABC):
+    """Abstract Auth Entity Model
+    """
+
     @property
     def uid(self) -> str:
         """Get UID of the entity.
@@ -38,7 +41,7 @@ class AuthEntity(_ABC):
 
 
 class AbstractRole(AuthEntity):
-    """Role.
+    """Abstract Role Model
     """
 
     @property
@@ -82,7 +85,7 @@ class AbstractRole(AuthEntity):
 
 
 class AbstractUser(AuthEntity):
-    """User ODM Model.
+    """Abstract User Model
     """
 
     @property
@@ -346,7 +349,7 @@ class AbstractUser(AuthEntity):
 
     @property
     def profile_view_url(self) -> str:
-        return _router.ep_url('pytsite.auth@profile_view', {'nickname': self.nickname})
+        return _router.rule_url('pytsite.auth@profile_view', {'nickname': self.nickname})
 
     @property
     def url(self) -> str:
@@ -356,7 +359,7 @@ class AbstractUser(AuthEntity):
 
     @property
     def profile_edit_url(self) -> str:
-        return _router.ep_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
+        return _router.rule_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
 
     @_abstractmethod
     def add_role(self, role: AbstractRole):

@@ -31,13 +31,18 @@ class RulesMap:
         # Add a rule
         self._rules[rule.name] = rule
 
+    def has(self, name) -> bool:
+        """Check if the rule exists
+        """
+        return name in self._rules
+
     def get(self, name: str) -> _rule.Rule:
         """Get rule by name
         """
         try:
             return self._rules[name]
         except KeyError:
-            raise _error.RuleNotFound("Rule with name '{}' is not found".format(name))
+            raise _error.RuleNotFound("Rule '{}' is not found".format(name))
 
     def match(self, path: str, method: str = 'GET') -> _rule.Rule:
         """Match rule against a path.
@@ -45,6 +50,9 @@ class RulesMap:
         method = method.upper()
 
         for rule in self._rules.values():
+            if not rule.regex:
+                continue
+
             m = rule.regex.match(path)
             if not m or method not in rule.methods:
                 continue

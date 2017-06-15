@@ -3,6 +3,7 @@
 from . import _error as error
 from ._rule import Rule
 from ._rules_map import RulesMap
+from ._controller import Controller
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

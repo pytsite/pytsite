@@ -1,10 +1,9 @@
-"""PytSite Router Controller
+"""PytSite Routing Controller
 """
 
-from typing import List as _List, Dict as _Dict
+from typing import List as _List, Dict as _Dict, Any as _Any
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import formatter as _formatter, validation as _validation
-
+from pytsite import formatter as _formatter, validation as _validation, http as _http
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -18,7 +17,6 @@ class Controller(_ABC):
         self._formatters = {}  # type: _Dict[str, _List[_formatter.Formatter]]
         self._rules = {}  # type: _Dict[str, _List[_validation.rule.Rule]]
         self._args = {}
-        self._inp = {}
 
         self._setup()
 
@@ -59,6 +57,32 @@ class Controller(_ABC):
                             'error': str(e),
                         })
 
+    def arg(self, name: str, default: _Any = None):
+        return self._args.get(name, default)
+
+    def arg_set(self, name: str, value: _Any):
+        self._args[name] = value
+
+    @staticmethod
+    def redirect(location: str, status: int = 302) -> _http.response.Redirect:
+        return _http.response.Redirect(location, status)
+
+    @staticmethod
+    def not_found(description: str = None, response: _http.response.Response = None):
+        return _http.error.NotFound(description, response)
+
+    @staticmethod
+    def unauthorized(description: str = None, response: _http.response.Response = None):
+        return _http.error.Unauthorized(description, response)
+
+    @staticmethod
+    def forbidden(description: str = None, response: _http.response.Response = None):
+        return _http.error.Forbidden(description, response)
+
+    @staticmethod
+    def server_error(description: str = None, response: _http.response.Response = None):
+        return _http.error.InternalServerError(description, response)
+
     @property
     def args(self) -> _Dict:
         return self._args
@@ -66,14 +90,6 @@ class Controller(_ABC):
     @args.setter
     def args(self, value: _Dict):
         self._process_input(self._args, value)
-
-    @property
-    def inp(self) -> _Dict:
-        return self._inp
-
-    @inp.setter
-    def inp(self, value: _Dict):
-        self._process_input(self._inp, value)
 
     @_abstractmethod
     def exec(self):

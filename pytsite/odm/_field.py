@@ -760,9 +760,8 @@ class Email(String):
     def _on_set(self, value: str, **kwargs):
         v_msg_id = 'pytsite.odm@validation_field_email'
         v_msg_args = {'field': self.name}
-        _validation.rule.Email(value, v_msg_id, v_msg_args).validate()
 
-        return value
+        return _validation.rule.Email(value, v_msg_id, v_msg_args).validate()
 
 
 class Integer(Abstract):

@@ -1,7 +1,6 @@
 """PytSite HTTP API Package.
 """
 # Public API
-from ._controller import Controller
 from ._api import handle, url, call, on_pre_request, on_request
 
 __author__ = 'Alexander Shepetko'
@@ -11,10 +10,10 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import assetman, router
-    from . import _eh
+    from . import _eh, _controllers
 
     # HTTP entry point route
-    router.handle('/api/<int:version>/<path:endpoint>', 'pytsite.http_api@entry', 'pytsite.http_api@entry',
+    router.handle(_controllers.Entry(), '/api/<int:version>/<path:endpoint>', 'pytsite.http_api@entry',
                   methods='*')
 
     # JavaScript helpers

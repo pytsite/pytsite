@@ -1,15 +1,14 @@
 """PytSite Router API.
 """
 import re as _re
-from typing import Dict as _Dict, Union as _Union
+from typing import Dict as _Dict, Union as _Union, List as _List
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, theme as _theme, setup as _setup, events as _events, routing as _routing
-from . import _controller
+    threading as _threading, setup as _setup, events as _events, routing as _routing
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -17,8 +16,8 @@ __license__ = 'MIT'
 
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 
-# Routes map
-_routes = _routing.RulesMap()
+# Rules map
+_rules = _routing.RulesMap()
 
 # Route path aliases
 _path_aliases = {}
@@ -72,24 +71,19 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def handle(path: str, handler: _Union[str, _controller.Controller], name: str = None, defaults: dict = None,
-           methods='GET', filters=None):
-    """Add a rule to the router.
+def handle(controller: _Union[str, _routing.Controller], path: str = None, name: str = None, defaults: dict = None,
+           methods='GET', filters: _Union[str, _List[str]] = None):
+    """Add a rule to the router
     """
-    if not isinstance(handler, str) and not issubclass(handler, _controller.Controller):
-        raise RuntimeError('Handler should be a string or a controller class, got {}'.format(type(handler)))
+    if isinstance(controller, str):
+        controller = _rules.get(controller)
+    elif not isinstance(controller, _routing.Controller):
+        raise TypeError('String or controller instance expected, got {}'.format(type(controller)))
 
     if isinstance(filters, str):
         filters = (filters,)
 
-    _routes.add(_routing.Rule(path, handler, name, defaults, methods, {'filters': filters or ()}))
-
-
-def handle_post(path: str, handler: _Union[str, _controller.Controller], name: str = None, defaults: dict = None,
-                filters=None):
-    """Shortcut.
-    """
-    handle(path, handler, name, defaults, 'POST', filters)
+    _rules.add(_routing.Rule(controller, path, name, defaults, methods, {'filters': filters or []}))
 
 
 def add_path_alias(alias: str, target: str):
@@ -105,30 +99,19 @@ def remove_path_alias(alias: str):
         del _path_aliases[alias]
 
 
-def is_ep_callable(ep_name: str) -> bool:
+def has_rule(rule_name: str) -> bool:
     """Check whether endpoint is callable.
     """
-    try:
-        resolve_ep_callable(ep_name)
-        return True
-    except ImportError:
-        return False
+    return _rules.has(rule_name)
 
 
-def resolve_ep_callable(handler: str) -> callable:
-    if '$theme' in handler:
-        handler = handler.replace('$theme', _theme.get().name)
-
-    if '@' in handler:
-        handler = handler.replace('@', '.ep.')
-
-    return _util.get_callable(handler)
-
-
-def call_ep(ep_name: str, **kwargs):
-    """Call an endpoint.
+def call(rule_name: str, **kwargs):
+    """Call a controller by name
     """
-    return resolve_ep_callable(ep_name)(**kwargs)
+    controller = _rules.get(rule_name).controller
+    controller.args = kwargs
+
+    return controller.exec()
 
 
 def dispatch(env: dict, start_response: callable):
@@ -147,7 +130,7 @@ def dispatch(env: dict, start_response: callable):
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
 
-    # Creating request context
+    # Create request context
     req = _http.request.Request(env)
     set_request(req)
 
@@ -192,7 +175,6 @@ def dispatch(env: dict, start_response: callable):
         req.path = _path_aliases[req.path]
 
     # Shortcuts
-    request_input = req.inp
     request_cookies = req.cookies
 
     # Session setup
@@ -212,74 +194,54 @@ def dispatch(env: dict, start_response: callable):
 
         # Search for rule
         try:
-            rule = _routes.match(req.path, req.method)
-            rule_handler = rule.handler
-            rule_args = rule.args.copy()
-            rule_attrs = rule.attrs.copy()
-
-            # Try to find referenced rule by name
-            if isinstance(rule_handler, str):
-                try:
-                    ref_rule = _routes.get(rule_handler)
-
-                    rule_handler = ref_rule.handler
-
-                    ref_rule_args = ref_rule.args.copy()
-                    ref_rule_args.update(rule_args)
-                    rule_args = ref_rule_args
-
-                    ref_rule_attrs = ref_rule.attrs.copy()
-                    ref_rule_attrs.update(rule_attrs)
-                    rule_attrs = ref_rule_attrs
-                except _routing.error.RuleNotFound:
-                    pass
+            rule = _rules.match(req.path, req.method)
         except _routing.error.RuleNotFound as e:
             raise _http.error.NotFound(e)
 
         # Processing rule filters
-        for flt in rule_attrs['filters']:
-            flt_args = rule_args
-            flt_split = flt.split(':')
-            flt_endpoint = flt_split[0]
+        for flt_str in rule.attrs['filters']:
+            flt_args = rule.args.copy()
+            flt_split = flt_str.split(':')
+            flt_name = flt_split[0]
+
+            if not has_rule(flt_name):
+                raise RuntimeError("Route filter '{}' is not defined".format(flt_name))
+
             if len(flt_split) > 1:
                 for flt_arg_str in flt_split[1:]:
                     flt_arg_str_split = flt_arg_str.split('=')
                     if len(flt_arg_str_split) == 2:
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
-            flt_response = call_ep(flt_endpoint, **flt_args)
+            flt_controller = _rules.get(flt_name).controller
+            flt_controller.args = flt_args
+            flt_response = flt_controller.exec()
             if isinstance(flt_response, _http.response.Redirect):
                 return flt_response(env, start_response)
 
         # Preparing response object
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
-        handler_resp = None
 
-        # Resolve handler's callable
-        if isinstance(rule_handler, str):
-            rule_handler = resolve_ep_callable(rule_handler)
+        # Fill controller arguments
+        controller = rule.controller
+        controller.args = req.inp.copy()
+        controller.args.update(rule.args)
 
-        # Calling the handler
-        if issubclass(rule_handler, _controller.Controller):
-            # Instantiate controller and fill it with values
-            controller = rule_handler()  # type: _controller.Controller
-            controller.args = rule_args
-            controller.inp = req.inp
-            handler_resp = controller.exec()
-        elif callable(rule_handler):
-            try:
-                handler_resp = rule_handler(**rule_args)
-            except ImportError as e:
-                raise _http.error.NotFound(e)
+        # Call controller
+        try:
+            controller_resp = controller.exec()
+        except _routing.error.RuleNotFound as e:
+            # Controllers can call other controllers, and they can generate such exceptions
+            raise _http.error.NotFound(e)
 
         # Checking response from the handler
-        if isinstance(handler_resp, str):
+        if isinstance(controller_resp, str):
             # Minifying output
             if _reg.get('output.minify'):
-                handler_resp = _util.minify_html(handler_resp)
-            wsgi_response.data = handler_resp
-        elif isinstance(handler_resp, _http.response.Response):
-            wsgi_response = handler_resp
+                controller_resp = _util.minify_html(controller_resp)
+            wsgi_response.data = controller_resp
+        elif isinstance(controller_resp, _http.response.Response):
+            wsgi_response = controller_resp
         else:
             wsgi_response.data = ''
 
@@ -330,8 +292,8 @@ def dispatch(env: dict, start_response: callable):
         _events.fire('pytsite.router.exception', args=args)
 
         # User defined exception handler
-        if is_ep_callable('$theme@exception'):
-            wsgi_response = call_ep('$theme@exception', **args)
+        if has_rule('$theme@exception'):
+            wsgi_response = call('$theme@exception', **args)
 
         # Builtin exception handler
         else:
@@ -491,16 +453,16 @@ def current_url(strip_query: bool = False, resolve_alias: bool = True, lang: str
     return r
 
 
-def ep_path(ep_name: str, args: dict = None) -> str:
+def rule_path(rule_name: str, args: dict = None) -> str:
     """Get path for an endpoint.
     """
-    return _routes.path(ep_name, args)
+    return _rules.path(rule_name, args)
 
 
-def ep_url(ep_name: str, route_args: dict = None, **kwargs) -> str:
+def rule_url(rule_name: str, rule_args: dict = None, **kwargs) -> str:
     """Get URL for an endpoint.
     """
-    return url(ep_path(ep_name, route_args), **kwargs)
+    return url(rule_path(rule_name, rule_args), **kwargs)
 
 
 def on_pre_dispatch(handler, priority: int = 0, method: str = 'get'):

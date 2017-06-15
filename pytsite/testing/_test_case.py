@@ -1,4 +1,4 @@
-"""
+"""PytSite Testing Test Case
 """
 import re as _re
 import requests as _requests
@@ -11,11 +11,13 @@ __license__ = 'MIT'
 
 
 class TestCase(_TestCase):
-    def prepare_http_request(self, method: str, url: str, headers: dict = None, data: dict = None,
+    @staticmethod
+    def prepare_http_request(method: str, url: str, headers: dict = None, data: dict = None,
                              params: dict = None, files: dict = None) -> _requests.PreparedRequest:
         return _requests.Request(method, url, headers, files, data, params).prepare()
 
-    def send_http_request(self, request: _requests.PreparedRequest):
+    @staticmethod
+    def send_http_request(request: _requests.PreparedRequest):
         with _requests.Session() as s:
             r = s.send(request)
 

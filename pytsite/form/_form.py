@@ -46,7 +46,7 @@ class Form(_ABC):
         self._name = kwargs.get('name') or _form_name_sub_re.sub('-', self.cid.lower())
         self._path = kwargs.get('path', _router.current_path(True))
         self._method = kwargs.get('method', 'post')
-        self._action = kwargs.get('action', _router.ep_url('pytsite.form@submit', {'uid': self.uid}))
+        self._action = kwargs.get('action', _router.rule_url('pytsite.form@submit', {'uid': self.uid}))
         self._steps = int(kwargs.get('steps', 1))
         self._step = int(kwargs.get('step', 1))
         self._modal = kwargs.get('modal', False)

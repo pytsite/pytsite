@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import assetman, tpl, lang, http_api
-    from . import _http_api
+    from . import _http_api_controllers
 
     # Resources
     lang.register_package(__name__)
@@ -23,8 +23,8 @@ def _init():
     assetman.js_module('pytsite-file-widget-files-upload', __name__ + '@js/widget-files-upload')
 
     # HTTP API handlers
-    http_api.handle('POST', 'file', _http_api.post, 'pytsite.file@post')
-    http_api.handle('GET', 'file/<uid>', _http_api.get, 'pytsite.file@get')
+    http_api.handle('POST', 'file', _http_api_controllers.Post(), 'pytsite.file@post')
+    http_api.handle('GET', 'file/<uid>', _http_api_controllers.Get(), 'pytsite.file@get')
 
 
 _init()

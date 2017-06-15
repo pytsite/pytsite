@@ -180,7 +180,7 @@ class MassAction(_form.Form):
         :param **kwargs:
         """
         if not self._redirect:
-            self._redirect = _router.ep_url('pytsite.odm_ui@browse', {'model': self._model})
+            self._redirect = _router.rule_url('pytsite.odm_ui@browse', {'model': self._model})
 
     def _on_setup_widgets(self):
         """Hook.
@@ -254,6 +254,6 @@ class Delete(MassAction):
             _logger.error(str(e), exc_info=e)
             _router.session().add_error_message(_lang.t('pytsite.odm_ui@entity_deletion_forbidden') + '. ' + str(e))
 
-        default_redirect = _router.ep_url('pytsite.odm_ui@browse', {'model': self._model})
+        default_redirect = _router.rule_url('pytsite.odm_ui@browse', {'model': self._model})
 
         return _http.response.Redirect(_router.request().inp.get('__redirect', default_redirect))

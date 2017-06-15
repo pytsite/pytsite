@@ -17,7 +17,7 @@ def is_defined(uid: str) -> bool:
     return uid in _settings
 
 
-def define(uid: str, frm: _Type[_frm.Form], menu_title: str, menu_icon: str, permissions: str = '*',
+def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permissions: str = '*',
            menu_weight: int = 0):
     """Define setting.
     """
@@ -30,7 +30,7 @@ def define(uid: str, frm: _Type[_frm.Form], menu_title: str, menu_icon: str, per
         'perm_name': permissions,
     }
 
-    url = _router.ep_path('pytsite.settings@form', {'uid': uid})
+    url = _router.rule_path('pytsite.settings@form', {'uid': uid})
     _admin.sidebar.add_menu('settings', uid, menu_title, url, menu_icon, weight=menu_weight, permissions=permissions)
 
 
@@ -88,4 +88,4 @@ def put(uid: str, value: _Any):
 def form_url(uid: str) -> str:
     """Get URL of a settings form.
     """
-    return _router.ep_url('pytsite.settings@form', {'uid': uid})
+    return _router.rule_url('pytsite.settings@form', {'uid': uid})

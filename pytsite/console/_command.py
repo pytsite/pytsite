@@ -52,9 +52,14 @@ class Command(_ABC):
         """Get signature of the command.
         """
         options_sig = ' '.join([opt.signature for opt in self._options.values()])
-        arguments_sig = ' '.join([arg.signature for arg in self._arguments])
+        if options_sig:
+            options_sig = ' ' + options_sig
 
-        return '{} {} {}'.format(self.name, options_sig, arguments_sig)
+        arguments_sig = ' '.join([arg.signature for arg in self._arguments])
+        if arguments_sig:
+            arguments_sig = ' ' + arguments_sig
+
+        return '{}{}{}'.format(self.name, options_sig, arguments_sig)
 
     def set_option_value(self, name: str, value: _Any):
         try:

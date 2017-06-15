@@ -12,8 +12,8 @@ __license__ = 'MIT'
 def _init():
     """Init wrapper.
     """
-    from pytsite import assetman, tpl, lang, router, robots, browser, permissions
-    from . import _eh
+    from pytsite import assetman, tpl, lang, router, robots, permissions
+    from . import _eh, _controllers
 
     bp = base_path()
 
@@ -40,7 +40,7 @@ def _init():
     permissions.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
 
     # Dashboard route
-    router.handle(bp, 'pytsite.admin@dashboard', 'pytsite.admin@dashboard')
+    router.handle(_controllers.Dashboard(), bp, 'pytsite.admin@dashboard')
 
     # Tpl globals
     tpl.register_global('admin_base_path', bp)

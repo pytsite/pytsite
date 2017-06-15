@@ -2,7 +2,8 @@
 """
 from os import path as _path
 from shutil import move as _move
-from pytsite import settings as _settings, reg as _reg, console as _console, file as _file, metatag as _metatag
+from pytsite import settings as _settings, reg as _reg, console as _console, file as _file, assetman as _assetman, \
+    metatag as _metatag
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -13,6 +14,9 @@ __license__ = 'MIT'
 def router_dispatch():
     """pytsite.router.dispatch
     """
+    if not _assetman.is_package_registered(_api.get().name):
+        return
+
     # Set favicon URL
     favicon_fid = _settings.get('theme.favicon_fid')
     if favicon_fid:
@@ -22,6 +26,8 @@ def router_dispatch():
             _metatag.t_set('link', rel='icon', type=f.mime, href=f.get_url(width=50, height=50))
         except _file.error.FileNotFound:
             pass
+    else:
+        _metatag.t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
 
 
 def update(version: str):

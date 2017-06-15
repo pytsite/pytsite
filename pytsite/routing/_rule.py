@@ -3,6 +3,7 @@
 import re as _re
 from pytsite import util as _util
 from . import _error
+from ._controller import Controller as _Controller
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -44,15 +45,15 @@ class Rule:
     """Routing Rule
     """
 
-    def __init__(self, path: str, handler, name: str = None, defaults: dict = None, methods='GET', attrs: dict = None):
-        if not path.startswith('/'):
-            path = '/' + path
+    def __init__(self, controller: _Controller, path: str = None, name: str = None, defaults: dict = None,
+                 methods='GET', attrs: dict = None):
 
-        if path.endswith('/'):
-            path = path[:-1]
+        if path:
+            if not path.startswith('/'):
+                path = '/' + path
 
-        if not name:
-            name = _util.random_str()
+            if path.endswith('/'):
+                path = path[:-1]
 
         if isinstance(methods, str):
             if methods == '*':
@@ -63,18 +64,20 @@ class Rule:
             raise TypeError('List or type expected, got {}'.format(type(methods)))
 
         self._path = path
-        self._handler = handler
-        self._name = name
+        self._controller = controller
+        self._name = name or _util.random_str()
         self._defaults = defaults or {}
         self._methods = set([m.upper() for m in methods])
         self._attrs = attrs if attrs else {}
 
         # Build regular expression
-        rule_regex_str = _rule_arg_re.sub(_rule_arg_repl_func, path)
-        self._regex = _re.compile('^/?{}/?$'.format(rule_regex_str))
-
-        # Build arguments dictionary based on regular expression
-        self._args = dict.fromkeys(self._regex.groupindex.keys())
+        if self._path:
+            rule_regex_str = _rule_arg_re.sub(_rule_arg_repl_func, path)
+            self._regex = _re.compile('^/?{}/?$'.format(rule_regex_str))
+            self._args = dict.fromkeys(self._regex.groupindex.keys())
+        else:
+            self._regex = None
+            self._args = {}
 
         # Fill arguments with defaults
         if defaults:
@@ -85,8 +88,8 @@ class Rule:
         return self._path
 
     @property
-    def handler(self):
-        return self._handler
+    def controller(self) -> _Controller:
+        return self._controller
 
     @property
     def name(self) -> str:

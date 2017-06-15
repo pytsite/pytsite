@@ -75,6 +75,9 @@ def _init():
     for n in ['config', 'log', 'static', 'storage', 'tmp']:
         reg.put('paths.' + n, path.join(root_path, n))
 
+    # PytSite path
+    reg.put('paths.pytsite', path.join(root_path, path.dirname(__file__)))
+
     # Create cache directory
     reg.put('paths.cache', path.join(reg.get('paths.tmp'), 'cache'))
     makedirs(reg.get('paths.cache'), 0o755, True)
@@ -122,7 +125,7 @@ def _init():
 
     # Initialize required core packages. Order is important.
     autoload = ('theme', 'cron', 'stats', 'auth_storage_odm', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api',
-                'browser', 'plugman')
+                'browser', 'plugman', 'testing')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 

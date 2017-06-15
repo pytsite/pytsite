@@ -196,7 +196,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         """
         # Fields
         self.define_field(_odm.field.String('login', required=True))
-        self.define_field(_odm.field.String('email', required=True))
+        self.define_field(_odm.field.Email('email', required=True))
         self.define_field(_odm.field.String('password', required=True))
         self.define_field(_odm.field.String('nickname', required=True))
         self.define_field(_odm.field.Bool('profile_is_public', default=False))
@@ -228,15 +228,16 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_index([('last_sign_in', _odm.I_DESC)])
 
     def _on_f_get(self, field_name: str, value, **kwargs):
-        if field_name == 'picture' and not self.is_new and not self.get_field('picture').get_val():
-            # Load user picture from Gravatar
-            img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
-            img = _file.create(img_url)
-            with self:
-                _auth.switch_user_to_system()
-                self.f_set('picture', img).save()
-                _auth.restore_user()
-            value = img
+        if field_name == 'picture' and not self.get_field('picture').get_val():
+            if not (self.is_new or self.is_deleted or self.is_being_deleted):
+                # Load user picture from Gravatar
+                img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
+                img = _file.create(img_url)
+                with self:
+                    _auth.switch_user_to_system()
+                    self.f_set('picture', img).save()
+                    _auth.restore_user()
+                value = img
 
         return value
 
@@ -364,7 +365,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         return login, full_name, roles, status, p_is_public, is_online, created, last_activity
 
     def odm_ui_view_url(self) -> str:
-        return _router.ep_url('pytsite.auth@profile_view', {'nickname': self.f_get('nickname')})
+        return _router.rule_url('pytsite.auth@profile_view', {'nickname': self.f_get('nickname')})
 
     def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.

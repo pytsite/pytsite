@@ -1,4 +1,4 @@
-"""Auth Manager.
+"""PytSite Auth API
 """
 from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
@@ -109,7 +109,7 @@ def get_sign_in_form(driver_name: str = None, **kwargs) -> _form.Form:
     kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-sign-in driver-' + driver.name
 
     form = driver.get_sign_in_form(**kwargs)
-    form.action = _router.ep_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
+    form.action = _router.rule_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
 
     if not form.title:
         form.title = _lang.t('pytsite.auth@authentication')
@@ -391,7 +391,7 @@ def get_sign_in_url(auth_driver_name: str = None, add_query: dict = None, add_fr
     if not auth_driver_name:
         auth_driver_name = list(_authentication_drivers)[-1]
 
-    return _router.ep_url('pytsite.auth@sign_in', {
+    return _router.rule_url('pytsite.auth@sign_in', {
         'driver': auth_driver_name,
         '__redirect': _router.current_url(add_query=add_query, add_fragment=add_fragment)
     })
@@ -400,7 +400,7 @@ def get_sign_in_url(auth_driver_name: str = None, add_query: dict = None, add_fr
 def get_sign_out_url() -> str:
     """Get sign out URL.
     """
-    return _router.ep_url('pytsite.auth@sign_out', {'__redirect': _router.current_url()})
+    return _router.rule_url('pytsite.auth@sign_out', {'__redirect': _router.current_url()})
 
 
 def get_users(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,

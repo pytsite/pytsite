@@ -176,13 +176,13 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
     def odm_ui_d_form_url(self, ajax: bool = False) -> str:
         if hasattr(self, 'model') and hasattr(self, 'id'):
             if ajax:
-                return _router.ep_url('pytsite.odm_ui@d_form_submit', {
+                return _router.rule_url('pytsite.odm_ui@d_form_submit', {
                     'model': self.model,
                     'ids': str(self.id),
                     'ajax': 'true'
                 })
             else:
-                return _router.ep_url('pytsite.odm_ui@d_form', {
+                return _router.rule_url('pytsite.odm_ui@d_form', {
                     'model': self.model,
                     'ids': str(self.id)
                 })
@@ -200,7 +200,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
                 '__redirect': 'ENTITY_VIEW',
             })
 
-            return _router.ep_url('pytsite.odm_ui@m_form', args)
+            return _router.rule_url('pytsite.odm_ui@m_form', args)
 
         else:
             raise NotImplementedError('Not implemented yet.')

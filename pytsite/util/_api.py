@@ -547,30 +547,6 @@ def to_snake_case(s: str) -> str:
     return _re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
 
 
-def get_callable(s: str, module=None) -> callable:
-    """Get callable object described by a string.
-    """
-    if not _re.match('^[a-zA-Z0-9\.\-_]+$', s):
-        raise RuntimeError('Invalid format of callable string: {}'.format(s))
-
-    if not module:
-        s_split = s.split('.')
-        module_name = '.'.join(s_split[:-1])
-        callable_name = ''.join(s_split[-1:])
-        module = _import_module(module_name)
-    else:
-        callable_name = s
-
-    if callable_name not in dir(module):
-        raise ImportError("'{}' is not callable".format(s))
-
-    callable_obj = getattr(module, callable_name)
-    if not callable(callable_obj):
-        raise ImportError("'{}' is not callable".format(s))
-
-    return callable_obj
-
-
 def format_call_stack_str(sep: str = '\n', skip: int = 1, limit: int = None) -> str:
     """Format call stack as string.
     """

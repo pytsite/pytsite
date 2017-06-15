@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import odm, tpl, lang, router, admin
-    from . import _api, _model
+    from . import _api, _model, _controllers
 
     # Resources
     lang.register_package(__name__)
@@ -21,7 +21,7 @@ def _init():
     odm.register_model('setting', _model.Setting)
 
     # Routing
-    router.handle(admin.base_path() + '/settings/<uid>', 'pytsite.settings@form', 'pytsite.settings@form')
+    router.handle(_controllers.Form(), admin.base_path() + '/settings/<uid>', 'pytsite.settings@form')
 
     # Admin sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, sort_items_by='title')

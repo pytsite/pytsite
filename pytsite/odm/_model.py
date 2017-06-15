@@ -43,6 +43,7 @@ class Entity(_ABC):
         self._id = None  # type: _ObjectId
         self._is_new = True
         self._is_modified = True
+        self._is_being_deleted = False
         self._is_deleted = False
         self._indexes = []
         self._has_text_index = False
@@ -354,6 +355,12 @@ class Entity(_ABC):
         """Is the entity has been deleted?
         """
         return self._is_deleted
+
+    @property
+    def is_being_deleted(self) -> bool:
+        """Is entity is being deleted?
+        """
+        return self._is_being_deleted
 
     def f_set(self, field_name: str, value, update_state=True, **kwargs):
         """Set field's value.
@@ -724,6 +731,8 @@ class Entity(_ABC):
 
         self._check_is_not_deleted()
 
+        self._is_being_deleted = True
+
         # Pre delete hook
         _events.fire('pytsite.odm.entity.pre_delete', entity=self)
         _events.fire('pytsite.odm.entity.{}.pre_delete'.format(self._model), entity=self)
@@ -756,6 +765,7 @@ class Entity(_ABC):
         _e_cache.remove(self)
 
         self._is_deleted = True
+        self._is_being_deleted = False
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)

@@ -34,6 +34,9 @@ _PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins')
 _PLUGINS_PACKAGE_NAME = 'plugins'
 
 
+_reg.put('paths.plugins', _PLUGINS_PATH)
+
+
 def _get_plugin_path(plugin_name: str) -> str:
     """Calculate local path of a plugin.
     """

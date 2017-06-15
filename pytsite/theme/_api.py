@@ -3,7 +3,7 @@
 from typing import Dict as _Dict
 from importlib import import_module as _import_module
 from os import path as _path, mkdir as _mkdir
-from pytsite import reg as _reg, settings as _settings, logger as _logger, assetman as _assetman, reload as _reload
+from pytsite import reg as _reg, settings as _settings, logger as _logger, reload as _reload
 from . import _theme, _error
 
 __author__ = 'Alexander Shepetko'
@@ -79,7 +79,7 @@ def get_registered() -> _Dict[str, _theme.Theme]:
     return _themes
 
 
-def load(name: str = None):
+def load(name: str = None) -> _theme.Theme:
     """Load theme
     """
     global _loaded
@@ -89,19 +89,25 @@ def load(name: str = None):
                                     format(name, _loaded.name))
 
     theme = get(name)
+    theme_has_assets = False
 
-    # Create directories for resources
-    for n in 'lang', 'tpl', 'assets':
-        n_path = _path.join(theme.path, n)
-        if not _path.exists(n_path):
-            _mkdir(n_path, 0o755)
+    # Register translations package
+    if _path.exists(_path.join(theme.path, 'lang')):
+        from pytsite import lang
+        lang.register_package(theme.name, 'lang')
 
-    # Register resources
-    from pytsite import lang, tpl, assetman
-    lang.register_package(theme.name, 'lang')
-    tpl.register_package(theme.name, 'tpl')
-    assetman.register_package(theme.name, 'assets')
+    # Register translations package
+    if _path.exists(_path.join(theme.path, 'tpl')):
+        from pytsite import tpl
+        tpl.register_package(theme.name, 'tpl')
 
+    # Register assetman package
+    if _path.exists(_path.join(theme.path, 'assets')):
+        from pytsite import assetman
+        assetman.register_package(theme.name, 'assets')
+        theme_has_assets = True
+
+    # Load theme module
     try:
         _import_module(theme.name)
         _loaded = theme
@@ -110,8 +116,9 @@ def load(name: str = None):
         raise _error.ThemeLoadError("Error while loading theme package '{}': {}".format(theme.name, e))
 
     # Compile assets
-    if _settings.get('theme.compiled') is False:
-        _assetman.build(theme.name)
+    if theme_has_assets and _settings.get('theme.compiled') is False:
+        from pytsite import assetman
+        assetman.build(theme.name)
         _settings.put('theme.compiled', True)
 
     return theme

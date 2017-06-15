@@ -15,7 +15,7 @@ _plugman_started = False
 def _init():
     from os import mkdir, path
     from pytsite import settings, lang, assetman, permissions, http_api, logger, console, setup, update
-    from . import _settings_form, _eh, _http_api, _console_command
+    from . import _settings_form, _eh, _http_api_controllers, _console_command
 
     # Resources
     lang.register_package(__name__)
@@ -36,9 +36,12 @@ def _init():
     console.register_command(_console_command.Upgrade())
 
     # HTTP API
-    http_api.handle('POST', 'plugman/install/<name>', _http_api.post_install, 'pytsite.plugman@post_install')
-    http_api.handle('POST', 'plugman/uninstall/<name>', _http_api.post_uninstall, 'pytsite.plugman@post_uninstall')
-    http_api.handle('POST', 'plugman/upgrade/<name>', _http_api.post_upgrade, 'pytsite.plugman@post_upgrade')
+    http_api.handle('POST', 'plugman/install/<name>', _http_api_controllers.PostInstall(),
+                    'pytsite.plugman@post_install')
+    http_api.handle('POST', 'plugman/uninstall/<name>', _http_api_controllers.PostUninstall(),
+                    'pytsite.plugman@post_uninstall')
+    http_api.handle('POST', 'plugman/upgrade/<name>', _http_api_controllers.PostUpgrade(),
+                    'pytsite.plugman@post_upgrade')
 
     if not is_api_dev_host():
         # Permissions

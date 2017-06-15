@@ -151,7 +151,7 @@ class ImageFileODMEntity(AnyFileODMEntity):
 
             uid = str(self.id)
             extension = _path.splitext(self.f_get('path'))[1]
-            return _router.ep_url('pytsite.file_storage_odm@image', {
+            return _router.rule_url('pytsite.file_storage_odm@image', {
                 'width': width,
                 'height': height,
                 'p1': uid[:2],

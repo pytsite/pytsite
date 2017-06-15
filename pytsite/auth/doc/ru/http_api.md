@@ -245,10 +245,9 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 ```
 
 
-## (Не реализовано) PATCH auth/user/:uid
+## PATCH auth/user/:uid
 
 Изменение учётной записи пользователя. Обязательна авторизация
-
 
 ### Аргументы
 
@@ -257,7 +256,20 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 
 ### Параметры
 
-- *required* изменяемые поля.
+- **object** изменяемые поля:
+    - **str** `email`.
+    - **str** `nickname`.
+    - **str** `picture`.
+    - **str** `first_name`.
+    - **str** `last_name`.
+    - **str** `description`.
+    - **str** `birth_date`.
+    - **str** `gender`.
+    - **str** `phone`.
+    - **str** `country`.
+    - **str** `city`.
+    - **array[str]** `urls`.
+    - **bool** `profile_is_public`.
 
 
 ## POST auth/follow/:uid
