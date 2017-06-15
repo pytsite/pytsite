@@ -196,7 +196,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
 
             args.update({
                 'model': self.model,
-                'id': str(self.id),
+                'eid': str(self.id),
                 '__redirect': 'ENTITY_VIEW',
             })
 

@@ -49,11 +49,13 @@ class Rule:
                  methods='GET', attrs: dict = None):
 
         if path:
+            # Cut trailing slash
+            if path.endswith('/') and len(path) > 1:
+                path = path[:-1]
+
+            # Add leading slash
             if not path.startswith('/'):
                 path = '/' + path
-
-            if path.endswith('/'):
-                path = path[:-1]
 
         if isinstance(methods, str):
             if methods == '*':

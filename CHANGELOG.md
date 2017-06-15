@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.99.42 (2017-06-15)
+### Fixed
+- `routing`: incorrect path trimming in case if path contains only single slash. 
+- `odm_ui`: incorrect rule argument name in `UIEntity.odm_ui_m_form_url()`.
+
+
 ## 0.99.41 (2017-06-15)
 ### Fixed
 - `routing`: forgotten `format()`'s argument.
