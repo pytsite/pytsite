@@ -4,12 +4,12 @@ import subprocess as _subprocess
 import json as _json
 from typing import Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Callable as _Callable, \
     Iterable as _Iterable
-from os import path as _path, chdir as _chdir, makedirs as _makedirs
+from os import path as _path, chdir as _chdir, makedirs as _makedirs, unlink as _unlink
 from shutil import rmtree as _rmtree
 from importlib.util import find_spec as _find_spec
 from time import time as _time
-from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, events as _events, \
-    console as _console, lang as _lang, theme as _theme, tpl as _tpl
+from pytsite import router as _router, threading as _threading, util as _util, reg as _reg, console as _console, \
+    lang as _lang, theme as _theme, tpl as _tpl
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -440,84 +440,129 @@ def js_module(name: str, location: str):
     _requirejs_modules[name] = location
 
 
-def build(package_name: str = None, _partly: bool = False):
+def _update_js_config_file(file_path: str, tpl_name: str, data: dict):
+    # Create file if it does not exists
+    if not _path.exists(file_path):
+        dir_path = _path.dirname(file_path)
+        if not _path.exists(dir_path):
+            _makedirs(dir_path, 0o755, True)
+
+        with open(file_path, 'wt') as f:
+            f.write(_tpl.render(tpl_name, {'data': _json.dumps(data)}))
+
+    # Read contents of the file
+    with open(file_path, 'rt') as f:
+        js_str = f.read()
+        json_str = js_str.replace('requirejs.config(', '')
+        json_str = json_str.replace('define(', '')
+        json_str = json_str.replace(');', '')
+
+        try:
+            json_data = _json.loads(json_str)  # type: dict
+        except _json.JSONDecodeError:
+            # Remove corrupted file and re-run this function to reconstruct it
+            _console.print_warning('{} is corrupted and will be rebuilt'.format(file_path))
+            _unlink(file_path)
+            return _update_js_config_file(file_path, tpl_name, data)
+
+    # Update JSON data
+    if tpl_name == 'pytsite.assetman@requirejs-config':
+        json_data = json_data.get('paths', {})
+
+    json_data.update(data)
+    with open(file_path, 'wt') as f:
+        f.write(_tpl.render(tpl_name, {'data': _json.dumps(json_data)}))
+
+
+def _update_requirejs_config(rjs_module_name: str, rjs_module_asset_path: str):
+    f_path = _path.join(_reg.get('paths.assets'), 'pytsite.assetman', 'require-config.js')
+
+    _update_js_config_file(f_path, 'pytsite.assetman@requirejs-config', {
+        rjs_module_name: rjs_module_asset_path
+    })
+
+
+def _update_timestamp_config(package_name: str):
+    ts = _util.md5_hex_digest(str(_time()))
+    _build_timestamps[package_name] = ts
+
+    # Write timestamp to package's assets directory
+    package_ts_f_path = _path.join(get_dst_dir_path(package_name), 'timestamp')
+    package_ts_d_path = _path.dirname(package_ts_f_path)
+    if not _path.exists(package_ts_d_path):
+        _makedirs(package_ts_d_path, 0o755, True)
+    with open(package_ts_f_path, 'wt') as f:
+        f.write(ts)
+
+    # Update JS timestamps config
+    js_config_f_path = _path.join(_reg.get('paths.assets'), 'pytsite.assetman', 'build-timestamps.js')
+    _update_js_config_file(js_config_f_path, 'pytsite.assetman@build-timestamps', {
+        package_name: ts,
+    })
+
+
+def build(package_name: str):
     """Compile assets.
     """
     global _globals
-    assets_static_path = _reg.get('paths.assets')
 
-    if package_name:
-        # Assets will be built for particular package, remove assets directory only for that package
-        package_name = resolve_package_name(package_name)
-        assets_dst_path = get_dst_dir_path(package_name)
-        if _path.exists(assets_dst_path):
-            _rmtree(assets_dst_path)
-    elif _path.exists(assets_static_path):
-        # Assets will be built for all packages, remove entire assets directory
-        _rmtree(assets_static_path)
+    _console.print_info(_lang.t('pytsite.assetman@compiling_assets_for_package', {'package': package_name}))
 
-    # Notify about start of assets building process
-    _events.fire('pytsite.assetman.build.before')
-    if package_name:
-        _console.print_info(_lang.t('pytsite.assetman@compiling_assets_for_package', {'package': package_name}))
-    else:
-        _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+    package_name = resolve_package_name(package_name)
+    assets_dst_path = get_dst_dir_path(package_name)
+
+    # Remove package's assets directory
+    # Dircetory of assetman cannot be removed because it contains dynamically generated RequireJS config
+    # and timestamps JSON
+    if package_name != 'pytsite.assetman' and _path.exists(assets_dst_path):
+        _rmtree(assets_dst_path)
 
     # Create tasks file for Gulp
     tasks_file_content = []
     for t_info in _tasks:
         pkg_name, task_name, src, dst, kwargs = t_info
-        if not package_name or package_name == pkg_name:
+        if package_name == pkg_name:
             tasks_file_content.append({
                 'name': task_name,
                 'source': src,
                 'destination': dst,
                 'args': kwargs,
             })
+
+    if not tasks_file_content:
+        raise RuntimeError("Package '{}' doesn't define any assetman tasks".format(package_name))
+
     with open(_GULP_TASKS_FILE, 'wt') as f:
         f.write(_json.dumps(tasks_file_content))
 
-    # Run Gulp tasks
+    # Run Gulp
     debug = _reg.get('debug')
     _run_node_bin('gulp', '--silent', gulpfile=_GULPFILE, debug=debug, tasksFile=_GULP_TASKS_FILE)
 
-    # Update timestamps
-    for pkg_name in ([package_name] if package_name else _package_paths):
-        ts_file_path = _path.join(get_dst_dir_path(pkg_name), 'timestamp')
+    # Update timestamp
+    _update_timestamp_config(package_name)
 
-        try:
-            with open(ts_file_path, 'wt') as f:
-                ts = _util.md5_hex_digest(str(_time()))
-                f.write(ts)
-                _build_timestamps[pkg_name] = ts
-        except FileNotFoundError:
-            # This is abnormal situation and should be reported
-            raise RuntimeError("It seems package '{}' doesn't define any assetman task".format(pkg_name))
+    # Update RequireJS config
+    for rjs_module_name, rjs_module_asset_location in _requirejs_modules.items():
+        definer_package_name, rjs_module_asset_path = _split_location_info(rjs_module_asset_location)
+        if package_name != definer_package_name:
+            continue
 
-    if _partly:
-        return
+        package_timestamp = _get_build_timestamp(definer_package_name)
+        rjs_module_asset_path = '{}/{}.js?v={}'.format(definer_package_name, rjs_module_asset_path, package_timestamp)
+        _update_requirejs_config(rjs_module_name, rjs_module_asset_path)
 
-    # Build RequireJS config file
-    requirejs_paths = {}
-    for m_name, m_location in _requirejs_modules.items():
-        m_pkg_name, m_path = _split_location_info(m_location)
-        requirejs_paths[m_name] = '{}/{}.js?v={}'.format(m_pkg_name, m_path, _get_build_timestamp(m_pkg_name))
-    rjs_config = _tpl.render('pytsite.assetman@requirejs-config', {'paths': _json.dumps(requirejs_paths)})
-    rjs_config_path = _path.join(assets_static_path, 'pytsite.assetman', 'require-config.js')
-    rjs_config_dir = _path.dirname(rjs_config_path)
-    if not _path.exists(rjs_config_dir):
-        _makedirs(rjs_config_dir, 0o755, True)
-    with open(rjs_config_path, 'wt') as f:
-        f.write(rjs_config)
 
-    # Update build timestamps in JS file
-    t_stamps = {}
-    for pkg_name in _package_paths:
-        t_stamps[pkg_name] = _get_build_timestamp(pkg_name)
-    with open(_path.join(get_dst_dir_path('pytsite.assetman'), 'build-timestamps.js'), 'wt') as f:
-        f.write(_tpl.render('pytsite.assetman@build-timestamps', {'json': _json.dumps(t_stamps)}))
+def build_all():
+    assets_static_path = _reg.get('paths.assets')
 
-    _events.fire('pytsite.assetman.build')
+    _console.print_info(_lang.t('pytsite.assetman@compiling_assets'))
+
+    if _path.exists(assets_static_path):
+        _rmtree(assets_static_path)
+
+    for package_name in _package_paths:
+        build(package_name)
 
 
 def _split_location_info(location: str) -> _Tuple[str, str]:

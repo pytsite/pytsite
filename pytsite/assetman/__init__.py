@@ -5,8 +5,8 @@ from os import path as _path
 from pytsite import reg as _reg
 from . import _error as error
 from ._api import register_package, library, preload, remove, dump_js, dump_css, url, add_inline, dump_inline, \
-    get_urls, get_locations, reset, detect_collection, build, is_package_registered, register_global, t_browserify, \
-    t_copy, t_copy_static, t_less, t_js, t_css, js_module, setup, get_src_dir_path, get_dst_dir_path
+    get_urls, get_locations, reset, detect_collection, build, build_all, is_package_registered, register_global, \
+    t_browserify, t_copy, t_copy_static, t_less, t_js, t_css, js_module, setup, get_src_dir_path, get_dst_dir_path
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -18,7 +18,7 @@ _reg.put('paths.assets', _path.join(_reg.get('paths.static'), 'assets'))
 
 def _init():
     from pytsite import console, lang, tpl, router, setup as pytsite_setup, update as pytsite_update
-    from . import _console_command, _api
+    from . import _console_commands, _api
 
     # Resources
     lang.register_package(__name__)
@@ -30,14 +30,14 @@ def _init():
     js_module('pytsite-lang', 'pytsite.lang@pytsite-lang')
 
     # Console commands
-    console.register_command(_console_command.Setup())
-    console.register_command(_console_command.Build())
+    console.register_command(_console_commands.Setup())
+    console.register_command(_console_commands.Build())
 
     # Event handlers
     router.on_dispatch(reset, -999, '*')
     router.on_xhr_dispatch(reset, -999, '*')
     pytsite_setup.on_setup(setup)
-    pytsite_update.on_update_after(build)
+    pytsite_update.on_update_after(build_all)
 
     # Tpl resources
     tpl.register_package(__name__)

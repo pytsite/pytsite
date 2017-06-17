@@ -2,7 +2,7 @@
 """
 from typing import Dict as _Dict
 from importlib import import_module as _import_module
-from os import path as _path, mkdir as _mkdir
+from os import path as _path
 from pytsite import reg as _reg, settings as _settings, logger as _logger, reload as _reload
 from . import _theme, _error
 

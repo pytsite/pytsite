@@ -64,7 +64,11 @@ class Build(_console.Command):
                 _maintenance.enable()
 
             # Compile assets
-            _api.build(self.get_option_value('package'))
+            package = self.get_option_value('package')
+            if package:
+                _api.build(package)
+            else:
+                _api.build_all()
 
             # Compile translations
             _lang.build()

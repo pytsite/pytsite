@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.43 (2017-06-17)
+### Changed
+- `assetman`: assets building process refactored.
+
+
 ## 0.99.42 (2017-06-15)
 ### Fixed
 - `routing`: incorrect path trimming in case if path contains only single slash. 
