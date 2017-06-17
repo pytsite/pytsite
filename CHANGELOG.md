@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.44 (2017-06-17)
+### Fixed
+- `assetman`: translations rebuilding on update event.
+
+
 ## 0.99.43 (2017-06-17)
 ### Changed
 - `assetman`: assets building process refactored.

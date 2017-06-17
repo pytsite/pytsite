@@ -38,6 +38,7 @@ def _init():
     router.on_xhr_dispatch(reset, -999, '*')
     pytsite_setup.on_setup(setup)
     pytsite_update.on_update_after(build_all)
+    pytsite_update.on_update_after(lang.build)
 
     # Tpl resources
     tpl.register_package(__name__)
