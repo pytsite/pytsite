@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.45 (2017-06-19)
+### Changed
+- `routing`: arguments management in controllers.
+
+
 ## 0.99.44 (2017-06-17)
 ### Fixed
 - `assetman`: translations rebuilding on update event.

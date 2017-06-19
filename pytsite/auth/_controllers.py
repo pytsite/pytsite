@@ -112,7 +112,7 @@ class ProfileView(_routing.Controller):
                 'tpl': tpl_name,
             })
 
-            return _router.call('$theme@auth_profile_view', **self.args)
+            return _router.call('$theme@auth_profile_view', self.args)
 
         # Preload CSS
         _assetman.preload('pytsite.auth@css/pytsite-auth-widget-profile.css')
@@ -145,7 +145,7 @@ class ProfileEdit(_routing.Controller):
                 'user': profile_owner,
                 'frm': frm,
             })
-            return _router.call('$theme@auth_profile_edit', **self.args)
+            return _router.call('$theme@auth_profile_edit', self.args)
 
         # Default response
         return _tpl.render(tpl_name, {'frm': frm})

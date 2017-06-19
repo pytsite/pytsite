@@ -28,13 +28,12 @@ class Entry(_routing.Controller):
 
             _events.fire('pytsite.http_api.request')
 
-            controller = rule.controller
-
             status = 200
 
-            controller.args = _router.request().inp.copy()
-            controller.args.update(rule.args)
-            controller_response = controller.exec()
+            rule.controller.args.clear()
+            rule.controller.args.update(_router.request().inp)
+            rule.controller.args.update(rule.args)
+            controller_response = rule.controller.exec()
 
             if isinstance(controller_response, tuple):
                 if len(controller_response) > 1:

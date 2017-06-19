@@ -14,8 +14,8 @@ class GetWidgets(_routing.Controller):
     POST method is used here due to large request size in some cases.
     """
 
-    def exec(self) -> dict:
-        self.arg_set('__form_data_uid', self.arg('uid'))
+    def exec(self) -> list:
+        self.args['__form_data_uid'] = self.args['uid']
 
         frm = _api.dispense(self.args)
 
@@ -34,7 +34,7 @@ class PostValidate(_routing.Controller):
 
     def exec(self) -> dict:
         try:
-            self.arg_set('__form_data_uid', self.arg('uid'))
+            self.args['__form_data_uid'] = self.args['uid']
             _api.dispense(self.args, 'validation').validate()
             return {'status': True}
 

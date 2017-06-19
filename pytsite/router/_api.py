@@ -1,7 +1,7 @@
 """PytSite Router API.
 """
 import re as _re
-from typing import Dict as _Dict, Union as _Union, List as _List
+from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Mapping, Optional as _Optional
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
@@ -46,8 +46,10 @@ def set_request(r: _http.request.Request):
     """
     _requests[_threading.get_id()] = r
 
+    return r
 
-def request() -> _Union[_http.request.Request, None]:
+
+def request() -> _Optional[_http.request.Request]:
     """Get request for current thread.
     """
     return _requests.get(_threading.get_id())
@@ -105,11 +107,11 @@ def has_rule(rule_name: str) -> bool:
     return _rules.has(rule_name)
 
 
-def call(rule_name: str, **kwargs):
+def call(rule_name: str, args: _Mapping):
     """Call a controller by name
     """
     controller = _rules.get(rule_name).controller
-    controller.args = kwargs
+    controller.args.clear().update(args)
 
     return controller.exec()
 
@@ -130,14 +132,11 @@ def dispatch(env: dict, start_response: callable):
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
 
-    # Create request context
-    req = _http.request.Request(env)
-    set_request(req)
 
     # Remove trailing slash
-    if req.path != '/' and req.path.endswith('/'):
-        redirect_url = _re.sub('/$', '', req.path)
-        redirect_url += '?' + req.query_string.decode('utf-8') if req.query_string else ''
+    if env['PATH_INFO'] != '/' and env['PATH_INFO'].endswith('/'):
+        redirect_url = _re.sub('/$', '', env['PATH_INFO'])
+        redirect_url += '?' + env['QUERY_STRING'] if env['QUERY_STRING'] else ''
         return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # All requests are cached by default
@@ -146,33 +145,36 @@ def dispatch(env: dict, start_response: callable):
     # Detect language from path
     languages = _lang.langs()
     if len(languages) > 1:
-        if _LANG_CODE_RE.search(req.path):
+        if _LANG_CODE_RE.search(env['PATH_INFO']):
             # Extract language code as first two-letters of the path
-            lang_code = req.path[1:3]
+            lang_code = env['PATH_INFO'][1:3]
             try:
                 _lang.set_current(lang_code)
-                req.path = req.path[3:]
-                if not req.path:
-                    req.path = '/'
+                env['PATH_INFO'] = env['PATH_INFO'][3:]
+                if not env['PATH_INFO']:
+                    env['PATH_INFO'] = '/'
                 # If requested language is default, redirect to path without language prefix
                 if lang_code == languages[0]:
-                    return _http.response.Redirect(req.path, 301)(env, start_response)
+                    return _http.response.Redirect(env['PATH_INFO'], 301)(env, start_response)
             except _lang.error.LanguageNotSupported:
-                # If language is not defined, do nothing. 404 will fired in the code below.
+                # If language is not defined, do nothing. 404 will be fired in the code below.
                 pass
         else:
             # No language code found in the path. Set first defined language as current.
             _lang.set_current(languages[0])
+
+    # Loading path alias, if it exists or use current one
+    if env['PATH_INFO'] in _path_aliases:
+        env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
+
+    # Create request context
+    req = set_request(_http.request.Request(env))
 
     # Notify listeners
     if req.is_xhr:
         _events.fire('pytsite.router.xhr_pre_dispatch.{}'.format(req.method.lower()))
     else:
         _events.fire('pytsite.router.pre_dispatch.{}'.format(req.method.lower()))
-
-    # Loading path alias, if it exists or use current one
-    if req.path in _path_aliases:
-        req.path = _path_aliases[req.path]
 
     # Shortcuts
     request_cookies = req.cookies
@@ -214,9 +216,9 @@ def dispatch(env: dict, start_response: callable):
                         flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
 
             flt_controller = _rules.get(flt_name).controller
-            flt_controller.args = flt_args
+            flt_controller.args.clear().update(flt_args)
             flt_response = flt_controller.exec()
-            if isinstance(flt_response, _http.response.Redirect):
+            if isinstance(flt_response, _http.response.Response):
                 return flt_response(env, start_response)
 
         # Preparing response object
@@ -224,7 +226,8 @@ def dispatch(env: dict, start_response: callable):
 
         # Fill controller arguments
         controller = rule.controller
-        controller.args = req.inp.copy()
+        controller.args.clear()
+        controller.args.update(req.inp)
         controller.args.update(rule.args)
 
         # Call controller
@@ -293,7 +296,7 @@ def dispatch(env: dict, start_response: callable):
 
         # User defined exception handler
         if has_rule('$theme@exception'):
-            wsgi_response = call('$theme@exception', **args)
+            wsgi_response = call('$theme@exception', args)
 
         # Builtin exception handler
         else:
