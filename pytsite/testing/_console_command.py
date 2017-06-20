@@ -25,10 +25,10 @@ class Test(_console.Command):
 
         target = self.get_argument_value(0)  # type: str
 
-        if target.startswith('plugins.'):
-            target_paths.append(_path.join(_reg.get('paths.plugins'), target, 'tests'))
+        if target.startswith('pytsite.'):
+            target_paths.append(_path.join(_reg.get('paths.pytsite'), target.replace('pytsite.', ''), 'tests'))
         else:
-            target_paths.append(_path.join(_reg.get('paths.pytsite'), target, 'tests'))
+            target_paths.append(_path.join(_reg.get('paths.root'), target.replace('.', _path.sep), 'tests'))
 
         for target_path in target_paths:
             if not _path.exists(target_path):

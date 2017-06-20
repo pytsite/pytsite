@@ -1,4 +1,4 @@
-"""PytSite File HTTP API Endpoints.
+"""PytSite File HTTP API Endpoints
 """
 from typing import List as _List
 from os import unlink as _unlink

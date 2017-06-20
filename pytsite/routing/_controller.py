@@ -4,7 +4,7 @@
 from typing import List as _List, Dict as _Dict, Any as _Any
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import formatter as _formatter, validation as _validation, http as _http
+from pytsite import formatters as _formatter, validation as _validation, http as _http
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -49,6 +49,11 @@ class ControllerArgs(_Mapping):
             self[k] = v
 
         return self
+
+    def pop(self, key: str, default: _Any = None) -> _Any:
+        """Pop a value
+        """
+        return self._value.pop(key, default)
 
     def __setitem__(self, key: str, value: _Any):
         if key in self._rules:

@@ -1,6 +1,6 @@
 """PytSite HTTP API Functions
 """
-from typing import Union as _Union
+from typing import Union as _Union, Mapping as _Mapping
 from pytsite import router as _router, http as _http, routing as _routing, logger as _logger, events as _events
 
 __author__ = 'Alexander Shepetko'
@@ -37,14 +37,20 @@ def match(method: str, path: str, version: int) -> _routing.Rule:
 def url(name: str, args: dict = None, version: int = 1):
     """Generate URL for an HTTP API endpoint.
     """
-    return _router.rule_url('pytsite.http_api@entry', {'version': version, 'endpoint': _rules_map.path(name, args)})
+    return _router.rule_url('pytsite.http_api@entry', {
+        'http_api_version': version,
+        'http_api_endpoint': _rules_map.path(name, args)
+    })
 
 
-def call(name: str, **kwargs):
+def call(name: str, args: _Mapping = None):
     """Call a controller
     """
     controller = _rules_map.get(name).controller
-    controller.args = kwargs
+
+    controller.args.clear()
+    if args:
+        controller.args.update(args)
 
     return controller.exec()
 

@@ -13,8 +13,8 @@ def _init():
     from . import _eh, _controllers
 
     # HTTP entry point route
-    router.handle(_controllers.Entry(), '/api/<int:version>/<path:endpoint>', 'pytsite.http_api@entry',
-                  methods='*')
+    router.handle(_controllers.Entry(), '/api/<int:http_api_version>/<path:http_api_endpoint>',
+                  'pytsite.http_api@entry', methods='*')
 
     # JavaScript helpers
     assetman.register_package(__name__)

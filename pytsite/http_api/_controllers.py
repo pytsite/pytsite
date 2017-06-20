@@ -1,7 +1,7 @@
 """PytSite HTTP API Endpoints
 """
 from pytsite import router as _router, logger as _logger, lang as _lang, events as _events, routing as _routing, \
-    http as _http
+    http as _http, formatters as _formatters
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -10,9 +10,14 @@ __license__ = 'MIT'
 
 
 class Entry(_routing.Controller):
+    def __init__(self):
+        super().__init__()
+
+        self.args.add_formatter('version', _formatters.Int())
+
     def exec(self):
-        version = int(self.arg('version'))
-        endpoint = '/' + self.arg('endpoint')
+        version = self.args.pop('http_api_version')
+        endpoint = '/' + self.args.pop('http_api_endpoint')
         current_path = _router.current_path(resolve_alias=False, strip_lang=False)
         request_method = _router.request().method
 
@@ -29,10 +34,7 @@ class Entry(_routing.Controller):
             _events.fire('pytsite.http_api.request')
 
             status = 200
-
-            rule.controller.args.clear()
-            rule.controller.args.update(_router.request().inp)
-            rule.controller.args.update(rule.args)
+            rule.controller.args.clear().update(self.args).update(rule.args)
             controller_response = rule.controller.exec()
 
             if isinstance(controller_response, tuple):

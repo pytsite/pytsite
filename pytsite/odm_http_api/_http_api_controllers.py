@@ -1,5 +1,6 @@
 """ PytSite ODM Auth HTTP API.
 """
+from typing import Mapping as _Mapping
 from json import loads as _json_loads, JSONDecodeError as _JSONDecodeError
 from pytsite import odm as _odm, odm_auth as _odm_auth, routing as _routing
 
@@ -8,10 +9,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity, inp: dict) -> _odm_auth.model.AuthorizableEntity:
-    for k, v in inp.items():
+def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity,
+                        fields_data: _Mapping) -> _odm_auth.model.AuthorizableEntity:
+    for k, v in fields_data.items():
         # Fields to skip
-        if k == 'access_token' or k.startswith('_'):
+        if k.startswith('_'):
             continue
 
         field = entity.get_field(k)
@@ -42,20 +44,25 @@ def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity, inp: dict) -
 
 
 class PostEntity(_routing.Controller):
-    """Create new entity
+    """Create a new entity
     """
 
     def exec(self) -> dict:
+        from pytsite import logger
+        logger.info(self.args)
+
+        model = self.args.pop('model')
+
         # Check permissions
-        if not _odm_auth.check_permission('create', self.arg('model')):
-            raise self.forbidden('Insufficient permissions')
+        if not _odm_auth.check_permission('create', model):
+            raise self.forbidden("Insufficient permissions".format(model))
 
         # Dispense new entity
-        entity = _odm.dispense(self.arg('model'))  # type: _odm_auth.model.AuthorizableEntity
+        entity = _odm.dispense(model)  # type: _odm_auth.model.AuthorizableEntity
 
         # Only authorizable entities can be accessed via HTTP API
         if not isinstance(entity, _odm_auth.model.AuthorizableEntity):
-            raise self.forbidden("Model '{}' does not support transfer via HTTP.")
+            raise self.forbidden("Model '{}' does not support transfer via HTTP")
 
         # Fill entity's fields with values and save
         _fill_entity_fields(entity, self.args).save()
@@ -92,7 +99,7 @@ class PatchEntity(_routing.Controller):
 
     def exec(self) -> dict:
         # Dispense existing entity
-        entity = _odm.dispense(self.arg('model'), self.arg('uid'))  # type: _odm_auth.model.AuthorizableEntity
+        entity = _odm.dispense(self.args.pop('model'), self.args.pop('uid'))  # type: _odm_auth.model.AuthorizableEntity
 
         # Only authorizable entities can be accessed via HTTP API
         if not isinstance(entity, _odm_auth.model.AuthorizableEntity):

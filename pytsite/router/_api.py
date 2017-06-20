@@ -343,7 +343,7 @@ def scheme():
     """
     r = request()
 
-    return r.scheme if (r and r.scheme) else 'http'
+    return r.scheme if (r and r.scheme) else ('https' if _reg.get('router.https') else 'http')
 
 
 def base_url(lang: str = None, query: dict = None):

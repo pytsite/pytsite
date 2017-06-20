@@ -26,7 +26,7 @@ class PostAccessToken(_routing.Controller):
     def exec(self) -> dict:
         try:
             # Try to sign in user via driver
-            user = _api.sign_in(self.arg('driver'), self.args)
+            user = _api.sign_in(self.arg('driver'), dict(self.args))
 
             return _get_access_token_info(_api.generate_access_token(user))
 

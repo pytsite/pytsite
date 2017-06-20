@@ -18,7 +18,7 @@ def __init():
     """Init wrapper.
     """
     from pytsite import assetman, tpl, lang, router, robots, console, http_api, permissions, setup
-    from ._console_command import Passwd as AuthConsoleCommand
+    from ._console_commands import Passwd as AuthConsoleCommand
     from . import _eh, _controllers, _http_api_controllers
 
     # Resources

@@ -16,7 +16,7 @@ class Passwd(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self._define_option(_console.option.Str('login', True))
+        self._define_argument(_console.argument.Argument('login', True))
 
     @property
     def name(self) -> str:
@@ -33,7 +33,7 @@ class Passwd(_console.Command):
     def execute(self):
         """Execute the command.
         """
-        login = self.get_option_value('login')
+        login = self.get_argument_value(0)
 
         try:
             user = _api.get_user(login)

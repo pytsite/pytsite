@@ -42,7 +42,7 @@ class Message(_MIMEMultipart):
         return self._from_addr
 
     @from_addr.setter
-    def from_addr(self, value: str) -> str:
+    def from_addr(self, value: str):
         self['From'] = self._from_addr = value
 
     @property

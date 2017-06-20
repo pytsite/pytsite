@@ -1,6 +1,19 @@
 # PytSite Changelog
 
 
+## 0.99.46 (2017-06-20)
+### Added
+- `router`: new configuration parameter: **router.https**.
+- `routing`: new method: `Controller.args.pop()`.
+
+### Changed
+- `formatter`: renamed to `formatters`.
+- `http_api`: signature of `call()`.
+
+### Fixed
+- `testing`: arguments processing in console command.
+
+
 ## 0.99.45 (2017-06-19)
 ### Changed
 - `routing`: arguments management in controllers.

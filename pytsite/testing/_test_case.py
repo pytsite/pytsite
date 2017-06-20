@@ -17,9 +17,9 @@ class TestCase(_TestCase):
         return _requests.Request(method, url, headers, files, data, params).prepare()
 
     @staticmethod
-    def send_http_request(request: _requests.PreparedRequest):
+    def send_http_request(request: _requests.PreparedRequest, **kwargs):
         with _requests.Session() as s:
-            r = s.send(request)
+            r = s.send(request, **kwargs)
 
         return r
 
@@ -206,7 +206,8 @@ class TestCase(_TestCase):
         self.assertHttpRespJsonHasField(resp, key)
 
         if resp.json()[key] != expected:
-            self._raiseHttpException("HTTP response JSON field '{}' != {}".format(key, expected), resp=resp)
+            self._raiseHttpException("HTTP response JSON field '{}': {} != {}".format(key, resp.json()[key], expected),
+                                     resp=resp)
 
     def assertHttpRespJsonFieldMatches(self, resp: _requests.Response, key: str, expected: str):
         self.assertHttpRespJsonFieldIsStr(resp, key)
