@@ -1,13 +1,17 @@
 # PytSite Changelog
 
 
+## 0.99.48 (2017-06-21)
+### Fixed
+- `plugman`: agruments processing in console command.
+
+
 ## 0.99.47 (2017-06-21)
 ### Added
 - `auth`: user update HTTP API endpoint.
 
 ### Changed
 - `console`: refactored.
-
 
 
 ## 0.99.46 (2017-06-20)

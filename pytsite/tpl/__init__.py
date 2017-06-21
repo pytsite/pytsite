@@ -1,5 +1,6 @@
 # Public API
 import jinja2 as _jinja
+from typing import Mapping as _Mapping
 from datetime import datetime as _datetime
 from importlib.util import find_spec as _find_module_spec
 from os import path as _path
@@ -27,7 +28,7 @@ def _get_tpl_path(tpl: str) -> str:
     package_name, tpl_name = tpl.split('@')[:2]
 
     if package_name not in _packages:
-        raise error.TemplateNotFound("Templates package '{}' is not registered.".format(package_name))
+        raise error.TemplateNotFound("Templates package '{}' is not registered".format(package_name))
 
     if not tpl_name.endswith('.jinja2'):
         tpl_name += '.jinja2'
@@ -47,7 +48,7 @@ class _TemplateLoader(_jinja.BaseLoader):
         tpl_path = _get_tpl_path(tpl)
 
         if not tpl_exists(tpl):
-            raise error.TemplateNotFound("Template is not found at '{}'.".format(tpl_path))
+            raise error.TemplateNotFound("Template is not found at '{}'".format(tpl_path))
 
         with open(tpl_path, encoding='utf-8') as f:
             source = f.read()
@@ -84,7 +85,7 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
     """Register templates container.
     """
     if package_name in _packages:
-        raise RuntimeError("Package '{}' already registered.".format(package_name))
+        raise RuntimeError("Package '{}' already registered".format(package_name))
 
     pkg_spec = _find_module_spec(package_name)
     if not pkg_spec:
@@ -101,8 +102,8 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
         _packages[package_name] = config
 
 
-def render(template: str, args: dict = None) -> str:
-    """Render a template.
+def render(template: str, args: _Mapping = None) -> str:
+    """Render a template
     """
     if not args:
         args = {}
