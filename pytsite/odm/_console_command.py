@@ -15,7 +15,7 @@ class Reindex(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self._define_option(_console.option.Bool('no-maint'))
+        self.define_option(_console.option.Bool('no-maint'))
 
     @property
     def name(self) -> str:
@@ -29,10 +29,10 @@ class Reindex(_console.Command):
         """
         return 'pytsite.odm@console_command_description_reindex'
 
-    def execute(self):
+    def exec(self):
         """Execute the command.
         """
-        no_maint = self.get_option_value('no-maint')
+        no_maint = self.opt('no-maint')
 
         if not no_maint:
             _maintenance.enable()

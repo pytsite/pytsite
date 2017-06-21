@@ -161,7 +161,7 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 - **str** `last_name`. Фамилия.
 - **str** `full_name`. Имя и фамилия.
 - **str** `birth_date`. Дата рождения в формате W3C.
-- **str** `gender`. Пол. 'm' -- мальчик, 'f' -- девочка.
+- **str** `gender`. Пол: 'm' -- мальчик, 'f' -- девочка.
 - **str** `phone`. Номер телефона.
 - **array[str]** `follows`. UID учётных записей, на которые подписан пользователь.
 - **int** `follows_count`. Количество учётных записей, на которые подписан пользователь.
@@ -181,7 +181,7 @@ curl -X DELETE https://test.com/api/1/auth/access-token/e51081bc4632d8c2a31ac5bd
 - **str** `last_activity`. Время последней активности в формате W3C.
 - **int** `sign_in_count`. Общее количество успешных аутентификаций.
 - **str** `status`. Статус учётной записи: 'active', 'waiting' или 'disabled'.
-- **bool** `profile_is_public`. Доступность профиля для всех пользователей.
+- **bool** `profile_is_public`. Видимость профиля для всех.
 - **array[str]** `roles`. UID назначенных ролей.
 
 Также возможно добавление дополнительных полей сторонними модулями.
@@ -256,20 +256,41 @@ https://test.com/api/1/auth/user/576563ef523af52badc5beac
 
 ### Параметры
 
-- **object** изменяемые поля:
-    - **str** `email`.
-    - **str** `nickname`.
-    - **str** `picture`.
-    - **str** `first_name`.
-    - **str** `last_name`.
-    - **str** `description`.
-    - **str** `birth_date`.
-    - **str** `gender`.
-    - **str** `phone`.
-    - **str** `country`.
-    - **str** `city`.
-    - **array[str]** `urls`.
-    - **bool** `profile_is_public`.
+- **str** `email`. Адрес электронной почты.
+- **str** `nickname`. Никнейм.
+- **str** `picture`. UID изображения.
+- **str** `first_name`. Имя.
+- **str** `last_name`. Фаимлия.
+- **str** `description`. Описание.
+- **str** `birth_date`. Дата рождения в формате W3C.
+- **str** `gender`. Пол: `m` -- мальчик, `f` -- девочка.
+- **str** `phone`. Номер телефона.
+- **str** `country`. Старана.
+- **str** `city`. Город.
+- **array[str]** `urls`. URL профилей пользователя в других местах.
+- **bool** `profile_is_public`. Видимость профиля для всех.
+
+
+### Формат ответа
+
+Смотри **GET auth/user/:uid**.
+
+
+### Примеры
+
+Запрос:
+
+```
+curl -X PATCH \
+-H 'PytSite-Auth: e51081bc4632d8c2a31ac5bd8080af1b' \
+-d email=hello@world.com \
+-d first_name=Hello \
+-d last_name=World \
+-d gender=f \
+-d profile_is_public=false \
+-d description='I am an invisible girl' \
+https://test.com/api/1/auth/user/576563ef523af52badc5beac
+```
 
 
 ## POST auth/follow/:uid

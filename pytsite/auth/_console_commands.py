@@ -13,11 +13,6 @@ class Passwd(_console.Command):
     """Abstract command.
     """
 
-    def __init__(self):
-        super().__init__()
-
-        self._define_argument(_console.argument.Argument('login', True))
-
     @property
     def name(self) -> str:
         """Get command's name.
@@ -30,10 +25,10 @@ class Passwd(_console.Command):
         """
         return 'pytsite.auth@passwd_console_command_description'
 
-    def execute(self):
+    def exec(self):
         """Execute the command.
         """
-        login = self.get_argument_value(0)
+        login = self.arg(0)
 
         try:
             user = _api.get_user(login)

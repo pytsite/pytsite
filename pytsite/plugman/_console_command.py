@@ -12,11 +12,6 @@ class Install(_console.Command):
     """plugman:install
     """
 
-    def __init__(self):
-        super().__init__()
-
-        self._define_argument(_console.argument.Argument('plugin_name'))
-
     @property
     def name(self) -> str:
         return 'plugman:install'
@@ -25,8 +20,8 @@ class Install(_console.Command):
     def description(self) -> str:
         return 'pytsite.plugman@console_command_description_install'
 
-    def execute(self):
-        plugin_name = self.get_argument_value(0)
+    def exec(self):
+        plugin_name = self.arg(0)
 
         if plugin_name:
             try:
@@ -50,8 +45,7 @@ class Upgrade(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self._define_option(_console.option.Bool('reload', default=True))
-        self._define_argument(_console.argument.Argument('plugin_name'))
+        self.define_option(_console.option.Bool('reload', default=True))
 
     @property
     def name(self) -> str:
@@ -61,13 +55,13 @@ class Upgrade(_console.Command):
     def description(self) -> str:
         return 'pytsite.plugman@console_command_description_upgrade'
 
-    def execute(self):
+    def exec(self):
         try:
             _console.print_info(_lang.t('pytsite.plugman@upgrading_plugins'))
-            _api.upgrade(self.get_argument_value(0))
+            _api.upgrade(self.arg(0))
 
         except _error.PluginNotInstalled as e:
             raise _console.error.Error(e)
 
-        if self.get_option_value('reload'):
+        if self.opt('reload'):
             _reload.reload()

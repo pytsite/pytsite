@@ -9,13 +9,8 @@ __license__ = 'MIT'
 
 
 class Maintenance(_console.Command):
-    """'maintenance' Console Command.
+    """'maintenance' Console Command
     """
-
-    def __init__(self):
-        super().__init__()
-
-        self._define_argument(_console.argument.Choice('action', True, options=['enable', 'disable']))
 
     @property
     def name(self) -> str:
@@ -29,12 +24,14 @@ class Maintenance(_console.Command):
         """
         return 'pytsite.maintenance@maintenance_console_command_description'
 
-    def execute(self, args: tuple = (), **kwargs):
+    def exec(self):
         """Execute the command.
         """
-        action = self.get_argument_value(0)
+        action = self.arg(0)
 
         if action == 'enable':
             _api.enable()
-        if action == 'disable':
+        elif action == 'disable':
             _api.disable()
+        else:
+            raise _console.error.InvalidArgument(0, action)

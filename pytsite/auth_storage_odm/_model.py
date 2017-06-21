@@ -168,6 +168,10 @@ class Role(_auth.model.AbstractRole):
 
         return self
 
+    @property
+    def is_modified(self) -> bool:
+        return self._entity.is_modified
+
     def save(self):
         with self._entity as e:
             e.save()
@@ -589,6 +593,10 @@ class User(_auth.model.AbstractUser):
             e.f_set(field_name, value)
 
         return self
+
+    @property
+    def is_modified(self) -> bool:
+        return self._entity.is_modified
 
     @property
     def uid(self) -> str:

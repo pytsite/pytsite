@@ -45,12 +45,11 @@ def run_command(name: str, options: dict = None, arguments: list = None):
     if options:
         for opt_name, opt_val in options.items():
             opt_name = opt_name.replace('_', '-')
-            cmd.set_option_value(opt_name, opt_val)
+            cmd.set_opt(opt_name, opt_val)
 
     # Set arguments
     if arguments:
-        for index, arg_val in enumerate(arguments):
-            cmd.set_argument_value(index, arg_val)
+        cmd.set_args(arguments)
 
     try:
         return cmd.do_execute()

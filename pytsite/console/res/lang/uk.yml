@@ -4,8 +4,5 @@ help_command_description: 'Показує довідку по роботі з к
 invalid_option: 'Невідомий параметр: --:opt_name'
 required_options_not_specified: "Обов'язковий параметр ':opt_name' не визначено"
 
-insufficient_arguments: 'Недостатньо аргументів'
-too_many_arguments: 'Надто багато аргументів'
-required_argument_not_specified: "Обов'язковий аргумент ':arg_name' не визначено"
-
-error_argument_choice: "':arg_name' може мати лише одне з наступних значень: :options"
+invalid_argument: 'Неприпустиме значенння аргументу :arg_index: :arg_value'
+missing_argument: 'Не визначено аргумент :arg_index'

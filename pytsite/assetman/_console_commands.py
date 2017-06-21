@@ -24,7 +24,7 @@ class Setup(_console.Command):
         """
         return 'pytsite.assetman@assetman_setup_console_command_description'
 
-    def execute(self, args: tuple = (), **kwargs):
+    def exec(self):
         """Execute The Command.
         """
         try:
@@ -39,8 +39,8 @@ class Build(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self._define_option(_console.option.Bool('no-maint'))
-        self._define_option(_console.option.Str('package'))
+        self.define_option(_console.option.Bool('no-maint'))
+        self.define_option(_console.option.Str('package'))
 
     @property
     def name(self) -> str:
@@ -54,17 +54,17 @@ class Build(_console.Command):
         """
         return 'pytsite.assetman@assetman_build_console_command_description'
 
-    def execute(self):
+    def exec(self):
         """Execute The Command.
         """
-        maint = not self.get_option_value('no-maint')
+        maint = not self.opt('no-maint')
 
         try:
             if maint:
                 _maintenance.enable()
 
             # Compile assets
-            package = self.get_option_value('package')
+            package = self.opt('package')
             if package:
                 _api.build(package)
             else:

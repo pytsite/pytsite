@@ -218,7 +218,7 @@ class List(Abstract):
         :type value: list | tuple
         """
         if type(value) not in (list, tuple):
-            raise TypeError("Field '{}': list or tuple expected, but {} given.".format(self._name, type(value)))
+            raise TypeError("Field '{}': list or tuple expected, got {}: {}".format(self._name, type(value), value))
 
         # Internal value is always a list
         if isinstance(value, tuple):
@@ -584,7 +584,7 @@ class RefsList(List):
 
 
 class RefsUniqueList(RefsList):
-    """Unique list of DBRefs field.
+    """Unique list of DBRefs field
     """
 
     def __init__(self, name: str, **kwargs):
@@ -594,11 +594,11 @@ class RefsUniqueList(RefsList):
 
 
 class DateTime(Abstract):
-    """Datetime field.
+    """Datetime field
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
 
         :param default: _datetime
         """
@@ -610,7 +610,7 @@ class DateTime(Abstract):
         """Set field's value.
         """
         if not isinstance(value, _datetime):
-            raise TypeError("DateTime expected, while got {}".format(value))
+            raise TypeError("DateTime expected, got {}: {}".format(type(value), value))
 
         if value.tzinfo:
             value = value.replace(tzinfo=None)

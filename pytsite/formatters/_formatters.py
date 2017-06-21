@@ -3,6 +3,8 @@
 import json as _json
 from typing import Any as _Any
 from abc import ABC as _ABC
+from datetime import datetime as _datetime
+from pytsite import util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -27,7 +29,9 @@ class Formatter(_ABC):
 
 class Bool(Formatter):
     def set_val(self, value: _Any):
-        return super().set_val(bool(value))
+        true = (True, 'True', 'true', 'TRUE', '1', 1, 'Y', 'y', 'Yes', 'yes', 'YES')
+
+        return super().set_val(True if value in true else False)
 
 
 class Int(Formatter):
@@ -89,6 +93,19 @@ class Str(Formatter):
         value = str(value).strip()
         if self._max_len is not None and len(value) > self._max_len:
             value = value[:self._max_len]
+
+        return super().set_val(value)
+
+
+class DateTime(Formatter):
+    def set_val(self, value: _Any):
+        if isinstance(value, str):
+            try:
+                value = _util.parse_w3c_datetime_str(value)
+            except ValueError:
+                value = _util.parse_rfc822_datetime_str(value)
+        elif not isinstance(value, _datetime):
+            raise TypeError('String or datetime expected, got {}: {}'.format(type(value), value))
 
         return super().set_val(value)
 

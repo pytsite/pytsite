@@ -14,9 +14,15 @@ class AuthEntity(_ABC):
     """
 
     @property
+    @_abstractmethod
     def uid(self) -> str:
         """Get UID of the entity.
         """
+        raise NotImplementedError()
+
+    @property
+    @_abstractmethod
+    def is_modified(self) -> str:
         raise NotImplementedError()
 
     @_abstractmethod
@@ -191,7 +197,7 @@ class AbstractUser(AuthEntity):
 
     @full_name.setter
     def full_name(self, value):
-        raise AttributeError("'full_name' attribute is read only.")
+        raise AttributeError("'full_name' attribute is read only")
 
     @property
     def description(self) -> str:

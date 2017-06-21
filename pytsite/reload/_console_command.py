@@ -24,5 +24,5 @@ class Reload(_console.Command):
         """
         return 'pytsite.reload@reload_console_command_description'
 
-    def execute(self):
+    def exec(self):
         _api.reload()

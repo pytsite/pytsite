@@ -31,19 +31,19 @@ class InvalidOption(Error):
         return _lang.t('pytsite.console@invalid_option', {'opt_name': self._opt_name})
 
 
-class InsufficientArguments(Error):
-    def __str__(self):
-        return _lang.t('pytsite.console@insufficient_arguments')
-
-
-class TooManyArguments(Error):
-    def __str__(self):
-        return _lang.t('pytsite.console@too_many_arguments')
-
-
-class MissingRequiredArgument(Error):
-    def __init__(self, arg_name: str):
-        self._arg_name = arg_name
+class InvalidArgument(Error):
+    def __init__(self, arg_index: int, arg_value: str):
+        self._arg_index = arg_index
+        self._arg_value = arg_value
 
     def __str__(self):
-        return _lang.t('pytsite.console@required_argument_not_specified', {'arg_name': self._arg_name})
+        return _lang.t('pytsite.console@invalid_argument', {'arg_index': self._arg_index, 'arg_value': self._arg_value})
+
+
+class MissingArgument(Error):
+    def __init__(self, msg_id: str = None, arg_index: int = 0):
+        self._msg_id = msg_id or 'pytsite.console@missing_argument'
+        self._arg_index = arg_index
+
+    def __str__(self):
+        return _lang.t(self._msg_id, {'arg_index': self._arg_index})

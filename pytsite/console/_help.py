@@ -1,6 +1,6 @@
 """Help Command.
 """
-from . import _command, _api, _argument
+from . import _command, _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -10,11 +10,6 @@ __license__ = 'MIT'
 class Help(_command.Command):
     """Help Command.
     """
-
-    def __init__(self):
-        super().__init__()
-
-        self._define_argument(_argument.Argument('command', required=True))
 
     @property
     def name(self) -> str:
@@ -28,7 +23,7 @@ class Help(_command.Command):
         """
         return 'pytsite.console@help_command_description'
 
-    def execute(self):
+    def exec(self):
         """Execute the command.
         """
-        _api.print_info(_api.get_command(self.get_argument_value(0)).signature)
+        _api.print_info(_api.get_command(self.arg(0)).signature)

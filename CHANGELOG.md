@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 0.99.47 (2017-06-21)
+### Added
+- `auth`: user update HTTP API endpoint.
+
+### Changed
+- `console`: refactored.
+
+
+
 ## 0.99.46 (2017-06-20)
 ### Added
 - `router`: new configuration parameter: **router.https**.

@@ -1,6 +1,7 @@
 """PytSite Auth HTTP API.
 """
-from pytsite import events as _events, util as _util, logger as _logger, routing as _routing
+from pytsite import events as _events, util as _util, logger as _logger, routing as _routing, http_api as _http_api, \
+    formatters as _formatters, validation as _validation
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -89,18 +90,33 @@ class GetUser(_routing.Controller):
 class PatchUser(_routing.Controller):
     """Update user.
     """
+    def __init__(self):
+        super().__init__()
+        self.args.add_formatter('birth_date', _formatters.DateTime())
+        self.args.add_formatter('urls', _formatters.JSONArrayToList())
+        self.args.add_formatter('profile_is_public', _formatters.Bool())
+
+        self.args.add_validation('email', _validation.rule.DateTime())
+        self.args.add_validation('gender', _validation.rule.Choice(options=('m', 'f')))
 
     def exec(self) -> dict:
-        c_user = _api.get_current_user()
+        user = _api.get_current_user()
 
-        # Anonymous users cannot manage themselves
-        if c_user.is_anonymous:
+        # Check permissions
+        if user.is_anonymous or (user.uid != self.arg('uid') and not user.is_admin):
             raise self.forbidden()
 
         allowed_fields = ('email', 'nickname', 'first_name', 'last_name', 'description', 'birth_date',
                           'gender', 'phone', 'urls', 'profile_is_public', 'country', 'city')
 
-        return {}
+        for k, v in self.args.items():
+            if k in allowed_fields:
+                user.set_field(k, v)
+
+        if user.is_modified:
+            user.save()
+
+        return _http_api.call('pytsite.auth@get_user', {'uid': user.uid})
 
 
 class PostFollow(_routing.Controller):

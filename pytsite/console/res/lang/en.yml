@@ -4,8 +4,5 @@ help_command_description: 'Shows help for command usage'
 invalid_option: 'Invalid option: --:opt_name'
 required_option_not_specified: "Required option ':opt_name' is not specified"
 
-insufficient_arguments: 'Insufficient arguments'
-too_many_arguments: 'Too many arguments'
-required_argument_not_specified: "Required argument ':arg_name' is not specified"
-
-error_argument_choice: "':arg_name' can be only one of the following: :options"
+invalid_argument: 'Invalid value of argument :arg_index: :arg_value'
+missing_argument: 'Argument :arg_index is missing'

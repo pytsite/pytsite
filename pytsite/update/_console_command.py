@@ -17,7 +17,7 @@ class Update(_console.Command):
 
     def __init__(self):
         super().__init__()
-        self._define_option(_console.option.PositiveInt('stage', default=0, maximum=2))
+        self.define_option(_console.option.PositiveInt('stage', default=0, maximum=2))
 
     @property
     def name(self) -> str:
@@ -31,12 +31,12 @@ class Update(_console.Command):
         """
         return 'pytsite.update@update_console_command_description'
 
-    def execute(self, args: tuple = (), **kwargs):
+    def exec(self, args: tuple = (), **kwargs):
         """Execute the command.
         """
         app_path = _reg.get('paths.app')
         theme_path = _theme.get().path
-        stage = self.get_option_value('stage')
+        stage = self.opt('stage')
 
         _chdir(app_path)
         _maintenance.enable()

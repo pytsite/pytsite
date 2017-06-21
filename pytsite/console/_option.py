@@ -16,6 +16,7 @@ class Option:
         self._value = None
         self._formatters = []  # type: _List[_formatter.Formatter]
         self._rules = []  # type: _List[_validation.rule.Rule]
+        self._default = default
 
         if default is not None:
             self.value = default  # Pass default value through formatters
@@ -55,9 +56,17 @@ class Option:
 
 
 class Bool(Option):
+    def __init__(self, name: str, required: bool = False, default: bool = False):
+        super().__init__(name, required, default)
+
+        self._formatters.append(_formatter.Bool())
+
     @property
     def signature(self) -> str:
-        r = '--{}'.format(self._name)
+        yes = 'YES' if self._default else 'yes'
+        no = 'NO' if not self._default else 'no'
+
+        r = '--{}={}|{}'.format(self._name, yes, no)
         if not self._required:
             r = '[{}]'.format(r)
 

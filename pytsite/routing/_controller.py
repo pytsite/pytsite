@@ -56,6 +56,13 @@ class ControllerArgs(_Mapping):
         return self._value.pop(key, default)
 
     def __setitem__(self, key: str, value: _Any):
+        if key in self._formatters:
+            for f in self._formatters[key]:
+                try:
+                    value = f.format(value)
+                except ValueError as e:
+                    raise ValueError("Field '{}': {}".format(key, e))
+
         if key in self._rules:
             for r in self._rules[key]:
                 try:
@@ -65,10 +72,6 @@ class ControllerArgs(_Mapping):
                         'field_name': key,
                         'error': str(e),
                     })
-
-        if key in self._formatters:
-            for f in self._formatters[key]:
-                value = f.format(value)
 
         self._value[key] = value
 

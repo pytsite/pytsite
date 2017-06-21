@@ -14,12 +14,6 @@ __license__ = 'MIT'
 class Db(_console.Command):
     """Database Dump Command.
     """
-
-    def __init__(self):
-        super().__init__()
-
-        self._define_argument(_console.argument.Choice('action', True, options=['dump', 'restore']))
-
     @property
     def name(self) -> str:
         """Get name of the command.
@@ -91,12 +85,14 @@ class Db(_console.Command):
 
         return r
 
-    def execute(self):
+    def exec(self):
         """Execute the command.
         """
-        action = self.get_argument_value(0)
+        action = self.arg(0)
 
         if action == 'dump':
             self._dump()
-        if action == 'restore':
+        elif action == 'restore':
             self._restore()
+        else:
+            raise _console.error.InvalidArgument(0, action)

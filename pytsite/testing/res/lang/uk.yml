@@ -1,1 +1,2 @@
-console_command_description: 'Запуск тестов'
+console_command_description: 'Запуск тестів'
+target_is_not_specified: 'Ціль не визначено'

@@ -1,8 +1,8 @@
 """Console Commands
 """
-from typing import Dict as _Dict, List as _List, Any as _Any
+from typing import Dict as _Dict, Any as _Any
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from . import _option, _argument, _error
+from . import _option, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,24 +14,15 @@ class Command(_ABC):
     """
 
     def __init__(self):
-        self._options = {}  # type: _Dict[str, _option.Option]
-        self._arguments = []  # type: _List[_argument.Argument]
+        self._opts = {}  # type: _Dict[str, _option.Option]
+        self._args = []
         self._required_args = 0
 
-    def _define_option(self, opt: _option.Option):
-        if opt.name in self._options:
+    def define_option(self, opt: _option.Option):
+        if opt.name in self._opts:
             raise KeyError("Option '{}' is already defined")
 
-        self._options[opt.name] = opt
-
-    def _define_argument(self, arg: _argument.Argument):
-        if arg.required:
-            if self._arguments and not self._arguments[-1].required:
-                raise RuntimeError('Required arguments cannot be defined after non-required ones')
-
-            self._required_args += 1
-
-        self._arguments.append(arg)
+        self._opts[opt.name] = opt
 
     @property
     @_abstractmethod
@@ -51,58 +42,55 @@ class Command(_ABC):
     def signature(self) -> str:
         """Get signature of the command.
         """
-        options_sig = ' '.join([opt.signature for opt in self._options.values()])
+        options_sig = ' '.join([opt.signature for opt in self._opts.values()])
         if options_sig:
             options_sig = ' ' + options_sig
 
-        arguments_sig = ' '.join([arg.signature for arg in self._arguments])
-        if arguments_sig:
-            arguments_sig = ' ' + arguments_sig
+        return '{}{}'.format(self.name, options_sig)
 
-        return '{}{}{}'.format(self.name, options_sig, arguments_sig)
-
-    def set_option_value(self, name: str, value: _Any):
+    def set_opt(self, name: str, value: _Any):
         try:
-            if isinstance(value, bool) and isinstance(self._options[name], _option.Str):
+            if isinstance(value, bool) and isinstance(self._opts[name], _option.Str):
                 value = ''
 
-            self._options[name].value = value
+            self._opts[name].value = value
         except KeyError:
             raise _error.InvalidOption(name)
 
-    def get_option_value(self, name: str) -> _Any:
+    def opt(self, name: str) -> _Any:
+        """Get option's value
+        """
         try:
-            return self._options[name].value
+            return self._opts[name].value
         except KeyError:
             raise _error.InvalidOption(name)
 
-    def set_argument_value(self, index: int, value: str):
-        max_args = len(self._arguments)
+    def set_args(self, args: list):
+        self._args = args.copy()
 
-        if not max_args or (index + 1) > max_args:
-            raise _error.TooManyArguments()
-
-        self._arguments[index].value = value
-
-    def get_argument_value(self, index: int) -> _Any:
+    def arg(self, index: int) -> _Any:
+        """Get argument's value
+        """
         try:
-            return self._arguments[index].value
-        except KeyError:
-            raise KeyError('Argument index {} is too large'.format(index))
+            return self._args[index]
+        except IndexError:
+            raise _error.MissingArgument(arg_index=index)
+
+    @property
+    def args(self) -> list:
+        """Get all arguments
+        """
+        return self._args.copy()
 
     def do_execute(self):
-        for opt in self._options.values():
+        for opt in self._opts.values():
             if opt.required and not opt.value:
                 raise _error.MissingRequiredOption(opt.name)
 
-        for arg in self._arguments:
-            if arg.required and not arg.value:
-                raise _error.MissingRequiredArgument(arg.name)
-
-        return self.execute()
+        return self.exec()
 
     @_abstractmethod
-    def execute(self):
+    def exec(self):
         """Hook.
         """
         raise NotImplementedError()

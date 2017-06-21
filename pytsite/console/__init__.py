@@ -2,7 +2,7 @@
 """
 from pytsite import lang as _lang
 from ._command import Command
-from . import _error as error, _option as option, _argument as argument
+from . import _error as error, _option as option
 from . import _help
 
 

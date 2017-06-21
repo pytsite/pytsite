@@ -8,7 +8,7 @@ class Test(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self._define_argument(_console.argument.Argument('target', required=True))
+        self.define_option(_console.option.Bool('no-discover'))
 
     @property
     def name(self) -> str:
@@ -18,21 +18,33 @@ class Test(_console.Command):
     def description(self) -> str:
         return 'pytsite.testing@console_command_description'
 
-    def execute(self):
-        argv = [_sys.argv[0], 'discover']
+    @property
+    def signature(self) -> str:
+        return '{} <TARGET>...'.format(super().signature)
+
+    def exec(self):
         verbosity = 2 if _reg.get('debug') else 1
-        target_paths = []
 
-        target = self.get_argument_value(0)  # type: str
+        if not self.args:
+            raise _console.error.MissingArgument('pytsite.testing@target_is_not_specified')
 
-        if target.startswith('pytsite.'):
-            target_paths.append(_path.join(_reg.get('paths.pytsite'), target.replace('pytsite.', ''), 'tests'))
-        else:
-            target_paths.append(_path.join(_reg.get('paths.root'), target.replace('.', _path.sep), 'tests'))
+        for target in self.args:
+            argv = [_sys.argv[0]]
 
-        for target_path in target_paths:
-            if not _path.exists(target_path):
-                raise _console.error.Error('Directory {} is not found'.format(target_path))
+            if self.opt('no-discover') or '.tests.' in target:
+                argv.append(target)
+                _unittest.TestProgram(None, argv=argv, failfast=True, verbosity=verbosity)
 
-            argv[2:3] = ['-s', target_path]
-            _unittest.TestProgram(None, argv=argv, failfast=True, verbosity=verbosity)
+            else:
+                argv += ['discover', '-s']
+
+                if target.startswith('pytsite.'):
+                    target = _path.join(_reg.get('paths.pytsite'), target.replace('pytsite.', ''), 'tests')
+                else:
+                    target = _path.join(_reg.get('paths.root'), target.replace('.', _path.sep), 'tests')
+
+                if not _path.exists(target):
+                    raise _console.error.Error('Directory {} is not found'.format(target))
+
+                argv.append(target)
+                _unittest.TestProgram(None, argv=argv, failfast=True, verbosity=verbosity)

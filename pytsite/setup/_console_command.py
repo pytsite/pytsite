@@ -16,7 +16,7 @@ class Setup(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self._define_option(_console.option.Bool('force'))
+        self.define_option(_console.option.Bool('force'))
 
     @property
     def name(self) -> str:
@@ -30,11 +30,11 @@ class Setup(_console.Command):
         """
         return 'pytsite.setup@setup_console_command_description'
 
-    def execute(self):
+    def exec(self):
         """Execute the command.
         """
         lock_path = _reg.get('paths.setup.lock')
-        if _path.exists(lock_path) and not self.get_option_value('force'):
+        if _path.exists(lock_path) and not self.opt('force'):
             raise _console.error.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
         _events.fire('pytsite.setup')
