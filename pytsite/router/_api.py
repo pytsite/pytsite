@@ -78,7 +78,7 @@ def handle(controller: _Union[str, _routing.Controller], path: str = None, name:
     """Add a rule to the router
     """
     if isinstance(controller, str):
-        controller = _rules.get(controller)
+        controller = _rules.get(controller).controller
     elif not isinstance(controller, _routing.Controller):
         raise TypeError('String or controller instance expected, got {}'.format(type(controller)))
 

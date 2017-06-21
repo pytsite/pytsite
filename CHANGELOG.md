@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 0.99.50 (2017-06-21)
+### Fixed
+- `router`: named controller handlers registration issue.
+- `plugman`: agruments processing in console command **plugman:upgrade**.
+
+
 ## 0.99.49 (2017-06-21)
 ### Fixed
 - `router`: path aliases processing order.
@@ -8,7 +14,7 @@
 
 ## 0.99.48 (2017-06-21)
 ### Fixed
-- `plugman`: agruments processing in console command.
+- `plugman`: agruments processing in console command **plugman:install**.
 
 
 ## 0.99.47 (2017-06-21)

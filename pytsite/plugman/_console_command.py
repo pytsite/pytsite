@@ -21,12 +21,14 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
-        try:
+        plugin_name = self.arg(0)
+
+        if plugin_name:
             try:
-                _api.install(self.arg(0))
+                _api.install(plugin_name)
             except _error.PluginAlreadyInstalled as e:
                 raise _console.error.Error(e)
-        except _console.error.MissingArgument:
+        else:
             # Install required plugins
             for plugin_name in _reg.get('plugman.plugins', []):
                 if not _api.is_installed(plugin_name):

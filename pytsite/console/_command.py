@@ -68,13 +68,13 @@ class Command(_ABC):
     def set_args(self, args: list):
         self._args = args.copy()
 
-    def arg(self, index: int) -> _Any:
+    def arg(self, index: int, default: _Any = None) -> _Any:
         """Get argument's value
         """
         try:
             return self._args[index]
         except IndexError:
-            raise _error.MissingArgument(arg_index=index)
+            return default
 
     @property
     def args(self) -> list:
