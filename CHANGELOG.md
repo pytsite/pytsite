@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 0.99.49 (2017-06-21)
+### Fixed
+- `router`: path aliases processing order.
+
+
 ## 0.99.48 (2017-06-21)
 ### Fixed
 - `plugman`: agruments processing in console command.

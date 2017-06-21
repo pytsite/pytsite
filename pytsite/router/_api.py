@@ -163,10 +163,6 @@ def dispatch(env: dict, start_response: callable):
             # No language code found in the path. Set first defined language as current.
             _lang.set_current(languages[0])
 
-    # Loading path alias, if it exists or use current one
-    if env['PATH_INFO'] in _path_aliases:
-        env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
-
     # Create request context
     req = set_request(_http.request.Request(env))
 
@@ -175,6 +171,11 @@ def dispatch(env: dict, start_response: callable):
         _events.fire('pytsite.router.xhr_pre_dispatch.{}'.format(req.method.lower()))
     else:
         _events.fire('pytsite.router.pre_dispatch.{}'.format(req.method.lower()))
+
+    # Loading path alias, if it exists, then re-create request context
+    if env['PATH_INFO'] in _path_aliases:
+        env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
+        req = set_request(_http.request.Request(env))
 
     # Shortcuts
     request_cookies = req.cookies
