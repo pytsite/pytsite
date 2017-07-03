@@ -1,9 +1,8 @@
 """PytSite Theme
 """
-import json as _json
-from importlib.util import find_spec as _find_module_spec
-from os import path as _path
-from pytsite import reg as _reg, settings as _settings
+from importlib import import_module as _import_module
+from os import path as _path, makedirs as _makedirs
+from pytsite import settings as _settings, logger as _logger, pkg_util as _pkg_util, util as _util
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -15,40 +14,76 @@ class Theme:
     """PytSite Theme
     """
 
-    def __init__(self, name: str):
+    def __init__(self, package_name: str):
         """Init
         """
-        # Check for package existence
-        spec = _find_module_spec(name)
-        if not spec or not spec.loader:
-            raise _error.ThemeInitError("Theme package '{}' doesn't exist or it is not a package".
-                                        format(name))
+        # Check requirements
+        _pkg_util.check_requirements(package_name, 'theme.json')
 
-        # Build paths
-        theme_path = _path.dirname(_path.join(_reg.get('paths.root'), spec.origin))
-        theme_path = theme_path.replace('{}.{}'.format(_path.sep, _path.sep), _path.sep)
-        info_path = _path.join(theme_path, 'theme.json')
-
-        # Load info file
-        try:
-            with open(info_path) as f:
-                info_data = _json.load(f)  # type: dict
-        except FileNotFoundError:
-            raise _error.ThemeInitError('Theme info file is not found at {}'.format(info_path))
-        except _json.JSONDecodeError as e:
-            raise _error.ThemeInitError('Error while loading {}: {}'.format(info_path, e))
+        # Load package data from JSON file
+        pkg_data = _pkg_util.parse_json(package_name, 'theme.json')
 
         # Check data
-        if not isinstance(info_data, dict):
-            raise _error.ThemeInitError('Dictionary expected in {}'.format(info_path))
+        for k in ('name', 'description', 'version'):
+            if k not in pkg_data or not pkg_data[k]:
+                raise _error.ThemeInitError("'{}' is not found or empty in theme's JSON".format(k))
 
-        self._name = name
-        self._path = theme_path
-        self._description = info_data.get('description')
-        self._author = info_data.get('author')
-        self._url = info_data.get('url')
+        self._package_name = package_name
+        self._path = _pkg_util.resolve_path(package_name)
+        self._name = _util.transform_str_2(pkg_data.get('name'))
+        self._version = pkg_data.get('version')
+        self._description = pkg_data.get('description')
+        self._author = pkg_data.get('author')
+        self._url = pkg_data.get('url')
+
         self._package = None  # Will be filled after loading
         self._is_loaded = False
+
+    def load(self):
+        """Load the theme
+        """
+        from pytsite import lang, tpl, assetman
+
+        # Register translations package
+        lang_path = _path.join(self._path, 'lang')
+        if not _path.exists(lang_path):
+            _makedirs(lang_path, 0o755, True)
+        lang.register_package(self._package_name, 'lang')
+
+        # Register templates package
+        tpl_path = _path.join(self._path, 'tpl')
+        if not _path.exists(tpl_path):
+            _makedirs(tpl_path, 0o755, True)
+        tpl.register_package(self._package_name, 'tpl')
+
+        # Register assetman package
+        assets_path = _path.join(self._path, 'assets')
+        if not _path.exists(assets_path):
+            _makedirs(assets_path, 0o755, True)
+        assetman.register_package(self._package_name, 'assets')
+
+        # Load theme module
+        try:
+            self._package = _import_module(self._package_name)
+            _logger.info("Theme '{}' successfully loaded from '{}'".format(self._package_name, self._path))
+        except ImportError as e:
+            raise _error.ThemeLoadError("Error while loading theme package '{}': {}".format(self._package_name, e))
+
+        # Compile assets
+        if not _settings.get('theme.compiled'):
+            try:
+                assetman.build(self._package_name)
+                _settings.put('theme.compiled', True)
+            except assetman.error.NoTasksDefined as e:
+                _logger.warn(e)
+
+        self._is_loaded = True
+
+        return self
+
+    @property
+    def package_name(self) -> str:
+        return self._package_name
 
     @property
     def path(self) -> str:
@@ -57,6 +92,10 @@ class Theme:
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def version(self) -> str:
+        return self._version
 
     @property
     def description(self) -> str:

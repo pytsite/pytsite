@@ -1,4 +1,4 @@
-"""Auth Console Commands.
+"""PytSite Auth Console Commands
 """
 from getpass import getpass as _getpass
 from pytsite import console as _console, lang as _lang

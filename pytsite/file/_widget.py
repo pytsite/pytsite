@@ -1,8 +1,7 @@
-"""File Widgets.
+"""File Widgets
 """
 from typing import Iterable as _Iterable
-from pytsite import widget as _widget, tpl as _tpl, browser as _browser, html as _html, router as _router, \
-    http_api as _http_api
+from pytsite import widget as _widget, tpl as _tpl, html as _html, router as _router, http_api as _http_api
 from . import _api, _model, _error
 
 __author__ = 'Alexander Shepetko'
@@ -34,11 +33,6 @@ class FilesUpload(_widget.Abstract):
         self._show_numbers = False if self._max_files == 1 else kwargs.get('show_numbers', True)
         self._dnd = False if self._max_files == 1 else kwargs.get('dnd', True)
         self._js_module = 'pytsite-file-widget-files-upload'
-
-        # 'pytsite.file@css/upload-widget.css',
-        # 'pytsite.file@js/load-image.all.min.js',
-        # 'pytsite.file@js/canvas-to-blob.min.js',
-        # 'pytsite.file@js/widget-files-upload.js',
 
     @property
     def accept_files(self) -> str:

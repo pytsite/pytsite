@@ -18,8 +18,8 @@ def _init():
     tpl.register_package(__name__)
 
     assetman.register_package(__name__)
-    assetman.t_less(__name__ + '@**/*.less')
-    assetman.t_js(__name__ + '@**/*.js')
+    assetman.t_less(__name__ + '@**')
+    assetman.t_js(__name__ + '@**')
     assetman.js_module('pytsite-file-widget-files-upload', __name__ + '@js/widget-files-upload')
 
     # HTTP API handlers

@@ -8,3 +8,9 @@ __license__ = 'MIT'
 
 class InvalidVersionString(Exception):
     pass
+
+class InvalidCondition(Exception):
+    pass
+
+class InvalidComparisonOperator(Exception):
+    pass

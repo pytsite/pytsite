@@ -1,5 +1,6 @@
 """PytSite HTTP API Endpoints
 """
+import json as _json
 from pytsite import router as _router, logger as _logger, lang as _lang, events as _events, routing as _routing, \
     http as _http, formatters as _formatters
 from . import _api
@@ -49,6 +50,9 @@ class Entry(_routing.Controller):
             if isinstance(body, str):
                 response = _http.response.Response(body, status, mimetype='text/html')
             else:
+                if isinstance(body, _routing.ControllerArgs):
+                    body = dict(body)
+
                 response = _http.response.JSON(body, status)
 
             response.headers.add('PytSite-HTTP-API', version)
@@ -57,7 +61,13 @@ class Entry(_routing.Controller):
 
         except _http.error.Base as e:
             _logger.error('{} {}: {}'.format(request_method, current_path, e.description))
-            response = _http.response.JSON({'error': e.description}, e.code)
+
+            if e.response and isinstance(e.response, _http.response.JSON):
+                response = e.response
+                response.status_code = e.code
+            else:
+                response = _http.response.JSON({'error': e.description}, e.code)
+
             response.headers.add('PytSite-HTTP-API', version)
 
             return response

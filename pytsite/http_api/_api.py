@@ -34,8 +34,14 @@ def match(method: str, path: str, version: int) -> _routing.Rule:
         raise _http.error.NotFound()
 
 
-def url(name: str, args: dict = None, version: int = 1):
-    """Generate URL for an HTTP API endpoint.
+def endpoint(name: str, args: _Mapping = None) -> str:
+    """Get HTTP API rule's endpoint
+    """
+    return _rules_map.path(name, args).lstrip('/')
+
+
+def url(name: str, args: _Mapping = None, version: int = 1) -> str:
+    """Get an URL for an HTTP API endpoint
     """
     return _router.rule_url('pytsite.http_api@entry', {
         'http_api_version': version,

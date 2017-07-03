@@ -1,9 +1,9 @@
-"""PytSite RSS Parser.
+"""PytSite RSS Parser
 """
 import requests as _requests
 from datetime import datetime as _datetime
 from lxml import etree as _etree
-from pytsite import core_name as _core_name, core_version_str as _core_version_str, core_url as _core_url
+from pytsite import pkg_util as _pkg_util
 from .. import _abstract, _xml, _error
 from . import _em, _media, _pytsite, _dc, _sy, _content, _atom, _slash, _wfw, _yandex
 
@@ -96,9 +96,9 @@ class Parser(_abstract.Parser, _xml.Serializable):
             for xml_child in xml_em:
                 try:
                     em.append_child(parse_xml_element(xml_child))
-                except (_error.UnknownElement, _error.ElementParsingError) as e:
+                except (_error.UnknownElement, _error.ElementParsingError) as exc:
                     if not self._skip_bad_elements:
-                        raise e
+                        raise exc
 
             return em
 
@@ -130,11 +130,13 @@ class Parser(_abstract.Parser, _xml.Serializable):
                     raise e
 
     def generate(self) -> str:
-        """Generate feed's XML string.
+        """Generate feed's XML string
         """
         channel = self.get_children('channel')[0]
         if not channel.has_children('generator'):
-            channel.append_child(_em.Generator('{}-{} ({})'.format(_core_name, _core_version_str(), _core_url)), 0)
+            generator_str = '{}-{} ({})'.format(_pkg_util.name('pytsite'), _pkg_util.version('pytsite'),
+                                                _pkg_util.url('pytsite'))
+            channel.append_child(_em.Generator(generator_str), 0)
             channel.append_child(_em.PubDate(_datetime.now()), 1)
             channel.append_child(_em.LastBuildDate(_datetime.now()), 2)
 

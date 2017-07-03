@@ -40,7 +40,6 @@ class Build(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Bool('no-maint'))
-        self.define_option(_console.option.Str('package'))
 
     @property
     def name(self) -> str:
@@ -63,10 +62,11 @@ class Build(_console.Command):
             if maint:
                 _maintenance.enable()
 
-            # Compile assets
-            package = self.opt('package')
-            if package:
-                _api.build(package)
+
+            packages = self.args
+            if packages:
+                for package in packages:
+                    _api.build(package)
             else:
                 _api.build_all()
 

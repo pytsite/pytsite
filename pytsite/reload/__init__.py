@@ -16,7 +16,8 @@ def _init():
     console.register_command(_console_command.Reload())
 
     assetman.register_package(__name__)
-    assetman.t_js(__name__ + '@**/*.js')
+    assetman.t_js(__name__ + '@**')
+    assetman.js_module('pytsite-reload', __name__ + '@js/pytsite-reload')
 
     permissions.define_permission('pytsite.reload', 'pytsite.reload@reload_application_permission', 'app')
 

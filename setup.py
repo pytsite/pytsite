@@ -1,9 +1,16 @@
-import re
+import re, json
 from os import walk, path, system
 from setuptools import setup, find_packages, Command
 
-with open(path.join(path.dirname(__file__), 'pytsite', 'VERSION.txt')) as f:
-    version = f.readline().replace('\n', '')
+with open(path.join(path.dirname(__file__), 'pytsite', 'pytsite.json')) as f:
+    data = json.load(f)
+    pkg_name = data.get('name').lower()
+    pkg_version = data.get('version')
+    pkg_description = data.get('description')
+    pkg_url = data.get('url')
+    pkg_author = data.get('author')
+    pkg_author_email = data.get('author_email')
+    pkg_license = data.get('license_name')
 
 ASSET_FNAME_RE = re.compile('\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot|otf|map|js|css|less|txt|md|yml|jinja2)$')
 
@@ -42,14 +49,14 @@ def find_package_data():
 
 
 setup(
-    name='pytsite',
-    version=version,
-    description='Brand New Python Web Framework',
-    url='https://pytsite.xyz',
-    download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(version),
-    author='Alexander Shepetko',
-    author_email='a@shepetko.com',
-    license='MIT',
+    name=pkg_name,
+    version=pkg_version,
+    description=pkg_description,
+    url=pkg_url,
+    author=pkg_author,
+    author_email=pkg_author_email,
+    license=pkg_license,
+    download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(pkg_version),
     install_requires=[
         'pip',
         'PyYAML',
@@ -69,15 +76,16 @@ setup(
         'uwsgi',
     ],
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Natural Language :: Russian',
+        'Natural Language :: Ukranian',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: JavaScript',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
@@ -88,3 +96,4 @@ setup(
         'clean': CleanCommand,
     }
 )
+

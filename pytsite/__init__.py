@@ -1,38 +1,10 @@
-"""PytSite Init.
+"""PytSite Init
 """
+from pytsite import semver as _semver, pkg_util as _pkg_util
+
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-core_name = 'PytSite'
-core_url = 'https://pytsite.xyz'
-_version = None  # type: tuple
-
-
-def core_version():
-    from os import path
-
-    global _version
-    if not _version:
-        with open(path.join(path.dirname(__file__), 'VERSION.txt')) as f:
-            _version = f.readline().replace('\n', '').split('.')
-            if len(_version) == 2:
-                _version.append(0)
-            for k, v in enumerate(_version):
-                _version[k] = int(_version[k])
-            _version = tuple(_version)
-
-    if _version[1] > 99:
-        raise ValueError('Version minor cannot be greater 99.')
-    if _version[2] > 99:
-        raise ValueError('Version revision cannot be greater 99.')
-
-    return _version
-
-
-def core_version_str() -> str:
-    v = core_version()
-    return '{}.{}.{}'.format(v[0], v[1], v[2])
 
 
 def _init():
@@ -124,14 +96,17 @@ def _init():
     })
 
     # Initialize required core packages. Order is important.
-    autoload = ('theme', 'cron', 'stats', 'auth_storage_odm', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api',
-                'browser', 'plugman', 'testing')
+    autoload = ('theme', 'cron', 'stats', 'auth', 'auth_storage_odm', 'auth_web', 'auth_http_api', 'auth_settings',
+                'auth_profile', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api', 'browser', 'plugman', 'testing')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 
     # Initialize authentication subsystem
     import_module('pytsite.auth_password')
     import_module('pytsite.auth_ulogin')
+
+    # Check app's requirements
+    _pkg_util.check_requirements('app')
 
     # Create application's language directory
     from pytsite import lang
@@ -146,12 +121,7 @@ def _init():
     lang.register_package('app', 'lang')
     import_module('app')
 
-    # Core event handlers
-    from pytsite import events
-    from . import _eh
-    events.listen('pytsite.update', _eh.update)
-
-    # Load theme
+    # Load default theme
     from pytsite import theme
     theme.load()
 

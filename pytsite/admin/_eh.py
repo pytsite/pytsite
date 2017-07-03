@@ -15,7 +15,7 @@ def router_dispatch():
         c_user = _auth.get_current_user()
 
         if c_user.is_anonymous:
-            r_url = _router.rule_url('pytsite.auth@sign_in', {
+            r_url = _router.rule_url('pytsite.auth_web@sign_in', {
                 'driver': _auth.get_auth_driver().get_name(),
                 '__redirect': _router.current_path(strip_lang=False)
             })

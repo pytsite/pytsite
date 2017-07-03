@@ -6,7 +6,7 @@ from datetime import datetime as _datetime
 from pytsite import auth as _auth, odm as _odm, util as _util, odm_ui as _odm_ui, router as _router, \
     html as _html, widget as _widget, form as _form, lang as _lang, metatag as _metatag, validation as _validation, \
     permissions as _permissions, http as _http, file as _file, file_storage_odm as _file_storage_odm, \
-    events as _events, errors as _errors
+    events as _events, errors as _errors, auth_ui as _auth_ui
 from . import _field
 
 __author__ = 'Alexander Shepetko'
@@ -369,7 +369,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         return login, full_name, roles, status, p_is_public, is_online, created, last_activity
 
     def odm_ui_view_url(self) -> str:
-        return _router.rule_url('pytsite.auth@profile_view', {'nickname': self.f_get('nickname')})
+        return _router.rule_url('pytsite.auth_profile@profile_view', {'nickname': self.f_get('nickname')})
 
     def odm_ui_m_form_setup(self, frm: _form.Form):
         """Hook.
@@ -542,7 +542,7 @@ class ODMUser(_odm_ui.model.UIEntity):
 
         # Roles
         if current_user.has_permission('pytsite.odm_auth.modify.user'):
-            content_wrapper.append_child(_auth.widget.RoleCheckboxes(
+            content_wrapper.append_child(_auth_ui.widget.RoleCheckboxes(
                 weight=140,
                 uid='roles',
                 label=self.t('roles'),

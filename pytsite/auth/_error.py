@@ -1,4 +1,4 @@
-"""Auth Errors.
+"""PytSite Auth Errors
 """
 from pytsite import events as _events
 

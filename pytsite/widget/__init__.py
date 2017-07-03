@@ -29,6 +29,7 @@ def _init():
     assetman.js_module('pytsite-widget-input-string-list', __name__ + '@js/string-list')
     assetman.js_module('pytsite-widget-input-list-list', __name__ + '@js/list-list')
     assetman.js_module('pytsite-widget-input-tokens', __name__ + '@js/tokens')
+    assetman.js_module('pytsite-widget-input-file', __name__ + '@js/file')
     assetman.js_module('pytsite-widget-select-select2', __name__ + '@js/select2')
     assetman.js_module('pytsite-widget-select-date-time', __name__ + '@js/date-time')
     assetman.js_module('pytsite-widget-select-pager', __name__ + '@js/pager')

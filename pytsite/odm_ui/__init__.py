@@ -15,7 +15,7 @@ def _init():
     from . import _controllers, _http_api_controllers
 
     abp = admin.base_path()
-    auth_filter = 'pytsite.auth@authorize'
+    auth_filter = 'pytsite.auth_web@authorize'
 
     # Route: ODM browser page
     router.handle(_controllers.Browse(), abp + '/odm_ui/<model>', 'pytsite.odm_ui@browse', filters=auth_filter)

@@ -3,9 +3,10 @@
 import random as _random
 import re as _re
 import pytz as _pytz
+from os import mkdir as _mkdir, path as _path, makedirs as _makedirs
+from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
 from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
 from frozendict import frozendict as _frozendict
-from importlib import import_module as _import_module
 from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
@@ -281,21 +282,37 @@ def dict_merge(a: dict, b: dict) -> dict:
     return result
 
 
-def mk_tmp_file() -> tuple:
-    """Create temporary file.
+def mk_tmp_file(suffix: str = None, prefix: str = None, text: bool = False) -> _Tuple[int, str]:
+    """Create temporary file
+
+    Returns tuple of two items: file' descriptor and absolute path.
     """
-    from os import path, mkdir
-    from tempfile import mkstemp
     from pytsite import reg
 
     tmp_dir = reg.get('paths.tmp')
     if not tmp_dir:
-        raise RuntimeError("Cannot determine temporary directory location.")
+        raise RuntimeError('Cannot determine temporary directory location')
 
-    if not path.exists(tmp_dir):
-        mkdir(tmp_dir)
+    if not _path.exists(tmp_dir):
+        _mkdir(tmp_dir)
 
-    return mkstemp(dir=tmp_dir)
+    return _mkstemp(suffix, prefix, tmp_dir, text)
+
+
+def mk_tmp_dir(suffix: str = None, prefix: str = None, subdir: str = None) -> str:
+    from pytsite import reg
+
+    tmp_root = reg.get('paths.tmp')
+    if not tmp_root:
+        raise RuntimeError('Cannot determine temporary directory location')
+
+    if subdir:
+        tmp_root = _path.join(tmp_root, subdir)
+
+    if not _path.exists(tmp_root):
+        _makedirs(tmp_root, 0o755)
+
+    return _mkdtemp(suffix, prefix, tmp_root)
 
 
 def random_str(size: int = 16, alphabet: str = '0123456789abcdef', exclude: _Iterable = None):
@@ -416,10 +433,10 @@ def transform_str_2(s: str) -> str:
 
 
 def get_class(s: str) -> type:
-    """Resolve class from dotted-notated name.
+    """Resolve class from dotted-notated name
     """
     if not isinstance(s, str):
-        raise ValueError('String expected.')
+        raise ValueError('String expected')
 
     class_fqn = cleanup_list(s.split('.'))
     if len(class_fqn) < 2:
@@ -427,9 +444,9 @@ def get_class(s: str) -> type:
 
     class_name = class_fqn[-1:][0]
     module_name = '.'.join(class_fqn[:-1])
-    module = __import__(module_name, fromlist=[class_name])
+    module_obj = __import__(module_name, fromlist=[class_name])
 
-    return getattr(module, class_name)
+    return getattr(module_obj, class_name)
 
 
 def cleanup_list(inp: _Union[_List, _Tuple], uniquize: bool = False) -> list:

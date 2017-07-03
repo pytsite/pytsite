@@ -23,7 +23,7 @@ def _get_tpl_path(tpl: str) -> str:
         tpl = '$theme@' + tpl
 
     if '$theme' in tpl:
-        tpl = tpl.replace('$theme', _theme.get().name)
+        tpl = tpl.replace('$theme', _theme.get().package_name)
 
     package_name, tpl_name = tpl.split('@')[:2]
 

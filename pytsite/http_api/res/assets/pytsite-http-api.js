@@ -14,12 +14,19 @@ define(['jquery', 'pytsite-lang'], function ($, lang) {
     function request(method, endpoint, data, version) {
         data = data || {};
 
-        return $.ajax({
+        var ajaxSettings = {
             url: url(endpoint, null, version),
             method: method,
             data: data,
             headers: {'PytSite-Lang': lang.current()}
-        });
+        };
+
+        if (data instanceof FormData) {
+            ajaxSettings.processData = false;
+            ajaxSettings.contentType = false;
+        }
+
+        return $.ajax(ajaxSettings);
     }
 
     function get(endpoint, data, version) {

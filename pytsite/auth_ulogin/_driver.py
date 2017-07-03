@@ -4,8 +4,8 @@ import json as _json
 from time import strptime as _strptime
 from datetime import datetime as _datetime
 from urllib.request import urlopen as _urlopen
-from pytsite import tpl as _tpl, form as _form, reg as _reg, lang as _lang, widget as _widget, router as _router, \
-    html as _html, auth as _auth, file as _file
+from pytsite import tpl as _tpl, form as _form, lang as _lang, widget as _widget, router as _router, html as _html, \
+    auth as _auth, file as _file, settings as _settings
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,7 +13,7 @@ __license__ = 'MIT'
 
 
 class _LoginWidget(_widget.Abstract):
-    """ULogin Widget.
+    """ULogin Widget
     """
     def __init__(self, uid: str, **kwargs):
         """Init.
@@ -24,14 +24,11 @@ class _LoginWidget(_widget.Abstract):
         self._css += 'widget-ulogin'
 
     def _get_element(self, **kwargs) -> _html.Element:
-        """Render the widget.
-        :param **kwargs:
-        """
         return _html.TagLessElement(_tpl.render('pytsite.auth_ulogin@widget', {'widget': self}))
 
 
 class _LoginForm(_form.Form):
-    """ULogin Login Form.
+    """ULogin Login Form
     """
     def _on_setup_widgets(self):
         """_setup() hook.
@@ -52,7 +49,7 @@ class _LoginForm(_form.Form):
 
 
 class ULogin(_auth.driver.Authentication):
-    """ULogin Driver.
+    """ULogin Driver
     """
     def get_name(self) -> str:
         """Get name of the driver.
@@ -99,7 +96,7 @@ class ULogin(_auth.driver.Authentication):
 
         except _auth.error.UserNotExist:
             # User is not exists and its creation is not allowed
-            if not _reg.get('auth.signup.enabled'):
+            if not _settings.get('auth.signup_enabled'):
                 raise _auth.error.AuthenticationError(_lang.t('pytsite.auth_ulogin@signup_is_disabled'))
             else:
                 # New users can be created only by system user

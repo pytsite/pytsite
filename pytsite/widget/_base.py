@@ -1,6 +1,5 @@
-"""PytSite Base Widget.
+"""PytSite Base Widget
 """
-from json import dumps as _json_dumps
 from typing import Iterable as _Iterable, Tuple as _Tuple, List as _List
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from copy import deepcopy as _deepcopy
@@ -16,7 +15,7 @@ class Abstract(_ABC):
     """
 
     def __init__(self, uid: str, **kwargs):
-        """Init.
+        """Init
         """
         self._uid = uid
         self._wrap_em = _html.Div()
@@ -75,7 +74,7 @@ class Abstract(_ABC):
         pass
 
     def get_element(self, **kwargs) -> _html.Element:
-        """Get an HTML element representation of the widget.
+        """Get an HTML element representation of the widget
         """
         # Wrapper div
         self._wrap_em.set_attr('data_cid', self.__module__ + '.' + self.__class__.__name__)
@@ -452,7 +451,7 @@ class Abstract(_ABC):
 
         return self
 
-    def get_rules(self) -> _Tuple[_validation.rule.Rule]:
+    def get_rules(self) -> _Tuple[_validation.rule.Rule, ...]:
         """Get validation rules.
         """
         return tuple(self._rules)

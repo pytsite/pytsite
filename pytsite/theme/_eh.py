@@ -1,8 +1,6 @@
-"""PytSite Theme Event Handlers.
+"""PytSite Theme Event Handlers
 """
-from os import path as _path
-from shutil import move as _move
-from pytsite import settings as _settings, reg as _reg, console as _console, file as _file, assetman as _assetman, \
+from pytsite import settings as _settings, file as _file, assetman as _assetman, \
     metatag as _metatag
 from . import _api
 
@@ -14,7 +12,7 @@ __license__ = 'MIT'
 def router_dispatch():
     """pytsite.router.dispatch
     """
-    if not _assetman.is_package_registered(_api.get().name):
+    if not _assetman.is_package_registered(_api.get().package_name):
         return
 
     # Set favicon URL
@@ -28,15 +26,3 @@ def router_dispatch():
             pass
     else:
         _metatag.t_set('link', rel='icon', type='image/png', href=_assetman.url('$theme@img/favicon.png'))
-
-
-def update(version: str):
-    """pytsite.update
-    """
-    if version == '0.95.0':
-        # Move themes to the new location
-        old_themes_path = _path.join(_reg.get('paths.app'), 'themes')
-        new_themes_path = _api.get_themes_path()
-        if _path.isdir(old_themes_path) and not _path.isdir(new_themes_path):
-            _move(old_themes_path, new_themes_path)
-            _console.print_info('{} moved to {}'.format(old_themes_path, new_themes_path))

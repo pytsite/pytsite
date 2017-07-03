@@ -1,7 +1,7 @@
-"""Settings Plugin Functions
+"""PytSite Settings API Functions
 """
 from typing import Any as _Any, Type as _Type
-from pytsite import admin as _admin, router as _router, odm as _odm
+from pytsite import admin as _admin, router as _router, odm as _odm, reg as _reg
 from . import _frm
 
 __author__ = 'Alexander Shepetko'
@@ -17,9 +17,9 @@ def is_defined(uid: str) -> bool:
     return uid in _settings
 
 
-def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permissions: str = '*',
+def define(uid: str, frm: _Type[_frm.Form], menu_title: str, menu_icon: str, permissions: str = '*',
            menu_weight: int = 0):
-    """Define setting.
+    """Define a setting
     """
     if uid in _settings:
         raise KeyError("Setting '{}' is already defined.".format(uid))
@@ -35,7 +35,7 @@ def define(uid: str, frm: _frm.Form, menu_title: str, menu_icon: str, permission
 
 
 def get_definition(uid: str) -> dict:
-    """Get setting's definition.
+    """Get setting's definition
     """
     if uid not in _settings:
         raise KeyError("Setting '{}' is not defined.".format(uid))
@@ -43,8 +43,8 @@ def get_definition(uid: str) -> dict:
     return _settings[uid]
 
 
-def get(uid: str, default=None) -> _Any:
-    """Get setting's value.
+def get(uid: str, default: _Any = None) -> _Any:
+    """Get setting's value
     """
     uid_split = uid.split('.')
 
@@ -53,7 +53,10 @@ def get(uid: str, default=None) -> _Any:
 
     entity = _odm.find('setting').eq('uid', uid_split[0]).first()
     if not entity:
-        return default if default is not None else {}
+        if default is not None:
+            return default
+
+        return _reg.get(uid, {} if len(uid_split) == 1 else default)
 
     setting_value = entity.f_get('value')
     if len(uid_split) == 2:
@@ -63,7 +66,7 @@ def get(uid: str, default=None) -> _Any:
 
 
 def put(uid: str, value: _Any):
-    """Set setting's value.
+    """Set setting's value
     """
     uid_split = uid.split('.')
 
@@ -86,6 +89,6 @@ def put(uid: str, value: _Any):
 
 
 def form_url(uid: str) -> str:
-    """Get URL of a settings form.
+    """Get URL of a settings form
     """
     return _router.rule_url('pytsite.settings@form', {'uid': uid})

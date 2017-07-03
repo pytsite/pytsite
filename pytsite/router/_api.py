@@ -229,6 +229,7 @@ def dispatch(env: dict, start_response: callable):
         controller = rule.controller
         controller.args.clear()
         controller.args.update(req.inp)
+        controller.args.update(req.files)
         controller.args.update(rule.args)
 
         # Call controller

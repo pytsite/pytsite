@@ -355,7 +355,7 @@ class AbstractUser(AuthEntity):
 
     @property
     def profile_view_url(self) -> str:
-        return _router.rule_url('pytsite.auth@profile_view', {'nickname': self.nickname})
+        return _router.rule_url('pytsite.auth_profile@profile_view', {'nickname': self.nickname})
 
     @property
     def url(self) -> str:
@@ -365,7 +365,7 @@ class AbstractUser(AuthEntity):
 
     @property
     def profile_edit_url(self) -> str:
-        return _router.rule_url('pytsite.auth@profile_edit', {'nickname': self.nickname})
+        return _router.rule_url('pytsite.auth_profile@profile_edit', {'nickname': self.nickname})
 
     @_abstractmethod
     def add_role(self, role: AbstractRole):

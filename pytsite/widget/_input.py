@@ -1,46 +1,24 @@
-"""Input Widgets.
+"""Input Widgets
 """
 from pytsite import html as _html, util as _util, tpl as _tpl, validation as _validation, router as _router
-from . import _base
+from ._base import Abstract as _Abstract
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Input(_base.Abstract):
-    """Abstract Input Widget.
-    """
-
-    def __init__(self, uid: str, **kwargs):
-        """Init.
-        """
-        super().__init__(uid, **kwargs)
-
-        self._max_length = kwargs.get('max_length')
-
-    @property
-    def max_length(self, ) -> int:
-        return self._max_length
-
-    @max_length.setter
-    def max_length(self, value: int):
-        self._max_length = value
-
-
-class Hidden(Input):
+class Hidden(_Abstract):
     """Hidden Input Widget
     """
 
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
+
         self._hidden = True
         self._group_wrap = False
 
     def _get_element(self, **kwargs) -> _html.Input:
-        """Render the widget.
-        :param **kwargs:
-        """
         inp = _html.Input(
             type='hidden',
             uid=self.uid,
@@ -55,44 +33,7 @@ class Hidden(Input):
         return inp
 
 
-class TextArea(_base.Abstract):
-    """Text Area Input Widget.
-    """
-
-    def __init__(self, uid: str, **kwargs):
-        """Init.
-        """
-        super().__init__(uid, **kwargs)
-
-        self._rows = kwargs.get('rows', 5)
-        self._required = kwargs.get('required', False)
-        self._max_length = kwargs.get('max_length')
-        self._css = ' '.join((self._css, 'widget-textarea-input'))
-
-    def _get_element(self, **kwargs) -> str:
-        """Render the widget.
-        :param **kwargs:
-        """
-        html_input = _html.TextArea(
-            content=self.get_val(),
-            uid=self._uid,
-            name=self._name,
-            css=' '.join(('form-control', self._css)),
-            placeholder=self.placeholder,
-            rows=self._rows,
-            required=self._required
-        )
-
-        for k, v in self._data.items():
-            html_input.set_attr('data_' + k, v)
-
-        if self._max_length:
-            html_input.set_attr('maxlength', self._max_length)
-
-        return html_input
-
-
-class Text(Input):
+class Text(_Abstract):
     """Text Input Widget
     """
 
@@ -101,11 +42,20 @@ class Text(Input):
         """
         super().__init__(uid, **kwargs)
 
+        self._max_length = kwargs.get('max_length')
         self._prepend = kwargs.get('prepend')
         self._append = kwargs.get('append')
         self._css = ' '.join((self._css, 'widget-input-text'))
         self._type = 'text'
         self._js_module = 'pytsite-widget-input-text'
+
+    @property
+    def max_length(self, ) -> int:
+        return self._max_length
+
+    @max_length.setter
+    def max_length(self, value: int):
+        self._max_length = value
 
     def _get_element(self, **kwargs) -> _html.Element:
         """Render the widget
@@ -149,6 +99,56 @@ class Password(Text):
         self._type = 'password'
 
 
+class Email(Text):
+    """Email Input Widget.
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, **kwargs)
+
+        self._type = 'email'
+        self.add_rule(_validation.rule.Email())
+
+
+class TextArea(_Abstract):
+    """Text Area Input Widget.
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        """Init.
+        """
+        super().__init__(uid, **kwargs)
+
+        self._rows = kwargs.get('rows', 5)
+        self._required = kwargs.get('required', False)
+        self._max_length = kwargs.get('max_length')
+        self._css = ' '.join((self._css, 'widget-textarea-input'))
+
+    def _get_element(self, **kwargs) -> _html.Element:
+        """Render the widget.
+        :param **kwargs:
+        """
+        html_input = _html.TextArea(
+            content=self.get_val(),
+            uid=self._uid,
+            name=self._name,
+            css=' '.join(('form-control', self._css)),
+            placeholder=self.placeholder,
+            rows=self._rows,
+            required=self._required
+        )
+
+        for k, v in self._data.items():
+            html_input.set_attr('data_' + k, v)
+
+        if self._max_length:
+            html_input.set_attr('maxlength', self._max_length)
+
+        return html_input
+
+
 class TypeaheadText(Text):
     def __init__(self, uid: str, **kwargs):
         """Init.
@@ -167,19 +167,6 @@ class TypeaheadText(Text):
 
         self._data['source_url'] = source_url
         self._data['min_length'] = kwargs.get('typeahead_min_length', 1)
-
-
-class Email(Text):
-    """Email Input Widget.
-    """
-
-    def __init__(self, uid: str, **kwargs):
-        """Init.
-        """
-        super().__init__(uid, **kwargs)
-
-        self._type = 'email'
-        self.add_rule(_validation.rule.Email())
 
 
 class Number(Text):
@@ -262,7 +249,7 @@ class Decimal(Number):
         return super().set_val(float(value), **kwargs)
 
 
-class StringList(_base.Abstract):
+class StringList(_Abstract):
     """List of strings widget.
     """
 
@@ -323,8 +310,6 @@ class ListList(StringList):
         if len(self._col_titles) != len(self._col_format):
             raise ValueError("'col_titles' and 'col_format' must have same length.")
 
-
-
     @property
     def col_titles(self) -> tuple:
         return self._col_titles
@@ -376,12 +361,12 @@ class ListList(StringList):
         return _html.Div(_tpl.render('pytsite.widget@list_list', {'widget': self}))
 
 
-class Tokens(Input):
-    """Tokens Text Input Widget.
+class Tokens(Text):
+    """Tokens Text Input Widget
     """
 
     def __init__(self, uid: str, **kwargs):
-        """Init.
+        """Init
         """
         super().__init__(uid, **kwargs)
 
@@ -395,17 +380,14 @@ class Tokens(Input):
         }
 
     def set_val(self, value, **kwargs):
-        """Set value of the widget.
+        """Set value of the widget
         """
         if isinstance(value, str):
             value = value.split(',')
 
         return super().set_val(value)
 
-    def _get_element(self, **kwargs) -> str:
-        """Render the widget.
-        :param **kwargs:
-        """
+    def _get_element(self, **kwargs) -> _html.Element:
         html_input = _html.Input(
             type='text',
             uid=self._uid,
@@ -413,5 +395,41 @@ class Tokens(Input):
             value=','.join(self.get_val()) if self.get_val() else '',
             css=' '.join(('form-control', self._css)),
         )
+
+        return html_input
+
+
+class File(_Abstract):
+    """File Input Widget
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        """Init
+        """
+        super().__init__(uid, **kwargs)
+
+        self._max_files = kwargs.get('max_files', 1)
+        self._multiple = False if self._max_files == 1 else True
+        self._accept = kwargs.get('accept', '*/*')
+        self._upload_endpoint = kwargs.get('upload_endpoint')
+
+        self._css = ' '.join((self._css, 'widget-file'))
+        self._js_module = 'pytsite-widget-input-file'
+
+        self._data['max_files'] = self._max_files
+
+        if self._upload_endpoint:
+            self._data['upload-endpoint'] = self._upload_endpoint
+
+    def _get_element(self, **kwargs) -> _html.Element:
+        html_input = _html.Input(
+            type='file',
+            uid=self._uid,
+            name=self._name,
+            accept=self._accept,
+        )
+
+        if self._multiple:
+            html_input.set_attr('multiple', 'true')
 
         return html_input

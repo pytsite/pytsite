@@ -512,7 +512,7 @@ def build(package_name: str):
     assets_dst_path = get_dst_dir_path(package_name)
 
     # Remove package's assets directory
-    # Dircetory of assetman cannot be removed because it contains dynamically generated RequireJS config
+    # Directory of assetman cannot be removed because it contains dynamically generated RequireJS config
     # and timestamps JSON
     if package_name != 'pytsite.assetman' and _path.exists(assets_dst_path):
         _rmtree(assets_dst_path)
@@ -530,7 +530,8 @@ def build(package_name: str):
             })
 
     if not tasks_file_content:
-        raise RuntimeError("Package '{}' doesn't define any assetman tasks".format(package_name))
+        _update_timestamp_config(package_name)
+        raise _error.NoTasksDefined(package_name)
 
     with open(_GULP_TASKS_FILE, 'wt') as f:
         f.write(_json.dumps(tasks_file_content))
@@ -572,7 +573,7 @@ def _split_location_info(location: str) -> _Tuple[str, str]:
         location = '$theme@' + location
 
     if '$theme' in location:
-        location = location.replace('$theme', _theme.get().name)
+        location = location.replace('$theme', _theme.get().package_name)
 
     package_name, assets_path = location.split('@')[:2]
 

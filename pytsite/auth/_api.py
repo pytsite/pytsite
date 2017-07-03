@@ -3,8 +3,8 @@
 from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import reg as _reg, form as _form, lang as _lang, router as _router, cache as _cache, \
-    events as _events, validation as _validation, logger as _logger, util as _util, threading as _threading
+from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
+    validation as _validation, logger as _logger, util as _util, threading as _threading
 from . import _error, _model, _driver
 
 __author__ = 'Alexander Shepetko'
@@ -29,27 +29,21 @@ user_nickname_rule = _validation.rule.Regex(msg_id='pytsite.auth@nickname_str_ru
 
 
 def hash_password(secret: str) -> str:
-    """Hash a password.
+    """Hash a password
     """
     from werkzeug.security import generate_password_hash
     return generate_password_hash(str(secret))
 
 
 def verify_password(clear_text: str, hashed: str) -> bool:
-    """Verify hashed password.
+    """Verify hashed password
     """
     from werkzeug.security import check_password_hash
     return check_password_hash(str(hashed), str(clear_text))
 
 
-def base_path() -> str:
-    """Get module routes base path.
-    """
-    return _reg.get('auth.routes.base_path', '/auth')
-
-
 def register_auth_driver(driver: _driver.Authentication):
-    """Register authentication driver.
+    """Register authentication driver
     """
     if not isinstance(driver, _driver.Authentication):
         raise TypeError('Instance of pytsite.auth.driver.Authentication expected.')
@@ -62,7 +56,7 @@ def register_auth_driver(driver: _driver.Authentication):
 
 
 def get_auth_driver(name: str = None) -> _driver.Authentication:
-    """Get driver instance.
+    """Get driver instance
     """
     if name is None:
         if _authentication_drivers:
@@ -77,7 +71,7 @@ def get_auth_driver(name: str = None) -> _driver.Authentication:
 
 
 def register_storage_driver(driver: _driver.Storage):
-    """Register storage driver.
+    """Register storage driver
     """
     global _storage_driver
 
@@ -91,7 +85,7 @@ def register_storage_driver(driver: _driver.Storage):
 
 
 def get_storage_driver() -> _driver.Storage:
-    """Get driver instance.
+    """Get driver instance
     """
     # Load storage driver if it is not loaded yet
     if not _storage_driver:
@@ -100,25 +94,8 @@ def get_storage_driver() -> _driver.Storage:
     return _storage_driver
 
 
-def get_sign_in_form(driver_name: str = None, **kwargs) -> _form.Form:
-    """Get a login form.
-    """
-    driver = get_auth_driver(driver_name)
-
-    kwargs['name'] = kwargs.get('name', 'pytsite-auth-sign-in-' + driver.name)
-    kwargs['css'] = kwargs.get('css', '') + ' pytsite-auth-sign-in driver-' + driver.name
-
-    form = driver.get_sign_in_form(**kwargs)
-    form.action = _router.rule_url('pytsite.auth@sign_in_submit', {'driver': driver.name})
-
-    if not form.title:
-        form.title = _lang.t('pytsite.auth@authentication')
-
-    return form
-
-
 def create_user(login: str, password: str = None) -> _model.AbstractUser:
-    """Create new user.
+    """Create new user
     """
     with _threading.get_shared_r_lock():
         if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
@@ -153,7 +130,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
 
 
 def get_user(login: str = None, nickname: str = None, uid: str = None, access_token: str = None) -> _model.AbstractUser:
-    """Get user by login, nickname, access token or UID.
+    """Get user by login, nickname, access token or UID
     """
     # Convert access token to user UID
     if access_token:
@@ -169,7 +146,7 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
 
 
 def get_first_admin_user() -> _model.AbstractUser:
-    """Get first created user which has 'admin' role.
+    """Get first created user which has 'admin' role
     """
     users = list(get_users({'roles': [get_role('admin')]}, sort_field='created', limit=1))
 
@@ -180,7 +157,7 @@ def get_first_admin_user() -> _model.AbstractUser:
 
 
 def get_anonymous_user() -> _model.AbstractUser:
-    """Get anonymous user.
+    """Get anonymous user
     """
     global _anonymous_user
     if not _anonymous_user:
@@ -190,7 +167,7 @@ def get_anonymous_user() -> _model.AbstractUser:
 
 
 def get_system_user() -> _model.AbstractUser:
-    """Get system user.
+    """Get system user
     """
     global _system_user
     if not _system_user:
@@ -200,7 +177,7 @@ def get_system_user() -> _model.AbstractUser:
 
 
 def create_role(name: str, description: str = ''):
-    """Create new role.
+    """Create new role
     """
     try:
         get_role(name)
@@ -211,7 +188,7 @@ def create_role(name: str, description: str = ''):
 
 
 def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
-    """Get role by name or UID.
+    """Get role by name or UID
     """
     # These roles must always exist
     if name in ('anonymous', 'user', 'admin'):
@@ -226,7 +203,7 @@ def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
 
 
 def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
-    """Authenticate user.
+    """Authenticate user
     """
     with _threading.get_shared_r_lock():
         try:
@@ -267,7 +244,7 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
 
 
 def get_access_token_info(token: str) -> dict:
-    """Get access token's metadata.
+    """Get access token's metadata
     """
     try:
         return _access_tokens.get(token)
@@ -277,7 +254,7 @@ def get_access_token_info(token: str) -> dict:
 
 
 def generate_access_token(user: _model.AbstractUser) -> str:
-    """Generate new access token.
+    """Generate new access token
     """
     with _threading.get_shared_r_lock():
         while True:
@@ -305,7 +282,7 @@ def revoke_access_token(token: str):
 
 
 def prolong_access_token(token: str):
-    """Prolong user's access token.
+    """Prolong user's access token
     """
     with _threading.get_shared_r_lock():
         token_info = get_access_token_info(token)
@@ -313,7 +290,7 @@ def prolong_access_token(token: str):
 
 
 def sign_out(user: _model.AbstractUser):
-    """Sign out current user.
+    """Sign out current user
     """
     # Anonymous user cannot be signed out
     if user.is_anonymous:
@@ -334,7 +311,7 @@ def sign_out(user: _model.AbstractUser):
 
 
 def get_current_user() -> _model.AbstractUser:
-    """Get current user.
+    """Get current user
     """
     user = _current_user.get(_threading.get_id())
     if user:
@@ -344,7 +321,7 @@ def get_current_user() -> _model.AbstractUser:
 
 
 def switch_user(user: _model.AbstractUser):
-    """Switch current user.
+    """Switch current user
     """
     tid = _threading.get_id()
     _previous_user[tid] = _current_user[tid] if tid in _current_user else get_anonymous_user()
@@ -354,7 +331,7 @@ def switch_user(user: _model.AbstractUser):
 
 
 def restore_user() -> _model.AbstractUser:
-    """Switch to previous user.
+    """Switch to previous user
     """
     tid = _threading.get_id()
     _current_user[tid] = _previous_user[tid] if tid in _previous_user else get_anonymous_user()
@@ -363,19 +340,19 @@ def restore_user() -> _model.AbstractUser:
 
 
 def switch_user_to_system() -> _model.AbstractUser:
-    """Shortcut.
+    """Shortcut
     """
     return switch_user(get_system_user())
 
 
 def switch_user_to_anonymous() -> _model.AbstractUser:
-    """Shortcut.
+    """Shortcut
     """
     return switch_user(get_anonymous_user())
 
 
 def get_user_statuses() -> tuple:
-    """Get valid user statuses.
+    """Get valid user statuses
     """
     return (
         ('active', _lang.t('pytsite.auth@status_active')),
@@ -384,52 +361,27 @@ def get_user_statuses() -> tuple:
     )
 
 
-def get_sign_in_url(auth_driver_name: str = None, add_query: dict = None, add_fragment: str = None) -> str:
-    """Get login URL.
-    """
-    # Get default authentication driver
-    if not auth_driver_name:
-        auth_driver_name = list(_authentication_drivers)[-1]
-
-    return _router.rule_url('pytsite.auth@sign_in', {
-        'driver': auth_driver_name,
-        '__redirect': _router.current_url(add_query=add_query, add_fragment=add_fragment)
-    })
-
-
-def get_sign_out_url() -> str:
-    """Get sign out URL.
-    """
-    return _router.rule_url('pytsite.auth@sign_out', {'__redirect': _router.current_url()})
-
-
 def get_users(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
               skip: int = 0) -> _Iterable[_model.AbstractUser]:
-    """Get users iterable.
+    """Get users iterable
     """
     return get_storage_driver().get_users(flt, sort_field, sort_order, limit, skip)
 
 
 def get_roles(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
               skip: int = 0) -> _Iterable[_model.AbstractRole]:
-    """Get roles iterable.
+    """Get roles iterable
     """
     return get_storage_driver().get_roles(flt, sort_field, sort_order, limit, skip)
 
 
 def count_users(flt: dict = None) -> int:
-    """Count users.
+    """Count users
     """
     return get_storage_driver().count_users(flt)
 
 
 def count_roles(flt: dict = None) -> int:
-    """Count roles.
+    """Count roles
     """
     return get_storage_driver().count_roles(flt)
-
-
-def get_user_modify_form(user: _model.AbstractUser) -> _form.Form:
-    """Get user modification form.
-    """
-    return get_storage_driver().get_user_modify_form(user)

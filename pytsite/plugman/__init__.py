@@ -53,7 +53,6 @@ def _init():
 
         # Event handlers
         setup.on_setup(_eh.setup, 999)
-        update.on_update(_eh.update)
         update.on_update_after(_eh.update_after)
 
     # Start installed plugins

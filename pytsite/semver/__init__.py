@@ -5,7 +5,7 @@ http://semver.org/
 
 # Public API
 from . import _error as error
-from ._api import normalize, compare, latest
+from ._api import parse, compare, latest, check_condition, to_int
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

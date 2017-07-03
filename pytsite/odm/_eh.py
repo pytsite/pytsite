@@ -1,4 +1,4 @@
-"""PytSite ODM Event Handlers.
+"""PytSite ODM Event Handlers
 """
 
 from pytsite import console as _console, lang as _lang

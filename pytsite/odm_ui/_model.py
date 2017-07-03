@@ -32,7 +32,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
                     finder.or_where(name, 'regex_i', query)
 
     @classmethod
-    def odm_ui_browser_mass_action_buttons(cls) -> _Tuple[_Dict]:
+    def odm_ui_browser_mass_action_buttons(cls) -> _Tuple[_Dict, ...]:
         """Get toolbar mass actions buttons data.
         """
         return ()
@@ -66,7 +66,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         """
         return True
 
-    def odm_ui_browser_entity_actions(self) -> _Tuple[_Dict]:
+    def odm_ui_browser_entity_actions(self) -> _Tuple[_Dict, ...]:
         """Get actions buttons data for single data row.
         """
         return ()

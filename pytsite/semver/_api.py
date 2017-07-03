@@ -1,61 +1,98 @@
 """PytSite Semantic Versioning Tools Functions
 """
-from typing import Iterable as _Iterable, Optional as _Optional
+import re as _re
+from typing import Optional as _Optional, List as _List
 from . import _error
+from ._version import Version as _Version
+
+_CONDITION_RE = _re.compile('^([<>=!]{1,2})?([0-9\.]+)$')
+_ALLOWED_OPERATORS = ('==', '!=', '>', '<', '>=', '<=')
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def normalize(v: str) -> str:
-    """Normalize version string.
+def _parse_condition(condition: str) -> tuple:
+    match = _CONDITION_RE.match(condition.replace(' ', ''))
+
+    if not match:
+        raise _error.InvalidCondition("Invalid condition string: '{}'".format(condition))
+
+    operator = match.group(1) or '=='
+    version = match.group(2)
+
+    if operator not in _ALLOWED_OPERATORS:
+        raise _error.InvalidComparisonOperator("Unknown comparison operator '{}' used in condition '{}'".
+                                               format(operator, version))
+
+    return operator, version
+
+
+def parse(version: str) -> _Version:
+    """Parse version string
     """
-    v_list = v.split('.')
-    v_len = len(v_list)
-
-    if v_len == 1:
-        v_list.extend(['0', '0'])
-    elif v_len == 2:
-        v_list.append('0')
-    elif v_len > 3:
-        raise _error.InvalidVersionString("Invalid version string: '{}'.".format(v))
-
-    for v_part in v_list:
-        if not v_part.isdigit():
-            raise _error.InvalidVersionString("Invalid version string: '{}'.".format(v))
-
-    return '.'.join(v_list)
-
-
-def to_int(v: str):
-    """Convert version string to integer.
-    """
-    v = normalize(v).split('.')
-
-    return int(v[0]) * 10000 + int(v[1]) * 100 + int(v[2])
+    return _Version(version)
 
 
 def compare(a: str, b: str) -> int:
-    """Compare two versions.
+    """Compare two versions
 
     Returns -1 if a < b, 0 if a == b, 1 if a > b
     """
-    a_i = to_int(a)
-    b_i = to_int(b)
 
-    if a_i < b_i:
+    a = _Version(a)
+    b = _Version(b)
+
+    if a < b:
         return -1
-    elif a_i > b_i:
+    elif a > b:
         return 1
     else:
         return 0
 
 
-def latest(v: _Iterable) -> _Optional[str]:
-    """Get latest version from list of versions.
+def to_int(version: str) -> int:
+    """Get integer representation of version string
+    """
+    return int(_Version(version))
+
+
+def latest(versions: _List[str]) -> _Optional[str]:
+    """Get latest version from list of versions
     """
     try:
-        return sorted(v, key=to_int)[-1]
+        return sorted(versions, key=to_int)[-1]
     except IndexError:
         return None
+
+
+def check_condition(version_to_check: str, condition: str) -> bool:
+    """Check if version_to_check satisfies condition
+
+    version_to_check should be like '1', '1.0' or '1.0.0'.
+    condition should be like '==1', '>=1.0', '!=1.0.0', etc.
+    """
+
+    operator, version_to_comapre = _parse_condition(condition)
+
+    if operator == '==':
+        if compare(version_to_check, version_to_comapre) != 0:
+            return False
+    elif operator == '!=':
+        if compare(version_to_check, version_to_comapre) == 0:
+            return False
+    elif operator == '<':
+        if compare(version_to_check, version_to_comapre) >= 0:
+            return False
+    elif operator == '>':
+        if compare(version_to_check, version_to_comapre) <= 0:
+            return False
+    elif operator == '<=':
+        if compare(version_to_check, version_to_comapre) > 0:
+            return False
+    elif operator == '>=':
+        if compare(version_to_check, version_to_comapre) < 0:
+            return False
+
+    return True

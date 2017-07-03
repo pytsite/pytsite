@@ -1,4 +1,4 @@
-"""PytSite Geo IP Package.
+"""PytSite Geo IP
 """
 # Public API
 from . import _model as model, _error as error
@@ -9,14 +9,13 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-def __init():
-    from pytsite import odm, events, cron
+def _init():
+    from pytsite import odm, cron
     from . import _eh
 
     odm.register_model('geo_ip', model.GeoIP)
 
     cron.weekly(_eh.cron_weekly)
-    events.listen('pytsite.update', _eh.pytsite_update)
 
 
-__init()
+_init()

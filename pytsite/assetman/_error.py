@@ -36,3 +36,11 @@ class PackageAliasAlreadyUsed(Exception):
 
     def __str__(self):
         return "Assetman package alias '{}' is already used".format(self._package_alias)
+
+
+class NoTasksDefined(Exception):
+    def __init__(self, package_name: str):
+        self._package_name = package_name
+
+    def __str__(self):
+        return "Assetman package '{}' does not define any tasks".format(self._package_name)

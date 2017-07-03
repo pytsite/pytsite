@@ -1,4 +1,4 @@
-"""PytSite Logger.
+"""PytSite Logger
 """
 import logging as _logging
 from os import path as _path, makedirs as _makedirs
@@ -39,5 +39,5 @@ _handler.setFormatter(_logging.Formatter(_format))
 # Public API
 debug = _logger.debug
 info = _logger.info
-warn = _logger.warn
+warn = _logger.warning
 error = _logger.error

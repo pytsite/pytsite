@@ -20,16 +20,16 @@ class NoThemesRegistered(Exception):
 
 
 class ThemeNotRegistered(Exception):
-    def __init__(self, name: str):
-        self._theme_name = name
+    def __init__(self, package_name: str):
+        self._theme_name = package_name
 
     def __str__(self):
         return "Theme '{}' is not registered".format(self._theme_name)
 
 
 class ThemeAlreadyRegistered(Exception):
-    def __init__(self, name: str):
-        self._theme_name = name
+    def __init__(self, package_name: str):
+        self._theme_name = package_name
 
     def __str__(self):
         return "Theme '{}' is already registered".format(self._theme_name)

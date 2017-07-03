@@ -1,4 +1,4 @@
-"""PytSite Select Widgets.
+"""PytSite Select Widgets
 """
 from typing import Union as _Union, List as _List, Tuple as _Tuple
 from collections import OrderedDict as _OrderedDict
@@ -6,14 +6,15 @@ from math import ceil as _ceil
 from datetime import datetime as _datetime
 from pytsite import html as _html, lang as _lang, validation as _validation, util as _util, hreflang as _hreflang, \
     router as _router
-from . import _input, _base
+from ._base import Abstract as _Abstract
+from ._input import Text as _Text
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Checkbox(_input.Input):
+class Checkbox(_Abstract):
     """Single Checkbox Widget.
     """
 
@@ -53,7 +54,7 @@ class Checkbox(_input.Input):
         return div
 
 
-class Select(_input.Input):
+class Select(_Abstract):
     """Select Widget.
     """
 
@@ -166,7 +167,7 @@ class Language(Select):
             self._items.append((code, _lang.lang_title(code)))
 
 
-class LanguageNav(_base.Abstract):
+class LanguageNav(_Abstract):
     """Language Nav Widget.
     """
 
@@ -239,7 +240,7 @@ class LanguageNav(_base.Abstract):
         return root
 
 
-class DateTime(_input.Text):
+class DateTime(_Text):
     """Date/Time Select Widget.
     """
 
@@ -287,7 +288,7 @@ class DateTime(_input.Text):
         return html_input
 
 
-class Pager(_base.Abstract):
+class Pager(_Abstract):
     """Pager Widget.
     """
 
@@ -402,7 +403,7 @@ class Pager(_base.Abstract):
         return self._total_pages
 
 
-class Tabs(_base.Abstract):
+class Tabs(_Abstract):
     """Tabs Widget.
     """
 
@@ -424,7 +425,7 @@ class Tabs(_base.Abstract):
 
         return self
 
-    def append_child(self, widget: _base.Abstract, tab_id: str = None) -> _base.Abstract:
+    def append_child(self, widget: _Abstract, tab_id: str = None) -> _Abstract:
         """Add a child widget.
         """
         if not self._tabs:
@@ -465,7 +466,7 @@ class Tabs(_base.Abstract):
         return tab_panel
 
 
-class Score(_base.Abstract):
+class Score(_Abstract):
     def __init__(self, uid: str, **kwargs):
         kwargs['default'] = kwargs.get('default', 3)
 
@@ -512,7 +513,7 @@ class TrafficLightScore(Score):
         self._js_module = 'pytsite-widget-select-traffic-light-score'
 
 
-class ColorPicker(_input.Text):
+class ColorPicker(_Text):
     def __init__(self, uid: str, **kwargs):
         """Hook.
         """

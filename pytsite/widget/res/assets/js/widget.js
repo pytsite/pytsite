@@ -8,6 +8,7 @@ define(['jquery'], function ($) {
     function Widget(em) {
         var self = this;
         self.em = em = $(em);
+        self.data = em.data;
         self.cid = em.data('cid');
         self.uid = em.data('uid');
         self.replaces = em.data('replaces');
@@ -18,6 +19,15 @@ define(['jquery'], function ($) {
         self.jsModule = em.data('jsModule') ? em.data('jsModule') : [];
         self.messagesEm = em.find('.widget-messages').first();
         self.children = {};
+
+        /**
+         * Get widget's data attribute value.
+         *
+         * @type {jQuery.data}
+         */
+        self.data = function(key) {
+            return self.em.data(key);
+        };
 
         /**
          * Clear state of the widget.

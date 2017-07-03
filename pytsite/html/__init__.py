@@ -5,7 +5,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-
 _common_tag_attrs = (
     'accesskey',
     'css',
@@ -28,11 +27,15 @@ _common_tag_attrs = (
 
 
 class Element(_ABC):
-    """Base HTML Element.
+    """Base HTML Element
     """
-    def __init__(self, content: str=None, child_sep: str='', content_first=False, **kwargs):
-        """Init.
+
+    def __init__(self, content = None, child_sep: str = '', content_first=False, **kwargs):
+        """Init
         """
+        if isinstance(content, Element):
+            content = str(content)
+
         self._tag_name = self.__class__.__name__.lower()
         self._content = content
         self._children = []
@@ -77,12 +80,14 @@ class Element(_ABC):
         """
         if attr not in _common_tag_attrs \
                 and not attr.startswith('data_') \
+                and not attr.startswith('data-') \
                 and not attr.startswith('aria_') \
+                and not attr.startswith('aria-') \
                 and attr not in self._get_valid_attrs() \
                 and attr not in self._get_required_attrs():
             raise Exception("Element '{}' cannot have attribute: '{}'".format(self._tag_name, attr))
 
-        if attr.startswith('data_'):
+        if attr.startswith('data_') or attr.startswith('data-'):
             attr = attr.replace('_', '-')
 
         self._attrs[attr] = self._validate_attr(attr, value)
@@ -206,6 +211,7 @@ class Element(_ABC):
 class SingleTagElement(Element):
     """Element without closing tag.
     """
+
     def _validate_child(self, child):
         raise ValueError("'{}' element cannot contain children.".format(self._tag_name))
 
@@ -229,6 +235,7 @@ class TagLessElement(Element):
 class InlineElement(Element):
     """Inline element.
     """
+
     def _get_valid_children(self) -> tuple:
         return 'inline',
 
@@ -236,6 +243,7 @@ class InlineElement(Element):
 class BlockElement(Element):
     """Block element.
     """
+
     def _get_valid_children(self) -> tuple:
         return 'any',
 
@@ -391,7 +399,7 @@ class Form(BlockElement):
 
 class Input(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'value', 'placeholder', 'checked', 'required', 'maxlength', 'disabled'
+        return 'value', 'placeholder', 'checked', 'required', 'maxlength', 'disabled', 'accept', 'multiple'
 
     def _get_required_attrs(self) -> tuple:
         return 'type', 'name'

@@ -1,5 +1,4 @@
 security: 'Security'
-authentication: 'Аuthentication'
 authentication_error: 'Authentication error'
 enter_admin_email: "Enter administrator's email"
 role_has_been_created: 'New role has been created: :name'
@@ -23,11 +22,4 @@ passwords_dont_match: 'Passwords does not match'
 password_successfully_changed: 'Password of user :login successfully changed'
 login_required: 'Login is required'
 unfollow_confirmation: 'Do you really want to stop following this user?'
-follow: 'Follow'
-following: 'Following'
-unfollow: 'Unfollow'
-followers: 'Followers'
-follows: 'Follows'
-member_since: 'Member since'
-modify_profile: 'Edit'
-profile_edit: 'Edit profile'
+
