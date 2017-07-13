@@ -1,6 +1,10 @@
 # PytSite Changelog
 
 
+## 1.1.1 (2017-07-14)
+Fixed **pytsite.json**.
+
+
 ## 1.1 (2017-07-14)
 ### Added
 - `browser`: responsive backgrounds support in **pytsite.responsive**.
