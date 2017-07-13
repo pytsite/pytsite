@@ -12,7 +12,7 @@ with open(path.join(path.dirname(__file__), 'pytsite', 'pytsite.json')) as f:
     pkg_author_email = data.get('author_email')
     pkg_license = data.get('license_name')
 
-ASSET_FNAME_RE = re.compile('\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot|otf|map|js|css|less|txt|md|yml|jinja2)$')
+ASSET_FNAME_RE = re.compile('\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot|otf|map|js|css|less|txt|md|yml|jinja2|json)$')
 
 
 class CleanCommand(Command):

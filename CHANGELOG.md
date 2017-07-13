@@ -1,6 +1,10 @@
 # PytSite Changelog
 
 
+## 1.1.2 (2017-07-14)
+Fixed **setup.py**.
+
+
 ## 1.1.1 (2017-07-14)
 Fixed **pytsite.json**.
 
