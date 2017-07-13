@@ -1,8 +1,8 @@
-"""PytSite Base Settings Form.
+"""PytSite Base Settings Form
 """
 import re as _re
 from pytsite import form as _form, router as _router, widget as _widget, lang as _lang, auth as _auth, http as _http, \
-    util as _util
+    util as _util, validation as _validation
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -11,11 +11,11 @@ __license__ = 'MIT'
 
 
 class Form(_form.Form):
-    """Base settings form.
+    """Base settings form
     """
 
     def __init__(self, **kwargs):
-        """Init.
+        """Init
         """
         self._setting_uid = kwargs.get('setting_uid')
 
@@ -67,3 +67,36 @@ class Form(_form.Form):
         _router.session().add_success_message(_lang.t('pytsite.settings@settings_has_been_saved'))
 
         return _http.response.Redirect(_router.rule_url('pytsite.settings@form', {'uid': setting_uid}))
+
+
+class Application(Form):
+    """Basic application's settings form
+    """
+
+    def _on_setup_widgets(self):
+        """Hook
+        """
+        # Application names
+        w = 10
+        for l in _lang.langs(include_neutral=False):
+            self.add_widget(_widget.input.Text(
+                uid='setting_app_name_' + l,
+                weight=w,
+                label=_lang.t('pytsite.settings@application_name', {'lang': _lang.lang_title(l)}),
+                default=_lang.t('app@app_name'),
+            ))
+
+            w += 1
+
+        # Links
+        self.add_widget(_widget.input.StringList(
+            uid='setting_links',
+            weight=20,
+            label=_lang.t('pytsite.settings@links'),
+            add_btn_label=_lang.t('pytsite.settings@add_link'),
+            unique=True,
+            rules=_validation.rule.Url(),
+        ))
+
+        # It is important to call super method AFTER
+        super()._on_setup_widgets()

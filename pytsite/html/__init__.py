@@ -30,7 +30,7 @@ class Element(_ABC):
     """Base HTML Element
     """
 
-    def __init__(self, content = None, child_sep: str = '', content_first=False, **kwargs):
+    def __init__(self, content=None, child_sep: str = '', content_first=False, **kwargs):
         """Init
         """
         if isinstance(content, Element):
@@ -94,10 +94,10 @@ class Element(_ABC):
 
         return self
 
-    def get_attr(self, attr) -> str:
+    def get_attr(self, attr, default=None) -> str:
         """Get attribute.
         """
-        return self._attrs[attr] if attr in self._attrs else None
+        return self._attrs[attr] if attr in self._attrs else default
 
     def append(self, child):
         """Append child.
@@ -140,6 +140,25 @@ class Element(_ABC):
         if not isinstance(wrapper, Element):
             raise TypeError('Element expected.')
         return wrapper.append(self)
+
+    def has_css(self, css_class: str) -> bool:
+        return css_class in self.get_attr('css', '')
+
+    def add_css(self, css_class: str):
+        self.set_attr('css', (self.get_attr('css', '') + css_class).strip())
+
+        return self
+
+    def remove_css(self, css_class: str):
+        self.set_attr('css', (self.get_attr('css', '').replace(css_class, '')).strip())
+
+        return self
+
+    def toggle_css(self, css_class: str):
+        if self.has_css(css_class):
+            return self.remove_css(css_class)
+        else:
+            return self.add_css(css_class)
 
     def _validate_attr(self, attr: str, value: str) -> str:
         return value

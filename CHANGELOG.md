@@ -1,7 +1,24 @@
 # PytSite Changelog
 
 
-## 1.0.0 (2017-07-03)
+## 1.1 (2017-07-14)
+### Added
+- `browser`: responsive backgrounds support in **pytsite.responsive**.
+- `html`:
+    - default value in signature of `Element.get_attr()`;
+    - new methods in `Element`: `has_css()`, `add_css()`, `remove_css()` and `toggle_css()`.
+- `settings`: default application's settings form implementation.
+- `theme`: support for themes' settings.
+- `tpl`:
+    - new argument in `render()`: `issue_event`;
+    - new API function: `on_render()`.
+
+### Fixed
+- `admin`: header menu issue.
+- `browser`: visibility add-on classes in **twitter-bootstrap**.
+
+
+## 1.0 (2017-07-03)
 ### Added
 - New packages: `pkg_util`, `auth_settings`.
 - `http_api`: new API function: `endpoint()`.

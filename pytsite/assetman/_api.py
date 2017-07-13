@@ -471,7 +471,7 @@ def _update_js_config_file(file_path: str, tpl_name: str, data: dict):
 
     json_data.update(data)
     with open(file_path, 'wt') as f:
-        f.write(_tpl.render(tpl_name, {'data': _json.dumps(json_data)}))
+        f.write(_tpl.render(tpl_name, {'data': _json.dumps(json_data)}, False))
 
 
 def _update_requirejs_config(rjs_module_name: str, rjs_module_asset_path: str):

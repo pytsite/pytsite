@@ -83,8 +83,8 @@ def switch(package_name: str):
 
     # Switch only if it really necessary
     if package_name != get().package_name:
-        _settings.put('theme.current', package_name)
-        _settings.put('theme.compiled', False)
+        _settings.put('theme.current', package_name)  # Mark theme as current
+        _settings.put('theme.compiled', False)  # Mark that assets compilation needed
         _reload.reload(0.1)
 
 
@@ -118,10 +118,12 @@ def load(package_name: str = None) -> _theme.Theme:
     """
     global _loaded
 
+    # Only one theme can be loaded
     if _loaded:
         raise _error.ThemeLoadError("Cannot load theme '{}', because another theme '{}' is already loaded".
                                     format(package_name, _loaded.package_name))
 
+    # Load theme
     _loaded = get(package_name).load()
 
     return _loaded

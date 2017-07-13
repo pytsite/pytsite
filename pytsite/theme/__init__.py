@@ -33,7 +33,8 @@ def _init():
     permissions.define_permission('pytsite.theme.manage', 'pytsite.theme@manage_themes', 'app')
 
     # Settings
-    settings.define('theme', _settings_form.Form, 'pytsite.theme@theme', 'fa fa-paint-brush', 'pytsite.theme.manage')
+    settings.define('theme', _settings_form.Form, 'pytsite.theme@appearance', 'fa fa-paint-brush',
+                    'pytsite.theme.manage')
 
     # Event listeners
     router.on_dispatch(_eh.router_dispatch)

@@ -33,27 +33,39 @@ define(['jquery'], function ($) {
         }
     }
 
+    function _getImgResponsiveUrl(cont) {
+        var fullSizeUrl = cont.data('url');
+        if (fullSizeUrl === undefined)
+            fullSizeUrl = cont.data('responsive-bg-url');
+
+        var enlarge = cont.data('enlarge');
+        var aspect_ratio = cont.data('aspectRatio');
+        var orig_width = parseInt(cont.data('width'));
+        var new_width = _align_length(_getParentWidth(cont));
+        var new_height = 0;
+
+        if (aspect_ratio !== undefined && aspect_ratio !== 'None')
+            new_height = _align_length(parseInt(new_width / parseFloat(aspect_ratio)));
+
+        if (enlarge === 'True' || new_width <= orig_width)
+            return fullSizeUrl.replace('/0/0/', '/' + new_width + '/' + new_height + '/');
+        else if (new_height > 0)
+            return fullSizeUrl.replace('/0/0/', '/0/' + new_height + '/');
+        else
+            return fullSizeUrl.replace('/0/0/', '/' + new_width + '/0/');
+    }
+
     function _getImgElement(cont) {
-        var img_url = cont.data('url');
+        var imgUrl = cont.data('url');
         var alt = cont.data('alt');
         var enlarge = cont.data('enlarge');
         var css = cont.attr('class');
         var orig_width = parseInt(cont.data('width'));
         var orig_height = parseInt(cont.data('height'));
-        var new_width = _align_length(_getParentWidth(cont));
-        var new_height = 0;
-
         var aspect_ratio = cont.data('aspectRatio');
-        if (aspect_ratio !== 'None')
-            new_height = _align_length(parseInt(new_width / parseFloat(aspect_ratio)));
+        var src = _getImgResponsiveUrl(cont);
 
-        var src = '';
-        if (enlarge === 'True' || new_width <= orig_width)
-            src = img_url.replace('/0/0/', '/' + new_width + '/' + new_height + '/');
-        else
-            src = img_url.replace('/0/0/', '/0/' + new_height + '/');
-
-        return '<img class="' + css + '" src="' + src + '" alt="' + alt + '" data-path="' + img_url + '"' +
+        return '<img class="' + css + '" src="' + src + '" alt="' + alt + '" data-url="' + imgUrl + '"' +
             ' data-alt="' + alt + '" data-aspect-ratio="' + aspect_ratio + '"' + ' data-enlarge="' + enlarge + '"' +
             ' data-width="' + orig_width + '"' + ' data-height="' + orig_height + '"' + '>';
     }
@@ -62,10 +74,16 @@ define(['jquery'], function ($) {
         if (typeof selector === 'undefined')
             selector = 'span.pytsite-img';
 
+        // Set images
         $(selector).each(function () {
             $(this).replaceWith(function () {
                 return _getImgElement($(this));
             });
+        });
+
+        // Set background images
+        $('[data-responsive-bg-url]').each(function () {
+            $(this).css('background-image', 'url(' + _getImgResponsiveUrl($(this)) + ')');
         });
     }
 

@@ -102,15 +102,22 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
         _packages[package_name] = config
 
 
-def render(template: str, args: _Mapping = None) -> str:
+def render(template: str, args: _Mapping = None, issue_event: bool = True) -> str:
     """Render a template
     """
     if not args:
         args = {}
 
-    _events.fire('pytsite.tpl.render', tpl_name=template, args=args)
+    if issue_event:
+        _events.fire('pytsite.tpl.render', tpl_name=template, args=args)
 
     return _env.get_template(template).render(args)
+
+
+def on_render(handler, priority: int = 0):
+    """Shortcut function to register event handler
+    """
+    _events.listen('pytsite.tpl.render', handler, priority)
 
 
 def is_global_registered(name: str) -> bool:
@@ -126,6 +133,7 @@ def register_global(name: str, obj):
 
 
 # Additional functions and filters
+_env.globals['tpl_exists'] = tpl_exists
 _env.globals['t'] = _lang.t
 _env.globals['t_plural'] = _lang.t_plural
 _env.globals['current_lang'] = _lang.get_current

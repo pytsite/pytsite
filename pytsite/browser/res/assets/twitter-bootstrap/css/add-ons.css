@@ -27,15 +27,21 @@
     display: none !important;
 }
 
+/* Override Bootstrap's definition */
+.hidden-xs {
+    display: block !important;
+}
+
+/* Override Bootstrap's definition */
+.visible-xs {
+    display: none !important;
+}
+
 .visible-xs-B {
     display: initial !important;
 }
 
 @media (min-width: 480px) {
-    .visible-xs-B {
-        display: none !important;
-    }
-
     .text-xs-left {
         text-align: left;
     }
@@ -57,8 +63,17 @@
     }
 
     .visible-xs-B {
-
         display: none !important;
+    }
+
+    /* Override Bootstrap's definition */
+    .hidden-xs {
+        display: none !important;
+    }
+
+    /* Override Bootstrap's definition */
+    .visible-xs {
+        display: block !important;
     }
 }
 
@@ -77,6 +92,16 @@
 
     .text-sm-justify {
         text-align: justify;
+    }
+
+    /* Override Bootstrap's definition */
+    .hidden-xs {
+        display: block !important;
+    }
+
+    /* Override Bootstrap's definition */
+    .visible-xs {
+        display: none !important;
     }
 }
 

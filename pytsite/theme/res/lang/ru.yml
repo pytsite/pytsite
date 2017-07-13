@@ -1,4 +1,5 @@
 theme: 'Тема'
+appearance: 'Оформление'
 manage_themes: 'Управление темами'
 default_theme: 'Тема по умолчанию'
 logo: 'Лого'

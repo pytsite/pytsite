@@ -53,6 +53,13 @@ class _ThemesBrowser(_widget.Abstract):
                                      css='btn btn-danger btn-xs button-uninstall', data_package_name=theme.package_name)
                 btn_delete.append(_html.I(css='fa fa-trash'))
                 actions.append(btn_delete)
+            else:
+                if _settings.is_defined('current-theme'):
+                    # 'Settings button'
+                    btn_settings = _html.A(title=_lang.t('pytsite.theme@settings'), css='btn btn-default btn-xs',
+                                           href=_settings.form_url('current-theme'), role='button')
+                    btn_settings.append(_html.I(css='fa fa-cogs'))
+                    actions.append(btn_settings)
 
             tr.append(_html.Td(actions))
 
@@ -107,13 +114,3 @@ class Form(_settings.Form):
             super()._on_setup_widgets()
         except _file.error.FileNotFound:
             pass
-
-    def _on_submit(self):
-        """Hook.
-        """
-        # First, process settings form to store values
-        r = super()._on_submit()
-
-        _api.switch(self.values.get('setting_current'))
-
-        return r

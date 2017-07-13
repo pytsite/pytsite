@@ -1,4 +1,4 @@
-"""PytSite Settings Package.
+"""PytSite Settings Management
 """
 # Public API
 from ._api import is_defined, define, get, put, form_url
@@ -10,12 +10,15 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, tpl, lang, router, admin
-    from . import _api, _model, _controllers
+    from pytsite import odm, tpl, lang, router, admin, permissions
+    from . import _api, _model, _controllers, _frm
 
     # Resources
     lang.register_package(__name__)
     tpl.register_global('settings_get', _api.get)
+
+    # Lang global to gte application's name from settings
+    lang.register_global('app@app_name', lambda language, args: get('app.app_name_' + language, 'PytSite'))
 
     # ODM model
     odm.register_model('setting', _model.Setting)
@@ -25,6 +28,10 @@ def _init():
 
     # Admin sidebar section
     admin.sidebar.add_section('settings', __name__ + '@settings', 2000, sort_items_by='title')
+
+    # Define default application settings form
+    permissions.define_permission('app.settings.manage', __name__ + '@manage_app_settings', 'app')
+    define('app', _frm.Application, __name__ + '@application', 'fa fa-cube', 'app.settings.manage')
 
 
 _init()
