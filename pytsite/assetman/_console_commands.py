@@ -36,6 +36,7 @@ class Setup(_console.Command):
 class Build(_console.Command):
     """assetman:build Console Command.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -61,7 +62,6 @@ class Build(_console.Command):
         try:
             if maint:
                 _maintenance.enable()
-
 
             packages = self.args
             if packages:

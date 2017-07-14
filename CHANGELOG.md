@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 1.1.3 (2017-07-14)
+### Added
+- `assetman`: new API function: `check_setup()`.
+
+### Fixed
+- `theme`: `assetman`'s setup checking and automatic setup during application startup.
+
+
 ## 1.1.2 (2017-07-14)
 Fixed **setup.py**.
 

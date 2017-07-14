@@ -72,6 +72,13 @@ class Theme:
         # Compile assets
         if not _settings.get('theme.compiled'):
             try:
+                # Because theme loads at application startup, it is a good idea to check assetman's setup before
+                # starting build process and setup it if it is necessary. There is a bad idea to call check_setup()
+                # every time at boot, because it is consumes some time to run NPM, so we call it only if theme
+                # compilation is necessary at application startup.
+                if not assetman.check_setup():
+                    assetman.setup()
+
                 assetman.build(self._package_name)
                 _settings.put('theme.compiled', True)
             except assetman.error.NoTasksDefined as e:

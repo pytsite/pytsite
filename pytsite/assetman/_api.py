@@ -65,7 +65,7 @@ def _run_node_bin(bin_name: str, *args, **kwargs) -> _subprocess.CompletedProces
             v = 'yes' if v else 'no'
         args_l.append('--{}={}'.format(k, v))
 
-    cmd = ['node', _NODE_BIN_DIR + _path.sep + bin_name] + args_l + list(args)
+    cmd = ['node', _path.join(_NODE_BIN_DIR, bin_name)] + args_l + list(args)
 
     try:
         r = _run_process(cmd, kwargs.get('debug', False))
@@ -367,6 +367,18 @@ def register_global(name: str, value, overwrite: bool = False):
         raise KeyError("Global '{}' is already defined with value {}".format(name, value))
 
     _globals[name] = value
+
+
+def check_setup() -> bool:
+    """Check if the all required NPM packages are installed
+    """
+    # Check for NPM existence
+    if _run_process(['which', 'npm']).returncode != 0:
+        raise RuntimeError('NPM executable is not found. Check https://docs.npmjs.com/getting-started/installing-node')
+
+    r = _run_process(['npm', 'list', '--depth', '0', '--parseable'] + _REQUIRED_NPM_PACKAGES)
+
+    return len(r.stdout.decode('utf-8').split('\n')) - 1 >= len(_REQUIRED_NPM_PACKAGES)
 
 
 def setup():

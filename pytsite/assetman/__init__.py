@@ -1,4 +1,4 @@
-"""PytSite Asset Manager.
+"""PytSite Asset Manager
 """
 # Public API
 from os import path as _path
@@ -6,7 +6,8 @@ from pytsite import reg as _reg
 from . import _error as error
 from ._api import register_package, library, preload, remove, dump_js, dump_css, url, add_inline, dump_inline, \
     get_urls, get_locations, reset, detect_collection, build, build_all, is_package_registered, register_global, \
-    t_browserify, t_copy, t_copy_static, t_less, t_js, t_css, js_module, setup, get_src_dir_path, get_dst_dir_path
+    t_browserify, t_copy, t_copy_static, t_less, t_js, t_css, js_module, setup, get_src_dir_path, get_dst_dir_path, \
+    check_setup
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
