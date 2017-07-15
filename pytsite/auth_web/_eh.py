@@ -22,7 +22,7 @@ def router_dispatch():
             del _router.session()['pytsite.auth.login']
 
     # Set current user
-        _auth.switch_user(user)
+    _auth.switch_user(user)
 
     if not user.is_anonymous:
         if user.status == 'active':

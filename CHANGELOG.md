@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 1.2 (2017-07-15)
+### Fixed
+Web login critical security issue.
+
+
 ## 1.1.3 (2017-07-14)
 ### Added
 - `assetman`: new API function: `check_setup()`.
