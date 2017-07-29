@@ -282,10 +282,10 @@ def dict_merge(a: dict, b: dict) -> dict:
     return result
 
 
-def mk_tmp_file(suffix: str = None, prefix: str = None, text: bool = False) -> _Tuple[int, str]:
+def mk_tmp_file(suffix: str = None, prefix: str = None, subdir: str = None, text: bool = False) -> _Tuple[int, str]:
     """Create temporary file
 
-    Returns tuple of two items: file' descriptor and absolute path.
+    Returns tuple of two items: file's descriptor and absolute path.
     """
     from pytsite import reg
 
@@ -293,8 +293,11 @@ def mk_tmp_file(suffix: str = None, prefix: str = None, text: bool = False) -> _
     if not tmp_dir:
         raise RuntimeError('Cannot determine temporary directory location')
 
+    if subdir:
+        tmp_dir = _path.join(tmp_dir, subdir)
+
     if not _path.exists(tmp_dir):
-        _mkdir(tmp_dir)
+        _makedirs(tmp_dir, 0o755)
 
     return _mkstemp(suffix, prefix, tmp_dir, text)
 

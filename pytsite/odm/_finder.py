@@ -18,13 +18,13 @@ class Result:
     """DB Query Result.
     """
 
-    def __init__(self, model: str, cursor: _Cursor = None, ids: list = None):
+    def __init__(self, model: str, cursor: _Cursor = None, ids: list = None, use_cache: bool = True):
         """Init.
         """
         self._model = model
         self._cursor = cursor
-        self._cached = ids is not None
         self._ids = [doc['_id'] for doc in list(cursor)] if cursor else ids
+        self._use_cache = use_cache
         self._total = len(self._ids)
         self._current = 0
 
@@ -47,7 +47,7 @@ class Result:
         if self._current == self._total:
             raise StopIteration()
 
-        entity = _api.dispense(self._model, self._ids[self._current])
+        entity = _api.dispense(self._model, self._ids[self._current], self._use_cache)
         self._current += 1
 
         return entity
@@ -335,7 +335,8 @@ class Finder:
             sort=self._sort,
         )
 
-        result = Result(self._model, cursor)
+        # Prepare result
+        result = Result(self._model, cursor, use_cache=bool(self._cache_ttl))
 
         # Put query result into cache
         if _reg.get('odm.cache.enabled', True) and self._cache_ttl:

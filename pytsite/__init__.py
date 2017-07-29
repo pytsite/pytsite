@@ -1,6 +1,6 @@
 """PytSite Init
 """
-from pytsite import semver as _semver, pkg_util as _pkg_util
+from pytsite import semver as _semver, package_info as _package_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -103,10 +103,9 @@ def _init():
 
     # Initialize authentication subsystem
     import_module('pytsite.auth_password')
-    import_module('pytsite.auth_ulogin')
 
     # Check app's requirements
-    _pkg_util.check_requirements('app')
+    _package_info.check_requirements('app')
 
     # Create application's language directory
     from pytsite import lang

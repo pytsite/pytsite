@@ -3,7 +3,7 @@
 import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, chdir as _chdir
-from pytsite import console as _console, events as _events, lang as _lang, pkg_util as _pkg_util, reg as _reg, \
+from pytsite import console as _console, events as _events, lang as _lang, package_info as _package_info, reg as _reg, \
     logger as _logger, maintenance as _maintenance, reload as _reload, theme as _theme
 
 __author__ = 'Alexander Shepetko'
@@ -66,7 +66,7 @@ class Update(_console.Command):
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
             state = self._get_state()
-            cur_ver = _pkg_util.version('pytsite')
+            cur_ver = _package_info.version('pytsite')
             cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
             stop = False
             for major in range(0, 1):

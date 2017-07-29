@@ -5,10 +5,9 @@ from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Ma
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
-from werkzeug.exceptions import HTTPException as _HTTPException
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, setup as _setup, events as _events, routing as _routing
+    threading as _threading, setup as _setup, events as _events, routing as _routing, errors as _errors
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -229,8 +228,8 @@ def dispatch(env: dict, start_response: callable):
         controller = rule.controller
         controller.args.clear()
         controller.args.update(req.inp)
-        controller.args.update(req.files)
         controller.args.update(rule.args)
+        controller.files = req.files
 
         # Call controller
         try:
@@ -270,7 +269,10 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except Exception as e:
-        if isinstance(e, _HTTPException):
+        if isinstance(e, _errors.ForbidOperation):
+            e = _http.error.Forbidden(e)
+
+        if isinstance(e, _http.error.Base):
             # Exception can contain response object in its body
             if isinstance(e.response, _http.response.Response):
                 # For non-redirect embedded responses use original status code from exception

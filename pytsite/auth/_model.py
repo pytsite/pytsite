@@ -283,6 +283,14 @@ class AbstractUser(AuthEntity):
     def options(self, value: dict):
         self.set_field('options', value)
 
+    def set_option(self, key: str, value):
+        opts = dict(self.get_field('options'))
+        opts[key] = value
+        self.set_field('options', opts)
+
+    def get_option(self, key: str, default=None):
+        return self.options.get(key, default)
+
     @property
     def picture(self) -> _file.model.AbstractImage:
         return self.get_field('picture')

@@ -41,7 +41,7 @@ def sign_in_url(auth_driver_name: str = None, add_query: dict = None, add_fragme
     """
     # Get default authentication driver
     if not auth_driver_name:
-        auth_driver_name = list(_auth.get_auth_driver().name)
+        auth_driver_name = _auth.get_auth_driver().name
 
     return _router.rule_url('pytsite.auth_web@sign_in', {
         'driver': auth_driver_name,

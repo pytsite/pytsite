@@ -1,6 +1,31 @@
 # PytSite Changelog
 
 
+## 2.0 (2017-07-29)
+### Added
+- `auth`:
+    - new API function: `get_auth_drivers()`;
+    - new method: `driver.Authentication.get_description()` and associated property.
+    - new methods: `model.AbstractUser.get/set_option()`.
+- `auth_settings`: ability to select authentication driver via admin UI.
+- `routing`: new property `Controller.files`.
+- `util`: new argument in `mk_tmp_file()`: `subdir`.
+
+### Changed
+- `auth_password`: improved sign-in form.
+- `pkg_util` renamed to `package_info`.
+- `routing`: files now pass via separate controller's property, not in `args`.
+
+### Fixed
+- `auth`: argument checking in `auth:passwd` console command.
+- `auth_web`: redirecting issues and missing session messages.
+- `odm`: erroneous entities caching in cases where it isn't necessary.
+- `widget`: horizontal sizing issue.
+
+### Removed
+- `auth_ulogin`: moved to separate plugin.
+
+
 ## 1.2 (2017-07-15)
 ### Fixed
 Web login critical security issue.

@@ -4,7 +4,7 @@ from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
-    validation as _validation, logger as _logger, util as _util, threading as _threading
+    validation as _validation, logger as _logger, util as _util, threading as _threading, settings as _settings
 from . import _error, _model, _driver
 
 __author__ = 'Alexander Shepetko'
@@ -55,12 +55,20 @@ def register_auth_driver(driver: _driver.Authentication):
     _authentication_drivers[name] = driver
 
 
+def get_auth_drivers() -> _Dict[str, _driver.Authentication]:
+    """Get all registered authentication drivers
+    """
+    return _authentication_drivers
+
+
 def get_auth_driver(name: str = None) -> _driver.Authentication:
     """Get driver instance
     """
     if name is None:
         if _authentication_drivers:
-            name = _reg.get('auth.auth_driver', list(_authentication_drivers)[-1])
+            name = _settings.get('auth.auth_driver')
+            if not name or name not in _authentication_drivers:
+                name = list(_authentication_drivers)[-1]
         else:
             raise _error.NoDriverRegistered('No authentication driver registered')
 

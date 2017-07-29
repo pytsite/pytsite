@@ -1,4 +1,4 @@
-"""PytSite HTTP Session.
+"""PytSite HTTP Session
 """
 from copy import deepcopy as _deepcopy
 from werkzeug.contrib.sessions import Session as _BaseSession

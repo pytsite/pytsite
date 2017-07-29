@@ -1,9 +1,9 @@
 """PytSite Routing Base Controller
 """
-
 from typing import List as _List, Dict as _Dict, Any as _Any
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from werkzeug.datastructures import FileStorage as _FileStorage
 from pytsite import formatters as _formatter, validation as _validation, http as _http
 
 __author__ = 'Alexander Shepetko'
@@ -96,6 +96,7 @@ class Controller(_ABC):
         """Init
         """
         self._args = ControllerArgs()
+        self._files = {}
 
     def arg(self, name: str, default: _Any = None) -> _Any:
         """Shortcut to get argument's value without KeyError raising
@@ -143,6 +144,18 @@ class Controller(_ABC):
         """Arguments setter
         """
         raise RuntimeError('Controller arguments cannot be directly set, use args.update() instead')
+
+    @property
+    def files(self) -> _Dict[str, _FileStorage]:
+        """Files getter
+        """
+        return self._files
+
+    @files.setter
+    def files(self, value: _Dict[str, _FileStorage]):
+        """Files setter
+        """
+        self._files = value
 
     @_abstractmethod
     def exec(self):

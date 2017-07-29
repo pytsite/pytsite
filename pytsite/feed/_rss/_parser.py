@@ -3,7 +3,7 @@
 import requests as _requests
 from datetime import datetime as _datetime
 from lxml import etree as _etree
-from pytsite import pkg_util as _pkg_util
+from pytsite import package_info as _package_info
 from .. import _abstract, _xml, _error
 from . import _em, _media, _pytsite, _dc, _sy, _content, _atom, _slash, _wfw, _yandex
 
@@ -134,8 +134,8 @@ class Parser(_abstract.Parser, _xml.Serializable):
         """
         channel = self.get_children('channel')[0]
         if not channel.has_children('generator'):
-            generator_str = '{}-{} ({})'.format(_pkg_util.name('pytsite'), _pkg_util.version('pytsite'),
-                                                _pkg_util.url('pytsite'))
+            generator_str = '{}-{} ({})'.format(_package_info.name('pytsite'), _package_info.version('pytsite'),
+                                                _package_info.url('pytsite'))
             channel.append_child(_em.Generator(generator_str), 0)
             channel.append_child(_em.PubDate(_datetime.now()), 1)
             channel.append_child(_em.LastBuildDate(_datetime.now()), 2)

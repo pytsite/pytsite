@@ -474,14 +474,6 @@ class Abstract(_ABC):
 
         :type content: pytsite.widget._base.Abstract | pytsite.html.Element | str
         """
-        if isinstance(content, str):
-            content = _html.TagLessElement(content)
-        elif isinstance(content, Abstract):
-            content = content._get_element()
-
-        if self._h_size:
-            content = content.wrap(_html.Div(css='h-sizer ' + self._h_size))
-            content = content.wrap(_html.Div(css='row'))
 
         wrap_css = 'form-group'
         if self._has_success:
@@ -499,11 +491,21 @@ class Abstract(_ABC):
         # Append label element
         if self.label and not self._label_disabled:
             label = _html.Label(self.label, label_for=self.uid)
+            if self._h_size:
+                label = label.wrap(_html.Div(css='h-sizer ' + self._h_size))
+                label = label.wrap(_html.Div(css='row'))
             if self._label_hidden:
                 label.set_attr('css', 'sr-only')
             wrap.append(label)
 
         # Append widget's content
+        if isinstance(content, str):
+            content = _html.TagLessElement(content)
+        elif isinstance(content, Abstract):
+            content = content._get_element()
+        if self._h_size:
+            content = content.wrap(_html.Div(css='h-sizer ' + self._h_size))
+            content = content.wrap(_html.Div(css='row'))
         wrap.append(content)
 
         # Append help block
@@ -646,7 +648,7 @@ class MultiRow(Abstract):
         pass
 
     def _get_element(self, **kwargs) -> _html.Element:
-        def _build_row(widgets: _List[Abstract], k: int = 0, add_css: str='') -> _html.Tr:
+        def _build_row(widgets: _List[Abstract], k: int = 0, add_css: str = '') -> _html.Tr:
             slot_tr = _html.Tr(css='slot ' + add_css)
             slot_tr.append(_html.Td('[{}]'.format(k + 1), css='order-col'))
 

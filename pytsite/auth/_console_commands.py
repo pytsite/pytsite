@@ -29,6 +29,8 @@ class Passwd(_console.Command):
         """Execute the command.
         """
         login = self.arg(0)
+        if not login:
+            raise _console.error.MissingArgument('pytsite.auth@login_required', 0)
 
         try:
             user = _api.get_user(login)

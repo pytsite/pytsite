@@ -1,6 +1,7 @@
 """PytSite Auth Password Driver.
 """
-from pytsite import auth as _auth, form as _form, router as _router, widget as _widget, lang as _lang, logger as _logger
+from pytsite import auth as _auth, form as _form, router as _router, widget as _widget, lang as _lang, \
+    logger as _logger, assetman as _assetman
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -10,6 +11,10 @@ __license__ = 'MIT'
 class _SignInForm(_form.Form):
     """Password Login Form.
     """
+
+    def _on_setup_form(self, **kwargs):
+        self.area_footer_css = 'text-center'
+
     def _on_setup_widgets(self):
         """Hook.
         """
@@ -18,16 +23,20 @@ class _SignInForm(_form.Form):
 
         self.add_widget(_widget.input.Email(
             uid='login',
-            label=_lang.t('pytsite.auth_password@login'),
             weight=10,
+            label=_lang.t('pytsite.auth_password@login'),
+            prepend='<i class="fa fa-user"></i>',
+            h_size='col-xs-12 col-sm-6 col-sm-offset-3',
             required=True,
             value=_router.request().inp.get('login', ''),
         ))
 
         self.add_widget(_widget.input.Password(
             uid='password',
-            label=_lang.t('pytsite.auth_password@password'),
             weight=20,
+            label=_lang.t('pytsite.auth_password@password'),
+            prepend='<i class="fa fa-lock"></i>',
+            h_size='col-xs-12 col-sm-6 col-sm-offset-3',
             required=True,
         ))
 
@@ -39,10 +48,16 @@ class _SignInForm(_form.Form):
 class Password(_auth.driver.Authentication):
     """ULogin Driver.
     """
+
     def get_name(self) -> str:
-        """Get name of the driver.
+        """Get name of the driver
         """
         return 'password'
+
+    def get_description(self) -> str:
+        """Get name of the driver
+        """
+        return 'Password'
 
     def get_sign_up_form(self, **kwargs) -> _form.Form:
         # TODO
@@ -51,6 +66,8 @@ class Password(_auth.driver.Authentication):
     def get_sign_in_form(self, **kwargs) -> _form.Form:
         """Get the login form.
         """
+        _assetman.preload('font-awesome')
+
         return _SignInForm(**kwargs)
 
     def sign_up(self, data: dict):
@@ -64,7 +81,7 @@ class Password(_auth.driver.Authentication):
         password = data.get('password')
 
         if not (login and password):
-            raise _auth.error.AuthenticationError('Login or password is not specified.')
+            raise _auth.error.AuthenticationError('Login or password is not specified')
 
         # Check if the user exists
         user = _auth.get_user(login)

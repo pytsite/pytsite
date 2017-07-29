@@ -1,8 +1,7 @@
 """PytSite HTTP API Endpoints
 """
-import json as _json
 from pytsite import router as _router, logger as _logger, lang as _lang, events as _events, routing as _routing, \
-    http as _http, formatters as _formatters
+    http as _http, formatters as _formatters, errors as _errors
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -36,6 +35,7 @@ class Entry(_routing.Controller):
 
             status = 200
             rule.controller.args.clear().update(self.args).update(rule.args)
+            rule.controller.files = self.files
             controller_response = rule.controller.exec()
 
             if isinstance(controller_response, tuple):
@@ -58,6 +58,9 @@ class Entry(_routing.Controller):
             response.headers.add('PytSite-HTTP-API', version)
 
             return response
+
+        except _errors.ForbidOperation as e:
+            raise _http.error.Forbidden(e)
 
         except _http.error.Base as e:
             _logger.error('{} {}: {}'.format(request_method, current_path, e.description))

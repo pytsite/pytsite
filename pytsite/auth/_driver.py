@@ -13,13 +13,23 @@ __license__ = 'MIT'
 class Authentication(_ABC):
     @_abstractmethod
     def get_name(self) -> str:
-        """Get name of the driver.
+        """Get name of the driver
         """
         pass
 
     @property
     def name(self) -> str:
         return self.get_name()
+
+    @_abstractmethod
+    def get_description(self) -> str:
+        """Get description of the driver
+        """
+        pass
+
+    @property
+    def description(self) -> str:
+        return self.get_description()
 
     @_abstractmethod
     def get_sign_up_form(self, **kwargs) -> _form.Form:

@@ -1,7 +1,7 @@
 """PytSite Auth Storage ODM Fields.
 """
 from bson import DBRef as _DBRef
-from typing import Tuple as _Tuple, List as _List, Iterable as _Iterable
+from typing import Tuple as _Tuple, List as _List, Iterable as _Iterable, Optional as _Optional
 from pytsite import odm as _odm, auth as _auth
 
 __author__ = 'Alexander Shepetko'
@@ -44,7 +44,7 @@ class Roles(_odm.field.UniqueStringList):
 
         return clean_value
 
-    def _on_get(self, internal_value: str, **kwargs) -> _auth.model.AbstractUser:
+    def _on_get(self, internal_value: str, **kwargs) -> list:
         """Hook. Transforms internal value to external one.
         """
         return self._roles
@@ -114,7 +114,7 @@ class User(_odm.field.Abstract):
         # Internally this field stores only user's UID as string
         return self._resolve_user_uid(value)
 
-    def _on_get(self, internal_value: str, **kwargs) -> _auth.model.AbstractUser:
+    def _on_get(self, internal_value: str, **kwargs) -> _Optional[_auth.model.AbstractUser]:
         """Hook. Transforms internal value to external one.
         """
         if internal_value == 'ANONYMOUS':
@@ -162,7 +162,7 @@ class Users(User):
         """
         # Cache user objects for self._on_get()
         if not isinstance(value, (list, tuple)):
-            raise TypeError("Field '{}': list or tuple expected, got {}.".format(type(value)))
+            raise TypeError("Field '{}': list or tuple expected, got {}.".format(self.name, type(value)))
 
         clean_value = []
         for v in value:
@@ -170,7 +170,7 @@ class Users(User):
 
         return clean_value
 
-    def _on_get(self, internal_value: list, **kwargs) -> _Tuple[_auth.model.AbstractUser]:
+    def _on_get(self, internal_value: list, **kwargs) -> _Tuple[_auth.model.AbstractUser, ...]:
         """Hook. Transforms internal value to external one.
         """
         if internal_value is None:

@@ -1,4 +1,4 @@
-"""PytSite Reload API Functions.
+"""PytSite Reload API Functions
 """
 from os import path as _path
 from threading import Timer

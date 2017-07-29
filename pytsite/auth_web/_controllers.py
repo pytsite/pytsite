@@ -1,4 +1,4 @@
-"""Pytsite Auth Endpoints
+"""Pytsite Auth Controllers
 """
 from typing import Union as _Union, Optional as _Optional
 from werkzeug.utils import escape as _escape
@@ -26,7 +26,7 @@ class SignIn(_routing.Controller):
             args = {'driver': driver, 'form': frm}
 
             try:
-                return _tpl.render('$theme@auth/sign-in', args)
+                return _tpl.render('$theme@auth_web/sign-in', args)
             except _tpl.error.TemplateNotFound:
                 return _tpl.render('pytsite.auth_web@sign-in', args)
 
@@ -43,7 +43,10 @@ class SignInSubmit(_routing.Controller):
                 del inp[i]
 
         driver = self.arg('driver')
+
         redirect = inp.pop('__redirect', _router.base_url())
+        if isinstance(redirect, list):
+            redirect = redirect.pop()
 
         try:
             _auth.sign_in(driver, inp)

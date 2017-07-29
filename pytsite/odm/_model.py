@@ -12,7 +12,7 @@ from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, errors as _errors, \
     threading as _threading, util as _util
-from . import _error, _field, _cache as _e_cache
+from . import _error, _field, _entities_cache as _e_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

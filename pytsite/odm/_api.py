@@ -1,10 +1,10 @@
-"""ODM API Functions.
+"""ODM API Functions
 """
 from typing import Union as _Union, Iterable as _Iterable
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache, logger as _logger
-from . import _model, _error, _finder, _cache as _e_cache
+from . import _model, _error, _finder, _entities_cache as _e_cache
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -132,7 +132,7 @@ def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_model.Entity, None]:
     return dispense(doc['_model'], doc['_id']) if doc else None
 
 
-def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Entity:
+def dispense(model: str, uid: _Union[str, _ObjectId, None] = None, use_cache: bool = True) -> _model.Entity:
     """Dispense an entity.
     """
     if not is_model_registered(model):
@@ -141,25 +141,29 @@ def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Ent
     model_class = get_model_class(model)
 
     if uid:
-        try:
-            # Get entity from cache
-            return _e_cache.get(model, uid)
-        except KeyError:
-            # Entity is not found in cache, instantiate new one and put in into the cache
-            entity = model_class(model, uid)
+        if use_cache:
             try:
-                _e_cache.put(entity)
+                # Get entity from cache
+                return _e_cache.get(model, uid)
             except KeyError:
-                # If entity is already cached by another thread, do nothing, just notify about this
-                _logger.warn("Entity '{}:{}' is already cached".format(model, uid))
+                # Entity is not found in cache, instantiate new one and put in into the cache
+                entity = model_class(model, uid)
+                try:
+                    _e_cache.put(entity)
+                except KeyError:
+                    # If entity is already cached by another thread, do nothing, just notify about this
+                    _logger.warn("Entity '{}:{}' is already cached".format(model, uid))
 
-            return entity
+                return entity
+        else:
+            return model_class(model, uid)
+
     else:
         entity = model_class(model)
         if _dbg:
             _logger.debug("[ODM DISPENSE NEW ENTITY] '{}'.".format(model))
 
-    return entity
+        return entity
 
 
 def find(model: str):

@@ -1,7 +1,7 @@
 """Admin API Functions
 """
 from pytsite import tpl as _tpl, widget as _widget, form as _form, assetman as _assetman, auth as _auth, \
-    http as _http, reg as _reg, router as _router, pkg_util as _pkg_util
+    http as _http, reg as _reg, router as _router, package_info as _package_info
 from . import _sidebar
 
 __author__ = 'Alexander Shepetko'
@@ -25,9 +25,9 @@ def render(content: str) -> str:
         'admin_sidebar': _sidebar.render(),
         'admin_language_nav': _widget.select.LanguageNav('admin-language-nav', dropdown=True),
         'content': content,
-        'core_name': _pkg_util.name('pytsite'),
-        'core_url': _pkg_util.url('pytsite'),
-        'core_version': _pkg_util.version('pytsite'),
+        'core_name': _package_info.name('pytsite'),
+        'core_url': _package_info.url('pytsite'),
+        'core_version': _package_info.version('pytsite'),
         'sidebar_collapsed': _router.request().cookies.get('adminSidebarCollapsed') is not None,
     })
 

@@ -2,7 +2,7 @@
 """
 from importlib import import_module as _import_module
 from os import path as _path, makedirs as _makedirs
-from pytsite import settings as _settings, logger as _logger, pkg_util as _pkg_util, util as _util
+from pytsite import settings as _settings, logger as _logger, package_info as _package_info, util as _util
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -18,10 +18,10 @@ class Theme:
         """Init
         """
         # Check requirements
-        _pkg_util.check_requirements(package_name, 'theme.json')
+        _package_info.check_requirements(package_name, 'theme.json')
 
         # Load package data from JSON file
-        pkg_data = _pkg_util.parse_json(package_name, 'theme.json')
+        pkg_data = _package_info.parse_json(package_name, 'theme.json')
 
         # Check data
         for k in ('name', 'description', 'version'):
@@ -29,7 +29,7 @@ class Theme:
                 raise _error.ThemeInitError("'{}' is not found or empty in theme's JSON".format(k))
 
         self._package_name = package_name
-        self._path = _pkg_util.resolve_path(package_name)
+        self._path = _package_info.resolve_path(package_name)
         self._name = _util.transform_str_2(pkg_data.get('name'))
         self._version = pkg_data.get('version')
         self._description = pkg_data.get('description')

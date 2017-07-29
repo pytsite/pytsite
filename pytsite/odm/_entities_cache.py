@@ -1,4 +1,4 @@
-"""PytSite ODM Cache.
+"""PytSite ODM Entities Cache
 """
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, logger as _logger
@@ -60,15 +60,27 @@ def remove(entity):
 
 
 def cleanup():
-    """Cleanup expired entities.
+    """Cleanup expired entities
+    """
+    to_remove = []
+    for e_info in _entities.values():
+        if (_datetime.now() - e_info[1]).seconds > _TTL:
+            to_remove.append(e_info[0])
+
+    for entity in to_remove:
+        remove(entity)
+
+
+def flush(model: str = None):
+    """Remove all entities
     """
     to_remove = []
     for i in _entities.values():
-        if (_datetime.now() - i[1]).seconds > _TTL:
+        if not model or (model and i[0].model):
             to_remove.append(i[0])
 
-    for i in to_remove:
-        remove(i)
+    for entity in to_remove:
+        remove(entity)
 
 
 def get_size() -> int:

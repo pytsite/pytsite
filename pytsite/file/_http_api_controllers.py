@@ -2,7 +2,7 @@
 """
 from typing import List as _List
 from os import unlink as _unlink
-from pytsite import util as _util, router as _router, auth as _auth, routing as _routing
+from pytsite import util as _util, auth as _auth, routing as _routing
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -15,8 +15,7 @@ class Post(_routing.Controller):
     """
 
     def exec(self) -> _List[str]:
-        files = _router.request().files
-        if not files:
+        if not self.files:
             raise RuntimeError('No files received')
 
         # It is important to accept files from authenticated users only.
@@ -25,7 +24,7 @@ class Post(_routing.Controller):
             raise self.forbidden()
 
         r = []
-        for field_name, f in files.items():
+        for field_name, f in self.files.items():
             tmp_file_path = _util.mk_tmp_file()[1]
             f.save(tmp_file_path)
 
@@ -58,7 +57,7 @@ class Get(_routing.Controller):
             raise self.forbidden()
 
         try:
-            return _api.get(self.arg('uid')).as_jsonable(**self.args)
+            return _api.get(self.arg('uid')).as_jsonable(**dict(self.args))
 
         except _error.FileNotFound as e:
             raise self.not_found(str(e))

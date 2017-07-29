@@ -1,2 +1,3 @@
 security: 'Security'
 allow_sign_up: 'Allow registration of new users'
+default_authentication_driver: 'Default authentication driver'
