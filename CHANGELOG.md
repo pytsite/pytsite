@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 2.0.4 (2017-07-30)
+### Added
+- `settings`: new form's event.
+
+
 ## 2.0.3 (2017-07-30)
 ### Added
 - `settings`: new form's event.

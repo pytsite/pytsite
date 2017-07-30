@@ -30,6 +30,7 @@ class Form(_form.Form):
         """Hook
         """
         _events.fire('pytsite.settings.form.setup_widgets', frm=self)
+        _events.fire('pytsite.settings.form.setup_widgets.' + self._setting_uid, frm=self)
 
         # Fill form widgets with values
         for k, v in _api.get(self._setting_uid).items():
