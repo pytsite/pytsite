@@ -1,4 +1,4 @@
-"""PytSite Forms Cache.
+"""PytSite Forms Cache
 """
 from datetime import datetime as _datetime
 from pytsite import reg as _reg
@@ -9,6 +9,12 @@ __license__ = 'MIT'
 
 _TTL = _reg.get('form.cache.ttl', 21600)
 _forms = {}
+
+
+def has(form_uid: str) -> bool:
+    """Check whether cache contains a form
+    """
+    return form_uid in _forms
 
 
 def put(frm):

@@ -24,7 +24,7 @@ class Form(_ABC):
         """Init.
         """
         if not _router.request():
-            raise RuntimeError('Form cannot be created without HTTP request context.')
+            raise RuntimeError('Form cannot be created without HTTP request context')
 
         # Widgets
         self._widgets = []  # type: _List[_widget.Abstract]
@@ -41,12 +41,18 @@ class Form(_ABC):
         # Messages CSS
         self._messages_css = kwargs.get('messages_css', 'form-messages')
 
-        self._uid = kwargs.get('uid', _util.random_str(64))
+        # Set UID
+        while True:
+            uid = _util.random_str()
+            if not _cache.has(uid):
+                self._uid = uid
+                break
+
         self._created = _datetime.now()
         self._name = kwargs.get('name') or _form_name_sub_re.sub('-', self.cid.lower())
         self._path = kwargs.get('path', _router.current_path(True))
         self._method = kwargs.get('method', 'post')
-        self._action = kwargs.get('action', _router.rule_url('pytsite.form@submit', {'uid': self.uid}))
+        self._action = kwargs.get('action', _router.rule_url('pytsite.form@submit', {'uid': self._uid}))
         self._steps = int(kwargs.get('steps', 1))
         self._step = int(kwargs.get('step', 1))
         self._modal = kwargs.get('modal', False)
@@ -148,7 +154,7 @@ class Form(_ABC):
 
         self._on_setup_widgets()
 
-        _events.fire('pytsite.form.setup_widgets.' + self.uid.replace('-', '_'), frm=self)
+        _events.fire('pytsite.form.setup_widgets.' + self.name.replace('-', '_'), frm=self)
 
     def _on_setup_form(self, **kwargs):
         """Hook.
@@ -182,12 +188,6 @@ class Form(_ABC):
         """Get form ID.
         """
         return self._uid
-
-    @uid.setter
-    def uid(self, value: str):
-        """Set form uid.
-        """
-        self._uid = value
 
     @property
     def created(self) -> _datetime:
@@ -377,7 +377,7 @@ class Form(_ABC):
 
     @property
     def nocache(self) -> bool:
-        return self. _nocache
+        return self._nocache
 
     @nocache.setter
     def nocache(self, value: bool):
@@ -442,14 +442,14 @@ class Form(_ABC):
 
         # Remove submitted form from the cache
         if not self.nocache:
-            _cache.rm(self.uid)
+            _cache.rm(self._uid)
 
         return response
 
     def render(self) -> str:
         """Render the form.
         """
-        _events.fire('pytsite.form.render.' + self.uid.replace('-', '_'), frm=self)
+        _events.fire('pytsite.form.render.' + self.name.replace('-', '_'), frm=self)
 
         return _tpl.render(self._tpl, {'form': self})
 

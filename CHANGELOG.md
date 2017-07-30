@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 2.0.2 (2017-07-29)
+### Fixed
+- `form`: form's UID processing.
+- `settings`: form's name setup.
+
+
 ## 2.0.1 (2017-07-29)
 ### Fixed
 - `settings`: form's UID setup.

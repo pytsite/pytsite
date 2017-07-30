@@ -20,7 +20,7 @@ class Form(_form.Form):
         self._setting_uid = kwargs.get('setting_uid')
 
         kwargs.update({
-            'uid': 'settings-' + self._setting_uid,
+            'name': 'settings-' + self._setting_uid,
             'css': 'settings-form setting-uid-' + self._setting_uid,
         })
 

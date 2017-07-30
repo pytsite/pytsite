@@ -10,7 +10,9 @@ __license__ = 'MIT'
 
 class Submit(_routing.Controller):
     def exec(self):
-        frm = _api.dispense(self.args)
+        args = dict(self.args)
+
+        frm = _api.dispense(args)
 
         # Rebuild form
         if not frm.nocache:
@@ -20,10 +22,10 @@ class Submit(_routing.Controller):
                 frm.setup_widgets(False)
 
         # Validate the form
-        frm.fill(self.args, mode='validation').validate()
+        frm.fill(args, mode='validation').validate()
 
         # Refill the form in 'normal' mode
-        frm.fill(self.args)
+        frm.fill(args)
 
         # Notify form about submit
         return frm.submit()
