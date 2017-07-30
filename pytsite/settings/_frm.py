@@ -19,7 +19,12 @@ class Form(_form.Form):
         """
         self._setting_uid = kwargs.get('setting_uid')
 
-        super().__init__(css='settings-form setting-uid-' + self._setting_uid, **kwargs)
+        kwargs.update({
+            'uid': 'settings-' + self._setting_uid,
+            'css': 'settings-form setting-uid-' + self._setting_uid,
+        })
+
+        super().__init__(**kwargs)
 
     def _on_setup_widgets(self):
         # Fill form widgets with values

@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 2.0.1 (2017-07-29)
+### Fixed
+- `settings`: form's UID setup.
+
+
 ## 2.0 (2017-07-29)
 ### Added
 - `auth`:
