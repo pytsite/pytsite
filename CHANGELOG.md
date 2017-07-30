@@ -1,7 +1,12 @@
 # PytSite Changelog
 
 
-## 2.0.2 (2017-07-29)
+## 2.0.3 (2017-07-30)
+### Added
+- `settings`: new form's event.
+
+
+## 2.0.2 (2017-07-30)
 ### Fixed
 - `form`: form's UID processing.
 - `settings`: form's name setup.

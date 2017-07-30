@@ -2,7 +2,7 @@
 """
 import re as _re
 from pytsite import form as _form, router as _router, widget as _widget, lang as _lang, auth as _auth, http as _http, \
-    util as _util, validation as _validation
+    util as _util, validation as _validation, events as _events
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -27,6 +27,10 @@ class Form(_form.Form):
         super().__init__(**kwargs)
 
     def _on_setup_widgets(self):
+        """Hook
+        """
+        _events.fire('pytsite.settings.form.setup_widgets', frm=self)
+
         # Fill form widgets with values
         for k, v in _api.get(self._setting_uid).items():
             try:
