@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 2.0.6 (2017-07-31)
+### Added
+- `update`: automatic pulling application's configuration from git.
+- `plugman`: automatic installing required plugins after application's update.
+
+
 ## 2.0.5 (2017-07-31)
 ### Fixed
 - `update`: pulling all themes from git instead of only current one.

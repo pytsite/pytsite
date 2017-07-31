@@ -36,6 +36,7 @@ class Update(_console.Command):
         """Execute the command.
         """
         app_path = _reg.get('paths.app')
+        config_path = _reg.get('paths.config')
         stage = self.opt('stage')
         stop_after = self.opt('stop-after')
 
@@ -54,6 +55,11 @@ class Update(_console.Command):
                 _maintenance.disable()
 
         elif stage == 2:
+            # Update configuration, if applicable
+            if _path.exists(_path.join(config_path, '.git')):
+                _console.print_info(_lang.t('pytsite.update@updating_configuration'))
+                _subprocess.call(['git', '-C', config_path, 'pull'])
+
             # Update application, if applicable
             if _path.exists(_path.join(app_path, '.git')):
                 _console.print_info(_lang.t('pytsite.update@updating_application'))

@@ -1,5 +1,6 @@
 update_console_command_description: 'Оновлення додатка'
 updating_environment: 'Оновлюю оточення'
 updating_application: 'Оновлюю додаток'
+updating_configuration: 'Оновлюю конфігурацію'
 updating_theme: "Оновлюю тему ':name'"
 applying_updates: 'Застосовую оновлення'

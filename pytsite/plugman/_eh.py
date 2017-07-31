@@ -13,4 +13,5 @@ def setup():
 
 
 def update_after():
-    _api.upgrade()
+    _console.run_command('plugman:install')
+    _console.run_command('plugman:upgrade')
