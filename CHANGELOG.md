@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 2.0.7 (2017-07-31)
+### Fixed
+- `assetman`: babelifying JS files.
+
+
 ## 2.0.6 (2017-07-31)
 ### Added
 - `update`: automatic pulling application's configuration from git.

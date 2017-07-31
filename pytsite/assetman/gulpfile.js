@@ -31,11 +31,11 @@ function copyStatic(stream) {
     return stream.pipe(filter)
 }
 
-function js(stream, babelify) {
+function js(stream, args) {
     stream = stream.pipe(ignore.include(/\.js$/));
     stream = stream.pipe(ignore.exclude(/\.(min|pack)\.js$/));
 
-    if (babelify) {
+    if (args.babelify) {
         var babel = require('gulp-babel');
 
         stream = stream.pipe(babel({
@@ -93,27 +93,27 @@ gulp.task('default', function () {
 
             switch (task.name) {
                 case 'copy':
-                    stream = copy(stream);
+                    stream = copy(stream, task.args);
                     break;
 
                 case 'copy_static':
-                    stream = copyStatic(stream);
+                    stream = copyStatic(stream, task.args);
                     break;
 
                 case 'css':
-                    stream = css(stream);
+                    stream = css(stream, task.args);
                     break;
 
                 case 'less':
-                    stream = less(stream);
+                    stream = less(stream, task.args);
                     break;
 
                 case 'js':
-                    stream = js(stream);
+                    stream = js(stream, task.args);
                     break;
 
                 case 'browserify':
-                    stream = browserify(stream);
+                    stream = browserify(stream, task.args);
                     break;
 
                 default:
