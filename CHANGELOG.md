@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 2.0.5 (2017-07-31)
+### Fixed
+- `update`: pulling all themes from git instead of only current one.
+
+
 ## 2.0.4 (2017-07-30)
 ### Added
 - `settings`: new form's event.

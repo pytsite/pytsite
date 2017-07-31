@@ -1,5 +1,5 @@
 update_console_command_description: 'Application update'
 updating_environment: 'Updating environment'
 updating_application: 'Updating application'
-updating_theme: 'Updating theme'
+updating_theme: "Updating theme ':name'"
 applying_updates: 'Applying updates'

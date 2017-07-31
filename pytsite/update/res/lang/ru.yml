@@ -1,5 +1,5 @@
 update_console_command_description: 'Обновление приложения'
 updating_environment: 'Обновляю окружение'
 updating_application: 'Обновляю приложение'
-updating_theme: 'Обновляю тему'
+updating_theme: "Обновляю тему ':name'"
 applying_updates: 'Применяю обновления'

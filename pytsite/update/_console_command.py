@@ -17,7 +17,8 @@ class Update(_console.Command):
 
     def __init__(self):
         super().__init__()
-        self.define_option(_console.option.PositiveInt('stage', default=0, maximum=2))
+        self.define_option(_console.option.PositiveInt('stage', default=1, maximum=3))
+        self.define_option(_console.option.PositiveInt('stop-after', default=0, maximum=3))
 
     @property
     def name(self) -> str:
@@ -35,34 +36,41 @@ class Update(_console.Command):
         """Execute the command.
         """
         app_path = _reg.get('paths.app')
-        theme_path = _theme.get().path
         stage = self.opt('stage')
+        stop_after = self.opt('stop-after')
 
         _chdir(app_path)
         _maintenance.enable()
 
-        if stage in (0, 1):
+        if stage == 1:
             # Update pip and pytsite
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
-            # Update application, if applicable
-            if _path.exists(_path.join(app_path, '.git')):
-                _console.print_info(_lang.t('pytsite.update@updating_application'))
-                _subprocess.call(['git', '-C', app_path, 'pull'])
-
-            if _path.exists(_path.join(theme_path, '.git')):
-                _console.print_info(_lang.t('pytsite.update@updating_theme'))
-                _subprocess.call(['git', '-C', theme_path, 'pull'])
-
-            # Call second step automatically only if '--stage=1' option was not explicitly provided
-            if stage == 0:
+            if stop_after != 1:
                 _subprocess.call(['./console', 'update', '--stage=2'])
             else:
                 _maintenance.disable()
 
         elif stage == 2:
+            # Update application, if applicable
+            if _path.exists(_path.join(app_path, '.git')):
+                _console.print_info(_lang.t('pytsite.update@updating_application'))
+                _subprocess.call(['git', '-C', app_path, 'pull'])
+
+            # Update all installed themes, if applicable
+            for theme in _theme.get_registered().values():
+                if _path.exists(_path.join(theme.path, '.git')):
+                    _console.print_info(_lang.t('pytsite.update@updating_theme', {'name': theme.name}))
+                    _subprocess.call(['git', '-C', theme.path, 'pull'])
+
+            if stop_after != 2:
+                _subprocess.call(['./console', 'update', '--stage=3'])
+            else:
+                _maintenance.disable()
+
+        elif stage == 3:
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
             state = self._get_state()
