@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 2.0.10 (2017-08-01)
+### Fixed
+- `odm_auth`: missing return value.
+
+
 ## 2.0.9 (2017-08-01)
 ### Fixed
 - `odm_auth`: automatic entity's owner setting in case if owner was deleted.

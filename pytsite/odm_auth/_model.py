@@ -43,3 +43,5 @@ class AuthorizableEntity(_odm.model.Entity):
                 self.f_set(field_name, _auth.get_first_admin_user()).save()
 
                 return super().f_get(field_name, **kwargs)
+
+        return super().f_get(field_name, **kwargs)
