@@ -40,7 +40,8 @@ class AuthorizableEntity(_odm.model.Entity):
             # Owner was deleted or for some reason cannot be accessed
             except _auth.error.UserNotExist:
                 # Set first admin as owner
-                self.f_set(field_name, _auth.get_first_admin_user()).save()
+                with self:
+                    self.f_set(field_name, _auth.get_first_admin_user()).save()
 
                 return super().f_get(field_name, **kwargs)
 

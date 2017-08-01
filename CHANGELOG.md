@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 2.0.11 (2017-08-01)
+### Fixed
+- `odm_auth`: missing entity locking.
+
+
 ## 2.0.10 (2017-08-01)
 ### Fixed
 - `odm_auth`: missing return value.
