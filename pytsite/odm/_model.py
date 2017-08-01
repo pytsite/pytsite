@@ -1,4 +1,4 @@
-"""ODM models.
+"""ODM Entity Model
 """
 from typing import Any as _Any, Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
@@ -370,15 +370,15 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[NON-STORED ENTITY] {}.f_set('{}', {}), called by {}.".
+                _logger.debug("[NON-STORED ENTITY] {}.f_set('{}', {}), called by {}".
                               format(self._model, field_name, repr(value), caller))
             else:
-                _logger.debug("[STORED ENTITY] {}.f_set('{}', {}), called by {}.".
+                _logger.debug("[STORED ENTITY] {}.f_set('{}', {}), called by {}".
                               format(self.ref_str, field_name, repr(value), caller))
 
         hooked_val = self._on_f_set(field_name, value, **kwargs)
         if value is not None and hooked_val is None:
-            raise RuntimeWarning("_on_f_set() for field '{}.{}' returned None.".format(self._model, field_name))
+            raise RuntimeWarning("_on_f_set() for field '{}.{}' returned None".format(self._model, field_name))
 
         self.get_field(field_name).set_val(hooked_val, **kwargs)
 
@@ -401,15 +401,15 @@ class Entity(_ABC):
         # Pass value through hook method
         hooked_val = self._on_f_get(field_name, orig_val, **kwargs)
         if orig_val is not None and hooked_val is None:
-            raise RuntimeWarning("_on_f_get() for field '{}.{}' returned None.".format(self._model, field_name))
+            raise RuntimeWarning("_on_f_get() for field '{}.{}' returned None".format(self._model, field_name))
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_get('{}') -> '{}', called by {}.".
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_get('{}') -> '{}', called by {}".
                               format(self._model, field_name, hooked_val, caller))
             else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_get('{}') -> '{}', called by {}.".
+                _logger.debug("[ODM STORED ENTITY] {}.f_get('{}') -> '{}', called by {}".
                               format(self.ref_str, field_name, hooked_val, caller))
 
         return hooked_val
@@ -427,10 +427,10 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_add('{}', {}), called by {}.".
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_add('{}', {}), called by {}".
                               format(self._model, field_name, repr(value), caller))
             else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_add('{}', {}), called by {}.".
+                _logger.debug("[ODM STORED ENTITY] {}.f_add('{}', {}), called by {}".
                               format(self.ref_str, field_name, repr(value), caller))
 
         value = self._on_f_add(field_name, value, **kwargs)
@@ -454,10 +454,10 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_sub('{}', {}), called by {}.".
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_sub('{}', {}), called by {}".
                               format(self._model, field_name, repr(value), caller))
             else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_sub('{}', {}), called by {}.".
+                _logger.debug("[ODM STORED ENTITY] {}.f_sub('{}', {}), called by {}".
                               format(self.ref_str, field_name, repr(value), caller))
 
         # Call hook
@@ -484,10 +484,10 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_inc('{}'), called by {}.".
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_inc('{}'), called by {}".
                               format(self._model, field_name, caller))
             else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_inc('{}'), called by {}.".
+                _logger.debug("[ODM STORED ENTITY] {}.f_inc('{}'), called by {}".
                               format(self.ref_str, field_name, caller))
 
         self._on_f_inc(field_name, **kwargs)
@@ -511,10 +511,10 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_dec('{}'), called by {}.".
+                _logger.debug("[ODM NON-STORED ENTITY] {}.f_dec('{}'), called by {}".
                               format(self._model, field_name, caller))
             else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_dec('{}'), called by {}.".
+                _logger.debug("[ODM STORED ENTITY] {}.f_dec('{}'), called by {}".
                               format(self.ref_str, field_name, caller))
 
         self._on_f_dec(field_name, **kwargs)
@@ -539,9 +539,9 @@ class Entity(_ABC):
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug(
-                    "[ODM NON-STORED ENTITY] {}.f_clr(), called by {}.".format(self._model, field_name, caller))
+                    "[ODM NON-STORED ENTITY] {}.f_clr(), called by {}".format(self._model, field_name, caller))
             else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_clr(), called by {}.".format(self.ref_str, field_name, caller))
+                _logger.debug("[ODM STORED ENTITY] {}.f_clr(), called by {}".format(self.ref_str, field_name, caller))
 
         self._on_f_clr(field_name, **kwargs)
         self.get_field(field_name).clr_val()
@@ -567,17 +567,17 @@ class Entity(_ABC):
         :type child: Entity
         """
         if child.is_new:
-            raise RuntimeError('Child entity should be saved.')
+            raise RuntimeError('Entity should be saved before it can be as a child')
 
         self._check_is_locked()
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug('[ODM NON-STORED ENTITY] {}.append_child({}), called by {}.'.
+                _logger.debug('[ODM NON-STORED ENTITY] {}.append_child({}), called by {}'.
                               format(self._model, repr(child), caller))
             else:
-                _logger.debug('[ODM STORED ENTITY] {}.append_child({}), called by {}.'.
+                _logger.debug('[ODM STORED ENTITY] {}.append_child({}), called by {}'.
                               format(self.ref_str, repr(child), caller))
 
         with child:
@@ -598,10 +598,10 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug('[ODM NON-STORED ENTITY] {}.remove_child({}), called by {}.'.
+                _logger.debug('[ODM NON-STORED ENTITY] {}.remove_child({}), called by {}'.
                               format(self._model, repr(child), caller))
             else:
-                _logger.debug('[ODM STORED ENTITY] {}.remove_child({}), called by {}.'.
+                _logger.debug('[ODM STORED ENTITY] {}.remove_child({}), called by {}'.
                               format(self.ref_str, repr(child), caller))
 
         self.f_sub('_children', child)
@@ -623,9 +623,9 @@ class Entity(_ABC):
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY SAVE STARTED] {}, called by {}.".format(self._model, caller))
+                _logger.debug("[ODM NON-STORED ENTITY SAVE STARTED] {}, called by {}".format(self._model, caller))
             else:
-                _logger.debug('[ODM STORED ENTITY SAVE STARTED] {}, called by {}.'.format(self.ref_str, caller))
+                _logger.debug('[ODM STORED ENTITY SAVE STARTED] {}, called by {}'.format(self.ref_str, caller))
 
         # Pre-save hook
         self._pre_save()
@@ -649,13 +649,13 @@ class Entity(_ABC):
                 self.collection.insert_one(data)
                 if _dbg:
                     caller = _util.format_call_stack_str(' > ', 2)
-                    _logger.debug('[ODM ENTITY DATA DB INSERT] {}: {}, called by {}.'.
+                    _logger.debug('[ODM ENTITY DATA DB INSERT] {}: {}, called by {}'.
                                   format(self._model, data, caller))
             else:
                 self.collection.replace_one({'_id': data['_id']}, data)
                 if _dbg:
                     caller = _util.format_call_stack_str(' > ', 2)
-                    _logger.debug('[ODM ENTITY DATA DB REPLACE] {}: {}, called by {}.'.
+                    _logger.debug('[ODM ENTITY DATA DB REPLACE] {}: {}, called by {}'.
                                   format(self.ref_str, data, caller))
 
         except _bson_errors.BSONError as e:
@@ -703,7 +703,7 @@ class Entity(_ABC):
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug('[ODM ENTITY SAVE FINISHED] {}.save() finished, called by {}.'.format(self.ref_str, caller))
+            _logger.debug('[ODM ENTITY SAVE FINISHED] {}.save() finished, called by {}'.format(self.ref_str, caller))
 
         return self
 
@@ -723,7 +723,7 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if self._is_new:
-            raise _errors.ForbidDeletion('New entities cannot be deleted.')
+            raise _errors.ForbidDeletion('New entities cannot be deleted')
 
         if _dbg:
             caller = _util.format_call_stack_str(' > ', 2)
@@ -797,7 +797,7 @@ class Entity(_ABC):
 
             # Required fields should be filled
             if check_required_fields and f.required and f.is_empty:
-                raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty.".format(self._model, f_name))
+                raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty".format(self._model, f_name))
 
             r[f_name] = f.as_storable()
 
