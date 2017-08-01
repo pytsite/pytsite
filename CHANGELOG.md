@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 2.0.8 (2017-08-01)
+### Fixed
+- `odm_auth`: automatic entity's owner setting exception handling.
+
+### Changed
+- `router`: logging of 4xx errors performs only in debug mode now.
+
+
 ## 2.0.7 (2017-07-31)
 ### Fixed
 - `assetman`: babelifying JS files.

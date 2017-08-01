@@ -9,21 +9,29 @@ class Base(_e.HTTPException):
     pass
 
 
-class NotFound(Base, _e.NotFound):
+class E4xx(Base):
     pass
 
 
-class Unauthorized(Base, _e.Unauthorized):
+class NotFound(E4xx, _e.NotFound):
     pass
 
 
-class Forbidden(Base, _e.Forbidden):
+class Unauthorized(E4xx, _e.Unauthorized):
     pass
 
 
-class InternalServerError(Base, _e.InternalServerError):
+class Forbidden(E4xx, _e.Forbidden):
     pass
 
 
-class MethodNotAllowed(Base, _e.MethodNotAllowed):
+class MethodNotAllowed(E4xx, _e.MethodNotAllowed):
+    pass
+
+
+class E5xx(Base):
+    pass
+
+
+class InternalServerError(E5xx, _e.InternalServerError):
     pass

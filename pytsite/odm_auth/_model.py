@@ -35,7 +35,16 @@ class AuthorizableEntity(_odm.model.Entity):
 
         # If entity's owner was deleted or just wasn't set, set it to first administrator
         for f_name in 'author', 'owner':
-            if self.has_field(f_name) and not self.f_get(f_name):
+            if self.has_field(f_name):
+                try:
+                    current_owner = self.f_get(f_name)
+                except _auth.error.UserNotExist:
+                    current_owner = None
+
+                # Owner is set and exists, so no need to set it
+                if current_owner:
+                    continue
+
                 c_user = _auth.get_current_user()
                 if not c_user.is_anonymous:
                     if self.is_new and c_user.has_permission('pytsite.odm_auth.create.' + self.model):

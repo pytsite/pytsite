@@ -13,6 +13,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+_DEBUG_MODE = _reg.get('debug', False)
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 
 # Rules map
@@ -272,21 +273,24 @@ def dispatch(env: dict, start_response: callable):
         if isinstance(e, _errors.ForbidOperation):
             e = _http.error.Forbidden(e)
 
-        if isinstance(e, _http.error.Base):
+        if isinstance(e, _http.error.E4xx):
+            code = e.code
+            title = _lang.t('pytsite.router@http_error_' + str(e.code))
+
+            # Log HTTP 4xx errors only in debug mode
+            if _DEBUG_MODE:
+                _logger.error('HTTP {} {} ({}): {}'.format(
+                    e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
+
             # Exception can contain response object in its body
             if isinstance(e.response, _http.response.Response):
                 # For non-redirect embedded responses use original status code from exception
                 if not isinstance(e.response, _http.response.Redirect):
                     e.response.status_code = e.code
                 return e.response(env, start_response)
-            else:
-                code = e.code
-                title = _lang.t('pytsite.router@http_error_' + str(e.code))
-                _logger.error('HTTP {} {} ({}): {}'.format(
-                    e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
         else:
-            code = 500
-            title = _lang.t('pytsite.router@error', {'code': '500'})
+            code = e.code if isinstance(e, _http.error.E5xx) else 500
+            title = _lang.t('pytsite.router@error', {'code': code})
             _logger.error(e, exc_info=e)
 
         args = {
