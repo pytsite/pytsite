@@ -33,7 +33,7 @@ class AuthorizableEntity(_odm.model.Entity):
     def f_get(self, field_name: str, **kwargs):
         """Get field's value
         """
-        if field_name in ('author', 'owner'):
+        if not self.is_new and field_name in ('author', 'owner'):
             try:
                 return super().f_get(field_name, **kwargs)
 

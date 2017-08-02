@@ -1,6 +1,6 @@
 """ODM UI Manager.
 """
-from typing import Iterable as _Iterable
+from typing import Iterable as _Iterable, Type as _Type
 from pytsite import odm as _odm, form as _form, odm_auth as _odm_auth
 from . import _model, _forms
 
@@ -21,7 +21,7 @@ def get_d_form(model: str, ids: _Iterable, **kwargs) -> _form.Form:
     return _forms.Delete(model=model, eids=ids, **kwargs)
 
 
-def get_model_class(model: str) -> _model.UIEntity:
+def get_model_class(model: str) -> _Type[_model.UIEntity]:
     """Get ODM UI model class.
     """
     model_class = _odm.get_model_class(model)

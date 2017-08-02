@@ -1,4 +1,4 @@
-"""PytSite Router API.
+"""PytSite Router API
 """
 import re as _re
 from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Mapping, Optional as _Optional
@@ -13,7 +13,6 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_DEBUG_MODE = _reg.get('debug', False)
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 
 # Rules map
@@ -277,10 +276,8 @@ def dispatch(env: dict, start_response: callable):
             code = e.code
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
 
-            # Log HTTP 4xx errors only in debug mode
-            if _DEBUG_MODE:
-                _logger.error('HTTP {} {} ({}): {}'.format(
-                    e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
+            _logger.error('HTTP {} {} ({}): {}'.format(
+                e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
 
             # Exception can contain response object in its body
             if isinstance(e.response, _http.response.Response):

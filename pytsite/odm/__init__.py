@@ -13,8 +13,8 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, lang, events, stats, cron, update
-    from . import _console_command, _eh, _entities_cache
+    from pytsite import console, lang, events, update
+    from . import _console_command, _eh
 
     # Resources
     lang.register_package(__name__)
@@ -25,12 +25,6 @@ def _init():
     # Event listeners
     update.on_update_after(_eh.update_after, 999)  # Low priority to wait while plugman finish upgrade
     events.listen('pytsite.db.restore', _eh.db_restore)
-
-    # Cron tasks
-    cron.every_min(_entities_cache.cleanup)
-
-    # Stats update
-    stats.on_update(lambda: 'ODM entities cache size: {}'.format(_entities_cache.get_size()))
 
 
 _init()

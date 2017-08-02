@@ -108,6 +108,10 @@ class User(_odm.field.Abstract):
             raise TypeError("Field '{}': user object, str or DB ref expected, got {}.".
                             format(self._name, type(value)))
 
+    def _on_set_default(self, value) -> str:
+        # Internally this field stores only user's UID as string
+        return self._on_set(value) if value else value
+
     def _on_set(self, value, **kwargs) -> str:
         """Hook. Transforms externally set value to internal value.
         """
@@ -157,10 +161,12 @@ class Users(User):
         """
         super().__init__(name, default=kwargs.get('default', []), **kwargs)
 
+    def _on_set_default(self, value):
+        return self._on_set(value) if value else value
+
     def _on_set(self, value: _Iterable, **kwargs) -> list:
         """Hook. Transforms externally set value to internal value.
         """
-        # Cache user objects for self._on_get()
         if not isinstance(value, (list, tuple)):
             raise TypeError("Field '{}': list or tuple expected, got {}.".format(self.name, type(value)))
 

@@ -12,19 +12,19 @@ __license__ = 'MIT'
 
 _pool_prefix = 'pytsite.odm.finder:'
 _dbg = _reg.get('odm.debug.finder')
+_cache_enabled = _reg.get('odm.cache.enabled', True)
 
 
 class Result:
     """DB Query Result.
     """
 
-    def __init__(self, model: str, cursor: _Cursor = None, ids: list = None, use_cache: bool = True):
+    def __init__(self, model: str, cursor: _Cursor = None, ids: list = None):
         """Init.
         """
         self._model = model
         self._cursor = cursor
         self._ids = [doc['_id'] for doc in list(cursor)] if cursor else ids
-        self._use_cache = use_cache
         self._total = len(self._ids)
         self._current = 0
 
@@ -47,7 +47,7 @@ class Result:
         if self._current == self._total:
             raise StopIteration()
 
-        entity = _api.dispense(self._model, self._ids[self._current], self._use_cache)
+        entity = _api.dispense(self._model, self._ids[self._current])
         self._current += 1
 
         return entity
@@ -315,7 +315,7 @@ class Finder:
         query = self._query.compile()
 
         # Search for previous result in cache
-        if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
+        if _cache_enabled and self._cache_ttl:
             try:
                 ids = self._cache_pool.get(self.id)
                 if _dbg:
@@ -336,7 +336,7 @@ class Finder:
         )
 
         # Prepare result
-        result = Result(self._model, cursor, use_cache=bool(self._cache_ttl))
+        result = Result(self._model, cursor)
 
         # Put query result into cache
         if _reg.get('odm.cache.enabled', True) and self._cache_ttl:

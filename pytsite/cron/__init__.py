@@ -95,11 +95,9 @@ def _cron_worker():
         # Unlock
         _working = False
 
+        # Schedule next cron start
+        _threading.create_timer(_cron_worker, 60).start()
+
 
 if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    import uwsgidecorators
-
-
-    @uwsgidecorators.timer(60)
-    def cron_thread(n):
-        _threading.create_thread(_cron_worker).start()
+    _threading.create_timer(_cron_worker, 60).start()

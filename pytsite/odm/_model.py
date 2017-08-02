@@ -12,7 +12,7 @@ from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, errors as _errors, \
     threading as _threading, util as _util
-from . import _error, _field, _entities_cache as _e_cache
+from . import _error, _field
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -636,7 +636,7 @@ class Entity(_ABC):
         if update_timestamp:
             self.f_set('_modified', _datetime.now())
 
-        # Getting storable data from each field
+        # Getting storable data of each field
         data = self.as_db_object()
 
         # Let DB to calculate object's ID
@@ -672,10 +672,6 @@ class Entity(_ABC):
             first_save = True
             self._id = data['_id']
             self._is_new = False
-
-            # As soon as new entity stored into the DB, we should cache it, because it could be changed from
-            # outer world in after-save hooks
-            _e_cache.put(self)
         else:
             first_save = False
 
@@ -687,7 +683,7 @@ class Entity(_ABC):
         # Saved entity is not 'modified'
         self._is_modified = False
 
-        # Clear entire finder cache for this model
+        # Clear entire finder cache for the model
         from . import _api
         _api.get_finder_cache(self._model).clear()
 
@@ -762,7 +758,6 @@ class Entity(_ABC):
         # Clear finder cache
         from . import _api
         _api.get_finder_cache(self._model).clear()
-        _e_cache.remove(self)
 
         self._is_deleted = True
         self._is_being_deleted = False

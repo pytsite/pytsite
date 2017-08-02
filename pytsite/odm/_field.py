@@ -1,11 +1,10 @@
-"""ODM Fields.
+"""PytSite ODM Fields
 """
 from typing import Any as _Any, Iterable as _Iterable, Union as _Union
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from bson.dbref import DBRef as _bson_DBRef
-from copy import deepcopy as _deepcopy
 from frozendict import frozendict as _frozendict
 from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger, validation as _validation
 
@@ -17,7 +16,7 @@ _dbg = _reg.get('odm.debug.field')
 
 
 class Abstract(_ABC):
-    """Base field.
+    """Base ODM Field
     """
 
     def __init__(self, name: str, **kwargs):
@@ -28,12 +27,9 @@ class Abstract(_ABC):
         """
         self._name = name
         self._required = kwargs.get('required', False)
-        self._default = _deepcopy(kwargs.get('default'))
+        self._default = self._on_set_default(kwargs.get('default'))
         self._uid = None
-        self._value = None
-
-        # Set value to default
-        self.clr_val()
+        self._value = self._default
 
     @property
     def required(self) -> bool:
@@ -59,7 +55,7 @@ class Abstract(_ABC):
 
     @default.setter
     def default(self, value):
-        self._default = _deepcopy(value)
+        self._default = value
 
     @property
     def uid(self) -> str:
@@ -108,6 +104,11 @@ class Abstract(_ABC):
         """
         return self._on_get_jsonable(self._value, **kwargs)
 
+    def _on_set_default(self, value):
+        """Hook. Called when default value is being set in constructor.
+        """
+        return value
+
     def _on_set(self, value, **kwargs):
         """Hook. Transforms externally set value to internal value.
         """
@@ -117,7 +118,7 @@ class Abstract(_ABC):
         """Set value of the field.
         """
         if value is None:
-            self.clr_val()
+            self._value = self._default
         else:
             # Pass value through the hook
             self._value = self._on_set(value, **kwargs)
@@ -130,7 +131,10 @@ class Abstract(_ABC):
     def clr_val(self):
         """Reset field's value to default.
         """
-        self._value = _deepcopy(self._default)
+        self._value = self._default
+
+        if _dbg:
+            _logger.debug("[FIELD] {}.{}.clr_val()".format(self._uid, self._name))
 
         return self
 

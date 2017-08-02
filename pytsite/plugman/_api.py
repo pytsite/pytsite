@@ -1,4 +1,4 @@
-"""PytSite Package Manager API Functions.
+"""PytSite Package Manager API
 """
 import zipfile as _zipfile
 import json as _json
@@ -175,7 +175,7 @@ def start(plugin_name: _Union[str, list, tuple]) -> object:
     try:
         mod = _import_module(pkg_name)
         _started.append(plugin_name)
-        _logger.info("Plugin '{}' ({}) started".format(plugin_name, pkg_name))
+        _logger.info("Plugin '{}' started".format(plugin_name))
 
         return mod
 

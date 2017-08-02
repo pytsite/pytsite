@@ -30,7 +30,7 @@ class Checkbox(_Abstract):
         if isinstance(value, list):
             value = value[-1] if value else False
 
-        super().set_val(True if value in (True, 'True') else False, **kwargs)
+        super().set_val(True if value in (True, 'True', 'true') else False, **kwargs)
 
     @property
     def checked(self) -> bool:

@@ -1,6 +1,20 @@
 # PytSite Changelog
 
 
+## 2.1 (2017-08-02)
+### Added
+- `threading`: new function `create_timer()`.
+
+### Changed
+- `cron`: eliminated usage of uwsgi's scheduler in favor of native threads.
+- `router`: HTTP errors now log always, not only in debug mode.
+
+### Fixed
+- `odm`: enttites cache removed as it didn't work well with uWSGI threads.
+- `odm_auth`: checking if entity is new in `model.f_get()`.
+- `widget`: setting value issue in `select.Checkbox`.
+
+
 ## 2.0.11 (2017-08-01)
 ### Fixed
 - `odm_auth`: missing entity locking.

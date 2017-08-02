@@ -22,7 +22,7 @@ class Browser(_widget.misc.BootstrapTable):
 
         self._model = model
         if not self._model:
-            raise RuntimeError('No model has been specified.')
+            raise RuntimeError('No model has been specified')
 
         # Model class and mock instance
         self._model_class = _api.get_model_class(self._model)

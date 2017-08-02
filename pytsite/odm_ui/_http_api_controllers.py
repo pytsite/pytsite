@@ -1,4 +1,4 @@
-"""PytSite ODM UI HTTP API Endpoints.
+"""PytSite ODM UI HTTP API Controllers
 """
 from pytsite import routing as _routing
 from . import _browser
