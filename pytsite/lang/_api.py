@@ -197,7 +197,7 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = F
     package_name, msg_id = _split_msg_id(msg_id)
 
     # Try to get message translation string from cache
-    cache_key = '{}@{}'.format(package_name, msg_id)
+    cache_key = '{}-{}@{}'.format(language, package_name, msg_id)
     msg = _translation_strings.get(cache_key)
 
     # Message translation is not found in cache, try to fetch it
