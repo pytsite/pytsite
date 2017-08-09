@@ -146,8 +146,8 @@ def render() -> _html.Aside:
 
     # Do actual rendering
     for section in render_sections:
-        root_menu_ul.append(
-            _html.Li(_lang.t(section['title']), css='header', data_section_weight=section['weight']))
+        li = _html.Li(_lang.t(section['title']), css='header', data_section_weight=section['weight'])
+        root_menu_ul.append(li)
 
         # Building top level menu item
         for menu in render_menus[section['sid']]:
@@ -176,7 +176,8 @@ def render() -> _html.Aside:
             if current_path != abp and href.endswith(current_path):
                 li.set_attr('css', 'active')
 
-            root_menu_ul.append(li.append(a))
+            li.append(a)
+            root_menu_ul.append(li)
 
     return aside_em
 

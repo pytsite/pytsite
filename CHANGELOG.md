@@ -1,6 +1,34 @@
 # PytSite Changelog
 
 
+## 3.0 (2017-08-09)
+### Added
+- `assetman`: asynchronous loading support in JS functions `loadJS()` and `loadCSS()`.
+- `browser`: automatic preloading of JS assets in `twitter-bootstrap`.
+- `file`:
+    - new method: `get_multiple()`;
+    - new argument in method `get()`: `suppress_exception`;
+    - new exceptions: `error.Error`, `error.InvalidFileUidFormat`.
+    - new method: `widget.FilesUpload.get_files()`.
+- `lang`:
+    - new event: `pytsite.lang.translate`;
+    - new API functions: `on_translate()`, `clear_cache()`.
+- `reload`: new API functiosn: `on_before_reload()`, `on_reload()`.
+- `theme`: support for user defined messages translation.
+- `widget`:
+    - new widget: `input.Url`;
+    - new option: `widget.Abstract.h_size_label`.
+
+### Changed
+- `events`: `first()` now returns single element instead of list.
+- `file`: `widget.FilesUpload` now stores and returns files' UIDs instead of file objects.
+- `html`: `Element.append()` now returns appended element instead of self.
+
+### Removed
+- `file`: support for options in `widget.FilesUpload`: `image_max_width` and `image_max_height`.
+- `theme` support for separate theme settings form.
+
+
 ## 2.1 (2017-08-02)
 ### Added
 - `threading`: new function `create_timer()`.

@@ -36,6 +36,7 @@ class Abstract(_ABC):
         self._has_error = kwargs.get('has_error', False)
         self._help = kwargs.get('help')
         self._h_size = kwargs.get('h_size')
+        self._h_size_label = kwargs.get('h_size_label', False)
         self._hidden = kwargs.get('hidden', False)
         self._rules = kwargs.get('rules', [])  # type: _List[_validation.rule.Rule]
         self._form_area = kwargs.get('form_area', 'body')
@@ -491,7 +492,7 @@ class Abstract(_ABC):
         # Append label element
         if self.label and not self._label_disabled:
             label = _html.Label(self.label, label_for=self.uid)
-            if self._h_size:
+            if self._h_size and self._h_size_label:
                 label = label.wrap(_html.Div(css='h-sizer ' + self._h_size))
                 label = label.wrap(_html.Div(css='row'))
             if self._label_hidden:

@@ -58,7 +58,7 @@ def _get_file(value) -> _file.model.AbstractFile:
 
 
 class AnyFile(_odm.field.Abstract):
-    """ODM field to store reference to an image.
+    """ODM field to store reference to an file
     """
 
     def __init__(self, name: str, **kwargs):
@@ -73,7 +73,7 @@ class AnyFile(_odm.field.Abstract):
         """Hook. Transforms externally set value to internal value.
         """
         try:
-            # Extract first image from a list or tuple
+            # Extract first file from a list or tuple
             if isinstance(value, (list, tuple)):
                 value = value[0] if value else None
 
@@ -98,7 +98,7 @@ class AnyFile(_odm.field.Abstract):
 
 
 class AnyFiles(_odm.field.UniqueStringList):
-    """ODM field to store reference to a list of images.
+    """ODM field to store reference to a list of files
     """
 
     def __init__(self, name: str, **kwargs):
@@ -163,7 +163,7 @@ class AnyFiles(_odm.field.UniqueStringList):
 
 class Image(AnyFile):
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
         super().__init__(name, **kwargs)
 
@@ -172,7 +172,7 @@ class Image(AnyFile):
 
 class Images(AnyFiles):
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
         super().__init__(name, **kwargs)
 

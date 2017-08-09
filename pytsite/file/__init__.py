@@ -1,8 +1,8 @@
 """File Plugin Init
 """
 # Public API
-from . import _api as api, _model as model, _widget as widget, _error as error, _driver as driver
-from ._api import create, get
+from . import _model as model, _widget as widget, _error as error, _driver as driver
+from ._api import create, get, get_multiple
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

@@ -119,7 +119,7 @@ class Element(_ABC):
 
         self._children.append(self._validate_child(child))
 
-        return self
+        return child
 
     def get_child_by_uid(self, uid: str, parent=None):
         """Get child by ID.
@@ -138,8 +138,11 @@ class Element(_ABC):
 
     def wrap(self, wrapper):
         if not isinstance(wrapper, Element):
-            raise TypeError('Element expected.')
-        return wrapper.append(self)
+            raise TypeError('Element expected')
+
+        wrapper.append(self)
+
+        return wrapper
 
     def has_css(self, css_class: str) -> bool:
         return css_class in self.get_attr('css', '')

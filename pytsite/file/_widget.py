@@ -12,6 +12,7 @@ __license__ = 'MIT'
 class FilesUpload(_widget.Abstract):
     """Files Upload Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
@@ -21,14 +22,15 @@ class FilesUpload(_widget.Abstract):
         if not self._model:
             raise ValueError('Model is not specified.')
 
+        self._max_files = int(kwargs.get('max_files', 1))
+        if self._max_files < 1:
+            self._max_files = 1
+
         self._css = ' '.join((self._css, 'widget-files-upload'))
         self._max_file_size = int(kwargs.get('max_file_size', 2))
-        self._max_files = int(kwargs.get('max_files', 1))
         self._accept_files = kwargs.get('accept_files', '*/*')
         self._add_btn_label = kwargs.get('add_btn_label', '')
         self._add_btn_icon = kwargs.get('add_btn_icon', 'fa fa-fw fa-plus')
-        self._image_max_width = kwargs.get('image_max_width', 0)
-        self._image_max_height = kwargs.get('image_max_height', 0)
         self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
         self._show_numbers = False if self._max_files == 1 else kwargs.get('show_numbers', True)
         self._dnd = False if self._max_files == 1 else kwargs.get('dnd', True)
@@ -57,22 +59,6 @@ class FilesUpload(_widget.Abstract):
     @add_btn_icon.setter
     def add_btn_icon(self, value: str):
         self._add_btn_icon = value
-
-    @property
-    def image_max_width(self) -> int:
-        return self._image_max_width
-
-    @image_max_width.setter
-    def image_max_width(self, value: int):
-        self._image_max_width = value
-
-    @property
-    def image_max_height(self) -> int:
-        return self._image_max_width
-
-    @image_max_height.setter
-    def image_max_height(self, value: int):
-        self._image_max_height = value
 
     @property
     def max_files(self) -> int:
@@ -117,11 +103,9 @@ class FilesUpload(_widget.Abstract):
     def _get_element(self, **kwargs) -> _html.Element:
         self._data.update({
             'url': _http_api.url('pytsite.file@post'),
-            'max_files': self._max_files if self._max_files else 1,
+            'max_files': self._max_files,
             'max_file_size': self._max_file_size,
             'accept_files': self._accept_files,
-            'image_max_width': self._image_max_width,
-            'image_max_height': self._image_max_height,
             'slot_css': self._slot_css,
             'show_numbers': self._show_numbers,
             'dnd': self._dnd,
@@ -130,23 +114,34 @@ class FilesUpload(_widget.Abstract):
         return _html.TagLessElement(_tpl.render('pytsite.file@file_upload_widget', {'widget': self}))
 
     def set_val(self, value: _Iterable, **kwargs):
-        """Set value of the widget.
+        """Set value of the widget
         """
         if value is None:
             return
 
-        # Convert single
-        if type(value) not in (list, tuple):
-            value = (value,)
+        # Always process value as multiple files
+        if not isinstance(value, (list, tuple)):
+            value = [value]
 
+        # Filter out empty values, sanitize valid values
         clean_val = []
         for val in value:
+            # Empty value
             if not val:
                 continue
+            # Files object convert to string UIDs
             elif isinstance(val, _model.AbstractFile):
                 clean_val.append(val)
+            # Strings remain as is
             elif isinstance(val, str):
-                clean_val.append(_api.get(val))
+                _api.get(val)  # Check if the file exists
+                clean_val.append(val)
+            else:
+                raise TypeError("String or file object expected, got '{}'".format(type(val)))
+
+        # Sanitize storage type
+        if self._max_files == 1:
+            clean_val = clean_val[0] if clean_val else None
 
         # Delete files which are has been removed from the widget on the browser's side,
         # ONLY if the form is not in validation mode
@@ -162,10 +157,21 @@ class FilesUpload(_widget.Abstract):
 
         super().set_val(clean_val, **kwargs)
 
+    def get_files(self) -> _Iterable[_model.AbstractFile]:
+        """Get value of the widget as a list of file objects
+        """
+        value = self.get_val()
+
+        if not isinstance(value, (list, tuple)):
+            value = [value] if value else []
+
+        return [_api.get(fid) for fid in value]
+
 
 class ImagesUpload(FilesUpload):
     """Images Upload Widget.
     """
+
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, model='image', accept_files='image/*', **kwargs)
         self._add_btn_icon = 'fa fa-fw fa-camera'

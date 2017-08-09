@@ -97,7 +97,8 @@ def _init():
 
     # Initialize required core packages. Order is important.
     autoload = ('theme', 'cron', 'stats', 'auth', 'auth_storage_odm', 'auth_web', 'auth_http_api', 'auth_settings',
-                'auth_profile', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api', 'browser', 'plugman', 'testing')
+                'auth_profile', 'reload', 'update', 'setup', 'cleanup', 'odm_http_api', 'browser',
+                'plugman', 'testing')
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 

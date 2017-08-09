@@ -98,10 +98,7 @@ def register(package_name: str):
 
     theme = _theme.Theme(package_name)
 
-    if not _fallback:
-        _fallback = theme
-
-    if theme.package_name == _settings.get('theme.current'):
+    if not _fallback or theme.package_name == _settings.get('theme.current'):
         _fallback = theme
 
     _themes[package_name] = theme

@@ -100,16 +100,28 @@ class Password(Text):
 
 
 class Email(Text):
-    """Email Input Widget.
+    """Email Input Widget
     """
 
     def __init__(self, uid: str, **kwargs):
-        """Init.
+        """Init
         """
         super().__init__(uid, **kwargs)
 
         self._type = 'email'
         self.add_rule(_validation.rule.Email())
+
+
+class Url(Text):
+    """URL Input Widget
+    """
+
+    def __init__(self, uid: str, **kwargs):
+        """Init
+        """
+        super().__init__(uid, **kwargs)
+
+        self.add_rule(_validation.rule.Url())
 
 
 class TextArea(_Abstract):

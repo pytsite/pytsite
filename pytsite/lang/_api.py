@@ -1,13 +1,13 @@
-"""PytSite Language Support
+"""PytSite Localization
 """
 import yaml as _yaml
 import re as _re
 import json as _json
-from typing import List as _List, Callable as _Callable
+from typing import List as _List, Callable as _Callable, Dict as _Dict
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
-from pytsite import lang as _lang, logger as _logger, theme as _theme, threading as _threading
+from pytsite import logger as _logger, theme as _theme, threading as _threading, events as _events
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -19,7 +19,9 @@ _current = {}  # Thread safe current language
 _fallback = None  # type: str
 _packages = {}
 _globals = {}
-_sub_trans_token_re = _re.compile('{:([_a-z0-9@]+)}')
+_translation_strings = {}
+
+_SUB_TRANS_TOKEN_RE = _re.compile('{:([_a-z0-9@]+)}')
 
 _default_regions = {
     'en': 'US',
@@ -95,7 +97,7 @@ def get_current() -> str:
     """Get current language.
     """
     if not _languages:
-        raise RuntimeError("No languages are defined")
+        raise RuntimeError('No languages are defined')
 
     tid = _threading.get_id()
     if tid not in _current:
@@ -108,7 +110,7 @@ def get_primary() -> str:
     """Get primary language.
     """
     if not _languages:
-        raise RuntimeError("No languages are defined")
+        raise RuntimeError('No languages are defined')
 
     return _languages[0]
 
@@ -117,7 +119,7 @@ def get_fallback() -> str:
     """Get fallback language.
     """
     if not _languages:
-        raise RuntimeError("No languages are defined")
+        raise RuntimeError('No languages are defined')
 
     return _fallback
 
@@ -141,12 +143,12 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
 
     if pkg_name in _packages:
         raise _error.PackageAlreadyRegistered("Language package '{}' already registered".format(pkg_name))
-    _packages[pkg_name] = {'__path': lng_dir}
+    _packages[pkg_name] = {'__path': lng_dir, '__is_alias': False}
 
     if alias:
         if alias in _packages:
-            raise RuntimeError("Package alias '{}' already registered".format(alias))
-        _packages[alias] = {'__path': lng_dir}
+            raise RuntimeError("Package '{}' is already registered, so alias can not be registered".format(alias))
+        _packages[alias] = {'__path': lng_dir, '__is_alias': True}
 
 
 def register_global(name: str, handler: _Callable):
@@ -177,8 +179,8 @@ def is_translation_defined(msg_id: str, language: str = None, use_fallback=True)
         return False
 
 
-def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, use_fallback=True) -> str:
-    """Translate a message ID.
+def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = False, use_fallback: bool = True) -> str:
+    """Translate a message
     """
     global _globals
 
@@ -194,29 +196,43 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions=False, us
     # Determining package name and message ID
     package_name, msg_id = _split_msg_id(msg_id)
 
-    # Loading language file data
-    lang_file_content = load_lang_file(package_name, language)
+    # Try to get message translation string from cache
+    cache_key = '{}@{}'.format(package_name, msg_id)
+    msg = _translation_strings.get(cache_key)
 
-    if msg_id not in lang_file_content:
-        # Searching for fallback translation
-        fallback = get_fallback()
-        if use_fallback and fallback != language:
-            return t(package_name + '@' + msg_id, args, fallback, exceptions, False)
-        else:
-            if exceptions:
-                raise _error.TranslationError("Translation is not found for '{}@{}'".format(package_name, msg_id))
-            else:
-                return package_name + '@' + msg_id
+    # Message translation is not found in cache, try to fetch it
+    if not msg:
+        # Try to get translation via event
+        msg = _events.first('pytsite.lang.translate', language=language, package_name=package_name, msg_id=msg_id)
 
-    msg = lang_file_content[msg_id]
+        # Load translation from package's data
+        if not msg:
+            lang_file_content = get_package_translations(package_name, language)
 
-    # Replacing placeholders
+            if msg_id not in lang_file_content:
+                # Searching for fallback translation
+                fallback = get_fallback()
+                if use_fallback and fallback != language:
+                    return t(package_name + '@' + msg_id, args, fallback, exceptions, False)
+                else:
+                    if exceptions:
+                        raise _error.TranslationError(
+                            "Translation is not found for '{}@{}'".format(package_name, msg_id))
+                    else:
+                        return package_name + '@' + msg_id
+
+            msg = lang_file_content[msg_id]
+
+        # Cache translation string
+        _translation_strings[cache_key] = msg
+
+    # Replace placeholders
     if args:
         for k, v in args.items():
             msg = msg.replace(':' + str(k), str(v))
 
-    # Replacing sub-translations
-    msg = _sub_trans_token_re.sub(lambda match: t(match.group(1)), msg)
+    # Replace sub-translations
+    msg = _SUB_TRANS_TOKEN_RE.sub(lambda match: t(match.group(1)), msg)
 
     return msg
 
@@ -261,10 +277,8 @@ def lang_title(language: str = None) -> str:
             return language
 
 
-def load_lang_file(pkg_name: str, language: str = None):
-    """Load package's language file.
-
-    :rtype: dict[str, str]
+def get_package_translations(pkg_name: str, language: str = None) -> _Dict[str, str]:
+    """Load package's language file
     """
     # Is the package registered?
     if not is_package_registered(pkg_name):
@@ -359,18 +373,18 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
 
 
 def build():
-    """Compile translations.
+    """Compile translations
     """
     from pytsite import assetman, console, tpl
 
-    console.print_info(_lang.t('pytsite.assetman@compiling_translations'))
+    console.print_info(t('pytsite.assetman@compiling_translations'))
 
     translations = {}
-    for lang_code in _lang.langs():
+    for lang_code in langs():
         translations[lang_code] = {}
-        for pkg_name, info in _lang.get_packages().items():
+        for pkg_name, info in get_packages().items():
             _logger.info('Compiling translations for {} ({})'.format(pkg_name, lang_code))
-            translations[lang_code][pkg_name] = _lang.load_lang_file(pkg_name, lang_code)
+            translations[lang_code][pkg_name] = get_package_translations(pkg_name, lang_code)
 
     # Write translations to static file
     output_file = _path.join(assetman.get_dst_dir_path('pytsite.lang'), 'translations.js')
@@ -382,9 +396,23 @@ def build():
     with open(output_file, 'wt', encoding='utf-8') as f:
         _logger.info("Writing translations into '{}'".format(output_file))
         f.write(tpl.render('pytsite.lang@translations-js', {
-            'langs_json': _json.dumps(_lang.langs()),
+            'langs_json': _json.dumps(langs()),
             'translations_json': _json.dumps(translations),
         }))
+
+
+def on_translate(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.lang.translate', handler, priority)
+
+
+def clear_cache():
+    """Clear translations cache
+    """
+    global _translation_strings
+
+    _translation_strings = {}
 
 
 def _split_msg_id(msg_id: str) -> list:

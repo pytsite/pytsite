@@ -27,7 +27,7 @@ class Request(_Request):
             is_dict_key = _dict_key_re.match(k)
             is_list_key = _list_key_re.match(k)
 
-            # Key has form 'key[sub_key][]'. Value will be be a list inside of dict.
+            # Key has form 'key[sub_key][]'. Value will be a list inside of a dict.
             if is_dict_list_key:
                 k = is_dict_list_key.group(1)
                 sub_k = is_dict_list_key.group(2)
@@ -41,7 +41,7 @@ class Request(_Request):
                 else:
                     r[k][sub_k].append(v[0])
 
-            # Key has form 'key[sub_key]'. Value will be be a dict.
+            # Key has form 'key[sub_key]'. Value will be a dict.
             elif is_dict_key:
                 k = is_dict_key.group(1)
                 sub_k = is_dict_key.group(2)
@@ -54,7 +54,7 @@ class Request(_Request):
                 k = is_list_key.group(1)
                 r[k] = v
 
-            # Key is simple string. Value will be uses as-is.
+            # Key is simple string. Value will be used as-is.
             else:
                 # Value always is a list. If list has only one item, extract it.
                 if len(v) == 1:

@@ -61,6 +61,8 @@ def _init():
         'pytsite.browser@twitter-bootstrap/css/bootstrap.css',
         'pytsite.browser@twitter-bootstrap/css/add-columns.css',
         'pytsite.browser@twitter-bootstrap/css/add-ons.css',
+        'pytsite.browser@jquery/jquery.js',
+        'pytsite.browser@twitter-bootstrap/js/bootstrap.js',
     ])
 
     # Twitter Bootstrap Table plugin

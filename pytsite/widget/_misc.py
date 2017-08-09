@@ -116,7 +116,8 @@ class BootstrapTable(_base.Abstract):
         )
         t_head = _html.THead()
         t_body = _html.TBody()
-        table.append(t_head).append(t_body)
+        table.append(t_head)
+        table.append(t_body)
 
         # Table head row
         t_head_row = _html.Tr()

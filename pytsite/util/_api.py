@@ -3,7 +3,7 @@
 import random as _random
 import re as _re
 import pytz as _pytz
-from os import mkdir as _mkdir, path as _path, makedirs as _makedirs
+from os import path as _path, makedirs as _makedirs
 from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
 from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
 from frozendict import frozendict as _frozendict
@@ -264,7 +264,7 @@ def dict_merge(a: dict, b: dict) -> dict:
     https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
 
     if not isinstance(a, (dict, _frozendict)) or not isinstance(b, (dict, _frozendict)):
-        raise TypeError('Expected both dictionaries as arguments.')
+        raise TypeError('Expected both dictionaries as arguments')
 
     if isinstance(a, _frozendict):
         a = dict(a)

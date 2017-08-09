@@ -182,9 +182,10 @@ class Browser(_widget.misc.BootstrapTable):
                     ep = btn_data.get('ep')
                     url = _router.rule_url(ep, {'ids': str(entity.id)}) if ep else '#'
                     css = btn_data.get('css', '')
-                    i = _html.I(css='fa fa-fw fa-' + btn_data.get('icon', 'question'))
-                    btn = _html.A(href=url, css=color + css, title=title).append(i)
-                    actions.append(btn).append(_html.TagLessElement('&nbsp;'))
+                    btn = _html.A(href=url, css=color + css, title=title)
+                    btn.append(_html.I(css='fa fa-fw fa-' + btn_data.get('icon', 'question')))
+                    actions.append(btn)
+                    actions.append(_html.TagLessElement('&nbsp;'))
 
                 if not len(actions.children):
                     actions.set_attr('css', actions.get_attr('css') + ' empty')

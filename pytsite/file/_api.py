@@ -1,11 +1,12 @@
-"""File manager.
+"""PytSIte File API
 """
 import os as _os
 import magic as _magic
+from typing import Optional as _Optional, Iterable as _Iterable
 from urllib.request import urlopen as _urlopen, Request as _urllib_request
 from urllib.parse import urlparse as _urlparse
 from pytsite import reg as _reg, util as _util, validation as _validation
-from . import _model, _driver
+from . import _model, _driver, _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,7 +22,7 @@ def get_driver() -> _driver.Abstract:
         driver = driver_class()
 
         if not isinstance(driver, _driver.Abstract):
-            raise TypeError('Invalid driver instance.')
+            raise TypeError('Invalid driver instance')
 
         _current_driver = driver
 
@@ -29,8 +30,8 @@ def get_driver() -> _driver.Abstract:
 
 
 def create(source: str, name: str = None, description: str = None, propose_path: str = None,
-           **kwargs) -> _model.AbstractImage:
-    """Create an image from URL or local file.
+           **kwargs) -> _model.AbstractFile:
+    """Create a file object from a local or remote file
     """
     # Create temporary file
     tmp_file_d, tmp_file_path = _util.mk_tmp_file()
@@ -70,7 +71,7 @@ def create(source: str, name: str = None, description: str = None, propose_path:
     # Validate file's size (in megabytes)
     file_size = _os.stat(tmp_file_path).st_size
     max_file_size_mb = float(_reg.get('file.upload_max_size', '10'))
-    if file_size > (max_file_size_mb * 1048576):
+    if file_size > int(max_file_size_mb * 1048576):
         raise RuntimeError('File size exceeds {} MB'.format(max_file_size_mb))
 
     # Determining file's MIME type
@@ -85,9 +86,29 @@ def create(source: str, name: str = None, description: str = None, propose_path:
     return file_object
 
 
-def get(uid: str) -> _model.AbstractFile:
-    """Get file by UID or relative path.
+def get(uid: str, suppress_exception: bool = False) -> _Optional[_model.AbstractFile]:
+    """Get file by UID
     """
-    return get_driver().get(uid)
+    try:
+        return get_driver().get(uid)
+    except _error.Error as e:
+        if suppress_exception:
+            return None
+
+        raise e
 
 
+def get_multiple(uids: _Iterable, suppress_exceptions: bool = False) -> _Iterable[_model.AbstractFile]:
+    """Get multiple files by UIDs
+    """
+    r = []
+
+    if not uids:
+        return r
+
+    for uid in uids:
+        file = get(uid, suppress_exceptions)
+        if file:
+            r.append(file)
+
+    return r

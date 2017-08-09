@@ -3,7 +3,7 @@ define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
         if (url.indexOf('/') === 0 || url.indexOf('http') === 0)
             return url;
 
-        var pkgName = 'app';
+        var pkgName = $('meta[name="pytsite-theme"]').attr('content');
         var assetPath = url;
         var urlParts = url.split('@');
 
@@ -74,18 +74,61 @@ define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
         return defer;
     }
 
-    function loadJS(loc) {
-        loc = assetUrl(loc);
-        if (!$('script[src^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
-            $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
+    function loadJS(loc, callback, async) {
+        function doLoad() {
+            loc = assetUrl(loc);
+            if (!$('script[src^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
+                $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
+            }
+
+            if (callback)
+                callback(loc);
         }
+
+        if (async === undefined)
+            async = true;
+
+        if (async) {
+            var deferred = $.Deferred();
+
+            setTimeout(function () {
+                doLoad();
+                deferred.resolve();
+            }, 0);
+
+            return deferred;
+        }
+        else
+            doLoad();
     }
 
-    function loadCSS(loc) {
-        loc = assetUrl(loc);
-        if (!$('link[href^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
-            $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
+    function loadCSS(loc, callback, async) {
+        function doLoad() {
+            loc = assetUrl(loc);
+            if (!$('link[href^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
+                $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
+            }
+
+            if (callback)
+                callback(loc);
         }
+
+
+        if (async === undefined)
+            async = true;
+
+        if (async) {
+            var deferred = $.Deferred();
+
+            setTimeout(function () {
+                doLoad();
+                deferred.resolve();
+            }, 0);
+
+            return deferred;
+        }
+        else
+            doLoad();
     }
 
     function parseLocation(skipEmpty) {

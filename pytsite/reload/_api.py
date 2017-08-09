@@ -1,8 +1,8 @@
 """PytSite Reload API Functions
 """
 from os import path as _path
-from threading import Timer
-from pytsite import reg as _reg, events as _events, console as _console, lang as _lang, util as _util
+from pytsite import reg as _reg, events as _events, console as _console, lang as _lang, util as _util, \
+    threading as _threading
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -30,7 +30,19 @@ def _do_reload():
 def reload(delay: float = 0.0):
     """Request reload after delay
     """
-    Timer(delay, _do_reload).start()
+    _threading.create_timer(_do_reload, delay).start()
+
+
+def on_before_reload(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.reload.before', handler, priority)
+
+
+def on_reload(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.reload', handler, priority)
 
 
 def set_flag():

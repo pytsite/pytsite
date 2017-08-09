@@ -77,15 +77,15 @@ def put(uid: str, value: _Any):
     if not entity:
         entity = _odm.dispense('setting').f_set('uid', uid_split[0])
 
-    with entity:
-        stored_value = dict(entity.f_get('value'))
+    with entity as e:
+        stored_value = dict(e.f_get('value'))
         if len(uid_split) == 2:
             stored_value[uid_split[1]] = value
-            entity.f_set('value', stored_value)
+            e.f_set('value', stored_value)
         else:
-            entity.f_set('value', value)
+            e.f_set('value', value)
 
-        entity.save()
+        e.save()
 
 
 def form_url(uid: str) -> str:

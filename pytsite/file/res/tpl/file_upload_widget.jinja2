@@ -1,24 +1,24 @@
 <div class="files-upload-wrapper">
     <div class="slots row">
         {# Slots #}
-        {% if widget.get_val() %}
-            {% for item in widget.get_val() %}
-                <div class="slot content sortable {{ widget.slot_css }}" data-uid="{{ item.uid }}">
-                    <div class="inner">
-                        <div class="thumb"><img class="img-responsive" src="{{ item.get_thumb_url() }}"></div>
-                        <button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>
-                        {% if widget.show_numbers %}
-                            <span class="number"></span>
-                        {% endif %}
-                        <input type="hidden" name="{{ widget.uid }}[]" value="{{ item.uid }}">
-                    </div>
+        {% for item in widget.get_files() %}
+            <div class="slot content sortable {{ widget.slot_css }}" data-uid="{{ item.uid }}">
+                <div class="inner">
+                    <div class="thumb"><img class="img-responsive" src="{{ item.get_thumb_url() }}"></div>
+                    <button type="button" class="btn btn-danger btn-xs btn-remove"><i class="fa fa-remove"></i></button>
+                    {% if widget.show_numbers %}
+                        <span class="number"></span>
+                    {% endif %}
+                    <input type="hidden" name="{{ widget.uid }}[]" value="{{ item.uid }}">
                 </div>
-            {% endfor %}
-        {% endif %}
+            </div>
+        {% endfor %}
 
         {# Progress bar #}
         <div class="hidden slot progress {{ widget.slot_css }}">
-            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;">0%</div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                 style="width: 0;">0%
+            </div>
         </div>
 
         {# 'Add' button #}

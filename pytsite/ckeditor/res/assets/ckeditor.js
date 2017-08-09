@@ -3,8 +3,8 @@ define(['jquery', 'assetman', 'pytsite-lang', 'pytsite-http-api'], function ($, 
         window.CKEDITOR_BASEPATH = '/assets/pytsite.ckeditor/ckeditor/';
 
         assetman.loadCSS('pytsite.ckeditor@ckeditor/skins/moono/editor.css');
-        assetman.loadJS('pytsite.ckeditor@ckeditor/ckeditor.min.js');
-        assetman.loadJS('pytsite.ckeditor@ckeditor/adapters/jquery.js');
+        assetman.loadJS('pytsite.ckeditor@ckeditor/ckeditor.min.js', null, false);
+        assetman.loadJS('pytsite.ckeditor@ckeditor/adapters/jquery.js', null, false);
 
         widget.em.find('textarea').each(function () {
             var editor = $(this).ckeditor({

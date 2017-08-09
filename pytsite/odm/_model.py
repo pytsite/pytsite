@@ -143,7 +143,8 @@ class Entity(_ABC):
         self._is_modified = False
 
         if _dbg:
-            _logger.debug("[ENTITY DATA LOADED FROM DB] {}: {}.".format(self.ref_str, data))
+            caller = _util.format_call_stack_str(' > ', 2)
+            _logger.debug("[ENTITY DATA LOADED FROM DB] {}: {}, called by {}".format(self.ref_str, data, caller))
 
     def define_index(self, definition: _List[_Tuple], unique=False):
         """Define an index.

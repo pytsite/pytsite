@@ -195,40 +195,8 @@ define(['jquery', 'assetman', 'pytsite-http-api', 'pytsite-lang', 'load-image', 
 
             $(widget).trigger('widgetChange');
 
-            for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-
-                // Image resizing
-                var maxWidth = parseInt(widgetEm.data('imageMaxWidth'));
-                var maxHeight = parseInt(widgetEm.data('imageMaxHeight'));
-                if (file.type.split('/')[0] === 'image' && (maxWidth || maxHeight)) {
-                    // Resizing image
-                    loadImage(file, function (canvas) {
-                        canvas.toBlob(function (resizedImage) {
-                            resizedImage.name = file.name;
-                            // Attaching metadata
-                            loadImage.parseMetaData(file, function (metaData) {
-                                if (metaData.imageHead) {
-                                    resizedImage = new Blob([
-                                        metaData.imageHead,
-                                        loadImage.blobSlice.call(resizedImage, 20)
-                                    ], {type: resizedImage.type, name: resizedImage.name});
-                                }
-
-                                // Upload resized image
-                                uploadFile(resizedImage);
-                            });
-                        }, file.type);
-                    }, {
-                        canvas: true,
-                        maxWidth: maxWidth,
-                        maxHeight: maxHeight
-                    });
-                }
-                else {
-                    uploadFile(file);
-                }
-            }
+            for (var i = 0; i < files.length; i++)
+                uploadFile(files[i]);
         });
 
         // Open file select dialog

@@ -46,6 +46,8 @@ def fire(event_name: str, stop_after: int = None, **kwargs) -> list:
 
 
 def first(event: str, **kwargs):
-    """Fires an event and process only one handler.
+    """Fires an event and process only one handler
     """
-    return fire(event, stop_after=1, **kwargs)
+    r = fire(event, stop_after=1, **kwargs)
+
+    return r[0] if r else None

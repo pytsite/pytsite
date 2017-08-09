@@ -10,6 +10,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _cache_pool = _cache.create_pool('pytsite.cron')
+_timer = None  # type: _threading.Timer
 _working = False
 
 
@@ -47,6 +48,7 @@ def _update_stats(part: str) -> dict:
 def _cron_worker():
     """Cron worker.
     """
+    global _timer
     global _working
 
     # Check lock
@@ -96,8 +98,10 @@ def _cron_worker():
         _working = False
 
         # Schedule next cron start
-        _threading.create_timer(_cron_worker, 60).start()
+        _timer = _threading.create_timer(_cron_worker, 60)
+        _timer.start()
 
 
 if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    _threading.create_timer(_cron_worker, 60).start()
+    _timer = _threading.create_timer(_cron_worker, 60)
+    _timer.start()

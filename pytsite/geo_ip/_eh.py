@@ -13,6 +13,6 @@ def cron_weekly():
     """
     # Delete expired entities
     f = _odm.find('geo_ip').lte('_created', _datetime.now() - _timedelta(weeks=1))
-    for e in f.get():
-        with e:
-            e.delete()
+    for entity in f.get():
+        with entity :
+            entity.delete()

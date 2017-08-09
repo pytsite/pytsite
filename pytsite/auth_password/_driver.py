@@ -27,6 +27,7 @@ class _SignInForm(_form.Form):
             label=_lang.t('pytsite.auth_password@login'),
             prepend='<i class="fa fa-user"></i>',
             h_size='col-xs-12 col-sm-6 col-sm-offset-3',
+            h_size_label=True,
             required=True,
             value=_router.request().inp.get('login', ''),
         ))
@@ -37,6 +38,7 @@ class _SignInForm(_form.Form):
             label=_lang.t('pytsite.auth_password@password'),
             prepend='<i class="fa fa-lock"></i>',
             h_size='col-xs-12 col-sm-6 col-sm-offset-3',
+            h_size_label=True,
             required=True,
         ))
 

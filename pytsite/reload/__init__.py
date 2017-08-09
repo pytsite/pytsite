@@ -1,7 +1,7 @@
 """PytSite Reload Package.
 """
 # Public API
-from ._api import reload, set_flag, get_flag
+from ._api import reload, on_before_reload, on_reload, set_flag, get_flag
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

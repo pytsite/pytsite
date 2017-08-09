@@ -132,24 +132,24 @@ class Modify(_form.Form):
         entity = dispense_entity(self._model, self._eid)
 
         # Fill entity fields
-        with entity:
+        with entity as e:
             # Let entity know about form submission
-            entity.odm_ui_m_form_submit(self)
+            e.odm_ui_m_form_submit(self)
 
             # Populate form values to entity
             for f_name, f_value in self.values.items():
-                if entity.has_field(f_name):
-                    entity.f_set(f_name, f_value)
+                if e.has_field(f_name):
+                    e.f_set(f_name, f_value)
 
             try:
                 # Save entity
-                entity.save()
+                e.save()
                 _router.session().add_info_message(_lang.t('pytsite.odm_ui@operation_successful'))
 
-            except Exception as e:
-                _router.session().add_error_message(str(e))
-                _logger.error(str(e), exc_info=e, stack_info=True)
-                raise e
+            except Exception as exc:
+                _router.session().add_error_message(str(exc))
+                _logger.error(str(exc), exc_info=exc, stack_info=True)
+                raise exc
 
         # Process 'special' redirect endpoint
         if self.redirect == 'ENTITY_VIEW':

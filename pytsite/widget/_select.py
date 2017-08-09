@@ -142,13 +142,11 @@ class Checkboxes(Select):
         container.append(_html.Input(type='hidden', name=self.name + '[]'))
         for item in self._items:
             checked = True if item[0] in self.value else False
-            container.append(
-                _html.Div(css='checkbox').append(
-                    _html.Label(item[1]).append(
-                        _html.Input(type='checkbox', name=self.name + '[]', value=item[0], checked=checked)
-                    )
-                )
-            )
+            label = _html.Label(item[1])
+            label.append(_html.Input(type='checkbox', name=self.name + '[]', value=item[0], checked=checked))
+            chkbox = _html.Div(css='checkbox')
+            chkbox.append(label)
+            container.append(chkbox)
 
         return container
 
@@ -211,14 +209,17 @@ class LanguageNav(_Abstract):
                     hl = _hreflang.get(lng)
                     lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
                     if hl:
-                        dropdown_menu.append(
-                            _html.Li().append(_html.A(lng_title, css='lang-' + lng, href=hl)))
+                        li = _html.Li()
+                        li.append(_html.A(lng_title, css='lang-' + lng, href=hl))
+                        dropdown_menu.append(li)
                     else:
                         # Link to homepage
-                        dropdown_menu.append(_html.Li().append(
-                            _html.A(lng_title, css='lang-' + lng, href=_router.base_url(lang=lng))))
+                        li = _html.Li()
+                        li.append(_html.A(lng_title, css='lang-' + lng, href=_router.base_url(lang=lng)))
+                        dropdown_menu.append(li)
 
-            dropdown_root.append(toggle_a).append(dropdown_menu)
+            dropdown_root.append(toggle_a)
+            dropdown_root.append(dropdown_menu)
             root.append(dropdown_root)
         else:
             # Simple list
@@ -226,16 +227,19 @@ class LanguageNav(_Abstract):
                 lng_title = self._language_titles.get(lng) or _lang.lang_title(lng)
                 if lng == self._language:
                     # Active language
-                    root.append(_html.Li(css='active').append(
-                        _html.A(lng_title, css='lang-' + lng, href=_router.current_url(), title=lng_title)))
+                    li = _html.Li(css='active')
+                    li.append(_html.A(lng_title, css='lang-' + lng, href=_router.current_url(), title=lng_title))
+                    root.append(li)
                 elif _hreflang.get(lng):
                     # Inactive language, related link
-                    root.append(_html.Li().append(
-                        _html.A(lng_title, css='lang-' + lng, href=_hreflang.get(lng), title=lng_title)))
+                    li = _html.Li()
+                    li.append(_html.A(lng_title, css='lang-' + lng, href=_hreflang.get(lng), title=lng_title))
+                    root.append(li)
                 else:
                     # Link to homepage, no related link found
-                    root.append(_html.Li().append(
-                        _html.A(lng_title, css='lang-' + lng, href=_router.base_url(lang=lng), title=lng_title)))
+                    li = _html.Li()
+                    li.append(_html.A(lng_title, css='lang-' + lng, href=_router.base_url(lang=lng), title=lng_title))
+                    root.append(li)
 
         return root
 
@@ -354,13 +358,15 @@ class Pager(_Abstract):
         # Link to the first page
         li = _html.Li(css='first-page')
         a = _html.A('«', title=_lang.t('pytsite.widget@first_page'), href=_router.url(links_url, query={'page': 1}))
-        ul.append(li.append(a))
+        li.append(a)
+        ul.append(li)
 
         # Link to the previous page
         li = _html.Li(css='previous-page')
         a = _html.A('‹', title=_lang.t('pytsite.widget@previous_page'),
                     href=_router.url(links_url, query={'page': self._current_page - 1}))
-        ul.append(li.append(a))
+        li.append(a)
+        ul.append(li)
 
         # Links to visible pages
         for num in range(start_visible_num, end_visible_num + 1):
@@ -369,19 +375,22 @@ class Pager(_Abstract):
                 li.set_attr('css', 'page active')
             a = _html.A(str(num), title=_lang.t('pytsite.widget@page_num', {'num': num}),
                         href=_router.url(links_url, query={'page': num}))
-            ul.append(li.append(a))
+            li.append(a)
+            ul.append(li)
 
         # Link to the next page
         li = _html.Li(css='next-page')
         a = _html.A('›', title=_lang.t('pytsite.widget@next_page'),
                     href=_router.url(links_url, query={'page': self._current_page + 1}))
-        ul.append(li.append(a))
+        li.append(a)
+        ul.append(li)
 
         # Link to the last page
         li = _html.Li(css='last-page')
         a = _html.A('»', title=_lang.t('pytsite.widget@page_num', {'num': self._total_pages}),
                     href=_router.url(links_url, query={'page': self._total_pages}))
-        ul.append(li.append(a))
+        li.append(a)
+        ul.append(li)
 
         return ul
 
@@ -444,15 +453,14 @@ class Tabs(_Abstract):
         tab_panel = _html.Div(role='tabpanel')
         tabs_nav = _html.Ul(css='nav nav-tabs', role='tablist')
         tabs_content = _html.Div(css='tab-content')
-        tab_panel.append(tabs_nav).append(tabs_content)
+        tab_panel.append(tabs_nav)
+        tab_panel.append(tabs_content)
 
         tab_count = 0
         for tab_id, tab in self._tabs.items():
-            tabs_nav.append(
-                _html.Li(role='presentation', css='active' if tab_count == 0 else '').append(
-                    _html.A(tab['title'], href='#tab-uid-' + tab_id, role='tab', data_toggle='tab')
-                )
-            )
+            li = _html.Li(role='presentation', css='active' if tab_count == 0 else '')
+            li.append(_html.A(tab['title'], href='#tab-uid-' + tab_id, role='tab', data_toggle='tab'))
+            tabs_nav.append(li)
             tab_content_css = 'tabpanel tab-pane'
             tab_content_css += ' active' if tab_count == 0 else ''
             tab_content_div = _html.Div('', css=tab_content_css, uid='tab-uid-' + tab_id)
