@@ -16,8 +16,6 @@ class FilesUpload(_widget.Abstract):
     def __init__(self, uid: str, **kwargs):
         """Init.
         """
-        super().__init__(uid, **kwargs)
-
         self._model = kwargs.get('model')
         if not self._model:
             raise ValueError('Model is not specified.')
@@ -26,7 +24,6 @@ class FilesUpload(_widget.Abstract):
         if self._max_files < 1:
             self._max_files = 1
 
-        self._css = ' '.join((self._css, 'widget-files-upload'))
         self._max_file_size = int(kwargs.get('max_file_size', 2))
         self._accept_files = kwargs.get('accept_files', '*/*')
         self._add_btn_label = kwargs.get('add_btn_label', '')
@@ -34,7 +31,11 @@ class FilesUpload(_widget.Abstract):
         self._slot_css = kwargs.get('slot_css', 'col-xs-B-12 col-xs-6 col-md-3 col-lg-2')
         self._show_numbers = False if self._max_files == 1 else kwargs.get('show_numbers', True)
         self._dnd = False if self._max_files == 1 else kwargs.get('dnd', True)
+
+        super().__init__(uid, **kwargs)
+
         self._js_module = 'pytsite-file-widget-files-upload'
+        self._css = ' '.join((self._css, 'widget-files-upload'))
 
     @property
     def accept_files(self) -> str:
@@ -131,7 +132,7 @@ class FilesUpload(_widget.Abstract):
                 continue
             # Files object convert to string UIDs
             elif isinstance(val, _model.AbstractFile):
-                clean_val.append(val)
+                clean_val.append(val.uid)
             # Strings remain as is
             elif isinstance(val, str):
                 _api.get(val)  # Check if the file exists

@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 3.0.2 (2017-08-10)
+### Fixed
+- `file`: value processing in `widget.FilesUpload`.
+
+
 ## 3.0.1 (2017-08-09)
 ### Fixed
 - `lang`: incorrect cache keys format.
