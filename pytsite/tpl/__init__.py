@@ -1,5 +1,6 @@
 # Public API
 import jinja2 as _jinja
+import json as _json
 from typing import Mapping as _Mapping
 from datetime import datetime as _datetime
 from importlib.util import find_spec as _find_module_spec
@@ -71,10 +72,6 @@ def _date_filter(value: _datetime, fmt: str = 'pretty_date') -> str:
         return value.strftime(fmt)
 
 
-def _nl2br_filter(value: str) -> str:
-    return value.replace('\n', _jinja.Markup('<br>'))
-
-
 def is_package_registered(package_name: str):
     """Check if the package already registered.
     """
@@ -141,4 +138,5 @@ _env.globals['reg_get'] = _reg.get
 _env.globals['nav_link'] = _util.nav_link
 _env.globals['url_parse'] = _urlparse
 _env.filters['date'] = _date_filter
-_env.filters['nl2br'] = _nl2br_filter
+_env.filters['nl2br'] = lambda value: value.replace('\n', _jinja.Markup('<br>'))
+_env.filters['tojson'] = lambda obj: _json.dumps(obj)

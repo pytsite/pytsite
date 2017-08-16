@@ -25,8 +25,8 @@ def _init():
     assetman.js_module('jquery', __name__ + '@jquery/jquery')
 
     # jQuery UI
-    assetman.js_module('jquery-ui-main', __name__ + '@jquery-ui/jquery-ui')
-    assetman.js_module('jquery-ui', __name__ + '@jquery-ui/index')
+    assetman.js_module('jquery-ui-vendor', __name__ + '@jquery-ui/jquery-ui')
+    assetman.js_module('jquery-ui', __name__ + '@jquery-ui/jquery-ui-loader')
 
     # jQuery Mousewheel
     assetman.js_module('jquery-mousewheel', __name__ + '@jquery-mousewheel/jquery.mousewheel')
@@ -35,7 +35,7 @@ def _init():
     assetman.js_module('jquery-scroll-to', __name__ + '@jquery-scroll-to/jquery.scrollTo')
 
     # jQuery Inputmask
-    assetman.js_module('jquery-inputmask', __name__ + '@jquery-inputmask/jquery.inputmask.bundle')
+    assetman.js_module('jquery-inputmask', __name__ + '@jquery-inputmask/jquery.inputmask.bundle', True, ['jquery'])
 
     # jQuery Date Time Picker
     assetman.js_module('jquery-date-time-picker', __name__ + '@jquery-date-time-picker/jquery.datetimepicker')
@@ -56,31 +56,33 @@ def _init():
     ])
 
     # Twitter Bootstrap
-    assetman.js_module('twitter-bootstrap', __name__ + '@twitter-bootstrap/twitter-bootstrap')
+    assetman.js_module('twitter-bootstrap-vendor', __name__ + '@twitter-bootstrap/js/bootstrap', True, ['jquery'])
+    assetman.js_module('twitter-bootstrap', __name__ + '@twitter-bootstrap/twitter-bootstrap-loader')
     assetman.library('twitter-bootstrap', [
         'pytsite.browser@twitter-bootstrap/css/bootstrap.css',
         'pytsite.browser@twitter-bootstrap/css/add-columns.css',
         'pytsite.browser@twitter-bootstrap/css/add-ons.css',
-        'pytsite.browser@jquery/jquery.js',
-        'pytsite.browser@twitter-bootstrap/js/bootstrap.js',
     ])
 
     # Twitter Bootstrap Table plugin
-    assetman.js_module('twitter-bootstrap-table', __name__ + '@twitter-bootstrap-table/module')
+    assetman.js_module('twitter-bootstrap-table-vendor', __name__ + '@twitter-bootstrap-table/bootstrap-table',
+                       True, ['jquery'])
+    assetman.js_module('twitter-bootstrap-table', __name__ + '@twitter-bootstrap-table/twitter-bootstrap-table-loader')
 
     # Twitter Bootstrap Tokenfield plugin
-    assetman.js_module('twitter-bootstrap-tokenfield-main',
+    assetman.js_module('twitter-bootstrap-tokenfield-vendor',
                        __name__ + '@twitter-bootstrap-tokenfield/bootstrap-tokenfield')
-    assetman.js_module('twitter-bootstrap-tokenfield', __name__ + '@twitter-bootstrap-tokenfield/index')
+    assetman.js_module('twitter-bootstrap-tokenfield',
+                       __name__ + '@twitter-bootstrap-tokenfield/bootstrap-tokenfield-loader')
 
     # Twitter Typeahead
     assetman.js_module('bloodhound', __name__ + '@typeahead/bloodhound')
-    assetman.js_module('typeahead-main', __name__ + '@typeahead/typeahead.jquery')
-    assetman.js_module('typeahead', __name__ + '@typeahead/typeahead')
+    assetman.js_module('typeahead-vendor', __name__ + '@typeahead/typeahead.jquery')
+    assetman.js_module('typeahead', __name__ + '@typeahead/typeahead-loader')
 
     # Select2
-    assetman.js_module('select2-main', __name__ + '@select2/select2.full')
-    assetman.js_module('select2', __name__ + '@select2/index')
+    assetman.js_module('select2-main', __name__ + '@select2/select2')
+    assetman.js_module('select2', __name__ + '@select2/select2-loader')
 
     # Canvas to Blob
     assetman.js_module('canvas-to-blob', __name__ + '@canvas-to-blob/canvas-to-blob')

@@ -16,7 +16,10 @@ def _init():
     assetman.register_package(__name__)
     assetman.t_copy(__name__ + '@ckeditor/**', 'ckeditor')
     assetman.t_js(__name__ + '@*.js')
-    assetman.js_module('ckeditor', __name__ + '@ckeditor')
+
+    assetman.js_module('ckeditor-vendor', __name__ + '@ckeditor/ckeditor.min', True)
+    assetman.js_module('ckeditor-jquery', __name__ + '@ckeditor/adapters/jquery', True, ['jquery'])
+    assetman.js_module('ckeditor', __name__ + '@ckeditor-loader')
 
 
 _init()

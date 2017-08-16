@@ -124,7 +124,8 @@ define(['jquery'], function ($) {
                     initCallback(self);
                 }
                 else {
-                    console.warn(self.jsModule + ' does not return a proper callback');
+                    console.warn(self.jsModule + ' did not return a proper callback');
+                    console.warn(self.jsModule + ' returned ' + initCallback);
                 }
             });
         }

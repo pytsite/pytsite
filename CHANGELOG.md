@@ -1,6 +1,20 @@
 # PytSite Changelog
 
 
+## 3.1 (2017-08-16)
+### Added
+- `assetman`: support for shim RequireJS's modules.
+- `tpl`: new filter: `tojson`.
+
+### Changed
+- `assetman`:
+    - RequireJS upgraded from 2.3.3 to 2.3.4;
+    - JS resources now load synchronously by default.
+
+### Fixed
+- `assetman`: asynchronous resources loading error.
+
+
 ## 3.0.2 (2017-08-10)
 ### Fixed
 - `file`: value processing in `widget.FilesUpload`.

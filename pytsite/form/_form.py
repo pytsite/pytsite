@@ -94,7 +94,7 @@ class Form(_ABC):
 
         # Assets
         _assetman.preload('pytsite.form@css/form.css')
-        _assetman.preload('pytsite.form@js/index.js')
+        _assetman.preload('pytsite.form@js/pytsite-form.js')
 
         # Setup form
         self._on_setup_form(**kwargs)

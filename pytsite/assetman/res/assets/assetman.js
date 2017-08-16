@@ -15,120 +15,51 @@ define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
         return location.origin + '/assets/' + pkgName + '/' + assetPath + '?v=' + tStamps[pkgName];
     }
 
-    function loadAssets(loc) {
-        var defer = $.Deferred();
+    function loadResource(resType, resLoc, callbackFunc, async) {
+        resLoc = assetUrl(resLoc).replace(/\?v=[0-9a-f]+/, '');
 
-        setTimeout(function () {
-            var loadedLocationsCount = 0;
-
-            if (loc instanceof String)
-                loc = [loc];
-
-            if (loc.length) {
-                for (var i = 0; i < loc.length; i++) {
-                    var assetSrc, assetType;
-
-                    if (typeof loc[i] === 'string') {
-                        assetSrc = loc[i];
-                        if (loc[i].indexOf('.js') > 0)
-                            assetType = 'js';
-                        else if (loc[i].indexOf('.css') > 0)
-                            assetType = 'css';
-                    }
-                    else if (loc[i] instanceof Array) {
-                        assetSrc = loc[i][0];
-                        if (loc[i][1] === 'js')
-                            assetType = 'js';
-                        else if (loc[i][1] === 'css')
-                            assetType = 'css';
-                    }
-
-                    switch (assetType) {
-                        case 'js':
-                            loadJS(assetSrc, i)
-                                .done(function () {
-                                    if (++loadedLocationsCount === loc.length)
-                                        defer.resolve();
-                                });
-                            break;
-
-                        case 'css':
-                            loadCSS(assetSrc, i)
-                                .done(function () {
-                                    if (++loadedLocationsCount === loc.length)
-                                        defer.resolve();
-                                });
-                            break;
-
-                        default:
-                            defer.reject();
-                            throw "Cannot determine type of the asset '" + assetSrc + "'.";
-                    }
-                }
-            }
-            else {
-                defer.resolve();
-            }
-        }, 0);
-
-        return defer;
-    }
-
-    function loadJS(loc, callback, async) {
-        function doLoad() {
-            loc = assetUrl(loc);
-            if (!$('script[src^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
-                $('body').append($('<script type="text/javascript" src="' + loc + '"></script>'));
-            }
-
-            if (callback)
-                callback(loc);
-        }
-
+        // Async is default for CSS but not for JS
         if (async === undefined)
-            async = true;
+            async = resType !== 'JS';
 
-        if (async) {
+        // Call self in async manner
+        if (async === true) {
             var deferred = $.Deferred();
 
             setTimeout(function () {
-                doLoad();
+                // It is important to pass 'false' as last argument!
+                loadResource(resType, resLoc, callbackFunc, false);
                 deferred.resolve();
             }, 0);
 
             return deferred;
         }
-        else
-            doLoad();
+
+        switch (resType) {
+            case 'css':
+                if (!$('link[href^="' + resLoc + '"]').length)
+                    $('head').append($('<link rel="stylesheet" href="' + resLoc + '">'));
+                break;
+
+            case 'js':
+                if (!$('script[src^="' + resLoc + '"]').length)
+                    $('body').append($('<script type="text/javascript" src="' + resLoc + '"></script>'));
+                break;
+
+            default:
+                throw 'Unexpected resource type: ' + resType;
+        }
+
+        if (callbackFunc)
+            callbackFunc(resLoc);
     }
 
-    function loadCSS(loc, callback, async) {
-        function doLoad() {
-            loc = assetUrl(loc);
-            if (!$('link[href^="' + loc.replace(/\?v=[0-9a-f]+/, '') + '"]').length) {
-                $('head').append($('<link rel="stylesheet" href="' + loc + '">'));
-            }
+    function loadJS(location, callback, async) {
+        return loadResource('js', location, callback, async)
+    }
 
-            if (callback)
-                callback(loc);
-        }
-
-
-        if (async === undefined)
-            async = true;
-
-        if (async) {
-            var deferred = $.Deferred();
-
-            setTimeout(function () {
-                doLoad();
-                deferred.resolve();
-            }, 0);
-
-            return deferred;
-        }
-        else
-            doLoad();
+    function loadCSS(location, callback, async) {
+        return loadResource('css', location, callback, async)
     }
 
     function parseLocation(skipEmpty) {
@@ -204,7 +135,6 @@ define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
 
     return {
         assetUrl: assetUrl,
-        loadAssets: loadAssets,
         loadJS: loadJS,
         loadCSS: loadCSS,
         parseLocation: parseLocation,

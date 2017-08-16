@@ -1,4 +1,4 @@
-define(['jquery', 'pytsite-lang'], function ($, lang) {
+define(['jquery'], function ($) {
     function url(endpoint, data, version) {
         if (typeof version === 'undefined' || version === null) {
             version = '1';
@@ -18,7 +18,7 @@ define(['jquery', 'pytsite-lang'], function ($, lang) {
             url: url(endpoint, null, version),
             method: method,
             data: data,
-            headers: {'PytSite-Lang': lang.current()}
+            headers: {'PytSite-Lang': document.documentElement.getAttribute('lang')}
         };
 
         if (data instanceof FormData) {

@@ -21,7 +21,7 @@ _package_aliases = {}  # type: _Dict[str, str]
 _libraries = {}  # type: _Dict[str, _Union[_Iterable, _Callable[..., _Iterable]]]
 
 _tasks = []  # type: _List[_Tuple]
-_requirejs_modules = {}  # type: _Dict[str, str]
+_requirejs_modules = {}  # type: _Dict[str, tuple]
 
 _locations = {}
 _last_weight = {}
@@ -443,13 +443,13 @@ def t_browserify(location: str, target: str = '', babelify: bool = False, vueify
     _add_task(location, 'browserify', target, babelify=babelify, vueify=vueify)
 
 
-def js_module(name: str, location: str):
+def js_module(name: str, location: str, shim: bool = False, deps: list = None, exports: str = None):
     """Define a RequireJS module.
     """
     if name in _requirejs_modules:
         raise ValueError("RequireJS module '{}' is already defined")
 
-    _requirejs_modules[name] = location
+    _requirejs_modules[name] = (location, shim, deps, exports)
 
 
 def _update_js_config_file(file_path: str, tpl_name: str, data: dict):
@@ -460,7 +460,7 @@ def _update_js_config_file(file_path: str, tpl_name: str, data: dict):
             _makedirs(dir_path, 0o755, True)
 
         with open(file_path, 'wt') as f:
-            f.write(_tpl.render(tpl_name, {'data': _json.dumps(data)}))
+            f.write(_tpl.render(tpl_name, {'data': data}))
 
     # Read contents of the file
     with open(file_path, 'rt') as f:
@@ -471,27 +471,35 @@ def _update_js_config_file(file_path: str, tpl_name: str, data: dict):
 
         try:
             json_data = _json.loads(json_str)  # type: dict
-        except _json.JSONDecodeError:
-            # Remove corrupted file and re-run this function to reconstruct it
+        except _json.JSONDecodeError as e:
+            # Remove corrupted file and re-run this function to reconstruct the file
             _console.print_warning('{} is corrupted and will be rebuilt'.format(file_path))
             _unlink(file_path)
             return _update_js_config_file(file_path, tpl_name, data)
 
-    # Update JSON data
-    if tpl_name == 'pytsite.assetman@requirejs-config':
-        json_data = json_data.get('paths', {})
+    json_data = _util.dict_merge(json_data, data)
 
-    json_data.update(data)
     with open(file_path, 'wt') as f:
-        f.write(_tpl.render(tpl_name, {'data': _json.dumps(json_data)}, False))
+        f.write(_tpl.render(tpl_name, {'data': json_data}, False))
 
 
-def _update_requirejs_config(rjs_module_name: str, rjs_module_asset_path: str):
+def _update_requirejs_config(rjs_module_name: str, rjs_module_asset_path: str, shim: bool = False, deps: list = None,
+                             exports: str = None):
     f_path = _path.join(_reg.get('paths.assets'), 'pytsite.assetman', 'require-config.js')
 
-    _update_js_config_file(f_path, 'pytsite.assetman@requirejs-config', {
-        rjs_module_name: rjs_module_asset_path
-    })
+    data = {
+        'paths': {rjs_module_name: rjs_module_asset_path}
+    }
+
+    if shim:
+        data['shim'] = {rjs_module_name: {
+            'deps': deps or []
+        }}
+
+        if exports:
+            data['shim'][rjs_module_name]['exports'] = exports
+
+    _update_js_config_file(f_path, 'pytsite.assetman@requirejs-config', data)
 
 
 def _update_timestamp_config(package_name: str):
@@ -556,14 +564,18 @@ def build(package_name: str):
     _update_timestamp_config(package_name)
 
     # Update RequireJS config
-    for rjs_module_name, rjs_module_asset_location in _requirejs_modules.items():
-        definer_package_name, rjs_module_asset_path = _split_location_info(rjs_module_asset_location)
+    for rjs_module_name, rjs_module_asset_data in _requirejs_modules.items():
+        m_asset_location = rjs_module_asset_data[0]
+        m_shim = rjs_module_asset_data[1]
+        m_deps = rjs_module_asset_data[2]
+        m_exports = rjs_module_asset_data[3]
+        definer_package_name, m_asset_path = _split_location_info(m_asset_location)
         if package_name != definer_package_name:
             continue
 
         package_timestamp = _get_build_timestamp(definer_package_name)
-        rjs_module_asset_path = '{}/{}.js?v={}'.format(definer_package_name, rjs_module_asset_path, package_timestamp)
-        _update_requirejs_config(rjs_module_name, rjs_module_asset_path)
+        m_asset_path = '{}/{}.js?v={}'.format(definer_package_name, m_asset_path, package_timestamp)
+        _update_requirejs_config(rjs_module_name, m_asset_path, m_shim, m_deps, m_exports)
 
 
 def build_all():

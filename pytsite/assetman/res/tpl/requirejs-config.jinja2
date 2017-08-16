@@ -1,4 +1,5 @@
 requirejs.config({
-    "baseUrl": "/assets",
-    "paths": {{ data }}
+    "baseUrl": "/assets"{% if 'paths' in data %},
+    "paths":  {{ data.paths | tojson }} {% endif %}{% if 'shim' in data %},
+    "shim": {{ data.shim | tojson }}{% endif %}
 });

@@ -22,19 +22,22 @@ def _init():
     tpl.register_package(__name__)
     assetman.register_package(__name__)
 
+    # JS modules
+    assetman.js_module('pytsite-admin-lte', __name__ + '@AdminLTE/js/app', True, ['jquery', 'twitter-bootstrap'])
+
     # Assetman tasks
-    assetman.t_js('pytsite.admin@**/*.js')
-    assetman.t_css('pytsite.admin@**/*.css')
-    assetman.t_less('pytsite.admin@**/*.less')
+    assetman.t_js(__name__ + '@**')
+    assetman.t_css(__name__ + '@**')
+    assetman.t_less(__name__ + '@**')
 
     # Assets
     assetman.preload('font-awesome', True, path_prefix=bp)
-    assetman.preload('twitter-bootstrap', True)
+    assetman.preload('twitter-bootstrap', True, path_prefix=bp)
     assetman.preload('pytsite.admin@AdminLTE/css/AdminLTE.css', True, path_prefix=bp)
     assetman.preload('pytsite.admin@AdminLTE/css/skins/skin-blue.css', True, path_prefix=bp)
     assetman.preload('pytsite.admin@css/custom.css', True, path_prefix=bp)
     assetman.preload('pytsite.admin@css/admin-form.css', True, path_prefix=bp)
-    assetman.preload('pytsite.admin@js/index.js', True, path_prefix=bp)
+    assetman.preload('pytsite.admin@js/pytsite-admin.js', True, path_prefix=bp)
 
     # Permissions
     permissions.define_permission('pytsite.admin.use', 'pytsite.admin@use_admin_panel', 'app')
