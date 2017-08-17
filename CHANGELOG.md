@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 3.1.1 (2017-08-17)
+### Added
+- `admin`: events on sidebar item add.
+
+
 ## 3.1 (2017-08-16)
 ### Added
 - `assetman`: support for shim RequireJS's modules.

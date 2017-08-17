@@ -1,6 +1,7 @@
-"""PytSite Admin Sidebar API.
+"""PytSite Admin Sidebar API
 """
-from pytsite import auth as _auth, util as _util, html as _html, lang as _lang, router as _router, reg as _reg
+from pytsite import auth as _auth, util as _util, html as _html, lang as _lang, router as _router, reg as _reg, \
+    events as _events
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,7 +13,7 @@ _last_section_weight = 0
 
 
 def get_section(sid: str) -> dict:
-    """Get section.
+    """Get a section
     """
     global _menus
 
@@ -25,7 +26,7 @@ def get_section(sid: str) -> dict:
 
 
 def add_section(sid: str, title: str, weight: int = 0, permissions='*', sort_items_by: str = 'weight'):
-    """Add a section.
+    """Add a section
     :param permissions: str|tuple
     """
     global _last_section_weight, _sections, _menus
@@ -50,7 +51,7 @@ def add_section(sid: str, title: str, weight: int = 0, permissions='*', sort_ite
 
 
 def get_menu(sid: str, mid: str) -> dict:
-    """Get a menu of a section.
+    """Get a menu of a section
     """
     section = get_section(sid)
     if not section:
@@ -63,7 +64,7 @@ def get_menu(sid: str, mid: str) -> dict:
 
 def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, label: str = None,
              label_class: str = 'primary', weight: int = 0, permissions='*', replace=False):
-    """Add a menu to a section.
+    """Add a menu to a section
 
     :type permissions: str|tuple
     """
@@ -82,7 +83,7 @@ def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, 
     if isinstance(permissions, str) and permissions != '*':
         permissions = (permissions,)
 
-    _menus[sid].append({
+    menu_data = {
         'sid': sid,
         'mid': mid,
         'title': title,
@@ -93,7 +94,12 @@ def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, 
         'weight': weight,
         'children': [],
         'permissions': permissions
-    })
+    }
+
+    _events.fire('pytsite.admin.sidebar.add_menu', menu_data=menu_data)
+    _events.fire('pytsite.admin.sidebar.add_menu.{}.{}'.format(sid, mid), menu_data=menu_data)
+
+    _menus[sid].append(menu_data)
 
     # Sort menu items
     if section['sort_items_by'] == 'title':
@@ -104,7 +110,7 @@ def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, 
 
 
 def del_menu(sid: str, mid: str):
-    """delete menu from section.
+    """Delete a menu from a section
     """
     section = get_section(sid)
     if not section:
@@ -119,7 +125,7 @@ def del_menu(sid: str, mid: str):
 
 
 def render() -> _html.Aside:
-    """Render the admin sidebar.
+    """Render admin's sidebar
     """
     aside_em = _html.Aside(css='main-sidebar')
     sidebar_section_em = _html.Section(css='sidebar')
@@ -183,6 +189,8 @@ def render() -> _html.Aside:
 
 
 def _check_permissions(item: dict) -> bool:
+    """Check user's permissions
+    """
     user = _auth.get_current_user()
     if user.is_anonymous:
         return False
