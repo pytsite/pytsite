@@ -38,21 +38,27 @@ define(['jquery'], function ($) {
         if (fullSizeUrl === undefined)
             fullSizeUrl = cont.data('responsive-bg-url');
 
-        var enlarge = cont.data('enlarge');
-        var aspect_ratio = cont.data('aspectRatio');
-        var orig_width = parseInt(cont.data('width'));
-        var new_width = _align_length(_getParentWidth(cont));
-        var new_height = 0;
+        var enlarge = cont.data('enlarge') === 'True';
+        var aspectRatio = cont.data('aspectRatio');
+        var origWidth = parseInt(cont.data('width'));
+        var parentContainerWidth = _getParentWidth(cont);
+        var newWidth = origWidth;
+        var newHeight = 0;
 
-        if (aspect_ratio !== undefined && aspect_ratio !== 'None')
-            new_height = _align_length(parseInt(new_width / parseFloat(aspect_ratio)));
+        // If enlarging is necessary
+        if (origWidth < parentContainerWidth) {
+            if (enlarge)
+                newWidth = _align_length(parentContainerWidth);
+        }
+        else {
+            newWidth = _align_length(parentContainerWidth);
+        }
 
-        if (enlarge === 'True' || new_width <= orig_width)
-            return fullSizeUrl.replace('/0/0/', '/' + new_width + '/' + new_height + '/');
-        else if (new_height > 0)
-            return fullSizeUrl.replace('/0/0/', '/0/' + new_height + '/');
-        else
-            return fullSizeUrl.replace('/0/0/', '/' + new_width + '/0/');
+        // If aspect ratio was specified
+        if (aspectRatio !== undefined && aspectRatio !== 'None')
+            newHeight = _align_length(parseInt(newWidth / parseFloat(aspectRatio)));
+
+        return fullSizeUrl.replace('/0/0/', '/' + newWidth + '/' + newHeight + '/');
     }
 
     function _getImgElement(cont) {

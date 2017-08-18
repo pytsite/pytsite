@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 3.1.2 (2017-08-18)
+### Fixed
+- `browser`: responsive images enlarging error is JS code.
+
+
 ## 3.1.1 (2017-08-17)
 ### Added
 - `admin`: events on sidebar item add.
