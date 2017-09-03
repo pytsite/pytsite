@@ -43,6 +43,7 @@ class Int(Formatter):
     def set_val(self, value: str):
         try:
             value = int(value)
+
             if self._min is not None and value < self._min:
                 value = self._min
             if self._max is not None and value > self._max:

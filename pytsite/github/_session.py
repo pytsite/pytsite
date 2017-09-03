@@ -118,9 +118,9 @@ class Session:
         """
         return self.paginated_request('repos/{}/{}/tags'.format(owner, repo))
 
-    def repo_contents(self, owner: str, repo: str, path: str) -> dict:
+    def repo_contents(self, owner: str, repo: str, path: str, ref: str = 'master') -> dict:
         """Get repository's contents
 
         https://developer.github.com/v3/repos/contents/#get-contents
         """
-        return self.request('repos/{}/{}/contents/{}'.format(owner, repo, path))
+        return self.request('repos/{}/{}/contents/{}'.format(owner, repo, path), ref=ref)

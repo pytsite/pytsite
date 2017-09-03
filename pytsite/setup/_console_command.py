@@ -47,6 +47,3 @@ class Setup(_console.Command):
             f.write(_datetime.now().isoformat())
 
         _console.print_info(_lang.t('pytsite.setup@setup_has_been_completed'))
-
-        # Run 'update' to build updates info file
-        _console.run_command('update', {'stage': 2})

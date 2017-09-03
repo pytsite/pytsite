@@ -10,8 +10,8 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, tpl, lang, router, admin, permissions
-    from . import _api, _model, _controllers, _frm
+    from pytsite import odm, tpl, lang, router, admin, permissions, events
+    from . import _api, _model, _controllers, _frm, _eh
 
     # Resources
     lang.register_package(__name__)
@@ -32,6 +32,10 @@ def _init():
     # Define default application settings form
     permissions.define_permission('app.settings.manage', __name__ + '@manage_app_settings', 'app')
     define('app', _frm.Application, __name__ + '@application', 'fa fa-cube', 'app.settings.manage')
+
+    # Event handlers
+    router.on_dispatch(_eh.on_dispatch)
+    events.listen('pytsite.update.4_0_0', _eh.on_update_4_0_0)
 
 
 _init()

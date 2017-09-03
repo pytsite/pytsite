@@ -134,8 +134,8 @@ class Parser(_abstract.Parser, _xml.Serializable):
         """
         channel = self.get_children('channel')[0]
         if not channel.has_children('generator'):
-            generator_str = '{}-{} ({})'.format(_package_info.name('pytsite'), _package_info.version('pytsite'),
-                                                _package_info.url('pytsite'))
+            d = _package_info.data('pytsite')
+            generator_str = '{}-{} ({})'.format(d['name'], d['version'], d['url'])
             channel.append_child(_em.Generator(generator_str), 0)
             channel.append_child(_em.PubDate(_datetime.now()), 1)
             channel.append_child(_em.LastBuildDate(_datetime.now()), 2)

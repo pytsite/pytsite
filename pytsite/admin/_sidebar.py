@@ -102,10 +102,9 @@ def add_menu(sid: str, mid: str, title: str, href: str = '#', icon: str = None, 
     _menus[sid].append(menu_data)
 
     # Sort menu items
-    if section['sort_items_by'] == 'title':
-        _menus[sid] = sorted(_menus[sid], key=lambda x: x['title'])
-    else:
-        # Default sorting is by weight
+    # Sorting by weight performs at this point
+    # Sorting by title will be performed every time when menu is being rendered
+    if section['sort_items_by'] == 'weight':
         _menus[sid] = _util.weight_sort(_menus[sid])
 
 
@@ -139,9 +138,12 @@ def render() -> _html.Aside:
 
     # Filter by permissions
     for section in _sections:
+        # Permission to view section
         if not _check_permissions(section):
             continue
         render_sections.append(section)
+
+        # Permission to view menu
         render_menus[section['sid']] = []
         for menu in _menus[section['sid']]:
             if _check_permissions(menu):
@@ -155,8 +157,14 @@ def render() -> _html.Aside:
         li = _html.Li(_lang.t(section['title']), css='header', data_section_weight=section['weight'])
         root_menu_ul.append(li)
 
+        # Sort items by translated title
+        if section['sort_items_by'] == 'title':
+            section_menus = sorted(render_menus[section['sid']], key=lambda x: _lang.t(x['title']))
+        else:
+            section_menus = render_menus[section['sid']]
+
         # Building top level menu item
-        for menu in render_menus[section['sid']]:
+        for menu in section_menus:
             # Link
             href = _router.url(menu['href'])
             a = _html.A(href=href)

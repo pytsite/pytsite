@@ -7,7 +7,7 @@ validation_datetime: 'Некорректная дата'
 validation_odmentitieslist: ':detail'
 validation_odmfieldunique: 'Должно быть уникальным'
 validation_url: 'Некорректный URL'
-validation_url_row: 'Некорректный URL (строка :row)'
+validation_urllist: "':value' не является корректным URL"
 validation_float: 'Ожидается число с плавающей запятой'
 validation_greater: 'Должно быть больше :than'
 validation_greaterorequal: 'Должно быть больше или равно :than'

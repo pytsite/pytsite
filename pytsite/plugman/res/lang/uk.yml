@@ -6,21 +6,22 @@ description: 'Опис'
 url: 'URL'
 actions: 'Дії'
 install: 'Встановити'
-uninstall: 'Видалити'
 upgrade: 'Оновити'
+uninstall: 'Видалити'
 confirm_plugin_install: 'Ви дійсно хотите встановити цей плагін?'
-confirm_plugin_upgrade: 'Ви дійсно хотите оновити цей плагін?'
 confirm_plugin_uninstall: 'Ви дійсно хотите видалити цей плагін?'
 license: 'Ліцензія'
 invalid_license: 'Неіснуюча або прострочена ліцензія'
 license_expires_at: 'Закінчується :date'
-upgrading_plugin: 'Оновлення плагіна :name (:old_ver -> :new_ver)...'
+upgrading_plugin: "Оновлення плагіна ':name' (:old_ver -> :new_ver)..."
 cannot_manage_plugins_in_dev_mode: 'Неможливо керувати плагінами в режимі розробки'
 installing_plugin: "Встановлення плагіна ':plugin'..."
-plugin_install_success: "Плагін :plugin-:version було успішно встановлено"
+plugin_install_success: "Плагін :plugin було успішно встановлено"
 plugin_install_error: "Помилка при встановленні плагіна ':plugin': :msg"
 uninstalling_plugin: "Видалення плагіна ':plugin'..."
 plugin_uninstall_success: "Плагін ':plugin' було успішно видалено"
 console_command_description_install: 'Встановлення плагін'
-console_command_description_upgrade: 'Оновлення плагін'
+console_command_description_uninstall: 'Видалення плагін'
 upgrading_plugins: 'Оновлюю плагіни'
+plugins_not_specified: 'Не вказано імена плагін'
+plugin_has_dependant_plugins: "Від плагіна ':plugin' залежать плагіни :dependants"

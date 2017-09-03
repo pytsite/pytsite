@@ -6,21 +6,22 @@ description: 'Description'
 url: 'URL'
 actions: 'Actions'
 install: 'Install'
-uninstall: 'Uninstall'
 upgrade: 'Upgrade'
+uninstall: 'Uninstall'
 confirm_plugin_install: 'Do you really want to install this plugin?'
-confirm_plugin_upgrade: 'Do you really want to upgrade this plugin?'
 confirm_plugin_uninstall: 'Do you really want to uninstall this plugin?'
 license: 'License'
 invalid_license: 'Invalid or expired license'
 license_expires_at: 'Expires at :date'
-upgrading_plugin: 'Upgrading plugin :name (:old_ver -> :new_ver)...'
+upgrading_plugin: "Upgrading plugin ':name' (:old_ver -> :new_ver)..."
 cannot_manage_plugins_in_dev_mode: 'Unable to manage plugins in development mode'
 installing_plugin: "Installing plugin ':plugin'..."
-plugin_install_success: "Plugin :plugin-:version has been successfully installed"
+plugin_install_success: "Plugin :plugin has been successfully installed"
 plugin_install_error: "Error while installing plugin ':plugin': :msg"
 uninstalling_plugin: "Uninstalling plugin ':plugin'..."
 plugin_uninstall_success: "Plugin ':plugin' has been successfully uninstalled"
 console_command_description_install: 'Install plugin(s)'
-console_command_description_upgrade: 'Upgrade plugin(s)'
-upgrading_plugins: 'Upgrading plugins'
+console_command_description_uninstall: 'Uninstall plugin(s)'
+upgrading_plugins: 'Upgrading plugin(s)'
+plugins_not_specified: 'Plugin(s) are not specified'
+plugin_has_dependant_plugins: "Following plugins depend from :plugin: :dependants"

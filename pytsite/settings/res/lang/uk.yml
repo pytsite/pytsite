@@ -7,3 +7,6 @@ application_name: "Ім'я додатка (:lang)"
 manage_app_settings: 'Керування налаштуваннями додатка'
 links: 'Посилання'
 add_link: 'Додати посилання'
+home_page_title: 'Title головної сторінки (:lang)'
+home_page_description: 'Description головної сторінки (:lang)'
+home_page_keywords: 'Keywords головної сторінки (:lang)'

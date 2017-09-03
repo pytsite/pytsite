@@ -34,7 +34,7 @@ class PostUpgrade(_routing.Controller):
         if not _auth.get_current_user().has_permission('pytsite.plugman.manage'):
             raise self.forbidden()
 
-        info = _api.upgrade(self.arg('name'))
+        _api.install(self.arg('name'))
         _reload.reload()
 
-        return info
+        return {'status': True}

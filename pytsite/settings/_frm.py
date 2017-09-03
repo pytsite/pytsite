@@ -88,24 +88,44 @@ class Application(Form):
         """
         # Application names
         w = 10
-        for l in _lang.langs(include_neutral=False):
+        for l in _lang.langs():
             self.add_widget(_widget.input.Text(
                 uid='setting_app_name_' + l,
                 weight=w,
-                label=_lang.t('pytsite.settings@application_name', {'lang': _lang.lang_title(l)}),
+                label=_lang.t('pytsite.settings@application_name', {'lang': _lang.lang_title(l)}, l),
                 default=_lang.t('app@app_name'),
             ))
+            w += 1
 
+            self.add_widget(_widget.input.Text(
+                uid='setting_home_title_' + l,
+                label=_lang.t('pytsite.settings@home_page_title', {'lang': _lang.lang_title(l)}, l),
+                weight=w,
+            ))
+            w += 1
+
+            self.add_widget(_widget.input.Text(
+                uid='setting_home_description_' + l,
+                label=_lang.t('pytsite.settings@home_page_description', {'lang': _lang.lang_title(l)}, l),
+                weight=w,
+            ))
+            w += 1
+
+            self.add_widget(_widget.input.Tokens(
+                uid='setting_home_keywords_' + l,
+                label=_lang.t('pytsite.settings@home_page_keywords', {'lang': _lang.lang_title(l)}, l),
+                weight=w,
+            ))
             w += 1
 
         # Links
         self.add_widget(_widget.input.StringList(
             uid='setting_links',
-            weight=20,
+            weight=200,
             label=_lang.t('pytsite.settings@links'),
             add_btn_label=_lang.t('pytsite.settings@add_link'),
             unique=True,
-            rules=_validation.rule.Url(),
+            rules=_validation.rule.UrlList(),
         ))
 
         # It is important to call super method AFTER

@@ -1,6 +1,6 @@
 """PytSite ODM Fields
 """
-from typing import Any as _Any, Iterable as _Iterable, Union as _Union
+from typing import Any as _Any, Iterable as _Iterable, Union as _Union, List as _List, Optional as _Optional
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
@@ -69,10 +69,10 @@ class Abstract(_ABC):
         if _dbg:
             _logger.debug("[FIELD UID CHANGED] {} -> {}".format(prev_uid, uid))
 
-    def _on_get(self, internal_value, **kwargs):
+    def _on_get(self, value, **kwargs):
         """Hook. Transforms internal value to external one.
         """
-        return internal_value
+        return value
 
     def get_val(self, **kwargs) -> _Any:
         """Get value of the field.
@@ -84,15 +84,15 @@ class Abstract(_ABC):
 
         return value
 
-    def _on_get_storable(self, internal_value, **kwargs):
+    def _on_get_storable(self, value):
         """Hook.
         """
-        return internal_value
+        return value
 
     def as_storable(self, **kwargs):
         """Get value suitable to store in the database.
         """
-        return self._on_get_storable(self._value, **kwargs)
+        return self._on_get_storable(self._value)
 
     def _on_get_jsonable(self, internal_value, **kwargs):
         """Hook.
@@ -105,19 +105,35 @@ class Abstract(_ABC):
         return self._on_get_jsonable(self._value, **kwargs)
 
     def _on_set_default(self, value):
-        """Hook. Called when default value is being set in constructor.
+        """Hook. Called when default value is being set in constructor
         """
         return value
 
+    def _on_set_storable(self, value):
+        """Hook, called by self.set_storable_val()
+        """
+        return value
+
+    def set_storable_val(self, value):
+        """Called by entity constructor when loading field's raw data from a database
+        """
+        if _dbg:
+            _logger.debug("[FIELD] {}.{}.set_storable_val({})".format(self._uid, self._name, repr(self._value)))
+
+        self._value = self._on_set_storable(value)
+
+        return self
+
     def _on_set(self, value, **kwargs):
-        """Hook. Transforms externally set value to internal value.
+        """Hook, called by self.set_val()
         """
         return value
 
     def set_val(self, value, **kwargs):
-        """Set value of the field.
+        """Set value of the field
         """
         if value is None:
+            # Set default value
             self._value = self._default
         else:
             # Pass value through the hook
@@ -129,7 +145,7 @@ class Abstract(_ABC):
         return self
 
     def clr_val(self):
-        """Reset field's value to default.
+        """Reset field's value to default
         """
         self._value = self._default
 
@@ -139,57 +155,57 @@ class Abstract(_ABC):
         return self
 
     def _on_add(self, internal_value, value_to_add, **kwargs):
-        """Hook.
+        """Hook, called by self.add_val()
         """
         return internal_value + value_to_add
 
     def add_val(self, value_to_add, **kwargs):
-        """Add a value to the field.
+        """Add a value to the field
         """
         return self.set_val(self._on_add(self._value, value_to_add, **kwargs), **kwargs)
 
-    def _on_sub(self, internal_value, value_to_sub, **kwargs):
-        """Hook.
+    def _on_sub(self, current_value, value_to_sub, **kwargs):
+        """Hook, called by self.sub_val()
         """
-        return internal_value - value_to_sub
+        return current_value - value_to_sub
 
     def sub_val(self, value_to_sub, **kwargs):
-        """Remove a value from the field.
+        """Subtract a value from the field
         """
         return self.set_val(self._on_sub(self._value, value_to_sub, **kwargs), **kwargs)
 
     def _on_inc(self, **kwargs):
-        """Hook.
+        """Hook, called by self.inc_val()
         """
-        raise ArithmeticError('Value of this field cannot be incremented.')
+        raise NotImplementedError('Value of this field cannot be incremented')
 
     def inc_val(self, **kwargs):
-        """Increment a value of the field.
+        """Increment the value of the field
         """
         return self.set_val(self._value + self._on_inc(**kwargs), **kwargs)
 
     def _on_dec(self, **kwargs):
-        """Hook.
+        """Hook, called by self.dec_val()
         """
-        raise ArithmeticError('Value of this field cannot be decremented.')
+        raise NotImplementedError('Value of this field cannot be decremented')
 
     def dec_val(self, **kwargs):
-        """Increment a value of the field.
+        """Decrement the value of the field
         """
         return self.set_val(self._value - self._on_dec(**kwargs), **kwargs)
 
     def on_entity_delete(self):
-        """Hook method to provide for the entity notification mechanism about its deletion.
+        """Hook method to provide for fields notification mechanism about entity deletion.
         """
         pass
 
     def sanitize_finder_arg(self, arg):
-        """Hook. Used for sanitizing Finder's query argument.
+        """Hook used for sanitizing Finder's query argument
         """
         return arg
 
     def __str__(self) -> str:
-        """Stringify field's value.
+        """Stringify field's value
         """
         return str(self.get_val())
 
@@ -211,10 +227,10 @@ class List(Abstract):
 
         super().__init__(name, **kwargs)
 
-    def _on_get(self, internal_value, **kwargs) -> tuple:
+    def _on_get(self, value, **kwargs) -> tuple:
         """Get value of the field.
         """
-        return tuple(internal_value)
+        return tuple(value)
 
     def _on_set(self, value, **kwargs):
         """Set value of the field.
@@ -255,7 +271,7 @@ class List(Abstract):
 
         return value
 
-    def _on_add(self, internal_value, value_to_add, **kwargs):
+    def _on_add(self, current_value, value_to_add, **kwargs):
         """Add a value to the field.
         """
         if not isinstance(value_to_add, self._allowed_types):
@@ -263,10 +279,10 @@ class List(Abstract):
                             format(self._name, type(value_to_add), self._allowed_types))
 
         # Checking length
-        if self._max_len is not None and (len(internal_value) + 1) > self._max_len:
+        if self._max_len is not None and (len(current_value) + 1) > self._max_len:
             raise ValueError("Value length cannot be more than {}.".format(self._max_len))
 
-        r = internal_value
+        r = current_value
 
         # Checking for unique value
         if self._unique:
@@ -284,7 +300,7 @@ class List(Abstract):
 
         return r
 
-    def _on_sub(self, internal_value, value_to_sub, **kwargs):
+    def _on_sub(self, current_value, value_to_sub, **kwargs):
         """Subtract value from list.
         """
         if not isinstance(value_to_sub, self._allowed_types):
@@ -292,10 +308,10 @@ class List(Abstract):
                             format(self._name, type(value_to_sub), self._allowed_types))
 
         # Checking length
-        if self._min_len is not None and len(internal_value) == self._min_len:
+        if self._min_len is not None and len(current_value) == self._min_len:
             raise ValueError("Value length cannot be less than {}.".format(self._min_len))
 
-        return [v for v in internal_value if v != value_to_sub]
+        return [v for v in current_value if v != value_to_sub]
 
 
 class UniqueList(List):
@@ -309,33 +325,57 @@ class UniqueList(List):
 
 
 class Dict(Abstract):
-    """Dictionary field.
+    """Dictionary field
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
 
         :param default: dict
         :param keys: tuple
         :param nonempty_keys: tuple
         """
-        self._keys = kwargs.get('keys', ())
-        self._nonempty_keys = kwargs.get('nonempty_keys', ())
+        self._keys = kwargs.get('keys', ())  # Required keys
+        self._nonempty_keys = kwargs.get('nonempty_keys', ())  # Required keys which must be non-empty
+        self._dotted_keys = kwargs.get('dotted_keys', False)
+        self._dotted_keys_replacement = kwargs.get('dotted_keys_replacement', ':')
 
         kwargs['default'] = kwargs.get('default', {})
 
         super().__init__(name, **kwargs)
 
-    def _on_get(self, internal_value, **kwargs):
-        """Get value of the field.
+    def _on_get(self, value, **kwargs):
+        """Hook
         """
-        return _frozendict(internal_value)
+        # Don't allow to change value outside the field's object
+        return _frozendict(value)
 
-    def _on_get_storable(self, internal_value, **kwargs):
-        return dict(internal_value)
+    def _on_set_storable(self, value) -> dict:
+        """Hook
+        """
+        if self._dotted_keys:
+            new_value = {}
+            for k, v in value.items():
+                new_value[k.replace(self._dotted_keys_replacement, '.')] = v
 
-    def _on_set(self, value: _Union[dict, _frozendict], **kwargs):
-        """Set value of the field.
+            return new_value
+
+        return super()._on_set_storable(value)
+
+    def _on_get_storable(self, value) -> dict:
+        """Hook
+        """
+        if self._dotted_keys:
+            new_value = {}
+            for k, v in value.items():
+                new_value[k.replace('.', self._dotted_keys_replacement)] = v
+
+            return new_value
+
+        return value
+
+    def _on_set(self, value: _Union[dict, _frozendict], **kwargs) -> dict:
+        """Hook
         """
         if type(value) not in (dict, _frozendict):
             raise TypeError("Value of the field '{}' should be a dict. Got '{}'.".format(self._name, type(value)))
@@ -356,13 +396,13 @@ class Dict(Abstract):
 
         return value
 
-    def _on_add(self, internal_value, value_to_add: _Union[dict, _frozendict], **kwargs):
+    def _on_add(self, current_value, value_to_add: _Union[dict, _frozendict], **kwargs) -> dict:
         """Add a value to the field.
         """
         if type(value_to_add) not in (dict, _frozendict):
             raise TypeError("Value of the field '{}' must be a dict.".format(self._name))
 
-        r = dict(internal_value) if isinstance(internal_value, _frozendict) else internal_value
+        r = dict(current_value) if isinstance(current_value, _frozendict) else current_value
         r.update(value_to_add)
 
         return r
@@ -418,10 +458,10 @@ class Ref(Abstract):
     def model(self) -> str:
         return self._model
 
-    def _on_set(self, value, **kwargs):
-        """Hook.
+    def _on_set(self, value, **kwargs) -> _Optional[_bson_DBRef]:
+        """Hook
 
-        :type value: pytsite.odm._model.Entity | _bson_DBRef | str | None
+        :type value: pytsite.odm.model.Entity | _bson_DBRef | str | None
         """
         from ._model import Entity
 
@@ -430,7 +470,7 @@ class Ref(Abstract):
             if len(value):
                 value = value[0]
             else:
-                return
+                return None
 
         if isinstance(value, (_bson_DBRef, str, Entity)):
             from ._api import resolve_ref
@@ -441,20 +481,22 @@ class Ref(Abstract):
 
         return value
 
-    def _on_get(self, internal_value, **kwargs):
-        """Hook.
+    def _on_get(self, value, **kwargs):
+        """Hook
+
+        :rtype: _Optional[pytsite.odm.model.Entity]
         """
-        if internal_value is not None:
+        if value is not None:
             from ._api import get_by_ref
-            entity = get_by_ref(internal_value)
+            entity = get_by_ref(value)
             if entity:
                 if self._model != '*' and entity.model != self._model:
                     raise TypeError("Entity of model '{}' expected.".format(self._model))
-                internal_value = entity
+                value = entity
             else:
-                internal_value = None
+                value = None
 
-        return internal_value
+        return value
 
     def _on_get_jsonable(self, internal_value, **kwargs):
         """Get serializable representation of the field's value.
@@ -495,7 +537,7 @@ class RefsList(List):
     def model(self) -> str:
         return self._model
 
-    def _on_set(self, value, **kwargs):
+    def _on_set(self, value, **kwargs) -> _List[_bson_DBRef]:
         """Set value of the field.
         """
         from ._model import Entity
@@ -518,15 +560,15 @@ class RefsList(List):
 
         return r
 
-    def _on_get(self, internal_value, **kwargs):
+    def _on_get(self, value, **kwargs):
         """Get value of the field.
 
-        :rtype: _Tuple[pytsite.odm._model.Entity]
+        :rtype: _Tuple[pytsite.odm.model.Entity, ...]
         """
         from ._api import get_by_ref
 
         r = []
-        for dbref in internal_value:
+        for dbref in value:
             entity = get_by_ref(dbref)
             if entity:
                 if self._model != '*' and entity.model != self._model:
@@ -544,7 +586,7 @@ class RefsList(List):
 
         return tuple(r)
 
-    def _on_add(self, internal_value, value_to_add, **kwargs):
+    def _on_add(self, current_value, value_to_add, **kwargs):
         """Add a value to the field.
         """
         from ._model import Entity
@@ -555,9 +597,9 @@ class RefsList(List):
         else:
             raise TypeError("Entity expected.")
 
-        return super()._on_add(internal_value, value_to_add, **kwargs)
+        return super()._on_add(current_value, value_to_add, **kwargs)
 
-    def _on_sub(self, internal_value, value_to_sub, **kwargs):
+    def _on_sub(self, current_value, value_to_sub, **kwargs):
         """Subtract value fom the field.
         """
         from ._model import Entity
@@ -568,7 +610,7 @@ class RefsList(List):
         else:
             raise TypeError("Entity expected.")
 
-        return super()._on_sub(internal_value, value_to_sub, **kwargs)
+        return super()._on_sub(current_value, value_to_sub, **kwargs)
 
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.
@@ -610,8 +652,8 @@ class DateTime(Abstract):
 
         super().__init__(name, **kwargs)
 
-    def _on_set(self, value: _datetime, **kwargs):
-        """Set field's value.
+    def _on_set(self, value: _datetime, **kwargs) -> _datetime:
+        """Set field's value
         """
         if not isinstance(value, _datetime):
             raise TypeError("DateTime expected, got {}: {}".format(type(value), value))
@@ -621,8 +663,8 @@ class DateTime(Abstract):
 
         return value
 
-    def _on_get(self, value: _datetime, **kwargs):
-        """Get field's value.
+    def _on_get(self, value: _datetime, **kwargs) -> _Union[_datetime, str]:
+        """Get field's value
         """
         fmt = kwargs.get('fmt')
         if fmt:
@@ -758,10 +800,10 @@ class MultiLineString(String):
 
 
 class Email(String):
-    """Email field.
+    """Email field
     """
 
-    def _on_set(self, value: str, **kwargs):
+    def _on_set(self, value: str, **kwargs) -> str:
         v_msg_id = 'pytsite.odm@validation_field_email'
         v_msg_args = {'field': self.name}
 
@@ -847,29 +889,29 @@ class Decimal(Abstract):
 
         return value
 
-    def _on_get_storable(self, internal_value, **kwargs):
-        """Get storable value of the field.
+    def _on_get_storable(self, value):
+        """Get storable value of the field
         """
-        return float(internal_value)
+        return float(value)
 
-    def _on_set(self, value, **kwargs):
+    def _on_set(self, value, **kwargs) -> _Decimal:
         """Set value of the field.
 
         :type value: _Decimal | float | int | str
         """
         return self._sanitize_type(value)
 
-    def _on_add(self, internal_value, value_to_add, **kwargs):
+    def _on_add(self, current_value, value_to_add, **kwargs) -> _Decimal:
         """
         :type value_to_add: _Decimal | float | integer | str
         """
-        return internal_value + self._sanitize_type(value_to_add)
+        return current_value + self._sanitize_type(value_to_add)
 
-    def _on_sub(self, internal_value, value_to_sub, **kwargs):
+    def _on_sub(self, current_value, value_to_sub, **kwargs):
         """
         :type value: _Decimal | float | integer | str
         """
-        return internal_value - self._sanitize_type(value_to_sub)
+        return current_value - self._sanitize_type(value_to_sub)
 
 
 class Bool(Abstract):
@@ -883,7 +925,7 @@ class Bool(Abstract):
 
         super().__init__(name, **kwargs)
 
-    def _on_set(self, value: bool, **kwargs):
+    def _on_set(self, value: bool, **kwargs) -> bool:
         """Set value of the field.
         """
         return bool(value)
@@ -938,7 +980,7 @@ class DecimalList(List):
         """
         super().__init__(name, allowed_types=(float, _Decimal), **kwargs)
 
-    def _on_set(self, value: _Iterable[_Decimal], **kwargs):
+    def _on_set(self, value: _Iterable[_Decimal], **kwargs) -> _List[_Decimal]:
         r = []
         for item in value:
             if not isinstance(value, _Decimal):
@@ -950,17 +992,17 @@ class DecimalList(List):
 
         return r
 
-    def _on_add(self, value: _Decimal, **kwargs):
-        if not isinstance(value, _Decimal):
-            if isinstance(value, float):
-                value = str(value)
+    def _on_add(self, current_value: _Decimal, **kwargs):
+        if not isinstance(current_value, _Decimal):
+            if isinstance(current_value, float):
+                current_value = str(current_value)
 
-            value = _Decimal(value)
+            current_value = _Decimal(current_value)
 
-        return super().add_val(value, **kwargs)
+        return super().add_val(current_value, **kwargs)
 
-    def _on_get_storable(self, internal_value, **kwargs):
-        return [float(i) for i in internal_value]
+    def _on_get_storable(self, value) -> _List[float]:
+        return [float(i) for i in value]
 
 
 class ListList(List):

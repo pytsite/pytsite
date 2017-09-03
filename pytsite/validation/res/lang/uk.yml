@@ -7,7 +7,7 @@ validation_datetime: 'Некоректна дата'
 validation_odmentitieslist: ':detail'
 validation_odmfieldunique: 'Повинно бути унікальним'
 validation_url: 'Некоректний URL'
-validation_url_row: 'Некоректний URL (рядок :row)'
+validation_urllist: "':value' не є коректним URL"
 validation_float: 'Очікується число з плаваючою комою'
 validation_greater: 'Повинно бути більш ніж :than'
 validation_greaterorequal: 'Повинно бути більшим або дорівнювати :than'

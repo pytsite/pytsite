@@ -1,6 +1,26 @@
 # PytSite Changelog
 
 
+## 4.0.0 (2017-09-03)
+### Added
+- `auth`: prompt for first admin password while setup.
+- `console`: optional trace printing in `print_error()`.
+- `github`: new argument `ref` in `repo_contents()`.
+- `http_api`: verbose HTTP exceptions logging in debug mode.
+- `odm`: new hook method in `Entity`: `_on_set_storable()`.
+- `settings`: home page metatag settings.
+- `util`: new functions: `is_url()`, `load_json`, `install_pip_package`,
+  `get_installed_pip_package_info`, `get_installed_pip_package_version`,
+  `is_pip_package_installed`.
+- `valiadation`:  new rule: `UrlList`.
+
+### Changed
+- `admin`: sidebar sorting is now language aware.
+- `odm`: `Entity.as_db_object()` renamed to `as_storable()`.
+- `semver`, `package_info`, `plugman`: greatly refactored.
+- `plugman': switched to HTTP API version 2.
+
+
 ## 3.1.2 (2017-08-18)
 ### Fixed
 - `browser`: responsive images enlarging error is JS code.

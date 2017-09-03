@@ -1,7 +1,7 @@
 """PytSite HTTP API Endpoints
 """
 from pytsite import router as _router, logger as _logger, lang as _lang, events as _events, routing as _routing, \
-    http as _http, formatters as _formatters, errors as _errors
+    http as _http, formatters as _formatters, errors as _errors, reg as _reg
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -13,7 +13,7 @@ class Entry(_routing.Controller):
     def __init__(self):
         super().__init__()
 
-        self.args.add_formatter('version', _formatters.Int())
+        self.args.add_formatter('http_api_version', _formatters.Int())
 
     def exec(self):
         version = self.args.pop('http_api_version')
@@ -63,7 +63,12 @@ class Entry(_routing.Controller):
             raise _http.error.Forbidden(e)
 
         except _http.error.Base as e:
-            _logger.error('{} {}: {}'.format(request_method, current_path, e.description))
+            log_msg = '{} {}: {}'.format(request_method, current_path, e.description)
+
+            if _reg.get('debug'):
+                _logger.error(log_msg, exc_info=e)
+            else:
+                _logger.error(log_msg)
 
             if e.response and isinstance(e.response, _http.response.JSON):
                 response = e.response

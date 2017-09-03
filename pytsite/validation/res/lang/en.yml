@@ -7,7 +7,7 @@ validation_datetime: 'Invalid date'
 validation_odmentitieslist: ':detail'
 validation_odmfieldunique: 'Must be unique'
 validation_url: 'Invalid URL'
-validation_url_row: 'Invalid URL (row :row)'
+validation_urllist: "':value' is not a valid URL"
 validation_float: 'Float number expected'
 validation_greater: 'Must be greater than :than'
 validation_greaterorequal: 'Must be greater or equals :than'
@@ -23,6 +23,7 @@ validation_length: 'Must be longer than :min_length and shorter than :max_length
 validation_minlength: 'Must be longer than :min_length'
 validation_maxlength: 'Must be shorter than :max_length'
 validation_choice: "':value' is not in :options"
+
 
 list_expected: 'List expected, got :got'
 dict_expected: 'Dict expected, got :got'

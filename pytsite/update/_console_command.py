@@ -106,6 +106,7 @@ class Update(_console.Command):
                         # Notify listeners
                         _logger.info('pytsite.update event, version={}'.format(major_minor_rev))
                         _events.fire('pytsite.update', version=major_minor_rev)
+                        _events.fire('pytsite.update.{}'.format(major_minor_rev.replace('.', '_')))
 
                         # Saving number as applied update
                         state.add(major_minor_rev)

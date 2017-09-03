@@ -131,6 +131,10 @@ def print_warning(msg: str):
     _print(msg, COLOR_WARNING)
 
 
-def print_error(msg: str):
-    _logger.error(msg)
+def print_error(msg: str, exc_info: Exception = None):
+    if exc_info:
+        _logger.error(msg, exc_info)
+    else:
+        _logger.error(msg)
+
     _print(msg, COLOR_ERROR)

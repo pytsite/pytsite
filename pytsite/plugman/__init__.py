@@ -1,9 +1,11 @@
 """PytSite Plugin Manager.
 """
 # Public API
+from sys import exit as _exit
 from . import _error as error
-from ._api import get_plugins_path, get_plugin_info, install, uninstall, is_installed, start, is_started, \
-    get_installed_plugins, get_remote_plugins, get_required_plugins, is_api_host, is_api_dev_host
+from ._api import plugins_path, plugin_info, install, uninstall, is_installed, start, is_started, \
+    plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
+    get_allowed_version_range
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,8 +16,8 @@ _plugman_started = False
 
 def _init():
     from os import mkdir, path
-    from pytsite import settings, lang, assetman, permissions, http_api, logger, console, setup, update
-    from . import _settings_form, _eh, _http_api_controllers, _console_command
+    from pytsite import settings, lang, assetman, permissions, http_api, console, setup, update
+    from . import _settings_form, _http_api_controllers, _console_command
 
     # Resources
     lang.register_package(__name__)
@@ -25,15 +27,15 @@ def _init():
     assetman.t_js(__name__ + '@**')
 
     # Create 'plugins' package
-    plugins_path = get_plugins_path()
-    if not path.exists(plugins_path):
-        mkdir(plugins_path, 0o755)
-        with open(path.join(plugins_path, '__init__.py'), 'wt') as f:
+    plugins_dir_path = plugins_path()
+    if not path.exists(plugins_dir_path):
+        mkdir(plugins_dir_path, 0o755)
+        with open(path.join(plugins_dir_path, '__init__.py'), 'wt') as f:
             f.write('"""Pytsite Application Plugins.\n"""\n')
 
     # Console commands
     console.register_command(_console_command.Install())
-    console.register_command(_console_command.Upgrade())
+    console.register_command(_console_command.Uninstall())
 
     # HTTP API
     http_api.handle('POST', 'plugman/install/<name>', _http_api_controllers.PostInstall(),
@@ -43,7 +45,7 @@ def _init():
     http_api.handle('POST', 'plugman/upgrade/<name>', _http_api_controllers.PostUpgrade(),
                     'pytsite.plugman@post_upgrade')
 
-    if not is_api_dev_host():
+    if not is_dev_mode():
         # Permissions
         permissions.define_permission('pytsite.plugman.manage', 'pytsite.plugman@plugin_management', 'app')
 
@@ -52,16 +54,17 @@ def _init():
                         'pytsite.plugman.manage')
 
         # Event handlers
-        setup.on_setup(_eh.setup, 999)
-        update.on_update_after(_eh.update_after)
+        setup.on_setup(lambda: console.run_command('plugman:install', {'reload': False}), 999)
+        update.on_update_after(lambda: console.run_command('plugman:install', {'reload': False}))
 
     # Start installed plugins
-    for p_name in get_installed_plugins():
+    for p_name in plugins_info():
         try:
             if not is_started(p_name):
                 start(p_name)
         except error.PluginStartError as e:
-            logger.error(e, exc_info=e)
+            console.print_error(str(e), exc_info=e)
+            _exit(1)
 
     global _plugman_started
     _plugman_started = True

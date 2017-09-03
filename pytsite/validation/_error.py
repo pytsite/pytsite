@@ -17,7 +17,7 @@ class RuleError(ValueError):
         return self._msg_id
 
     @property
-    def msg_args(self) -> str:
+    def msg_args(self) -> dict:
         return self._msg_args
 
     def __str__(self) -> str:

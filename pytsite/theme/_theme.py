@@ -17,16 +17,8 @@ class Theme:
     def __init__(self, package_name: str):
         """Init
         """
-        # Check requirements
-        _package_info.check_requirements(package_name, 'theme.json')
-
         # Load package data from JSON file
-        pkg_data = _package_info.parse_json(package_name, 'theme.json')
-
-        # Check data
-        for k in ('name', 'description', 'version'):
-            if k not in pkg_data or not pkg_data[k]:
-                raise _error.ThemeInitError("'{}' is not found or empty in theme's JSON".format(k))
+        pkg_data = _package_info.data(package_name)
 
         self._package_name = package_name
         self._path = _package_info.resolve_path(package_name)
@@ -43,6 +35,9 @@ class Theme:
         """Load the theme
         """
         from pytsite import lang, tpl, assetman
+
+        # Check requirements
+        _package_info.check_requirements(self._package_name)
 
         # Register translations package
         lang_path = _path.join(self._path, 'lang')

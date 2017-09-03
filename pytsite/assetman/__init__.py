@@ -38,6 +38,7 @@ def _init():
     router.on_dispatch(reset, -999, '*')
     router.on_xhr_dispatch(reset, -999, '*')
     pytsite_setup.on_setup(setup)
+    pytsite_setup.on_setup(build_all, 500)  # Before plugins install
     pytsite_update.on_update_after(build_all)
     pytsite_update.on_update_after(lang.build)
 

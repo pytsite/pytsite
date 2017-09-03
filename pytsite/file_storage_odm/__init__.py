@@ -9,7 +9,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, events, router
+    from pytsite import odm, update, router
     from . import _model, _eh, _controllers
 
     # Register ODM models
@@ -17,7 +17,7 @@ def _init():
     odm.register_model('file_image', _model.ImageFileODMEntity)
 
     # Event handlers
-    events.listen('pytsite.update', _eh.update)
+    update.on_update(_eh.update)
 
     router.handle(_controllers.Image(), '/image/resize/<int:width>/<int:height>/<p1>/<p2>/<filename>',
                   'pytsite.file_storage_odm@image', defaults={'width': 0, 'height': 0})

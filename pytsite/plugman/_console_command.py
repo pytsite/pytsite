@@ -1,6 +1,6 @@
 """PytSite Plugin Manager Console Commands
 """
-from pytsite import console as _console, reg as _reg, reload as _reload, lang as _lang
+from pytsite import console as _console, reload as _reload, package_info as _package_info, theme as _theme
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -12,6 +12,11 @@ class Install(_console.Command):
     """plugman:install
     """
 
+    def __init__(self):
+        super().__init__()
+
+        self.define_option(_console.option.Bool('reload', default=True))
+
     @property
     def name(self) -> str:
         return 'plugman:install'
@@ -21,46 +26,50 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
-        plugin_name = self.arg(0)
+        installed_count = 0
 
-        if plugin_name:
-            try:
-                _api.install(plugin_name)
-            except _error.PluginAlreadyInstalled as e:
-                raise _console.error.Error(e)
-        else:
-            # Install required plugins
-            for plugin_name in _reg.get('plugman.plugins', []):
-                if not _api.is_installed(plugin_name):
-                    _api.install(plugin_name)
+        try:
+            if self.args:
+                for plugin_spec in self.args:
+                    installed_count += _api.install(plugin_spec)
+            else:
+                # Install plugins required by application
+                for plugin_spec in _package_info.requires_plugins('app'):
+                    installed_count += _api.install(plugin_spec)
 
-        _reload.reload()
+                # Install plugins required by theme
+                for plugin_spec in _package_info.requires_plugins(_theme.get().package_name):
+                    installed_count += _api.install(plugin_spec)
+
+        except _error.PlugmanError as e:
+            raise _console.error.Error(e)
+
+        if installed_count and self.opt('reload'):
+            _reload.reload()
 
 
-class Upgrade(_console.Command):
-    """plugman:upgrade
+class Uninstall(_console.Command):
+    """plugman:uninstall
     """
-
-    def __init__(self):
-        super().__init__()
-
-        self.define_option(_console.option.Bool('reload', default=True))
 
     @property
     def name(self) -> str:
-        return 'plugman:upgrade'
+        return 'plugman:uninstall'
 
     @property
     def description(self) -> str:
-        return 'pytsite.plugman@console_command_description_upgrade'
+        return 'pytsite.plugman@console_command_description_uninstall'
 
     def exec(self):
+        plugin_names = self.args
+
+        if not plugin_names:
+            raise _console.error.MissingArgument('pytsite.plugman@plugins_not_specified')
+
         try:
-            _console.print_info(_lang.t('pytsite.plugman@upgrading_plugins'))
-            _api.upgrade(self.arg(0))
+            for p_name in plugin_names:
+                _api.uninstall(p_name)
+        except _error.PlugmanError as e:
+            raise _console.error.Error(str(e))
 
-        except _error.PluginNotInstalled as e:
-            raise _console.error.Error(e)
-
-        if self.opt('reload'):
-            _reload.reload()
+        _reload.reload()

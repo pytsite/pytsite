@@ -10,16 +10,9 @@ __license__ = 'MIT'
 
 
 class Roles(_odm.field.UniqueStringList):
-    def __init__(self, name: str, **kwargs):
-        """Init.
-
-        :param default:
-        :param nonempty: bool
-        """
-        self._roles = []
-        super().__init__(name, **kwargs)
-
     def _get_role(self, value) -> _auth.model.AbstractRole:
+        """Helper function
+        """
         if isinstance(value, _auth.model.AbstractRole):
             return value
         elif isinstance(value, str):
@@ -27,27 +20,25 @@ class Roles(_odm.field.UniqueStringList):
         elif isinstance(value, _DBRef):
             return _auth.get_role(uid=str(value.id))
         else:
-            raise TypeError("Field '{}': role object, str or DB ref expected, got {}.".format(self.name, type(value)))
+            raise TypeError("Field '{}': role object, str or DB ref expected, got {}".format(self.name, type(value)))
 
-    def _on_set(self, value: _Iterable, **kwargs) -> _List[str]:
-        """Hook. Transforms externally set value to internal value.
+    def _on_set_storable(self, value: _Iterable[str]):
+        """Hook
+        """
+        return [self._get_role(r) for r in value]
+
+    def _on_get_storable(self, value: _Iterable[_auth.model.AbstractRole]):
+        """Hook
+        """
+        return [r.uid for r in value]
+
+    def _on_set(self, value: _Iterable, **kwargs) -> _Iterable[_auth.model.AbstractRole]:
+        """Hook
         """
         if not isinstance(value, (list, tuple)):
-            raise TypeError("Field '{}': list or tuple expected, got {}.".format(self.name, type(value)))
+            raise TypeError("Field '{}': list or tuple expected, got {}".format(self.name, type(value)))
 
-        self._roles = []
-        clean_value = []
-        for r in value:
-            role = self._get_role(r)
-            clean_value.append(role.uid)
-            self._roles.append(role)
-
-        return clean_value
-
-    def _on_get(self, internal_value: str, **kwargs) -> list:
-        """Hook. Transforms internal value to external one.
-        """
-        return self._roles
+        return [self._get_role(r) for r in value]
 
     def _on_add(self, internal_value, value_to_add, **kwargs):
         return super()._on_add(internal_value, self._get_role(value_to_add).uid)
@@ -75,6 +66,7 @@ class Roles(_odm.field.UniqueStringList):
 class User(_odm.field.Abstract):
     """Field to store reference to user.
     """
+
     def __init__(self, name: str, **kwargs):
         """Init.
 

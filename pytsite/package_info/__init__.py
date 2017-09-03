@@ -1,7 +1,8 @@
 """PytSite Package Utilities
 """
-from ._api import resolve_path, parse_json, data, name, description, version, url, author, author_email, license_name, \
-    requires, check_requirements
+from . import _error as error
+from ._api import resolve_path, parse_json, data, requires, requires_packages, requires_plugins, name, description, \
+    version, url, check_requirements
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

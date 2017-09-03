@@ -1,4 +1,4 @@
-"""Console Errors.
+"""Console Errors
 """
 from pytsite import lang as _lang
 

@@ -447,7 +447,7 @@ def js_module(name: str, location: str, shim: bool = False, deps: list = None, e
     """Define a RequireJS module.
     """
     if name in _requirejs_modules:
-        raise ValueError("RequireJS module '{}' is already defined")
+        raise ValueError("RequireJS module '{}' is already defined".format(name))
 
     _requirejs_modules[name] = (location, shim, deps, exports)
 

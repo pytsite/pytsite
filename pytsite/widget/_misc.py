@@ -1,9 +1,9 @@
-"""Various widgets.
+"""Various widgets
 """
 import re as _re
 from abc import abstractmethod as _abstractmethod
 from typing import Union as _Union
-from pytsite import html as _html, browser as _browser, lang as _lang, util as _util
+from pytsite import html as _html, lang as _lang, util as _util, browser as _browser
 from . import _base
 
 __author__ = 'Alexander Shepetko'
@@ -129,7 +129,6 @@ class BootstrapTable(_base.Abstract):
         # Head cells
         if not isinstance(self._data_fields, (list, tuple)):
             raise TypeError('List or tuple expected.')
-
         for f in self._data_fields:
             if not isinstance(f, (list, tuple)):
                 raise TypeError('List or tuple expected.')

@@ -41,6 +41,7 @@ class Rule(_ABC):
         if value is not None:
             self._value = value
 
+        self._msg_args.update({'value': value})
         self._do_validate()
 
         return self._value
@@ -320,19 +321,32 @@ class Regex(Rule):
             raise TypeError(msg)
 
 
-class Url(Regex):
-    """URL rule.
+class Url(Rule):
+    """URL rule
     """
 
-    def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None):
-        pattern = ('^(?:http|ftp)s?://'  # http:// or https://
-                   '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
-                   'localhost|'  # localhost...
-                   '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-                   '(?::\d+)?'  # optional port
-                   '(?:/?|[/?]\S+)$')
+    def _do_validate(self):
+        if self._value is None:
+            return
 
-        super().__init__(value, msg_id, msg_args, pattern=pattern, ignore_case=True)
+        if not _util.is_url(self._value):
+            raise _error.RuleError(self._msg_id, self._msg_args)
+
+
+class UrlList(Rule):
+    """URL list rule
+    """
+    def _do_validate(self):
+        if self._value is None:
+            return
+
+        if not isinstance(self._value, (list, tuple)):
+            raise _error.RuleError(self._msg_id, self._msg_args)
+
+        for v in self._value:
+            if not _util.is_url(v):
+                self._msg_args['value'] = v
+                raise _error.RuleError(self._msg_id, self._msg_args)
 
 
 class VideoHostingUrl(Url):

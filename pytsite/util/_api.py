@@ -3,6 +3,8 @@
 import random as _random
 import re as _re
 import pytz as _pytz
+import json as _json
+import subprocess as _subprocess
 from os import path as _path, makedirs as _makedirs
 from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
 from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
@@ -17,15 +19,23 @@ from traceback import extract_stack as _extract_stack
 from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
+from urllib import request as _urllib_request
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_html_script_re = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
-_html_single_tags = ('br', 'img', 'input')
-_html_allowed_empty_tags = ('iframe',)
-_lxml_etree_html_parser = _lxml_etree.HTMLParser(encoding='utf-8', remove_blank_text=True, remove_comments=True)
+_HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
+_HTML_SINGLE_TAGS = ('br', 'img', 'input')
+_HTML_ALLOWED_EMPTY_TAGS = ('iframe',)
+_LXML_HTML_PARSER = _lxml_etree.HTMLParser(encoding='utf-8', remove_blank_text=True, remove_comments=True)
+_URL_RE = _re.compile('^(?:http|ftp)s?://'  # Scheme
+                      '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
+                      'localhost|'  # localhost...
+                      '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                      '(?::\d+)?'  # optional port
+                      '(?:/?|[/?]\S+)$', _re.IGNORECASE)
 
 
 class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
@@ -68,7 +78,7 @@ class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
             self._content.append('<{}>'.format(tag))
 
     def handle_endtag(self, tag):
-        if self._safe_tags and tag in self._safe_tags and tag not in _html_single_tags:
+        if self._safe_tags and tag in self._safe_tags and tag not in _HTML_SINGLE_TAGS:
             self._content.append('</{}>'.format(tag))
 
     def handle_data(self, data: str):
@@ -117,7 +127,7 @@ class _HTMLTrimParser(_python_html_parser.HTMLParser):
         tag_str_len = len(tag_str.encode()) if self._count_bytes else len(tag_str)
         if self._get_available_len() >= tag_str_len:
             self._str += tag_str
-            if tag not in _html_single_tags:
+            if tag not in _HTML_SINGLE_TAGS:
                 self._tags_stack.append(tag)
 
     def handle_endtag(self, tag: str):
@@ -199,7 +209,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
                 _empty_tags_cleaner(child)
         # If the element has NO children, check its text content
         else:
-            if item.tag not in _html_single_tags and item.tag not in _html_allowed_empty_tags and item.text:
+            if item.tag not in _HTML_SINGLE_TAGS and item.tag not in _HTML_ALLOWED_EMPTY_TAGS and item.text:
                 item_text = item.text.strip()
                 if not item_text:
                     # Remove item with no text
@@ -215,7 +225,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
     if remove_empty_tags:
         # Remove tags while they present
         while True:
-            s_xml = _empty_tags_cleaner(_lxml_html.fromstring(s, parser=_lxml_etree_html_parser))
+            s_xml = _empty_tags_cleaner(_lxml_html.fromstring(s, parser=_LXML_HTML_PARSER))
             s_cleaned = _lxml_html.tostring(s_xml, encoding='utf-8').decode('utf-8')
             if s_cleaned == s:
                 break
@@ -252,7 +262,7 @@ def minify_html(s: str) -> str:
         g = m.groups()
         return ''.join((g[0], _jsmin(g[1]), g[2])).replace('\n', '')
 
-    return _html_script_re.sub(sub_f, _minify(s, True, True, remove_optional_attribute_quotes=False))
+    return _HTML_SCRIPT_RE.sub(sub_f, _minify(s, True, True, remove_optional_attribute_quotes=False))
 
 
 def dict_merge(a: dict, b: dict) -> dict:
@@ -575,3 +585,71 @@ def format_call_stack_str(sep: str = '\n', skip: int = 1, limit: int = None) -> 
         r.append(':'.join([str(item) for item in frame_sum[:3]]))
 
     return sep.join(r)
+
+
+def is_url(s: str) -> bool:
+    """Check whether the string is an URL
+    """
+    return bool(_URL_RE.match(s))
+
+
+def load_json(source: str):
+    """Load JSON data from remote or local source
+    """
+    try:
+        if is_url(source):
+            with _urllib_request.urlopen(source) as f:
+                return _json.load(f)
+        else:
+            with open(source) as f:
+                return _json.load(f)
+
+    except _json.JSONDecodeError as e:
+        raise _json.JSONDecodeError("Error while loading JSON data from '{}': {}".format(source, e), e.doc, e.pos)
+
+
+def install_pip_package(pkg_name: str, version_spec: str = None, upgrade: bool = False) -> str:
+    cmd = ['pip', 'install']
+
+    if upgrade:
+        cmd.append('-U')
+
+    if version_spec:
+        pkg_name += version_spec
+
+    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+
+    if r.returncode != 0:
+        raise _error.PipPackageInstallError(pkg_name, r.stderr.decode('utf-8'))
+
+    return r.stdout.decode('utf-8')
+
+
+def get_installed_pip_package_info(pkg_name: str) -> dict:
+    cmd = ['pip', 'show', pkg_name]
+
+    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+
+    if r.returncode != 0:
+        raise _error.PipPackageNotInstalled(pkg_name)
+
+    data = {}
+    for r_str in r.stdout.decode('utf-8').split('\n'):
+        r_str_split = r_str.split(':')
+        k = r_str_split[0].strip().lower()
+        if k:
+            data[k] = ':'.join(r_str_split[1:]).strip()
+
+    return data
+
+
+def get_installed_pip_package_version(pkg_name: str) -> str:
+    return get_installed_pip_package_info(pkg_name)['version']
+
+
+def is_pip_package_installed(pkg_name: str) -> bool:
+    try:
+        get_installed_pip_package_info(pkg_name)
+        return True
+    except _error.PipPackageNotInstalled:
+        return False

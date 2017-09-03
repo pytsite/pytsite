@@ -1,9 +1,7 @@
 """PytSite Auth Event Handlers
 """
-from datetime import datetime as _datetime
-from pytsite import lang as _lang, console as _console, router as _router, validation as _validation, util as _util, \
-    hreflang as _hreflang, reg as _reg, http as _http
-from . import _api, _error
+from pytsite import lang as _lang, console as _console, validation as _validation, util as _util
+from . import _api
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -13,11 +11,11 @@ __license__ = 'MIT'
 def setup():
     """'pytsite.setup' Event Handler
     """
-    # Searching for an administrator
+    # Search for an administrator
     if _api.count_users({'roles': [_api.get_role('admin')]}):
         return
 
-    # Creating administrator
+    # Create administrator
     email = input(_lang.t('pytsite.auth@enter_admin_email') + ': ')
     try:
         _validation.rule.NonEmpty(email, 'pytsite.auth@email_cannot_be_empty').validate()
@@ -34,7 +32,5 @@ def setup():
     _api.restore_user()
     _console.print_success(_lang.t('pytsite.auth@user_has_been_created', {'login': admin_user.login}))
 
-
-
-
-
+    # Set password for created admin
+    _console.run_command('auth:passwd', arguments=[admin_user.login])

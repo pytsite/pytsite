@@ -46,8 +46,10 @@ require(['jquery', 'pytsite-http-api', 'pytsite-lang'], function ($, httpApi, la
                 actionBtns.attr('disabled', false);
                 icon.attr('class', iconClass);
 
-                if ('error' in r.responseJSON)
+                if (r.hasOwnProperty('responseJSON') && r.responseJSON.hasOwnProperty('error'))
                     alert(r.responseJSON.error);
+                else
+                    alert(r.statusText);
             });
         });
     });

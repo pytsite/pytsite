@@ -5,6 +5,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT, GEOSPHERE as I_GEOSPHERE
+from pymongo import errors as _pymonog_errors
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from bson import errors as _bson_errors
@@ -71,7 +72,7 @@ class Entity(_ABC):
 
         # Loading fields data from database
         if obj_id:
-            self._load_data_from_db(obj_id)
+            self._load_fields_data_from_db(obj_id)
 
     @classmethod
     def on_register(cls, model: str):
@@ -118,13 +119,13 @@ class Entity(_ABC):
 
         return self
 
-    def _load_data_from_db(self, eid: _Union[str, _ObjectId]):
-        """Load fields data from the the database.
+    def _load_fields_data_from_db(self, eid: _Union[str, _ObjectId]):
+        """Load fields data from the database
         """
         if isinstance(eid, str):
             eid = _ObjectId(eid)
 
-        # Try to load fields data directly from DB
+        # Get document from the database
         data = self.collection.find_one({'_id': eid})
         if not data:
             raise _error.EntityNotFound("Entity '{}:{}' does not exist.".format(self._model, eid))
@@ -135,8 +136,8 @@ class Entity(_ABC):
                 self._id = value
             elif self.has_field(f_name):
                 field = self.get_field(f_name)
-                field.set_val(value)
                 field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
+                field.set_storable_val(value)
 
         # Of course, just loaded entity cannot be 'new' and 'modified'
         self._is_new = False
@@ -638,7 +639,7 @@ class Entity(_ABC):
             self.f_set('_modified', _datetime.now())
 
         # Getting storable data of each field
-        data = self.as_db_object()
+        data = self.as_storable()
 
         # Let DB to calculate object's ID
         if self._is_new:
@@ -659,8 +660,9 @@ class Entity(_ABC):
                     _logger.debug('[ODM ENTITY DATA DB REPLACE] {}: {}, called by {}'.
                                   format(self.ref_str, data, caller))
 
-        except _bson_errors.BSONError as e:
-            _logger.error('BSON error: {}. Document dump: {}'.format(e, data), exc_info=e, stack_info=True)
+        except (_bson_errors.BSONError, _pymonog_errors.PyMongoError) as e:
+            _logger.error(e)
+            _logger.error('Document dump: {}'.format(data))
             raise e
 
         # Update fields' UID so they can store values into shared cache
@@ -779,8 +781,8 @@ class Entity(_ABC):
         """
         pass
 
-    def as_db_object(self, check_required_fields: bool = True) -> dict:
-        """Get storable representation of the entity.
+    def as_storable(self, check_required_fields: bool = True) -> dict:
+        """Get storable representation of the entity
         """
         r = {
             '_id': self._id,
