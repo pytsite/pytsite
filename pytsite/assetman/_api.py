@@ -4,7 +4,7 @@ import subprocess as _subprocess
 import json as _json
 from typing import Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Callable as _Callable, \
     Iterable as _Iterable
-from os import path as _path, chdir as _chdir, makedirs as _makedirs, unlink as _unlink
+from os import path as _path, chdir as _chdir, makedirs as _makedirs, unlink as _unlink, getcwd as _getcwd
 from shutil import rmtree as _rmtree
 from importlib.util import find_spec as _find_spec
 from time import time as _time
@@ -381,9 +381,11 @@ def check_setup() -> bool:
     return len(r.stdout.decode('utf-8').split('\n')) - 1 >= len(_REQUIRED_NPM_PACKAGES)
 
 
-def setup():
-    """Setup assetman environment.
+def npm_setup():
+    """Setup NPM environment
     """
+    cwd = _getcwd()
+
     # Node modules should be installed exactly to the root of the project to get things work
     _chdir(_reg.get('paths.root'))
 
@@ -395,6 +397,28 @@ def setup():
     _console.print_info(_lang.t('pytsite.assetman@installing_required_npm_packages'))
     if _run_process(['npm', 'install'] + _REQUIRED_NPM_PACKAGES, _reg.get('debug', False)).returncode != 0:
         raise RuntimeError('Error while installing NPM packages: {}'.format(_REQUIRED_NPM_PACKAGES))
+
+    _chdir(cwd)
+
+
+def npm_update():
+    """Update NPM environment
+    """
+    cwd = _getcwd()
+
+    # Node modules should be installed exactly to the root of the project to get things work
+    _chdir(_reg.get('paths.root'))
+
+    # Check for NPM existence
+    if _run_process(['which', 'npm']).returncode != 0:
+        raise RuntimeError('NPM executable is not found. Check https://docs.npmjs.com/getting-started/installing-node')
+
+    # Update NPM packages
+    _console.print_info(_lang.t('pytsite.assetman@updating_npm_packages'))
+    if _run_process(['npm', 'update'], _reg.get('debug', False)).returncode != 0:
+        raise RuntimeError('Error while updating NPM packages')
+
+    _chdir(cwd)
 
 
 def _add_task(location: str, task_name: str, dst: str = '', **kwargs):

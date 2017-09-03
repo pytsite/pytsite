@@ -8,31 +8,6 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class Setup(_console.Command):
-    """assetman:setup Console Command.
-    """
-
-    @property
-    def name(self) -> str:
-        """Get name of the command.
-        """
-        return 'assetman:setup'
-
-    @property
-    def description(self) -> str:
-        """Get description of the command.
-        """
-        return 'pytsite.assetman@assetman_setup_console_command_description'
-
-    def exec(self):
-        """Execute The Command.
-        """
-        try:
-            _api.setup()
-        except RuntimeError as e:
-            raise _console.error.Error(e)
-
-
 class Build(_console.Command):
     """assetman:build Console Command.
     """

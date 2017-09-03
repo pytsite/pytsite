@@ -1,6 +1,19 @@
 # PytSite Changelog
 
 
+## 4.0.1 (2017-09-04)
+### Added
+- `assetman`: automatic updating of NPM packages.
+
+### Fixed
+- `setup`, `update`: installation and updating of pip packages.
+- `theme`: error in settings form.
+- `update`: missing events.
+
+### Removed
+- `package_info`: `check_requirements()` function.
+
+
 ## 4.0.0 (2017-09-03)
 ### Added
 - `auth`: prompt for first admin password while setup.

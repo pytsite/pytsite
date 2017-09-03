@@ -608,19 +608,18 @@ def load_json(source: str):
         raise _json.JSONDecodeError("Error while loading JSON data from '{}': {}".format(source, e), e.doc, e.pos)
 
 
-def install_pip_package(pkg_name: str, version_spec: str = None, upgrade: bool = False) -> str:
+def install_pip_package(pkg_spec: str, upgrade: bool = False) -> str:
     cmd = ['pip', 'install']
 
     if upgrade:
         cmd.append('-U')
 
-    if version_spec:
-        pkg_name += version_spec
+    cmd.append(pkg_spec)
 
     r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
 
     if r.returncode != 0:
-        raise _error.PipPackageInstallError(pkg_name, r.stderr.decode('utf-8'))
+        raise _error.PipPackageInstallError(pkg_spec, r.stderr.decode('utf-8'))
 
     return r.stdout.decode('utf-8')
 

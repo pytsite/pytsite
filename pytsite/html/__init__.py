@@ -30,11 +30,14 @@ class Element(_ABC):
     """Base HTML Element
     """
 
-    def __init__(self, content=None, child_sep: str = '', content_first=False, **kwargs):
+    def __init__(self, content: str = None, child_sep: str = '', content_first=False, **kwargs):
         """Init
         """
         if isinstance(content, Element):
             content = str(content)
+        elif not (isinstance(content, str) or content is None):
+            raise TypeError('{}: Element or str expected, got {}: {}'.
+                            format(self.__class__.__name__, type(content), content))
 
         self._tag_name = self.__class__.__name__.lower()
         self._content = content

@@ -4,13 +4,13 @@ from setuptools import setup, find_packages, Command
 
 with open(path.join(path.dirname(__file__), 'pytsite', 'pytsite.json')) as f:
     data = json.load(f)
-    pkg_name = data.get('name').lower()
-    pkg_version = data.get('version')
-    pkg_description = data.get('description')
-    pkg_url = data.get('url')
-    pkg_author = data.get('author')
-    pkg_author_email = data.get('author_email')
-    pkg_license = data.get('license_name')
+    pkg_name = data['name'].lower()
+    pkg_version = data['version']
+    pkg_description = data['description']['en']
+    pkg_url = data['url']
+    pkg_author = data['author']['name']
+    pkg_author_email = data['author']['email']
+    pkg_license = data['license']['name']
 
 ASSET_FNAME_RE = re.compile('\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot|otf|map|js|css|less|txt|md|yml|jinja2|json)$')
 

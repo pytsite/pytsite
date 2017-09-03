@@ -4,7 +4,7 @@ import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, chdir as _chdir
 from pytsite import console as _console, events as _events, lang as _lang, package_info as _package_info, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, reload as _reload, theme as _theme
+    logger as _logger, maintenance as _maintenance, reload as _reload, theme as _theme , util as _util
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -49,6 +49,9 @@ class Update(_console.Command):
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
+            _logger.info('pytsite.update.stage_1 event, PytSite version: {}'.format(_package_info.version('pytsite')))
+            _events.fire('pytsite.update.stage_1')
+
             if stop_after != 1:
                 _subprocess.call(['./console', 'update', '--stage=2'])
             else:
@@ -71,6 +74,9 @@ class Update(_console.Command):
                     _console.print_info(_lang.t('pytsite.update@updating_theme', {'name': theme.name}))
                     _subprocess.call(['git', '-C', theme.path, 'pull'])
 
+            _logger.info('pytsite.update.stage_2 event, PytSite version: {}'.format(_package_info.version('pytsite')))
+            _events.fire('pytsite.update.stage_2')
+
             if stop_after != 2:
                 _subprocess.call(['./console', 'update', '--stage=3'])
             else:
@@ -80,10 +86,9 @@ class Update(_console.Command):
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
 
             state = self._get_state()
-            cur_ver = _package_info.version('pytsite')
-            cur_ver_str = '{}.{}.{}'.format(cur_ver[0], cur_ver[1], cur_ver[2])
+            curent_version = _package_info.version('pytsite')
             stop = False
-            for major in range(0, 1):
+            for major in range(0, 100):
                 if stop:
                     break
                 for minor in range(0, 100):
@@ -96,7 +101,7 @@ class Update(_console.Command):
                         major_minor_rev = '{}.{}.{}'.format(major, minor, rev)
 
                         # Current version reached
-                        if major_minor_rev == cur_ver_str:
+                        if major_minor_rev == curent_version:
                             stop = True
 
                         # Update is already applied
@@ -112,6 +117,15 @@ class Update(_console.Command):
                         state.add(major_minor_rev)
 
             self._save_state(state)
+
+            # Update required pip packages by application and theme
+            for pkg_name in ['app', _theme.get().package_name]:
+                for pip_pkg_spec in _package_info.requires_packages(pkg_name):
+                    _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pip_pkg_spec}))
+                    try:
+                        _util.install_pip_package(pip_pkg_spec, True)
+                    except _util.error.PipPackageInstallError as e:
+                        raise _console.error.Error(e)
 
             _logger.info('pytsite.update.after event')
             _events.fire('pytsite.update.after')

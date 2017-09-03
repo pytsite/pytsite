@@ -1,7 +1,6 @@
 """PytSite Theme Settings Form
 """
 import re as _re
-from collections import OrderedDict as _OrderedDict
 from pytsite import widget as _widget, lang as _lang, settings as _settings, file as _file, http_api as _http_api, \
     html as _html, router as _router, odm as _odm
 from . import _api
@@ -10,7 +9,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_TRANSLATION_MSG_ID_RE = _re.compile('^translation_[a-z0-9\._@]+')
+_TRANSLATION_MSG_ID_RE = _re.compile('^translation_[a-z0-9._@]+')
 
 
 class _ThemesBrowser(_widget.Abstract):
@@ -40,10 +39,9 @@ class _ThemesBrowser(_widget.Abstract):
         t_body = table.append(_html.TBody())
         for theme in _api.get_registered().values():
             tr = t_body.append(_html.Tr())
-            tr.append(_html.Td(theme.description))
+            tr.append(_html.Td(theme.name))
             tr.append(_html.Td(theme.version))
-            tr.append(_html.Td(theme.author))
-
+            tr.append(_html.Td(_html.A(theme.author['name'], href=theme.author['url'], target='_blank')))
             tr.append(_html.Td(_html.A(theme.url, href=theme.url, target='_blank')))
 
             actions = _html.TagLessElement(child_sep='&nbsp;')

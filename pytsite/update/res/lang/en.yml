@@ -4,3 +4,4 @@ updating_application: 'Updating application'
 updating_configuration: 'Updating configuration'
 updating_theme: "Updating theme ':name'"
 applying_updates: 'Applying updates'
+updating_pip_package: "Updating pip package ':package'"

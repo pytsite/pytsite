@@ -1,9 +1,19 @@
 {
   "name": "PytSite",
-  "version": "4.0.0",
-  "description": "Brand New Python Web Framework",
+  "version": "4.0.1",
   "url": "https://pytsite.xyz",
-  "author": "Alexander Shepetko",
-  "author_email": "a@shepetko.com",
-  "license_name": "MIT"
+  "description": {
+    "en": "Brand New Python Web Framework",
+    "ru": "Совершенно новый веб-фреймворк",
+    "uk": "Абсолютно новий веб-фреймворк"
+  },
+  "author": {
+    "name": "Alexander Shepetko",
+    "email": "a@shepetko.com",
+    "url": "https://shepetko.com"
+  },
+  "license": {
+    "name": "MIT",
+    "url": "https://opensource.org/licenses/MIT"
+  }
 }

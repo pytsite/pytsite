@@ -6,8 +6,8 @@ from pytsite import reg as _reg
 from . import _error as error
 from ._api import register_package, library, preload, remove, dump_js, dump_css, url, add_inline, dump_inline, \
     get_urls, get_locations, reset, detect_collection, build, build_all, is_package_registered, register_global, \
-    t_browserify, t_copy, t_copy_static, t_less, t_js, t_css, js_module, setup, get_src_dir_path, get_dst_dir_path, \
-    check_setup
+    t_browserify, t_copy, t_copy_static, t_less, t_js, t_css, js_module, npm_setup, get_src_dir_path, \
+    get_dst_dir_path, check_setup, npm_update
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -31,14 +31,14 @@ def _init():
     js_module('pytsite-lang', 'pytsite.lang@pytsite-lang')
 
     # Console commands
-    console.register_command(_console_commands.Setup())
     console.register_command(_console_commands.Build())
 
     # Event handlers
     router.on_dispatch(reset, -999, '*')
     router.on_xhr_dispatch(reset, -999, '*')
-    pytsite_setup.on_setup(setup)
+    pytsite_setup.on_setup(npm_setup)
     pytsite_setup.on_setup(build_all, 500)  # Before plugins install
+    pytsite_update.on_update_stage_1(npm_update)
     pytsite_update.on_update_after(build_all)
     pytsite_update.on_update_after(lang.build)
 

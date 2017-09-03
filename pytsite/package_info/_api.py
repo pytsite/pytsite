@@ -97,11 +97,11 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     req = json_data.setdefault('requires', defaults.get('requires'))
     if not (req and isinstance(req, dict)):
         json_data['requires'] = req = {'packages': [], 'plugins': []}
-    requires_packages = req.get('packages')
-    if not (requires_packages and isinstance(requires_packages, list)):
+    req_packages = req.get('packages')
+    if not (req_packages and isinstance(req_packages, list)):
         json_data['requires']['packages'] = []
-    requires_plugins = req.get('plugins')
-    if not (requires_plugins and isinstance(requires_plugins, list)):
+    req_plugins = req.get('plugins')
+    if not (req_plugins and isinstance(req_plugins, list)):
         json_data['requires']['plugins'] = []
 
     return json_data
@@ -145,7 +145,7 @@ def name(package_name: str) -> str:
 def version(package_name: str) -> str:
     """Shortcut
     """
-    return data(package_name, 'version')
+    return str(_semver.parse_version_str(data(package_name, 'version')))
 
 
 def description(package_name: str) -> dict:
@@ -176,50 +176,3 @@ def url(package_name: str) -> str:
     """Shortcut
     """
     return data(package_name, 'url')
-
-
-def check_requirements(package_name: str, auto_install: bool = False):
-    """Check for requirements
-    """
-    from pytsite import plugman
-
-    # Check for required pip packages
-    for pip_pkg_requirement in requires(package_name)['packages']:
-        pip_pkg_name, pip_pkg_ver_spec = _semver.parse_requirement_str(pip_pkg_requirement)
-        try:
-            installed_pip_pkg_info = _util.get_installed_pip_package_info(pip_pkg_name)
-            if not _semver.check_conditions(installed_pip_pkg_info['version'], pip_pkg_ver_spec):
-                err_msg = "Package '{}' requires pip package '{}{}', but '{}=={}' is installed".format(
-                    package_name, pip_pkg_name, pip_pkg_ver_spec, pip_pkg_name, installed_pip_pkg_info['version']
-                )
-                raise _error.MissingRequiredPipPackageVersion(err_msg)
-
-        except _util.error.PipPackageNotInstalled:
-            if auto_install:
-                _util.install_pip_package(pip_pkg_name, pip_pkg_ver_spec)
-            else:
-                raise _error.MissingRequiredPipPackage("Pip package '{}' is not installed".format(pip_pkg_requirement))
-
-    # Check for required plugins
-    for plugin_requirement in requires(package_name)['plugins']:
-        plugin_name, plugin_ver_spec = _semver.parse_requirement_str(plugin_requirement)
-
-        try:
-            plugin_info = plugman.plugin_info(plugin_name)
-        except plugman.error.PluginNotInstalled:
-            if auto_install:
-                plugman.install(plugin_requirement)
-
-                # for req in requires(package_name):
-
-                #
-                #     try:
-                #         required_package_name = match.group(1)
-                #         condition = match.group(2) + match.group(3)
-                #         installed_version = version(required_package_name)
-                #
-                #         if not _semver.check_conditions(installed_version, condition):
-                #             raise _error.MissingRequiredVersion(package_name, required_package_name, condition, installed_version)
-                #
-                #     except ImportError:
-                #         raise _error.MissingRequiredPackage(package_name)

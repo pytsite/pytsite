@@ -102,11 +102,8 @@ def _init():
     for pkg_name in autoload:
         import_module('pytsite.' + pkg_name)
 
-    # Initialize authentication subsystem
+    # Initialize default authentication driver
     import_module('pytsite.auth_password')
-
-    # Check app's requirements
-    _package_info.check_requirements('app')
 
     # Create application's language directory
     from pytsite import lang

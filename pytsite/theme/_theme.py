@@ -22,11 +22,11 @@ class Theme:
 
         self._package_name = package_name
         self._path = _package_info.resolve_path(package_name)
-        self._name = _util.transform_str_2(pkg_data.get('name'))
-        self._version = pkg_data.get('version')
-        self._description = pkg_data.get('description')
-        self._author = pkg_data.get('author')
-        self._url = pkg_data.get('url')
+        self._name = _util.transform_str_2(pkg_data['name'])
+        self._version = pkg_data['version']
+        self._description = pkg_data['description']
+        self._author = pkg_data['author']
+        self._url = pkg_data['url']
 
         self._package = None  # Will be filled after loading
         self._is_loaded = False
@@ -35,9 +35,6 @@ class Theme:
         """Load the theme
         """
         from pytsite import lang, tpl, assetman
-
-        # Check requirements
-        _package_info.check_requirements(self._package_name)
 
         # Register translations package
         lang_path = _path.join(self._path, 'lang')
@@ -72,7 +69,7 @@ class Theme:
                 # every time at boot, because it is consumes some time to run NPM, so we call it only if theme
                 # compilation is necessary at application startup.
                 if not assetman.check_setup():
-                    assetman.setup()
+                    assetman.npm_setup()
 
                 assetman.build(self._package_name)
                 _settings.put('theme.compiled', True)
@@ -100,11 +97,11 @@ class Theme:
         return self._version
 
     @property
-    def description(self) -> str:
+    def description(self) -> dict:
         return self._description
 
     @property
-    def author(self) -> str:
+    def author(self) -> dict:
         return self._author
 
     @property

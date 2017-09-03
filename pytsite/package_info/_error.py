@@ -1,4 +1,4 @@
-"""PytSite Package Utilities Errors
+"""PytSite Package Info Errors
 """
 
 __author__ = 'Alexander Shepetko'
@@ -7,12 +7,4 @@ __license__ = 'MIT'
 
 
 class PackageNotFound(Exception):
-    pass
-
-
-class MissingRequiredPipPackage(Exception):
-    pass
-
-
-class MissingRequiredPipPackageVersion(Exception):
     pass

@@ -66,15 +66,14 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     return r.json()
 
 
-def _install_pip_package(requirement: str, upg: bool = False):
+def _install_pip_package(pkg_spec: str, upg: bool = False):
     """Install a pip package
     """
-    _logger.info('Installing/upgrading pip package: {}'.format(requirement))
+    _logger.info('Installing/upgrading pip package: {}'.format(pkg_spec))
 
-    pkg_name, condition = _semver.parse_requirement_str(requirement)
-    _util.install_pip_package(pkg_name, condition, upg)
+    _util.install_pip_package(pkg_spec, upg)
 
-    _logger.info('Required package {} has been successfully installed/upgraded'.format(requirement))
+    _logger.info('Required package {} has been successfully installed/upgraded'.format(pkg_spec))
 
 
 def plugin_info(plugin_name: str) -> dict:
