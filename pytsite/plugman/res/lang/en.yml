@@ -21,6 +21,7 @@ plugin_install_error: "Error while installing plugin ':plugin': :msg"
 uninstalling_plugin: "Uninstalling plugin ':plugin'..."
 plugin_uninstall_success: "Plugin ':plugin' has been successfully uninstalled"
 console_command_description_install: 'Install plugin(s)'
+console_command_description_update: 'Update plugin(s)'
 console_command_description_uninstall: 'Uninstall plugin(s)'
 upgrading_plugins: 'Upgrading plugin(s)'
 plugins_not_specified: 'Plugin(s) are not specified'

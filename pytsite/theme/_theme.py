@@ -22,7 +22,7 @@ class Theme:
 
         self._package_name = package_name
         self._path = _package_info.resolve_path(package_name)
-        self._name = _util.transform_str_2(pkg_data['name'])
+        self._name = pkg_data['name']
         self._version = pkg_data['version']
         self._description = pkg_data['description']
         self._author = pkg_data['author']

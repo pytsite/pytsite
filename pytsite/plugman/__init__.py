@@ -35,6 +35,7 @@ def _init():
 
     # Console commands
     console.register_command(_console_command.Install())
+    console.register_command(_console_command.Update())
     console.register_command(_console_command.Uninstall())
 
     # HTTP API
@@ -55,7 +56,7 @@ def _init():
 
         # Event handlers
         setup.on_setup(lambda: console.run_command('plugman:install', {'reload': False}), 999)
-        update.on_update_after(lambda: console.run_command('plugman:install', {'reload': False}))
+        update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))
 
     # Start installed plugins
     for p_name in plugins_info():

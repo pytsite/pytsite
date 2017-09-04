@@ -48,6 +48,43 @@ class Install(_console.Command):
             _reload.reload()
 
 
+class Update(_console.Command):
+    """plugman:update
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        self.define_option(_console.option.Bool('reload', default=True))
+
+    @property
+    def name(self) -> str:
+        return 'plugman:update'
+
+    @property
+    def description(self) -> str:
+        return 'pytsite.plugman@console_command_description_update'
+
+    def exec(self):
+        installed_count = 0
+
+        try:
+            if self.args:
+                # Update specified plugins
+                for plugin_spec in self.args:
+                    installed_count += _api.install(plugin_spec)
+            else:
+                # Update all installed plugins
+                for plugin_name in _api.plugins_info():
+                    installed_count += _api.install(plugin_name)
+
+        except _error.PlugmanError as e:
+            raise _console.error.Error(e)
+
+        if installed_count and self.opt('reload'):
+            _reload.reload()
+
+
 class Uninstall(_console.Command):
     """plugman:uninstall
     """

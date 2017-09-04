@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 4.0.2 (2017-09-04)
+### Fixed
+- `plugman`: updating plugins issue.
+
+
 ## 4.0.1 (2017-09-04)
 ### Added
 - `assetman`: automatic updating of NPM packages.

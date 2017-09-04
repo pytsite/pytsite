@@ -21,6 +21,7 @@ plugin_install_error: "Помилка при встановленні плагі
 uninstalling_plugin: "Видалення плагіна ':plugin'..."
 plugin_uninstall_success: "Плагін ':plugin' було успішно видалено"
 console_command_description_install: 'Встановлення плагін'
+console_command_description_update: 'Оновлення плагін'
 console_command_description_uninstall: 'Видалення плагін'
 upgrading_plugins: 'Оновлюю плагіни'
 plugins_not_specified: 'Не вказано імена плагін'
