@@ -125,7 +125,7 @@ class Application(Form):
             label=_lang.t('pytsite.settings@links'),
             add_btn_label=_lang.t('pytsite.settings@add_link'),
             unique=True,
-            rules=_validation.rule.UrlList(),
+            rules=_validation.rule.Url(),
         ))
 
         # It is important to call super method AFTER

@@ -11,9 +11,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_re_num = _re.compile('^\-?\d+(\.\d+)?$')
-_re_int_num = _re.compile('^\-?\d+$')
-_re_decimal_num = _re.compile('^\-?\d+\.\d+$')
+_re_num = _re.compile('^-?\d+(\.\d+)?$')
+_re_int_num = _re.compile('^-?\d+$')
+_re_decimal_num = _re.compile('^-?\d+\.\d+$')
 
 
 class Rule(_ABC):
@@ -329,52 +329,51 @@ class Url(Rule):
         if self._value is None:
             return
 
-        if not _util.is_url(self._value):
-            raise _error.RuleError(self._msg_id, self._msg_args)
+        if isinstance(self._value, (list, tuple)):
+            for k, v in enumerate(self._value):
+                if not _util.is_url(v):
+                    self._msg_args['row'] = k + 1
+                    raise _error.RuleError(self._msg_id, self._msg_args)
 
+        elif isinstance(self._value, dict):
+            for k, v in enumerate(self._value.items()):
+                if not _util.is_url(v):
+                    self._msg_args['row'] = k + 1
+                    raise _error.RuleError(self._msg_id, self._msg_args)
 
-class UrlList(Rule):
-    """URL list rule
-    """
-    def _do_validate(self):
-        if self._value is None:
-            return
-
-        if not isinstance(self._value, (list, tuple)):
-            raise _error.RuleError(self._msg_id, self._msg_args)
-
-        for v in self._value:
-            if not _util.is_url(v):
-                self._msg_args['value'] = v
+        elif isinstance(self._value, str):
+            if not _util.is_url(self._value):
                 raise _error.RuleError(self._msg_id, self._msg_args)
+
+        else:
+            raise TypeError(_lang.t('pytsite.validation@list_dict_str_expected', {'got': type(self._value)}))
 
 
 class VideoHostingUrl(Url):
-    """Video hosting URL rule.
+    """Video hosting URL rule
     """
 
     def _do_validate(self):
         """Do actual validation of the rule.
         """
-        if self.value is None:
+        if self._value is None:
             return
 
         super()._do_validate()
 
-        if isinstance(self.value, list):
-            for k, v in enumerate(self.value):
+        if isinstance(self._value, list):
+            for k, v in enumerate(self._value):
                 if not self._validate_str(v):
                     raise _error.RuleError(self._msg_id, dict(self._msg_args, row=k + 1))
-        elif isinstance(self.value, dict):
-            for k, v in self.value.items():
+        elif isinstance(self._value, dict):
+            for k, v in self._value.items():
                 if not self._validate_str(v):
                     raise _error.RuleError(self._msg_id, dict(self._msg_args, row=k + 1))
-        elif isinstance(self.value, str):
-            if not self._validate_str(self.value):
+        elif isinstance(self._value, str):
+            if not self._validate_str(self._value):
                 raise _error.RuleError(self._msg_id, self._msg_args)
         else:
-            msg = _lang.t('pytsite.validation@list_dict_str_expected', {'got': self.value.__class__.__name__})
-            raise TypeError(msg)
+            raise TypeError(_lang.t('pytsite.validation@list_dict_str_expected', {'got': type(self._value)}))
 
     def _validate_str(self, inp: str):
         for re in self._get_re():

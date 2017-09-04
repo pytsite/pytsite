@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 4.0.3 (2017-09-04)
+### Fixed
+- `validation`: support for lists, tuples and dicts in `rule.Url`.
+
+
 ## 4.0.2 (2017-09-04)
 ### Fixed
 - `plugman`: updating plugins issue.
