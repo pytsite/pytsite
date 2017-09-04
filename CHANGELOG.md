@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 4.0.4 (2017-09-04)
+### Changed
+- `util`: style is allowed now by default fo "p" tags in `tidyfy_html()`.
+
+
 ## 4.0.3 (2017-09-04)
 ### Fixed
 - `validation`: support for lists, tuples and dicts in `rule.Url`.
