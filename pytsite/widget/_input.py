@@ -173,8 +173,9 @@ class TypeaheadText(Text):
 
         self._js_module = 'pytsite-widget-input-typeahead-text'
         self._css = ' '.join((self._css, 'widget-input-typeahead-text'))
+        source_url_query_arg = kwargs.get('source_url_query_arg', self.uid)
         source_url_q = kwargs.get('source_url_args', {})
-        source_url_q.update({self.uid: '__QUERY'})
+        source_url_q.update({source_url_query_arg: '__QUERY'})
         source_url = _router.url(source_url, query=source_url_q)
 
         self._data['source_url'] = source_url

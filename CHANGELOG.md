@@ -1,9 +1,15 @@
 # PytSite Changelog
 
 
+## 4.0.6 (2017-09-06)
+### Added
+- `widget`: optional constructor argument `source_url_query_arg` in
+  `input.TypeaheadText`.
+
+
 ## 4.0.5 (2017-09-06)
 ### Fixed
-- `auth_password`: Twitters Bootstrap preload with sign-in form.
+- `auth_password`: Twitter Bootstrap preload with sign-in form.
 - `form`: display of hidden inputs.
 
 ### Changed

@@ -163,8 +163,8 @@ class Query:
 
         self._len -= 1
 
-    def compile(self) -> list:
-        """Get compiled query.
+    def compile(self) -> dict:
+        """Get compiled query
         """
         return self._criteria
 
