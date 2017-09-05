@@ -73,7 +73,7 @@ def _install_pip_package(pkg_spec: str, upg: bool = False):
 
     _util.install_pip_package(pkg_spec, upg)
 
-    _logger.info('Required package {} has been successfully installed/upgraded'.format(pkg_spec))
+    _logger.info('Required package {} has been successfully installed/updated'.format(pkg_spec))
 
 
 def plugin_info(plugin_name: str) -> dict:
@@ -228,7 +228,7 @@ def install(plugin_spec: str) -> int:
     Returns a number of installed plugins, including dependencies
     """
     global _installing
-    upgrade_mode = False
+    update_mode = False
     installed_count = 0
 
     if _DEV_MODE:
@@ -271,7 +271,7 @@ def install(plugin_spec: str) -> int:
     try:
         l_plugin_info = plugin_info(plugin_name)
         if l_plugin_info['version'] != ver_to_install:
-            upgrade_mode = True
+            update_mode = True
             uninstall(plugin_name, True)
         else:
             # Necessary version is already installed, nothing to do
@@ -363,11 +363,11 @@ def install(plugin_spec: str) -> int:
         _events.fire('pytsite.plugman.install', name=plugin_name, version=ver_to_install)
         _events.fire('pytsite.plugman.install.{}'.format(plugin_name), version=ver_to_install)
 
-        # Notify about plugin upgrade
-        if upgrade_mode:
-            _events.fire('pytsite.plugman.upgrade', name=plugin_name, version=ver_to_install)
-            _events.fire('pytsite.plugman.upgrade.{}'.format(plugin_name), version=ver_to_install)
-            _events.fire('pytsite.plugman.upgrade.{}.{}'.format(plugin_name, ver_to_install.replace('.', '_')))
+        # Notify about plugin update
+        if update_mode:
+            _events.fire('pytsite.plugman.update', name=plugin_name, version=ver_to_install)
+            _events.fire('pytsite.plugman.update.{}'.format(plugin_name), version=ver_to_install)
+            _events.fire('pytsite.plugman.update.{}.{}'.format(plugin_name, ver_to_install.replace('.', '_')))
 
         return installed_count + 1
 
@@ -390,7 +390,7 @@ def install(plugin_spec: str) -> int:
         _installing.remove(plugin_name)
 
 
-def uninstall(plugin_name: str, upgrade_mode: bool = False):
+def uninstall(plugin_name: str, update_mode: bool = False):
     """Uninstall a plugin
     """
     global _uninstalling
@@ -408,7 +408,7 @@ def uninstall(plugin_name: str, upgrade_mode: bool = False):
         raise _error.PluginNotInstalled(plugin_name)
 
     # Check for dependant plugins
-    if not upgrade_mode:
+    if not update_mode:
         dependants = get_dependant_plugins(plugin_name)
         if dependants:
             raise _error.PluginDependencyError(_lang.t('pytsite.plugman@plugin_has_dependant_plugins', {

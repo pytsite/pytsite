@@ -68,6 +68,7 @@ class Password(_auth.driver.Authentication):
     def get_sign_in_form(self, **kwargs) -> _form.Form:
         """Get the login form.
         """
+        _assetman.preload('twitter-bootstrap')
         _assetman.preload('font-awesome')
 
         return _SignInForm(**kwargs)

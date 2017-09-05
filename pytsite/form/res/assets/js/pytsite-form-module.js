@@ -60,7 +60,7 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
 
         // Form submit handler
         self.em.submit(function (event) {
-            // Form isn;t ready to submit, just move one step forward.
+            // Form isn't ready to submit, just move one step forward.
             if (!self.readyToSubmit) {
                 event.preventDefault();
                 self.forward();
@@ -82,7 +82,7 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
                     var formData = self.em.data();
                     for (var k in formData) {
                         if (formData.hasOwnProperty(k)) {
-                            self.areas['hidden'].append($('<input name="__form_data_' + k + '" value="' + formData[k] + '">'));
+                            self.areas['hidden'].append($('<input type="hidden" name="__form_data_' + k + '" value="' + formData[k] + '">'));
                         }
                     }
 

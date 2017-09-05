@@ -1,4 +1,4 @@
-"""Pytsite Auth Controllers
+"""Pytsite Auth Web Controllers
 """
 from typing import Union as _Union, Optional as _Optional
 from werkzeug.utils import escape as _escape
@@ -50,7 +50,6 @@ class SignInSubmit(_routing.Controller):
 
         try:
             _auth.sign_in(driver, inp)
-
             return self.redirect(redirect)
 
         except _auth.error.AuthenticationError:

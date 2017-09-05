@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 4.0.5 (2017-09-06)
+### Fixed
+- `auth_password`: Twitters Bootstrap preload with sign-in form.
+- `form`: display of hidden inputs.
+
+### Changed
+- `plugman`: '\*.upgrade' events renamed to '\*.update'.
+
+
 ## 4.0.4 (2017-09-04)
 ### Changed
 - `util`: style is allowed now by default fo "p" tags in `tidyfy_html()`.
