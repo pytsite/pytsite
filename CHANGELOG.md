@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 4.0.7 (2017-09-06)
+### Fixed
+- `plugman`: required plugins specs parsing.
+
+
 ## 4.0.6 (2017-09-06)
 ### Added
 - `widget`: optional constructor argument `source_url_query_arg` in

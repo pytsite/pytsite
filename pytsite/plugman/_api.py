@@ -90,19 +90,19 @@ def plugin_info(plugin_name: str) -> dict:
         raise _error.PluginNotInstalled(plugin_name)
 
 
-def is_installed(plugin_name: _Union[str, list, tuple]) -> bool:
+def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
     """Check if the plugin is installed.
     """
-    if isinstance(plugin_name, (list, tuple)):
+    if isinstance(plugin_spec, (list, tuple)):
         # Check for all installed plugins
-        for p_name in plugin_name:
+        for p_name in plugin_spec:
             if not is_installed(p_name):
                 return False
 
         return True
 
     try:
-        plugin_info(plugin_name)
+        plugin_info(_semver.parse_requirement_str(plugin_spec)[0])
         return True
     except _error.PluginNotInstalled:
         return False
@@ -336,10 +336,10 @@ def install(plugin_spec: str) -> int:
             _install_pip_package(pip_pkg_spec)
 
         # Install required plugins
-        for req_plugin_info in l_plugin_info['requires']['plugins']:
-            if not is_installed(req_plugin_info):
-                _logger.info('Installing required plugin: {}'.format(req_plugin_info))
-                installed_count += install(req_plugin_info)
+        for req_plugin_spec in l_plugin_info['requires']['plugins']:
+            if not is_installed(req_plugin_spec):
+                _logger.info('Installing required plugin: {}'.format(req_plugin_spec))
+                installed_count += install(req_plugin_spec)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
