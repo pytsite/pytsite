@@ -1,6 +1,7 @@
 """PytSite Logger
 """
 import logging as _logging
+from typing import Union as _Union
 from os import path as _path, makedirs as _makedirs
 from datetime import datetime as _datetime
 from pytsite import reg as _reg
@@ -8,7 +9,6 @@ from pytsite import reg as _reg
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
 
 _dbg = _reg.get('debug', False)
 _log_dir = _reg.get('paths.log')
@@ -40,4 +40,10 @@ _handler.setFormatter(_logging.Formatter(_format))
 debug = _logger.debug
 info = _logger.info
 warn = _logger.warning
-error = _logger.error
+
+
+def error(msg: _Union[str, Exception], exc_info: Exception = None):
+    if isinstance(msg, Exception) and not exc_info:
+        exc_info = msg
+
+    _logger.error(str(msg), exc_info=exc_info)

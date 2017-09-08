@@ -1,6 +1,6 @@
 """PytSite Routing Base Controller
 """
-from typing import List as _List, Dict as _Dict, Any as _Any
+from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from werkzeug.datastructures import FileStorage as _FileStorage
@@ -112,25 +112,25 @@ class Controller(_ABC):
         return _http.response.Redirect(location, status)
 
     @staticmethod
-    def not_found(description: str = None, response: _http.response.Response = None):
+    def not_found(description: _Union[str, Exception] = None, response: _http.response.Response = None):
         """Return a 'Not found' exception
         """
         return _http.error.NotFound(description, response)
 
     @staticmethod
-    def unauthorized(description: str = None, response: _http.response.Response = None):
+    def unauthorized(description: _Union[str, Exception] = None, response: _http.response.Response = None):
         """Return an 'Unauthorized' exception
         """
         return _http.error.Unauthorized(description, response)
 
     @staticmethod
-    def forbidden(description: str = None, response: _http.response.Response = None):
+    def forbidden(description: _Union[str, Exception] = None, response: _http.response.Response = None):
         """Return a 'Forbidden' exception
         """
         return _http.error.Forbidden(description, response)
 
     @staticmethod
-    def server_error(description: str = None, response: _http.response.Response = None):
+    def server_error(description: _Union[str, Exception] = None, response: _http.response.Response = None):
         """Return an 'Internal server error' exception
         """
         return _http.error.InternalServerError(description, response)

@@ -6,7 +6,8 @@ from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from bson.dbref import DBRef as _bson_DBRef
 from frozendict import frozendict as _frozendict
-from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger, validation as _validation
+from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger, validation as _validation, \
+    formatters as _formatters
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -507,15 +508,19 @@ class Ref(Abstract):
         """Hook. Used for sanitizing Finder's query argument.
         """
         from . import _model
+
         if isinstance(arg, _model.Entity):
             arg = arg.ref
+
+        elif isinstance(arg, str):
+            from ._api import resolve_ref
+            arg = self.sanitize_finder_arg(arg.split(',')) if ',' in arg else resolve_ref(arg)
+
         elif isinstance(arg, (list, tuple)):
             clean_arg = []
             for v in arg:
-                if isinstance(v, _model.Entity):
-                    clean_arg.append(v.ref)
-                else:
-                    clean_arg.append(v)
+                clean_arg.append(self.sanitize_finder_arg(v))
+
             arg = clean_arg
 
         return arg
@@ -843,6 +848,11 @@ class Integer(Abstract):
     def is_empty(self) -> bool:
         return self.get_val() is None
 
+    def sanitize_finder_arg(self, arg) -> int:
+        """Hook used for sanitizing Finder's query argument
+        """
+        return int(arg)
+
 
 class Decimal(Abstract):
     """Decimal Field.
@@ -913,6 +923,11 @@ class Decimal(Abstract):
         """
         return current_value - self._sanitize_type(value_to_sub)
 
+    def sanitize_finder_arg(self, arg) -> float:
+        """Hook used for sanitizing Finder's query argument
+        """
+        return float(arg)
+
 
 class Bool(Abstract):
     """Integer field.
@@ -929,6 +944,11 @@ class Bool(Abstract):
         """Set value of the field.
         """
         return bool(value)
+
+    def sanitize_finder_arg(self, arg) -> int:
+        """Hook used for sanitizing Finder's query argument
+        """
+        return _formatters.Bool().format(arg)
 
 
 class StringList(List):

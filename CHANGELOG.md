@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 4.1 (2017-09-08)
+### Added
+- `odm_http_api`:
+    - new endpoint: `get/entities`;
+    - JavaScript API.
+
+
 ## 4.0.7 (2017-09-06)
 ### Fixed
 - `plugman`: required plugins specs parsing.

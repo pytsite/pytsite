@@ -16,7 +16,7 @@ def _init():
     router.handle(_controllers.Entry(), '/api/<int:http_api_version>/<path:http_api_endpoint>',
                   'pytsite.http_api@entry', methods='*')
 
-    # JavaScript helpers
+    # JavaScript API
     assetman.register_package(__name__)
     assetman.t_js(__name__ + '@**')
     assetman.js_module('pytsite-http-api', __name__ + '@pytsite-http-api')
