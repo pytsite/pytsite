@@ -1,6 +1,10 @@
 # PytSite Changelog
 
 
+## 4.1.1 (2017-09-08)
+Fixed `pytsite.json`.
+
+
 ## 4.1 (2017-09-08)
 ### Added
 - `odm_http_api`:
