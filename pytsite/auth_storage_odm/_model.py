@@ -604,10 +604,10 @@ class User(_auth.model.AbstractUser):
 
     def save(self):
         if self.is_anonymous:
-            raise RuntimeError('Anonymous user cannot be saved.')
+            raise RuntimeError('Anonymous user cannot be saved')
 
         if self.is_system:
-            raise RuntimeError('System user cannot be saved.')
+            raise RuntimeError('System user cannot be saved')
 
         with self._entity as e:
             e.save()

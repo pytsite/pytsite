@@ -133,7 +133,7 @@ def print_warning(msg: str):
 
 def print_error(msg: str, exc_info: Exception = None):
     if exc_info:
-        _logger.error(msg, exc_info)
+        _logger.error(msg, exc_info=exc_info)
     else:
         _logger.error(msg)
 

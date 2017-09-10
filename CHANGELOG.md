@@ -1,6 +1,13 @@
 # PytSite Changelog
 
 
+## 4.2 (2017-09-10)
+### Added
+- New package: `dlm` -- Distributed Lock Manager.
+- `odm`: distributed entities caching.
+- `cache`: methods for manage mappings.
+
+
 ## 4.1.1 (2017-09-08)
 Fixed `pytsite.json`.
 

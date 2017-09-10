@@ -13,6 +13,10 @@ class ModelNotRegistered(Exception):
     pass
 
 
+class ReferenceNotFound(Exception):
+    pass
+
+
 class EntityNotFound(Exception):
     pass
 

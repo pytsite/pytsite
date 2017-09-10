@@ -128,15 +128,6 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
                     default=field.default,
                     value=field.get_val(),
                 ))
-            elif isinstance(field, _odm.field.MultiLineString):
-                frm.add_widget(_widget.input.TextArea(
-                    uid=uid,
-                    weight=weight,
-                    label=self.t(uid),
-                    required=field.required,
-                    default=field.default,
-                    value=field.get_val(),
-                ))
             elif isinstance(field, _odm.field.String):
                 frm.add_widget(_widget.input.Text(
                     uid=uid,

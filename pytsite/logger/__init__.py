@@ -42,8 +42,8 @@ info = _logger.info
 warn = _logger.warning
 
 
-def error(msg: _Union[str, Exception], exc_info: Exception = None):
-    if isinstance(msg, Exception) and not exc_info:
-        exc_info = msg
+def error(msg: _Union[str, Exception], **kwargs):
+    if isinstance(msg, Exception) and 'exc_info' not in kwargs:
+        kwargs['exc_info'] = msg
 
-    _logger.error(str(msg), exc_info=exc_info)
+    _logger.error(str(msg), **kwargs)

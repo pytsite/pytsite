@@ -1,4 +1,4 @@
-"""Description.
+"""PytSite ODM Finder
 """
 from typing import Iterable as _Iterable, Union as _Union
 from bson import DBRef as _DBRef
@@ -10,13 +10,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_pool_prefix = 'pytsite.odm.finder:'
-_dbg = _reg.get('odm.debug.finder')
-_cache_enabled = _reg.get('odm.cache.enabled', True)
+_DBG = _reg.get('odm.debug.finder')
+_CACHE_POOL_PREFIX = 'pytsite.odm.finder:'
+_CACHE_ENABLED = _reg.get('odm.cache.enabled', True)
 
 
 class Result:
-    """DB Query Result.
+    """Finder Result
     """
 
     def __init__(self, model: str, cursor: _Cursor = None, ids: list = None):
@@ -315,10 +315,10 @@ class Finder:
         query = self._query.compile()
 
         # Search for previous result in cache
-        if _cache_enabled and self._cache_ttl:
+        if _CACHE_ENABLED and self._cache_ttl:
             try:
                 ids = self._cache_pool.get(self.id)
-                if _dbg:
+                if _DBG:
                     _logger.debug("GET cached query results: query: {}, {}, id: {}, entities: {}.".
                                   format(self.model, self.query.compile(), self.id, len(ids)))
                 return Result(self._model, ids=ids)
@@ -340,7 +340,7 @@ class Finder:
 
         # Put query result into cache
         if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
-            if _dbg:
+            if _DBG:
                 _logger.debug("STORE query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".
                               format(self.model, self.query.compile(), self.id, result.count(), self._cache_ttl))
 

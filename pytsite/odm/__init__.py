@@ -1,5 +1,8 @@
 """Object Document Mapper Package Init
 """
+from pytsite import cache as _cache, reg as _reg
+_cache.create_pool('pytsite.odm.entities', _reg.get('odm.cache.driver', 'redis'))
+
 # Public API
 from . import _field as field, _validation as validation, _error as error, _geo as geo, _model as model
 from ._model import I_ASC, I_DESC, I_TEXT, I_GEO2D, I_GEOSPHERE

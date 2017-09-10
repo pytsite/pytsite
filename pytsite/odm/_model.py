@@ -12,14 +12,15 @@ from bson import errors as _bson_errors
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
 from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, errors as _errors, \
-    threading as _threading, util as _util
+    util as _util, dlm as _dlm, cache as _cache
 from . import _error, _field
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_dbg = _reg.get('odm.debug.entity')
+_DBG = _reg.get('odm.debug.entity')
+_ENTITIES_CACHE = _cache.get_pool('pytsite.odm.entities')
 
 
 class Entity(_ABC):
@@ -48,8 +49,7 @@ class Entity(_ABC):
         self._is_deleted = False
         self._indexes = []
         self._has_text_index = False
-        self._lock_obj = _threading.create_r_lock()
-        self._lock_depth = 0
+        self._lock_obj = _dlm.Lock(_util.random_str())
 
         self._fields = _OrderedDict()  # type: _Dict[str, _field.Abstract]
 
@@ -70,82 +70,71 @@ class Entity(_ABC):
         _events.fire('pytsite.odm.model.setup_indexes', entity=self)
         _events.fire('pytsite.odm.model.{}.setup_indexes'.format(model), entity=self)
 
-        # Loading fields data from database
         if obj_id:
-            self._load_fields_data_from_db(obj_id)
+            # Set entity's ID
+            self._id = _ObjectId(obj_id) if isinstance(obj_id, str) else obj_id
+
+            # Update lock object reference
+            self._lock_obj = _dlm.Lock(self.ref_str)
+
+            # Loading fields data from database or cache. Entity must be locked at this moment.
+            with self:
+                self._load_fields_data(obj_id)
 
     @classmethod
     def on_register(cls, model: str):
         pass
 
-    @property
-    def locked(self) -> bool:
-        """Check if the entity is locked.
-        """
-        return bool(self._lock_depth)
-
     def lock(self):
         """Lock the entity.
         """
         self._lock_obj.acquire()
-        self._lock_depth += 1
-
-        if _dbg:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self._lock_depth > 1:
-                _logger.debug("[ENTITY LOCK INCREASED to {}] for '{}:{}', called by {}.".
-                              format(self._lock_depth, self._model, self._id, caller))
-            else:
-                _logger.debug("[ENTITY LOCKED] '{}:{}' by {}.".format(self._model, self._id, caller))
 
         return self
 
     def unlock(self):
         """Unlock the entity.
         """
-        if not self._lock_depth:
+        if not self._lock_obj.locked:
             raise RuntimeError('Non-locked entity cannot be unlocked.')
 
         self._lock_obj.release()
-        self._lock_depth -= 1
-
-        if _dbg:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self._lock_depth > 0:
-                _logger.debug("[ENTITY LOCK DECREASED to {}] for '{}:{}', called by {}.".
-                              format(self._lock_depth, self._model, self._id, caller))
-            else:
-                _logger.debug("[ENTITY UNLOCKED] '{}:{}' by {}.".format(self._model, self._id, caller))
 
         return self
 
-    def _load_fields_data_from_db(self, eid: _Union[str, _ObjectId]):
+    def _load_fields_data(self, eid: _Union[str, _ObjectId]):
         """Load fields data from the database
         """
         if isinstance(eid, str):
             eid = _ObjectId(eid)
 
-        # Get document from the database
-        data = self.collection.find_one({'_id': eid})
-        if not data:
-            raise _error.EntityNotFound("Entity '{}:{}' does not exist.".format(self._model, eid))
+        cache_key = '{}.{}'.format(self._model, eid)
 
-        # Fill fields with retrieved data
-        for f_name, value in data.items():
-            if f_name == '_id':
-                self._id = value
-            elif self.has_field(f_name):
-                field = self.get_field(f_name)
-                field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
-                field.set_storable_val(value)
+        try:
+            # Check if the entity fields data is in the cache
+            _ENTITIES_CACHE.get_hash(cache_key)
+        except _cache.error.KeyNotExist:
+            # Get entity data from database and put in to the cache
+            data = self.collection.find_one({'_id': eid})
+            if not data:
+                raise _error.EntityNotFound("Data for entity '{}:{}' is not found in database".format(self._model, eid))
 
-        # Of course, just loaded entity cannot be 'new' and 'modified'
+            # Put fields data into cache
+            _ENTITIES_CACHE.put_hash(cache_key, data)
+
+        # Notify fields that they now can operate with data through cache
+        for f_name in self.fields:
+            field = self.get_field(f_name)
+            field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
+            field.cache_key = cache_key
+
+        # Of course, loaded entity cannot be 'new' and 'modified'
         self._is_new = False
         self._is_modified = False
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug("[ENTITY DATA LOADED FROM DB] {}: {}, called by {}".format(self.ref_str, data, caller))
+            _logger.debug("[ENTITY DATA LOADED FROM DB] {}, called by {}".format(self.ref_str, caller))
 
     def define_index(self, definition: _List[_Tuple], unique=False):
         """Define an index.
@@ -247,7 +236,7 @@ class Entity(_ABC):
     def _check_is_locked(self):
         """Raise an exception if the entity is NOT locked.
         """
-        if not self._is_new and not self._lock_depth:
+        if not self._is_new and not self._lock_obj.locked:
             raise _error.EntityNotLocked("Entity '{}' should be locked at this point.".format(self._model))
 
     def has_field(self, field_name: str) -> bool:
@@ -295,7 +284,7 @@ class Entity(_ABC):
 
     @property
     def ref_str(self) -> str:
-        if self._is_new:
+        if not self._id:
             raise _error.EntityNotStored("Entity of model '{}' must be stored before you can get its ref."
                                          .format(self._model))
 
@@ -364,12 +353,12 @@ class Entity(_ABC):
         """
         return self._is_being_deleted
 
-    def f_set(self, field_name: str, value, update_state=True, **kwargs):
+    def f_set(self, field_name: str, value, update_state: bool = True, **kwargs):
         """Set field's value.
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[NON-STORED ENTITY] {}.f_set('{}', {}), called by {}".
@@ -398,14 +387,15 @@ class Entity(_ABC):
         """Get field's value.
         """
         # Get value
-        orig_val = self.get_field(field_name).get_val(**kwargs)
+        field = self.get_field(field_name)
+        orig_val = field.get_val(**kwargs) if not isinstance(field, _field.Virtual) else None
 
         # Pass value through hook method
         hooked_val = self._on_f_get(field_name, orig_val, **kwargs)
         if orig_val is not None and hooked_val is None:
             raise RuntimeWarning("_on_f_get() for field '{}.{}' returned None".format(self._model, field_name))
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[ODM NON-STORED ENTITY] {}.f_get('{}') -> '{}', called by {}".
@@ -426,7 +416,7 @@ class Entity(_ABC):
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[ODM NON-STORED ENTITY] {}.f_add('{}', {}), called by {}".
@@ -453,7 +443,7 @@ class Entity(_ABC):
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[ODM NON-STORED ENTITY] {}.f_sub('{}', {}), called by {}".
@@ -483,7 +473,7 @@ class Entity(_ABC):
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[ODM NON-STORED ENTITY] {}.f_inc('{}'), called by {}".
@@ -510,7 +500,7 @@ class Entity(_ABC):
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[ODM NON-STORED ENTITY] {}.f_dec('{}'), called by {}".
@@ -537,7 +527,7 @@ class Entity(_ABC):
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug(
@@ -573,7 +563,7 @@ class Entity(_ABC):
 
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug('[ODM NON-STORED ENTITY] {}.append_child({}), called by {}'.
@@ -597,7 +587,7 @@ class Entity(_ABC):
         """
         self._check_is_locked()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug('[ODM NON-STORED ENTITY] {}.remove_child({}), called by {}'.
@@ -622,7 +612,7 @@ class Entity(_ABC):
         if not self._is_modified:
             return self
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             if self.is_new:
                 _logger.debug("[ODM NON-STORED ENTITY SAVE STARTED] {}, called by {}".format(self._model, caller))
@@ -649,13 +639,13 @@ class Entity(_ABC):
         try:
             if self._is_new:
                 self.collection.insert_one(data)
-                if _dbg:
+                if _DBG:
                     caller = _util.format_call_stack_str(' > ', 2)
                     _logger.debug('[ODM ENTITY DATA DB INSERT] {}: {}, called by {}'.
                                   format(self._model, data, caller))
             else:
                 self.collection.replace_one({'_id': data['_id']}, data)
-                if _dbg:
+                if _DBG:
                     caller = _util.format_call_stack_str(' > ', 2)
                     _logger.debug('[ODM ENTITY DATA DB REPLACE] {}: {}, called by {}'.
                                   format(self.ref_str, data, caller))
@@ -700,7 +690,7 @@ class Entity(_ABC):
             finally:
                 self.unlock()
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             _logger.debug('[ODM ENTITY SAVE FINISHED] {}.save() finished, called by {}'.format(self.ref_str, caller))
 
@@ -722,50 +712,52 @@ class Entity(_ABC):
         self._check_is_locked()
 
         if self._is_new:
-            raise _errors.ForbidDeletion('New entities cannot be deleted')
+            raise _errors.ForbidDeletion('Non stored entities cannot be deleted')
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             _logger.debug('[ENTITY DELETE STARTED] {}, caller {}'.format(self.ref_str, caller))
 
         self._check_is_not_deleted()
 
+        # Flag that deletion is in progress
         self._is_being_deleted = True
 
-        # Pre delete hook
+        # Pre delete events and hook
         _events.fire('pytsite.odm.entity.pre_delete', entity=self)
         _events.fire('pytsite.odm.entity.{}.pre_delete'.format(self._model), entity=self)
         self._pre_delete(**kwargs)
 
-        # Notify fields about entity deletion
+        # Notify each field about entity deletion
         for f_name, field in self._fields.items():
             field.on_entity_delete()
 
         # Get children to notify them about parent deletion
         children = self.children
 
-        # Actual deletion from the database
-        if not self._is_new:
-            self.collection.delete_one({'_id': self._id})
+        # Actual deletion from the database and cache
+        self.collection.delete_one({'_id': self._id})
 
         # Clearing parent reference from orphaned children
         for child in children:
             with child:
                 child.f_clr('_parent').save()
 
-        # After delete hook
+        # After delete events and hook. It is important to call them BEFORE entity entity data will be
+        # completely removed from the cache
         self._after_delete(**kwargs)
         _events.fire('pytsite.odm.entity.delete', entity=self)
         _events.fire('pytsite.odm.entity.{}.delete'.format(self._model), entity=self)
 
-        # Clear finder cache
+        # Delete data from cache
         from . import _api
+        _ENTITIES_CACHE.rm('{}.{}'.format(self._model, self._id))
         _api.get_finder_cache(self._model).clear()
 
         self._is_deleted = True
         self._is_being_deleted = False
 
-        if _dbg:
+        if _DBG:
             caller = _util.format_call_stack_str(' > ', 2)
             _logger.debug('[ENTITY DELETION FINISHED] {}, caller {}'.format(self.ref_str, caller))
 
@@ -797,7 +789,7 @@ class Entity(_ABC):
             if check_required_fields and f.required and f.is_empty:
                 raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty".format(self._model, f_name))
 
-            r[f_name] = f.as_storable()
+            r[f_name] = f.internal_val
 
         return r
 
@@ -855,5 +847,5 @@ class Entity(_ABC):
     def __enter__(self):
         return self.lock()
 
-    def __exit__(self, t, v, tb):
+    def __exit__(self, exc_type, exc_val, exc_tb):
         self.unlock()

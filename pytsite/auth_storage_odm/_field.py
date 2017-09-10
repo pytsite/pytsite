@@ -1,7 +1,7 @@
 """PytSite Auth Storage ODM Fields.
 """
 from bson import DBRef as _DBRef
-from typing import Tuple as _Tuple, List as _List, Iterable as _Iterable, Optional as _Optional
+from typing import Tuple as _Tuple, List as _List, Iterable as _Iterable, Optional as _Optional, Union as _Union
 from pytsite import odm as _odm, auth as _auth
 
 __author__ = 'Alexander Shepetko'
@@ -10,41 +10,37 @@ __license__ = 'MIT'
 
 
 class Roles(_odm.field.UniqueStringList):
-    def _get_role(self, value) -> _auth.model.AbstractRole:
-        """Helper function
+    def _get_role_uid(self, value) -> str:
+        """Helper
         """
         if isinstance(value, _auth.model.AbstractRole):
-            return value
+            return value.uid
         elif isinstance(value, str):
-            return _auth.get_role(uid=value)
+            return _auth.get_role(uid=value).uid
         elif isinstance(value, _DBRef):
-            return _auth.get_role(uid=str(value.id))
+            return _auth.get_role(uid=str(value.id)).uid
         else:
             raise TypeError("Field '{}': role object, str or DB ref expected, got {}".format(self.name, type(value)))
 
-    def _on_set_storable(self, value: _Iterable[str]):
-        """Hook
-        """
-        return [self._get_role(r) for r in value]
+    def _on_get(self, value: _List[str], **kwargs) -> _Tuple[_auth.model.AbstractRole, ...]:
+        return tuple([_auth.get_role(uid=role_uid) for role_uid in value])
 
-    def _on_get_storable(self, value: _Iterable[_auth.model.AbstractRole]):
+    def _on_set(self, value: _Iterable, **kwargs) -> _List[str]:
         """Hook
         """
-        return [r.uid for r in value]
+        if value is None:
+            return []
 
-    def _on_set(self, value: _Iterable, **kwargs) -> _Iterable[_auth.model.AbstractRole]:
-        """Hook
-        """
         if not isinstance(value, (list, tuple)):
             raise TypeError("Field '{}': list or tuple expected, got {}".format(self.name, type(value)))
 
-        return [self._get_role(r) for r in value]
+        return [self._get_role_uid(r) for r in value]
 
-    def _on_add(self, internal_value, value_to_add, **kwargs):
-        return super()._on_add(internal_value, self._get_role(value_to_add).uid)
+    def _on_add(self, current_value: list, raw_value_to_add, **kwargs):
+        return super()._on_add(current_value, self._get_role_uid(raw_value_to_add))
 
-    def _on_sub(self, internal_value, value_to_sub, **kwargs):
-        return super()._on_sub(internal_value, self._get_role(value_to_sub).uid)
+    def _on_sub(self, current_value: list, raw_value_to_sub, **kwargs):
+        return super()._on_sub(current_value, self._get_role_uid(raw_value_to_sub))
 
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.
@@ -100,27 +96,21 @@ class User(_odm.field.Abstract):
             raise TypeError("Field '{}': user object, str or DB ref expected, got {}.".
                             format(self._name, type(value)))
 
-    def _on_set_default(self, value) -> str:
-        # Internally this field stores only user's UID as string
-        return self._on_set(value) if value else value
-
     def _on_set(self, value, **kwargs) -> str:
-        """Hook. Transforms externally set value to internal value.
+        """Hook
         """
         # Internally this field stores only user's UID as string
         return self._resolve_user_uid(value)
 
-    def _on_get(self, internal_value: str, **kwargs) -> _Optional[_auth.model.AbstractUser]:
-        """Hook. Transforms internal value to external one.
+    def _on_get(self, value: str, **kwargs) -> _Optional[_auth.model.AbstractUser]:
+        """Hook
         """
-        if internal_value == 'ANONYMOUS':
+        if value == 'ANONYMOUS':
             return _auth.get_anonymous_user()
-        elif internal_value == 'SYSTEM':
+        elif value == 'SYSTEM':
             return _auth.get_system_user()
-        elif internal_value:
-            return _auth.get_user(uid=internal_value)
         else:
-            return None
+            return _auth.get_user(uid=value) if value else None
 
     def sanitize_finder_arg(self, arg):
         """Hook. Used for sanitizing Finder's query argument.
@@ -153,29 +143,22 @@ class Users(User):
         """
         super().__init__(name, default=kwargs.get('default', []), **kwargs)
 
-    def _on_set_default(self, value):
-        return self._on_set(value) if value else value
-
-    def _on_set(self, value: _Iterable, **kwargs) -> list:
-        """Hook. Transforms externally set value to internal value.
+    def _on_set(self, value: _Union[list, tuple], **kwargs) -> _List[str]:
+        """Hook
         """
+        if value is None:
+            return []
+
         if not isinstance(value, (list, tuple)):
             raise TypeError("Field '{}': list or tuple expected, got {}.".format(self.name, type(value)))
 
-        clean_value = []
-        for v in value:
-            clean_value.append(self._resolve_user_uid(v))
+        return [self._resolve_user_uid(v) for v in value]
 
-        return clean_value
-
-    def _on_get(self, internal_value: list, **kwargs) -> _Tuple[_auth.model.AbstractUser, ...]:
-        """Hook. Transforms internal value to external one.
+    def _on_get(self, value: list, **kwargs) -> _Tuple[_auth.model.AbstractUser, ...]:
+        """Hook
         """
-        if internal_value is None:
-            internal_value = []
-
         r = []
-        for uid in internal_value:
+        for uid in value:
             try:
                 r.append(_auth.get_user(uid=uid))
             except _auth.error.UserNotExist:
@@ -183,18 +166,12 @@ class Users(User):
 
         return tuple(r)
 
-    def _on_add(self, internal_value: list, value_to_add, **kwargs):
-        if internal_value is None:
-            internal_value = []
+    def _on_add(self, current_value: list, raw_value_to_add, **kwargs):
+        current_value.append(self._resolve_user_uid(raw_value_to_add))
 
-        internal_value.append(self._resolve_user_uid(value_to_add))
+        return current_value
 
-        return internal_value
+    def _on_sub(self, current_value: list, raw_value_to_sub, **kwargs):
+        raw_value_to_sub = self._resolve_user_uid(raw_value_to_sub)
 
-    def _on_sub(self, internal_value: list, value_to_sub, **kwargs):
-        if internal_value is None:
-            internal_value = []
-
-        value_to_sub = self._resolve_user_uid(value_to_sub)
-
-        return [uid for uid in internal_value if uid != value_to_sub]
+        return [uid for uid in current_value if uid != raw_value_to_sub]

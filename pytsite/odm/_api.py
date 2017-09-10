@@ -1,6 +1,6 @@
 """ODM API Functions
 """
-from typing import Union as _Union, Iterable as _Iterable
+from typing import Union as _Union, Iterable as _Iterable, Optional as _Optional
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
 from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache, logger as _logger
@@ -10,14 +10,15 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_registered_models = {}
-_cache_driver = _reg.get('odm.cache.driver', 'redis')
-_finder_cache = {}
-_dbg = _reg.get('odm.debug.api')
+_CACHE_DRIVER = _reg.get('odm.cache.driver', 'redis')
+_ENTITIES_CACHE = _cache.get_pool('pytsite.odm.entities')
+_MODELS = {}
+_FINDER_CACHE = {}
+_DBG = _reg.get('odm.debug.api')
 
 
 def register_model(model: str, cls: _Union[str, type], replace: bool = False):
-    """Register new ODM model.
+    """Register a new ODM model
     """
     if isinstance(cls, str):
         cls = _util.get_class(cls)  # type: _model.Entity
@@ -31,9 +32,9 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
 
     # Create finder cache pool for each newly registered model
     if not replace:
-        _finder_cache[model] = _cache.create_pool('pytsite.odm.finder:' + model, _cache_driver)
+        _FINDER_CACHE[model] = _cache.create_pool('pytsite.odm.finder:' + model, _CACHE_DRIVER)
 
-    _registered_models[model] = cls
+    _MODELS[model] = cls
 
     cls.on_register(model)
     _events.fire('pytsite.odm.register', model=model, cls=cls, replace=replace)
@@ -45,37 +46,37 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
 
 
 def unregister_model(model: str):
-    """Unregister model.
+    """Unregister model
     """
     if not is_model_registered(model):
         raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
-    del _registered_models[model]
+    del _MODELS[model]
 
 
 def is_model_registered(model_name: str) -> bool:
-    """Checks if the model already registered.
+    """Checks if the model already registered
     """
-    return model_name in _registered_models
+    return model_name in _MODELS
 
 
 def get_model_class(model: str) -> type:
-    """Get registered class for model name.
+    """Get registered class for model name
     """
     if not is_model_registered(model):
         raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
 
-    return _registered_models[model]
+    return _MODELS[model]
 
 
 def get_registered_models() -> tuple:
-    """Get registered models names.
+    """Get registered models names
     """
-    return tuple(_registered_models.keys())
+    return tuple(_MODELS.keys())
 
 
-def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None], implied_model: str = None) -> _Union[_DBRef, None]:
-    """Resolve DB object reference.
+def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None], implied_model: str = None) -> _Optional[_DBRef]:
+    """Resolve DB object reference
     """
     if isinstance(something, _DBRef) or something is None:
         return something
@@ -87,7 +88,7 @@ def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None], implied_mod
         something = something.strip()
 
         if not something:
-            raise ValueError('Entity reference string is empty.')
+            raise ValueError('Entity reference string is empty')
 
         parts = something.split(':')
         if len(parts) != 2:
@@ -101,22 +102,24 @@ def resolve_ref(something: _Union[str, _model.Entity, _DBRef, None], implied_mod
 
     elif isinstance(something, dict):
         if 'uid' not in something:
-            raise ValueError('UID must be specified.')
+            raise ValueError('UID must be specified')
 
         if not implied_model and 'model' not in something:
-            raise ValueError('Model must be specified.')
+            raise ValueError('Model must be specified')
 
         if 'model' not in something and implied_model == '*':
-            raise ValueError('Model must be specified.')
+            raise ValueError('Model must be specified')
 
         model = implied_model if implied_model else something['model']
 
         return resolve_ref('{}:{}'.format(model, something['uid']))
 
-    raise ValueError("Cannot resolve DB reference: '{}'.".format(something))
+    raise ValueError("Cannot resolve DB reference: '{}'".format(something))
 
 
 def resolve_refs(something: _Iterable, implied_model: str = None) -> list:
+    """Resolve multiple DB objects references
+    """
     r = []
     for v in something:
         r.append(resolve_ref(v, implied_model))
@@ -124,16 +127,19 @@ def resolve_refs(something: _Iterable, implied_model: str = None) -> list:
     return r
 
 
-def get_by_ref(ref: _Union[str, _DBRef]) -> _Union[_model.Entity, None]:
-    """Dispense entity by DBRef.
+def get_by_ref(ref: _Union[str, _DBRef]) -> _model.Entity:
+    """Dispense entity by DBRef
     """
     doc = _db.get_database().dereference(resolve_ref(ref))
 
-    return dispense(doc['_model'], doc['_id']) if doc else None
+    if not doc:
+        raise _error.ReferenceNotFound("Reference '{}' is not found in the database".format(ref))
+
+    return dispense(doc['_model'], doc['_id'])
 
 
 def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Entity:
-    """Dispense an entity.
+    """Dispense an entity
     """
     if not is_model_registered(model):
         raise _error.ModelNotRegistered("ODM model '{}' is not registered".format(model))
@@ -142,7 +148,7 @@ def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Ent
 
     # Get an existing entity
     if uid:
-        if _dbg:
+        if _DBG:
             _logger.debug("[ODM DISPENSE EXISTING ENTITY] '{}:{}'.".format(model, uid))
 
         return model_class(model, uid)
@@ -151,14 +157,14 @@ def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Ent
     else:
         entity = model_class(model)
 
-        if _dbg:
+        if _DBG:
             _logger.debug("[ODM DISPENSE NEW ENTITY] '{}'.".format(model))
 
         return entity
 
 
-def find(model: str):
-    """Get finder instance.
+def find(model: str) -> _finder.Finder:
+    """Get finder instance
     """
     return _finder.Finder(model, _cache.get_pool('pytsite.odm.finder:' + model))
 
@@ -172,6 +178,6 @@ def aggregate(model: str):
 
 
 def get_finder_cache(model: str) -> _cache.driver.Abstract:
-    """Get finder cache pool.
+    """Get finder cache pool
     """
     return _cache.get_pool('pytsite.odm.finder:' + model)

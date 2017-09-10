@@ -30,8 +30,9 @@ class Element(_ABC):
     """Base HTML Element
     """
 
-    def __init__(self, content: str = None, child_sep: str = '', content_first=False, **kwargs):
+    def __init__(self, content=None, child_sep: str = '', content_first=False, **kwargs):
         """Init
+        :type content: Element | str
         """
         if isinstance(content, Element):
             content = str(content)

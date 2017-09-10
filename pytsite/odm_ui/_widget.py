@@ -1,6 +1,6 @@
 """ODM UI Widgets.
 """
-from typing import List as _List
+from typing import List as _List, Callable as _Callable
 from bson.dbref import DBRef as _DBRef
 from pytsite import widget as _widget, odm as _odm, lang as _lang
 
@@ -27,8 +27,8 @@ class EntitySelect(_widget.select.Select):
             raise ValueError('Caption field is not specified.')
 
         self._sort_field = kwargs.get('sort_field', self._caption_field)
-        self._finder_adjust = kwargs.get('finder_adjust')
-        self._caption_adjust = kwargs.get('caption_adjust')
+        self._finder_adjust = kwargs.get('finder_adjust')  # type: _Callable[[_odm.Finder], None]
+        self._caption_adjust = kwargs.get('caption_adjust')  # type: _Callable[[_odm.Finder], None]
 
     @property
     def sort_field(self) -> str:
@@ -100,9 +100,7 @@ class EntityCheckboxes(_widget.select.Checkboxes):
 
         self._exclude = []  # type: _List[_odm.model.Entity]
         for e in kwargs.get('exclude', ()):
-            entity = _odm.get_by_ref(_odm.resolve_ref(e))
-            if entity:
-                self._exclude.append(entity)
+            self._exclude.append(_odm.get_by_ref(_odm.resolve_ref(e)))
 
         # Available items will be set during call to self._get_element()
         self._items = []
