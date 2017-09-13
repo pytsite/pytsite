@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.0.1 (2017-09-13)
+### Fixed
+- `odm`: entities caching issue.
+
+
 ## 5.0 (2017-09-13)
 ### Added
 - New package `queue`.

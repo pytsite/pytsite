@@ -112,8 +112,11 @@ class AnyFiles(_odm.field.List):
 
         clean_value = []
         for file in value:
-            # Check file's existence
-            file = _get_file(file)
+            try:
+                # Check file's existence
+                file = _get_file(file)
+            except _file.error.FileNotFound:
+                continue
 
             # Check file's MIME type
             if self._allowed_mime_group != '*' and not file.mime.startswith(self._allowed_mime_group):

@@ -84,7 +84,7 @@ class Entity(_ABC):
 
         cache_key = '{}.{}'.format(self._model, eid)
 
-        # Try to laad entity data from cache
+        # Try to load entity data from cache
         try:
             data = _ENTITIES_CACHE.get(cache_key)
 
@@ -497,9 +497,10 @@ class Entity(_ABC):
         if self._is_new:
             fields_data['_id'] = _ObjectId()
 
-        # Save into storage and cache
+        # Save into storage
         _queue.put('entity_save', {
             'is_new': self._is_new,
+            'model': self._model,
             'collection_name': self._collection_name,
             'fields_data': fields_data,
         }).execute()
@@ -521,15 +522,15 @@ class Entity(_ABC):
         # Saved entity is not 'modified'
         self._is_modified = False
 
-        # Clear entire finder cache for the model if a new entity was created
-        if first_save:
-            from . import _api
-            _api.get_finder_cache(self._model).clear()
-
         # Save children with updated '_parent' field
         if self.children:
             for child in self.children:
                 child.save(update_timestamp=False)
+
+        # Clear entire finder cache for the model if a new entity was created
+        if first_save:
+            from . import _api
+            _api.get_finder_cache(self._model).clear()
 
         return self
 
@@ -569,14 +570,13 @@ class Entity(_ABC):
         # Actual deletion from the database and cache
         _queue.put('entity_delete', {
             'model': self._model,
-            '_id': self._id,
             'collection_name': self._collection_name,
+            '_id': self._id,
         }).execute()
 
-        # Clear cache
+        # Clear finder cache
         from . import _api
         _api.get_finder_cache(self._model).clear()
-        _ENTITIES_CACHE.rm('{}.{}'.format(self._model, self._id))
 
         # Clearing parent reference from orphaned children
         for child in children:
