@@ -14,5 +14,8 @@ def cron_weekly():
     # Delete expired entities
     f = _odm.find('geo_ip').lte('_created', _datetime.now() - _timedelta(weeks=1))
     for entity in f.get():
-        with entity :
+        try:
             entity.delete()
+        except _odm.error.EntityDeleted:
+            # Entity was deleted by another instance
+            pass

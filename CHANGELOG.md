@@ -1,6 +1,21 @@
 # PytSite Changelog
 
 
+## 5.0 (2017-09-13)
+### Added
+- New package `queue`.
+- `odm`: distributed entity processing.
+- `cache`: new functions: `l_push()` and `r_pop()`.
+
+### Changed
+- `util`: `get_class()` renamed to `get_module_attr()`.
+
+### Removed
+- `dlm` package.
+- `form` caching.
+- `threading`: locks related functions.
+
+
 ## 4.2 (2017-09-10)
 ### Added
 - New package: `dlm` -- Distributed Lock Manager.

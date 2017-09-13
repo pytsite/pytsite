@@ -196,18 +196,23 @@ class Form(_settings.Form):
                 # New message is the same as in the package's file translations, so custom translation can be deleted
                 if orig_translations[msg_id] == msg_trans:
                     if not entity.is_new:
-                        with entity:
+                        try:
                             entity.delete()
+                        except _odm.error.EntityDeleted:
+                            # Entity was deleted by another instance
+                            pass
 
                 # Save custom translation
                 else:
-                    with entity:
-                        entity.f_set('message_id', msg_full_id).f_set('translation', msg_trans).save()
+                    entity.f_set('message_id', msg_full_id).f_set('translation', msg_trans).save()
 
             # If no translation was provided, delete entity
             elif not entity.is_new:
-                with entity:
+                try:
                     entity.delete()
+                except _odm.error.EntityDeleted:
+                    # Entity was deleted by another instance
+                    pass
 
         # Clear translations cache
         _lang.clear_cache()

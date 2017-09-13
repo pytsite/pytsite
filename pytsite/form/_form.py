@@ -7,7 +7,7 @@ from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
 from pytsite import util as _util, widget as _widget, router as _router, validation as _validation, tpl as _tpl, \
     events as _events, lang as _lang, assetman as _assetman
-from . import _error, _cache
+from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,13 +41,7 @@ class Form(_ABC):
         # Messages CSS
         self._messages_css = kwargs.get('messages_css', 'form-messages')
 
-        # Set UID
-        while True:
-            uid = _util.random_str()
-            if not _cache.has(uid):
-                self._uid = uid
-                break
-
+        self._uid = _util.random_str()
         self._created = _datetime.now()
         self._name = kwargs.get('name') or _form_name_sub_re.sub('-', self.cid.lower())
         self._path = kwargs.get('path', _router.current_path(True))
@@ -98,10 +92,6 @@ class Form(_ABC):
 
         # Setup form
         self._on_setup_form(**kwargs)
-
-        # Put form into the cache
-        if not self._nocache:
-            _cache.put(self)
 
     def setup_widgets(self, remove_existing: bool = True):
         """Setup form's widgets.
@@ -438,13 +428,7 @@ class Form(_ABC):
     def submit(self):
         """Should be called by endpoint when it processing form submit.
          """
-        response = self._on_submit()
-
-        # Remove submitted form from the cache
-        if not self.nocache:
-            _cache.rm(self._uid)
-
-        return response
+        return self._on_submit()
 
     def render(self) -> str:
         """Render the form.

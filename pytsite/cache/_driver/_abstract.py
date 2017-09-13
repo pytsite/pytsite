@@ -44,27 +44,37 @@ class Abstract(_ABC):
 
     @_abstractmethod
     def put_hash(self, key: str, value: _Mapping, ttl: int = None) -> _Any:
-        """Put a hash-like item into the pool
+        """Put a hash item into the pool
         """
         pass
 
     @_abstractmethod
-    def put_hash_item(self, key: str, hash_key: str, value: _Any) -> _Any:
-        """Put a value into a hash-like item
+    def put_hash_item(self, key: str, item_key: str, value: _Any) -> _Any:
+        """Put a value into a hash
         """
         pass
 
     @_abstractmethod
     def get_hash(self, key: str, hash_keys: _List[str] = None) -> _Mapping:
-        """Get a hash-like item from the pool
+        """Get hash
         """
         pass
 
     @_abstractmethod
-    def get_hash_item(self, key: str, hash_key: str) -> _Any:
-        """Get a value for a key from a hash-like item
+    def get_hash_item(self, key: str, item_key: str) -> _Any:
+        """Get a avlue from a hash
         """
         pass
+
+    @_abstractmethod
+    def l_push(self, key: str, value: _Any) -> int:
+        """Push a value into beginning of a list
+        """
+
+    @_abstractmethod
+    def r_pop(self, key: str) -> _Any:
+        """Pop an item from the end of a list
+        """
 
     @_abstractmethod
     def ttl(self, key: str) -> int:
@@ -80,7 +90,7 @@ class Abstract(_ABC):
 
     @_abstractmethod
     def rm(self, key: str):
-        """Remove a single item from the pool
+        """Remove a value from the pool
         """
         pass
 

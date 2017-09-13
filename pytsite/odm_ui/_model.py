@@ -161,8 +161,11 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
     def odm_ui_d_form_submit(self):
         """Hook.
         """
-        with self:
+        try:
             self.delete()
+        except _odm.error.EntityDeleted:
+            # Entity was deleted by another instance
+            pass
 
     def odm_ui_d_form_url(self, ajax: bool = False) -> str:
         if hasattr(self, 'model') and hasattr(self, 'id'):

@@ -190,9 +190,9 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
     """Remove tags and attributes except safe_tags and empty tags is necessary.
     """
     safe_tags = 'a:href,target,rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
-                'dt|em|figcaption|figure|h1|h2|h3|h4|h5|h6|hr|i|iframe:src,width,height|img:src,alt|ins|kbd|li|mark|' \
-                'ol|output|p:style|param|pre:class|q|rt|ruby|s|samp|small|span|strong|sub|summary|sup|table:style|' \
-                'tbody|td:style|tfoot|th|thead|time|tr|u|ul|var|wbr'
+                'dt|em|figcaption|figure|h1:id|h2:id|h3:id|h4:id|h5:id|h6:id|hr|i|iframe:src,width,height|' \
+                'img:src,alt|ins|kbd|li|mark|ol|output|p:style,id|param|pre:class|q|rt|ruby|s|samp|small|span|strong|' \
+                'sub|summary|sup|table:style|tbody|td:style|tfoot|th|thead|time|tr|u|ul|var|wbr'
 
     if remove_tags:
         for remove_tag in remove_tags.split('|'):
@@ -445,21 +445,18 @@ def transform_str_2(s: str) -> str:
     return _re.sub('/', '-', transform_str_1(s))
 
 
-def get_class(s: str) -> type:
-    """Resolve class from dotted-notated name
+def get_module_attr(s: str):
+    """Resolve module attribute from dotted-notated name
     """
-    if not isinstance(s, str):
-        raise ValueError('String expected')
-
     class_fqn = cleanup_list(s.split('.'))
     if len(class_fqn) < 2:
-        raise NameError("Cannot determine class name from string '{}'.".format(s))
+        raise NameError("Cannot determine module attribute from '{}'.".format(s))
 
-    class_name = class_fqn[-1:][0]
+    attr_name = class_fqn[-1:][0]
     module_name = '.'.join(class_fqn[:-1])
-    module_obj = __import__(module_name, fromlist=[class_name])
+    module_obj = __import__(module_name, fromlist=[attr_name])
 
-    return getattr(module_obj, class_name)
+    return getattr(module_obj, attr_name)
 
 
 def cleanup_list(inp: _Union[_List, _Tuple], uniquize: bool = False) -> list:

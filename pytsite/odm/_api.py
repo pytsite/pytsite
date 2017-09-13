@@ -21,7 +21,7 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
     """Register a new ODM model
     """
     if isinstance(cls, str):
-        cls = _util.get_class(cls)  # type: _model.Entity
+        cls = _util.get_module_attr(cls)  # type: _model.Entity
 
     if not issubclass(cls, _model.Entity):
         raise TypeError("Unable to register model '{}': subclass of pytsite.odm.model.Entity expected."

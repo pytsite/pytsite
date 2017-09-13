@@ -1,7 +1,6 @@
-"""PytSite Distributed Lock Manager
+"""PytSite Queue
 """
-from ._api import lock
-from ._lock import Lock
+from ._queue import Queue
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'

@@ -191,12 +191,14 @@ class AnyFile(_file.model.AbstractFile):
         return self._entity.f_set(field_name, value, **kwargs)
 
     def save(self):
-        with self._entity as e:
-            e.save()
+        self._entity.save()
 
     def delete(self):
-        with self._entity as e:
-            e.delete()
+        try:
+            self._entity.delete()
+        except _odm.error.EntityDeleted:
+            # Entity was deleted by another instance
+            pass
 
 
 class ImageFile(_file.model.AbstractImage):
@@ -216,9 +218,11 @@ class ImageFile(_file.model.AbstractImage):
         return self._entity.f_set(field_name, value, **kwargs)
 
     def save(self):
-        with self._entity as e:
-            e.save()
+        self._entity.save()
 
     def delete(self):
-        with self._entity as e:
-            e.delete()
+        try:
+            self._entity.delete()
+        except _odm.error.EntityDeleted:
+            # Entity was deleted by another instance
+            pass

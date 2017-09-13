@@ -41,8 +41,7 @@ class AuthorizableEntity(_odm.model.Entity):
             except _auth.error.UserNotExist:
                 # Set first admin as owner
                 _auth.switch_user_to_system()
-                with self:
-                    self.f_set(field_name, _auth.get_first_admin_user()).save()
+                self.f_set(field_name, _auth.get_first_admin_user()).save()
                 _auth.restore_user()
 
                 return super().f_get(field_name, **kwargs)

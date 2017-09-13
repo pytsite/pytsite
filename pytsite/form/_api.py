@@ -1,7 +1,7 @@
 """PytSite Form API
 """
 from pytsite import util as _util
-from . import _form, _cache
+from . import _form
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -21,14 +21,10 @@ def dispense(request_inp: dict, fill_mode: str = None) -> _form.Form:
         else:
             values[k] = v
 
-    # Get form from the cache or build a new one
-    if kwargs.get('nocache', False):
-        form_cid = kwargs.get('cid')
-        if not form_cid:
-            raise RuntimeError('Form CID is not specified')
-        frm = _util.get_class(form_cid)(**kwargs)
-    else:
-        frm = _cache.get(kwargs.get('uid'))
+    form_cid = kwargs.get('cid')
+    if not form_cid:
+        raise RuntimeError('Form CID is not specified')
+    frm = _util.get_module_attr(form_cid)(**kwargs)
 
     # Setup widgets
     frm.step = int(kwargs.get('step', 1))

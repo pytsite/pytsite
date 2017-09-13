@@ -191,8 +191,7 @@ class PatchEntity(_routing.Controller):
             fields = fields.split(',')
 
         # Fill fields with values and save
-        with entity:
-            _fill_entity_fields(entity, self.args).save()
+        _fill_entity_fields(entity, self.args).save()
 
         jsonable = entity.as_jsonable()
 
@@ -221,7 +220,10 @@ class DeleteEntity(_routing.Controller):
             raise self.forbidden('Insufficient permissions')
 
         # Delete entity
-        with entity:
+        try:
             entity.delete()
+        except _odm.error.EntityDeleted:
+            # Entity was deleted by another instance
+            pass
 
         return {'status': True}

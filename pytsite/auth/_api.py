@@ -105,36 +105,35 @@ def get_storage_driver() -> _driver.Storage:
 def create_user(login: str, password: str = None) -> _model.AbstractUser:
     """Create new user
     """
-    with _threading.get_shared_r_lock():
-        if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
-            # Check user existence
+    if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
+        # Check user existence
+        try:
+            get_user(login)
+            raise _error.UserExists("User with login '{}' already exists.".format(login))
+
+        except _error.UserNotExist:
+            # Check login
+            user_login_rule.value = login
+            user_login_rule.validate()
+
+    # Create user
+    user = get_storage_driver().create_user(login, password)
+
+    # Do some actions with non-anonymous users
+    if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
+        # Automatic roles for new users
+        roles = []
+        for role_name in _reg.get('auth.signup.roles', ['user']):
             try:
-                get_user(login)
-                raise _error.UserExists("User with login '{}' already exists.".format(login))
+                roles.append(get_role(role_name))
+            except _error.RoleNotExist:
+                pass
 
-            except _error.UserNotExist:
-                # Check login
-                user_login_rule.value = login
-                user_login_rule.validate()
+        user.roles = roles
 
-        # Create user
-        user = get_storage_driver().create_user(login, password)
+        user.save()
 
-        # Do some actions with non-anonymous users
-        if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
-            # Automatic roles for new users
-            roles = []
-            for role_name in _reg.get('auth.signup.roles', ['user']):
-                try:
-                    roles.append(get_role(role_name))
-                except _error.RoleNotExist:
-                    pass
-
-            user.roles = roles
-
-            user.save()
-
-        return user
+    return user
 
 
 def get_user(login: str = None, nickname: str = None, uid: str = None, access_token: str = None) -> _model.AbstractUser:
@@ -213,42 +212,41 @@ def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
 def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Authenticate user
     """
-    with _threading.get_shared_r_lock():
-        try:
-            # Get user from driver
-            user = get_auth_driver(auth_driver_name).sign_in(data)
+    try:
+        # Get user from driver
+        user = get_auth_driver(auth_driver_name).sign_in(data)
 
-            if user.status != 'active':
-                raise _error.AuthenticationError("User account '{}' is not active.".format(user.login))
+        if user.status != 'active':
+            raise _error.AuthenticationError("User account '{}' is not active.".format(user.login))
 
-            switch_user(user)
+        switch_user(user)
 
-        except _error.AuthenticationError as e:
-            _logger.warn(str(e))
-            raise e
+    except _error.AuthenticationError as e:
+        _logger.warn(str(e))
+        raise e
 
-        # Update statistics
-        user.sign_in_count += 1
-        user.last_sign_in = _datetime.now()
+    # Update statistics
+    user.sign_in_count += 1
+    user.last_sign_in = _datetime.now()
+    user.save()
+
+    if _router.request():
+        # Set session marker
+        _router.session()['pytsite.auth.login'] = user.login
+
+        # Update IP address and geo data
+        user.last_ip = _router.request().remote_addr
+        if not user.country and user.geo_ip.country:
+            user.country = user.geo_ip.country
+        if not user.city and user.geo_ip.city:
+            user.city = user.geo_ip.city
+
         user.save()
 
-        if _router.request():
-            # Set session marker
-            _router.session()['pytsite.auth.login'] = user.login
+    # Login event
+    _events.fire('pytsite.auth.sign_in', user=user)
 
-            # Update IP address and geo data
-            user.last_ip = _router.request().remote_addr
-            if not user.country and user.geo_ip.country:
-                user.country = user.geo_ip.country
-            if not user.city and user.geo_ip.city:
-                user.city = user.geo_ip.city
-
-            user.save()
-
-        # Login event
-        _events.fire('pytsite.auth.sign_in', user=user)
-
-        return user
+    return user
 
 
 def get_access_token_info(token: str) -> dict:
@@ -264,37 +262,34 @@ def get_access_token_info(token: str) -> dict:
 def generate_access_token(user: _model.AbstractUser) -> str:
     """Generate new access token
     """
-    with _threading.get_shared_r_lock():
-        while True:
-            token = _util.random_str(32)
+    while True:
+        token = _util.random_str(32)
 
-            if not _access_tokens.has(token):
-                now = _datetime.now()
-                t_info = {
-                    'user_uid': user.uid,
-                    'ttl': _access_token_ttl,
-                    'created': now,
-                    'expires': now + _timedelta(seconds=_access_token_ttl),
-                }
-                _access_tokens.put(token, t_info, _access_token_ttl)
+        if not _access_tokens.has(token):
+            now = _datetime.now()
+            t_info = {
+                'user_uid': user.uid,
+                'ttl': _access_token_ttl,
+                'created': now,
+                'expires': now + _timedelta(seconds=_access_token_ttl),
+            }
+            _access_tokens.put(token, t_info, _access_token_ttl)
 
-                return token
+            return token
 
 
 def revoke_access_token(token: str):
     if not token or not _access_tokens.has(token):
         raise _error.InvalidAccessToken('Invalid access token')
 
-    with _threading.get_shared_r_lock():
-        _access_tokens.rm(token)
+    _access_tokens.rm(token)
 
 
 def prolong_access_token(token: str):
     """Prolong user's access token
     """
-    with _threading.get_shared_r_lock():
-        token_info = get_access_token_info(token)
-        _access_tokens.put(token, token_info, _access_token_ttl)
+    token_info = get_access_token_info(token)
+    _access_tokens.put(token, token_info, _access_token_ttl)
 
 
 def sign_out(user: _model.AbstractUser):

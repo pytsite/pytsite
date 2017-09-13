@@ -163,8 +163,7 @@ class Role(_auth.model.AbstractRole):
         return self._entity.f_get(field_name)
 
     def set_field(self, field_name: str, value):
-        with self._entity as e:
-            e.f_set(field_name, value)
+        self._entity.f_set(field_name, value)
 
         return self
 
@@ -173,14 +172,16 @@ class Role(_auth.model.AbstractRole):
         return self._entity.is_modified
 
     def save(self):
-        with self._entity as e:
-            e.save()
+        self._entity.save()
 
         return self
 
     def delete(self):
-        with self._entity as e:
-            e.delete()
+        try:
+            self._entity.delete()
+        except _odm.error.EntityDeleted:
+            # Entity was deleted by another instance
+            pass
 
         return self
 
@@ -237,10 +238,9 @@ class ODMUser(_odm_ui.model.UIEntity):
                 # Load user picture from Gravatar
                 img_url = 'https://www.gravatar.com/avatar/' + _util.md5_hex_digest(self.f_get('email')) + '?s=512'
                 img = _file.create(img_url)
-                with self:
-                    _auth.switch_user_to_system()
-                    self.f_set('picture', img).save()
-                    _auth.restore_user()
+                _auth.switch_user_to_system()
+                self.f_set('picture', img).save()
+                _auth.restore_user()
                 value = img
 
         return value
@@ -325,7 +325,11 @@ class ODMUser(_odm_ui.model.UIEntity):
         """
         pic = self.f_get('picture')
         if pic:
-            pic.delete()
+            try:
+                pic.delete()
+            except _odm.error.EntityDeleted:
+                # Entity was deleted by another instance
+                pass
 
     @classmethod
     def odm_ui_browser_setup(cls, browser: _odm_ui.Browser):
@@ -589,8 +593,7 @@ class User(_auth.model.AbstractUser):
         return self._entity.f_get(field_name)
 
     def set_field(self, field_name: str, value):
-        with self._entity as e:
-            e.f_set(field_name, value)
+        self._entity.f_set(field_name, value)
 
         return self
 
@@ -609,49 +612,41 @@ class User(_auth.model.AbstractUser):
         if self.is_system:
             raise RuntimeError('System user cannot be saved')
 
-        with self._entity as e:
-            e.save()
+        self._entity.save()
 
         return self
 
     def delete(self):
-        with self._entity as e:
-            e.delete()
+        self._entity.delete()
 
         return self
 
     def add_role(self, role: _auth.model.AbstractRole):
-        with self._entity as e:
-            e.f_add('roles', role)
+        self._entity.f_add('roles', role)
 
         return self
 
     def remove_role(self, role: _auth.model.AbstractRole):
-        with self._entity as e:
-            e.f_sub('roles', role)
+        self._entity.f_sub('roles', role)
 
         return self
 
     def add_follower(self, follower: _auth.model.AbstractUser):
-        with self._entity as e:
-            e.f_add('followers', follower)
+        self._entity.f_add('followers', follower)
 
         return self
 
     def remove_follower(self, follower: _auth.model.AbstractUser):
-        with self._entity as e:
-            e.f_sub('followers', follower)
+        self._entity.f_sub('followers', follower)
 
         return self
 
     def add_follows(self, user: _auth.model.AbstractUser):
-        with self._entity as e:
-            e.f_add('follows', user)
+        self._entity.f_add('follows', user)
 
         return self
 
     def remove_follows(self, user: _auth.model.AbstractUser):
-        with self._entity as e:
-            e.f_sub('follows', user)
+        self._entity.f_sub('follows', user)
 
         return self

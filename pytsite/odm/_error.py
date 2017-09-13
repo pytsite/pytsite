@@ -18,7 +18,20 @@ class ReferenceNotFound(Exception):
 
 
 class EntityNotFound(Exception):
-    pass
+    def __init__(self, model: str, eid: str):
+        self._model = model
+        self._eid = eid
+
+    @property
+    def model(self) -> str:
+        return self._model
+
+    @property
+    def eid(self) -> str:
+        return self._eid
+
+    def __str__(self):
+        return "Entity '{}:{}' is not found in database".format(self._model, self._eid)
 
 
 class EntityNotStored(Exception):

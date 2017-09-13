@@ -6,16 +6,12 @@ from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
 from bson.dbref import DBRef as _bson_DBRef
 from frozendict import frozendict as _frozendict
-from pytsite import lang as _lang, util as _util, reg as _reg, logger as _logger, validation as _validation, \
-    formatters as _formatters, cache as _cache
+from pytsite import lang as _lang, util as _util, validation as _validation, formatters as _formatters
 from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-_ENTITIES_CACHE = _cache.get_pool('pytsite.odm.entities')
-_DBG = _reg.get('odm.debug.field')
 
 
 class Abstract(_ABC):
@@ -31,8 +27,6 @@ class Abstract(_ABC):
         self._name = name
         self._required = kwargs.get('required', False)
         self._default = kwargs.get('default')
-        self._uid = None
-        self._cache_key = None
         self._value = self._default
 
     @property
@@ -45,7 +39,7 @@ class Abstract(_ABC):
 
     @property
     def is_empty(self) -> bool:
-        return not bool(self.internal_val)
+        return not bool(self._value)
 
     @property
     def name(self) -> str:
@@ -61,32 +55,6 @@ class Abstract(_ABC):
     def default(self, value):
         self._default = value
 
-    @property
-    def uid(self) -> str:
-        return self._uid
-
-    @uid.setter
-    def uid(self, uid: str):
-        self._uid = uid
-
-    @property
-    def cache_key(self) -> str:
-        return self._cache_key
-
-    @cache_key.setter
-    def cache_key(self, cache_key: str):
-        self._cache_key = cache_key
-
-    @property
-    def internal_val(self) -> _Any:
-        return _ENTITIES_CACHE.get_hash_item(self._cache_key, self._name) if self._cache_key else self._value
-
-    @internal_val.setter
-    def internal_val(self, value: _Any):
-        self._value = value
-        if self._cache_key:
-            _ENTITIES_CACHE.put_hash_item(self._cache_key, self._name, value)
-
     def _on_get(self, value, **kwargs):
         """Hook. Transforms internal value for external representation.
         """
@@ -95,10 +63,7 @@ class Abstract(_ABC):
     def get_val(self, **kwargs) -> _Any:
         """Get value of the field
         """
-        value = self._on_get(self.internal_val, **kwargs)
-
-        if _DBG:
-            _logger.debug("[FIELD] {}.{}.get_val() -> {}".format(self._uid, self._name, repr(value)))
+        value = self._on_get(self._value, **kwargs)
 
         return value
 
@@ -110,7 +75,7 @@ class Abstract(_ABC):
     def as_jsonable(self, **kwargs) -> _Union[int, str, float, bool, dict, tuple, list]:
         """Get JSONable representation of field's value
         """
-        return self._on_get_jsonable(self.internal_val, **kwargs)
+        return self._on_get_jsonable(self._value, **kwargs)
 
     def _on_set(self, raw_value, **kwargs):
         """Hook, called by self.set_val()
@@ -121,20 +86,14 @@ class Abstract(_ABC):
         """Set value of the field
         """
         # Pass value through the hook
-        self.internal_val = self._on_set(value, **kwargs)
-
-        if _DBG:
-            _logger.debug("[FIELD] {}.{}.set_val({})".format(self._uid, self._name, repr(self.internal_val)))
+        self._value = self._on_set(value, **kwargs)
 
         return self
 
     def clr_val(self):
         """Reset field's value to default
         """
-        self.internal_val = self._default
-
-        if _DBG:
-            _logger.debug("[FIELD] {}.{}.clr_val()".format(self._uid, self._name))
+        self._value = self._default
 
         return self
 
@@ -146,7 +105,7 @@ class Abstract(_ABC):
     def add_val(self, value_to_add, **kwargs):
         """Add a value to the field
         """
-        return self.set_val(self._on_add(self.internal_val, value_to_add, **kwargs), **kwargs)
+        return self.set_val(self._on_add(self._value, value_to_add, **kwargs), **kwargs)
 
     def _on_sub(self, current_value, raw_value_to_sub, **kwargs):
         """Hook, called by self.sub_val()
@@ -156,7 +115,7 @@ class Abstract(_ABC):
     def sub_val(self, value_to_sub, **kwargs):
         """Subtract a value from the field
         """
-        return self.set_val(self._on_sub(self.internal_val, value_to_sub, **kwargs), **kwargs)
+        return self.set_val(self._on_sub(self._value, value_to_sub, **kwargs), **kwargs)
 
     def _on_inc(self, **kwargs):
         """Hook, called by self.inc_val()
@@ -166,7 +125,7 @@ class Abstract(_ABC):
     def inc_val(self, **kwargs):
         """Increment the value of the field
         """
-        return self.set_val(self.internal_val + self._on_inc(**kwargs), **kwargs)
+        return self.set_val(self._value + self._on_inc(**kwargs), **kwargs)
 
     def _on_dec(self, **kwargs):
         """Hook, called by self.dec_val()
@@ -176,7 +135,7 @@ class Abstract(_ABC):
     def dec_val(self, **kwargs):
         """Decrement the value of the field
         """
-        return self.set_val(self.internal_val - self._on_dec(**kwargs), **kwargs)
+        return self.set_val(self._value - self._on_dec(**kwargs), **kwargs)
 
     def on_entity_delete(self):
         """Hook method to provide for fields notification mechanism about entity deletion.
@@ -378,9 +337,7 @@ class Dict(Abstract):
             raw_value = dict(raw_value)
 
         if self._dotted_keys:
-            new_value = {}
-            for k, v in raw_value.items():
-                new_value[k.replace('.', self._dotted_keys_replacement)] = v
+            raw_value = {k.replace('.', self._dotted_keys_replacement): v for k, v in raw_value.items()}
 
         if self._keys:
             for k in self._keys:

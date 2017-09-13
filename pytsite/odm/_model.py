@@ -5,21 +5,17 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime
 from pymongo import ASCENDING as I_ASC, DESCENDING as I_DESC, GEO2D as I_GEO2D, TEXT as I_TEXT, GEOSPHERE as I_GEOSPHERE
-from pymongo import errors as _pymonog_errors
 from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
-from bson import errors as _bson_errors
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, lang as _lang, logger as _logger, reg as _reg, errors as _errors, \
-    util as _util, dlm as _dlm, cache as _cache
-from . import _error, _field
+from pytsite import db as _db, events as _events, lang as _lang, errors as _errors, cache as _cache
+from . import _error, _field, _queue
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_DBG = _reg.get('odm.debug.entity')
 _ENTITIES_CACHE = _cache.get_pool('pytsite.odm.entities')
 
 
@@ -49,7 +45,6 @@ class Entity(_ABC):
         self._is_deleted = False
         self._indexes = []
         self._has_text_index = False
-        self._lock_obj = _dlm.Lock(_util.random_str())
 
         self._fields = _OrderedDict()  # type: _Dict[str, _field.Abstract]
 
@@ -74,33 +69,12 @@ class Entity(_ABC):
             # Set entity's ID
             self._id = _ObjectId(obj_id) if isinstance(obj_id, str) else obj_id
 
-            # Update lock object reference
-            self._lock_obj = _dlm.Lock(self.ref_str)
-
-            # Loading fields data from database or cache. Entity must be locked at this moment.
-            with self:
-                self._load_fields_data(obj_id)
+            # Loading fields data from database or cache
+            self._load_fields_data(obj_id)
 
     @classmethod
     def on_register(cls, model: str):
         pass
-
-    def lock(self):
-        """Lock the entity.
-        """
-        self._lock_obj.acquire()
-
-        return self
-
-    def unlock(self):
-        """Unlock the entity.
-        """
-        if not self._lock_obj.locked:
-            raise RuntimeError('Non-locked entity cannot be unlocked.')
-
-        self._lock_obj.release()
-
-        return self
 
     def _load_fields_data(self, eid: _Union[str, _ObjectId]):
         """Load fields data from the database
@@ -110,31 +84,32 @@ class Entity(_ABC):
 
         cache_key = '{}.{}'.format(self._model, eid)
 
+        # Try to laad entity data from cache
         try:
-            # Check if the entity fields data is in the cache
-            _ENTITIES_CACHE.get_hash(cache_key)
+            data = _ENTITIES_CACHE.get(cache_key)
+
+        # Get entity data from database
         except _cache.error.KeyNotExist:
-            # Get entity data from database and put in to the cache
             data = self.collection.find_one({'_id': eid})
             if not data:
-                raise _error.EntityNotFound("Data for entity '{}:{}' is not found in database".format(self._model, eid))
+                raise _error.EntityNotFound(self._model, str(eid))
 
-            # Put fields data into cache
-            _ENTITIES_CACHE.put_hash(cache_key, data)
+            # Put loaded data into the cache
+            _ENTITIES_CACHE.put(cache_key, data)
 
-        # Notify fields that they now can operate with data through cache
-        for f_name in self.fields:
-            field = self.get_field(f_name)
-            field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
-            field.cache_key = cache_key
+        # Fill fields with values from loaded data
+        for f_name, f_value in data.items():
+            try:
+                field = self.get_field(f_name)
+                field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
+                field.set_val(f_value)
+            except _error.FieldNotDefined:
+                # Fields definition may be removed from version to version, so just ignore this situation
+                pass
 
         # Of course, loaded entity cannot be 'new' and 'modified'
         self._is_new = False
         self._is_modified = False
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug("[ENTITY DATA LOADED FROM DB] {}, called by {}".format(self.ref_str, caller))
 
     def define_index(self, definition: _List[_Tuple], unique=False):
         """Define an index.
@@ -232,12 +207,6 @@ class Entity(_ABC):
         """
         if self._is_deleted:
             raise _error.EntityDeleted("Entity '{}' has been deleted.".format(self.ref_str))
-
-    def _check_is_locked(self):
-        """Raise an exception if the entity is NOT locked.
-        """
-        if not self._is_new and not self._lock_obj.locked:
-            raise _error.EntityNotLocked("Entity '{}' should be locked at this point.".format(self._model))
 
     def has_field(self, field_name: str) -> bool:
         """Check if the entity has a field.
@@ -356,17 +325,6 @@ class Entity(_ABC):
     def f_set(self, field_name: str, value, update_state: bool = True, **kwargs):
         """Set field's value.
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[NON-STORED ENTITY] {}.f_set('{}', {}), called by {}".
-                              format(self._model, field_name, repr(value), caller))
-            else:
-                _logger.debug("[STORED ENTITY] {}.f_set('{}', {}), called by {}".
-                              format(self.ref_str, field_name, repr(value), caller))
-
         hooked_val = self._on_f_set(field_name, value, **kwargs)
         if value is not None and hooked_val is None:
             raise RuntimeWarning("_on_f_set() for field '{}.{}' returned None".format(self._model, field_name))
@@ -395,15 +353,6 @@ class Entity(_ABC):
         if orig_val is not None and hooked_val is None:
             raise RuntimeWarning("_on_f_get() for field '{}.{}' returned None".format(self._model, field_name))
 
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_get('{}') -> '{}', called by {}".
-                              format(self._model, field_name, hooked_val, caller))
-            else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_get('{}') -> '{}', called by {}".
-                              format(self.ref_str, field_name, hooked_val, caller))
-
         return hooked_val
 
     def _on_f_get(self, field_name: str, value, **kwargs):
@@ -414,17 +363,6 @@ class Entity(_ABC):
     def f_add(self, field_name: str, value, update_state=True, **kwargs):
         """Add a value to the field.
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_add('{}', {}), called by {}".
-                              format(self._model, field_name, repr(value), caller))
-            else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_add('{}', {}), called by {}".
-                              format(self.ref_str, field_name, repr(value), caller))
-
         value = self._on_f_add(field_name, value, **kwargs)
         self.get_field(field_name).add_val(value, **kwargs)
 
@@ -441,17 +379,6 @@ class Entity(_ABC):
     def f_sub(self, field_name: str, value, update_state=True, **kwargs):
         """Subtract value from the field.
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_sub('{}', {}), called by {}".
-                              format(self._model, field_name, repr(value), caller))
-            else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_sub('{}', {}), called by {}".
-                              format(self.ref_str, field_name, repr(value), caller))
-
         # Call hook
         value = self._on_f_sub(field_name, value, **kwargs)
 
@@ -471,17 +398,6 @@ class Entity(_ABC):
     def f_inc(self, field_name: str, update_state=True, **kwargs):
         """Increment value of the field.
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_inc('{}'), called by {}".
-                              format(self._model, field_name, caller))
-            else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_inc('{}'), called by {}".
-                              format(self.ref_str, field_name, caller))
-
         self._on_f_inc(field_name, **kwargs)
         self.get_field(field_name).inc_val(**kwargs)
 
@@ -498,17 +414,6 @@ class Entity(_ABC):
     def f_dec(self, field_name: str, update_state=True, **kwargs):
         """Decrement value of the field
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY] {}.f_dec('{}'), called by {}".
-                              format(self._model, field_name, caller))
-            else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_dec('{}'), called by {}".
-                              format(self.ref_str, field_name, caller))
-
         self._on_f_dec(field_name, **kwargs)
         self.get_field(field_name).dec_val(**kwargs)
 
@@ -525,16 +430,6 @@ class Entity(_ABC):
     def f_clr(self, field_name: str, update_state=True, **kwargs):
         """Clear field.
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug(
-                    "[ODM NON-STORED ENTITY] {}.f_clr(), called by {}".format(self._model, field_name, caller))
-            else:
-                _logger.debug("[ODM STORED ENTITY] {}.f_clr(), called by {}".format(self.ref_str, field_name, caller))
-
         self._on_f_clr(field_name, **kwargs)
         self.get_field(field_name).clr_val()
 
@@ -561,20 +456,8 @@ class Entity(_ABC):
         if child.is_new:
             raise RuntimeError('Entity should be saved before it can be as a child')
 
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug('[ODM NON-STORED ENTITY] {}.append_child({}), called by {}'.
-                              format(self._model, repr(child), caller))
-            else:
-                _logger.debug('[ODM STORED ENTITY] {}.append_child({}), called by {}'.
-                              format(self.ref_str, repr(child), caller))
-
-        with child:
-            child.f_set('_parent', self)
-            child.f_set('_depth', self.depth + 1)
+        child.f_set('_parent', self)
+        child.f_set('_depth', self.depth + 1)
 
         self.f_add('_children', child)
 
@@ -585,17 +468,6 @@ class Entity(_ABC):
 
         :type child: Entity
         """
-        self._check_is_locked()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug('[ODM NON-STORED ENTITY] {}.remove_child({}), called by {}'.
-                              format(self._model, repr(child), caller))
-            else:
-                _logger.debug('[ODM STORED ENTITY] {}.remove_child({}), called by {}'.
-                              format(self.ref_str, repr(child), caller))
-
         self.f_sub('_children', child)
         child.f_clr('_parent')
 
@@ -604,95 +476,60 @@ class Entity(_ABC):
     def save(self, **kwargs):
         """Save the entity.
         """
-        self._check_is_locked()
-
-        update_timestamp = kwargs.get('update_timestamp', True)
-
         # Don't save entity if it wasn't changed
         if not self._is_modified:
             return self
 
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            if self.is_new:
-                _logger.debug("[ODM NON-STORED ENTITY SAVE STARTED] {}, called by {}".format(self._model, caller))
-            else:
-                _logger.debug('[ODM STORED ENTITY SAVE STARTED] {}, called by {}'.format(self.ref_str, caller))
-
         # Pre-save hook
-        self._pre_save()
-        _events.fire('pytsite.odm.entity.pre_save', entity=self)
-        _events.fire('pytsite.odm.entity.pre_save.' + self._model, entity=self)
+        if kwargs.get('pre_hooks', True):
+            self._pre_save()
+            _events.fire('pytsite.odm.entity.pre_save', entity=self)
+            _events.fire('pytsite.odm.entity.pre_save.' + self._model, entity=self)
 
-        # Updating change timestamp
-        if update_timestamp:
+        # Update timestamp
+        if kwargs.get('update_timestamp', True):
             self.f_set('_modified', _datetime.now())
 
         # Getting storable data of each field
-        data = self.as_storable()
+        fields_data = self.as_storable()
 
-        # Let DB to calculate object's ID
+        # Create object's ID
         if self._is_new:
-            del data['_id']
+            fields_data['_id'] = _ObjectId()
 
-        # Save data into the database
-        try:
-            if self._is_new:
-                self.collection.insert_one(data)
-                if _DBG:
-                    caller = _util.format_call_stack_str(' > ', 2)
-                    _logger.debug('[ODM ENTITY DATA DB INSERT] {}: {}, called by {}'.
-                                  format(self._model, data, caller))
-            else:
-                self.collection.replace_one({'_id': data['_id']}, data)
-                if _DBG:
-                    caller = _util.format_call_stack_str(' > ', 2)
-                    _logger.debug('[ODM ENTITY DATA DB REPLACE] {}: {}, called by {}'.
-                                  format(self.ref_str, data, caller))
-
-        except (_bson_errors.BSONError, _pymonog_errors.PyMongoError) as e:
-            _logger.error(e)
-            _logger.error('Document dump: {}'.format(data))
-            raise e
-
-        # Update fields' UID so they can store values into shared cache
-        if self._is_new:
-            for f_name, f in self.fields.items():
-                f.uid = '{}.{}.{}'.format(self._model, data['_id'], f_name)
+        # Save into storage and cache
+        _queue.put('entity_save', {
+            'is_new': self._is_new,
+            'collection_name': self._collection_name,
+            'fields_data': fields_data,
+        }).execute()
 
         # Saved entity cannot be 'new'
         if self._is_new:
             first_save = True
-            self._id = data['_id']
+            self._id = fields_data['_id']
             self._is_new = False
         else:
             first_save = False
 
         # After-save hook
-        self._after_save(first_save, **kwargs)
-        _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
-        _events.fire('pytsite.odm.entity.save.' + self._model, entity=self, first_save=first_save)
+        if kwargs.get('after_hooks', True):
+            self._after_save(first_save, **kwargs)
+            _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
+            _events.fire('pytsite.odm.entity.save.' + self._model, entity=self, first_save=first_save)
 
         # Saved entity is not 'modified'
         self._is_modified = False
 
-        # Clear entire finder cache for the model
-        from . import _api
-        _api.get_finder_cache(self._model).clear()
+        # Clear entire finder cache for the model if a new entity was created
+        if first_save:
+            from . import _api
+            _api.get_finder_cache(self._model).clear()
 
         # Save children with updated '_parent' field
         if self.children:
-            try:
-                self.lock()
-                for child in self.children:
-                    with child:
-                        child.save(update_timestamp=False)
-            finally:
-                self.unlock()
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug('[ODM ENTITY SAVE FINISHED] {}.save() finished, called by {}'.format(self.ref_str, caller))
+            for child in self.children:
+                child.save(update_timestamp=False)
 
         return self
 
@@ -707,16 +544,10 @@ class Entity(_ABC):
         pass
 
     def delete(self, **kwargs):
-        """Delete the entity.
+        """Delete the entity
         """
-        self._check_is_locked()
-
         if self._is_new:
             raise _errors.ForbidDeletion('Non stored entities cannot be deleted')
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug('[ENTITY DELETE STARTED] {}, caller {}'.format(self.ref_str, caller))
 
         self._check_is_not_deleted()
 
@@ -736,12 +567,20 @@ class Entity(_ABC):
         children = self.children
 
         # Actual deletion from the database and cache
-        self.collection.delete_one({'_id': self._id})
+        _queue.put('entity_delete', {
+            'model': self._model,
+            '_id': self._id,
+            'collection_name': self._collection_name,
+        }).execute()
+
+        # Clear cache
+        from . import _api
+        _api.get_finder_cache(self._model).clear()
+        _ENTITIES_CACHE.rm('{}.{}'.format(self._model, self._id))
 
         # Clearing parent reference from orphaned children
         for child in children:
-            with child:
-                child.f_clr('_parent').save()
+            child.f_clr('_parent').save()
 
         # After delete events and hook. It is important to call them BEFORE entity entity data will be
         # completely removed from the cache
@@ -749,17 +588,8 @@ class Entity(_ABC):
         _events.fire('pytsite.odm.entity.delete', entity=self)
         _events.fire('pytsite.odm.entity.{}.delete'.format(self._model), entity=self)
 
-        # Delete data from cache
-        from . import _api
-        _ENTITIES_CACHE.rm('{}.{}'.format(self._model, self._id))
-        _api.get_finder_cache(self._model).clear()
-
         self._is_deleted = True
         self._is_being_deleted = False
-
-        if _DBG:
-            caller = _util.format_call_stack_str(' > ', 2)
-            _logger.debug('[ENTITY DELETION FINISHED] {}, caller {}'.format(self.ref_str, caller))
 
         return self
 
@@ -789,7 +619,7 @@ class Entity(_ABC):
             if check_required_fields and f.required and f.is_empty:
                 raise _error.FieldEmpty("Value of the field '{}.{}' cannot be empty".format(self._model, f_name))
 
-            r[f_name] = f.internal_val
+            r[f_name] = f._value
 
         return r
 
@@ -843,9 +673,3 @@ class Entity(_ABC):
             return self.ref == other.ref
 
         return False
-
-    def __enter__(self):
-        return self.lock()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.unlock()

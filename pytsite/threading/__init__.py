@@ -1,14 +1,11 @@
 """PytSite Threading
 """
 import threading as _python_threading
-from threading import RLock, Thread, Timer
+from threading import Thread, Timer
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-# Ready to use re-entrant lock
-_shared_r_lock = RLock()
 
 
 def get_id() -> int:
@@ -29,19 +26,13 @@ def create_thread(target, **kwargs) -> Thread:
     return Thread(target=target, kwargs=kwargs)
 
 
-def create_timer(target, timeout: float, **kwargs) -> Timer:
+def create_timer(target, delay: float, **kwargs) -> Timer:
     """Create a timer
     """
-    return Timer(timeout, target, kwargs=kwargs)
+    return Timer(delay, target, kwargs=kwargs)
 
 
-def create_r_lock():
-    """Create re-entrant lock
+def run_in_thread(target, delay: float = 0.0, **kwargs):
+    """Run target in thread
     """
-    return RLock()
-
-
-def get_shared_r_lock():
-    """Get shared re-entrant lock
-    """
-    return _shared_r_lock
+    create_timer(target, delay, **kwargs).start()
