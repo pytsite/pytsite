@@ -813,7 +813,7 @@ class Integer(Abstract):
 
 
 class Decimal(Abstract):
-    """Decimal Field.
+    """Decimal Field
     """
 
     def __init__(self, name: str, **kwargs):
@@ -825,11 +825,7 @@ class Decimal(Abstract):
         self._precision = kwargs.get('precision', 28)
         self._round = kwargs.get('round')
 
-        default = kwargs.get('default', _Decimal(0))
-        if isinstance(default, float):
-            default = str(default)
-        if not isinstance(default, _Decimal):
-            default = _Decimal(default)
+        default = kwargs.get('default', 0.0)
 
         if self._round:
             default = round(default, self._round)
@@ -838,8 +834,13 @@ class Decimal(Abstract):
 
         super().__init__(name, **kwargs)
 
-    def _sanitize_type(self, raw_value) -> float:
-        """Convert input value to the decimal.Decimal.
+    def _on_get(self, value, **kwargs) -> _Decimal:
+        """Get storable value of the field
+        """
+        return _Decimal(value)
+
+    def _on_set(self, raw_value, **kwargs) -> float:
+        """Set value of the field.
 
         :type raw_value: _Decimal | float | int | str
         """
@@ -854,29 +855,25 @@ class Decimal(Abstract):
 
         return raw_value
 
-    def _on_get(self, value, **kwargs) -> _Decimal:
-        """Get storable value of the field
-        """
-        return _Decimal(value)
-
-    def _on_set(self, raw_value, **kwargs) -> float:
-        """Set value of the field.
-
-        :type raw_value: _Decimal | float | int | str
-        """
-        return self._sanitize_type(raw_value)
-
     def _on_add(self, current_value: float, raw_value_to_add, **kwargs) -> float:
         """
         :type raw_value_to_add: _Decimal | float | integer | str
         """
-        return current_value + self._sanitize_type(raw_value_to_add)
+        try:
+            return float(_Decimal(current_value) + _Decimal(raw_value_to_add))
+        except ValueError:
+            raise TypeError("'{}' cannot be used as a value of the field '{}'"
+                            .format(repr(raw_value_to_add), self.name))
 
     def _on_sub(self, current_value, raw_value_to_sub, **kwargs) -> float:
         """
         :type value: _Decimal | float | integer | str
         """
-        return current_value - self._sanitize_type(raw_value_to_sub)
+        try:
+            return float(_Decimal(current_value) - _Decimal(raw_value_to_sub))
+        except ValueError:
+            raise TypeError("'{}' cannot be used as a value of the field '{}'"
+                            .format(repr(raw_value_to_sub), self.name))
 
     def sanitize_finder_arg(self, arg) -> float:
         """Hook used for sanitizing Finder's query argument

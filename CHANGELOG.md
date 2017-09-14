@@ -1,12 +1,17 @@
 # PytSite Changelog
 
 
-## 5.0.2 (2017-09-13)
+## 5.0.3 (2017-09-14)
+### Fixed
+- `odm`: `Decimal` field serialization.
+
+
+## 5.0.2 (2017-09-14)
 ### Fixed
 - `auth`: missing event.
 
 
-## 5.0.1 (2017-09-13)
+## 5.0.1 (2017-09-14)
 ### Fixed
 - `odm`: entities caching issue.
 

@@ -36,6 +36,10 @@ def _entity_save(args: dict):
         _logger.error('Document dump: {}'.format(fields_data))
         raise e
 
+    except Exception as e:
+        _logger.error(fields_data)
+
+        raise e
 
 def _entity_delete(args: dict):
     # Delete from DB
