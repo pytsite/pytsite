@@ -246,11 +246,13 @@ def install(plugin_spec: str) -> int:
     if _semver.compare(allowed_versions['min'], desired_version_min) <= 0:
         allowed_versions['min'] = desired_version_min
     else:
-        raise _error.PluginDependencyError('{}{} cannot be installed'.format(plugin_name, desired_version_spec))
+        raise _error.PluginDependencyError('{}{} cannot be installed because minimal acceptable version is {}'
+                                           .format(plugin_name, desired_version_spec, allowed_versions['min']))
     if _semver.compare(allowed_versions['max'], desired_version_max) >= 0:
         allowed_versions['max'] = desired_version_max
     else:
-        raise _error.PluginDependencyError('{}{} cannot be installed'.format(plugin_name, desired_version_spec))
+        raise _error.PluginDependencyError('{}{} cannot be installed because maximal acceptable version is {}'
+                                           .format(plugin_name, desired_version_spec, allowed_versions['max']))
 
     # Get available remote plugin info
     try:

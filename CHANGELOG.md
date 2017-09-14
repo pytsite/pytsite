@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.0.2 (2017-09-13)
+### Fixed
+- `auth`: missing event.
+
+
 ## 5.0.1 (2017-09-13)
 ### Fixed
 - `odm`: entities caching issue.

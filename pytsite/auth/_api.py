@@ -109,7 +109,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         # Check user existence
         try:
             get_user(login)
-            raise _error.UserExists("User with login '{}' already exists.".format(login))
+            raise _error.UserExists("User with login '{}' already exists".format(login))
 
         except _error.UserNotExist:
             # Check login
@@ -132,6 +132,8 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         user.roles = roles
 
         user.save()
+
+        _events.fire('pytsite.auth.user.create', user=user)
 
     return user
 
