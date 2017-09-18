@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.0.4 (2017-09-18)
+### Fixed
+- `odm`: behaviour of `field.Virtual`.
+
+
 ## 5.0.3 (2017-09-14)
 ### Fixed
 - `odm`: `Decimal` field serialization.

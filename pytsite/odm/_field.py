@@ -43,7 +43,7 @@ class Abstract(_ABC):
 
     @property
     def name(self) -> str:
-        """Get name of the field.
+        """Get name of the field
         """
         return self._name
 
@@ -56,7 +56,7 @@ class Abstract(_ABC):
         self._default = value
 
     def _on_get(self, value, **kwargs):
-        """Hook. Transforms internal value for external representation.
+        """Hook. Transforms internal value for external representation
         """
         return value
 
@@ -120,7 +120,7 @@ class Abstract(_ABC):
     def _on_inc(self, **kwargs):
         """Hook, called by self.inc_val()
         """
-        raise NotImplementedError('Value of this field cannot be incremented')
+        raise NotImplementedError("Value of the field '{}' cannot be incremented".format(self._name))
 
     def inc_val(self, **kwargs):
         """Increment the value of the field
@@ -130,7 +130,7 @@ class Abstract(_ABC):
     def _on_dec(self, **kwargs):
         """Hook, called by self.dec_val()
         """
-        raise NotImplementedError('Value of this field cannot be decremented')
+        raise NotImplementedError("Value of the field '{}' cannot be decremented".format(self._name))
 
     def dec_val(self, **kwargs):
         """Decrement the value of the field
@@ -154,22 +154,9 @@ class Abstract(_ABC):
 
 
 class Virtual(Abstract):
-    """Virtual field always returns calculated values
+    """Virtual Field
     """
-
-    @property
-    def internal_val(self) -> _Any:
-        raise RuntimeError('Virtual field cannot store a value')
-
-    @internal_val.setter
-    def internal_val(self, value: _Any):
-        raise RuntimeError('Virtual field cannot store a value')
-
-    def set_val(self, value, **kwargs):
-        raise RuntimeError('Virtual field cannot store a value')
-
-    def get_val(self, **kwargs):
-        raise RuntimeError('Virtual field cannot store a value')
+    pass
 
 
 class List(Abstract):
@@ -792,13 +779,13 @@ class Integer(Abstract):
 
         return raw_value
 
-    def _on_inc(self, **kwargs):
-        """Increment field's value.
+    def _on_inc(self, **kwargs) -> int:
+        """Decrement field's value hook
         """
         return 1
 
-    def _on_dec(self, **kwargs):
-        """Increment field's value.
+    def _on_dec(self, **kwargs) -> int:
+        """Decrement field's value hook
         """
         return 1
 

@@ -325,11 +325,13 @@ class Entity(_ABC):
     def f_set(self, field_name: str, value, update_state: bool = True, **kwargs):
         """Set field's value.
         """
+        field = self.get_field(field_name)
+
         hooked_val = self._on_f_set(field_name, value, **kwargs)
         if value is not None and hooked_val is None:
             raise RuntimeWarning("_on_f_set() for field '{}.{}' returned None".format(self._model, field_name))
 
-        self.get_field(field_name).set_val(hooked_val, **kwargs)
+        field.set_val(hooked_val, **kwargs)
 
         if update_state:
             self._is_modified = True
@@ -345,8 +347,7 @@ class Entity(_ABC):
         """Get field's value.
         """
         # Get value
-        field = self.get_field(field_name)
-        orig_val = field.get_val(**kwargs) if not isinstance(field, _field.Virtual) else None
+        orig_val = self.get_field(field_name).get_val(**kwargs)
 
         # Pass value through hook method
         hooked_val = self._on_f_get(field_name, orig_val, **kwargs)
@@ -612,6 +613,7 @@ class Entity(_ABC):
         }
 
         for f_name, f in self.fields.items():
+            # Virtual fields don't store values in the database
             if isinstance(f, _field.Virtual):
                 continue
 

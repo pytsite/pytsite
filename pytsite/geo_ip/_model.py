@@ -84,6 +84,7 @@ class GeoIP(_odm.model.Entity):
         """
         if field_name == 'longitude':
             self.f_set('location', {'lng': value, 'lat': self.location['lat']})
+
         elif field_name == 'latitude':
             self.f_set('location', {'lng': self.location['lng'], 'lat': value})
 
