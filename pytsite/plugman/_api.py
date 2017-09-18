@@ -239,26 +239,21 @@ def install(plugin_spec: str) -> int:
 
     # Get version constraints from other plugins, current theme and application
     allowed_versions = get_allowed_version_range(plugin_name)
+    allowed_v_min = allowed_versions['min']
+    allowed_v_max = allowed_versions['max']
 
     # Apply desired version to allowed versions
-    desired_version_min = _semver.minimum(desired_version_spec)
-    desired_version_max = _semver.maximum(desired_version_spec)
-    if _semver.compare(allowed_versions['min'], desired_version_min) <= 0:
-        allowed_versions['min'] = desired_version_min
-    else:
-        raise _error.PluginDependencyError('{}{} cannot be installed because minimal acceptable version is {}'
-                                           .format(plugin_name, desired_version_spec, allowed_versions['min']))
-    if _semver.compare(allowed_versions['max'], desired_version_max) >= 0:
-        allowed_versions['max'] = desired_version_max
-    else:
-        raise _error.PluginDependencyError('{}{} cannot be installed because maximal acceptable version is {}'
-                                           .format(plugin_name, desired_version_spec, allowed_versions['max']))
+    desired_v_min = _semver.minimum(desired_version_spec)
+    desired_v_max = _semver.maximum(desired_version_spec)
 
+    if _semver.compare(allowed_v_min, desired_v_min) > 0 > _semver.compare(allowed_v_max, desired_v_max):
+        raise _error.PluginDependencyError('{}{} cannot be installed because acceptable version is {}'
+                                           .format(plugin_name, desired_version_spec, allowed_versions))
     # Get available remote plugin info
     try:
         p_remote_info = remote_plugin_info(plugin_name, [
-            '>={}'.format(allowed_versions['min']),
-            '<={}'.format(allowed_versions['max']),
+            '>={}'.format(desired_v_min),
+            '<={}'.format(desired_v_max),
         ])
     except _error.PluginsApiError as e:
         if e.error_content.startswith('Unknown plugin'):

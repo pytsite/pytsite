@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.0.5 (2017-09-18)
+### Fixed
+- `plugman`: dependencies checking.
+
+
 ## 5.0.4 (2017-09-18)
 ### Fixed
 - `odm`: behaviour of `field.Virtual`.
