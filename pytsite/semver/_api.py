@@ -77,6 +77,18 @@ def compare(a: str, b: str) -> int:
         return 0
 
 
+def increment(version: str) -> str:
+    """Increment a version by one
+    """
+    return str(_Version(version) + 1)
+
+
+def decrement(version: str) -> str:
+    """Decrement a version by one
+    """
+    return str(_Version(version) - 1)
+
+
 def to_int(version: str) -> int:
     """Get integer representation of version string
     """

@@ -13,9 +13,11 @@ class PostInstall(_routing.Controller):
         if not _auth.get_current_user().has_permission('pytsite.plugman.manage'):
             raise self.forbidden()
 
-        info = _api.install(self.arg('name'))
+        plugin_name = self.arg('name')
 
-        return info
+        _api.install(plugin_name)
+
+        return _api.plugin_info(plugin_name)
 
 
 class PostUninstall(_routing.Controller):

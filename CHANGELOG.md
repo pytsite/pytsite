@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 5.0.6 (2017-09-20)
+### Added
+- `http_api`: new argument in `handle()`: `defaults`.
+- `semver`: new functions: `increment()`, `decrement()`.
+
+### Fixed
+- `plugman`: dependencies checking.
+
+
 ## 5.0.5 (2017-09-18)
 ### Fixed
 - `plugman`: dependencies checking.

@@ -10,7 +10,8 @@ __license__ = 'MIT'
 _rules_map = _routing.RulesMap()
 
 
-def handle(method: str, path: str, controller: _Union[str, _routing.Controller], name: str = None, version: int = 0):
+def handle(method: str, path: str, controller: _Union[str, _routing.Controller], name: str = None, version: int = 0,
+           defaults: dict = None):
     """Register API request handler
     """
     if isinstance(controller, str):
@@ -18,7 +19,7 @@ def handle(method: str, path: str, controller: _Union[str, _routing.Controller],
     elif not isinstance(controller, _routing.Controller):
         raise TypeError('Str or controller expected, got {}'.format(type(controller)))
 
-    _rules_map.add(_routing.Rule(controller, path, name, methods=method, attrs={'version': version}))
+    _rules_map.add(_routing.Rule(controller, path, name, defaults, method, {'version': version}))
 
 
 def match(method: str, path: str, version: int) -> _routing.Rule:

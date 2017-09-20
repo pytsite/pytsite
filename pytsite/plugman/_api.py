@@ -235,20 +235,37 @@ def install(plugin_spec: str) -> int:
         raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
     # Extract plugin name and desired version
-    plugin_name, desired_version_spec = _semver.parse_requirement_str(plugin_spec)
+    plugin_name, desired_v_spec = _semver.parse_requirement_str(plugin_spec)
+    desired_v_op = _semver.parse_condition_str(desired_v_spec)[0]
 
     # Get version constraints from other plugins, current theme and application
     allowed_versions = get_allowed_version_range(plugin_name)
     allowed_v_min = allowed_versions['min']
     allowed_v_max = allowed_versions['max']
 
-    # Apply desired version to allowed versions
-    desired_v_min = _semver.minimum(desired_version_spec)
-    desired_v_max = _semver.maximum(desired_version_spec)
+    # Get desired minimal and maximal versions
+    desired_v_min = _semver.minimum(desired_v_spec)
+    desired_v_max = _semver.maximum(desired_v_spec)
 
-    if _semver.compare(allowed_v_min, desired_v_min) > 0 > _semver.compare(allowed_v_max, desired_v_max):
-        raise _error.PluginDependencyError('{}{} cannot be installed because acceptable version is {}'
-                                           .format(plugin_name, desired_version_spec, allowed_versions))
+    # If desired version is lower than allowed
+    if _semver.compare(desired_v_min, allowed_v_min) < 0:
+        if desired_v_op != '==':
+            desired_v_min = allowed_v_min
+        else:
+            raise _error.PluginDependencyError('{}{} cannot be installed because acceptable version is {}'
+                                               .format(plugin_name, desired_v_spec, allowed_versions))
+    # If desired version is greater than allowed
+    if _semver.compare(desired_v_max, allowed_v_max) > 0:
+        if desired_v_op != '==':
+            desired_v_max = allowed_v_max
+        else:
+            raise _error.PluginDependencyError('{}{} cannot be installed because acceptable version is {}'
+                                               .format(plugin_name, desired_v_spec, allowed_versions))
+
+    # If, after above computations, maximal version is lower than minimal
+    if _semver.compare(desired_v_min, desired_v_max) > 0:
+        desired_v_max = desired_v_min
+
     # Get available remote plugin info
     try:
         p_remote_info = remote_plugin_info(plugin_name, [
