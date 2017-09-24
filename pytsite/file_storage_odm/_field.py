@@ -75,8 +75,11 @@ class AnyFile(_odm.field.Abstract):
         if not value:
             return None
 
-        # Check file's existence
-        file = _get_file(value)
+        # Check file entity's existence
+        try:
+            file = _get_file(value)
+        except _file.error.FileNotFound:
+            return None
 
         # Check file's MIME type
         if self._allowed_mime_group != '*' and not file.mime.startswith(self._allowed_mime_group):

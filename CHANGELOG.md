@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.1.1 (2017-09-24)
+### Fixed
+- `file_storage_odm`: missing ODM entity exception handling.
+
+
 ## 5.1 (2017-09-24)
 ### Added
 - `odm`:
