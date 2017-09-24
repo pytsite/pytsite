@@ -39,7 +39,14 @@ class EntityNotStored(Exception):
 
 
 class FieldNotDefined(Exception):
-    pass
+    def __init__(self, model: str, field_name: str):
+        super().__init__()
+
+        self._model = model
+        self._field_name = field_name
+
+    def __str__(self) -> str:
+        return "Field '{}' is not defined in model '{}'".format(self._field_name, self._model)
 
 
 class EntityDeleted(Exception):

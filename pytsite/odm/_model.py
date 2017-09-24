@@ -9,14 +9,15 @@ from bson.objectid import ObjectId as _ObjectId
 from bson.dbref import DBRef as _DBRef
 from pymongo.collection import Collection as _Collection
 from pymongo.errors import OperationFailure as _OperationFailure
-from pytsite import db as _db, events as _events, lang as _lang, errors as _errors, cache as _cache
+from pytsite import db as _db, events as _events, lang as _lang, errors as _errors, cache as _cache, reg as _reg
 from . import _error, _field, _queue
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_ENTITIES_CACHE = _cache.get_pool('pytsite.odm.entities')
+_CACHE_POOL = _cache.get_pool('pytsite.odm.entities')
+_CACHE_TTL = _reg.get('odm.cache.ttl')
 
 
 class Entity(_ABC):
@@ -86,7 +87,7 @@ class Entity(_ABC):
 
         # Try to load entity data from cache
         try:
-            data = _ENTITIES_CACHE.get(cache_key)
+            data = _CACHE_POOL.get(cache_key)
 
         # Get entity data from database
         except _cache.error.KeyNotExist:
@@ -95,7 +96,7 @@ class Entity(_ABC):
                 raise _error.EntityNotFound(self._model, str(eid))
 
             # Put loaded data into the cache
-            _ENTITIES_CACHE.put(cache_key, data)
+            _CACHE_POOL.put(cache_key, data, _CACHE_TTL)
 
         # Fill fields with values from loaded data
         for f_name, f_value in data.items():
@@ -217,7 +218,7 @@ class Entity(_ABC):
         """Get field's object.
         """
         if not self.has_field(field_name):
-            raise _error.FieldNotDefined("Field '{}' is not defined in model '{}'.".format(field_name, self._model))
+            raise _error.FieldNotDefined(self._model, field_name)
 
         return self._fields[field_name]
 

@@ -11,8 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _DBG = _reg.get('odm.debug.finder')
-_CACHE_POOL_PREFIX = 'pytsite.odm.finder:'
-_CACHE_ENABLED = _reg.get('odm.cache.enabled', True)
+_CACHE_TTL = _reg.get('odm.cache.ttl', 86400)  # 24 hours
 
 
 class Result:
@@ -93,7 +92,7 @@ class Finder:
         self._skip = 0
         self._limit = 0
         self._sort = None
-        self._cache_ttl = _reg.get('odm.cache.ttl', 3600)
+        self._cache_ttl = _CACHE_TTL
 
     @property
     def model(self) -> str:
@@ -315,7 +314,7 @@ class Finder:
         query = self._query.compile()
 
         # Search for previous result in cache
-        if _CACHE_ENABLED and self._cache_ttl:
+        if self._cache_ttl:
             try:
                 ids = self._cache_pool.get(self.id)
                 if _DBG:
@@ -339,7 +338,7 @@ class Finder:
         result = Result(self._model, cursor)
 
         # Put query result into cache
-        if _reg.get('odm.cache.enabled', True) and self._cache_ttl:
+        if self._cache_ttl:
             if _DBG:
                 _logger.debug("STORE query results: query: {}, {}, id: {}, entities: {}, TTL: {}.".
                               format(self.model, self.query.compile(), self.id, result.count(), self._cache_ttl))
@@ -349,7 +348,7 @@ class Finder:
         return result
 
     def first(self) -> _Union[_model.Entity, None]:
-        """Execute the query and return a first result.
+        """Execute the query and return a first result
         """
         result = list(self.get(1))
 
@@ -359,7 +358,7 @@ class Finder:
         return result[0]
 
     def distinct(self, field_name: str) -> list:
-        """Get a list of distinct values for field_name among all documents in the collection.
+        """Get a list of distinct values for field_name among all documents in the collection
         """
         from ._api import get_by_ref
         values = self._mock.collection.distinct(field_name, self._query.compile())

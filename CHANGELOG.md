@@ -1,6 +1,19 @@
 # PytSite Changelog
 
 
+## 5.1 (2017-09-24)
+### Added
+- `odm`:
+    - entities cache TTL;
+    - aggregation method `lookup()`.
+
+### Changed
+- `odm`: entities cache pool name.
+
+### Fixed
+- `odm`: aggregator's pipeline processing.
+
+
 ## 5.0.6 (2017-09-20)
 ### Added
 - `http_api`: new argument in `handle()`: `defaults`.

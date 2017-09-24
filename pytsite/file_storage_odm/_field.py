@@ -99,10 +99,10 @@ class AnyFiles(_odm.field.List):
         """
         self._allowed_mime_group = '*'
 
-        super().__init__(name, allowed_types=(_file.model.AbstractFile,), **kwargs)
+        super().__init__(name, allowed_types=(_file.model.AbstractFile, str), **kwargs)
 
-    def _on_get(self, value: _List[str], **kwargs) -> _Tuple[_file.model.AbstractFile, ...]:
-        return tuple([_get_file(v) for v in value])
+    def _on_get(self, internal_value: _List[str], **kwargs) -> _Tuple[_file.model.AbstractFile, ...]:
+        return tuple([_get_file(v) for v in internal_value])
 
     def _on_set(self, value, **kwargs) -> _List[str]:
         """Hook. Transforms externally set value to internal value.

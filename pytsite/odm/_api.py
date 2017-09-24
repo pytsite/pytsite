@@ -3,7 +3,7 @@
 from typing import Union as _Union, Iterable as _Iterable, Optional as _Optional
 from bson.dbref import DBRef as _DBRef
 from bson.objectid import ObjectId as _ObjectId
-from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache, logger as _logger
+from pytsite import db as _db, util as _util, events as _events, reg as _reg, cache as _cache
 from . import _model, _error, _finder
 
 __author__ = 'Alexander Shepetko'
@@ -13,8 +13,6 @@ __license__ = 'MIT'
 _CACHE_DRIVER = _reg.get('odm.cache.driver', 'redis')
 _ENTITIES_CACHE = _cache.get_pool('pytsite.odm.entities')
 _MODELS = {}
-_FINDER_CACHE = {}
-_DBG = _reg.get('odm.debug.api')
 
 
 def register_model(model: str, cls: _Union[str, type], replace: bool = False):
@@ -32,7 +30,7 @@ def register_model(model: str, cls: _Union[str, type], replace: bool = False):
 
     # Create finder cache pool for each newly registered model
     if not replace:
-        _FINDER_CACHE[model] = _cache.create_pool('pytsite.odm.finder:' + model, _CACHE_DRIVER)
+        _cache.create_pool('pytsite.odm.finder.' + model, _CACHE_DRIVER)
 
     _MODELS[model] = cls
 
@@ -148,25 +146,17 @@ def dispense(model: str, uid: _Union[str, _ObjectId, None] = None) -> _model.Ent
 
     # Get an existing entity
     if uid:
-        if _DBG:
-            _logger.debug("[ODM DISPENSE EXISTING ENTITY] '{}:{}'.".format(model, uid))
-
         return model_class(model, uid)
 
     # Create a new entity
     else:
-        entity = model_class(model)
-
-        if _DBG:
-            _logger.debug("[ODM DISPENSE NEW ENTITY] '{}'.".format(model))
-
-        return entity
+        return model_class(model)
 
 
 def find(model: str) -> _finder.Finder:
     """Get finder instance
     """
-    return _finder.Finder(model, _cache.get_pool('pytsite.odm.finder:' + model))
+    return _finder.Finder(model, _cache.get_pool('pytsite.odm.finder.' + model))
 
 
 def aggregate(model: str):
@@ -180,4 +170,4 @@ def aggregate(model: str):
 def get_finder_cache(model: str) -> _cache.driver.Abstract:
     """Get finder cache pool
     """
-    return _cache.get_pool('pytsite.odm.finder:' + model)
+    return _cache.get_pool('pytsite.odm.finder.' + model)
