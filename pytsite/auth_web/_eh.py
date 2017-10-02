@@ -51,7 +51,7 @@ def router_response(response: _http.response.Response):
     # If user signed out, but session cookie is still alive
     if 'PYTSITE_SESSION' in _router.request().cookies and _auth.get_current_user().is_anonymous:
         try:
-            _router.delete_session(_router.session())
+            _router.delete_session()
         except KeyError:
             pass
 

@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.2.1 (2017-10-02)
+### Fixed
+- `auth_web`: session deletion issue.
+
+
 ## 5.2 (2017-10-02)
 ### Added
 - `browser`: Twitter Bootstrap 4 Alpha.
