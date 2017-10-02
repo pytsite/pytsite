@@ -1,4 +1,4 @@
-"""PytSite MetaTag Module.
+"""PytSite Meta Tags
 """
 from ._api import dump, dump_all, get, reset, t_set, rm
 

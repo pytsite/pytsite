@@ -273,7 +273,7 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
             var progressBar = progress.find('.progress-bar');
 
             // Show progress bar
-            progress.removeClass('hidden');
+            progress.show();
             progressBar.css('width', '0');
 
             // Progress bar smooth update
@@ -317,7 +317,7 @@ define(['jquery', 'jquery-scroll-to', 'assetman', 'pytsite-http-api', 'pytsite-w
 
                         // Hide progress bar
                         clearInterval(progressBarInt);
-                        progress.addClass('hidden');
+                        progress.hide();
 
                         // Fill widgets with data from location string
                         self.fill(assetman.parseLocation().query);

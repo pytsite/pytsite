@@ -1,4 +1,4 @@
-define(['pytsite-lang-translations'], function (translations) {
+define(['jquery', 'pytsite-lang-translations'], function ($, translations) {
     function current() {
         return document.documentElement.getAttribute('lang');
     }
@@ -19,7 +19,7 @@ define(['pytsite-lang-translations'], function (translations) {
                 return msg_id;
         }
 
-        var pkg = 'app'; // Default package
+        var pkg = $('meta[name="pytsite-theme"]').attr('content'); // Default package
         var msg_parts = msg_id.split('@');
 
         // Split message ID into package name and message ID

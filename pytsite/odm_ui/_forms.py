@@ -1,4 +1,4 @@
-"""PytSite ODM Entity Modify Form.
+"""PytSite ODM Entity Modify Form
 """
 from pytsite import form as _form, widget as _widget, lang as _lang, http as _http, odm as _odm, events as _events, \
     metatag as _metatag, router as _router, html as _html, odm_auth as _odm_auth, logger as _logger, errors as _errors

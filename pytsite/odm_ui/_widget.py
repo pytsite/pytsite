@@ -20,11 +20,11 @@ class EntitySelect(_widget.select.Select):
 
         self._model = kwargs.get('model')
         if not self._model:
-            raise ValueError('Model is not specified.')
+            raise ValueError('Model is not specified')
 
         self._caption_field = kwargs.get('caption_field')
         if not self._caption_field:
-            raise ValueError('Caption field is not specified.')
+            raise ValueError('Caption field is not specified')
 
         self._sort_field = kwargs.get('sort_field', self._caption_field)
         self._finder_adjust = kwargs.get('finder_adjust')  # type: _Callable[[_odm.Finder], None]

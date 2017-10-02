@@ -35,13 +35,13 @@ _no_cache = {}  # type: _Dict[int, bool]
 
 
 def get_session_store() -> _FilesystemSessionStore:
-    """Get session store.
+    """Get session store
     """
     return _session_store
 
 
 def set_request(r: _http.request.Request):
-    """Set request for current thread.
+    """Set request for current thread
     """
     _requests[_threading.get_id()] = r
 
@@ -49,15 +49,21 @@ def set_request(r: _http.request.Request):
 
 
 def request() -> _Optional[_http.request.Request]:
-    """Get request for current thread.
+    """Get request for current thread
     """
     return _requests.get(_threading.get_id())
 
 
 def session() -> _http.session.Session:
-    """Get session for current thread.
+    """Get session object
     """
     return _sessions.get(_threading.get_id())
+
+
+def delete_session():
+    """Delete session data from storage
+    """
+    _session_store.delete(session())
 
 
 def get_no_cache() -> bool:
@@ -130,7 +136,6 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
-
 
     # Remove trailing slash
     if env['PATH_INFO'] != '/' and env['PATH_INFO'].endswith('/'):

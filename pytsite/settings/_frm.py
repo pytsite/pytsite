@@ -93,7 +93,7 @@ class Application(Form):
                 uid='setting_app_name_' + l,
                 weight=w,
                 label=_lang.t('pytsite.settings@application_name', {'lang': _lang.lang_title(l)}, l),
-                default=_lang.t('app@app_name'),
+                default=_lang.t('app'),
             ))
             w += 1
 

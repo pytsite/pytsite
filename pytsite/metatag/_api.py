@@ -1,7 +1,7 @@
-"""PytSite Meta Tags Support.
+"""PytSite Meta Tags
 """
-from pytsite import lang as _lang, util as _util, events as _events, assetman as _assetman, \
-    threading as _threading
+from pytsite import lang as _lang, util as _util, events as _events, threading as _threading, \
+    package_info as _package_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -11,7 +11,7 @@ _tags = {}
 
 
 def reset(title: str = None):
-    """Reset tags.
+    """Reset tags
     """
     tid = _threading.get_id()
     _tags[tid] = {}
@@ -19,10 +19,11 @@ def reset(title: str = None):
     t_set('charset', 'UTF-8')
     t_set('title', title or _lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
+    t_set('pytsite-version', _package_info.version('pytsite'))
 
 
 def t_set(tag: str, value: str = None, **kwargs):
-    """Set tag's value.
+    """Set tag's value
     """
     if not _tags:
         raise RuntimeError('reset() should be called before')
@@ -39,7 +40,7 @@ def t_set(tag: str, value: str = None, **kwargs):
 
 
 def get(tag: str) -> str:
-    """Get value of the tag.
+    """Get value of the tag
     """
     if not _tags:
         raise RuntimeError('reset() should be called before')
@@ -48,6 +49,8 @@ def get(tag: str) -> str:
 
 
 def rm(tag: str, **kwargs):
+    """Remove a tag
+    """
     tid = _threading.get_id()
     if tid not in _tags or tag not in _tags[tid]:
         return
@@ -69,7 +72,7 @@ def rm(tag: str, **kwargs):
 
 
 def dump(tag: str) -> str:
-    """ Dump single tag.
+    """Dump a tag
     """
     if not _tags:
         raise RuntimeError('reset() should be called before')
@@ -85,7 +88,7 @@ def dump(tag: str) -> str:
 
     # Page title
     elif tag == 'title':
-        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app@app_name'))
+        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app_name'))
 
     # OpenGraph tags
     elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):
@@ -106,7 +109,7 @@ def dump(tag: str) -> str:
 
 
 def dump_all() -> str:
-    """Dump all tags.
+    """Dump all tags
     """
     if not _tags:
         raise RuntimeError('reset() should be called before')

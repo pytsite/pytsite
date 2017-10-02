@@ -41,7 +41,7 @@ require(['jquery', 'pytsite-http-api', 'pytsite-lang'], function ($, httpApi, la
                 // Wait some time while application finishes reloading
                 setTimeout(function () {
                     location.reload();
-                }, 5000);
+                }, 2000);
             }).fail(function (r) {
                 actionBtns.attr('disabled', false);
                 icon.attr('class', iconClass);

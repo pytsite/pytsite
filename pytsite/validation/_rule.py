@@ -326,7 +326,7 @@ class Url(Rule):
     """
 
     def _do_validate(self):
-        if self._value is None:
+        if not self._value:
             return
 
         if isinstance(self._value, (list, tuple)):
@@ -434,7 +434,7 @@ class DateTime(Rule):
 
 class ListListItemNotEmpty(Rule):
     def __init__(self, value: list = None, msg_id: str = None, msg_args: dict = None, **kwargs):
-        """Init.
+        """Init
         """
         super().__init__(value, msg_id, msg_args)
         self._index = kwargs.get('sub_list_item_index', 0)

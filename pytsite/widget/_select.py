@@ -293,7 +293,7 @@ class DateTime(_Text):
 
 
 class Pager(_Abstract):
-    """Pager Widget.
+    """Pagination Widget
     """
 
     def __init__(self, uid: str, total_items: int, per_page: int = 100, visible_numbers: int = 5,
@@ -352,42 +352,43 @@ class Pager(_Abstract):
             end_visible_num = self._total_pages
             start_visible_num = end_visible_num - (self._visible_numbers - 1)
 
-        ul = _html.Ul(css='pagination')
+        ul = _html.Ul(css='pagination ' + self._css)
         links_url = _router.current_url()
 
         # Link to the first page
-        li = _html.Li(css='first-page')
-        a = _html.A('«', title=_lang.t('pytsite.widget@first_page'), href=_router.url(links_url, query={'page': 1}))
+        li = _html.Li(css='first-page page-item')
+        a = _html.A('«', css='page-link', title=_lang.t('pytsite.widget@first_page'),
+                    href=_router.url(links_url, query={'page': 1}))
         li.append(a)
         ul.append(li)
 
         # Link to the previous page
-        li = _html.Li(css='previous-page')
-        a = _html.A('‹', title=_lang.t('pytsite.widget@previous_page'),
+        li = _html.Li(css='previous-page page-item')
+        a = _html.A('‹', css='page-link', title=_lang.t('pytsite.widget@previous_page'),
                     href=_router.url(links_url, query={'page': self._current_page - 1}))
         li.append(a)
         ul.append(li)
 
         # Links to visible pages
         for num in range(start_visible_num, end_visible_num + 1):
-            li = _html.Li(css='page', data_page=num)
+            li = _html.Li(css='page page-item', data_page=num)
             if self._current_page == num:
-                li.set_attr('css', 'page active')
-            a = _html.A(str(num), title=_lang.t('pytsite.widget@page_num', {'num': num}),
+                li.set_attr('css', 'page page-item active')
+            a = _html.A(str(num), css='page-link', title=_lang.t('pytsite.widget@page_num', {'num': num}),
                         href=_router.url(links_url, query={'page': num}))
             li.append(a)
             ul.append(li)
 
         # Link to the next page
-        li = _html.Li(css='next-page')
-        a = _html.A('›', title=_lang.t('pytsite.widget@next_page'),
+        li = _html.Li(css='next-page page-item')
+        a = _html.A('›', css='page-link', title=_lang.t('pytsite.widget@next_page'),
                     href=_router.url(links_url, query={'page': self._current_page + 1}))
         li.append(a)
         ul.append(li)
 
         # Link to the last page
-        li = _html.Li(css='last-page')
-        a = _html.A('»', title=_lang.t('pytsite.widget@page_num', {'num': self._total_pages}),
+        li = _html.Li(css='last-page page-item')
+        a = _html.A('»', css='page-link', title=_lang.t('pytsite.widget@page_num', {'num': self._total_pages}),
                     href=_router.url(links_url, query={'page': self._total_pages}))
         li.append(a)
         ul.append(li)

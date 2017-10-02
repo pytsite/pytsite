@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    define_group('app', 'app@app_name')
+    define_group('app', 'app')
 
 
 _init()

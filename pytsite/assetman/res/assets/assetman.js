@@ -20,7 +20,7 @@ define(['jquery', 'assetman-build-timestamps'], function ($, tStamps) {
 
         // Async is default for CSS but not for JS
         if (async === undefined)
-            async = resType !== 'JS';
+            async = resType !== 'js';
 
         // Call self in async manner
         if (async === true) {

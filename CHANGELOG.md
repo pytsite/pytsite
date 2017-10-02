@@ -1,6 +1,19 @@
 # PytSite Changelog
 
 
+## 5.2 (2017-10-02)
+### Added
+- `browser`: Twitter Bootstrap 4 Alpha.
+- `http_api`: new tpl global: `http_api_endpoint`.
+- `router`: new API function: `delete_session()`.
+- `settings`: new tpl globals: `app_name` and `app_version`.
+
+### Fixed
+- `assetman`: synchronous JS code loading.
+- `auth_web`: users' sessions prolongation and deletion.
+- `validation`: empty values validation issue in `rule.Url`.
+
+
 ## 5.1.1 (2017-09-24)
 ### Fixed
 - `file_storage_odm`: missing ODM entity exception handling.

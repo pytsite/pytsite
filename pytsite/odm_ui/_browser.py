@@ -1,4 +1,4 @@
-"""PytSite ODM Entities Browser.
+"""PytSite ODM Entities Browser
 """
 from typing import Callable as _Callable, Union as _Union
 from pytsite import auth, router as _router, metatag as _metatag, odm as _odm, lang as _lang, http as _http, \

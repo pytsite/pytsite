@@ -306,30 +306,23 @@ class StringList(_Abstract):
         return _html.Div(_tpl.render('pytsite.widget@string_list', {'widget': self}))
 
 
-class ListList(StringList):
-    """List of lists widget.
+class ListStringList(StringList):
+    """List of lists of strings widget
     """
 
     def __init__(self, uid: str, **kwargs):
         super().__init__(uid, **kwargs)
 
         self._col_titles = kwargs.get('col_titles', ())
-        self._col_format = kwargs.get('col_format', ())
         self._css = self._css.replace('widget-string-list', 'widget-list-list')
         self._js_module = 'pytsite-widget-input-list-list'
 
-        if not self._col_titles or not self._col_format:
-            raise ValueError("'col_titles' and 'col_format' cannot be empty.")
-        if len(self._col_titles) != len(self._col_format):
-            raise ValueError("'col_titles' and 'col_format' must have same length.")
+        if not self._col_titles:
+            raise ValueError("'col_titles' is not specified")
 
     @property
     def col_titles(self) -> tuple:
         return self._col_titles
-
-    @property
-    def col_format(self) -> tuple:
-        return self._col_format
 
     def set_val(self, value, **kwargs):
         """Set value of the widget.
@@ -343,33 +336,32 @@ class ListList(StringList):
             elif isinstance(value[0], str):
                 return self._set_value_from_string_list(value, **kwargs)
             else:
-                raise ValueError('List of strings ot list of lists of strings expected')
+                raise ValueError('List of strings or list of lists of strings expected')
 
         return self
 
     def _set_value_from_list_list(self, value: list, **kwargs):
         for sub in value:
             if not isinstance(sub, list):
-                raise ValueError('List expected.')
+                raise ValueError('List expected')
             for item in sub:
                 if not isinstance(item, str):
-                    raise ValueError('str expected.')
+                    raise ValueError('str expected')
 
         return super().set_val(value, **kwargs)
 
     def _set_value_from_string_list(self, value: list, **kwargs):
         new_value = []
-        step = len(self.col_format)
+        step = len(self._col_titles)
         for i in range(0, len(value), step):
-            value_to_append = value[i:i + step]
+            value_to_append = value[i:(i + step)]
             if _util.cleanup_list(value_to_append):
                 new_value.append(value_to_append)
 
         return super().set_val(new_value, **kwargs)
 
     def _get_element(self, **kwargs) -> _html.Element:
-        """Render the widget.
-        :param **kwargs:
+        """Render the widget
         """
         return _html.Div(_tpl.render('pytsite.widget@list_list', {'widget': self}))
 

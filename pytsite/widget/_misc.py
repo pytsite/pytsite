@@ -29,16 +29,16 @@ class BootstrapTable(_base.Abstract):
 
     @property
     def data_fields(self) -> list:
-        """Get browser data fields.
+        """Get data fields
         """
         return self._data_fields
 
     @data_fields.setter
     def data_fields(self, value: _Union[tuple, list]):
-        """Set browser data fields.
+        """Set data fields
         """
         if not isinstance(value, (tuple, list)):
-            raise TypeError('Tuple or list expected.')
+            raise TypeError('Tuple or list expected')
 
         self._data_fields = []
         for f in value:
@@ -88,12 +88,12 @@ class BootstrapTable(_base.Abstract):
     @_abstractmethod
     def get_rows(self, offset: int = 0, limit: int = 0, sort_field: str = None, sort_order: str = None,
                  search: str = None) -> list:
-        """Get browser rows.
+        """Get rows
         """
         pass
 
     def _get_element(self, **kwargs) -> _html.Element:
-        """Get browser table skeleton.
+        """Get table HTML skeleton
         """
         # Table skeleton
         table = _html.Table(

@@ -10,15 +10,20 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import odm, tpl, lang, router, admin, permissions, events
+    from pytsite import odm, tpl, lang, router, admin, permissions, events, package_info
     from . import _api, _model, _controllers, _frm, _eh
 
     # Resources
     lang.register_package(__name__)
     tpl.register_global('settings_get', _api.get)
 
-    # Lang global to gte application's name from settings
+    # Lang globals
+    lang.register_global('app_name', lambda language, args: get('app.app_name_' + language, 'PytSite'))
     lang.register_global('app@app_name', lambda language, args: get('app.app_name_' + language, 'PytSite'))
+
+    # Tpl globals
+    tpl.register_global('app_name', lambda: get('app.app_name_' + lang.get_current(), 'PytSite'))
+    tpl.register_global('app_version', package_info.version('app'))
 
     # ODM model
     odm.register_model('setting', _model.Setting)

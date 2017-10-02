@@ -1,14 +1,12 @@
-"""PytSite Mail Message.
+"""PytSite Mail Message
 """
-import threading
 from os import path as _path
 from mimetypes import guess_type as _guess_mime_type
 from smtplib import SMTP as _SMTP
-from email.header import Header as _Header
 from email.mime.multipart import MIMEMultipart as _MIMEMultipart
 from email.mime.image import MIMEImage as _MIMEImage
 from email.mime.text import MIMEText as _MIMEText
-from pytsite import logger as _logger
+from pytsite import logger as _logger, threading as _threading, package_info as _package_info
 from . import _api
 
 __author__ = 'Alexander Shepetko'
@@ -17,13 +15,15 @@ __license__ = 'MIT'
 
 
 class Message(_MIMEMultipart):
-    """Mail Message.
+    """Mail Message
     """
 
     def __init__(self, to_addrs, subject: str, body: str = '', from_addr: str = None, reply_to: str = None):
         """Init.
         """
         super().__init__()
+
+        self['X-Mailer'] = 'PytSite-{}'.format(_package_info.version('pytsite'))
 
         self._from_addr = self._to_addrs = self._subject = self._body = self._reply_to = None
 
@@ -102,7 +102,7 @@ class Message(_MIMEMultipart):
             raise RuntimeError("Cannot guess MIME type for '{}'.".format(file_path))
 
     def send(self):
-        """Send message.
+        """Send message
         """
 
         def do_send(msg: Message):
@@ -112,11 +112,12 @@ class Message(_MIMEMultipart):
                 log_msg = "Message '{}' has been sent to {}.".format(msg.subject, msg.to_addrs)
                 _logger.info(log_msg)
             except Exception as e:
-                _logger.error('Unable to send message to {}. {}.'.format(msg.to_addrs, e), exc_info=e, stack_info=True)
+                _logger.error('Unable to send message to {}: {}'.format(msg.to_addrs, e), exc_info=e, stack_info=True)
 
         super().attach(_MIMEText(self.body, 'html', 'utf-8'))
         for attachment in self._attachments:
             super().attach(attachment)
 
-        threading.Thread(target=do_send, kwargs={'msg': self}).start()
-        _logger.info('Started new message send thread to {}.'.format(self.to_addrs))
+        _threading.run_in_thread(do_send, msg=self)
+
+        _logger.info('Started new message send thread to {}'.format(self.to_addrs))

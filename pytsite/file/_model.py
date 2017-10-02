@@ -174,7 +174,7 @@ class AbstractImage(AbstractFile):
         """Get HTML code to embed the image (responsive way).
         """
         alt = _util.escape_html(alt)
-        css += ' img-responsive pytsite-img'
+        css += ' img-responsive img-fluid pytsite-img'
 
         return '<span class="{}" data-url="{}" data-alt="{}" data-aspect-ratio="{}" ' \
                'data-width="{}" data-height="{}" data-enlarge="{}"></span>' \

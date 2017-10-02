@@ -49,6 +49,9 @@ def _init():
     # JS Cookie
     assetman.js_module('cookie', __name__ + '@cookie/js.cookie')
 
+    # Popper
+    assetman.js_module('popper', __name__ + '@popper/popper')
+
     # Font Awesome
     assetman.js_module('font-awesome', __name__ + '@font-awesome/font-awesome')
     assetman.library('font-awesome', [
@@ -62,6 +65,12 @@ def _init():
         'pytsite.browser@twitter-bootstrap/css/bootstrap.css',
         'pytsite.browser@twitter-bootstrap/css/add-columns.css',
         'pytsite.browser@twitter-bootstrap/css/add-ons.css',
+    ])
+
+    # Twitter Bootstrap 4
+    assetman.js_module('twitter-bootstrap-4', __name__ + '@twitter-bootstrap-4/twitter-bootstrap-4-loader')
+    assetman.library('twitter-bootstrap-4', [
+        'pytsite.browser@twitter-bootstrap-4/css/bootstrap.css',
     ])
 
     # Twitter Bootstrap Table plugin

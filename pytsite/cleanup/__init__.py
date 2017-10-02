@@ -1,4 +1,4 @@
-"""PytSite Cleanup Module.
+"""PytSite Cleanup
 """
 from pytsite import cron as _cron
 from ._eh import cron_hourly
