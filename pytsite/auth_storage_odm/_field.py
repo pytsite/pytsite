@@ -135,20 +135,19 @@ class User(_odm.field.Abstract):
 
 
 class Users(User):
-    """Field to store list of references to users.
+    """Field to store list of references to users
     """
 
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        super().__init__(name, default=kwargs.get('default', []), **kwargs)
+        kwargs.setdefault('default', [])
+
+        super().__init__(name, **kwargs)
 
     def _on_set(self, value: _Union[list, tuple], **kwargs) -> _List[str]:
         """Hook
         """
-        if value is None:
-            return []
-
         if not isinstance(value, (list, tuple)):
             raise TypeError("Field '{}': list or tuple expected, got {}.".format(self.name, type(value)))
 

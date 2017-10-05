@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.2.2 (2017-10-05)
+### Fixed
+- `odm`: default value processing in fields.
+
+
 ## 5.2.1 (2017-10-02)
 ### Fixed
 - `auth_web`: session deletion issue.

@@ -4,6 +4,7 @@ from typing import Any as _Any, Iterable as _Iterable, Union as _Union, List as 
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from decimal import Decimal as _Decimal
+from copy import deepcopy as _deepcopy
 from bson.dbref import DBRef as _bson_DBRef
 from frozendict import frozendict as _frozendict
 from pytsite import lang as _lang, util as _util, validation as _validation, formatters as _formatters
@@ -27,7 +28,7 @@ class Abstract(_ABC):
         self._name = name
         self._required = kwargs.get('required', False)
         self._default = kwargs.get('default')
-        self._value = self._default
+        self._value = self._on_set(self._default, init=True) if self._default is not None else self._default
 
     @property
     def required(self) -> bool:
@@ -85,17 +86,18 @@ class Abstract(_ABC):
     def set_val(self, value, **kwargs):
         """Set value of the field
         """
-        # Pass value through the hook
-        self._value = self._on_set(value, **kwargs)
+        if value is None:
+            self._value = _deepcopy(self._default)
+        else:
+            # Pass value through the hook
+            self._value = self._on_set(value, **kwargs)
 
         return self
 
     def clr_val(self):
         """Reset field's value to default
         """
-        self._value = self._default
-
-        return self
+        return self.set_val(None)
 
     def _on_add(self, current_value, raw_value_to_add, **kwargs):
         """Hook, called by self.add_val()
@@ -164,7 +166,7 @@ class List(Abstract):
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
         self._allowed_types = kwargs.get('allowed_types', (int, str, float, list, dict, tuple))
         self._min_len = kwargs.get('min_len')
@@ -172,7 +174,7 @@ class List(Abstract):
         self._unique = kwargs.get('unique', False)
         self._cleanup = kwargs.get('cleanup', True)
 
-        kwargs['default'] = kwargs.get('default', [])
+        kwargs.setdefault('default', [])
 
         super().__init__(name, **kwargs)
 
@@ -186,9 +188,6 @@ class List(Abstract):
 
         :type raw_value: list | tuple
         """
-        if raw_value is None:
-            return []
-
         if type(raw_value) not in (list, tuple):
             raise TypeError(
                 "Field '{}': list or tuple expected, got {}: {}".format(self._name, type(raw_value), raw_value))
@@ -293,7 +292,7 @@ class Dict(Abstract):
         self._dotted_keys = kwargs.get('dotted_keys', False)
         self._dotted_keys_replacement = kwargs.get('dotted_keys_replacement', ':')
 
-        kwargs['default'] = kwargs.get('default', {})
+        kwargs.setdefault('default', {})
 
         super().__init__(name, **kwargs)
 
@@ -313,9 +312,6 @@ class Dict(Abstract):
     def _on_set(self, raw_value: _Union[dict, _frozendict], **kwargs) -> dict:
         """Hook
         """
-        if raw_value is None:
-            return {}
-
         if type(raw_value) not in (dict, _frozendict):
             raise TypeError("Value of the field '{}' should be a dict. Got '{}'.".format(self._name, type(raw_value)))
 
@@ -354,10 +350,8 @@ class Enum(Abstract):
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
-        super().__init__(name, **kwargs)
-
         self._valid_types = (int, float, str)
 
         self._valid_values = kwargs.get('valid_values')
@@ -368,6 +362,8 @@ class Enum(Abstract):
             if not isinstance(v, self._valid_types):
                 raise TypeError("Value of argument 'valid_values' of the field '{}' should be one of these types: {}".
                                 format(self.name, self._valid_types))
+
+        super().__init__(name, **kwargs)
 
     def _on_set(self, raw_value, **kwargs):
         if not isinstance(raw_value, self._valid_types):
@@ -392,8 +388,10 @@ class Ref(Abstract):
     def __init__(self, name: str, **kwargs):
         """Init
         """
-        super().__init__(name, **kwargs)
         self._model = kwargs.get('model', '*')
+        self._ignore_missing = kwargs.get('ignore_missing', False)
+
+        super().__init__(name, **kwargs)
 
     @property
     def model(self) -> str:
@@ -404,10 +402,6 @@ class Ref(Abstract):
 
         :type raw_value: pytsite.odm.model.Entity | _bson_DBRef | str | None
         """
-        # None
-        if raw_value is None:
-            return None
-
         # Get first item from the iterable value
         if type(raw_value) in (list, tuple):
             if len(raw_value):
@@ -415,15 +409,29 @@ class Ref(Abstract):
             else:
                 return None
 
+        # Check type
         from ._model import Entity
-        if isinstance(raw_value, (_bson_DBRef, str, Entity)):
-            from ._api import resolve_ref
-            raw_value = resolve_ref(raw_value)
-        else:
+        if not isinstance(raw_value, (_bson_DBRef, str, Entity)):
             raise TypeError("Error while setting value of the field '{}': "
                             "string, DB reference or entity expected, got '{}'.".format(self._name, repr(raw_value)))
 
-        return raw_value
+        from ._api import resolve_ref
+        ref = resolve_ref(raw_value)
+
+        # Check entity existence
+        from ._api import get_by_ref
+        try:
+            entity = get_by_ref(ref)
+        except _error.ReferenceNotFound as e:
+            if self._ignore_missing:
+                return None
+            raise e
+
+        if self._model != '*':
+            if entity.model != self._model:
+                raise TypeError("Only entities of model '{}' are allowed, got '{}'".format(self._model, entity.model))
+
+        return ref
 
     def _on_get(self, value, **kwargs):
         """Hook
@@ -436,8 +444,10 @@ class Ref(Abstract):
         from ._api import get_by_ref
         try:
             return get_by_ref(value)
-        except _error.ReferenceNotFound:
-            return None
+        except _error.ReferenceNotFound as e:
+            if self._ignore_missing:
+                return None
+            raise e
 
     def _on_get_jsonable(self, value, **kwargs):
         """Get serializable representation of the field's value.
@@ -475,6 +485,7 @@ class RefsList(List):
         """
         from ._model import Entity
         self._model = kwargs.get('model', '*')
+        self._ignore_missing = kwargs.get('ignore_missing', False)
 
         super().__init__(name, allowed_types=(Entity,), **kwargs)
 
@@ -485,9 +496,6 @@ class RefsList(List):
     def _on_set(self, raw_value, **kwargs) -> _List[_bson_DBRef]:
         """Set value of the field
         """
-        if raw_value is None:
-            return []
-
         from ._model import Entity
         if not isinstance(raw_value, (list, tuple)):
             raise TypeError(
@@ -506,7 +514,14 @@ class RefsList(List):
 
             if self._model != '*':
                 from ._api import get_by_ref
-                entity = get_by_ref(item)
+
+                try:
+                    entity = get_by_ref(item)
+                except _error.ReferenceNotFound as e:
+                    if self._ignore_missing:
+                        continue
+                    raise e
+
                 if entity.model != self._model:
                     raise TypeError("Only entities of model '{}' are allowed, got '{}'"
                                     .format(self._model, entity.model))
@@ -525,7 +540,12 @@ class RefsList(List):
 
         r = []
         for dbref in value:
-            r.append(get_by_ref(dbref))
+            try:
+                r.append(get_by_ref(dbref))
+            except _error.ReferenceNotFound as exc:
+                if self._ignore_missing:
+                    continue
+                raise exc
 
         sort_by = kwargs.get('sort_by')
         if sort_by:
@@ -588,30 +608,25 @@ class RefsUniqueList(RefsList):
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
         super().__init__(name, unique=True, **kwargs)
 
 
 class DateTime(Abstract):
-    """Datetime field
+    """Datetime Field
     """
 
     def __init__(self, name: str, **kwargs):
         """Init
-
-        :param default: _datetime
         """
-        kwargs['default'] = kwargs.get('default', _datetime(1970, 1, 1))
+        kwargs.setdefault('default', _datetime(1970, 1, 1))
 
         super().__init__(name, **kwargs)
 
     def _on_set(self, raw_value: _Optional[_datetime], **kwargs) -> _datetime:
         """Set field's value
         """
-        if raw_value is None:
-            return _datetime(1970, 1, 1)
-
         if not isinstance(raw_value, _datetime):
             raise TypeError("DateTime expected, got '{}'".format(type(raw_value)))
 
@@ -645,14 +660,15 @@ class String(Abstract):
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
-        kwargs['default'] = kwargs.get('default', '')
         self._min_length = kwargs.get('min_length')
         self._max_length = kwargs.get('max_length')
         self._strip_html = kwargs.get('strip_html', False)
         self._tidyfy_html = kwargs.get('tidyfy_html', False)
         self._remove_empty_html_tags = kwargs.get('remove_empty_html_tags', True)
+
+        kwargs.setdefault('default', '')
 
         super().__init__(name, **kwargs)
 
@@ -716,12 +732,9 @@ class String(Abstract):
         """
         self._remove_empty_html_tags = val
 
-    def _on_set(self, raw_value: str, **kwargs):
-        """Hook.
+    def _on_set(self, raw_value: str, **kwargs) -> str:
+        """Hook
         """
-        if raw_value is None:
-            return ''
-
         if not isinstance(raw_value, str):
             raise TypeError("Field '{}': string object expected, got {}.".format(self.name, type(raw_value)))
 
@@ -736,15 +749,17 @@ class String(Abstract):
             elif self._tidyfy_html:
                 raw_value = _util.tidyfy_html(raw_value, self._remove_empty_html_tags)
 
-        if self._min_length:
-            v_msg_id = 'pytsite.odm@validation_field_string_min_length'
-            v_msg_args = {'field': self.name}
-            _validation.rule.MinLength(raw_value, v_msg_id, v_msg_args, min_length=self._min_length).validate()
+        # Checks lengths only value set not by constructor
+        if not kwargs.get('init'):
+            if self._min_length:
+                v_msg_id = 'pytsite.odm@validation_field_string_min_length'
+                v_msg_args = {'field': self.name}
+                _validation.rule.MinLength(raw_value, v_msg_id, v_msg_args, min_length=self._min_length).validate()
 
-        if self._max_length:
-            v_msg_id = 'pytsite.odm@validation_field_string_max_length'
-            v_msg_args = {'field': self.name}
-            _validation.rule.MinLength(raw_value, v_msg_id, v_msg_args, max_length=self._max_length).validate()
+            if self._max_length:
+                v_msg_id = 'pytsite.odm@validation_field_string_max_length'
+                v_msg_args = {'field': self.name}
+                _validation.rule.MinLength(raw_value, v_msg_id, v_msg_args, max_length=self._max_length).validate()
 
         return raw_value
 
@@ -765,13 +780,13 @@ class Integer(Abstract):
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
         """
-        kwargs['default'] = kwargs.get('default', 0)
+        kwargs.setdefault('default', 0)
 
         super().__init__(name, **kwargs)
 
-    def _on_set(self, raw_value: int, **kwargs):
+    def _on_set(self, raw_value: int, **kwargs) -> int:
         """Set value of the field
         """
         if not isinstance(raw_value, int):
@@ -791,7 +806,8 @@ class Integer(Abstract):
 
     @property
     def is_empty(self) -> bool:
-        return self.get_val() is None
+        # This field always is not empty
+        return False
 
     def sanitize_finder_arg(self, arg) -> int:
         """Hook used for sanitizing Finder's query argument
@@ -804,7 +820,7 @@ class Decimal(Abstract):
     """
 
     def __init__(self, name: str, **kwargs):
-        """Init.
+        """Init
 
         :type precision: int
         :type round: int
@@ -817,7 +833,7 @@ class Decimal(Abstract):
         if self._round:
             default = round(default, self._round)
 
-        kwargs['default'] = default
+        kwargs.setdefault('default', default)
 
         super().__init__(name, **kwargs)
 
@@ -869,22 +885,22 @@ class Decimal(Abstract):
 
 
 class Bool(Abstract):
-    """Integer field.
+    """Integer Field
     """
 
     def __init__(self, name: str, **kwargs):
         """Init.
         """
-        kwargs['default'] = kwargs.get('default', False)
+        kwargs.setdefault('default', False)
 
         super().__init__(name, **kwargs)
 
-    def _on_set(self, raw_value: bool, **kwargs) -> bool:
+    def _on_set(self, raw_value, **kwargs) -> bool:
         """Set value of the field.
         """
         return bool(raw_value)
 
-    def sanitize_finder_arg(self, arg) -> int:
+    def sanitize_finder_arg(self, arg) -> bool:
         """Hook used for sanitizing Finder's query argument
         """
         return _formatters.Bool().format(arg)
