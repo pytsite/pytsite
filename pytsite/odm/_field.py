@@ -427,9 +427,8 @@ class Ref(Abstract):
                 return None
             raise e
 
-        if self._model != '*':
-            if entity.model != self._model:
-                raise TypeError("Only entities of model '{}' are allowed, got '{}'".format(self._model, entity.model))
+        if self._model != '*' and not kwargs.get('init') and entity.model != self._model:
+            raise TypeError("Only entities of model '{}' are allowed, got '{}'".format(self._model, entity.model))
 
         return ref
 
@@ -512,7 +511,8 @@ class RefsList(List):
                 raise TypeError("Field '{}': list of entities or DBRefs expected. Got: {}".
                                 format(self.name, repr(raw_value)))
 
-            if self._model != '*':
+            # Check model
+            if self._model != '*' and not kwargs.get('init'):
                 from ._api import get_by_ref
 
                 try:

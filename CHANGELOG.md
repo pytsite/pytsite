@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.2.4 (2017-10-08)
+### Fixed
+- `odm`: circular references issue handling in `field.RefsList`.
+
+
 ## 5.2.3 (2017-10-08)
 ### Added
 - `auth`: `model.AbstractUser.has_permission()` now accepts list and
