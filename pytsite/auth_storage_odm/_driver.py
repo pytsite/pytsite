@@ -106,7 +106,7 @@ class Driver(_auth.driver.Storage):
         if flt:
             for k, v in flt.items():
                 if not f.mock.has_field(k):
-                    RuntimeError("User doesn't have field '{}'.".format(k))
+                    RuntimeError("User doesn't have field '{}'".format(k))
 
                 if isinstance(v, (tuple, list)):
                     f.inc(k, v)

@@ -422,9 +422,16 @@ class AbstractUser(AuthEntity):
         """
         return name in [role.name for role in self.roles]
 
-    def has_permission(self, name: str) -> bool:
-        """Checks if the user has permission.
+    def has_permission(self, name: _Union[str, list, tuple]) -> bool:
+        """Checks if the user has a permission or one of the permissions
         """
+        if isinstance(name, (list, tuple)):
+            for p in name:
+                if self.has_permission(p):
+                    return True
+
+            return False
+
         # Checking for permission existence
         _permission.get_permission(name)
 
