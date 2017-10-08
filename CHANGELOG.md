@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 5.2.5 (2017-10-08)
+### Fixed
+- `odm`: circular references issue handling in `field.Ref` and
+  `field.RefsList`.
+
+
 ## 5.2.4 (2017-10-08)
 ### Fixed
 - `odm`: circular references issue handling in `field.RefsList`.

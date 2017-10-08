@@ -103,7 +103,7 @@ class Entity(_ABC):
             try:
                 field = self.get_field(f_name)
                 field.uid = '{}.{}.{}'.format(self._model, eid, f_name)
-                field.set_val(f_value)
+                field.set_val(f_value, from_db=True)
             except _error.FieldNotDefined:
                 # Fields definition may be removed from version to version, so just ignore this situation
                 pass

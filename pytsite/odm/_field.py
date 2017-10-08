@@ -418,17 +418,18 @@ class Ref(Abstract):
         from ._api import resolve_ref
         ref = resolve_ref(raw_value)
 
-        # Check entity existence
-        from ._api import get_by_ref
-        try:
-            entity = get_by_ref(ref)
-        except _error.ReferenceNotFound as e:
-            if self._ignore_missing:
-                return None
-            raise e
+        # Check entity existence, do it only if the data is set NOT from the database, to prevent infinite recursion
+        if not kwargs.get('from_db'):
+            from ._api import get_by_ref
+            try:
+                entity = get_by_ref(ref)
+            except _error.ReferenceNotFound as e:
+                if self._ignore_missing:
+                    return None
+                raise e
 
-        if self._model != '*' and not kwargs.get('init') and entity.model != self._model:
-            raise TypeError("Only entities of model '{}' are allowed, got '{}'".format(self._model, entity.model))
+            if self._model != '*' and entity.model != self._model:
+                raise TypeError("Only entities of model '{}' are allowed, got '{}'".format(self._model, entity.model))
 
         return ref
 
@@ -443,6 +444,7 @@ class Ref(Abstract):
         from ._api import get_by_ref
         try:
             return get_by_ref(value)
+
         except _error.ReferenceNotFound as e:
             if self._ignore_missing:
                 return None
@@ -511,8 +513,8 @@ class RefsList(List):
                 raise TypeError("Field '{}': list of entities or DBRefs expected. Got: {}".
                                 format(self.name, repr(raw_value)))
 
-            # Check model
-            if self._model != '*' and not kwargs.get('init'):
+            # Check model, do it only if the data is set NOT from the database, to prevent infinite recursion
+            if not kwargs.get('from_db') and self._model != '*':
                 from ._api import get_by_ref
 
                 try:
