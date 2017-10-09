@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.2.6 (2017-10-09)
+### Fixed
+- `widget`: cookie storage uasge in `misc.BootstrapTable`.
+
+
 ## 5.2.5 (2017-10-08)
 ### Fixed
 - `odm`: circular references issue handling in `field.Ref` and
