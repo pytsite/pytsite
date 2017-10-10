@@ -113,9 +113,9 @@ class Query:
         if comparison_op in ('$in', '$nin') and not isinstance(arg, (list, tuple)):
             arg = [arg]
         elif comparison_op == '$near' and not isinstance(arg, (list, tuple)):
-            raise TypeError('$near agrument should be specified as a list or a tuple.')
+            raise TypeError('$near agrument should be specified as a list or a tuple')
         elif comparison_op == '$nearSphere' and not isinstance(arg, _geo.Point):
-            raise TypeError('$near agrument should be specified as a geo point.')
+            raise TypeError('$near agrument should be specified as a geo point')
 
         # Adding logical operator's dictionary to the criteria
         if logical_op not in self._criteria:
@@ -145,7 +145,9 @@ class Query:
 
         self._len += 1
 
-    def remove_criteria(self, logical_op: str, field_name: str):
+    def remove_field(self, logical_op: str, field_name: str):
+        """Remove field from query
+        """
         logical_op = self._resolve_logical_op(logical_op)
 
         if logical_op not in self._criteria:

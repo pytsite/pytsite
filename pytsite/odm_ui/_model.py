@@ -25,7 +25,7 @@ class UIEntity(_odm_auth.model.AuthorizableEntity):
         """Adjust ODM browser finder while performing search.
         """
         if finder.mock.has_text_index:
-            finder.where_text(query)
+            finder.text(query)
         else:
             for name, field in finder.mock.fields.items():
                 if isinstance(field, _odm.field.String):

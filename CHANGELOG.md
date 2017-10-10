@@ -1,6 +1,20 @@
 # PytSite Changelog
 
 
+## 5.3 (2017-10-10)
+### Added
+- `odm`:
+    - cache manipulation argument in `Finder`'s methods.
+    - new event: **pytsite.odm.finder_cache.clear**.
+
+### Changed
+- `odm`:
+    - `Finder.where_text()` renamed to `Finder.text()`;
+    - `Finder.or_where_text()` renamed to `Finder.or_text()`.
+    - `Finder.remove_where()` renamed to `Finder.remove_field()`.
+    - `Finder.remove_or_where()` renamed to `Finder.remove_or_field()`.
+
+
 ## 5.2.6 (2017-10-09)
 ### Fixed
 - `widget`: cookie storage uasge in `misc.BootstrapTable`.

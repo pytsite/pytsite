@@ -167,7 +167,8 @@ def aggregate(model: str):
     return Aggregator(model)
 
 
-def get_finder_cache(model: str) -> _cache.driver.Abstract:
+def clear_finder_cache(model: str):
     """Get finder cache pool
     """
-    return _cache.get_pool('pytsite.odm.finder.' + model)
+    _cache.get_pool('pytsite.odm.finder.' + model).clear()
+    _events.fire('pytsite.odm.finder_cache.clear', model=model)

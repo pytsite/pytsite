@@ -1,4 +1,4 @@
-""" PytSite ODM Auth HTTP API.
+""" PytSite ODM HTTP API
 """
 from typing import Mapping as _Mapping, List as _List
 from json import loads as _json_loads, JSONDecodeError as _JSONDecodeError

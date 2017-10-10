@@ -11,7 +11,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _DBG = _reg.get('odm.debug.finder')
-_CACHE_TTL = _reg.get('odm.cache.ttl', 86400)  # 24 hours
+_DEFAULT_CACHE_TTL = _reg.get('odm.cache.ttl', 86400)  # 24 hours
 
 
 class Result:
@@ -87,12 +87,13 @@ class Finder:
         """
         self._model = model
         self._cache_pool = cache_pool
+        self._cache_ttl = _DEFAULT_CACHE_TTL
+        self._cache_key = {'$and': {}, '$or': {}}
         self._mock = _api.dispense(model)
         self._query = _query.Query(self._mock)
         self._skip = 0
         self._limit = 0
         self._sort = None
-        self._cache_ttl = _CACHE_TTL
 
     @property
     def model(self) -> str:
@@ -112,172 +113,168 @@ class Finder:
 
     @property
     def id(self) -> str:
-        return _util.md5_hex_digest(str((self._query.compile(), self._skip, self._limit, self._sort)))
+        """Get unique finder's ID to use as a cache key, etc
+        """
+        return _util.md5_hex_digest(str((self._cache_key, self._skip, self._limit, self._sort)))
 
     @property
     def cache_ttl(self) -> int:
+        """Get query's cache TTL
+        """
         return self._cache_ttl
 
+    @cache_ttl.setter
+    def cache_ttl(self, value: int):
+        """Set query's cache TTL
+        """
+        self._cache_ttl = value
+
     def cache(self, ttl: int):
-        """Set query cache TTL.
+        """Set query's cache TTL
         """
         self._cache_ttl = ttl
 
         return self
 
-    def where(self, field_name: str, comparison_op: str, arg):
-        """Add an '$and' criteria.
-        """
-        self._query.add_criteria('$and', field_name, comparison_op, arg)
+    def _add_query_criteria(self, logical_op: str, field_name: str, comparison_op: str, arg, cache: bool = True):
+        self._query.add_criteria(logical_op, field_name, comparison_op, arg)
+
+        if cache:
+            if field_name not in self._cache_key[logical_op]:
+                self._cache_key[logical_op][field_name] = []
+
+            self._cache_key[logical_op][field_name].append((comparison_op, str(arg)))
 
         return self
 
-    def eq(self, field_name: str, arg):
-        """Add an '$and $eq' criteria.
-        """
-        self._query.add_criteria('$and', field_name, '$eq', arg)
+    def _remove_query_field(self, logical_op: str, field_name: str):
+        self._query.remove_field(logical_op, field_name)
+
+        if field_name in self._cache_key[logical_op]:
+            del self._cache_key[logical_op]
 
         return self
 
-    def gt(self, field_name: str, arg):
+    def _add_text_search(self, logical_op: str, search: str, language: str = None, cache: bool = True):
+        self._query.add_text_search(logical_op, search, language)
+
+        if cache:
+            if '$text' not in self._cache_key[logical_op]:
+                self._cache_key[logical_op]['$text'] = None
+
+            self._cache_key[logical_op]['$text'] = (search, language)
+
+        return self
+
+    def where(self, field_name: str, comparison_op: str, arg, cache: bool = True):
+        """Add an '$and' criteria
+        """
+        return self._add_query_criteria('$and', field_name, comparison_op, arg, cache)
+
+    def eq(self, field_name: str, arg, cache: bool = True):
+        """Add an '$and $eq' criteria
+        """
+        return self._add_query_criteria('$and', field_name, '$eq', arg, cache)
+
+    def gt(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $gt' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$gt', arg)
+        return self._add_query_criteria('$and', field_name, '$gt', arg, cache)
 
-        return self
-
-    def gte(self, field_name: str, arg):
+    def gte(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $gte' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$gte', arg)
+        return self._add_query_criteria('$and', field_name, '$gte', arg, cache)
 
-        return self
-
-    def lt(self, field_name: str, arg):
+    def lt(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $lt' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$lt', arg)
+        return self._add_query_criteria('$and', field_name, '$lt', arg, cache)
 
-        return self
-
-    def lte(self, field_name: str, arg):
+    def lte(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $lte' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$lte', arg)
+        return self._add_query_criteria('$and', field_name, '$lte', arg, cache)
 
-        return self
-
-    def ne(self, field_name: str, arg):
+    def ne(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $ne' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$ne', arg)
+        return self._add_query_criteria('$and', field_name, '$ne', arg, cache)
 
-        return self
-
-    def inc(self, field_name: str, arg):
+    def inc(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $in' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$in', arg)
+        return self._add_query_criteria('$and', field_name, '$in', arg, cache)
 
-        return self
-
-    def ninc(self, field_name: str, arg):
+    def ninc(self, field_name: str, arg, cache: bool = True):
         """Add an '$and $nin' criteria.
         """
-        self._query.add_criteria('$and', field_name, '$nin', arg)
+        return self._add_query_criteria('$and', field_name, '$nin', arg, cache)
 
-        return self
-
-    def or_where(self, field_name: str, comparison_op: str, arg):
+    def or_where(self, field_name: str, comparison_op: str, arg, cache: bool = True):
         """Add '$or' criteria.
         """
-        self._query.add_criteria('$or', field_name, comparison_op, arg)
+        return self._add_query_criteria('$or', field_name, comparison_op, arg, cache)
 
-        return self
-
-    def or_eq(self, field_name: str, arg):
+    def or_eq(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $eq' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$eq', arg)
+        return self._add_query_criteria('$or', field_name, '$eq', arg, cache)
 
-        return self
-
-    def or_gt(self, field_name: str, arg):
+    def or_gt(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $gt' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$gt', arg)
+        return self._add_query_criteria('$or', field_name, '$gt', arg, cache)
 
-        return self
-
-    def or_gte(self, field_name: str, arg):
+    def or_gte(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $gte' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$gte', arg)
+        return self._add_query_criteria('$or', field_name, '$gte', arg, cache)
 
-        return self
-
-    def or_lt(self, field_name: str, arg):
+    def or_lt(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $lt' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$lt', arg)
+        return self._add_query_criteria('$or', field_name, '$lt', arg, cache)
 
-        return self
-
-    def or_lte(self, field_name: str, arg):
+    def or_lte(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $lte' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$lte', arg)
+        return self._add_query_criteria('$or', field_name, '$lte', arg, cache)
 
-        return self
-
-    def or_ne(self, field_name: str, arg):
+    def or_ne(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $ne' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$ne', arg)
+        return self._add_query_criteria('$or', field_name, '$ne', arg, cache)
 
-        return self
-
-    def or_inc(self, field_name: str, arg):
+    def or_inc(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $in' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$in', arg)
+        return self._add_query_criteria('$or', field_name, '$in', arg, cache)
 
-        return self
-
-    def or_ninc(self, field_name: str, arg):
+    def or_ninc(self, field_name: str, arg, cache: bool = True):
         """Add an '$or $nin' criteria.
         """
-        self._query.add_criteria('$or', field_name, '$nin', arg)
+        return self._add_query_criteria('$or', field_name, '$nin', arg, cache)
 
-        return self
-
-    def where_text(self, search: str):
+    def text(self, search: str, language: str = None, cache: bool = True):
         """Add '$text' criteria.
         """
-        self._query.add_text_search('$and', search)
+        return self._add_text_search('$and', search, language, cache)
 
-        return self
-
-    def or_where_text(self, search: str):
+    def or_text(self, search: str, language: str = None, cache: bool = True):
         """Add '$or $text' criteria.
         """
-        self._query.add_text_search('$or', search)
+        return self._add_text_search('$or', search, language, cache)
 
-        return self
-
-    def remove_where(self, field_name: str):
-        """Remove field from criteria.
+    def remove_field(self, field_name: str):
+        """Remove field from query.
         """
-        self._query.remove_criteria('$and', field_name)
+        return self._remove_query_field('$and', field_name)
 
-        return self
-
-    def remove_or_where(self, field_name: str):
-        """Remove field from criteria.
+    def remove_or_field(self, field_name: str):
+        """Remove field from query.
         """
-        self._query.remove_criteria('$or', field_name)
-
-        return self
+        return self._remove_query_field('$or', field_name)
 
     def skip(self, num: int):
         """Set number of records to skip in result cursor.

@@ -532,7 +532,7 @@ class Entity(_ABC):
         # Clear entire finder cache for the model if a new entity was created
         if first_save:
             from . import _api
-            _api.get_finder_cache(self._model).clear()
+            _api.clear_finder_cache(self._model)
 
         return self
 
@@ -578,7 +578,7 @@ class Entity(_ABC):
 
         # Clear finder cache
         from . import _api
-        _api.get_finder_cache(self._model).clear()
+        _api.clear_finder_cache(self._model)
 
         # Clearing parent reference from orphaned children
         for child in children:
