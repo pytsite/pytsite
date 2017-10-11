@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.3.1 (2017-10-11)
+### Changed
+- `odm`: entity delete-related event names.
+
+
 ## 5.3 (2017-10-10)
 ### Added
 - `odm`:

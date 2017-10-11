@@ -65,7 +65,7 @@ def odm_entity_pre_save(entity: _model.AuthorizableEntity):
 
 
 def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
-    """'pytsite.odm.entity_pre_delete' event handler.
+    """'pytsite.odm.entity_pre_delete' event handler
     """
     # Check if the model supports permissions
     if not isinstance(entity, _model.AuthorizableEntity):
@@ -80,5 +80,5 @@ def odm_entity_pre_delete(entity: _model.AuthorizableEntity):
     # Check current user's permissions to DELETE entities
     if not entity.odm_auth_check_permission('delete'):
         _logger.debug('Current user login: {}'.format(_auth.get_current_user().login))
-        raise _errors.ForbidDeletion("Insufficient permissions to delete entity '{}:{}'.".
+        raise _errors.ForbidDeletion("Insufficient permissions to delete entity '{}:{}'".
                                      format(entity.model, entity.id))

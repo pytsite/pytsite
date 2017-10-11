@@ -486,7 +486,7 @@ class Entity(_ABC):
         if kwargs.get('pre_hooks', True):
             self._pre_save()
             _events.fire('pytsite.odm.entity.pre_save', entity=self)
-            _events.fire('pytsite.odm.entity.pre_save.' + self._model, entity=self)
+            _events.fire('pytsite.odm.entity.pre_save.{}'.format(self._model), entity=self)
 
         # Update timestamp
         if kwargs.get('update_timestamp', True):
@@ -519,7 +519,7 @@ class Entity(_ABC):
         if kwargs.get('after_hooks', True):
             self._after_save(first_save, **kwargs)
             _events.fire('pytsite.odm.entity.save', entity=self, first_save=first_save)
-            _events.fire('pytsite.odm.entity.save.' + self._model, entity=self, first_save=first_save)
+            _events.fire('pytsite.odm.entity.save.{}'.format(self._model), entity=self, first_save=first_save)
 
         # Saved entity is not 'modified'
         self._is_modified = False
@@ -559,7 +559,7 @@ class Entity(_ABC):
 
         # Pre delete events and hook
         _events.fire('pytsite.odm.entity.pre_delete', entity=self)
-        _events.fire('pytsite.odm.entity.{}.pre_delete'.format(self._model), entity=self)
+        _events.fire('pytsite.odm.entity.pre_delete.{}'.format(self._model), entity=self)
         self._pre_delete(**kwargs)
 
         # Notify each field about entity deletion
@@ -588,7 +588,7 @@ class Entity(_ABC):
         # completely removed from the cache
         self._after_delete(**kwargs)
         _events.fire('pytsite.odm.entity.delete', entity=self)
-        _events.fire('pytsite.odm.entity.{}.delete'.format(self._model), entity=self)
+        _events.fire('pytsite.odm.entity.delete.{}'.format(self._model), entity=self)
 
         self._is_deleted = True
         self._is_being_deleted = False
