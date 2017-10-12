@@ -305,8 +305,8 @@ def dispatch(env: dict, start_response: callable):
         _events.fire('pytsite.router.exception', args=args)
 
         # User defined exception handler
-        if has_rule('$theme@exception'):
-            wsgi_response = call('$theme@exception', args)
+        if has_rule('pytsite_router_exception'):
+            wsgi_response = call('pytsite_router_exception', args)
 
         # Builtin exception handler
         else:

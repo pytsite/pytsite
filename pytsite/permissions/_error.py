@@ -1,4 +1,4 @@
-"""PytSite Permission Package Errors.
+"""PytSite Permissions Errors
 """
 
 __author__ = 'Alexander Shepetko'

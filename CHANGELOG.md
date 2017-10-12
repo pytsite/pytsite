@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 5.3.2 (2017-10-12)
+### Changed
+- `router`: hook route `$theme@exception` renamed to
+  `pytsite_router_exception`.
+
+### Fixed
+- `permissions`, `settings`: translations.
+
+
 ## 5.3.1 (2017-10-11)
 ### Changed
 - `odm`: entity delete-related event names.

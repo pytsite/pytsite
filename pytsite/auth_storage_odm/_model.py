@@ -1,4 +1,4 @@
-"""PytSite Authorization ODM Storage Models.
+"""PytSite Authorization ODM Storage Models
 """
 import hashlib as _hashlib
 from typing import Optional as _Optional, Tuple as _Tuple

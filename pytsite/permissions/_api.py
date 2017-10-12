@@ -1,4 +1,4 @@
-"""PytSite Permissions API.
+"""PytSite Permissions API
 """
 from frozendict import frozendict as _frozendict
 from pytsite import events as _events

@@ -1,4 +1,4 @@
-"""PytSite Permission Package.
+"""PytSite Permissions Package
 """
 from . import _error as error
 from ._api import define_permission, define_group, get_permission, is_permission_group_defined, \
@@ -11,7 +11,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    define_group('app', 'app')
+    define_group('app', 'app_name')
 
 
 _init()
