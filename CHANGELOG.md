@@ -1,6 +1,16 @@
 # PytSite Changelog
 
 
+## 5.3.3 (2017-10-13)
+### Added
+- `assetman`: new argument in `preload()`: `exclude_path_prefix`.
+- `util`: support for Twitter Bootstrap 4 in `nav_link()`.
+
+### Changed
+- `router`: hook route `pytsite_router_exception` renamed to
+  `router_exception`.
+
+
 ## 5.3.2 (2017-10-12)
 ### Changed
 - `router`: hook route `$theme@exception` renamed to

@@ -2,8 +2,7 @@
 """
 import subprocess as _subprocess
 import json as _json
-from typing import Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Callable as _Callable, \
-    Iterable as _Iterable
+from typing import Dict as _Dict, List as _List, Tuple as _Tuple, Union as _Union, Callable as _Callable
 from os import path as _path, chdir as _chdir, makedirs as _makedirs, unlink as _unlink, getcwd as _getcwd
 from shutil import rmtree as _rmtree
 from importlib.util import find_spec as _find_spec
@@ -18,7 +17,7 @@ __license__ = 'MIT'
 
 _package_paths = {}  # type: _Dict[str, _Tuple[str, str]]
 _package_aliases = {}  # type: _Dict[str, str]
-_libraries = {}  # type: _Dict[str, _Union[_Iterable, _Callable[..., _Iterable]]]
+_libraries = {}  # type: _Dict[str, _Union[_List, _Callable[..., _List]]]
 
 _tasks = []  # type: _List[_Tuple]
 _requirejs_modules = {}  # type: _Dict[str, tuple]
@@ -165,23 +164,31 @@ def detect_collection(location: str) -> str:
         raise ValueError("Cannot determine collection of location '{}'.".format(location))
 
 
-def preload(location: str, permanent: bool = False, collection: str = None, weight: int = 0, path_prefix: str = None,
-            async: bool = False, defer: bool = False, head: bool = False, **kwargs):
+def preload(location: str, permanent: bool = False, collection: str = None, weight: int = 0, **kwargs):
     """Add an asset.
     """
     if not permanent and not _router.request():
-        raise RuntimeError('Non permanent assets only allowed while processing HTTP requests.')
+        raise RuntimeError('Non permanent assets only allowed while processing HTTP requests')
 
+    path_prefix = kwargs.get('path_prefix')
+    exclude_path_prefix = kwargs.get('exclude_path_prefix')
+    head = kwargs.get('head')
+    async = kwargs.get('async')
+    defer = kwargs.get('defer')
+
+    # Library
     if location in _libraries:
         if callable(_libraries[location]):
-            assets = _libraries[location](**kwargs)  # type: _Iterable
-        elif isinstance(_libraries[location], _Iterable):
-            assets = _libraries[location]  # type: _Iterable
+            assets = _libraries[location](**kwargs)  # type: _List
         else:
-            raise TypeError('Iterable expected')
+            assets = _libraries[location]  # type: _List
+
+        if not isinstance(_libraries[location], _List):
+            raise TypeError('List expected')
 
         for asset_location in assets:
-            preload(asset_location, permanent, collection, weight, path_prefix, async, defer, head)
+            preload(asset_location, permanent, collection, weight, path_prefix=path_prefix,
+                    exclude_path_prefix=exclude_path_prefix, async=async, defer=defer, head=head)
 
         return
 
@@ -192,11 +199,14 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
     if path_prefix and not path_prefix.startswith('/'):
         path_prefix = '/' + path_prefix
 
+    if exclude_path_prefix and not exclude_path_prefix.startswith('/'):
+        exclude_path_prefix = '/' + exclude_path_prefix
+
     tid = _threading.get_id()
     if tid not in _locations:
         _locations[tid] = {}
 
-    location_hash = _util.md5_hex_digest(str((location, path_prefix)))
+    location_hash = _util.md5_hex_digest(str((location, path_prefix, exclude_path_prefix)))
 
     if location_hash not in _p_locations and location_hash not in _locations[tid]:
         if permanent:
@@ -208,7 +218,8 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
             elif weight > _last_p_weight:
                 _last_p_weight = weight
 
-            _p_locations[location_hash] = (location, collection, weight, path_prefix, async, defer, head)
+            _p_locations[location_hash] = (location, collection, weight, path_prefix, exclude_path_prefix, async,
+                                           defer, head)
         else:
             if not weight:
                 _last_weight[tid] += 10
@@ -216,7 +227,8 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
             elif weight > _last_weight[tid]:
                 _last_weight[tid] = weight
 
-            _locations[tid][location_hash] = (location, collection, weight, path_prefix, async, defer, head)
+            _locations[tid][location_hash] = (location, collection, weight, path_prefix, exclude_path_prefix, async,
+                                              defer, head)
 
 
 def add_inline(s: str, weight=0):
@@ -274,10 +286,15 @@ def get_locations(collection: str = None, filter_path: bool = True) -> list:
     if collection:
         locations = [l for l in locations if l[1] == collection]
 
-    # Filter by path
+    # Filter by path prefix inclusion/exclusion
     if filter_path:
         current_path = _router.current_path()
+
+        # Filter by inclusion
         locations = [l for l in locations if (l[3] is None or current_path.startswith(l[3]))]
+
+        # Filter by exclusion
+        locations = [l for l in locations if (l[4] is None or not current_path.startswith(l[4]))]
 
     # Build unique list.
     # Duplicates are possible because same location may be added more than once with different path prefixes.

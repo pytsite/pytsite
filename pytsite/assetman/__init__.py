@@ -58,8 +58,8 @@ def _init():
 
     t_js(__name__ + '@**')
 
-    preload(__name__ + '@require.js', permanent=True, head=True)
-    preload(__name__ + '@require-config.js', permanent=True, head=True)
+    preload(__name__ + '@require.js', True, head=True)
+    preload(__name__ + '@require-config.js', True, head=True)
 
 
 _init()

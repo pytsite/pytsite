@@ -38,8 +38,8 @@ def _init():
     assetman.js_module('pytsite-widget-select-color-picker', __name__ + '@js/color-picker')
     assetman.js_module('pytsite-widget-misc-bootstrap-table', __name__ + '@js/bootstrap-table')
 
-    assetman.preload(__name__ + '@css/widget.css', permanent=True)
-    assetman.preload(__name__ + '@js/init-widgets.js', permanent=True)
+    assetman.preload(__name__ + '@css/widget.css', True)
+    assetman.preload(__name__ + '@js/init-widgets.js', True)
 
 
 _init()

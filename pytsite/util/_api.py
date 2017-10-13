@@ -496,12 +496,12 @@ def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
     """
     from pytsite import html, router
 
-    li = html.Li(css=kwargs.pop('li_css', ''))
+    li = html.Li(css=kwargs.pop('li_css', 'nav-item'))
 
     if not url.startswith('#') and router.url(url, strip_query=True) == router.current_url(strip_query=True):
         li.add_css('active')
 
-    a = html.A(escape_html(anchor), href=url, **kwargs)
+    a = html.A(escape_html(anchor), href=url, css=kwargs.pop('a_css', 'nav-link'), **kwargs)
     if icon:
         a.append(html.I(css=icon))
 
