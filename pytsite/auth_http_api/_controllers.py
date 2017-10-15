@@ -107,7 +107,7 @@ class PatchUser(_routing.Controller):
             raise self.forbidden()
 
         allowed_fields = ('email', 'nickname', 'first_name', 'last_name', 'description', 'birth_date',
-                          'gender', 'phone', 'urls', 'profile_is_public', 'country', 'city')
+                          'gender', 'phone', 'urls', 'profile_is_public', 'country', 'city', 'picture')
 
         for k, v in self.args.items():
             if k in allowed_fields:

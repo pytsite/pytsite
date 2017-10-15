@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.3.4 (2017-10-16)
+### Fixed
+- `auth_http_api`: user's picture update issue.
+
+
 ## 5.3.3 (2017-10-13)
 ### Added
 - `assetman`: new argument in `preload()`: `exclude_path_prefix`.
