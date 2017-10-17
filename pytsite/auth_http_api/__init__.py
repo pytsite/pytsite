@@ -27,6 +27,10 @@ def _init():
     http_api.handle('POST', 'auth/follow/<uid>', _controllers.PostFollow(), 'pytsite.auth@post_follow')
     http_api.handle('DELETE', 'auth/follow/<uid>', _controllers.DeleteFollow(), 'pytsite.auth@delete_follow')
 
+    # Block users HTTP API
+    http_api.handle('POST', 'auth/block_user/<uid>', _controllers.PostBlockUser(), 'pytsite.auth@post_block_user')
+    http_api.handle('DELETE', 'auth/block_user/<uid>', _controllers.DeleteBlockUser(), 'pytsite.auth@delete_block_user')
+
     http_api.on_pre_request(_eh.http_api_pre_request)
 
     assetman.register_package(__name__)

@@ -167,6 +167,16 @@ class Role(_auth.model.AbstractRole):
 
         return self
 
+    def add_to_field(self, field_name: str, value):
+        self._entity.f_add(field_name, value)
+
+        return self
+
+    def remove_from_field(self, field_name: str, value):
+        self._entity.f_sub(field_name, value)
+
+        return self
+
     @property
     def is_modified(self) -> bool:
         return self._entity.is_modified
@@ -221,6 +231,7 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.StringList('urls', unique=True))
         self.define_field(_field.Users('follows'))
         self.define_field(_field.Users('followers'))
+        self.define_field(_field.Users('blocked_users'))
         self.define_field(_odm.field.String('last_ip'))
         self.define_field(_odm.field.String('country'))
         self.define_field(_odm.field.String('city'))
@@ -597,6 +608,16 @@ class User(_auth.model.AbstractUser):
 
         return self
 
+    def add_to_field(self, field_name: str, value):
+        self._entity.f_add(field_name, value)
+
+        return self
+
+    def remove_from_field(self, field_name: str, value):
+        self._entity.f_sub(field_name, value)
+
+        return self
+
     @property
     def is_modified(self) -> bool:
         return self._entity.is_modified
@@ -618,35 +639,5 @@ class User(_auth.model.AbstractUser):
 
     def delete(self):
         self._entity.delete()
-
-        return self
-
-    def add_role(self, role: _auth.model.AbstractRole):
-        self._entity.f_add('roles', role)
-
-        return self
-
-    def remove_role(self, role: _auth.model.AbstractRole):
-        self._entity.f_sub('roles', role)
-
-        return self
-
-    def add_follower(self, follower: _auth.model.AbstractUser):
-        self._entity.f_add('followers', follower)
-
-        return self
-
-    def remove_follower(self, follower: _auth.model.AbstractUser):
-        self._entity.f_sub('followers', follower)
-
-        return self
-
-    def add_follows(self, user: _auth.model.AbstractUser):
-        self._entity.f_add('follows', user)
-
-        return self
-
-    def remove_follows(self, user: _auth.model.AbstractUser):
-        self._entity.f_sub('follows', user)
 
         return self

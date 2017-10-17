@@ -1,6 +1,26 @@
 # PytSite Changelog
 
 
+## 5.4 (2017-10-18)
+### Added
+- `assetman`: support for multiple `path_prefix` and
+  `exclude_path_prefix` arguments in `preload()`.
+- `auth`:
+    - new methods in `model.AuthEntity`: `add_to_field()`,
+      `remove_from_field()`;
+    - new methods in `model.AbstractUser`: `add_blocked_user()`,
+      `remove_blocked_user()`;
+    - new property `model.AbstractUser.blocked_users`.
+- `auth_http_api`: new endpoints: `POST | DELETE auth/block_user/<uid>`.
+- `auth_password`: support for Twitter Bootstrap 4.
+- `auth_storage_odm`: new argument in `field.User` and `field.Users`:
+  `disallowed_users`.
+
+### Changed
+- `auth`: methods `add_role()`, `remove_role()`, `add_follower()`, `remove_follower()`,
+  `add_follows()`, `remove_follows()`of the `model.AbstractUser` is not abstract now.
+
+
 ## 5.3.4 (2017-10-16)
 ### Fixed
 - `auth_http_api`: user's picture update issue.

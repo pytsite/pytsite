@@ -45,6 +45,14 @@ class AuthEntity(_ABC):
     def set_field(self, field_name: str, value):
         pass
 
+    @_abstractmethod
+    def add_to_field(self, field_name: str, value):
+        pass
+
+    @_abstractmethod
+    def remove_from_field(self, field_name: str, value):
+        pass
+
 
 class AbstractRole(AuthEntity):
     """Abstract Role Model
@@ -324,7 +332,10 @@ class AbstractUser(AuthEntity):
 
     @follows.setter
     def follows(self, value):
-        self.set_field('follows', value)
+        if not isinstance(value, (list, tuple)):
+            raise TypeError('List or tuple expected, got {}'.format(type(value)))
+
+        self.set_field('follows', self._check_follower_or_blocked_user(value))
 
     @property
     def followers(self):
@@ -335,7 +346,24 @@ class AbstractUser(AuthEntity):
 
     @followers.setter
     def followers(self, value):
-        self.set_field('followers', value)
+        if not isinstance(value, (list, tuple)):
+            raise TypeError('List or tuple expected, got {}'.format(type(value)))
+
+        self.set_field('followers', self._check_follower_or_blocked_user(value))
+
+    @property
+    def blocked_users(self):
+        """
+        :rtype: _Iterable[AbstractUser]
+        """
+        return self.get_field('blocked_users')
+
+    @blocked_users.setter
+    def blocked_users(self, value):
+        if not isinstance(value, (list, tuple)):
+            raise TypeError('List or tuple expected, got {}'.format(type(value)))
+
+        self.set_field('blocked_users', self._check_follower_or_blocked_user(value))
 
     @property
     def last_ip(self) -> str:
@@ -375,50 +403,83 @@ class AbstractUser(AuthEntity):
     def profile_edit_url(self) -> str:
         return _router.rule_url('pytsite.auth_profile@profile_edit', {'nickname': self.nickname})
 
-    @_abstractmethod
     def add_role(self, role: AbstractRole):
         """
         :rtype: AbstractUser
         """
-        pass
+        return self.add_to_field('roles', role)
 
-    @_abstractmethod
     def remove_role(self, role: AbstractRole):
         """
         :rtype: AbstractUser
         """
-        pass
+        return self.remove_from_field('roles', role)
 
-    @_abstractmethod
+    def _check_follower_or_blocked_user(self, value):
+        if isinstance(value, (list, tuple)):
+            for u in value:
+                self._check_follower_or_blocked_user(u)
+
+            return value
+
+        if not isinstance(value, AbstractUser):
+            raise ValueError('User expected, got {}'.format(type(value)))
+
+        if value.is_anonymous:
+            raise ValueError('Anonymous user is not allowed')
+
+        if value.is_system:
+            raise ValueError('System user is not allowed')
+
+        if value.uid == self.uid:
+            raise ValueError('Self user is not allowed')
+
+        return value
+
     def add_follower(self, follower):
         """
+        :type follower: AbstractUser
         :rtype: AbstractUser
         """
-        pass
+        return self.add_to_field('followers', self._check_follower_or_blocked_user(follower))
 
-    @_abstractmethod
     def remove_follower(self, follower):
         """
+        :type follower: AbstractUser
         :rtype: AbstractUser
         """
-        pass
+        return self.remove_from_field('followers', self._check_follower_or_blocked_user(follower))
 
-    @_abstractmethod
     def add_follows(self, user):
         """
+        :type user: AbstractUser
         :rtype: AbstractUser
         """
-        pass
+        return self.add_to_field('follows', self._check_follower_or_blocked_user(user))
 
-    @_abstractmethod
     def remove_follows(self, user):
         """
+        :type user: AbstractUser
         :rtype: AbstractUser
         """
-        pass
+        return self.remove_from_field('follows', self._check_follower_or_blocked_user(user))
+
+    def add_blocked_user(self, user):
+        """
+        :type user: AbstractUser
+        :rtype: AbstractUser
+        """
+        return self.add_to_field('blocked_users', self._check_follower_or_blocked_user(user))
+
+    def remove_blocked_user(self, user):
+        """
+        :type user: AbstractUser
+        :rtype: AbstractUser
+        """
+        return self.remove_from_field('blocked_users', self._check_follower_or_blocked_user(user))
 
     def has_role(self, name: str) -> bool:
-        """Checks if the user has a role.
+        """Checks if the user has a role
         """
         return name in [role.name for role in self.roles]
 
@@ -493,6 +554,7 @@ class AbstractUser(AuthEntity):
                 'status': self.status,
                 'profile_is_public': self.profile_is_public,
                 'roles': [role.uid for role in self.roles],
+                'blocked_users': [user for user in self.blocked_users],
             })
 
         return r

@@ -16,7 +16,7 @@
             {% if type == 'error' %}{% set type = 'danger' %}{% endif %}
             {% if messages|length %}
                 <div class="row">
-                    <div class="col-xs-12">
+                    <div class="col col-xs-12">
                         {% for msg in messages %}
                             <div class="alert alert-dismissible alert-{{ type }}" role="alert">
                                 {{ msg }}
@@ -35,7 +35,7 @@
 {% block content %}
     <div id="page" class="container">
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col col-xs-12">
                 {{ form }}
             </div>
         </div>

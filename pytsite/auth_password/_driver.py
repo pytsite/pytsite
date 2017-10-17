@@ -26,7 +26,7 @@ class _SignInForm(_form.Form):
             weight=10,
             label=_lang.t('pytsite.auth_password@login'),
             prepend='<i class="fa fa-user"></i>',
-            h_size='col-xs-12 col-sm-6 col-sm-offset-3',
+            h_size='col col-xs-12 col-sm-6 col-sm-offset-3',
             h_size_label=True,
             required=True,
             value=_router.request().inp.get('login', ''),
@@ -37,7 +37,7 @@ class _SignInForm(_form.Form):
             weight=20,
             label=_lang.t('pytsite.auth_password@password'),
             prepend='<i class="fa fa-lock"></i>',
-            h_size='col-xs-12 col-sm-6 col-sm-offset-3',
+            h_size='col col-xs-12 col-sm-6 col-sm-offset-3 offset-sm-3',
             h_size_label=True,
             required=True,
         ))
@@ -68,7 +68,7 @@ class Password(_auth.driver.Authentication):
     def get_sign_in_form(self, **kwargs) -> _form.Form:
         """Get the login form.
         """
-        _assetman.preload('twitter-bootstrap')
+        _assetman.preload('twitter-bootstrap-4')
         _assetman.preload('font-awesome')
 
         return _SignInForm(**kwargs)

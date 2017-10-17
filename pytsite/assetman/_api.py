@@ -196,11 +196,17 @@ def preload(location: str, permanent: bool = False, collection: str = None, weig
     if not collection:
         collection = detect_collection(location)
 
-    if path_prefix and not path_prefix.startswith('/'):
-        path_prefix = '/' + path_prefix
+    if path_prefix:
+        if not isinstance(path_prefix, (list, tuple)):
+            path_prefix = [path_prefix]
+    else:
+        path_prefix = []
 
-    if exclude_path_prefix and not exclude_path_prefix.startswith('/'):
-        exclude_path_prefix = '/' + exclude_path_prefix
+    if exclude_path_prefix:
+        if not isinstance(exclude_path_prefix, (list, tuple)):
+            exclude_path_prefix = [exclude_path_prefix]
+    else:
+        exclude_path_prefix = []
 
     tid = _threading.get_id()
     if tid not in _locations:
@@ -290,11 +296,24 @@ def get_locations(collection: str = None, filter_path: bool = True) -> list:
     if filter_path:
         current_path = _router.current_path()
 
-        # Filter by inclusion
-        locations = [l for l in locations if (l[3] is None or current_path.startswith(l[3]))]
+        filtered_locations = []
 
-        # Filter by exclusion
-        locations = [l for l in locations if (l[4] is None or not current_path.startswith(l[4]))]
+        for l in locations:
+            # Filter in inclusions
+            if l[3]:
+                for path_prefix in l[3]:
+                    if current_path.startswith(path_prefix):
+                        filtered_locations.append(l)
+            else:
+                filtered_locations.append(l)
+
+            # Filter out exclusions
+            if l[4]:
+                for exclude_path_prefix in l[4]:
+                    if current_path.startswith(exclude_path_prefix):
+                        filtered_locations.remove(l)
+
+        locations = filtered_locations
 
     # Build unique list.
     # Duplicates are possible because same location may be added more than once with different path prefixes.
