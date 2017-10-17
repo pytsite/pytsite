@@ -37,6 +37,7 @@ class Abstract(_ABC):
         self._help = kwargs.get('help')
         self._h_size = kwargs.get('h_size')
         self._h_size_label = kwargs.get('h_size_label', False)
+        self._h_size_row_css = kwargs.get('h_size_row_css')
         self._hidden = kwargs.get('hidden', False)
         self._rules = kwargs.get('rules', [])  # type: _List[_validation.rule.Rule]
         self._form_area = kwargs.get('form_area', 'body')
@@ -494,7 +495,7 @@ class Abstract(_ABC):
             label = _html.Label(self.label, label_for=self.uid)
             if self._h_size and self._h_size_label:
                 label = label.wrap(_html.Div(css='h-sizer ' + self._h_size))
-                label = label.wrap(_html.Div(css='row'))
+                label = label.wrap(_html.Div(css='row ' + self._h_size_row_css))
             if self._label_hidden:
                 label.set_attr('css', 'sr-only')
             wrap.append(label)
@@ -506,7 +507,7 @@ class Abstract(_ABC):
             content = content._get_element()
         if self._h_size:
             content = content.wrap(_html.Div(css='h-sizer ' + self._h_size))
-            content = content.wrap(_html.Div(css='row'))
+            content = content.wrap(_html.Div(css='row ' + self._h_size_row_css))
         wrap.append(content)
 
         # Append help block

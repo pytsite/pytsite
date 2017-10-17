@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 5.4.1 (2017-10-18)
+### Added
+- `widget`: new argument in `Abstract`: `h_size_row_css`.
+
+### Fixed
+- `auth_password`: form's layout.
+
+
 ## 5.4 (2017-10-18)
 ### Added
 - `assetman`: support for multiple `path_prefix` and
