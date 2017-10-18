@@ -52,7 +52,7 @@ class SignInSubmit(_routing.Controller):
             _auth.sign_in(driver, inp)
             return self.redirect(redirect)
 
-        except _auth.error.AuthenticationError:
+        except (_auth.error.AuthenticationError, _auth.error.UserNotExist):
             _router.session().add_error_message(_lang.t('pytsite.auth_web@authentication_error'))
 
             return self.redirect(_router.rule_url('pytsite.auth_web@sign_in', rule_args={

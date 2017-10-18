@@ -77,6 +77,16 @@ class User(_odm.field.Abstract):
 
         super().__init__(name, **kwargs)
 
+    def _resolve_user_uid(self, value) -> str:
+        if isinstance(value, str):
+            value = _DBRef('users', value).id  # Check reference ID validness
+        elif isinstance(value, _auth.model.AbstractUser):
+            value = value.uid
+        else:
+            raise TypeError('String or user expected, got {}'.format(type(value)))
+
+        return value
+
     def _resolve_user(self, value) -> _auth.model.AbstractUser:
         if isinstance(value, _auth.model.AbstractUser):
             return value
@@ -110,6 +120,11 @@ class User(_odm.field.Abstract):
 
         Internally this field stores only user's UID as string.
         """
+
+        # To avoid infinite recursion on ODM entity creation
+        if kwargs.get('init'):
+            return self._resolve_user_uid(value)
+
         value = self._check_user(self._resolve_user(value))
 
         if value.is_anonymous:
@@ -167,6 +182,10 @@ class Users(User):
         """
         if not isinstance(value, (list, tuple)):
             raise TypeError("Field '{}': list or tuple expected, got {}".format(self.name, type(value)))
+
+        # To avoid infinite recursion on ODM entity creation
+        if kwargs.get('init'):
+            return [self._resolve_user_uid(v) for v in value]
 
         return [self._check_user(self._resolve_user(v)).uid for v in value]
 

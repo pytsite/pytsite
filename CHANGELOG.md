@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 5.4.2 (2017-10-18)
+### Fixed
+- `auth_storage_odm`: infinite recursion.
+- `auth_web`: error notification.
+
+
 ## 5.4.1 (2017-10-18)
 ### Added
 - `widget`: new argument in `Abstract`: `h_size_row_css`.
