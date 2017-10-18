@@ -122,7 +122,7 @@ class User(_odm.field.Abstract):
         """
 
         # To avoid infinite recursion on ODM entity creation
-        if kwargs.get('init'):
+        if kwargs.get('init') or kwargs.get('from_db'):
             return self._resolve_user_uid(value)
 
         value = self._check_user(self._resolve_user(value))
@@ -184,7 +184,7 @@ class Users(User):
             raise TypeError("Field '{}': list or tuple expected, got {}".format(self.name, type(value)))
 
         # To avoid infinite recursion on ODM entity creation
-        if kwargs.get('init'):
+        if kwargs.get('init') or kwargs.get('from_db'):
             return [self._resolve_user_uid(v) for v in value]
 
         return [self._check_user(self._resolve_user(v)).uid for v in value]

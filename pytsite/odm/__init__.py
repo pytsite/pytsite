@@ -16,7 +16,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import console, lang, events, update
+    from pytsite import console, lang, events
     from . import _console_command, _eh
 
     # Resources
@@ -26,7 +26,6 @@ def _init():
     console.register_command(_console_command.Reindex())
 
     # Event listeners
-    update.on_update_after(_eh.update_after, 999)  # Low priority to wait while plugman finish upgrade
     events.listen('pytsite.db.restore', _eh.db_restore)
 
 

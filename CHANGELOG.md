@@ -1,6 +1,14 @@
 # PytSite Changelog
 
 
+## 5.4.3 (2017-10-18)
+### Fixed
+- `auth_storage_odm`: infinite recursion.
+
+### Removed
+- `odm`: automatic reindexing un update.
+
+
 ## 5.4.2 (2017-10-18)
 ### Fixed
 - `auth_storage_odm`: infinite recursion.

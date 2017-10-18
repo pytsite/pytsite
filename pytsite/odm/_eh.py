@@ -5,10 +5,6 @@ from pytsite import console as _console, lang as _lang
 from . import _api
 
 
-def update_after():
-    _console.run_command('odm:reindex', {'no_maint': True})
-
-
 def db_restore():
     _console.print_info(_lang.t('pytsite.odm@entities_cache_cleared'))
 
