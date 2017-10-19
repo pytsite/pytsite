@@ -1,12 +1,18 @@
 # PytSite Changelog
 
 
+## 5.4.4 (2017-10-19)
+### Fixed
+- `widget`: default value of `h_size_row_css` argument in `Abstract`'s
+  constructor.
+
+
 ## 5.4.3 (2017-10-18)
 ### Fixed
 - `auth_storage_odm`: infinite recursion.
 
 ### Removed
-- `odm`: automatic reindexing un update.
+- `odm`: automatic reindexing on update.
 
 
 ## 5.4.2 (2017-10-18)

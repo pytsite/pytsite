@@ -37,7 +37,7 @@ class Abstract(_ABC):
         self._help = kwargs.get('help')
         self._h_size = kwargs.get('h_size')
         self._h_size_label = kwargs.get('h_size_label', False)
-        self._h_size_row_css = kwargs.get('h_size_row_css')
+        self._h_size_row_css = kwargs.get('h_size_row_css', '')
         self._hidden = kwargs.get('hidden', False)
         self._rules = kwargs.get('rules', [])  # type: _List[_validation.rule.Rule]
         self._form_area = kwargs.get('form_area', 'body')
