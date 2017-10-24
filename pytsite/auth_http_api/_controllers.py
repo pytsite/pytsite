@@ -193,7 +193,7 @@ class PostBlockUser(_routing.Controller):
 
         _events.fire('pytsite.auth.block_user', user=user, blocker=current_user)
 
-        return {'blocked_users': current_user.as_jsonable()['blocked_users']}
+        return {'blocked_users': [u.uid for u in current_user.blocked_users]}
 
 
 class DeleteBlockUser(_routing.Controller):
@@ -218,4 +218,4 @@ class DeleteBlockUser(_routing.Controller):
 
         _events.fire('pytsite.auth.unblock_user', user=user, blocker=current_user)
 
-        return {'blocked_users': current_user.as_jsonable()['blocked_users']}
+        return {'blocked_users': [u.uid for u in current_user.blocked_users]}

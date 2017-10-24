@@ -554,7 +554,7 @@ class AbstractUser(AuthEntity):
                 'status': self.status,
                 'profile_is_public': self.profile_is_public,
                 'roles': [role.uid for role in self.roles],
-                'blocked_users': [user for user in self.blocked_users],
+                'blocked_users': [user.uid for user in self.blocked_users],
             })
 
         return r

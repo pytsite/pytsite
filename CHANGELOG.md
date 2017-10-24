@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.4.5 (2017-10-24)
+### Fixed
+- `auth`, `auth_http_api`: user serialization error.
+
+
 ## 5.4.4 (2017-10-19)
 ### Fixed
 - `widget`: default value of `h_size_row_css` argument in `Abstract`'s
