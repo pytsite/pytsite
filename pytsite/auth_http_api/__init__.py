@@ -21,6 +21,7 @@ def _init():
     # User HTTP API
     http_api.handle('GET', 'auth/is_anonymous', _controllers.IsAnonymous(), 'pytsite.auth@is_anonymous')
     http_api.handle('GET', 'auth/user/<uid>', _controllers.GetUser(), 'pytsite.auth@get_user')
+    http_api.handle('GET', 'auth/users', _controllers.GetUsers(), 'pytsite.auth@get_users')
     http_api.handle('PATCH', 'auth/user/<uid>', _controllers.PatchUser(), 'pytsite.auth@patch_user')
 
     # Following HTTP API

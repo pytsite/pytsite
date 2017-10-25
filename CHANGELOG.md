@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 5.5 (2017-10-25)
+### Added
+- `auth_http_api`: new HTTP API endpoint: `GET auth/users`.
+
+### Changed
+- `auth_http_api`: argument `response` of event `pytsite.auth.http_api.get_user`
+  renamed to `json`.
+
+
 ## 5.4.5 (2017-10-24)
 ### Fixed
 - `auth`, `auth_http_api`: user serialization error.

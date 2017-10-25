@@ -77,13 +77,38 @@ class GetUser(_routing.Controller):
     def exec(self) -> dict:
         try:
             user = _auth.get_user(uid=self.arg('uid'))
-            r = user.as_jsonable()
-            _events.fire('pytsite.auth.http_api.get_user', user=user, response=r)
+            json = user.as_jsonable()
+            _events.fire('pytsite.auth.http_api.get_user', user=user, json=json)
 
-            return r
+            return json
 
         except _auth.error.UserNotExist:
-            raise self.forbidden()
+            raise self.not_found()
+
+
+class GetUsers(_routing.Controller):
+    """Get information about multiple users
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        self.args.add_formatter('uids', _formatters.JSONArrayToList())
+
+    def exec(self) -> list:
+        r = []
+
+        for uid in self.arg('uids'):
+            try:
+                user = _auth.get_user(uid=uid)
+                json = user.as_jsonable()
+                _events.fire('pytsite.auth.http_api.get_user', user=user, json=json)
+                r.append(json)
+            except Exception as e:
+                # Any exception is ignored due to safety reasons
+                _logger.warn(e)
+
+        return r
 
 
 class PatchUser(_routing.Controller):
