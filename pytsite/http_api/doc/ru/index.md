@@ -20,7 +20,7 @@ URL любого запроса запроса миеет вид `/api/{VERSION}
 HTTP API **всегда** возвращает ответ в формтае JSON. Для анализа успешности/ошибочности запросов, используйте 
 возвращаемые [HTTP статус-коды](https://tools.ietf.org/html/rfc2616#section-10).
 
-В каждый ответ включается заголовок 'PytSite-HTTP-API', содержащий номер версии API, которая обработала запрос.
+В каждый ответ включается заголовок 'PytSite-HTTP-API-Version', содержащий номер версии API, которая обработала запрос.
 
 
 ## Аутентификация запросов
@@ -97,7 +97,7 @@ curl -v -X GET -d param=beautiful http://test.com/api/1/hello/world
 < Content-Length: 65
 < Connection: keep-alive
 < Cache-Control: private, max-age=0, no-cache, no-store
-< PytSite-HTTP-API: 1
+< PytSite-HTTP-API-Version: 1
 < Pragma: no-cache
 <
 ...
@@ -131,7 +131,7 @@ curl -v -X POST -d login=vasya -d password=123 http://test.com/api/1/auth/access
 < Content-Length: 52
 < Connection: keep-alive
 < Cache-Control: private, max-age=0, no-cache, no-store
-< PytSite-HTTP-API: 1
+< PytSite-HTTP-API-Version: 1
 < Pragma: no-cache
 < 
 {

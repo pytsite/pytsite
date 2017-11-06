@@ -229,9 +229,9 @@ class ODMUser(_odm_ui.model.UIEntity):
         self.define_field(_odm.field.Dict('options'))
         self.define_field(_file_storage_odm.field.Image('picture'))
         self.define_field(_odm.field.StringList('urls', unique=True))
-        self.define_field(_field.Users('follows'))
-        self.define_field(_field.Users('followers'))
-        self.define_field(_field.Users('blocked_users'))
+        self.define_field(_odm.field.Integer('follows_count'))
+        self.define_field(_odm.field.Integer('followers_count'))
+        self.define_field(_odm.field.Integer('blocked_users_count'))
         self.define_field(_odm.field.String('last_ip'))
         self.define_field(_odm.field.String('country'))
         self.define_field(_odm.field.String('city'))
@@ -600,7 +600,21 @@ class User(_auth.model.AbstractUser):
     def has_field(self, field_name: str) -> bool:
         return self._entity.has_field(field_name)
 
-    def get_field(self, field_name: str):
+    def get_field(self, field_name: str, **kwargs):
+        if field_name == 'follows':
+            f = _odm.find('follower').eq('follower', self)
+            return [f.follows for f in f.skip(kwargs.get('skip', 0)).get(kwargs.get('count', 10))]
+        if field_name == 'follows_count':
+            return _odm.find('follower').eq('follower', self).count()
+        elif field_name == 'followers':
+            return [f.follower for f in _odm.find('follower').eq('follows', self).get()]
+        elif field_name == 'followers_count':
+            return _odm.find('follower').eq('follows', self).count()
+        elif field_name == 'blocked_users':
+            return [b.blocked for b in _odm.find('blocked_user').eq('blocker', self).get()]
+        elif field_name == 'blocked_users_count':
+            return _odm.find('blocked_user').eq('blocker', self).count()
+
         return self._entity.f_get(field_name)
 
     def set_field(self, field_name: str, value):
@@ -609,12 +623,22 @@ class User(_auth.model.AbstractUser):
         return self
 
     def add_to_field(self, field_name: str, value):
-        self._entity.f_add(field_name, value)
+        if field_name == 'follows':
+            _odm.dispense('follower').f_set('follower', self).f_set('follows', value).save()
+        elif field_name == 'blocked_users':
+            _odm.dispense('blocked_user').f_set('blocker', self).f_set('blocked', value).save()
+        else:
+            self._entity.f_add(field_name, value)
 
         return self
 
     def remove_from_field(self, field_name: str, value):
-        self._entity.f_sub(field_name, value)
+        if field_name == 'follows':
+            _odm.find('follower').eq('follower', self).eq('follows', value).delete()
+        elif field_name == 'blocked_users':
+            _odm.find('blocked_user').eq('blocker', self).eq('blocked', value).delete()
+        else:
+            self._entity.f_sub(field_name, value)
 
         return self
 
@@ -626,18 +650,50 @@ class User(_auth.model.AbstractUser):
     def uid(self) -> str:
         return str(self._entity.id)
 
-    def save(self):
-        if self.is_anonymous:
-            raise RuntimeError('Anonymous user cannot be saved')
+    def is_follows(self, user_to_check: _auth.model.AbstractUser) -> bool:
+        return bool(_odm.find('follower').eq('follower', self).eq('follows', user_to_check).count())
 
-        if self.is_system:
-            raise RuntimeError('System user cannot be saved')
+    def is_followed(self, user_to_check: _auth.model.AbstractUser) -> bool:
+        return bool(_odm.find('follower').eq('follower', user_to_check).eq('follows', self).count())
+
+    def save(self):
+        super().save()
 
         self._entity.save()
 
         return self
 
     def delete(self):
+        super().delete()
+
         self._entity.delete()
 
         return self
+
+
+class ODMFollower(_odm.model.Entity):
+    def _setup_fields(self):
+        self.define_field(_field.User('follower', required=True))
+        self.define_field(_field.User('follows', required=True))
+
+    @property
+    def follower(self) -> _auth.model.AbstractUser:
+        return self.f_get('follower')
+
+    @property
+    def follows(self) -> _auth.model.AbstractUser:
+        return self.f_get('follows')
+
+
+class ODMBlockedUser(_odm.model.Entity):
+    def _setup_fields(self):
+        self.define_field(_field.User('blocker', required=True))
+        self.define_field(_field.User('blocked', required=True))
+
+    @property
+    def blocker(self) -> _auth.model.AbstractUser:
+        return self.f_get('blocker')
+
+    @property
+    def blocked(self) -> _auth.model.AbstractUser:
+        return self.f_get('blocked')

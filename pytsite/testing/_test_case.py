@@ -72,7 +72,7 @@ class TestCase(_TestCase):
             self._raiseHttpException('HTTP response code {} != {}'.format(resp.status_code, expected), resp=resp)
 
     def assertHttpRespContentStrEquals(self, resp: _requests.Response, expected: str):
-        if str(resp.content) != expected:
+        if resp.content.decode('utf-8') != expected:
             self._raiseHttpException('HTTP response content {} != {}'.format(resp.content, expected), resp=resp)
 
     def assertHttpRespIsJson(self, resp: _requests.Response):
@@ -85,6 +85,12 @@ class TestCase(_TestCase):
         if not resp.json():
             self._raiseHttpException('HTTP response JSON is empty', resp=resp)
 
+    def assertHttpRespJsonEquals(self, resp: _requests.Response, value):
+        self.assertHttpRespIsJson(resp)
+
+        if resp.json() != value:
+            self._raiseHttpException('HTTP response JSON is not equals {}'.format(value), resp=resp)
+
     def assertHttpRespJsonIsList(self, resp: _requests.Response):
         self.assertHttpRespIsJson(resp)
 
@@ -96,6 +102,20 @@ class TestCase(_TestCase):
 
         if not isinstance(resp.json(), dict):
             self._raiseHttpException('HTTP response JSON is not a dict', resp=resp)
+
+    def assertHttpRespJsonDictLen(self, resp: _requests.Response, length: int):
+        self.assertHttpRespJsonIsDict(resp)
+
+        dict_len = len(resp.json())
+        if dict_len != length:
+            self._raiseHttpException('HTTP response JSON dict length {} != {}'.format(dict_len, length), resp=resp)
+
+    def assertHttpRespJsonListLen(self, resp: _requests.Response, length: int):
+        self.assertHttpRespJsonIsList(resp)
+
+        list_len = len(resp.json())
+        if list_len != length:
+            self._raiseHttpException('HTTP response JSON list length {} != {}'.format(list_len, length), resp=resp)
 
     def assertHttpRespJsonHasField(self, resp: _requests.Response, expected: str):
         self.assertHttpRespJsonIsDict(resp)

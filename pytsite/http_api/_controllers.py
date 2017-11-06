@@ -35,6 +35,8 @@ class Entry(_routing.Controller):
 
             status = 200
             rule.controller.args.clear().update(self.args).update(rule.args)
+            rule.controller.args['http_api_version'] = version
+            rule.controller.args['rule_name'] = rule.name
             rule.controller.files = self.files
             controller_response = rule.controller.exec()
 
@@ -55,7 +57,7 @@ class Entry(_routing.Controller):
 
                 response = _http.response.JSON(body, status)
 
-            response.headers.add('PytSite-HTTP-API', version)
+            response.headers.add('PytSite-HTTP-API-Version', version)
 
             return response
 
@@ -76,13 +78,13 @@ class Entry(_routing.Controller):
             else:
                 response = _http.response.JSON({'error': e.description}, e.code)
 
-            response.headers.add('PytSite-HTTP-API', version)
+            response.headers.add('PytSite-HTTP-API-Version', version)
 
             return response
 
         except Exception as e:
             _logger.error('{} {}: {}'.format(request_method, current_path, e), exc_info=e)
             response = _http.response.JSON({'error': str(e)}, 500)
-            response.headers.add('PytSite-HTTP-API', version)
+            response.headers.add('PytSite-HTTP-API-Version', version)
 
             return response

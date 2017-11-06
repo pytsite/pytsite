@@ -102,6 +102,27 @@ class AbstractUser(AuthEntity):
     """Abstract User Model
     """
 
+    def _check_user(self, value):
+        if isinstance(value, (list, tuple)):
+            for u in value:
+                self._check_user(u)
+
+            return value
+
+        if not isinstance(value, AbstractUser):
+            raise ValueError('User expected, got {}'.format(type(value)))
+
+        if value.is_anonymous:
+            raise ValueError('Anonymous user is not allowed')
+
+        if value.is_system:
+            raise ValueError('System user is not allowed')
+
+        if value.uid == self.uid:
+            raise ValueError('Self user is not allowed')
+
+        return value
+
     @property
     def auth_entity_type(self) -> str:
         return 'user'
@@ -328,42 +349,33 @@ class AbstractUser(AuthEntity):
         """
         :return: _Iterable[AbstractUser]
         """
-        return self.get_field('follows')
+        return self.get_field('follows', skip=0, count=0)
 
-    @follows.setter
-    def follows(self, value):
-        if not isinstance(value, (list, tuple)):
-            raise TypeError('List or tuple expected, got {}'.format(type(value)))
-
-        self.set_field('follows', self._check_follower_or_blocked_user(value))
+    @property
+    def follows_count(self) -> int:
+        return self.get_field('follows_count')
 
     @property
     def followers(self):
         """
         :return: _Iterable[AbstractUser]
         """
-        return self.get_field('followers')
+        return self.get_field('followers', skip=0, count=0)
 
-    @followers.setter
-    def followers(self, value):
-        if not isinstance(value, (list, tuple)):
-            raise TypeError('List or tuple expected, got {}'.format(type(value)))
-
-        self.set_field('followers', self._check_follower_or_blocked_user(value))
+    @property
+    def followers_count(self) -> int:
+        return self.get_field('followers_count')
 
     @property
     def blocked_users(self):
         """
         :rtype: _Iterable[AbstractUser]
         """
-        return self.get_field('blocked_users')
+        return self.get_field('blocked_users', skip=0, count=0)
 
-    @blocked_users.setter
-    def blocked_users(self, value):
-        if not isinstance(value, (list, tuple)):
-            raise TypeError('List or tuple expected, got {}'.format(type(value)))
-
-        self.set_field('blocked_users', self._check_follower_or_blocked_user(value))
+    @property
+    def blocked_users_count(self) -> int:
+        return self.get_field('blocked_users_count')
 
     @property
     def last_ip(self) -> str:
@@ -415,68 +427,57 @@ class AbstractUser(AuthEntity):
         """
         return self.remove_from_field('roles', role)
 
-    def _check_follower_or_blocked_user(self, value):
-        if isinstance(value, (list, tuple)):
-            for u in value:
-                self._check_follower_or_blocked_user(u)
-
-            return value
-
-        if not isinstance(value, AbstractUser):
-            raise ValueError('User expected, got {}'.format(type(value)))
-
-        if value.is_anonymous:
-            raise ValueError('Anonymous user is not allowed')
-
-        if value.is_system:
-            raise ValueError('System user is not allowed')
-
-        if value.uid == self.uid:
-            raise ValueError('Self user is not allowed')
-
-        return value
-
-    def add_follower(self, follower):
+    def is_follows(self, user_to_check) -> bool:
         """
-        :type follower: AbstractUser
+        :type user_to_check: AbstractUser
+        """
+        return user_to_check in self.follows
+
+    def is_followed(self, user_to_check) -> bool:
+        """
+        :type user_to_check: AbstractUser
+        """
+        return user_to_check in self.followers
+
+    def add_follows(self, user_to_follow):
+        """
+        :type user_to_follow: AbstractUser
         :rtype: AbstractUser
         """
-        return self.add_to_field('followers', self._check_follower_or_blocked_user(follower))
+        r = self.add_to_field('follows', self._check_user(user_to_follow))
+        self.set_field('follows_count', self.follows_count + 1)
 
-    def remove_follower(self, follower):
+        return r
+
+    def remove_follows(self, user_to_unfollow):
         """
-        :type follower: AbstractUser
+        :type user_to_unfollow: AbstractUser
         :rtype: AbstractUser
         """
-        return self.remove_from_field('followers', self._check_follower_or_blocked_user(follower))
+        r = self.remove_from_field('follows', self._check_user(user_to_unfollow))
+        self.set_field('follows_count', self.follows_count - 1)
 
-    def add_follows(self, user):
-        """
-        :type user: AbstractUser
-        :rtype: AbstractUser
-        """
-        return self.add_to_field('follows', self._check_follower_or_blocked_user(user))
-
-    def remove_follows(self, user):
-        """
-        :type user: AbstractUser
-        :rtype: AbstractUser
-        """
-        return self.remove_from_field('follows', self._check_follower_or_blocked_user(user))
+        return r
 
     def add_blocked_user(self, user):
         """
         :type user: AbstractUser
         :rtype: AbstractUser
         """
-        return self.add_to_field('blocked_users', self._check_follower_or_blocked_user(user))
+        r = self.add_to_field('blocked_users', self._check_user(user))
+        self.set_field('blocked_users_count', self.blocked_users_count + 1)
+
+        return r
 
     def remove_blocked_user(self, user):
         """
         :type user: AbstractUser
         :rtype: AbstractUser
         """
-        return self.remove_from_field('blocked_users', self._check_follower_or_blocked_user(user))
+        r = self.remove_from_field('blocked_users', self._check_user(user))
+        self.set_field('blocked_users_count', self.blocked_users_count - 1)
+
+        return r
 
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role
@@ -506,6 +507,24 @@ class AbstractUser(AuthEntity):
 
         return False
 
+    def save(self):
+        if self.is_anonymous:
+            raise RuntimeError('Anonymous user cannot be saved')
+
+        if self.is_system:
+            raise RuntimeError('System user cannot be saved')
+
+        return self
+
+    def delete(self):
+        for user in self.follows:
+            self.remove_follows(user)
+
+        for user in self.blocked_users:
+            self.remove_blocked_user(user)
+
+        return self
+
     def as_jsonable(self, **kwargs):
         from . import _api
         current_user = _api.get_current_user()
@@ -515,9 +534,6 @@ class AbstractUser(AuthEntity):
         }
 
         if self.profile_is_public or current_user == self or current_user.is_admin:
-            follows = [f.uid for f in self.follows]
-            followers = [f.uid for f in self.followers]
-
             r.update({
                 'profile_url': self.profile_view_url,
                 'nickname': self.nickname,
@@ -534,12 +550,6 @@ class AbstractUser(AuthEntity):
                 'birth_date': _util.w3c_datetime_str(self.birth_date),
                 'gender': self.gender,
                 'phone': self.phone,
-                'follows': follows,
-                'follows_count': len(follows),
-                'followers': followers,
-                'followers_count': len(followers),
-                'is_followed': current_user.uid in followers,
-                'is_follows': current_user.uid in follows,
                 'urls': self.urls,
             })
 
@@ -554,7 +564,6 @@ class AbstractUser(AuthEntity):
                 'status': self.status,
                 'profile_is_public': self.profile_is_public,
                 'roles': [role.uid for role in self.roles],
-                'blocked_users': [user.uid for user in self.blocked_users],
             })
 
         return r

@@ -354,6 +354,14 @@ class Finder:
 
         return result[0]
 
+    def delete(self):
+        """Delete all the entities matching search criteria
+        """
+        for entity in self.get():
+            entity.delete()
+
+        return self
+
     def distinct(self, field_name: str) -> list:
         """Get a list of distinct values for field_name among all documents in the collection
         """

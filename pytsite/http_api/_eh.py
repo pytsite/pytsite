@@ -9,5 +9,5 @@ __license__ = 'MIT'
 
 def router_response(response: _http.response.Response):
     # No cookies in responses from HTTP API
-    if 'PytSite-HTTP-API' in response.headers:
+    if 'PytSite-HTTP-API-Version' in response.headers:
         response.headers.remove('Set-Cookie')

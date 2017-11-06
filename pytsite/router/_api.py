@@ -201,7 +201,7 @@ def dispatch(env: dict, start_response: callable):
 
         # Search for rule
         try:
-            rule = _rules.match(req.path, req.method)
+            rule = _rules.match(req.path, req.method)[0]
         except _routing.error.RuleNotFound as e:
             raise _http.error.NotFound(e)
 
@@ -234,6 +234,7 @@ def dispatch(env: dict, start_response: callable):
         controller.args.clear()
         controller.args.update(req.inp)
         controller.args.update(rule.args)
+        controller.args['rule_name'] = rule.name
         controller.files = req.files
 
         # Call controller

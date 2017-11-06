@@ -27,10 +27,13 @@ def _init():
     # Following HTTP API
     http_api.handle('POST', 'auth/follow/<uid>', _controllers.PostFollow(), 'pytsite.auth@post_follow')
     http_api.handle('DELETE', 'auth/follow/<uid>', _controllers.DeleteFollow(), 'pytsite.auth@delete_follow')
+    http_api.handle('GET', 'auth/follows/<uid>', _controllers.GetFollowsOrFollowers(), 'pytsite.auth@get_follows')
+    http_api.handle('GET', 'auth/followers/<uid>', _controllers.GetFollowsOrFollowers(), 'pytsite.auth@get_followers')
 
     # Block users HTTP API
     http_api.handle('POST', 'auth/block_user/<uid>', _controllers.PostBlockUser(), 'pytsite.auth@post_block_user')
     http_api.handle('DELETE', 'auth/block_user/<uid>', _controllers.DeleteBlockUser(), 'pytsite.auth@delete_block_user')
+    http_api.handle('GET', 'auth/blocked_users/<uid>', _controllers.GetBlockedUsers(), 'pytsite.auth@get_blocked_users')
 
     http_api.on_pre_request(_eh.http_api_pre_request)
 

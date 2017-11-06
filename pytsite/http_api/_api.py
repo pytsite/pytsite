@@ -24,11 +24,11 @@ def handle(method: str, path: str, controller: _Union[str, _routing.Controller],
 
 def match(method: str, path: str, version: int) -> _routing.Rule:
     try:
-        rule = _rules_map.match(path, method)
-        if rule.attrs['version'] != 0 and rule.attrs['version'] != version:
-            raise _http.error.NotFound()
+        for rule in _rules_map.match(path, method):
+            if rule.attrs['version'] in (0, version):
+                return rule
 
-        return rule
+        raise _http.error.NotFound()
 
     except _routing.error.RuleNotFound as e:
         _logger.error(e)

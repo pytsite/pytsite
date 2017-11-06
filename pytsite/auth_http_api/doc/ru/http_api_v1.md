@@ -1,4 +1,4 @@
-# PytSite Authentication HTTP API
+# PytSite Authentication HTTP API version 1
 
 
 ## POST auth/access-token/:driver

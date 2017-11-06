@@ -262,7 +262,7 @@ def get_access_token_info(token: str) -> dict:
 
 
 def generate_access_token(user: _model.AbstractUser) -> str:
-    """Generate new access token
+    """Generate a new access token
     """
     while True:
         token = _util.random_str(32)

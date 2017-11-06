@@ -1,7 +1,8 @@
 """PytSite Routing Rules Map
 """
 import re as _re
-from typing import Dict as _Dict
+import json as _json
+from typing import Dict as _Dict, List as _List
 from . import _rule, _error
 
 __author__ = 'Alexander Shepetko'
@@ -44,9 +45,10 @@ class RulesMap:
         except KeyError:
             raise _error.RuleNotFound("Rule '{}' is not found".format(name))
 
-    def match(self, path: str, method: str = 'GET') -> _rule.Rule:
+    def match(self, path: str, method: str = 'GET') -> _List[_rule.Rule]:
         """Match rule against a path.
         """
+        r = []
         method = method.upper()
 
         for rule in self._rules.values():
@@ -61,12 +63,15 @@ class RulesMap:
             for group_n, group_i in rule.regex.groupindex.items():
                 rule.args[group_n] = m.group(group_n)
 
-            return rule
+            r.append(rule)
 
-        raise _error.RuleNotFound("No rules match the path '{}' against method '{}'".format(path, method))
+        if not r:
+            raise _error.RuleNotFound("No rules match the path '{}' against method '{}'".format(path, method))
+
+        return r
 
     def path(self, name: str, args: dict = None) -> str:
-        """Build path for a rule.
+        """Build a path for a rule
         """
 
         def repl(match):
@@ -89,10 +94,15 @@ class RulesMap:
         if not rule.path:
             raise _error.RulePathBuildError("Rule '{}' has no path".format(name))
 
+        # Fill rule's args with values
         path = _rule_arg_re.sub(repl, rule.path)
 
         # Add remaining args as query string
         if args:
-            path += '?' + '&'.join(['{}={}'.format(k, v) for k, v in args.items()])
+            c_args = {}
+            for k, v in args.items():
+                c_args[k] = _json.dumps(v) if isinstance(v, (list, tuple, dict)) else v
+
+            path += '?' + '&'.join(['{}={}'.format(k, v) for k, v in c_args.items()])
 
         return path

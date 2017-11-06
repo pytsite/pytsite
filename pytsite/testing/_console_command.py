@@ -12,7 +12,7 @@ class Test(_console.Command):
 
     @property
     def name(self) -> str:
-        return 'test:run'
+        return 'test'
 
     @property
     def description(self) -> str:

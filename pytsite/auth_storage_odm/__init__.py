@@ -18,6 +18,8 @@ def _init():
     # ODM models
     odm.register_model('role', model.ODMRole)
     odm.register_model('user', model.ODMUser)
+    odm.register_model('follower', model.ODMFollower)
+    odm.register_model('blocked_user', model.ODMBlockedUser)
 
     # 'Security' admin sidebar section
     admin.sidebar.add_section('auth', 'pytsite.auth_storage_odm@security', 1000)

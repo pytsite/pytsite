@@ -1,13 +1,45 @@
 # PytSite Changelog
 
 
+## 5.6 (2017-11-06)
+### Added
+- `auth`:
+  - getters `follows_count`, `followers_count`, `blocked_users_count` in
+    `model.AbstractUser`;
+  - methods `is_follows()`, `is_followed()` in `model.AbstractUser`.
+- `auth_http_api`: HTTP API version 2.
+- `http_api`: passing arguments `http_api_version` and `rule_name` to
+  all controllers.
+- `odm`: new method in `Finder`: `delete()`.
+- `router`: passing argument `rule_name` to all controllers.
+- `testing`: new methods in `TestCase`: `assertHttpRespJsonEquals()`,
+  `assertHttpRespJsonDictLen()`, `assertHttpRespJsonListLen()`.
+
+### Changed
+- `auth`: return value of `model.AbstractUser.as_jsonable()`.
+- `auth_storage_odm`: way to store followers and blocked users.
+- `http_api`: HTTP response header `PytSite-HTTP-API` renamed to
+  `PytSite-HTTP-API-Version`.
+- `routing`: `RulesMap.match()` now returns a list.
+- `testing`: console command `test:run` renamed to `test`.
+
+### Removed
+- `auth`: setters `follows`, `followers`, `blocked_users` in
+  `model.AbstractUser`.
+
+### Fixed
+- `routing`: processing JSON-dumpable args in `RulesMap.path()`.
+- `testing`: string checking issue in
+  `TestCase.assertHttpRespContentStrEquals()`.
+
+
 ## 5.5 (2017-10-25)
 ### Added
 - `auth_http_api`: new HTTP API endpoint: `GET auth/users`.
 
 ### Changed
-- `auth_http_api`: argument `response` of event `pytsite.auth.http_api.get_user`
-  renamed to `json`.
+- `auth_http_api`: argument `response` of event
+  `pytsite.auth.http_api.get_user` renamed to `json`.
 
 
 ## 5.4.5 (2017-10-24)
