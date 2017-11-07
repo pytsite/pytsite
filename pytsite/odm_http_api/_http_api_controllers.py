@@ -11,34 +11,34 @@ __license__ = 'MIT'
 
 def _fill_entity_fields(entity: _odm_auth.model.AuthorizableEntity,
                         fields_data: _Mapping) -> _odm_auth.model.AuthorizableEntity:
-    for k, v in fields_data.items():
+    for field_name, field_value in fields_data.items():
         # Fields to skip
-        if k.startswith('_'):
+        if field_name.startswith('_') or not entity.has_field(field_name):
             continue
 
-        field = entity.get_field(k)
+        field = entity.get_field(field_name)
 
         # Convert JSON string to object
         if isinstance(field, (_odm.field.List, _odm.field.Dict)):
-            if isinstance(v, str):
+            if isinstance(field_value, str):
                 try:
-                    v = _json_loads(v)
+                    field_value = _json_loads(field_value)
                 except _JSONDecodeError as e:
-                    raise RuntimeError("JSON decoding error at field '{}': {}".format(k, e))
+                    raise RuntimeError("JSON decoding error at field '{}': {}".format(field_name, e))
             else:
-                raise RuntimeError("Field '{}' is not properly JSON-encoded".format(k))
+                raise RuntimeError("Field '{}' is not properly JSON-encoded".format(field_name))
 
         # Resolve references
         if isinstance(field, _odm.field.Ref):
-            v = _odm.resolve_ref(v, field.model)
+            field_value = _odm.resolve_ref(field_value, field.model)
         elif isinstance(field, _odm.field.RefsList):
-            v = _odm.resolve_refs(v, field.model)
+            field_value = _odm.resolve_refs(field_value, field.model)
 
         # Set field's value
         try:
-            entity.f_set(k, v)
+            entity.f_set(field_name, field_value)
         except (TypeError, ValueError) as e:
-            raise RuntimeError("Invalid format of field '{}': {}".format(k, e))
+            raise RuntimeError("Invalid format of field '{}': {}".format(field_name, e))
 
     return entity
 
