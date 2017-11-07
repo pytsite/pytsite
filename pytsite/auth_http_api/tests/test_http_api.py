@@ -65,9 +65,6 @@ class TestHttpApi(testing.TestCase):
         else:
             return self.send_http_request(self.prepare_http_request('GET', url))
 
-    def _check_http_user_response(self):
-        pass
-
     def test_post_access_token(self):
         """
         POST auth/access_token/:driver
@@ -157,15 +154,15 @@ class TestHttpApi(testing.TestCase):
                     self.assertHttpRespJsonFieldEquals(resp, 'gender', 'm' if i in (1, 3) else 'f')
                     self.assertHttpRespJsonFieldEquals(resp, 'phone', '+3801234567{}'.format(i))
                     self.assertHttpRespJsonFieldEquals(resp, 'urls', ['http://test.com/user-{}'.format(i)])
+                    self.assertHttpRespJsonFieldIsInt(resp, 'follows_count')
+                    self.assertHttpRespJsonFieldIsInt(resp, 'followers_count')
+                    self.assertHttpRespJsonFieldIsBool(resp, 'is_followed')
+                    self.assertHttpRespJsonFieldIsBool(resp, 'is_follows')
 
                     # Following fields are present only in version 1
                     if version == 1:
                         self.assertHttpRespJsonFieldIsList(resp, 'follows')
-                        self.assertHttpRespJsonFieldIsInt(resp, 'follows_count')
                         self.assertHttpRespJsonFieldIsList(resp, 'followers')
-                        self.assertHttpRespJsonFieldIsInt(resp, 'followers_count')
-                        self.assertHttpRespJsonFieldIsBool(resp, 'is_followed')
-                        self.assertHttpRespJsonFieldIsBool(resp, 'is_follows')
 
                 # Requester is authenticated and it is the same user
                 elif requester_login == user.login:
@@ -177,7 +174,6 @@ class TestHttpApi(testing.TestCase):
                     self.assertHttpRespJsonFieldIsInt(resp, 'sign_in_count')
                     self.assertHttpRespJsonFieldEquals(resp, 'status', 'active')
                     self.assertHttpRespJsonFieldIsBool(resp, 'profile_is_public')
-                    self.assertHttpRespJsonFieldIsList(resp, 'roles')
 
                     # Following fields are present only in version 1
                     if version == 1:
@@ -271,7 +267,7 @@ class TestHttpApi(testing.TestCase):
             self.assertEqual(user1.follows_count, 0)
             self.assertEqual(user2.followers_count, 0)
 
-    def test_get_follows_get_followers(self):
+    def test_get_following_count_get_follows_get_followers(self):
         """
         GET auth/follows/:uid
         GET auth/followers/:uid

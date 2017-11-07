@@ -1,7 +1,7 @@
 """PytSite Auth HTTP API
 """
 from typing import Union as _Union
-from pytsite import events as _events, util as _util, logger as _logger, routing as _routing, http_api as _http_api, \
+from pytsite import events as _events, util as _util, logger as _logger, routing as _routing, \
     formatters as _formatters, validation as _validation, auth as _auth
 
 __author__ = 'Alexander Shepetko'
@@ -27,11 +27,7 @@ def _get_user_jsonable(user: _auth.model.AbstractUser, current_user: _auth.model
     if http_api_version == 1:
         if user.profile_is_public or current_user == user or current_user.is_admin:
             jsonable['follows'] = [f.uid for f in user.follows]
-            jsonable['follows_count'] = user.follows_count
             jsonable['followers'] = [f.uid for f in user.followers]
-            jsonable['followers_count'] = user.followers_count
-            jsonable['is_follows'] = user.is_follows(current_user)
-            jsonable['is_followed'] = user.is_followed(current_user)
 
         if current_user == user or current_user.is_admin:
             jsonable['blocked_users'] = [u.uid for u in user.blocked_users]
@@ -202,7 +198,7 @@ class DeleteFollow(_routing.Controller):
     """
 
     def exec(self) -> dict:
-        # Is current user authorized
+        # Is current user authorized?
         current_user = _auth.get_current_user()
         if current_user.is_anonymous:
             raise self.forbidden()

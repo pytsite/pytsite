@@ -8,18 +8,18 @@ __license__ = 'MIT'
 
 def _init():
     from pytsite import http_api, assetman
-    from . import _http_api_controllers
+    from . import _controllers
 
-    http_api.handle('GET', 'odm/entities/<model>', _http_api_controllers.GetEntities(),
+    http_api.handle('GET', 'odm/entities/<model>', _controllers.GetEntities(),
                     'pytsite.odm_http_api@get_entities')
 
-    http_api.handle('POST', 'odm/entity/<model>', _http_api_controllers.PostEntity(),
+    http_api.handle('POST', 'odm/entity/<model>', _controllers.PostEntity(),
                     'pytsite.odm_http_api@post_entity')
-    http_api.handle('GET', 'odm/entity/<model>/<uid>', _http_api_controllers.GetEntity(),
+    http_api.handle('GET', 'odm/entity/<model>/<uid>', _controllers.GetEntity(),
                     'pytsite.odm_http_api@get_entity')
-    http_api.handle('PATCH', 'odm/entity/<model>/<uid>', _http_api_controllers.PatchEntity(),
+    http_api.handle('PATCH', 'odm/entity/<model>/<uid>', _controllers.PatchEntity(),
                     'pytsite.odm_http_api@patch_entity')
-    http_api.handle('DELETE', 'odm/entity/<model>/<uid>', _http_api_controllers.DeleteEntity(),
+    http_api.handle('DELETE', 'odm/entity/<model>/<uid>', _controllers.DeleteEntity(),
                     'pytsite.odm_http_api@delete_entity')
 
     # JavaScript API

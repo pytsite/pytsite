@@ -551,6 +551,10 @@ class AbstractUser(AuthEntity):
                 'gender': self.gender,
                 'phone': self.phone,
                 'urls': self.urls,
+                'follows_count': self.follows_count,
+                'followers_count': self.followers_count,
+                'is_follows': self.is_follows(current_user),
+                'is_followed': self.is_followed(current_user),
             })
 
         if current_user == self or current_user.is_admin:
@@ -563,7 +567,6 @@ class AbstractUser(AuthEntity):
                 'sign_in_count': self.sign_in_count,
                 'status': self.status,
                 'profile_is_public': self.profile_is_public,
-                'roles': [role.uid for role in self.roles],
             })
 
         return r

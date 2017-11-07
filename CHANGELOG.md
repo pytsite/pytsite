@@ -1,6 +1,17 @@
 # PytSite Changelog
 
 
+## 5.6.2 (2017-11-07)
+### Added
+- `auth`, `auth_http_api`: returned fields to
+  `model.AbstractUser.as_jsonable()`: `follows_count`,
+  `followers_count`, `is_follows`, `is_followed`.
+- `odm`: result caching of `Finder.count()`.
+
+### Removed
+- `auth`: `roles` field from `model.AbstractUser.as_jsonable()`.
+
+
 ## 5.6.1 (2017-11-07)
 ### Fixed
 - `odm_http_api`: check for non-existent fields.

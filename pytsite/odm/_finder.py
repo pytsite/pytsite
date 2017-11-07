@@ -297,12 +297,21 @@ class Finder:
         return self
 
     def count(self) -> int:
-        """Count documents in collection.
+        """Count documents in collection
         """
-        collection = self._mock.collection
-        flt = self._query.compile()
+        if self._cache_ttl:
+            try:
+                return self._cache_pool.get(self.id + '_count')
 
-        return collection.count(filter=flt, skip=self._skip)
+            except _cache.error.KeyNotExist:
+                pass
+
+        count = self._mock.collection.count(filter=self._query.compile(), skip=self._skip)
+
+        if self._cache_ttl:
+            self._cache_pool.put(self.id + '_count', count, self._cache_ttl)
+
+        return count
 
     def get(self, limit: int = 0) -> _Union[_Iterable[_model.Entity], Result]:
         """Execute the query and return a cursor.
