@@ -624,9 +624,11 @@ class User(_auth.model.AbstractUser):
 
     def add_to_field(self, field_name: str, value):
         if field_name == 'follows':
-            _odm.dispense('follower').f_set('follower', self).f_set('follows', value).save()
+            if not self.is_follows(value):
+                _odm.dispense('follower').f_set('follower', self).f_set('follows', value).save()
         elif field_name == 'blocked_users':
-            _odm.dispense('blocked_user').f_set('blocker', self).f_set('blocked', value).save()
+            if not self.is_blocks(value):
+                _odm.dispense('blocked_user').f_set('blocker', self).f_set('blocked', value).save()
         else:
             self._entity.f_add(field_name, value)
 
@@ -656,6 +658,9 @@ class User(_auth.model.AbstractUser):
     def is_followed(self, user_to_check: _auth.model.AbstractUser) -> bool:
         return bool(_odm.find('follower').eq('follower', user_to_check).eq('follows', self).count())
 
+    def is_blocks(self, user_to_check: _auth.model.AbstractUser) -> bool:
+        return bool(_odm.find('blocked_user').eq('blocker', self).eq('blocked', user_to_check).count())
+
     def save(self):
         super().save()
 
@@ -676,6 +681,9 @@ class ODMFollower(_odm.model.Entity):
         self.define_field(_field.User('follower', required=True))
         self.define_field(_field.User('follows', required=True))
 
+    def _setup_indexes(self):
+        self.define_index([('follower', _odm.I_ASC), ('follows', _odm.I_ASC)], True)
+
     @property
     def follower(self) -> _auth.model.AbstractUser:
         return self.f_get('follower')
@@ -689,6 +697,9 @@ class ODMBlockedUser(_odm.model.Entity):
     def _setup_fields(self):
         self.define_field(_field.User('blocker', required=True))
         self.define_field(_field.User('blocked', required=True))
+
+    def _setup_indexes(self):
+        self.define_index([('blocker', _odm.I_ASC), ('blocked', _odm.I_ASC)], True)
 
     @property
     def blocker(self) -> _auth.model.AbstractUser:

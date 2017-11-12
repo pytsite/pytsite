@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.6.6 (2017-11-12)
+### Fixed
+- `auth_storage_odm`: model indexes.
+
+
 ## 5.6.5 (2017-11-12)
 ### Fixed
 - `auth_http_api`: incorrect controller's argument name.
