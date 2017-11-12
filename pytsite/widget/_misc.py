@@ -97,7 +97,7 @@ class BootstrapTable(_base.Abstract):
         """
         # Table skeleton
         table = _html.Table(
-            css='hidden',
+            css='hidden sr-only',
             data_url=self._data_url,
             data_toolbar='#bootstrap-table-toolbar',
             data_show_refresh='true',

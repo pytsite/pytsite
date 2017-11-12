@@ -367,6 +367,10 @@ class P(BlockElement):
     pass
 
 
+class Nav(BlockElement):
+    pass
+
+
 class Ul(BlockElement):
     def _get_valid_children(self) -> tuple:
         return 'li',

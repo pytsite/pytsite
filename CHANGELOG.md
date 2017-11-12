@@ -1,6 +1,15 @@
 # PytSite Changelog
 
 
+## 5.6.4 (2017-11-12)
+### Added
+- `html`: new element: `Nav`.
+- `widget`: new widget: `Breadcrumb`.
+
+### Fixed
+- `widget`: support for Bootstrap4-style hiding.
+
+
 ## 5.6.3 (2017-11-12)
 ### Added
 - `routing`: new properties `Controller.request`, `Controller.headers`.

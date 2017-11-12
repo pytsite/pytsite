@@ -17,11 +17,12 @@ define(['jquery', 'twitter-bootstrap-table'], function ($) {
             if (widgetEm.find('[name=btSelectItem]:checked').length) {
                 // Show mass action buttons if at least one checkbox is selected
                 massActionButtons.removeClass('hidden');
+                massActionButtons.removeClass('sr-only');
             }
 
             else {
                 // Hide otherwise
-                massActionButtons.addClass('hidden');
+                massActionButtons.addClass('hidden sr-only');
             }
         }
 
@@ -48,7 +49,7 @@ define(['jquery', 'twitter-bootstrap-table'], function ($) {
         });
 
         // Show and initialize table
-        widgetEm.find('table').removeClass('hidden').bootstrapTable();
+        widgetEm.find('table').removeClass('hidden').removeClass('sr-only').bootstrapTable();
 
         // Show/hide mass action buttons
         updateMassActionButtons();

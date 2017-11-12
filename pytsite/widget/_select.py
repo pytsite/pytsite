@@ -528,10 +528,39 @@ class ColorPicker(_Text):
         """
         super().__init__(uid, **kwargs)
 
-        self._css += ' widget-color-picker'
+        self._css += ' widget-select-color-picker'
         self._js_module = 'pytsite-widget-select-color-picker'
 
     def _get_element(self, **kwargs):
         self._data['color'] = self.value
 
         return super()._get_element()
+
+
+class Breadcrumb(_Abstract):
+    def __init__(self, uid: str, **kwargs):
+        """Hook.
+        """
+        super().__init__(uid, **kwargs)
+
+        self._css += ' widget-select-breadcrumb'
+        self._group_wrap = False
+
+        self._items = kwargs.get('items', ())
+
+    def _get_element(self) -> _html.Element:
+        nav = _html.Nav(aria_label=self.label, role='navigation')
+
+        if self._items:
+            ol = nav.append(_html.Ol(css='breadcrumb'))
+
+            for item in self._items:
+                if len(item) != 2:
+                    continue
+
+                if item[1]:
+                    ol.append(_html.Li(_html.A(item[0], href=item[1]), css='breadcrumb-item'))
+                else:
+                    ol.append(_html.Li(item[0], css='breadcrumb-item active'))
+
+        return nav

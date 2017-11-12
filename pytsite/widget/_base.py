@@ -101,7 +101,7 @@ class Abstract(_ABC):
         # Wrapper CSS
         wrap_css = 'pytsite-widget widget-uid-{} {}'.format(self._uid, self._css)
         if self._hidden:
-            wrap_css += ' hidden'
+            wrap_css += ' hidden sr-only'
         self._wrap_em.set_attr('css', wrap_css)
 
         # Data attributes
@@ -677,7 +677,7 @@ class MultiRow(Abstract):
         table = _html.Table(css='content-table')
 
         # Header
-        thead = _html.THead(css='hidden slots-header')
+        thead = _html.THead(css='hidden sr-only slots-header')
         table.append(thead)
         row = _html.Tr()
         thead.append(row)
@@ -692,7 +692,7 @@ class MultiRow(Abstract):
 
         # Sample slot
         sample_row = self._get_widgets_row()
-        tbody.append(_build_row(sample_row, add_css='sample hidden'))
+        tbody.append(_build_row(sample_row, add_css='sample hidden sr-only'))
 
         # Rows
         for i in range(0, len(self._children)):
