@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 5.6.5 (2017-11-12)
+### Fixed
+- `auth_http_api`: incorrect controller's argument name.
+- `html`: missing whitespace in `Element.add_css()` method.
+
+
 ## 5.6.4 (2017-11-12)
 ### Added
 - `html`: new element: `Nav`.

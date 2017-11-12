@@ -152,7 +152,7 @@ class Element(_ABC):
         return css_class in self.get_attr('css', '')
 
     def add_css(self, css_class: str):
-        self.set_attr('css', (self.get_attr('css', '') + css_class).strip())
+        self.set_attr('css', (self.get_attr('css', '') + ' ' + css_class).strip())
 
         return self
 
