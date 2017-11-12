@@ -3,8 +3,8 @@
 from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from werkzeug.datastructures import FileStorage as _FileStorage
-from pytsite import formatters as _formatter, validation as _validation, http as _http
+from werkzeug.datastructures import FileStorage as _FileStorage, EnvironHeaders as _EnvironHeaders
+from pytsite import formatters as _formatter, validation as _validation, http as _http, router as _router
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -134,6 +134,18 @@ class Controller(_ABC):
         """Return an 'Internal server error' exception
         """
         return _http.error.InternalServerError(description, response)
+
+    @property
+    def request(self) -> _http.request.Request:
+        """Current request object getter
+        """
+        return _router.request()
+
+    @property
+    def headers(self) -> _EnvironHeaders:
+        """Current request headers object getter
+        """
+        return _router.request().headers
 
     @property
     def args(self) -> ControllerArgs:

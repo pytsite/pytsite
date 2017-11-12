@@ -35,8 +35,8 @@ class Entry(_routing.Controller):
 
             status = 200
             rule.controller.args.clear().update(self.args).update(rule.args)
-            rule.controller.args['http_api_version'] = version
-            rule.controller.args['rule_name'] = rule.name
+            rule.controller.args['_pytsite_http_api_version'] = version
+            rule.controller.args['_pytsite_http_api_rule_name'] = rule.name
             rule.controller.files = self.files
             controller_response = rule.controller.exec()
 

@@ -1,6 +1,22 @@
 # PytSite Changelog
 
 
+## 5.6.3 (2017-11-12)
+### Added
+- `routing`: new properties `Controller.request`, `Controller.headers`.
+
+### Changed
+- `http_api`: automatically added arg `rule_name` renamed to
+  `_pytsite_http_api_rule_name` and `http_api_version` renamed to
+  `_pytsite_http_api_version`.
+- `router`: automatically added arg `rule_name` renamed to
+  `_pytsite_router_rule_name`.
+
+### Fixed
+- `auth_http_api`: value of `remains` field in responses of
+  **GET auth/follows/:uid** and **GET auth/followers/:uid**.
+
+
 ## 5.6.2 (2017-11-07)
 ### Added
 - `auth`, `auth_http_api`: returned fields to

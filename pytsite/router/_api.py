@@ -234,7 +234,7 @@ def dispatch(env: dict, start_response: callable):
         controller.args.clear()
         controller.args.update(req.inp)
         controller.args.update(rule.args)
-        controller.args['rule_name'] = rule.name
+        controller.args['_pytsite_router_rule_name'] = rule.name
         controller.files = req.files
 
         # Call controller
@@ -382,6 +382,7 @@ def url(s: str, **kwargs) -> str:
     if not s:
         raise ValueError('url_str cannot be empty.')
 
+    sch = kwargs.get('scheme', scheme())  # type: str
     lang = kwargs.get('lang', _lang.get_current())  # type: str
     strip_lang = kwargs.get('strip_lang', False)  # type: bool
     strip_query = kwargs.get('strip_query')  # type: bool
@@ -393,7 +394,7 @@ def url(s: str, **kwargs) -> str:
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
     r = [
-        parsed_url[0] if parsed_url[0] else scheme(),  # 0, Scheme
+        parsed_url[0] if parsed_url[0] else sch,  # 0, Scheme
         parsed_url[1] if parsed_url[1] else server_name(),  # 1, Netloc
         parsed_url[2] if parsed_url[2] else '',  # 2, Path
         parsed_url[3] if parsed_url[3] else '',  # 3, Params

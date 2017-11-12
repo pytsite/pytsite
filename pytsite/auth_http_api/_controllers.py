@@ -248,12 +248,14 @@ class GetFollowsOrFollowers(_routing.Controller):
         skip = self.arg('skip', 0)
         count = self.arg('count', 10)
 
-        if self.arg('rule_name') == 'pytsite.auth@get_follows':
+        if self.arg('_pytsite_http_api_rule_name') == 'pytsite.auth@get_follows':
             users = [u.as_jsonable() for u in user.get_field('follows', skip=skip, count=count)]
-            return {'result': users, 'remains': user.follows_count - (skip + count)}
-        elif self.arg('rule_name') == 'pytsite.auth@get_followers':
+            remains = user.follows_count - (skip + count)
+            return {'result': users, 'remains': remains if remains > 0 else 0}
+        elif self.arg('_pytsite_http_api_rule_name') == 'pytsite.auth@get_followers':
             users = [u.as_jsonable() for u in user.get_field('followers', skip=skip, count=count)]
-            return {'result': users, 'remains': user.followers_count - (skip + count)}
+            remains = user.followers_count - (skip + count)
+            return {'result': users, 'remains': remains if remains > 0 else 0}
         else:
             raise self.not_found()
 
@@ -285,8 +287,9 @@ class GetBlockedUsers(_routing.Controller):
         skip = self.arg('skip', 0)
         count = self.arg('count', 10)
         users = [u.as_jsonable() for u in user.get_field('blocked_users', skip=skip, count=count)]
+        remains = user.blocked_users_count - (skip + count)
 
-        return {'result': users, 'remains': user.blocked_users_count - (skip + count)}
+        return {'result': users, 'remains': remains if remains > 0 else 0}
 
 
 class PostBlockUser(_routing.Controller):
