@@ -151,8 +151,8 @@ def _init():
     if not path.exists(app_lng_dir):
         mkdir(app_lng_dir, 0o755)
         for lng in lang.langs():
-            with open(path.join(app_lng_dir, '{}.yml'.format(lng)), 'w') as f:
-                f.write('')
+            with open(path.join(app_lng_dir, '{}.yml'.format(lng)), 'w'):
+                pass
 
     # Initialize 'app' package
     lang.register_package('app', 'lang')

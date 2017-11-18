@@ -2,7 +2,7 @@
 """
 from importlib import import_module as _import_module
 from os import path as _path, makedirs as _makedirs
-from pytsite import settings as _settings, logger as _logger, package_info as _package_info, util as _util
+from pytsite import settings as _settings, logger as _logger, package_info as _package_info
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -36,10 +36,19 @@ class Theme:
         """
         from pytsite import lang, tpl, assetman
 
+        # Create translations directory
+        lang_dir = _path.join(self._path, 'lang')
+        if not _path.exists(lang_dir):
+            _makedirs(lang_dir, 0o755, True)
+
+        # Create translation stub files
+        for lng in lang.langs():
+            lng_f_path = _path.join(lang_dir, '{}.yml'.format(lng))
+            if not _path.exists(lng_f_path):
+                with open(lng_f_path, 'wt'):
+                    pass
+
         # Register translations package
-        lang_path = _path.join(self._path, 'lang')
-        if not _path.exists(lang_path):
-            _makedirs(lang_path, 0o755, True)
         lang.register_package(self._package_name, 'lang')
 
         # Register templates package
@@ -65,7 +74,7 @@ class Theme:
         if not _settings.get('theme.compiled'):
             try:
                 # Because theme loads at application startup, it is a good idea to check assetman's setup before
-                # starting build process and setup it if it is necessary. There is a bad idea to call check_setup()
+                # starting build process and setup it if necessary. There is a bad idea to call check_setup()
                 # every time at boot, because it is consumes some time to run NPM, so we call it only if theme
                 # compilation is necessary at application startup.
                 if not assetman.check_setup():

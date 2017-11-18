@@ -1,7 +1,12 @@
 # PytSite Changelog
 
 
-## 5.6.7 (2017-11-17)
+## 5.6.8 (2017-11-18)
+### Fixed
+- `core`, `theme`: automatic file structure while initialization.
+
+
+## 5.6.7 (2017-11-18)
 ### Fixed
 - `auth`: unnecessary manipulations with fields.
 - `core`, `theme`: automatic file structure while initialization.
