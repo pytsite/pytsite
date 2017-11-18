@@ -99,6 +99,7 @@ class TestHttpApi(testing.TestCase):
                 token = auth.generate_access_token(user)
                 url = http_api.url('pytsite.auth@delete_access_token', {'token': token}, version)
                 resp = self.send_http_request(self.prepare_http_request('DELETE', url))
+                self.assertHttpRespCodeEquals(resp, 200)
                 self.assertHttpRespJsonFieldIsTrue(resp, 'status')
 
                 with self.assertRaises(auth.error.InvalidAccessToken):
@@ -112,6 +113,7 @@ class TestHttpApi(testing.TestCase):
             # Anonymous request
             req = self.prepare_http_request('GET', http_api.url('pytsite.auth@is_anonymous', version=version))
             res = self.send_http_request(req)
+            self.assertHttpRespCodeEquals(res, 200)
             if version == 1:
                 self.assertHttpRespContentStrEquals(res, 'true')
             else:

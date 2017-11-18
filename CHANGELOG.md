@@ -1,6 +1,11 @@
 # PytSite Changelog
 
 
+## 5.6.9 (2017-11-18)
+### Fixed
+- `auth_http_api`: missing event call in `PATCH', 'auth/user` endpoint.
+
+
 ## 5.6.8 (2017-11-18)
 ### Fixed
 - `core`, `theme`: automatic file structure while initialization.

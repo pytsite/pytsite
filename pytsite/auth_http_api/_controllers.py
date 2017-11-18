@@ -162,7 +162,11 @@ class PatchUser(_routing.Controller):
         if user.is_modified:
             user.save()
 
-        return _get_user_jsonable(user, user, self.arg('_pytsite_http_api_version'))
+        json = _get_user_jsonable(user, user, self.arg('_pytsite_http_api_version'))
+
+        _events.fire('pytsite.auth.http_api.get_user', user=user, json=json)
+
+        return json
 
 
 class PostFollow(_routing.Controller):
