@@ -444,40 +444,28 @@ class AbstractUser(AuthEntity):
         :type user_to_follow: AbstractUser
         :rtype: AbstractUser
         """
-        r = self.add_to_field('follows', self._check_user(user_to_follow))
-        self.set_field('follows_count', self.follows_count + 1)
-
-        return r
+        return self.add_to_field('follows', self._check_user(user_to_follow))
 
     def remove_follows(self, user_to_unfollow):
         """
         :type user_to_unfollow: AbstractUser
         :rtype: AbstractUser
         """
-        r = self.remove_from_field('follows', self._check_user(user_to_unfollow))
-        self.set_field('follows_count', self.follows_count - 1)
-
-        return r
+        return self.remove_from_field('follows', self._check_user(user_to_unfollow))
 
     def add_blocked_user(self, user):
         """
         :type user: AbstractUser
         :rtype: AbstractUser
         """
-        r = self.add_to_field('blocked_users', self._check_user(user))
-        self.set_field('blocked_users_count', self.blocked_users_count + 1)
-
-        return r
+        return self.add_to_field('blocked_users', self._check_user(user))
 
     def remove_blocked_user(self, user):
         """
         :type user: AbstractUser
         :rtype: AbstractUser
         """
-        r = self.remove_from_field('blocked_users', self._check_user(user))
-        self.set_field('blocked_users_count', self.blocked_users_count - 1)
-
-        return r
+        return self.remove_from_field('blocked_users', self._check_user(user))
 
     def has_role(self, name: str) -> bool:
         """Checks if the user has a role

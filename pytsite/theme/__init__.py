@@ -53,14 +53,48 @@ def _init():
     http_api.handle('PATCH', 'theme', _http_api_controllers.Switch(), 'pytsite.theme@switch')
     http_api.handle('DELETE', 'theme', _http_api_controllers.Uninstall(), 'pytsite.theme@uninstall')
 
-    # Create themes directory
-    t_path = themes_path()
-    if not path.isdir(t_path):
-        makedirs(t_path, 0o755)
+    # Create themes directory structure
+    themes_dir = themes_path()
+    if not path.isdir(themes_dir):
+        # Create themes directory
+        makedirs(themes_dir, 0o755)
+
+        # Create default theme directory
+        theme_dir = path.join(themes_dir, 'default')
+        makedirs(theme_dir, 0o755)
+
+        # Create __init__.py
+        with open(path.join(theme_dir, '__init__.py'), 'wt') as f:
+            f.write('"""Default Theme\n"""\n')
+
+        # Create 'theme.json'
+        with open(path.join(theme_dir, 'theme.json'), 'wt') as f:
+            f.write(
+                '{\n'
+                '  "name": "default",\n'
+                '  "version": "0.1",\n'
+                '  "description": {\n'
+                '    "en": "Default Theme"\n'
+                '  },\n'
+                '  "author": {\n'
+                '    "name": "John Doe",\n'
+                '    "email": "john@doe.com",\n'
+                '    "url": "https://john-doe.com"\n'
+                '  },\n'
+                '  "requires": {\n'
+                '    "packages": [],\n'
+                '    "plugins": []\n'
+                '  }\n'
+                '}\n'
+            )
+
+        # Create '.gitignore'
+        with open(path.join(theme_dir, '.gitignore'), 'wt') as f:
+            f.write('__pycache__\n')
 
     # Register all themes found in the themes directory
-    for name in sorted(listdir(t_path)):
-        if not path.isdir(t_path) or name.startswith('_') or name.startswith('.'):
+    for name in sorted(listdir(themes_dir)):
+        if not path.isdir(themes_dir) or name.startswith('_') or name.startswith('.'):
             continue
 
         register('themes.' + name)

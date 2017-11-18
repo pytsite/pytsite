@@ -12,7 +12,7 @@ def _init():
     """
     import sys
     from importlib import import_module
-    from os import path, environ, getcwd, mkdir, makedirs
+    from os import path, environ, getcwd, mkdir, makedirs, chmod
     from getpass import getuser
     from socket import gethostname
     from . import reg
@@ -39,10 +39,10 @@ def _init():
     sys.path.append(root_path)
 
     # Base filesystem paths
-    virtualenv_path = path.join(root_path, 'env')
+    env_path = environ.get('VIRTUAL_ENV', path.join(root_path, 'env'))
     app_path = path.join(root_path, 'app')
     reg.put('paths.root', root_path)
-    reg.put('paths.virtualenv', virtualenv_path)
+    reg.put('paths.env', env_path)
     reg.put('paths.app', app_path)
     for n in ['config', 'log', 'static', 'storage', 'tmp']:
         reg.put('paths.' + n, path.join(root_path, n))
@@ -56,8 +56,8 @@ def _init():
 
     # uWSGI does not export virtualenv paths, do it by ourselves
     if 'VIRTUAL_ENV' not in environ:
-        environ['VIRTUAL_ENV'] = virtualenv_path
-        environ['PATH'] = path.join(virtualenv_path, 'bin') + ':' + environ['PATH']
+        environ['VIRTUAL_ENV'] = env_path
+        environ['PATH'] = path.join(env_path, 'bin') + ':' + environ['PATH']
 
     # Additional filesystem paths
     reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))
@@ -66,22 +66,62 @@ def _init():
 
     # Create 'app' package
     if not path.exists(app_path):
+        # Create 'app' directory
         mkdir(app_path, 0o755)
-        with open(path.join(app_path, '__init__.py'), 'w') as f:
-            f.write('"""PytSite Application.\n"""\n')
 
-        # Create default configuration file
-        config_dir = reg.get('paths.config')
-        if not path.exists(config_dir):
-            mkdir(config_dir, 0o755)
-            conf_str = 'server_name: test.com\n' \
-                       '# db:\n' \
-                       '  # database: test_com\n' \
-                       '  # user: test\n' \
-                       '  # password: test\n' \
-                       '  # ssl: true\n'
-            with open(path.join(config_dir, 'default.yml'), 'w') as f:
-                f.write(conf_str)
+        # Create __init__.py
+        with open(path.join(app_path, '__init__.py'), 'wt') as f:
+            f.write('"""Awesome App\n"""\n')
+
+        # Create 'console' executable
+        console_path = path.join(app_path, 'console')
+        with open(console_path, 'wt') as f:
+            f.write('#!/bin/sh\n\n')
+            f.write('source ' + path.join(path.relpath(env_path, start=app_path), 'bin', 'activate') + '\n')
+            f.write('python -m pytsite $1 $2 $3 $4 $5 $6 $7 $8 $9\n')
+        chmod(console_path, 0o755)
+
+        # Create 'wsgi.py'
+        with open(path.join(app_path, 'wsgi.py'), 'wt') as f:
+            f.write('from pytsite.wsgi import application\n')
+
+        # Create 'app.json'
+        with open(path.join(app_path, 'app.json'), 'wt') as f:
+            f.write(
+                '{\n'
+                '  "name": "Awesome App",\n'
+                '  "version": "0.1",\n'
+                '  "description": {\n'
+                '    "en": "PytSite Application"\n'
+                '  },\n'
+                '  "author": {\n'
+                '    "name": "John Doe",\n'
+                '    "email": "john@doe.com",\n'
+                '    "url": "https://john-doe.com"\n'
+                '  },\n'
+                '  "requires": {\n'
+                '    "packages": [],\n'
+                '    "plugins": []\n'
+                '  }\n'
+                '}\n'
+            )
+
+        # Create '.gitignore'
+        with open(path.join(app_path, '.gitignore'), 'wt') as f:
+            f.write('__pycache__\n')
+
+    # Create default configuration file
+    config_dir = reg.get('paths.config')
+    if not path.exists(config_dir):
+        mkdir(config_dir, 0o755)
+        conf_str = 'server_name: test.com\n' \
+                   '# db:\n' \
+                   '  # database: test_com\n' \
+                   '  # user: test\n' \
+                   '  # password: test\n' \
+                   '  # ssl: true\n'
+        with open(path.join(config_dir, 'default.yml'), 'w') as f:
+            f.write(conf_str)
 
     # Debug is disabled by default
     reg.put('debug', False)

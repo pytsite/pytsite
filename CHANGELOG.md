@@ -1,6 +1,12 @@
 # PytSite Changelog
 
 
+## 5.6.7 (2017-11-17)
+### Fixed
+- `auth`: unnecessary manipulations with fields.
+- `core`, `theme`: automatic file structure while initialization.
+
+
 ## 5.6.6 (2017-11-12)
 ### Fixed
 - `auth_storage_odm`: model indexes.

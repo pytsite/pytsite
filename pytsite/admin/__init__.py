@@ -1,4 +1,4 @@
-"""Admin Package Init
+"""PytSite Admin
 """
 # Public API
 from . import _sidebar as sidebar, _navbar as navbar
@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 
 def _init():
-    """Init wrapper.
+    """Init wrapper
     """
     from pytsite import assetman, tpl, lang, router, robots, permissions
     from . import _eh, _controllers

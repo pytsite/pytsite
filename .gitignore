@@ -2,6 +2,7 @@
 /.cache
 /build
 /dist
+/doc/build
 /testing/app/log
 /testing/app/tmp
 *.pyc
