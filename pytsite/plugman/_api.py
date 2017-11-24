@@ -7,9 +7,9 @@ from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _u
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
-from pytsite import reg as _reg, logger as _logger, reload as _reload, assetman as _assetman, lang as _lang, \
-    util as _util, router as _router, console as _console, semver as _semver, package_info as _package_info, \
-    theme as _theme, cache as _cache, events as _events
+from pytsite import reg as _reg, logger as _logger, lang as _lang, util as _util, router as _router, \
+    console as _console, semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, \
+    events as _events
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -199,7 +199,7 @@ def get_allowed_version_range(plugin_name: str) -> dict:
     r = {'min': '0.0.0', 'max': '99.99.99'}
 
     # Build list of packages to collect information from
-    pkg_names = ['app', _theme.get().package_name]
+    pkg_names = ['app']  # TODO: there is must be a theme packages too
     for installed_plugin_name in plugins_info():
         if installed_plugin_name != plugin_name:
             pkg_names.append('plugins.{}'.format(installed_plugin_name))
@@ -363,16 +363,6 @@ def install(plugin_spec: str) -> int:
         if not is_started(plugin_name):
             start(plugin_name)
 
-        plugin_package_name = 'plugins.' + plugin_name
-
-        # Compile plugin's assets
-        if _assetman.is_package_registered(plugin_package_name):
-            _assetman.build(plugin_package_name)
-
-        # Rebuild translations
-        if _lang.is_package_registered(plugin_package_name):
-            _lang.build()
-
         # Notify about plugin install
         _events.fire('pytsite.plugman.install', name=plugin_name, version=ver_to_install)
         _events.fire('pytsite.plugman.install.{}'.format(plugin_name), version=ver_to_install)
@@ -458,3 +448,21 @@ def uninstall(plugin_name: str, update_mode: bool = False):
 
 def is_dev_mode() -> bool:
     return _DEV_MODE
+
+
+def on_install(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman.install', handler, priority)
+
+
+def on_update(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman.update', handler, priority)
+
+
+def on_uninstall(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman.uninstall', handler, priority)

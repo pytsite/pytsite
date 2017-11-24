@@ -3,7 +3,7 @@
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
 from pytsite import console as _console, reg as _reg, events as _events, lang as _lang, util as _util, \
-    package_info as _package_info, theme as _theme
+    package_info as _package_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -39,7 +39,7 @@ class Setup(_console.Command):
             raise _console.error.Error(_lang.t('pytsite.setup@setup_is_already_completed'))
 
         # Install required pip packages by application and theme
-        for pkg_name in ['app', _theme.get().package_name]:
+        for pkg_name in ['app']:  # TODO: there is must be a theme package too
             for pip_pkg_spec in _package_info.requires_packages(pkg_name):
                 _console.print_info(_lang.t('pytsite.setup@installing_pip_package', {'package': pip_pkg_spec}))
                 try:

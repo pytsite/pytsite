@@ -1,8 +1,0 @@
-console_command_description_reindex: 'Индексация коллекций'
-reindex_model: "Индексирую модель ':model'"
-validation_field_unique: "Значение поля ':field' должно быть уникальным"
-entities_cache_cleared: 'Кеш сущностей ODM очищен.'
-finder_cache_cleared: "Кеш ODM-запросов модели ':model' очищен."
-validation_field_string_min_length: "Длина значения поля ':field' должна быть больше :min_length символов"
-validation_field_string_max_length: "Длина значения поля ':field' должна быть меньше :max_length символов"
-validation_field_email: "Значением поля ':field' должен быть адрес электронной почты"

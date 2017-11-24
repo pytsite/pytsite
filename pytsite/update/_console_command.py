@@ -4,7 +4,7 @@ import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, chdir as _chdir
 from pytsite import console as _console, events as _events, lang as _lang, package_info as _package_info, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, reload as _reload, theme as _theme , util as _util
+    logger as _logger, maintenance as _maintenance, util as _util, reload as _reload
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -68,12 +68,6 @@ class Update(_console.Command):
                 _console.print_info(_lang.t('pytsite.update@updating_application'))
                 _subprocess.call(['git', '-C', app_path, 'pull'])
 
-            # Update all installed themes, if applicable
-            for theme in _theme.get_registered().values():
-                if _path.exists(_path.join(theme.path, '.git')):
-                    _console.print_info(_lang.t('pytsite.update@updating_theme', {'name': theme.name}))
-                    _subprocess.call(['git', '-C', theme.path, 'pull'])
-
             _logger.info('pytsite.update.stage_2 event, PytSite version: {}'.format(_package_info.version('pytsite')))
             _events.fire('pytsite.update.stage_2')
 
@@ -119,7 +113,7 @@ class Update(_console.Command):
             self._save_state(state)
 
             # Update required pip packages by application and theme
-            for pkg_name in ['app', _theme.get().package_name]:
+            for pkg_name in ['app']:  # TODO: there is must be a theme's package too
                 for pip_pkg_spec in _package_info.requires_packages(pkg_name):
                     _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pip_pkg_spec}))
                     try:

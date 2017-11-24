@@ -13,7 +13,7 @@ __license__ = 'MIT'
 _dbg = _reg.get('debug', False)
 _log_dir = _reg.get('paths.log')
 _now = _datetime.now()
-_log_path = _path.join(_log_dir, _now.strftime('%Y%m%d.log'))
+_log_path = _path.join(_log_dir, _now.strftime('{}-%Y%m%d.log'.format(_reg.get('env.type'))))
 _log_level = _logging.DEBUG if _reg.get('debug') else _logging.INFO
 
 if not _path.exists(_log_dir):

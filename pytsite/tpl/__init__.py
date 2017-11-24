@@ -6,7 +6,7 @@ from datetime import datetime as _datetime
 from importlib.util import find_spec as _find_module_spec
 from os import path as _path
 from urllib.parse import urlparse as _urlparse
-from pytsite import reg as _reg, lang as _lang, util as _util, events as _events, theme as _theme
+from pytsite import reg as _reg, lang as _lang, util as _util, events as _events
 from . import _error as error
 
 __author__ = 'Alexander Shepetko'
@@ -16,17 +16,18 @@ __license__ = 'MIT'
 _packages = {}
 
 
-def _get_tpl_path(tpl: str) -> str:
-    if not tpl:
-        raise ValueError('Template name is not specified.')
+def _split_location(location: str) -> list:
+    for r in _events.fire('pytsite.tpl.split_location', location=location):
+        location = r
 
-    if '@' not in tpl:
-        tpl = '$theme@' + tpl
+    return location.split('@')[:2]
 
-    if '$theme' in tpl:
-        tpl = tpl.replace('$theme', _theme.get().package_name)
 
-    package_name, tpl_name = tpl.split('@')[:2]
+def _get_path(location: str) -> str:
+    if not location:
+        raise ValueError('Template name is not specified')
+
+    package_name, tpl_name = _split_location(location)
 
     if package_name not in _packages:
         raise error.TemplateNotFound("Templates package '{}' is not registered".format(package_name))
@@ -38,7 +39,7 @@ def _get_tpl_path(tpl: str) -> str:
 
 
 def tpl_exists(tpl: str) -> bool:
-    return _path.exists(_get_tpl_path(tpl))
+    return _path.exists(_get_path(tpl))
 
 
 class _TemplateLoader(_jinja.BaseLoader):
@@ -46,7 +47,7 @@ class _TemplateLoader(_jinja.BaseLoader):
     """
 
     def get_source(self, environment, tpl: str) -> tuple:
-        tpl_path = _get_tpl_path(tpl)
+        tpl_path = _get_path(tpl)
 
         if not tpl_exists(tpl):
             raise error.TemplateNotFound("Template is not found at '{}'".format(tpl_path))
@@ -92,11 +93,14 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
     if not _path.isdir(templates_dir):
         raise NotADirectoryError("Directory '{}' is not found".format(templates_dir))
 
+    if package_name.startswith('plugins.') and not alias:
+        alias = package_name.split('.')[1]
+
     config = {'templates_dir': templates_dir}
+    _packages[package_name] = config
+
     if alias:
         _packages[alias] = config
-    else:
-        _packages[package_name] = config
 
 
 def render(template: str, args: _Mapping = None, issue_event: bool = True) -> str:
@@ -127,6 +131,12 @@ def register_global(name: str, obj):
     """Register global.
     """
     _env.globals[name] = obj
+
+
+def on_split_location(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.tpl.split_location', handler, priority)
 
 
 # Additional functions and filters

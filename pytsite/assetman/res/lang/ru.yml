@@ -1,7 +1,0 @@
-assetman_setup_console_command_description: 'Настройка окружения assetman'
-assetman_build_console_command_description: 'Компиляция ассетов'
-compiling_assets: 'Компилирую ассеты'
-compiling_assets_for_package: 'Компилирую ассеты для :package'
-compiling_translations: 'Компилирую переводы'
-installing_required_npm_packages: 'Устанавливаю необходимые пакеты NPM'
-updating_npm_packages: 'Обновляю пакеты NPM'

@@ -25,7 +25,7 @@ def listen(event_name: str, handler: callable, priority: int = 0):
 
 
 def fire(event_name: str, stop_after: int = None, **kwargs) -> list:
-    """Fires an event to listeners.
+    """Fires an event to listeners
     """
     count = 0
     r = []

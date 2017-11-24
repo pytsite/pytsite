@@ -7,7 +7,7 @@ from typing import List as _List, Callable as _Callable, Dict as _Dict
 from importlib.util import find_spec as _find_spec
 from datetime import datetime as _datetime
 from os import path as _path, makedirs as _makedirs
-from pytsite import logger as _logger, theme as _theme, threading as _threading, events as _events
+from pytsite import logger as _logger, threading as _threading, events as _events
 from . import _error
 
 __author__ = 'Alexander Shepetko'
@@ -144,6 +144,9 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
     if pkg_name in _packages:
         raise _error.PackageAlreadyRegistered("Language package '{}' already registered".format(pkg_name))
     _packages[pkg_name] = {'__path': lng_dir, '__is_alias': False}
+
+    if pkg_name.startswith('plugins.') and not alias:
+        alias = pkg_name.split('.')[1]
 
     if alias:
         if alias in _packages:
@@ -371,40 +374,16 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
 
     return language.lower() + sep + region.upper()
 
-
-def build():
-    """Compile translations
-    """
-    from pytsite import assetman, console, tpl
-
-    console.print_info(t('pytsite.assetman@compiling_translations'))
-
-    translations = {}
-    for lang_code in langs():
-        translations[lang_code] = {}
-        for pkg_name, info in get_packages().items():
-            _logger.info('Compiling translations for {} ({})'.format(pkg_name, lang_code))
-            translations[lang_code][pkg_name] = get_package_translations(pkg_name, lang_code)
-
-    # Write translations to static file
-    output_file = _path.join(assetman.get_dst_dir_path('pytsite.lang'), 'translations.js')
-    output_dir = _path.dirname(output_file)
-
-    if not _path.exists(output_dir):
-        _makedirs(output_dir, 0o755, True)
-
-    with open(output_file, 'wt', encoding='utf-8') as f:
-        _logger.info("Writing translations into '{}'".format(output_file))
-        f.write(tpl.render('pytsite.lang@translations-js', {
-            'langs_json': _json.dumps(langs()),
-            'translations_json': _json.dumps(translations),
-        }))
-
-
 def on_translate(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('pytsite.lang.translate', handler, priority)
+
+
+def on_split_msg_id(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.lang.split_msg_id', handler, priority)
 
 
 def clear_cache():
@@ -418,10 +397,7 @@ def clear_cache():
 def _split_msg_id(msg_id: str) -> list:
     """Split message ID into message ID and package name.
     """
-    if '@' not in msg_id:
-        msg_id = '$theme@' + msg_id
-
-    if '$theme' in msg_id:
-        msg_id = msg_id.replace('$theme', _theme.get().package_name)
+    for r in _events.fire('pytsite.lang.split_msg_id', msg_id=msg_id):
+        msg_id = r
 
     return msg_id.split('@')[:2]

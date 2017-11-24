@@ -1,8 +1,7 @@
 """PytSite Cron.
 """
 from datetime import datetime as _datetime
-from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, auth as _auth, \
-    threading as _threading
+from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, threading as _threading
 from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
 
 __author__ = 'Alexander Shepetko'
@@ -60,9 +59,6 @@ def _cron_worker():
         # Lock
         _working = True
 
-        # Disable permission checking
-        _auth.switch_user_to_system()
-
         stats = _get_stats()
         now = _datetime.now()
         for evt in '1min', '5min', '15min', '30min', 'hourly', 'daily', 'weekly', 'monthly':
@@ -89,9 +85,6 @@ def _cron_worker():
                         _update_stats(evt)
             else:
                 _update_stats(evt)
-
-        # Enable permissions checking
-        _auth.restore_user()
 
     finally:
         # Unlock

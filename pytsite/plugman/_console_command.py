@@ -1,6 +1,6 @@
 """PytSite Plugin Manager Console Commands
 """
-from pytsite import console as _console, reload as _reload, package_info as _package_info, theme as _theme
+from pytsite import reload as _reload, console as _console, package_info as _package_info
 from . import _api, _error
 
 __author__ = 'Alexander Shepetko'
@@ -35,10 +35,6 @@ class Install(_console.Command):
             else:
                 # Install plugins required by application
                 for plugin_spec in _package_info.requires_plugins('app'):
-                    installed_count += _api.install(plugin_spec)
-
-                # Install plugins required by theme
-                for plugin_spec in _package_info.requires_plugins(_theme.get().package_name):
                     installed_count += _api.install(plugin_spec)
 
         except _error.PlugmanError as e:

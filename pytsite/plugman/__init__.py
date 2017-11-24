@@ -1,11 +1,13 @@
-"""PytSite Plugin Manager.
+"""PytSite Plugin Manager
 """
 # Public API
 from sys import exit as _exit
 from . import _error as error
 from ._api import plugins_path, plugin_info, install, uninstall, is_installed, start, is_started, \
     plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
-    get_allowed_version_range
+    get_allowed_version_range, on_install, on_update, on_uninstall
+
+from importlib.machinery import PathFinder as _PathFinder
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -14,49 +16,39 @@ __license__ = 'MIT'
 _plugman_started = False
 
 
+class _PluginPathFinder(_PathFinder):
+    @classmethod
+    def find_spec(cls, fullname: str, path: list = None, target=None):
+        if fullname.startswith('plugins.'):
+            spec = _PathFinder.find_spec(fullname, path, target)
+            if not spec:
+                raise error.PluginNotInstalled(fullname.split('.')[1])
+
+            return spec
+
+
 def _init():
+    import sys
     from os import mkdir, path
-    from pytsite import settings, lang, assetman, permissions, http_api, console, setup, update
-    from . import _settings_form, _http_api_controllers, _console_command
+    from pytsite import lang, console
+    from . import _console_command
+
+    sys.meta_path.insert(2, _PluginPathFinder())
 
     # Resources
     lang.register_package(__name__)
 
-    assetman.register_package(__name__)
-    assetman.t_less(__name__ + '@**')
-    assetman.t_js(__name__ + '@**')
-
-    # Create 'plugins' package
+    # Create 'plugins' package if it doesn't exist
     plugins_dir_path = plugins_path()
     if not path.exists(plugins_dir_path):
         mkdir(plugins_dir_path, 0o755)
         with open(path.join(plugins_dir_path, '__init__.py'), 'wt') as f:
-            f.write('"""Pytsite Application Plugins.\n"""\n')
+            f.write('"""Pytsite Plugins\n"""\n')
 
-    # Console commands
+    # Register console commands
     console.register_command(_console_command.Install())
     console.register_command(_console_command.Update())
     console.register_command(_console_command.Uninstall())
-
-    # HTTP API
-    http_api.handle('POST', 'plugman/install/<name>', _http_api_controllers.PostInstall(),
-                    'pytsite.plugman@post_install')
-    http_api.handle('POST', 'plugman/uninstall/<name>', _http_api_controllers.PostUninstall(),
-                    'pytsite.plugman@post_uninstall')
-    http_api.handle('POST', 'plugman/upgrade/<name>', _http_api_controllers.PostUpgrade(),
-                    'pytsite.plugman@post_upgrade')
-
-    if not is_dev_mode():
-        # Permissions
-        permissions.define_permission('pytsite.plugman.manage', 'pytsite.plugman@plugin_management', 'app')
-
-        # Settings
-        settings.define('plugman', _settings_form.Form, 'pytsite.plugman@plugins', 'fa fa-plug',
-                        'pytsite.plugman.manage')
-
-        # Event handlers
-        setup.on_setup(lambda: console.run_command('plugman:install', {'reload': False}), 999)
-        update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))
 
     # Start installed plugins
     for p_name in plugins_info():
