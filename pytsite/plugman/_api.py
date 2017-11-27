@@ -22,6 +22,7 @@ _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 
+_starting = []
 _started = []
 _installing = []
 _uninstalling = []
@@ -117,7 +118,7 @@ def is_started(plugin_name: str) -> bool:
 def start(plugin_name: _Union[str, list, tuple]) -> object:
     """Start a plugin
     """
-    global _required, _started
+    global _required, _started, _starting
 
     if isinstance(plugin_name, (list, tuple)):
         for p_name in plugin_name:
@@ -125,6 +126,12 @@ def start(plugin_name: _Union[str, list, tuple]) -> object:
 
     if plugin_name in _started:
         raise _error.PluginAlreadyStarted(plugin_name)
+
+    if plugin_name in _starting:
+        _logger.warn("Plugin '{}' is already starting".format(plugin_name))
+        return
+
+    _starting.append(plugin_name)
 
     p_info = plugin_info(plugin_name)
 

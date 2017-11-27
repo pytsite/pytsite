@@ -5,17 +5,21 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class LanguageNotSupported(Exception):
+class Error(Exception):
     pass
 
 
-class PackageNotRegistered(Exception):
+class LanguageNotSupported(Error):
     pass
 
 
-class PackageAlreadyRegistered(Exception):
+class PackageNotRegistered(Error):
     pass
 
 
-class TranslationError(Exception):
+class PackageAlreadyRegistered(Error):
+    pass
+
+
+class TranslationError(Error):
     pass

@@ -24,7 +24,7 @@ class Db(_console.Command):
     def description(self) -> str:
         """Get description of the command.
         """
-        return 'pytsite.db@db_console_command_description'
+        return 'pytsite.mongodb@db_console_command_description'
 
     def _dump(self):
         if _subprocess.call('which mongodump', stdout=_subprocess.DEVNULL, stderr=_subprocess.DEVNULL, shell=True) != 0:
@@ -79,7 +79,7 @@ class Db(_console.Command):
 
         r = _subprocess.call(command, shell=True)
 
-        _events.fire('pytsite.db.restore')
+        _events.fire('pytsite.mongodb@restore')
 
         _maintenance.disable()
 

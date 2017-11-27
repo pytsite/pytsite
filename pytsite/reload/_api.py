@@ -17,18 +17,18 @@ def _do_reload():
     """
     touch_reload_path = _path.join(_reg.get('paths.storage'), 'touch.reload')
 
-    _events.fire('pytsite.reload.before')
+    _events.fire('pytsite.reload@before_reload')
 
     with open(touch_reload_path, 'wt') as f:
         f.write(_util.w3c_datetime_str())
 
-    _events.fire('pytsite.reload')
+    _events.fire('pytsite.reload@reload')
 
     _console.print_info(_lang.t('pytsite.reload@app_is_reloading'))
 
 
 def reload(delay: float = 0.0):
-    """Request reload after delay
+    """Request reload
     """
     _threading.create_timer(_do_reload, delay).start()
 
@@ -36,17 +36,17 @@ def reload(delay: float = 0.0):
 def on_before_reload(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.reload.before', handler, priority)
+    _events.listen('pytsite.reload@before_reload', handler, priority)
 
 
 def on_reload(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.reload', handler, priority)
+    _events.listen('pytsite.reload@reload', handler, priority)
 
 
 def set_flag():
-    """Set 'Reload requested' flag state
+    """Set 'Reload request' flag state
     """
     global _flag
 
@@ -54,6 +54,6 @@ def set_flag():
 
 
 def get_flag() -> bool:
-    """Get 'Reload requested' flag state
+    """Get 'Reload request' flag state
     """
     return _flag

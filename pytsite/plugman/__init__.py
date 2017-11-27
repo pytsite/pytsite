@@ -52,6 +52,9 @@ def _init():
 
     # Start installed plugins
     for p_name in plugins_info():
+        if p_name.startswith('_'):
+            continue
+
         try:
             if not is_started(p_name):
                 start(p_name)

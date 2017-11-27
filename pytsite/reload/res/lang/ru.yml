@@ -1,5 +1,2 @@
-reload_application_permission: 'Перезагрузка приложения'
 reload_console_command_description: 'Перезагрузка приложения'
 app_is_reloading: 'Приложение перезагружается...'
-reload_required: 'Необходимо как можно скорее <a href="#" id="pytsite-reload-link">перезагрузить</a> приложение'
-confirm_application_reload: 'Вы действительно хотите перезагрузить приложение?'
