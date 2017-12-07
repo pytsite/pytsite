@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 6.1.1 (2017-12-07)
+
+### Fixed
+
+- `plugman`: installation and loading dependencies.
+
+
 ## 6.1 (2017-12-07)
 
 ### Added

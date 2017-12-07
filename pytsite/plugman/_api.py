@@ -8,6 +8,7 @@ from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _u
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
+from datetime import datetime as _datetime
 from pytsite import reg as _reg, logger as _logger, lang as _lang, util as _util, router as _router, \
     console as _console, semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, \
     events as _events
@@ -39,6 +40,9 @@ _reg.put('paths.plugins', _PLUGINS_PATH)
 def _plugin_path(plugin_name: str) -> str:
     """Calculate local path of a plugin
     """
+    if plugin_name.startswith('plugins.'):
+        plugin_name = plugin_name[8:]
+
     return _path.join(_PLUGINS_PATH, plugin_name)
 
 
@@ -92,7 +96,7 @@ def plugin_info(plugin_name: str) -> dict:
             'version': '0.0.1',
         })
     except _package_info.error.PackageNotFound:
-        raise _error.PluginNotInstalled(plugin_name)
+        raise _error.PluginNotFound(plugin_name)
 
 
 def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
@@ -106,23 +110,19 @@ def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
 
         return True
 
-    try:
-        plugin_info(_semver.parse_requirement_str(plugin_spec)[0])
-        return True
-    except _error.PluginNotInstalled:
-        return False
+    return _path.exists(_path.join(_plugin_path(plugin_spec), 'installed'))
 
 
 def is_loaded(plugin_name: str) -> bool:
-    """Check if the plugin is started
+    """Check if the plugin is loaded
     """
     return plugin_name in _loaded
 
 
 def load(plugin_name: _Union[str, list, tuple]) -> object:
-    """Start a plugin
+    """Load a plugin
     """
-    global _required, _loaded, _loading
+    global _required, _loaded, _loading, _installing
 
     if isinstance(plugin_name, (list, tuple)):
         for p_name in plugin_name:
@@ -130,6 +130,9 @@ def load(plugin_name: _Union[str, list, tuple]) -> object:
 
     if plugin_name in _loaded:
         raise _error.PluginAlreadyLoaded(plugin_name)
+
+    if plugin_name in _installing:
+        raise _error.PluginInstallationInProgress(plugin_name)
 
     if plugin_name in _loading:
         _logger.warn("Plugin '{}' is already loading".format(plugin_name))
@@ -139,11 +142,11 @@ def load(plugin_name: _Union[str, list, tuple]) -> object:
 
     try:
         p_info = plugin_info(plugin_name)
-    except _error.PluginNotInstalled as e:
+    except _error.PluginNotFound as e:
         _console.print_warning(str(e))
         return
 
-    # Start required plugins
+    # Load required plugins
     for required_plugin_spec in p_info['requires']['plugins']:
         required_plugin_name = _semver.parse_requirement_str(required_plugin_spec)[0]
         _required.add(required_plugin_name)
@@ -164,8 +167,8 @@ def load(plugin_name: _Union[str, list, tuple]) -> object:
         return mod
 
     except Exception as e:
-        raise _error.PluginStartError("Error while loading plugin '{}-{}': {}".
-                                      format(plugin_name, p_info['version'], e))
+        raise _error.PluginLoadError("Error while loading plugin '{}-{}': {}".
+                                     format(plugin_name, p_info['version'], e))
 
 
 def plugins_info() -> dict:
@@ -308,13 +311,13 @@ def install(plugin_spec: str) -> int:
         else:
             # Necessary version is already installed, nothing to do
             return installed_count
-    except _error.PluginNotInstalled:
+    except _error.PluginNotFound:
         pass
 
     # Check if the plugin is not installing at this moment
     if plugin_name in _installing:
         raise _error.PluginInstallationInProgress(
-            "Installation of the plugin '{}' already started".format(plugin_name))
+            "Installation of the plugin '{}' is already started".format(plugin_name))
 
     try:
         # Flag start of the installation process
@@ -365,11 +368,19 @@ def install(plugin_spec: str) -> int:
 
         # Install required pip packages
         for pip_pkg_spec in l_plugin_info['requires']['packages']:
+            _console.print_info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
+                'plugin': plugin_name,
+                'pip_package': pip_pkg_spec,
+            }))
             _install_pip_package(pip_pkg_spec)
 
         # Install required plugins
         for req_plugin_spec in l_plugin_info['requires']['plugins']:
             if not is_installed(req_plugin_spec):
+                _console.print_info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
+                    'plugin': plugin_name,
+                    'dependency': req_plugin_spec,
+                }))
                 _logger.info('Installing required plugin: {}'.format(req_plugin_spec))
                 installed_count += install(req_plugin_spec)
 
@@ -377,8 +388,10 @@ def install(plugin_spec: str) -> int:
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
 
-        # Load installed plugin
-        plugin = load(plugin_name)
+        plugin = _import_module('plugins.{}'.format(plugin_name))
+
+        with open(_path.join(_plugin_path(plugin_name), 'installed'), 'w') as f:
+            f.write(str(_datetime.now()))
 
         # Notify about plugin install
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
@@ -395,6 +408,8 @@ def install(plugin_spec: str) -> int:
         return installed_count + 1
 
     except Exception as e:
+        _installing.remove(plugin_name)
+
         msg = _lang.t('pytsite.plugman@plugin_install_error', {
             'plugin': plugin_name,
             'msg': e,

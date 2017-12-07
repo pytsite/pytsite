@@ -35,6 +35,13 @@ class UnknownPlugin(Error):
         return "Plugin '{}' is unknown".format(self._name)
 
 
+class PluginNotFound(Error):
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
+
+    def __str__(self) -> str:
+        return "Plugin '{}' is not found on filesystem".format(self._name)
+
 class PluginNotInstalled(Error):
     def __init__(self, plugin_name: str):
         self._name = plugin_name
@@ -53,7 +60,11 @@ class PluginAlreadyInstalled(Error):
 
 
 class PluginInstallationInProgress(Error):
-    pass
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
+
+    def __str__(self) -> str:
+        return "Plugin '{}' is not completely installed yet".format(self._name)
 
 
 class PluginUninstallationInProgress(Error):
@@ -68,7 +79,7 @@ class PluginUninstallError(Error):
     pass
 
 
-class PluginStartError(Error):
+class PluginLoadError(Error):
     pass
 
 
