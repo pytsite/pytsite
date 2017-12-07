@@ -2,7 +2,8 @@
 """
 import zipfile as _zipfile
 import requests as _requests
-from typing import Union as _Union
+import json as _json
+from typing import Union as _Union, List as _List
 from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
@@ -22,8 +23,8 @@ _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 
-_starting = []
-_started = []
+_loading = []  # type: _List[str]
+_loaded = []
 _installing = []
 _uninstalling = []
 _required = set(_reg.get('plugman.plugins', []))
@@ -62,7 +63,10 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     r = _requests.get(request_url, args)
 
     if not r.ok:
-        raise _error.PluginsApiError(request_url, r.json().get('error'))
+        try:
+            raise _error.PluginsApiError(request_url, r.json().get('error'))
+        except _json.JSONDecodeError as e:
+            raise _error.PluginsApiError(request_url, 'Error while parsing JSON from string: {}'.format(r.content))
 
     return r.json()
 
@@ -109,51 +113,58 @@ def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
         return False
 
 
-def is_started(plugin_name: str) -> bool:
+def is_loaded(plugin_name: str) -> bool:
     """Check if the plugin is started
     """
-    return plugin_name in _started
+    return plugin_name in _loaded
 
 
-def start(plugin_name: _Union[str, list, tuple]) -> object:
+def load(plugin_name: _Union[str, list, tuple]) -> object:
     """Start a plugin
     """
-    global _required, _started, _starting
+    global _required, _loaded, _loading
 
     if isinstance(plugin_name, (list, tuple)):
         for p_name in plugin_name:
-            start(p_name)
+            load(p_name)
 
-    if plugin_name in _started:
-        raise _error.PluginAlreadyStarted(plugin_name)
+    if plugin_name in _loaded:
+        raise _error.PluginAlreadyLoaded(plugin_name)
 
-    if plugin_name in _starting:
-        _logger.warn("Plugin '{}' is already starting".format(plugin_name))
+    if plugin_name in _loading:
+        _logger.warn("Plugin '{}' is already loading".format(plugin_name))
         return
 
-    _starting.append(plugin_name)
+    _loading.append(plugin_name)
 
-    p_info = plugin_info(plugin_name)
+    try:
+        p_info = plugin_info(plugin_name)
+    except _error.PluginNotInstalled as e:
+        _console.print_warning(str(e))
+        return
 
     # Start required plugins
     for required_plugin_spec in p_info['requires']['plugins']:
         required_plugin_name = _semver.parse_requirement_str(required_plugin_spec)[0]
         _required.add(required_plugin_name)
-        if not is_started(required_plugin_name):
+        if not is_loaded(required_plugin_name):
             _logger.debug("Plugin '{}' requires '{}'".format(plugin_name, required_plugin_name))
-            start(required_plugin_name)
+            load(required_plugin_name)
 
-    # Load plugin's package
+    # Import plugin's package
     pkg_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
     try:
         mod = _import_module(pkg_name)
-        _started.append(plugin_name)
-        _logger.info("Plugin '{}-{}' started".format(plugin_name, p_info['version']))
+        if hasattr(mod, 'plugin_load') and callable(mod.plugin_load):
+            mod.plugin_load()
+        _loaded.append(plugin_name)
+        _logger.info("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
+        _loading.remove(plugin_name)
 
         return mod
 
     except Exception as e:
-        raise _error.PluginStartError("Error while starting plugin '{}-{}': {}".
+        raise _error.PluginStartError("Error while loading plugin '{}-{}': {}".
                                       format(plugin_name, p_info['version'], e))
 
 
@@ -206,7 +217,7 @@ def get_allowed_version_range(plugin_name: str) -> dict:
     r = {'min': '0.0.0', 'max': '99.99.99'}
 
     # Build list of packages to collect information from
-    pkg_names = ['app']  # TODO: there is must be a theme packages too
+    pkg_names = ['app']
     for installed_plugin_name in plugins_info():
         if installed_plugin_name != plugin_name:
             pkg_names.append('plugins.{}'.format(installed_plugin_name))
@@ -366,11 +377,12 @@ def install(plugin_spec: str) -> int:
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
 
-        # Start installed plugin
-        if not is_started(plugin_name):
-            start(plugin_name)
+        # Load installed plugin
+        plugin = load(plugin_name)
 
         # Notify about plugin install
+        if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
+            plugin.plugin_install()
         _events.fire('pytsite.plugman.install', name=plugin_name, version=ver_to_install)
         _events.fire('pytsite.plugman.install.{}'.format(plugin_name), version=ver_to_install)
 
@@ -383,11 +395,6 @@ def install(plugin_spec: str) -> int:
         return installed_count + 1
 
     except Exception as e:
-        try:
-            uninstall(plugin_name)
-        except _error.PluginNotInstalled:
-            pass
-
         msg = _lang.t('pytsite.plugman@plugin_install_error', {
             'plugin': plugin_name,
             'msg': e,

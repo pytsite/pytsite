@@ -1,9 +1,9 @@
 """PytSite Routing Rule
 """
 import re as _re
+from typing import Type as _Type
 from pytsite import util as _util
-from . import _error
-from ._controller import Controller as _Controller
+from . import _error, _controller
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -45,8 +45,13 @@ class Rule:
     """Routing Rule
     """
 
-    def __init__(self, controller: _Controller, path: str = None, name: str = None, defaults: dict = None,
+    def __init__(self, controller_class: _Type, path: str = None, name: str = None, defaults: dict = None,
                  methods='GET', attrs: dict = None):
+
+        if not isinstance(controller_class, type):
+            raise TypeError('{} expected, got {}'.format(_controller.Controller, type(controller_class)))
+        elif not issubclass(controller_class, _controller.Controller):
+            raise TypeError('str or {} expected, got {}'.format(_controller.Controller, type(controller_class)))
 
         if path:
             # Cut trailing slash
@@ -66,7 +71,7 @@ class Rule:
             raise TypeError('List or type expected, got {}'.format(type(methods)))
 
         self._path = path
-        self._controller = controller
+        self._controller_class = controller_class
         self._name = name or _util.random_str()
         self._defaults = defaults or {}
         self._methods = set([m.upper() for m in methods])
@@ -90,8 +95,8 @@ class Rule:
         return self._path
 
     @property
-    def controller(self) -> _Controller:
-        return self._controller
+    def controller_class(self) -> _Type:
+        return self._controller_class
 
     @property
     def name(self) -> str:

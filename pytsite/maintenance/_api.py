@@ -8,7 +8,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_lock_path = _reg.get('paths.maintenance.lock')
+_lock_path = _reg.get('paths.maintenance_lock')
 
 _lock_dir = _path.dirname(_lock_path)
 if not _path.exists(_lock_dir):

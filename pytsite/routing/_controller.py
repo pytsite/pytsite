@@ -4,7 +4,7 @@ from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from werkzeug.datastructures import FileStorage as _FileStorage, EnvironHeaders as _EnvironHeaders
-from pytsite import formatters as _formatter, validation as _validation, http as _http, router as _router
+from pytsite import formatters as _formatter, validation as _validation, http as _http
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,12 +12,12 @@ __license__ = 'MIT'
 
 
 class ControllerArgs(_Mapping):
-    def __init__(self):
+    def __init__(self, values: _Mapping = None):
         """Init
         """
+        self._values = values or {}
         self._formatters = {}  # type: _Dict[str, _List[_formatter.Formatter]]
         self._rules = {}  # type: _Dict[str, _List[_validation.rule.Rule]]
-        self._value = {}
 
     def add_formatter(self, key: str, formatter: _formatter.Formatter):
         """Add a formatter for the field
@@ -38,7 +38,7 @@ class ControllerArgs(_Mapping):
     def clear(self):
         """Clear
         """
-        self._value = {}
+        self._values = {}
 
         return self
 
@@ -53,7 +53,7 @@ class ControllerArgs(_Mapping):
     def pop(self, key: str, default: _Any = None) -> _Any:
         """Pop a value
         """
-        return self._value.pop(key, default)
+        return self._values.pop(key, default)
 
     def __setitem__(self, key: str, value: _Any):
         # Apply formatters
@@ -75,35 +75,31 @@ class ControllerArgs(_Mapping):
                         'error': str(e),
                     })
 
-        self._value[key] = value
+        self._values[key] = value
 
     def __getitem__(self, key: str) -> _Any:
-        return self._value[key]
+        return self._values[key]
 
     def __iter__(self):
-        return self._value.__iter__()
+        return self._values.__iter__()
 
     def __len__(self):
-        return len(self._value)
+        return len(self._values)
 
     def __repr__(self):
-        return repr(self._value)
+        return repr(self._values)
 
 
 class Controller(_ABC):
     """PytSite Routing Base Controller
     """
 
-    def __init__(self):
+    def __init__(self, args: _Mapping = None, request: _http.request.Request = None):
         """Init
         """
-        self._args = ControllerArgs()
+        self._args = ControllerArgs(args)
+        self._request = request
         self._files = {}
-
-    def arg(self, name: str, default: _Any = None) -> _Any:
-        """Shortcut to get argument's value without KeyError raising
-        """
-        return self._args.get(name, default)
 
     @staticmethod
     def redirect(location: str, status: int = 302) -> _http.response.Redirect:
@@ -136,40 +132,21 @@ class Controller(_ABC):
         return _http.error.InternalServerError(description, response)
 
     @property
-    def request(self) -> _http.request.Request:
-        """Current request object getter
-        """
-        return _router.request()
-
-    @property
-    def headers(self) -> _EnvironHeaders:
-        """Current request headers object getter
-        """
-        return _router.request().headers
-
-    @property
     def args(self) -> ControllerArgs:
         """Arguments getter
         """
         return self._args
 
-    @args.setter
-    def args(self, value: _Any):
-        """Arguments setter
+    def arg(self, name: str, default: _Any = None) -> _Any:
+        """Shortcut to get argument's value without KeyError raising
         """
-        raise RuntimeError('Controller arguments cannot be directly set, use args.update() instead')
+        return self._args.get(name, default)
 
     @property
-    def files(self) -> _Dict[str, _FileStorage]:
-        """Files getter
+    def request(self) -> _http.request.Request:
+        """Current request object getter
         """
-        return self._files
-
-    @files.setter
-    def files(self, value: _Dict[str, _FileStorage]):
-        """Files setter
-        """
-        self._files = value
+        return self._request
 
     @_abstractmethod
     def exec(self):

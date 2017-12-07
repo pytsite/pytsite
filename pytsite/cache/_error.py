@@ -6,42 +6,63 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class DriverNotFound(Exception):
+class Error(Exception):
     pass
 
 
-class PoolNotExist(Exception):
+class NoDriverRegistered(Error):
+    def __str__(self) -> str:
+        return 'There is no cache driver registered'
+
+
+class DriverNotRegistered(Error):
+    def __init__(self, name: str):
+        self._name = name
+
+    def __str__(self) -> str:
+        return "Cache driver '{}' is not registered".format(self._name)
+
+
+class DriverAlreadyRegistered(Error):
+    def __init__(self, name: str):
+        self._name = name
+
+    def __str__(self) -> str:
+        return "Cache driver '{}' is already registered".format(self._name)
+
+
+class PoolNotExist(Error):
     pass
 
 
-class PoolExists(Exception):
+class PoolExists(Error):
     pass
 
 
-class KeyNotExist(Exception):
-    def __init__(self, pool: str, key: str):
-        self._pool = pool
+class KeyNotExist(Error):
+    def __init__(self, pool_uid: str, key: str):
+        self._pool_uid = pool_uid
         self._key = key
 
     def __str__(self) -> str:
-        return "Pool '{}' does not contain key '{}'".format(self._pool, self._key)
+        return "Pool '{}' does not contain key '{}'".format(self._pool_uid, self._key)
 
 
-class HashKeyNotExists(Exception):
-    def __init__(self, pool: str, key: str, hash_key: str):
-        self._pool = pool
+class HashKeyNotExists(Error):
+    def __init__(self, pool_uid: str, key: str, hash_key: str):
+        self._pool_uid = pool_uid
         self._key = key
         self._hash_key = hash_key
 
     def __str__(self) -> str:
         return "'{}' pool does not contain key '{}' or key's value is not a hash or it does not contain key '{}'" \
-            .format(self._pool, self._key, self._hash_key)
+            .format(self._pool_uid, self._key, self._hash_key)
 
 
-class KeyNeverExpires(Exception):
-    def __init__(self, pool: str, key: str):
-        self._pool = pool
+class KeyNeverExpires(Error):
+    def __init__(self, pool_uid: str, key: str):
+        self._pool_uid = pool_uid
         self._key = key
 
     def __str__(self) -> str:
-        return "Key '{}' in pool '{}' never expires".format(self._key, self._pool)
+        return "Key '{}' in pool '{}' never expires".format(self._key, self._pool_uid)

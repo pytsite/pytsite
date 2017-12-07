@@ -1,6 +1,30 @@
 # PytSite 6 Changelog
 
 
+## 6.1 (2017-12-07)
+
+### Added
+
+- `cache`: file driver.
+- `reg`: support for drivers.
+- `plugman`: load and installation hooks.
+- `util`: new argument `alphanum_only` in `random_password()`.
+
+### Changed
+
+- `cache`: redis driver moved to separate plugin.
+- `reg`, `plugman`: refactored.
+- `router`:
+    - filters must be only controllers now;
+    - `handle()` requires controller's class instead of an instance.
+
+### Removed
+
+- `setup` completely removed
+- `router`: support for response in exception's body.
+
+
+
 ## 6.0.1 (2017-11-27)
 
 ### Fixed

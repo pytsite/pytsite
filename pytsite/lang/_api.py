@@ -19,7 +19,7 @@ _current = {}  # Thread safe current language
 _fallback = None  # type: str
 _packages = {}
 _globals = {}
-_translation_strings = {}
+_translated_strings_cache = {}
 
 _SUB_TRANS_TOKEN_RE = _re.compile('{:([_a-z0-9@]+)}')
 
@@ -65,7 +65,7 @@ def langs(include_current: bool = True, include_neutral: bool = False) -> _List[
     """
     r = _languages.copy()
 
-    if not include_neutral:
+    if not include_neutral and 'n' in r:
         r.remove('n')
 
     if not include_current:
@@ -201,12 +201,12 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = F
 
     # Try to get message translation string from cache
     cache_key = '{}-{}@{}'.format(language, package_name, msg_id)
-    msg = _translation_strings.get(cache_key)
+    msg = _translated_strings_cache.get(cache_key)
 
     # Message translation is not found in cache, try to fetch it
     if not msg:
         # Try to get translation via event
-        msg = _events.first('pytsite.lang.translate', language=language, package_name=package_name, msg_id=msg_id)
+        msg = _events.first('pytsite.lang@translate', language=language, package_name=package_name, msg_id=msg_id)
 
         # Load translation from package's data
         if not msg:
@@ -227,7 +227,7 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = F
             msg = lang_file_content[msg_id]
 
         # Cache translation string
-        _translation_strings[cache_key] = msg
+        _translated_strings_cache[cache_key] = msg
 
     # Replace placeholders
     if args:
@@ -377,7 +377,7 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
 def on_translate(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.lang.translate', handler, priority)
+    _events.listen('pytsite.lang@translate', handler, priority)
 
 
 def on_split_msg_id(handler, priority: int = 0):
@@ -389,9 +389,9 @@ def on_split_msg_id(handler, priority: int = 0):
 def clear_cache():
     """Clear translations cache
     """
-    global _translation_strings
+    global _translated_strings_cache
 
-    _translation_strings = {}
+    _translated_strings_cache = {}
 
 
 def _split_msg_id(msg_id: str) -> list:

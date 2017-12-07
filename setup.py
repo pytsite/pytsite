@@ -58,7 +58,6 @@ setup(
     license=pkg_license,
     download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(pkg_version),
     install_requires=[
-        'pip',
         'PyYAML',
         'Werkzeug',
         'Jinja2',
@@ -67,12 +66,10 @@ setup(
         'ExifRead',
         'python-magic',
         'htmlmin',
-        'jsmin',
         'requests',
         'lxml',
         'pytz',
         'frozendict',
-        'redis',
         'uwsgi',
     ],
     classifiers=[

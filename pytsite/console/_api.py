@@ -53,6 +53,7 @@ def run_command(name: str, options: dict = None, arguments: list = None):
 
     try:
         return cmd.do_execute()
+
     except Exception as e:
         _logger.error(str(e), exc_info=e)
         raise e
@@ -98,13 +99,10 @@ def run():
             arguments.append(arg_v)
 
     try:
-        # Check if the setup completed
-        from os import path
-        if not path.exists(_reg.get('paths.setup.lock')) and argv[1] != 'setup':
-            from pytsite.lang import t
-            raise _error.Error(t('pytsite.setup@setup_is_not_completed'))
-
         return run_command(cmd_name, options, arguments)
+
+    except Warning as e:
+        print_warning(str(e))
 
     except _error.Error as e:
         print_error(str(e))

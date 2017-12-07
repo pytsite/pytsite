@@ -13,13 +13,23 @@ __license__ = 'MIT'
 
 
 def _init():
-    from pytsite import reg, tpl
+    from pytsite import reg, package_info
+
+    def get_app_name(language: str, args: dict):
+        app_name = reg.get('app.app_name_' + language)
+
+        if not app_name:
+            return package_info.name('app')
 
     # Register itself as a language package
     register_package(__name__)
 
     # Languages set
     define(reg.get('languages', ['en']))
+
+    # Common globals
+    register_global('app_name', get_app_name)
+    register_global('app@app_name', get_app_name)
 
 
 _init()

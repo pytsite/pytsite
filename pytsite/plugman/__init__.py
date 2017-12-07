@@ -3,7 +3,7 @@
 # Public API
 from sys import exit as _exit
 from . import _error as error
-from ._api import plugins_path, plugin_info, install, uninstall, is_installed, start, is_started, \
+from ._api import plugins_path, plugin_info, install, uninstall, is_installed, load, is_loaded, \
     plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
     get_allowed_version_range, on_install, on_update, on_uninstall
 
@@ -19,10 +19,12 @@ _plugman_started = False
 class _PluginPathFinder(_PathFinder):
     @classmethod
     def find_spec(cls, fullname: str, path: list = None, target=None):
-        if fullname.startswith('plugins.'):
+        fullname_parts = fullname.split('.')
+
+        if fullname_parts[0] == 'plugins' and len(fullname_parts) == 2:
             spec = _PathFinder.find_spec(fullname, path, target)
             if not spec:
-                raise error.PluginNotInstalled(fullname.split('.')[1])
+                raise error.PluginNotInstalled(fullname_parts[1])
 
             return spec
 
@@ -30,7 +32,7 @@ class _PluginPathFinder(_PathFinder):
 def _init():
     import sys
     from os import mkdir, path
-    from pytsite import lang, console
+    from pytsite import lang, console, update, logger
     from . import _console_command
 
     sys.meta_path.insert(2, _PluginPathFinder())
@@ -56,14 +58,18 @@ def _init():
             continue
 
         try:
-            if not is_started(p_name):
-                start(p_name)
+            if not is_loaded(p_name):
+                load(p_name)
+
         except error.PluginStartError as e:
-            console.print_error(str(e), exc_info=e)
-            _exit(1)
+            logger.error(e)
+            console.print_warning(str(e))
 
     global _plugman_started
     _plugman_started = True
+
+    # Event handlers
+    update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))
 
 
 _init()

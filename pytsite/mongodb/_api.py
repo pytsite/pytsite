@@ -39,6 +39,11 @@ def get_client() -> _MongoClient:
         return _client
 
     config = get_config()
+
+    if config['database'] == 'test':
+        raise Warning("It seems you use default database configuration. Consider to set value of the 'db.database' "
+                      "configuration parameter.")
+
     _client = _MongoClient(config['host'], config['port'], ssl=config['ssl'], ssl_cert_reqs=_ssl.CERT_NONE,
                            connect=False, connectTimeoutMS=config['connect_timeout'],
                            socketTimeoutMS=config['socket_timeout'],

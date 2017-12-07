@@ -1,13 +1,14 @@
 """PytSite Router API
 """
 import re as _re
-from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Mapping, Optional as _Optional
+from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Mapping, Optional as _Optional, \
+    Type as _Type
 from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, setup as _setup, events as _events, routing as _routing, errors as _errors
+    threading as _threading, events as _events, routing as _routing, errors as _errors
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -78,19 +79,20 @@ def set_no_cache(status: bool):
     _no_cache[_threading.get_id()] = status
 
 
-def handle(controller: _Union[str, _routing.Controller], path: str = None, name: str = None, defaults: dict = None,
-           methods='GET', filters: _Union[str, _List[str]] = None):
+def handle(controller: _Union[str, _Type], path: str = None, name: str = None, defaults: dict = None,
+           methods='GET', filters: _Union[_Type, _List[_Type]] = None):
     """Add a rule to the router
     """
     if isinstance(controller, str):
-        controller = _rules.get(controller).controller
-    elif not isinstance(controller, _routing.Controller):
-        raise TypeError('String or controller instance expected, got {}'.format(type(controller)))
+        controller = _rules.get(controller).controller_class
 
-    if isinstance(filters, str):
+    if filters is None:
+        filters = ()
+
+    if not isinstance(filters, (list, tuple)):
         filters = (filters,)
 
-    _rules.add(_routing.Rule(controller, path, name, defaults, methods, {'filters': filters or []}))
+    _rules.add(_routing.Rule(controller, path, name, defaults, methods, {'filters': filters}))
 
 
 def add_path_alias(alias: str, target: str):
@@ -115,10 +117,7 @@ def has_rule(rule_name: str) -> bool:
 def call(rule_name: str, args: _Mapping):
     """Call a controller by name
     """
-    controller = _rules.get(rule_name).controller
-    controller.args.clear().update(args)
-
-    return controller.exec()
+    return _rules.get(rule_name).controller_class(args).exec()
 
 
 def dispatch(env: dict, start_response: callable):
@@ -126,13 +125,8 @@ def dispatch(env: dict, start_response: callable):
     """
     tid = _threading.get_id()
 
-    # Check if the setup completed
-    if not _setup.is_setup_completed():
-        wsgi_response = _http.response.Response(response='Setup is not completed', status=503, content_type='text/html')
-        return wsgi_response(env, start_response)
-
     # Check maintenance mode status
-    if _path.exists(_reg.get('paths.maintenance.lock')):
+    if _path.exists(_reg.get('paths.maintenance_lock')):
         wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)
@@ -181,11 +175,8 @@ def dispatch(env: dict, start_response: callable):
         env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
         req = set_request(_http.request.Request(env))
 
-    # Shortcuts
-    request_cookies = req.cookies
-
     # Session setup
-    sid = request_cookies.get('PYTSITE_SESSION')
+    sid = req.cookies.get('PYTSITE_SESSION')
     if sid:
         _sessions[tid] = _session_store.get(sid)
     else:
@@ -206,36 +197,18 @@ def dispatch(env: dict, start_response: callable):
             raise _http.error.NotFound(e)
 
         # Processing rule filters
-        for flt_str in rule.attrs['filters']:
-            flt_args = rule.args.copy()
-            flt_split = flt_str.split(':')
-            flt_name = flt_split[0]
-
-            if not has_rule(flt_name):
-                raise RuntimeError("Route filter '{}' is not defined".format(flt_name))
-
-            if len(flt_split) > 1:
-                for flt_arg_str in flt_split[1:]:
-                    flt_arg_str_split = flt_arg_str.split('=')
-                    if len(flt_arg_str_split) == 2:
-                        flt_args[flt_arg_str_split[0]] = flt_arg_str_split[1]
-
-            flt_controller = _rules.get(flt_name).controller
-            flt_controller.args.clear().update(flt_args)
-            flt_response = flt_controller.exec()
+        for flt_controller_class in rule.attrs['filters']:
+            flt_response = flt_controller_class(rule.args.copy(), req).exec()
             if isinstance(flt_response, _http.response.Response):
                 return flt_response(env, start_response)
 
         # Preparing response object
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
 
-        # Fill controller arguments
-        controller = rule.controller
-        controller.args.clear()
-        controller.args.update(req.inp)
-        controller.args.update(rule.args)
+        # Instantiate controller and fill its arguments
+        controller = rule.controller_class(rule.args, req)  # type: _routing.Controller
+        controller.args.update(req.inp)  # Merge input into args
         controller.args['_pytsite_router_rule_name'] = rule.name
-        controller.files = req.files
 
         # Call controller
         try:
@@ -284,13 +257,6 @@ def dispatch(env: dict, start_response: callable):
 
             _logger.error('HTTP {} {} ({}): {}'.format(
                 e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
-
-            # Exception can contain response object in its body
-            if isinstance(e.response, _http.response.Response):
-                # For non-redirect embedded responses use original status code from exception
-                if not isinstance(e.response, _http.response.Redirect):
-                    e.response.status_code = e.code
-                return e.response(env, start_response)
         else:
             code = e.code if isinstance(e, _http.error.E5xx) else 500
             title = _lang.t('pytsite.router@error', {'code': code})

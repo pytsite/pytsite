@@ -37,7 +37,7 @@ class Install(_console.Command):
                 for plugin_spec in _package_info.requires_plugins('app'):
                     installed_count += _api.install(plugin_spec)
 
-        except _error.PlugmanError as e:
+        except _error.Error as e:
             raise _console.error.Error(e)
 
         if installed_count and self.opt('reload'):
@@ -74,7 +74,7 @@ class Update(_console.Command):
                 for plugin_name in _api.plugins_info():
                     installed_count += _api.install(plugin_name)
 
-        except _error.PlugmanError as e:
+        except _error.Error as e:
             raise _console.error.Error(e)
 
         if installed_count and self.opt('reload'):
@@ -102,7 +102,7 @@ class Uninstall(_console.Command):
         try:
             for p_name in plugin_names:
                 _api.uninstall(p_name)
-        except _error.PlugmanError as e:
+        except _error.Error as e:
             raise _console.error.Error(str(e))
 
         _reload.reload()

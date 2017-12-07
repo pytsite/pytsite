@@ -23,7 +23,7 @@ class RulesMap:
         self._rules = {}  # type: _Dict[str, _rule.Rule]
 
     def add(self, rule: _rule.Rule):
-        """Add a rule.
+        """Add a rule
         """
         # Check if the rule with the same name is already exist
         if rule.name in self._rules:
@@ -42,11 +42,12 @@ class RulesMap:
         """
         try:
             return self._rules[name]
+
         except KeyError:
             raise _error.RuleNotFound("Rule '{}' is not found".format(name))
 
     def match(self, path: str, method: str = 'GET') -> _List[_rule.Rule]:
-        """Match rule against a path.
+        """Match rule against a path
         """
         r = []
         method = method.upper()

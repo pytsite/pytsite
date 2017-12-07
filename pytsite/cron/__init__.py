@@ -11,6 +11,7 @@ __license__ = 'MIT'
 _cache_pool = _cache.create_pool('pytsite.cron')
 _timer = None  # type: _threading.Timer
 _working = False
+_DEBUG = _reg.get('cron.debug', False)
 
 
 def _get_stats() -> dict:
@@ -73,7 +74,8 @@ def _cron_worker():
                         or (evt == 'weekly' and delta.total_seconds() >= 604800) \
                         or (evt == 'monthly' and delta.total_seconds() >= 2592000):
 
-                    _logger.info('Cron event: pytsite.cron.' + evt)
+                    if _DEBUG:
+                        _logger.debug('Cron event: pytsite.cron.' + evt)
 
                     try:
                         _events.fire('pytsite.cron.' + evt)

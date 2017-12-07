@@ -17,6 +17,9 @@ def _init():
     from socket import gethostname
     from . import reg
 
+    # Load regisrty memory driver
+    reg.set_driver(reg.driver.Memory())
+
     # Environment type and name
     reg.put('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
     reg.put('env.name', getuser() + '@' + gethostname())
@@ -54,8 +57,8 @@ def _init():
 
     # Additional filesystem paths
     reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))
-    reg.put('paths.setup.lock', path.join(reg.get('paths.storage'), 'setup.lock'))
-    reg.put('paths.maintenance.lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
+    reg.put('paths.setup_lock', path.join(reg.get('paths.storage'), 'setup.lock'))
+    reg.put('paths.maintenance_lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
 
     # Debug is disabled by default
     reg.put('debug', False)
@@ -68,8 +71,8 @@ def _init():
     reg.put('paths.cache', path.join(reg.get('paths.tmp'), 'cache'))
     makedirs(reg.get('paths.cache'), 0o755, True)
 
-    # Switching registry to the file driver
-    file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'))
+    # Switch registry to the file driver
+    file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'), reg.get_driver())
     reg.set_driver(file_driver)
 
     # Default output parameters
@@ -83,7 +86,7 @@ def _init():
     # Initialize rest of the system
     try:
         # Load required core packages, order is important
-        for pkg_name in ('cron', 'stats', 'reload', 'update', 'setup', 'cleanup', 'plugman', 'testing'):
+        for pkg_name in ('cron', 'stats', 'reload', 'update', 'cleanup', 'plugman', 'testing'):
             import_module('pytsite.' + pkg_name)
 
         # Register app's language resources
@@ -91,8 +94,14 @@ def _init():
             from pytsite import lang
             lang.register_package('app', 'lang')
 
-        # Load 'app' package
-        import_module('app')
+        from pytsite import plugman, console
+
+        try:
+            # Load 'app' package
+            import_module('app')
+
+        except (Warning, plugman.error.Error) as e:
+            console.print_warning(str(e))
 
     except Exception as e:
         logger.error(e)

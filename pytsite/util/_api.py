@@ -255,7 +255,7 @@ def escape_html(s: str) -> str:
 
 
 def minify_html(s: str) -> str:
-    """Minify an HTML string.
+    """Minify an HTML string
     """
 
     def sub_f(m):
@@ -337,10 +337,13 @@ def random_str(size: int = 16, alphabet: str = '0123456789abcdef', exclude: _Ite
             return s
 
 
-def random_password(size: int = 16):
+def random_password(size: int = 16, alphanum_only: bool = False):
     """Generate random password.
     """
-    alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
+    alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    if not alphanum_only:
+        alphabet += '!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
+
     return random_str(size, alphabet)
 
 

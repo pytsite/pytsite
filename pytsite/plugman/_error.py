@@ -1,4 +1,4 @@
-"""PytSite Plugin Manager Errors.
+"""PytSite Plugin Manager Errors
 """
 
 __author__ = 'Alexander Shepetko'
@@ -6,11 +6,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class PlugmanError(Exception):
+class Error(Exception):
     pass
 
 
-class PluginsApiError(PlugmanError):
+class PluginsApiError(Error):
     def __init__(self, request_url: str, error_content: str):
         self._request_url = request_url
         self._error_content = error_content
@@ -27,7 +27,7 @@ class PluginsApiError(PlugmanError):
         return "Error while requesting plugin API URL '{}': {}".format(self._request_url, self._error_content)
 
 
-class UnknownPlugin(PlugmanError):
+class UnknownPlugin(Error):
     def __init__(self, plugin_name: str):
         self._name = plugin_name
 
@@ -35,7 +35,7 @@ class UnknownPlugin(PlugmanError):
         return "Plugin '{}' is unknown".format(self._name)
 
 
-class PluginNotInstalled(PlugmanError):
+class PluginNotInstalled(Error):
     def __init__(self, plugin_name: str):
         self._name = plugin_name
 
@@ -43,7 +43,7 @@ class PluginNotInstalled(PlugmanError):
         return "Plugin '{}' is not installed".format(self._name)
 
 
-class PluginAlreadyInstalled(PlugmanError):
+class PluginAlreadyInstalled(Error):
     def __init__(self, name: str, version: str):
         self._name = name
         self._version = version
@@ -52,27 +52,27 @@ class PluginAlreadyInstalled(PlugmanError):
         return "Plugin '{}-{}' is already installed".format(self._name, self._version)
 
 
-class PluginInstallationInProgress(PlugmanError):
+class PluginInstallationInProgress(Error):
     pass
 
 
-class PluginUninstallationInProgress(PlugmanError):
+class PluginUninstallationInProgress(Error):
     pass
 
 
-class PluginInstallError(PlugmanError):
+class PluginInstallError(Error):
     pass
 
 
-class PluginUninstallError(PlugmanError):
+class PluginUninstallError(Error):
     pass
 
 
-class PluginStartError(PlugmanError):
+class PluginStartError(Error):
     pass
 
 
-class PluginAlreadyStarted(PlugmanError):
+class PluginAlreadyLoaded(Error):
     def __init__(self, plugin_name: str):
         self._name = plugin_name
 
@@ -80,7 +80,7 @@ class PluginAlreadyStarted(PlugmanError):
         return "Plugin '{}' is already started".format(self._name)
 
 
-class PluginNotStarted(PlugmanError):
+class PluginNotStarted(Error):
     def __init__(self, plugin_name: str):
         self._name = plugin_name
 
@@ -88,5 +88,5 @@ class PluginNotStarted(PlugmanError):
         return "Plugin '{}' is not started".format(self._name)
 
 
-class PluginDependencyError(PlugmanError):
+class PluginDependencyError(Error):
     pass

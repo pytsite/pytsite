@@ -12,7 +12,7 @@ __license__ = 'MIT'
 
 
 class Update(_console.Command):
-    """Setup Command.
+    """Update Console Command
     """
 
     def __init__(self):
@@ -113,7 +113,7 @@ class Update(_console.Command):
             self._save_state(state)
 
             # Update required pip packages by application and theme
-            for pkg_name in ['app']:  # TODO: there is must be a theme's package too
+            for pkg_name in ['app']:
                 for pip_pkg_spec in _package_info.requires_packages(pkg_name):
                     _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pip_pkg_spec}))
                     try:
