@@ -383,7 +383,7 @@ def on_translate(handler, priority: int = 0):
 def on_split_msg_id(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.lang.split_msg_id', handler, priority)
+    _events.listen('pytsite.lang@split_msg_id', handler, priority)
 
 
 def clear_cache():
@@ -397,7 +397,7 @@ def clear_cache():
 def _split_msg_id(msg_id: str) -> list:
     """Split message ID into message ID and package name.
     """
-    for r in _events.fire('pytsite.lang.split_msg_id', msg_id=msg_id):
+    for r in _events.fire('pytsite.lang@split_msg_id', msg_id=msg_id):
         msg_id = r
 
     return msg_id.split('@')[:2]

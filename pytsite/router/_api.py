@@ -166,9 +166,9 @@ def dispatch(env: dict, start_response: callable):
 
     # Notify listeners
     if req.is_xhr:
-        _events.fire('pytsite.router.xhr_pre_dispatch.{}'.format(req.method.lower()))
+        _events.fire('pytsite.router@xhr_pre_dispatch.{}'.format(req.method.lower()))
     else:
-        _events.fire('pytsite.router.pre_dispatch.{}'.format(req.method.lower()))
+        _events.fire('pytsite.router@pre_dispatch.{}'.format(req.method.lower()))
 
     # Loading path alias, if it exists, then re-create request context
     if env['PATH_INFO'] in _path_aliases:
@@ -186,9 +186,9 @@ def dispatch(env: dict, start_response: callable):
     try:
         # Notify listeners
         if req.is_xhr:
-            _events.fire('pytsite.router.xhr_dispatch.{}'.format(req.method.lower()))
+            _events.fire('pytsite.router@xhr_dispatch.{}'.format(req.method.lower()))
         else:
-            _events.fire('pytsite.router.dispatch.{}'.format(req.method.lower()))
+            _events.fire('pytsite.router@dispatch.{}'.format(req.method.lower()))
 
         # Search for rule
         try:
@@ -241,9 +241,9 @@ def dispatch(env: dict, start_response: callable):
             wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
 
         if req.is_xhr:
-            _events.fire('pytsite.router.xhr_response.{}'.format(req.method.lower()), response=wsgi_response)
+            _events.fire('pytsite.router@xhr_response.{}'.format(req.method.lower()), response=wsgi_response)
         else:
-            _events.fire('pytsite.router.response.{}'.format(req.method.lower()), response=wsgi_response)
+            _events.fire('pytsite.router@response.{}'.format(req.method.lower()), response=wsgi_response)
 
         return wsgi_response(env, start_response)
 
@@ -269,7 +269,7 @@ def dispatch(env: dict, start_response: callable):
         }
 
         # Notify listeners
-        _events.fire('pytsite.router.exception', args=args)
+        _events.fire('pytsite.router@exception', args=args)
 
         # User defined exception handler
         if has_rule('pytsite_router_exception'):
@@ -447,28 +447,28 @@ def rule_url(rule_name: str, rule_args: dict = None, **kwargs) -> str:
 
 
 def on_pre_dispatch(handler, priority: int = 0, method: str = 'get'):
-    _events.listen('pytsite.router.pre_dispatch.{}'.format(method.lower()), handler, priority)
+    _events.listen('pytsite.router@pre_dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_xhr_pre_dispatch(handler, priority: int = 0, method: str = 'get'):
-    _events.listen('pytsite.router.xhr_pre_dispatch.{}'.format(method.lower()), handler, priority)
+    _events.listen('pytsite.router@xhr_pre_dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_dispatch(handler, priority: int = 0, method: str = 'get'):
-    _events.listen('pytsite.router.dispatch.{}'.format(method.lower()), handler, priority)
+    _events.listen('pytsite.router@dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_xhr_dispatch(handler, priority: int = 0, method: str = 'get'):
-    _events.listen('pytsite.router.xhr_dispatch.{}'.format(method.lower()), handler, priority)
+    _events.listen('pytsite.router@xhr_dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_response(handler, priority: int = 0, method: str = 'get'):
-    _events.listen('pytsite.router.response.{}'.format(method.lower()), handler, priority)
+    _events.listen('pytsite.router@response.{}'.format(method.lower()), handler, priority)
 
 
 def on_xhr_response(handler, priority: int = 0, method: str = 'get'):
-    _events.listen('pytsite.router.xhr_response.{}'.format(method.lower()), handler, priority)
+    _events.listen('pytsite.router@xhr_response.{}'.format(method.lower()), handler, priority)
 
 
 def on_exception(handler, priority: int = 0):
-    _events.listen('pytsite.router.exception', handler, priority)
+    _events.listen('pytsite.router@exception', handler, priority)

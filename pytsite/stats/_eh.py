@@ -10,7 +10,7 @@ __license__ = 'MIT'
 
 def cron_every_min():
     out = ''
-    for r in _events.fire('pytsite.stats.update'):
+    for r in _events.fire('pytsite.stats@update'):
         if not r or not isinstance(r, str):
             continue
 

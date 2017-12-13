@@ -17,7 +17,7 @@ _packages = {}
 
 
 def _split_location(location: str) -> list:
-    for r in _events.fire('pytsite.tpl.split_location', location=location):
+    for r in _events.fire('pytsite.tpl@split_location', location=location):
         location = r
 
     return location.split('@')[:2]
@@ -110,7 +110,7 @@ def render(template: str, args: _Mapping = None, issue_event: bool = True) -> st
         args = {}
 
     if issue_event:
-        _events.fire('pytsite.tpl.render', tpl_name=template, args=args)
+        _events.fire('pytsite.tpl@render', tpl_name=template, args=args)
 
     return _env.get_template(template).render(args)
 
@@ -118,7 +118,7 @@ def render(template: str, args: _Mapping = None, issue_event: bool = True) -> st
 def on_render(handler, priority: int = 0):
     """Shortcut function to register event handler
     """
-    _events.listen('pytsite.tpl.render', handler, priority)
+    _events.listen('pytsite.tpl@render', handler, priority)
 
 
 def is_global_registered(name: str) -> bool:
@@ -136,7 +136,7 @@ def register_global(name: str, obj):
 def on_split_location(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.tpl.split_location', handler, priority)
+    _events.listen('pytsite.tpl@split_location', handler, priority)
 
 
 # Additional functions and filters

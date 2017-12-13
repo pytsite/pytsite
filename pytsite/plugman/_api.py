@@ -1,9 +1,13 @@
 """PytSite Package Manager API
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import zipfile as _zipfile
 import requests as _requests
 import json as _json
-from typing import Union as _Union, List as _List
+from typing import Union as _Union, Dict as _Dict
 from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
@@ -14,17 +18,13 @@ from pytsite import reg as _reg, logger as _logger, lang as _lang, util as _util
     events as _events
 from . import _error
 
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 _PLUGINS_API_URL = _reg.get('plugman.api_url', 'https://plugins.pytsite.xyz')
 _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 
-_loading = []  # type: _List[str]
+_loading = {}  # type: _Dict[str, str]
 _loaded = []
 _installing = []
 _uninstalling = []
@@ -69,7 +69,7 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     if not r.ok:
         try:
             raise _error.PluginsApiError(request_url, r.json().get('error'))
-        except _json.JSONDecodeError as e:
+        except _json.JSONDecodeError:
             raise _error.PluginsApiError(request_url, 'Error while parsing JSON from string: {}'.format(r.content))
 
     return r.json()
@@ -95,6 +95,7 @@ def plugin_info(plugin_name: str) -> dict:
             'name': plugin_pkg_name,
             'version': '0.0.1',
         })
+
     except _package_info.error.PackageNotFound:
         raise _error.PluginNotFound(plugin_name)
 
@@ -110,7 +111,10 @@ def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
 
         return True
 
-    return _path.exists(_path.join(_plugin_path(plugin_spec), 'installed'))
+    if not _DEV_MODE:
+        return _path.exists(_path.join(_plugin_path(plugin_spec), 'installed'))
+    else:
+        return _path.exists(_plugin_path(plugin_spec))
 
 
 def is_loaded(plugin_name: str) -> bool:
@@ -119,7 +123,7 @@ def is_loaded(plugin_name: str) -> bool:
     return plugin_name in _loaded
 
 
-def load(plugin_name: _Union[str, list, tuple]) -> object:
+def load(plugin_name: _Union[str, list, tuple], _required_by: str = None) -> object:
     """Load a plugin
     """
     global _required, _loaded, _loading, _installing
@@ -131,14 +135,10 @@ def load(plugin_name: _Union[str, list, tuple]) -> object:
     if plugin_name in _loaded:
         raise _error.PluginAlreadyLoaded(plugin_name)
 
-    if plugin_name in _installing:
-        raise _error.PluginInstallationInProgress(plugin_name)
-
     if plugin_name in _loading:
-        _logger.warn("Plugin '{}' is already loading".format(plugin_name))
-        return
+        raise _error.CircularDependencyError(plugin_name, _loading[plugin_name])
 
-    _loading.append(plugin_name)
+    _loading[plugin_name] = _required_by
 
     try:
         p_info = plugin_info(plugin_name)
@@ -152,17 +152,24 @@ def load(plugin_name: _Union[str, list, tuple]) -> object:
         _required.add(required_plugin_name)
         if not is_loaded(required_plugin_name):
             _logger.debug("Plugin '{}' requires '{}'".format(plugin_name, required_plugin_name))
-            load(required_plugin_name)
+            load(required_plugin_name, plugin_name)
 
-    # Import plugin's package
-    pkg_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
     try:
-        mod = _import_module(pkg_name)
+        # Import plugin's package
+        mod = _import_module(_PLUGINS_PACKAGE_NAME + '.' + plugin_name)
+
+        # plugin_load() hook
         if hasattr(mod, 'plugin_load') and callable(mod.plugin_load):
             mod.plugin_load()
+
+        # Environment plugin_load() hook
+        env_hook = 'plugin_load_{}'.format(_reg.get('env.type'))
+        if hasattr(mod, env_hook):
+            getattr(mod, env_hook)()
+
         _loaded.append(plugin_name)
         _logger.info("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
-        _loading.remove(plugin_name)
+        del _loading[plugin_name]
 
         return mod
 
@@ -316,8 +323,7 @@ def install(plugin_spec: str) -> int:
 
     # Check if the plugin is not installing at this moment
     if plugin_name in _installing:
-        raise _error.PluginInstallationInProgress(
-            "Installation of the plugin '{}' is already started".format(plugin_name))
+        raise _error.PluginInstallationInProgress(plugin_name)
 
     try:
         # Flag start of the installation process
@@ -396,14 +402,14 @@ def install(plugin_spec: str) -> int:
         # Notify about plugin install
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
             plugin.plugin_install()
-        _events.fire('pytsite.plugman.install', name=plugin_name, version=ver_to_install)
-        _events.fire('pytsite.plugman.install.{}'.format(plugin_name), version=ver_to_install)
+        _events.fire('pytsite.plugman@install', name=plugin_name, version=ver_to_install)
+        _events.fire('pytsite.plugman@install.{}'.format(plugin_name), version=ver_to_install)
 
         # Notify about plugin update
         if update_mode:
-            _events.fire('pytsite.plugman.update', name=plugin_name, version=ver_to_install)
-            _events.fire('pytsite.plugman.update.{}'.format(plugin_name), version=ver_to_install)
-            _events.fire('pytsite.plugman.update.{}.{}'.format(plugin_name, ver_to_install.replace('.', '_')))
+            _events.fire('pytsite.plugman@update', name=plugin_name, version=ver_to_install)
+            _events.fire('pytsite.plugman@update.{}'.format(plugin_name), version=ver_to_install)
+            _events.fire('pytsite.plugman@update.{}.{}'.format(plugin_name, ver_to_install.replace('.', '_')))
 
         return installed_count + 1
 
@@ -433,8 +439,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
 
     # Check if the plugin is not uninstalling at this moment
     if plugin_name in _uninstalling:
-        raise _error.PluginUninstallationInProgress(
-            "Uninstallation of the plugin '{}' is already started".format(plugin_name))
+        raise _error.PluginUninstallationInProgress(plugin_name)
 
     # Check if the plugin is installed
     if not is_installed(plugin_name):
@@ -458,8 +463,11 @@ def uninstall(plugin_name: str, update_mode: bool = False):
         }))
 
         # Notify about plugin uninstall
-        _events.fire('pytsite.plugman.uninstall', name=plugin_name)
-        _events.fire('pytsite.plugman.uninstall.{}'.format(plugin_name))
+        plugin = _import_module('plugins.' + plugin_name)
+        if hasattr(plugin, 'plugin_uninstall') and callable(plugin.plugin_uninstall):
+            plugin.plugin_uninstall()
+        _events.fire('pytsite.plugman@uninstall', name=plugin_name)
+        _events.fire('pytsite.plugman@uninstall.{}'.format(plugin_name))
 
         # Delete plugin's files
         _rmtree(_plugin_path(plugin_name))
@@ -482,16 +490,16 @@ def is_dev_mode() -> bool:
 def on_install(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.plugman.install', handler, priority)
+    _events.listen('pytsite.plugman@install', handler, priority)
 
 
 def on_update(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.plugman.update', handler, priority)
+    _events.listen('pytsite.plugman@update', handler, priority)
 
 
 def on_uninstall(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.plugman.uninstall', handler, priority)
+    _events.listen('pytsite.plugman@uninstall', handler, priority)

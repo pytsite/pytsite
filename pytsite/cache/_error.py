@@ -32,11 +32,19 @@ class DriverAlreadyRegistered(Error):
 
 
 class PoolNotExist(Error):
-    pass
+    def __init__(self, pool_uid: str):
+        self._pool_uid = pool_uid
+
+    def __str__(self) -> str:
+        return "Pool '{}' is not exists".format(self._pool_uid)
 
 
 class PoolExists(Error):
-    pass
+    def __init__(self, pool_uid: str):
+        self._pool_uid = pool_uid
+
+    def __str__(self) -> str:
+        return "Pool '{}' is already exists".format(self._pool_uid)
 
 
 class KeyNotExist(Error):

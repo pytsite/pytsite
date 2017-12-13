@@ -16,10 +16,7 @@ def _init():
     from pytsite import reg, package_info
 
     def get_app_name(language: str, args: dict):
-        app_name = reg.get('app.app_name_' + language)
-
-        if not app_name:
-            return package_info.name('app')
+        return reg.get('app.app_name_' + language) or package_info.name('app')
 
     # Register itself as a language package
     register_package(__name__)

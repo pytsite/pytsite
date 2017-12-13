@@ -1,6 +1,7 @@
-"""PytSite Cron.
+"""PytSite Cron
 """
 from datetime import datetime as _datetime
+from time import time as _time
 from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, threading as _threading
 from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
 
@@ -9,16 +10,16 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 _cache_pool = _cache.create_pool('pytsite.cron')
-_timer = None  # type: _threading.Timer
-_working = False
 _DEBUG = _reg.get('cron.debug', False)
+_LOCK_TTL = _reg.get('cron.lock_ttl', 3600)
 
 
 def _get_stats() -> dict:
-    """Get stats.
+    """Get stats
     """
     if _cache_pool.has('stats'):
         stats = _cache_pool.get('stats')
+
     else:
         zero = _datetime.fromtimestamp(0)
         stats = {
@@ -35,7 +36,7 @@ def _get_stats() -> dict:
 
 
 def _update_stats(part: str) -> dict:
-    """Update descriptor.
+    """Update stats
     """
     data = _get_stats()
     data[part] = _datetime.now()
@@ -46,19 +47,30 @@ def _update_stats(part: str) -> dict:
 
 
 def _cron_worker():
-    """Cron worker.
+    """Cron worker
     """
-    global _timer
-    global _working
-
     # Check lock
-    if _working:
-        _logger.warn('Cron is still working')
-        return
+    try:
+        lock_time = _cache_pool.get('lock')
+
+        # Double check key's creation time, because cache driver may depend from cron
+        if _time() - lock_time >= _LOCK_TTL:
+            _logger.warn('Obsolete cache lock removed')
+            _cache_pool.rm('lock')
+        else:
+            _logger.warn('Cron is still working')
+            return
+
+    # Lock does not exist
+    except _cache.error.KeyNotExist:
+        pass
 
     try:
-        # Lock
-        _working = True
+        # Create lock
+        lock_time = _time()
+        _cache_pool.put('lock', lock_time, _LOCK_TTL)
+        if _DEBUG:
+            _logger.debug('Cron lock created with TTL == {}'.format(_LOCK_TTL))
 
         stats = _get_stats()
         now = _datetime.now()
@@ -78,7 +90,7 @@ def _cron_worker():
                         _logger.debug('Cron event: pytsite.cron.' + evt)
 
                     try:
-                        _events.fire('pytsite.cron.' + evt)
+                        _events.fire('pytsite.cron@' + evt)
                     except RuntimeWarning as e:
                         _logger.warn(str(e), exc_info=e, stack_info=True)
                     except Exception as e:
@@ -90,13 +102,15 @@ def _cron_worker():
 
     finally:
         # Unlock
-        _working = False
+        _cache_pool.rm('lock')
+        if _DEBUG:
+            _logger.debug('Cron lock removed')
 
-        # Schedule next cron start
-        _timer = _threading.create_timer(_cron_worker, 60)
-        _timer.start()
+        # Schedule next start
+        _threading.run_in_thread(_cron_worker, 60)
+        if _DEBUG:
+            _logger.debug('Next cron start scheduled')
 
 
 if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
-    _timer = _threading.create_timer(_cron_worker, 60)
-    _timer.start()
+    _threading.run_in_thread(_cron_worker, 60)

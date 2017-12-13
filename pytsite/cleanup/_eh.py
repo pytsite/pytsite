@@ -28,7 +28,7 @@ def _cleanup_tmp_files():
 
 def _cleanup_sessions():
     session_path = _reg.get('paths.session')
-    ttl = int(_reg.get('router.session.ttl', 86400))  # 24 hours
+    ttl = int(_reg.get('router.session_ttl', 86400))  # 24 hours
     now = _time.time()
 
     _logger.debug('Cleaning up session data older {} seconds in {}'.format(ttl, session_path))

@@ -114,7 +114,7 @@ def dump_all() -> str:
     if not _tags:
         raise RuntimeError('reset() should be called before')
 
-    _events.fire('pytsite.metatag.dump_all')
+    _events.fire('pytsite.metatag@dump_all')
 
     r = str()
     for tag in _tags[_threading.get_id()]:

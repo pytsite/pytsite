@@ -8,4 +8,4 @@ __license__ = 'MIT'
 
 
 def on_update(handler):
-    _events.listen('pytsite.stats.update', handler)
+    _events.listen('pytsite.stats@update', handler)

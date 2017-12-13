@@ -49,8 +49,8 @@ class Update(_console.Command):
             _subprocess.call(['pip', 'install', '-U', 'pip'])
             _subprocess.call(['pip', 'install', '-U', 'pytsite'])
 
-            _logger.info('pytsite.update.stage_1 event, PytSite version: {}'.format(_package_info.version('pytsite')))
-            _events.fire('pytsite.update.stage_1')
+            _logger.info('pytsite.update@stage_1 event, PytSite version: {}'.format(_package_info.version('pytsite')))
+            _events.fire('pytsite.update@stage_1')
 
             if stop_after != 1:
                 _subprocess.call(['./console', 'update', '--stage=2'])
@@ -68,8 +68,8 @@ class Update(_console.Command):
                 _console.print_info(_lang.t('pytsite.update@updating_application'))
                 _subprocess.call(['git', '-C', app_path, 'pull'])
 
-            _logger.info('pytsite.update.stage_2 event, PytSite version: {}'.format(_package_info.version('pytsite')))
-            _events.fire('pytsite.update.stage_2')
+            _logger.info('pytsite.update@stage_2 event, PytSite version: {}'.format(_package_info.version('pytsite')))
+            _events.fire('pytsite.update@stage_2')
 
             if stop_after != 2:
                 _subprocess.call(['./console', 'update', '--stage=3'])
@@ -105,7 +105,7 @@ class Update(_console.Command):
                         # Notify listeners
                         _logger.info('pytsite.update event, version={}'.format(major_minor_rev))
                         _events.fire('pytsite.update', version=major_minor_rev)
-                        _events.fire('pytsite.update.{}'.format(major_minor_rev.replace('.', '_')))
+                        _events.fire('pytsite.update@{}'.format(major_minor_rev.replace('.', '_')))
 
                         # Saving number as applied update
                         state.add(major_minor_rev)
@@ -121,8 +121,8 @@ class Update(_console.Command):
                     except _util.error.PipPackageInstallError as e:
                         raise _console.error.Error(e)
 
-            _logger.info('pytsite.update.after event')
-            _events.fire('pytsite.update.after')
+            _logger.info('pytsite.update@after event')
+            _events.fire('pytsite.update@after')
 
             # Disable maintenance mode
             _maintenance.disable()

@@ -68,8 +68,11 @@ class PluginInstallationInProgress(Error):
 
 
 class PluginUninstallationInProgress(Error):
-    pass
+    def __init__(self, plugin_name: str):
+        self._name = plugin_name
 
+    def __str__(self) -> str:
+        return "Uninstallation of the plugin '{}' is already started".format(self._name)
 
 class PluginInstallError(Error):
     pass
@@ -82,6 +85,17 @@ class PluginUninstallError(Error):
 class PluginLoadError(Error):
     pass
 
+
+class CircularDependencyError(Error):
+    def __init__(self, plugin_name: str, required_by: str = None):
+        self._name = plugin_name
+        self._required_by = required_by
+
+    def __str__(self) -> str:
+        if self._required_by:
+            return "Plugin '{}' is already loading as a requirement of '{}'".format(self._name, self._required_by)
+        else:
+            return "Plugin '{}' is already loading".format(self._name)
 
 class PluginAlreadyLoaded(Error):
     def __init__(self, plugin_name: str):
