@@ -78,15 +78,15 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
 def _install_pip_package(pkg_spec: str, upg: bool = False):
     """Install a pip package
     """
-    _logger.info('Installing/upgrading pip package: {}'.format(pkg_spec))
+    _console.print_info('Installing/upgrading pip package: {}'.format(pkg_spec))
 
     _util.install_pip_package(pkg_spec, upg)
 
-    _logger.info('Required package {} has been successfully installed/updated'.format(pkg_spec))
+    _console.print_success('Required pip package {} has been successfully installed'.format(pkg_spec))
 
 
-def plugin_info(plugin_name: str) -> dict:
-    """Get information about locally installed plugin
+def plugin_package_info(plugin_name: str) -> dict:
+    """Get information about local plugin
     """
     try:
         plugin_pkg_name = 'plugins.{}'.format(plugin_name)
@@ -141,7 +141,7 @@ def load(plugin_name: _Union[str, list, tuple], _required_by: str = None) -> obj
     _loading[plugin_name] = _required_by
 
     try:
-        p_info = plugin_info(plugin_name)
+        p_info = plugin_package_info(plugin_name)
     except _error.PluginNotFound as e:
         _console.print_warning(str(e))
         return
@@ -185,7 +185,7 @@ def plugins_info() -> dict:
     for plugin_name in _listdir(_PLUGINS_PATH):
         plugin_path = _path.join(_PLUGINS_PATH, plugin_name)
         if _path.isdir(plugin_path) and not (plugin_name.startswith('.') or plugin_name.startswith('_')):
-            r[plugin_name] = plugin_info(plugin_name)
+            r[plugin_name] = plugin_package_info(plugin_name)
 
     return r
 
@@ -311,7 +311,7 @@ def install(plugin_spec: str) -> int:
 
     # Check if the plugin is already installed
     try:
-        l_plugin_info = plugin_info(plugin_name)
+        l_plugin_info = plugin_package_info(plugin_name)
         if l_plugin_info['version'] != ver_to_install:
             update_mode = True
             uninstall(plugin_name, True)
@@ -370,7 +370,7 @@ def install(plugin_spec: str) -> int:
             _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
 
         # Load installed plugin info
-        l_plugin_info = plugin_info(plugin_name)
+        l_plugin_info = plugin_package_info(plugin_name)
 
         # Install required pip packages
         for pip_pkg_spec in l_plugin_info['requires']['packages']:
@@ -457,7 +457,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
     try:
         _uninstalling.append(plugin_name)
 
-        plugin_version = plugin_info(plugin_name)['version']
+        plugin_version = plugin_package_info(plugin_name)['version']
         _console.print_info(_lang.t('pytsite.plugman@uninstalling_plugin', {
             'plugin': '{}-{}'.format(plugin_name, plugin_version)
         }))

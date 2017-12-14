@@ -2,7 +2,7 @@
 """
 # Public API
 from . import _error as error
-from ._api import plugins_path, plugin_info, install, uninstall, is_installed, load, is_loaded, \
+from ._api import plugins_path, plugin_package_info, install, uninstall, is_installed, load, is_loaded, \
     plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
     get_allowed_version_range, on_install, on_update, on_uninstall
 
