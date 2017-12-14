@@ -206,8 +206,10 @@ def dispatch(env: dict, start_response: callable):
         wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Instantiate controller and fill its arguments
-        controller = rule.controller_class(rule.args, req)  # type: _routing.Controller
-        controller.args.update(req.inp)  # Merge input into args
+        controller = rule.controller_class()  # type: _routing.Controller
+        controller.request = req
+        controller.args.update(rule.args)  # Merge rule args
+        controller.args.update(req.inp)  # Merge input
         controller.args['_pytsite_router_rule_name'] = rule.name
 
         # Call controller

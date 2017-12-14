@@ -3,7 +3,6 @@
 from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from werkzeug.datastructures import FileStorage as _FileStorage, EnvironHeaders as _EnvironHeaders
 from pytsite import formatters as _formatter, validation as _validation, http as _http
 
 __author__ = 'Alexander Shepetko'
@@ -12,10 +11,10 @@ __license__ = 'MIT'
 
 
 class ControllerArgs(_Mapping):
-    def __init__(self, values: _Mapping = None):
+    def __init__(self):
         """Init
         """
-        self._values = values or {}
+        self._values = {}
         self._formatters = {}  # type: _Dict[str, _List[_formatter.Formatter]]
         self._rules = {}  # type: _Dict[str, _List[_validation.rule.Rule]]
 
@@ -94,12 +93,12 @@ class Controller(_ABC):
     """PytSite Routing Base Controller
     """
 
-    def __init__(self, args: _Mapping = None, request: _http.request.Request = None):
+    def __init__(self):
         """Init
         """
-        self._args = ControllerArgs(args)
-        self._request = request
+        self._args = ControllerArgs()
         self._files = {}
+        self._request = None
 
     @staticmethod
     def redirect(location: str, status: int = 302) -> _http.response.Redirect:
@@ -146,7 +145,16 @@ class Controller(_ABC):
     def request(self) -> _http.request.Request:
         """Current request object getter
         """
+        if not self._request:
+            raise RuntimeError('Request is not set yet')
+
         return self._request
+
+    @request.setter
+    def request(self, request: _http.request.Request):
+        """Current request object setter
+        """
+        self._request = request
 
     @_abstractmethod
     def exec(self):
