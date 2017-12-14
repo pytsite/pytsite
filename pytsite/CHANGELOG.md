@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.1.1 (2017-12-14)
+
+### Fixed
+
+- `router`: filters processing.
+
+
 ## 7.1 (2017-12-14)
 
 ### Changed

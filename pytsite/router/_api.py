@@ -198,7 +198,11 @@ def dispatch(env: dict, start_response: callable):
 
         # Processing rule filters
         for flt_controller_class in rule.attrs['filters']:
-            flt_response = flt_controller_class(rule.args.copy(), req).exec()
+            flt_controller = flt_controller_class()  # type: _routing.Controller
+            flt_controller.request = req
+            flt_controller.args.update(rule.args)
+            flt_controller.args.update(req.inp)
+            flt_response = flt_controller.exec()
             if isinstance(flt_response, _http.response.Response):
                 return flt_response(env, start_response)
 
