@@ -5,7 +5,7 @@ from typing import Optional as _Optional, Union as _Union, Iterable as _Iterable
 from . import _error
 from ._version import Version as _Version
 
-_REQUIREMENT_RE = _re.compile('([a-zA-Z0-9_]+)\s*(==|!=|<=|>=|>|<)?\s*(\d+\.\d+\.\d+|\d+\.\d+|\d+)?')
+_REQUIREMENT_RE = _re.compile('([a-zA-Z0-9_.\-]+)\s*(==|!=|<=|>=|>|<)?\s*(\d+\.\d+\.\d+|\d+\.\d+|\d+)?')
 _CONDITION_RE = _re.compile('^([<>=!]{1,2})?([0-9\.]+)$')
 _ALLOWED_OPERATORS = ('==', '!=', '>', '<', '>=', '<=')
 

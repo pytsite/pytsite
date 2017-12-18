@@ -1,5 +1,9 @@
 """PytSite Helper Functions.
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import random as _random
 import re as _re
 import pytz as _pytz
@@ -20,11 +24,8 @@ from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
 from urllib import request as _urllib_request
+from pytsite import semver as _semver
 from . import _error
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 _HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
 _HTML_SINGLE_TAGS = ('br', 'img', 'input')
@@ -609,6 +610,8 @@ def load_json(source: str):
 
 
 def install_pip_package(pkg_spec: str, upgrade: bool = False) -> str:
+    """Install a pip package
+    """
     cmd = ['pip', 'install']
 
     if upgrade:
@@ -625,6 +628,8 @@ def install_pip_package(pkg_spec: str, upgrade: bool = False) -> str:
 
 
 def get_installed_pip_package_info(pkg_name: str) -> dict:
+    """Get installed pip package info
+    """
     cmd = ['pip', 'show', pkg_name]
 
     r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
@@ -643,12 +648,18 @@ def get_installed_pip_package_info(pkg_name: str) -> dict:
 
 
 def get_installed_pip_package_version(pkg_name: str) -> str:
+    """Get installed pip package version
+    """
     return get_installed_pip_package_info(pkg_name)['version']
 
 
-def is_pip_package_installed(pkg_name: str) -> bool:
+def is_pip_package_installed(pkg_spec: str) -> bool:
+    """Check if the pip package installed
+    """
+    pkg_name, version_req = _semver.parse_requirement_str(pkg_spec)
+
     try:
-        get_installed_pip_package_info(pkg_name)
-        return True
+        return _semver.check_conditions(get_installed_pip_package_version(pkg_name), version_req)
+
     except _error.PipPackageNotInstalled:
         return False

@@ -1,14 +1,14 @@
 """PytSite Plugin Manager
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 # Public API
 from . import _error as error
 from ._api import plugins_path, plugin_package_info, install, uninstall, is_installed, load, is_loaded, \
     plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
     get_allowed_version_range, on_install, on_update, on_uninstall
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 _plugman_started = False
 
@@ -33,7 +33,7 @@ def _init():
     console.register_command(_console_command.Update())
     console.register_command(_console_command.Uninstall())
 
-    # Start installed plugins
+    # Load installed plugins
     for p_name in plugins_info():
         if p_name.startswith('_'):
             continue
@@ -42,7 +42,7 @@ def _init():
             if not is_loaded(p_name):
                 load(p_name)
 
-        except error.PluginLoadError as e:
+        except (error.PluginLoadError, error.PluginNotInstalled) as e:
             logger.error(e)
             console.print_warning(str(e))
 

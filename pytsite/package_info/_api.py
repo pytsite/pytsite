@@ -122,11 +122,12 @@ def data(package_name: str, key: str = None, defaults: dict = None, override: di
     # Calculate path to the JSON file
     source = _path.join(resolve_path(package_name), json_name)
 
-    # Check cache
+    # Get data from cache if available
     if source in _parsed_json:
         d = _parsed_json[source]
+
+    # Load and cache data
     else:
-        # Load, sanitize and cache JSON
         try:
             d = parse_json(_util.load_json(source), defaults, override)
             _parsed_json[source] = d

@@ -35,7 +35,7 @@ class UnknownPlugin(Error):
         return "Plugin '{}' is unknown".format(self._name)
 
 
-class PluginNotFound(Error):
+class PluginPackageNotFound(Error):
     """Plugin is not found on the filesystem
     """
 
@@ -43,18 +43,22 @@ class PluginNotFound(Error):
         self._name = plugin_name
 
     def __str__(self) -> str:
-        return "Plugin '{}' is not found on filesystem".format(self._name)
+        return "Package of the plugin '{}' is not found on the filesystem".format(self._name)
 
 
 class PluginNotInstalled(Error):
     """Plugin is found on the filesystem, but is not completely installed
     """
 
-    def __init__(self, plugin_name: str):
-        self._name = plugin_name
+    def __init__(self, plugin_spec: str, required_by: str = None):
+        self._spec = plugin_spec
+        self._required_by = required_by
 
     def __str__(self) -> str:
-        return "Plugin '{}' is not installed".format(self._name)
+        if self._required_by:
+            return "Plugin '{}', required by '{}', is not installed".format(self._spec, self._required_by)
+        else:
+            return "Plugin '{}' is not installed".format(self._spec)
 
 
 class PluginAlreadyInstalled(Error):
@@ -104,14 +108,6 @@ class CircularDependencyError(Error):
             return "Plugin '{}' is already loading as a requirement of '{}'".format(self._name, self._required_by)
         else:
             return "Plugin '{}' is already loading".format(self._name)
-
-
-class PluginAlreadyLoaded(Error):
-    def __init__(self, plugin_name: str):
-        self._name = plugin_name
-
-    def __str__(self) -> str:
-        return "Plugin '{}' is already started".format(self._name)
 
 
 class PluginNotStarted(Error):

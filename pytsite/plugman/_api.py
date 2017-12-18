@@ -25,7 +25,7 @@ _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 
 _loading = {}  # type: _Dict[str, str]
-_loaded = []
+_loaded = {}  # type: _Dict[str, str]
 _installing = []
 _uninstalling = []
 _required = set(_reg.get('plugman.plugins', []))
@@ -97,24 +97,34 @@ def plugin_package_info(plugin_name: str) -> dict:
         })
 
     except _package_info.error.PackageNotFound:
-        raise _error.PluginNotFound(plugin_name)
+        raise _error.PluginPackageNotFound(plugin_name)
 
 
 def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
-    """Check if the plugin is installed.
+    """Check if the plugin is installed
     """
     if isinstance(plugin_spec, (list, tuple)):
-        # Check for all installed plugins
-        for p_name in plugin_spec:
-            if not is_installed(p_name):
+        for p_spec in plugin_spec:
+            if not is_installed(p_spec):
                 return False
 
         return True
 
-    if not _DEV_MODE:
-        return _path.exists(_path.join(_plugin_path(plugin_spec), 'installed'))
+    if plugin_spec.startswith('plugins.'):
+        plugin_spec = plugin_spec[8:]
+
+    plugin_name, version_req = _semver.parse_requirement_str(plugin_spec)
+
+    # Check if the plugin exists on the filesystem
+    if _DEV_MODE:
+        if not _path.exists(_plugin_path(plugin_name)):
+            return False
     else:
-        return _path.exists(_plugin_path(plugin_spec))
+        if not _path.exists(_path.join(_plugin_path(plugin_name), 'installed')):
+            return False
+
+    # Check plugin version
+    return _semver.check_conditions(_package_info.version('plugins.' + plugin_name), version_req)
 
 
 def is_loaded(plugin_name: str) -> bool:
@@ -123,36 +133,50 @@ def is_loaded(plugin_name: str) -> bool:
     return plugin_name in _loaded
 
 
-def load(plugin_name: _Union[str, list, tuple], _required_by: str = None) -> object:
+def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -> object:
     """Load a plugin
     """
     global _required, _loaded, _loading, _installing
 
-    if isinstance(plugin_name, (list, tuple)):
-        for p_name in plugin_name:
-            load(p_name)
+    # Multiple load requested
+    if isinstance(plugin_spec, (list, tuple)):
+        for p_spec in plugin_spec:
+            load(p_spec)
 
+    # Normalize plugin spec
+    plugin_name, version_req = _semver.parse_requirement_str(plugin_spec)
+    plugin_spec = '{}{}'.format(plugin_name, version_req)
+
+    # Check if the plugin installed
+    if not is_installed(plugin_spec):
+        raise _error.PluginNotInstalled(plugin_spec, _required_by_spec)
+
+    # Check if the plugin is already loaded
     if plugin_name in _loaded:
-        raise _error.PluginAlreadyLoaded(plugin_name)
+        _logger.debug("Plugin '{}' already loaded".format(_loaded[plugin_name]))
+        return
 
+    # Checking for circular dependency
     if plugin_name in _loading:
         raise _error.CircularDependencyError(plugin_name, _loading[plugin_name])
 
-    _loading[plugin_name] = _required_by
+    # Mark plugin as loading
+    _loading[plugin_name] = _required_by_spec
 
+    # Get info about plugin, but NOT actually load it
     try:
         p_info = plugin_package_info(plugin_name)
-    except _error.PluginNotFound as e:
+    except _error.PluginPackageNotFound as e:
         _console.print_warning(str(e))
         return
 
     # Load required plugins
-    for required_plugin_spec in p_info['requires']['plugins']:
-        required_plugin_name = _semver.parse_requirement_str(required_plugin_spec)[0]
-        _required.add(required_plugin_name)
-        if not is_loaded(required_plugin_name):
-            _logger.debug("Plugin '{}' requires '{}'".format(plugin_name, required_plugin_name))
-            load(required_plugin_name, plugin_name)
+    for req_plugin_spec_str in p_info['requires']['plugins']:
+        req_plugin_spec = _semver.parse_requirement_str(req_plugin_spec_str)
+        _required.add(req_plugin_spec[0])
+        _logger.debug("Plugin '{}-{}' requires '{}{}'".format(plugin_name, p_info['version'],
+                                                              req_plugin_spec[0], req_plugin_spec[1]))
+        load(req_plugin_spec_str, '{}-{}'.format(plugin_name, p_info['version']))
 
     try:
         # Import plugin's package
@@ -162,12 +186,12 @@ def load(plugin_name: _Union[str, list, tuple], _required_by: str = None) -> obj
         if hasattr(mod, 'plugin_load') and callable(mod.plugin_load):
             mod.plugin_load()
 
-        # Environment plugin_load() hook
+        # plugin_load_{env.type}() hook
         env_hook = 'plugin_load_{}'.format(_reg.get('env.type'))
         if hasattr(mod, env_hook):
             getattr(mod, env_hook)()
 
-        _loaded.append(plugin_name)
+        _loaded[plugin_name] = '{}-{}'.format(plugin_name, p_info['version'])
         _logger.info("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
         del _loading[plugin_name]
 
@@ -290,7 +314,7 @@ def install(plugin_spec: str) -> int:
             raise _error.PluginDependencyError('{}{} cannot be installed because acceptable version is {}'
                                                .format(plugin_name, desired_v_spec, allowed_versions))
 
-    # If, after above computations, maximal version is lower than minimal
+    # If, after above computations, maximum version is lower than minimum
     if _semver.compare(desired_v_min, desired_v_max) > 0:
         desired_v_max = desired_v_min
 
@@ -318,7 +342,7 @@ def install(plugin_spec: str) -> int:
         else:
             # Necessary version is already installed, nothing to do
             return installed_count
-    except _error.PluginNotFound:
+    except _error.PluginPackageNotFound:
         pass
 
     # Check if the plugin is not installing at this moment

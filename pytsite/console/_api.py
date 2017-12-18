@@ -1,6 +1,7 @@
 """PytSite Console.
 """
 import re as _re
+from typing import Union as _Union
 from pytsite import reg as _reg, lang as _lang, logger as _logger
 from . import _error, _command
 
@@ -109,28 +110,30 @@ def run():
         exit(-1)
 
 
-def _print(msg: str, color: str):
+def _print(msg: _Union[str, Exception], color: str):
     if _reg.get('env.type') == 'console':
         print('{}{}{}'.format(color, msg, COLOR_END))
 
 
-def print_info(msg: str):
+def print_info(msg: _Union[str, Exception]):
     _logger.info(msg)
     _print(msg, COLOR_INFO)
 
 
-def print_success(msg: str):
+def print_success(msg: _Union[str, Exception]):
     _logger.info(msg)
     _print(msg, COLOR_SUCCESS)
 
 
-def print_warning(msg: str):
+def print_warning(msg: _Union[str, Exception]):
     _logger.warn(msg)
     _print(msg, COLOR_WARNING)
 
 
-def print_error(msg: str, exc_info: Exception = None):
-    if exc_info:
+def print_error(msg: _Union[str, Exception], exc_info: Exception = None):
+    if isinstance(msg, Exception):
+        _logger.error(msg, exc_info=msg)
+    elif exc_info:
         _logger.error(msg, exc_info=exc_info)
     else:
         _logger.error(msg)

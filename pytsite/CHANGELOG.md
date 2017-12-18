@@ -1,6 +1,17 @@
 # PytSite 6 Changelog
 
 
+## 7.2 (2017-12-18)
+
+### Changed
+
+- `plugman`: refactored and fixed issues with versions management.
+
+### Fixed
+
+- `core`: `jsmin` dependency.
+
+
 ## 7.1.1 (2017-12-14)
 
 ### Fixed
