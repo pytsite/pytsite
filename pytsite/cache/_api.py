@@ -1,6 +1,6 @@
 """PytSite Cache API
 """
-from typing import Dict as _Dict, Type as _Type
+from typing import Dict as _Dict
 from pytsite import logger as _logger, reg as _reg
 from . import _error
 from ._driver import Abstract as _AbstractDriver

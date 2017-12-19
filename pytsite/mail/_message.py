@@ -112,7 +112,7 @@ class Message(_MIMEMultipart):
                 log_msg = "Message '{}' has been sent to {}.".format(msg.subject, msg.to_addrs)
                 _logger.info(log_msg)
             except Exception as e:
-                _logger.error('Unable to send message to {}: {}'.format(msg.to_addrs, e), exc_info=e, stack_info=True)
+                _logger.error('Unable to send message to {}: {}'.format(msg.to_addrs, e), exc_info=e)
 
         super().attach(_MIMEText(self.body, 'html', 'utf-8'))
         for attachment in self._attachments:

@@ -1,6 +1,18 @@
 # PytSite 6 Changelog
 
 
+## 7.2.1 (2017-12-19)
+
+### Fixed
+
+- `lang`: message ID splitting.
+- `logger`, `plugman`, `router`: logging issues.
+
+### Removed
+
+- `plugman`: `on_update()` API function.
+
+
 ## 7.2 (2017-12-18)
 
 ### Changed

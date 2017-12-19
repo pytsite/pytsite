@@ -1,19 +1,17 @@
 """PytSite Logger
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import logging as _logging
 from typing import Union as _Union
 from os import path as _path, makedirs as _makedirs
 from datetime import datetime as _datetime
 from pytsite import reg as _reg
 
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
-_dbg = _reg.get('debug', False)
 _log_dir = _reg.get('paths.log')
-_now = _datetime.now()
-_log_path = _path.join(_log_dir, _now.strftime('{}-%Y%m%d.log'.format(_reg.get('env.type'))))
+_log_path = _path.join(_log_dir, _datetime.now().strftime('{}-%Y%m%d.log'.format(_reg.get('env.type'))))
 _log_level = _logging.DEBUG if _reg.get('debug') else _logging.INFO
 
 if not _path.exists(_log_dir):
@@ -30,20 +28,27 @@ _logger.addHandler(_handler)
 
 # Setup formatter
 # https://docs.python.org/3/library/logging.html#logrecord-attributes
-if _dbg:
-    _format = '%(asctime)s %(levelname)7s %(process)d:%(thread)d %(pathname)s:%(lineno)d %(message)s'
-else:
-    _format = '%(asctime)s %(levelname)7s %(process)d:%(thread)d %(message)s'
-_handler.setFormatter(_logging.Formatter(_format))
+_handler.setFormatter(_logging.Formatter('%(asctime)s %(levelname)7s %(process)d:%(thread)d %(message)s'))
 
-# Public API
-debug = _logger.debug
-info = _logger.info
-warn = _logger.warning
+
+def _log(level: int, msg: _Union[str, Exception], **kwargs):
+    if isinstance(msg, Exception):
+        kwargs['exc_info'] = msg
+
+    _logger.log(level, msg, **kwargs)
+
+
+def debug(msg: _Union[str, Exception], **kwargs):
+    _log(_logging.DEBUG, msg, **kwargs)
+
+
+def info(msg: _Union[str, Exception], **kwargs):
+    _log(_logging.INFO, msg, **kwargs)
+
+
+def warn(msg: _Union[str, Exception], **kwargs):
+    _log(_logging.WARNING, msg, **kwargs)
 
 
 def error(msg: _Union[str, Exception], **kwargs):
-    if isinstance(msg, Exception) and 'exc_info' not in kwargs:
-        kwargs['exc_info'] = msg
-
-    _logger.error(str(msg), **kwargs)
+    _log(_logging.ERROR, msg, **kwargs)

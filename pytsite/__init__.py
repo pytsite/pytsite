@@ -82,8 +82,11 @@ def _init():
 
     # Initialize logger
     from . import logger
+    logger.info('')
+    logger.info('---===[ PytSite-{} Started ]===---'.format(_package_info.version('pytsite')))
 
     # Initialize rest of the system
+    from pytsite import console
     try:
         # Load required core packages, order is important
         for pkg_name in ('cron', 'stats', 'reload', 'update', 'cleanup', 'plugman', 'testing'):
@@ -94,14 +97,11 @@ def _init():
             from pytsite import lang
             lang.register_package('app', 'lang')
 
-        from pytsite import plugman, console
+        # Load 'app' package
+        import_module('app')
 
-        try:
-            # Load 'app' package
-            import_module('app')
-
-        except (Warning, plugman.error.Error) as e:
-            console.print_warning(str(e))
+    except Warning as e:
+        console.print_warning(e)
 
     except Exception as e:
         logger.error(e)

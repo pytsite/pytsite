@@ -1,22 +1,21 @@
-"""PytSite Localization
+"""PytSite Localization API Functions
 """
-import yaml as _yaml
-import re as _re
-import json as _json
-from typing import List as _List, Callable as _Callable, Dict as _Dict
-from importlib.util import find_spec as _find_spec
-from datetime import datetime as _datetime
-from os import path as _path, makedirs as _makedirs
-from pytsite import logger as _logger, threading as _threading, events as _events
-from . import _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import yaml as _yaml
+import re as _re
+from typing import List as _List, Callable as _Callable, Dict as _Dict
+from importlib.util import find_spec as _find_spec
+from datetime import datetime as _datetime
+from os import path as _path
+from pytsite import threading as _threading, events as _events
+from . import _error
+
 _languages = []
 _current = {}  # Thread safe current language
-_fallback = None  # type: str
+_default = None  # type: str
 _packages = {}
 _globals = {}
 _translated_strings_cache = {}
@@ -42,7 +41,7 @@ def _global_re_handler(match: _re) -> str:
 
 
 def define(languages: list):
-    """Define available languages.
+    """Define available languages
     """
     global _languages
     _languages = languages
@@ -61,7 +60,7 @@ def is_defined(language: str):
 
 
 def langs(include_current: bool = True, include_neutral: bool = False) -> _List[str]:
-    """Get all available languages.
+    """Get all defined languages
     """
     r = _languages.copy()
 
@@ -75,7 +74,7 @@ def langs(include_current: bool = True, include_neutral: bool = False) -> _List[
 
 
 def set_current(language: str):
-    """Set current default language.
+    """Set current language
     """
     if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported".format(language))
@@ -84,17 +83,17 @@ def set_current(language: str):
 
 
 def set_fallback(language: str):
-    """Set fallback language.
+    """Set fallback language
     """
     if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported".format(language))
 
-    global _fallback
+    global _default
     _fallback = language
 
 
 def get_current() -> str:
-    """Get current language.
+    """Get current language
     """
     if not _languages:
         raise RuntimeError('No languages are defined')
@@ -107,31 +106,31 @@ def get_current() -> str:
 
 
 def get_primary() -> str:
-    """Get primary language.
+    """Get primary language
     """
     if not _languages:
-        raise RuntimeError('No languages are defined')
+        raise RuntimeError('There are no languages defined')
 
     return _languages[0]
 
 
 def get_fallback() -> str:
-    """Get fallback language.
+    """Get fallback language
     """
     if not _languages:
         raise RuntimeError('No languages are defined')
 
-    return _fallback
+    return _default
 
 
 def is_package_registered(pkg_name):
-    """Check if the package already registered.
+    """Check if the package already registered
     """
     return pkg_name in _packages
 
 
 def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str = None):
-    """Register language container.
+    """Register language container
     """
     spec = _find_spec(pkg_name)
     if not spec or not spec.loader:
@@ -155,7 +154,7 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
 
 
 def register_global(name: str, handler: _Callable):
-    """Register a global.
+    """Register a global
     """
     if name in _globals:
         raise RuntimeError("Function '{}' is already registered".format(name))
@@ -167,7 +166,7 @@ def register_global(name: str, handler: _Callable):
 
 
 def get_packages() -> dict:
-    """Get info about registered packages.
+    """Get info about registered packages
     """
     return _packages
 
@@ -206,7 +205,8 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = F
     # Message translation is not found in cache, try to fetch it
     if not msg:
         # Try to get translation via event
-        msg = _events.first('pytsite.lang@translate', language=language, package_name=package_name, msg_id=msg_id)
+        for r in _events.fire('pytsite.lang@translate', language=language, package_name=package_name, msg_id=msg_id):
+            msg = r
 
         # Load translation from package's data
         if not msg:
@@ -374,6 +374,7 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
 
     return language.lower() + sep + region.upper()
 
+
 def on_translate(handler, priority: int = 0):
     """Shortcut
     """
@@ -400,4 +401,4 @@ def _split_msg_id(msg_id: str) -> list:
     for r in _events.fire('pytsite.lang@split_msg_id', msg_id=msg_id):
         msg_id = r
 
-    return msg_id.split('@')[:2]
+    return msg_id.split('@')[:2] if '@' in msg_id else ['app', msg_id]

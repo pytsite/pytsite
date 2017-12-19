@@ -1,11 +1,11 @@
 """PytSite Plugin Manager Console Commands
 """
-from pytsite import reload as _reload, console as _console, package_info as _package_info
-from . import _api, _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import reload as _reload, console as _console, package_info as _package_info
+from . import _api, _error
 
 
 class Install(_console.Command):

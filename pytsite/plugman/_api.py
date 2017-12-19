@@ -23,6 +23,7 @@ _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
+_DEBUG = _reg.get('plugman.debug', False)
 
 _loading = {}  # type: _Dict[str, str]
 _loaded = {}  # type: _Dict[str, str]
@@ -153,7 +154,8 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
 
     # Check if the plugin is already loaded
     if plugin_name in _loaded:
-        _logger.debug("Plugin '{}' already loaded".format(_loaded[plugin_name]))
+        if _DEBUG:
+            _logger.debug("Plugin '{}' already loaded".format(_loaded[plugin_name]))
         return
 
     # Checking for circular dependency
@@ -174,8 +176,9 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
     for req_plugin_spec_str in p_info['requires']['plugins']:
         req_plugin_spec = _semver.parse_requirement_str(req_plugin_spec_str)
         _required.add(req_plugin_spec[0])
-        _logger.debug("Plugin '{}-{}' requires '{}{}'".format(plugin_name, p_info['version'],
-                                                              req_plugin_spec[0], req_plugin_spec[1]))
+        if _DEBUG:
+            _logger.debug("Plugin '{}-{}' requires '{}{}'".format(plugin_name, p_info['version'],
+                                                                  req_plugin_spec[0], req_plugin_spec[1]))
         load(req_plugin_spec_str, '{}-{}'.format(plugin_name, p_info['version']))
 
     try:
@@ -192,7 +195,8 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
             getattr(mod, env_hook)()
 
         _loaded[plugin_name] = '{}-{}'.format(plugin_name, p_info['version'])
-        _logger.info("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
+        if _DEBUG:
+            _logger.debug("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
         del _loading[plugin_name]
 
         return mod
@@ -280,7 +284,6 @@ def install(plugin_spec: str) -> int:
     Returns a number of installed plugins, including dependencies
     """
     global _installing
-    update_mode = False
     installed_count = 0
 
     if _DEV_MODE:
@@ -335,9 +338,9 @@ def install(plugin_spec: str) -> int:
 
     # Check if the plugin is already installed
     try:
+        # Update plugin
         l_plugin_info = plugin_package_info(plugin_name)
         if l_plugin_info['version'] != ver_to_install:
-            update_mode = True
             uninstall(plugin_name, True)
         else:
             # Necessary version is already installed, nothing to do
@@ -355,7 +358,8 @@ def install(plugin_spec: str) -> int:
         _console.print_info(_lang.t('pytsite.plugman@installing_plugin', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
-        _logger.debug("Installation of plugin '{}-{}' started".format(plugin_name, ver_to_install))
+        if _DEBUG:
+            _logger.debug("Installation of plugin '{}-{}' started".format(plugin_name, ver_to_install))
 
         # Create temporary directory to store plugin's content
         tmp_dir_path = _path.join(_reg.get('paths.tmp'), 'plugman')
@@ -367,19 +371,24 @@ def install(plugin_spec: str) -> int:
         tmp_file_path = _path.join(tmp_dir_path, '{}-{}.zip'.format(plugin_name, ver_to_install))
 
         # Download archive
-        _logger.debug('Downloading {} to {}'.format(zip_url, tmp_file_path))
+        if _DEBUG:
+            _logger.debug('Downloading {} to {}'.format(zip_url, tmp_file_path))
         _urlretrieve(zip_url, tmp_file_path)
-        _logger.debug('{} successfully stored to {}'.format(zip_url, tmp_file_path))
+        if _DEBUG:
+            _logger.debug('{} successfully stored to {}'.format(zip_url, tmp_file_path))
 
         # Extract downloaded archive
-        _logger.debug('Extracting {} into {}'.format(tmp_file_path, tmp_dir_path))
+        if _DEBUG:
+            _logger.debug('Extracting {} into {}'.format(tmp_file_path, tmp_dir_path))
         with _zipfile.ZipFile(tmp_file_path) as z_file:
             z_file.extractall(tmp_dir_path)
-        _logger.debug('{} successfully extracted to {}'.format(tmp_file_path, tmp_dir_path))
+        if _DEBUG:
+            _logger.debug('{} successfully extracted to {}'.format(tmp_file_path, tmp_dir_path))
 
         # Remove downloaded archive
         _unlink(tmp_file_path)
-        _logger.debug('{} removed'.format(tmp_file_path))
+        if _DEBUG:
+            _logger.debug('{} removed'.format(tmp_file_path))
 
         # Move extracted directory to the plugins directory
         extracted_dir_prefix = '{}-{}{}'.format(_GITHUB_ORG, _GITHUB_PLUGIN_REPO_PREFIX, plugin_name)
@@ -391,7 +400,8 @@ def install(plugin_spec: str) -> int:
             target_dir_path = _plugin_path(plugin_name)
 
             _rename(source_dir_path, target_dir_path)
-            _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
+            if _DEBUG:
+                _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
 
         # Load installed plugin info
         l_plugin_info = plugin_package_info(plugin_name)
@@ -411,7 +421,6 @@ def install(plugin_spec: str) -> int:
                     'plugin': plugin_name,
                     'dependency': req_plugin_spec,
                 }))
-                _logger.info('Installing required plugin: {}'.format(req_plugin_spec))
                 installed_count += install(req_plugin_spec)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
@@ -428,12 +437,6 @@ def install(plugin_spec: str) -> int:
             plugin.plugin_install()
         _events.fire('pytsite.plugman@install', name=plugin_name, version=ver_to_install)
         _events.fire('pytsite.plugman@install.{}'.format(plugin_name), version=ver_to_install)
-
-        # Notify about plugin update
-        if update_mode:
-            _events.fire('pytsite.plugman@update', name=plugin_name, version=ver_to_install)
-            _events.fire('pytsite.plugman@update.{}'.format(plugin_name), version=ver_to_install)
-            _events.fire('pytsite.plugman@update.{}.{}'.format(plugin_name, ver_to_install.replace('.', '_')))
 
         return installed_count + 1
 
@@ -515,12 +518,6 @@ def on_install(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('pytsite.plugman@install', handler, priority)
-
-
-def on_update(handler, priority: int = 0):
-    """Shortcut
-    """
-    _events.listen('pytsite.plugman@update', handler, priority)
 
 
 def on_uninstall(handler, priority: int = 0):

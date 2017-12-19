@@ -91,10 +91,10 @@ def _cron_worker():
 
                     try:
                         _events.fire('pytsite.cron@' + evt)
-                    except RuntimeWarning as e:
-                        _logger.warn(str(e), exc_info=e, stack_info=True)
+
                     except Exception as e:
-                        _logger.error(str(e), exc_info=e, stack_info=True)
+                        _logger.error(e)
+
                     finally:
                         _update_stats(evt)
             else:

@@ -56,7 +56,7 @@ def run_command(name: str, options: dict = None, arguments: list = None):
         return cmd.do_execute()
 
     except Exception as e:
-        _logger.error(str(e), exc_info=e)
+        _logger.error(e)
         raise e
 
 
@@ -130,12 +130,6 @@ def print_warning(msg: _Union[str, Exception]):
     _print(msg, COLOR_WARNING)
 
 
-def print_error(msg: _Union[str, Exception], exc_info: Exception = None):
-    if isinstance(msg, Exception):
-        _logger.error(msg, exc_info=msg)
-    elif exc_info:
-        _logger.error(msg, exc_info=exc_info)
-    else:
-        _logger.error(msg)
-
+def print_error(msg: _Union[str, Exception]):
+    _logger.error(msg)
     _print(msg, COLOR_ERROR)

@@ -8,14 +8,12 @@ __license__ = 'MIT'
 from . import _error as error
 from ._api import plugins_path, plugin_package_info, install, uninstall, is_installed, load, is_loaded, \
     plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
-    get_allowed_version_range, on_install, on_update, on_uninstall
-
-_plugman_started = False
+    get_allowed_version_range, on_install, on_uninstall
 
 
 def _init():
     from os import mkdir, path
-    from pytsite import lang, console, update, logger
+    from pytsite import lang, console, update
     from . import _console_command
 
     # Resources
@@ -43,11 +41,7 @@ def _init():
                 load(p_name)
 
         except (error.PluginLoadError, error.PluginNotInstalled) as e:
-            logger.error(e)
-            console.print_warning(str(e))
-
-    global _plugman_started
-    _plugman_started = True
+            console.print_warning(e)
 
     # Event handlers
     update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))

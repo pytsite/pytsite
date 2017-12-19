@@ -266,7 +266,7 @@ def dispatch(env: dict, start_response: callable):
         else:
             code = e.code if isinstance(e, _http.error.E5xx) else 500
             title = _lang.t('pytsite.router@error', {'code': code})
-            _logger.error(e, exc_info=e)
+            _logger.error(e)
 
         args = {
             'title': title,
