@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.2.2 (2017-12-19)
+
+### Fixed
+
+- `router`: fixed `call()`'s arguments management.
+
+
 ## 7.2.1 (2017-12-19)
 
 ### Fixed

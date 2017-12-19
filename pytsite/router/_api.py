@@ -117,7 +117,10 @@ def has_rule(rule_name: str) -> bool:
 def call(rule_name: str, args: _Mapping):
     """Call a controller by name
     """
-    return _rules.get(rule_name).controller_class(args).exec()
+    c = _rules.get(rule_name).controller_class()  # type: _routing.Controller
+    c.args.update(args)
+
+    return c.exec()
 
 
 def dispatch(env: dict, start_response: callable):

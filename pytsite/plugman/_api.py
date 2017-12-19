@@ -435,8 +435,7 @@ def install(plugin_spec: str) -> int:
         # Notify about plugin install
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
             plugin.plugin_install()
-        _events.fire('pytsite.plugman@install', name=plugin_name, version=ver_to_install)
-        _events.fire('pytsite.plugman@install.{}'.format(plugin_name), version=ver_to_install)
+        _events.fire('pytsite.plugman@install', name=plugin_name)
 
         return installed_count + 1
 
@@ -494,7 +493,6 @@ def uninstall(plugin_name: str, update_mode: bool = False):
         if hasattr(plugin, 'plugin_uninstall') and callable(plugin.plugin_uninstall):
             plugin.plugin_uninstall()
         _events.fire('pytsite.plugman@uninstall', name=plugin_name)
-        _events.fire('pytsite.plugman@uninstall.{}'.format(plugin_name))
 
         # Delete plugin's files
         _rmtree(_plugin_path(plugin_name))
