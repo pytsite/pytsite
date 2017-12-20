@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.2.4 (2017-12-20)
+
+### Fixed
+
+- `plugman`: exception handling while plugins loading.
+
+
 ## 7.2.3 (2017-12-20)
 
 ### Fixed

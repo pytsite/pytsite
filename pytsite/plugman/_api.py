@@ -162,9 +162,6 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
     if plugin_name in _loading:
         raise _error.CircularDependencyError(plugin_name, _loading[plugin_name])
 
-    # Mark plugin as loading
-    _loading[plugin_name] = _required_by_spec
-
     # Get info about plugin, but NOT actually load it
     try:
         p_info = plugin_package_info(plugin_name)
@@ -182,6 +179,9 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         load(req_plugin_spec_str, '{}-{}'.format(plugin_name, p_info['version']))
 
     try:
+        # Mark plugin as loading
+        _loading[plugin_name] = _required_by_spec
+
         plugin_module_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
 
         # Import plugin's package
@@ -199,13 +199,15 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         _loaded[plugin_name] = '{}-{}'.format(plugin_name, p_info['version'])
         if _DEBUG:
             _logger.debug("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
-        del _loading[plugin_name]
 
         return mod
 
     except Exception as e:
         raise _error.PluginLoadError("Error while loading plugin '{}-{}': {}".
                                      format(plugin_name, p_info['version'], e))
+
+    finally:
+        del _loading[plugin_name]
 
 
 def plugins_info() -> dict:
@@ -428,14 +430,14 @@ def install(plugin_spec: str) -> int:
         # Load plugin's module
         plugin = _import_module('plugins.{}'.format(plugin_name))
 
-        # Mark plugin as completely installed
-        with open(_path.join(_plugin_path(plugin_name), 'installed'), 'w') as f:
-            f.write(str(_datetime.now()))
-
         # Notify about plugin install
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
             plugin.plugin_install()
         _events.fire('pytsite.plugman@install', name=plugin_name)
+
+        # Mark plugin as completely installed
+        with open(_path.join(_plugin_path(plugin_name), 'installed'), 'w') as f:
+            f.write(str(_datetime.now()))
 
         # Reload plugin module after all hooks processed
         _reload_module(plugin)

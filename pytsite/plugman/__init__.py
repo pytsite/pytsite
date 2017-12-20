@@ -39,7 +39,6 @@ def _init():
         try:
             if not is_loaded(p_name):
                 load(p_name)
-
         except (error.PluginLoadError, error.PluginNotInstalled) as e:
             console.print_warning(e)
 
