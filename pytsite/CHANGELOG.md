@@ -1,11 +1,18 @@
 # PytSite 6 Changelog
 
 
+## 7.2.3 (2017-12-20)
+
+### Fixed
+
+- `plugman`: plugin's module reloading while installation.
+
+
 ## 7.2.2 (2017-12-19)
 
 ### Fixed
 
-- `router`: fixed `call()`'s arguments management.
+- `router`: `call()`'s arguments management.
 
 
 ## 7.2.1 (2017-12-19)

@@ -10,7 +10,7 @@ import json as _json
 from typing import Union as _Union, Dict as _Dict
 from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
-from importlib import import_module as _import_module
+from importlib import import_module as _import_module, reload as _reload_module
 from urllib.request import urlretrieve as _urlretrieve
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, logger as _logger, lang as _lang, util as _util, router as _router, \
@@ -182,8 +182,10 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         load(req_plugin_spec_str, '{}-{}'.format(plugin_name, p_info['version']))
 
     try:
+        plugin_module_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
+
         # Import plugin's package
-        mod = _import_module(_PLUGINS_PACKAGE_NAME + '.' + plugin_name)
+        mod = _import_module(plugin_module_name)
 
         # plugin_load() hook
         if hasattr(mod, 'plugin_load') and callable(mod.plugin_load):
@@ -423,12 +425,10 @@ def install(plugin_spec: str) -> int:
                 }))
                 installed_count += install(req_plugin_spec)
 
-        _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
-            'plugin': '{}-{}'.format(plugin_name, ver_to_install)
-        }))
-
+        # Load plugin's module
         plugin = _import_module('plugins.{}'.format(plugin_name))
 
+        # Mark plugin as completely installed
         with open(_path.join(_plugin_path(plugin_name), 'installed'), 'w') as f:
             f.write(str(_datetime.now()))
 
@@ -437,19 +437,23 @@ def install(plugin_spec: str) -> int:
             plugin.plugin_install()
         _events.fire('pytsite.plugman@install', name=plugin_name)
 
+        # Reload plugin module after all hooks processed
+        _reload_module(plugin)
+
+        _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
+            'plugin': '{}-{}'.format(plugin_name, ver_to_install)
+        }))
+
         return installed_count + 1
 
     except Exception as e:
-        _installing.remove(plugin_name)
+        # Remove not completely installed plugin files
+        _rmtree(_plugin_path(plugin_name), True)
 
-        msg = _lang.t('pytsite.plugman@plugin_install_error', {
+        raise _error.PluginInstallError(_lang.t('pytsite.plugman@plugin_install_error', {
             'plugin': plugin_name,
             'msg': e,
-        })
-
-        _console.print_error(msg)
-
-        raise _error.PluginInstallError(msg)
+        }))
 
     finally:
         _installing.remove(plugin_name)
