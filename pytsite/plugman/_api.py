@@ -430,7 +430,7 @@ def install(plugin_spec: str) -> int:
         # Load plugin's module
         plugin = _import_module('plugins.{}'.format(plugin_name))
 
-        # Notify about plugin install
+        # Call installation hooks
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
             plugin.plugin_install()
         _events.fire('pytsite.plugman@install', name=plugin_name)
@@ -439,8 +439,11 @@ def install(plugin_spec: str) -> int:
         with open(_path.join(_plugin_path(plugin_name), 'installed'), 'w') as f:
             f.write(str(_datetime.now()))
 
-        # Reload plugin module after all hooks processed
+        # Reload plugin module after installation hooks processed
         _reload_module(plugin)
+
+        # Load plugin
+        load(plugin_name)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)

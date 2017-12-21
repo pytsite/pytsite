@@ -1,6 +1,14 @@
 # PytSite 6 Changelog
 
 
+## 7.2.5 (2017-12-21)
+
+### Fixed
+
+- `mongodb`: using exception instead of printing warning.
+- `plugman`: automatic loading plugin after installation.
+
+
 ## 7.2.4 (2017-12-20)
 
 ### Fixed

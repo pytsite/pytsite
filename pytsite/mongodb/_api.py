@@ -4,7 +4,7 @@ import ssl as _ssl
 from pymongo import MongoClient as _MongoClient
 from pymongo.database import Database as _Database
 from pymongo.collection import Collection as _Collection
-from pytsite import reg as _reg
+from pytsite import reg as _reg, console as _console
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -41,8 +41,8 @@ def get_client() -> _MongoClient:
     config = get_config()
 
     if config['database'] == 'test':
-        raise Warning("It seems you use default database configuration. Consider to set value of the 'db.database' "
-                      "configuration parameter.")
+        _console.print_warning("It seems you use default database configuration. "
+                               "Consider to change value of the 'db.database' configuration parameter.")
 
     _client = _MongoClient(config['host'], config['port'], ssl=config['ssl'], ssl_cert_reqs=_ssl.CERT_NONE,
                            connect=False, connectTimeoutMS=config['connect_timeout'],
