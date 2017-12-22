@@ -4,3 +4,4 @@ updating_application: 'Обновляю приложение'
 updating_configuration: 'Обновляю конфигурацию'
 applying_updates: 'Применяю обновления'
 updating_pip_package: "Обновляю pip пакет ':package'"
+updating_plugin: "Обновляю плагин ':plugin'"

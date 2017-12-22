@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.2.6 (2017-12-22)
+
+### Fixed
+
+- `update`: automatic application's dependencies update.
+
+
 ## 7.2.5 (2017-12-21)
 
 ### Fixed

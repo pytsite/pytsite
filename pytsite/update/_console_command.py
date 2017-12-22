@@ -4,7 +4,7 @@ import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, chdir as _chdir
 from pytsite import console as _console, events as _events, lang as _lang, package_info as _package_info, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, util as _util, reload as _reload
+    logger as _logger, maintenance as _maintenance, util as _util, reload as _reload, plugman as _plugman
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -112,14 +112,21 @@ class Update(_console.Command):
 
             self._save_state(state)
 
-            # Update required pip packages by application and theme
-            for pkg_name in ['app']:
-                for pip_pkg_spec in _package_info.requires_packages(pkg_name):
-                    _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pip_pkg_spec}))
-                    try:
-                        _util.install_pip_package(pip_pkg_spec, True)
-                    except _util.error.PipPackageInstallError as e:
-                        raise _console.error.Error(e)
+            # Install/update required pip packages
+            for pkg_spec in _package_info.requires_packages('app'):
+                _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pkg_spec}))
+                try:
+                    _util.install_pip_package(pkg_spec)
+                except _util.error.PipPackageInstallError as e:
+                    raise _console.error.Error(e)
+
+            # Install/update required plugins
+            for plugin_spec in _package_info.requires_plugins('app'):
+                _console.print_info(_lang.t('pytsite.update@updating_plugin', {'plugin': plugin_spec}))
+                try:
+                    _plugman.install(plugin_spec)
+                except _plugman.error.PluginInstallError as e:
+                    raise _console.error.Error(e)
 
             _logger.info('pytsite.update@after event')
             _events.fire('pytsite.update@after')

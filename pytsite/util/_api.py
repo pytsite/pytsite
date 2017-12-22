@@ -609,12 +609,12 @@ def load_json(source: str):
         raise _json.JSONDecodeError("Error while loading JSON data from '{}': {}".format(source, e), e.doc, e.pos)
 
 
-def install_pip_package(pkg_spec: str, upgrade: bool = False) -> str:
+def install_pip_package(pkg_spec: str) -> str:
     """Install a pip package
     """
     cmd = ['pip', 'install']
 
-    if upgrade:
+    if is_pip_package_installed(pkg_spec):
         cmd.append('-U')
 
     cmd.append(pkg_spec)
