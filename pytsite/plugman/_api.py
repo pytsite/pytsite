@@ -76,12 +76,12 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     return r.json()
 
 
-def _install_pip_package(pkg_spec: str, upg: bool = False):
+def _install_pip_package(pkg_spec: str):
     """Install a pip package
     """
     _console.print_info('Installing/upgrading pip package: {}'.format(pkg_spec))
 
-    _util.install_pip_package(pkg_spec, upg)
+    _util.install_pip_package(pkg_spec)
 
     _console.print_success('Required pip package {} has been successfully installed'.format(pkg_spec))
 

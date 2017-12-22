@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.2.7 (2017-12-22)
+
+### Fixed
+
+- `plugman`: pip dependencies installation error.
+
+
 ## 7.2.6 (2017-12-22)
 
 ### Fixed
