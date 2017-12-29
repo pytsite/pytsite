@@ -57,7 +57,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def get_hash_item(self, pool: str, key: str, item_key: str) -> _Any:
+    def get_hash_item(self, pool: str, key: str, item_key: str, default=None) -> _Any:
         """Get a value from a hash
         """
         pass
@@ -184,17 +184,17 @@ class File(Abstract):
     def get_hash(self, pool: str, key: str, hash_keys: _List[str] = None) -> _Mapping:
         """Get hash
         """
-        raise NotImplementedError()
-
-    def get_hash_item(self, pool: str, key: str, item_key: str) -> _Any:
-        """Get a value from a hash
-        """
         val = self.get(pool, key)
 
         if not isinstance(val, dict):
             raise TypeError("Key '{}' is not hashable".format(key))
 
-        return val.get(item_key)
+        return val
+
+    def get_hash_item(self, pool: str, key: str, item_key: str, default=None) -> _Any:
+        """Get a value from a hash
+        """
+        return self.get_hash(pool, key).get(item_key, default)
 
     def rm_hash_item(self, pool: str, key: str, item_key: str) -> _Any:
         """Remove a value from a hash

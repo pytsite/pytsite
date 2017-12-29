@@ -49,10 +49,10 @@ class Pool:
         """
         return self._get_driver().get_hash(self._uid, key, hash_keys)
 
-    def get_hash_item(self, key: str, item_key: str):
+    def get_hash_item(self, key: str, item_key: str, default=None):
         """Get a value from a hash
         """
-        return self._get_driver().get_hash_item(self._uid, key, item_key)
+        return self._get_driver().get_hash_item(self._uid, key, item_key, default)
 
     def rm_hash_item(self, key: str, item_key: str):
         """Remove a value from a hash

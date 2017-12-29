@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.2.8 (2017-12-29)
+
+### Changed
+
+- `cache`: signature of `driver.Abstract.get_hash_item()`.
+
+
 ## 7.2.7 (2017-12-22)
 
 ### Fixed

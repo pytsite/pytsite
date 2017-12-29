@@ -31,24 +31,24 @@ _logger.addHandler(_handler)
 _handler.setFormatter(_logging.Formatter('%(asctime)s %(levelname)7s %(process)d:%(thread)d %(message)s'))
 
 
-def _log(level: int, msg: _Union[str, Exception], **kwargs):
+def _log(level: int, msg, **kwargs):
     if isinstance(msg, Exception):
         kwargs['exc_info'] = msg
 
     _logger.log(level, msg, **kwargs)
 
 
-def debug(msg: _Union[str, Exception], **kwargs):
+def debug(msg, **kwargs):
     _log(_logging.DEBUG, msg, **kwargs)
 
 
-def info(msg: _Union[str, Exception], **kwargs):
+def info(msg, **kwargs):
     _log(_logging.INFO, msg, **kwargs)
 
 
-def warn(msg: _Union[str, Exception], **kwargs):
+def warn(msg, **kwargs):
     _log(_logging.WARNING, msg, **kwargs)
 
 
-def error(msg: _Union[str, Exception], **kwargs):
+def error(msg, **kwargs):
     _log(_logging.ERROR, msg, **kwargs)
