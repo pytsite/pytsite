@@ -1,6 +1,17 @@
 # PytSite 6 Changelog
 
 
+## 7.3 (2018-01-02)
+
+### Added
+
+- `cleanup`: `on_cleanup()` function.
+- `plugman`:
+  - plugins imports monitoring;
+  - new API functions: `is_loading()`, `plugin_path()`.
+- `util`: `remove_obsolete_files()` function.
+
+
 ## 7.2.8 (2017-12-29)
 
 ### Changed

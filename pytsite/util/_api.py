@@ -9,13 +9,14 @@ import re as _re
 import pytz as _pytz
 import json as _json
 import subprocess as _subprocess
-from os import path as _path, makedirs as _makedirs
+from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk
 from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
 from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
 from frozendict import frozendict as _frozendict
 from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
+from time import time as _time
 from datetime import datetime as _datetime
 from html import parser as _python_html_parser
 from hashlib import md5 as _md5
@@ -578,14 +579,14 @@ def to_snake_case(s: str) -> str:
     return _re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
 
 
-def format_call_stack_str(sep: str = '\n', skip: int = 1, limit: int = None) -> str:
+def get_call_stack(limit: int = None) -> list:
     """Format call stack as string.
     """
     r = []
-    for frame_sum in _extract_stack(limit=limit)[:-skip]:
-        r.append(':'.join([str(item) for item in frame_sum[:3]]))
+    for frame_sum in _extract_stack(limit=limit):
+        r.append([item for item in frame_sum[:3]])
 
-    return sep.join(r)
+    return r
 
 
 def is_url(s: str) -> bool:
@@ -663,3 +664,23 @@ def is_pip_package_installed(pkg_spec: str) -> bool:
 
     except _error.PipPackageNotInstalled:
         return False
+
+
+def remove_obsolete_files(root_path: str, ttl: int) -> tuple:
+    now = _time()
+    success = []
+    failed = []
+
+    for root, d_names, f_names in _walk(root_path):
+        for f_name in f_names:
+            f_path = _path.join(root, f_name)
+            m_time = _path.getmtime(f_path)
+            if m_time + ttl < now:
+                try:
+                    _unlink(f_path)
+                    success.append(f_path)
+
+                except Exception as e:
+                    failed.append((f_path, e))
+
+    return success, failed

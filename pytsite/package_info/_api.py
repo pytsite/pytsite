@@ -14,7 +14,7 @@ __license__ = 'MIT'
 _parsed_json = {}
 
 
-def resolve_path(package_name: str):
+def resolve_package_path(package_name: str):
     """Check for package existence
     """
     spec = _find_module_spec(package_name)
@@ -107,20 +107,23 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     return json_data
 
 
-def data(package_name: str, key: str = None, defaults: dict = None, override: dict = None) -> _Any:
-    if package_name == 'pytsite':
-        json_name = 'pytsite.json'
-    elif package_name == 'app':
-        json_name = 'app.json'
-    elif package_name.startswith('themes.'):
-        json_name = 'theme.json'
-    elif package_name.startswith('plugins.'):
-        json_name = 'plugin.json'
+def data(package_name_or_json_path: str, key: str = None, defaults: dict = None, override: dict = None) -> _Any:
+    if package_name_or_json_path.startswith('/'):
+        source = package_name_or_json_path
     else:
-        json_name = 'pytsite-package.json'
+        if package_name_or_json_path == 'pytsite':
+            json_name = 'pytsite.json'
+        elif package_name_or_json_path == 'app':
+            json_name = 'app.json'
+        elif package_name_or_json_path.startswith('themes.'):
+            json_name = 'theme.json'
+        elif package_name_or_json_path.startswith('plugins.'):
+            json_name = 'plugin.json'
+        else:
+            json_name = 'pytsite-package.json'
 
-    # Calculate path to the JSON file
-    source = _path.join(resolve_path(package_name), json_name)
+        # Calculate path to the JSON file
+        source = _path.join(resolve_package_path(package_name_or_json_path), json_name)
 
     # Get data from cache if available
     if source in _parsed_json:
@@ -137,43 +140,43 @@ def data(package_name: str, key: str = None, defaults: dict = None, override: di
     return d.get(key) if key else d
 
 
-def name(package_name: str) -> str:
+def name(package_name_or_json_path: str) -> str:
     """Shortcut
     """
-    return data(package_name, 'name')
+    return data(package_name_or_json_path, 'name')
 
 
-def version(package_name: str) -> str:
+def version(package_name_or_json_path: str) -> str:
     """Shortcut
     """
-    return str(_semver.parse_version_str(data(package_name, 'version')))
+    return str(_semver.parse_version_str(data(package_name_or_json_path, 'version')))
 
 
-def description(package_name: str) -> dict:
+def description(package_name_or_json_path: str) -> dict:
     """Shortcut
     """
-    return data(package_name, 'description')
+    return data(package_name_or_json_path, 'description')
 
 
-def requires(package_name: str) -> _Dict[str, _List[str]]:
+def requires(package_name_or_json_path: str) -> _Dict[str, _List[str]]:
     """Shortcut
     """
-    return data(package_name, 'requires')
+    return data(package_name_or_json_path, 'requires')
 
 
-def requires_packages(package_name: str) -> _List[str]:
+def requires_packages(package_name_or_json_path: str) -> _List[str]:
     """Shortcut
     """
-    return data(package_name, 'requires')['packages']
+    return data(package_name_or_json_path, 'requires')['packages']
 
 
-def requires_plugins(package_name: str) -> _List[str]:
+def requires_plugins(package_name_or_json_path: str) -> _List[str]:
     """Shortcut
     """
-    return data(package_name, 'requires')['plugins']
+    return data(package_name_or_json_path, 'requires')['plugins']
 
 
-def url(package_name: str) -> str:
+def url(package_name_or_json_path: str) -> str:
     """Shortcut
     """
-    return data(package_name, 'url')
+    return data(package_name_or_json_path, 'url')

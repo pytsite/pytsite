@@ -5,10 +5,10 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import logging as _logging
-from typing import Union as _Union
+
 from os import path as _path, makedirs as _makedirs
 from datetime import datetime as _datetime
-from pytsite import reg as _reg
+from pytsite import reg as _reg, cleanup as _cleanup
 
 _log_dir = _reg.get('paths.log')
 _log_path = _path.join(_log_dir, _datetime.now().strftime('{}-%Y%m%d.log'.format(_reg.get('env.type'))))
@@ -23,32 +23,17 @@ _logger.setLevel(_log_level)
 
 # Setup handler
 _handler = _logging.FileHandler(_log_path, encoding='utf-8')
+if _log_level == _logging.DEBUG:
+    fmt = '%(asctime)s %(levelname)7s %(process)d:%(thread)d %(message)s'
+else:
+    fmt = '%(asctime)s %(levelname)7s %(message)s'
+_handler.setFormatter(_logging.Formatter(fmt))
 _handler.setLevel(_log_level)
 _logger.addHandler(_handler)
 
-# Setup formatter
-# https://docs.python.org/3/library/logging.html#logrecord-attributes
-_handler.setFormatter(_logging.Formatter('%(asctime)s %(levelname)7s %(process)d:%(thread)d %(message)s'))
+# Events handlers
+from . import _eh
+_cleanup.on_cleanup(_eh.cleanup)
 
-
-def _log(level: int, msg, **kwargs):
-    if isinstance(msg, Exception):
-        kwargs['exc_info'] = msg
-
-    _logger.log(level, msg, **kwargs)
-
-
-def debug(msg, **kwargs):
-    _log(_logging.DEBUG, msg, **kwargs)
-
-
-def info(msg, **kwargs):
-    _log(_logging.INFO, msg, **kwargs)
-
-
-def warn(msg, **kwargs):
-    _log(_logging.WARNING, msg, **kwargs)
-
-
-def error(msg, **kwargs):
-    _log(_logging.ERROR, msg, **kwargs)
+# Public API
+from ._api import debug, info, warn, error

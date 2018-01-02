@@ -38,13 +38,19 @@ _PLUGINS_PACKAGE_NAME = 'plugins'
 _reg.put('paths.plugins', _PLUGINS_PATH)
 
 
-def _plugin_path(plugin_name: str) -> str:
+def plugin_path(plugin_name: str) -> str:
     """Calculate local path of a plugin
     """
     if plugin_name.startswith('plugins.'):
         plugin_name = plugin_name[8:]
 
     return _path.join(_PLUGINS_PATH, plugin_name)
+
+
+def plugin_json_path(plugin_name: str) -> str:
+    """Calculate path to plugin's package JSON file
+    """
+    return _path.join(plugin_path(plugin_name), 'plugin.json')
 
 
 def plugins_path() -> str:
@@ -92,7 +98,7 @@ def plugin_package_info(plugin_name: str) -> dict:
     try:
         plugin_pkg_name = 'plugins.{}'.format(plugin_name)
 
-        return _package_info.data(plugin_pkg_name, defaults={
+        return _package_info.data(plugin_json_path(plugin_name), defaults={
             'name': plugin_pkg_name,
             'version': '0.0.1',
         })
@@ -118,20 +124,26 @@ def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
 
     # Check if the plugin exists on the filesystem
     if _DEV_MODE:
-        if not _path.exists(_plugin_path(plugin_name)):
+        if not _path.exists(plugin_path(plugin_name)):
             return False
     else:
-        if not _path.exists(_path.join(_plugin_path(plugin_name), 'installed')):
+        if not _path.exists(_path.join(plugin_path(plugin_name), 'installed')):
             return False
 
     # Check plugin version
-    return _semver.check_conditions(_package_info.version('plugins.' + plugin_name), version_req)
+    return _semver.check_conditions(_package_info.version(plugin_json_path(plugin_name)), version_req)
 
 
 def is_loaded(plugin_name: str) -> bool:
     """Check if the plugin is loaded
     """
     return plugin_name in _loaded
+
+
+def is_loading(plugin_name: str) -> bool:
+    """Check if the plugin is being loaded
+    """
+    return plugin_name in _loading
 
 
 def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -> object:
@@ -169,6 +181,9 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         _console.print_warning(str(e))
         return
 
+    # Mark plugin as loading
+    _loading[plugin_name] = _required_by_spec
+
     # Load required plugins
     for req_plugin_spec_str in p_info['requires']['plugins']:
         req_plugin_spec = _semver.parse_requirement_str(req_plugin_spec_str)
@@ -179,9 +194,6 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         load(req_plugin_spec_str, '{}-{}'.format(plugin_name, p_info['version']))
 
     try:
-        # Mark plugin as loading
-        _loading[plugin_name] = _required_by_spec
-
         plugin_module_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
 
         # Import plugin's package
@@ -401,7 +413,7 @@ def install(plugin_spec: str) -> int:
                 continue
 
             source_dir_path = _path.join(tmp_dir_path, dir_name)
-            target_dir_path = _plugin_path(plugin_name)
+            target_dir_path = plugin_path(plugin_name)
 
             _rename(source_dir_path, target_dir_path)
             if _DEBUG:
@@ -436,7 +448,7 @@ def install(plugin_spec: str) -> int:
         _events.fire('pytsite.plugman@install', name=plugin_name)
 
         # Mark plugin as completely installed
-        with open(_path.join(_plugin_path(plugin_name), 'installed'), 'w') as f:
+        with open(_path.join(plugin_path(plugin_name), 'installed'), 'w') as f:
             f.write(str(_datetime.now()))
 
         # Reload plugin module after installation hooks processed
@@ -453,7 +465,7 @@ def install(plugin_spec: str) -> int:
 
     except Exception as e:
         # Remove not completely installed plugin files
-        _rmtree(_plugin_path(plugin_name), True)
+        _rmtree(plugin_path(plugin_name), True)
 
         raise _error.PluginInstallError(_lang.t('pytsite.plugman@plugin_install_error', {
             'plugin': plugin_name,
@@ -504,7 +516,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
         _events.fire('pytsite.plugman@uninstall', name=plugin_name)
 
         # Delete plugin's files
-        _rmtree(_plugin_path(plugin_name))
+        _rmtree(plugin_path(plugin_name))
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_uninstall_success', {
             'plugin': '{}-{}'.format(plugin_name, plugin_version)

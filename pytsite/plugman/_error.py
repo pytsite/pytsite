@@ -110,12 +110,12 @@ class CircularDependencyError(Error):
             return "Plugin '{}' is already loading".format(self._name)
 
 
-class PluginNotStarted(Error):
+class PluginNotLoaded(Error):
     def __init__(self, plugin_name: str):
         self._name = plugin_name
 
     def __str__(self) -> str:
-        return "Plugin '{}' is not started".format(self._name)
+        return "Plugin '{}' is not loaded".format(self._name)
 
 
 class PluginDependencyError(Error):

@@ -1,6 +1,5 @@
 """PytSite Init
 """
-from pytsite import semver as _semver, package_info as _package_info
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
@@ -12,10 +11,11 @@ def _init():
     """
     import sys
     from importlib import import_module
+    from sys import exit
     from os import path, environ, makedirs
     from getpass import getuser
     from socket import gethostname
-    from . import reg
+    from . import reg, package_info
 
     # Load regisrty memory driver
     reg.set_driver(reg.driver.Memory())
@@ -83,7 +83,7 @@ def _init():
     # Initialize logger
     from . import logger
     logger.info('')
-    logger.info('---===[ PytSite-{} Started ]===---'.format(_package_info.version('pytsite')))
+    logger.info('---===[ PytSite-{} Started ]===---'.format(package_info.version('pytsite')))
 
     # Initialize rest of the system
     from pytsite import console
@@ -104,8 +104,11 @@ def _init():
         console.print_warning(e)
 
     except Exception as e:
-        logger.error(e)
-        raise e
+        console.print_error(e)
+        if reg.get('debug'):
+            raise e
+
+        exit(1)
 
 
 _init()

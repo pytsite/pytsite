@@ -1,10 +1,17 @@
 """PytSite Cleanup
 """
-from pytsite import cron as _cron
-from ._eh import cron_hourly
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_cron.hourly(cron_hourly)
+from pytsite import cron as _cron, events as _events
+from . import _eh
+
+
+# Public API
+def on_cleanup(handler, priority: int = 0):
+    _events.listen('pytsite.cleanup@cleanup', handler, priority)
+
+
+# Events handlers
+_cron.hourly(_eh.cron_hourly)
