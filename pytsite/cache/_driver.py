@@ -6,14 +6,12 @@ from os import path as _path, unlink as _unlink, makedirs as _makedirs, walk as 
 from shutil import rmtree as _rmtree
 from pickle import dumps as _pickle_dump, loads as _pickle_load
 from time import time as _time
-from pytsite import reg as _reg, util as _util, router as _router
+from pytsite import reg as _reg, util as _util
 from . import _error
 
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
-
-_server_name = _router.server_name()
 
 
 class Abstract(_ABC):
@@ -118,12 +116,19 @@ class File(Abstract):
     def __init__(self):
         """Init
         """
-        self._path = _reg.get('cache.file_driver_storage', _path.join(_reg.get('paths.tmp'), 'cache'))
+        from pytsite import router as _router
+
+        self._server_name = _router.server_name()
+        self._path = _reg.get('cache.file_driver_storage', _path.join(_reg.get('paths.storage'), 'cache'))
+
+        # Create cache directory
+        if not _path.exists(self._path):
+            _makedirs(self._path, 0o755, True)
 
     def _get_key_path(self, pool: str, key: str) -> str:
         h = _util.md5_hex_digest(key)
 
-        return _path.join(self._path, _server_name, pool, h[:2], h[2:4], key)
+        return _path.join(self._path, self._server_name, pool, h[:2], h[2:4], key)
 
     def _get_key_dir(self, pool: str, key: str) -> str:
         return _path.dirname(self._get_key_path(pool, key))
@@ -266,7 +271,7 @@ class File(Abstract):
     def cleanup(self, pool: str):
         """Cleanup outdated items from the cache
         """
-        for root, dirs, files in _walk(_path.join(self._path, _server_name, pool), topdown=False):
+        for root, dirs, files in _walk(_path.join(self._path, self._server_name, pool), topdown=False):
             for name in files:
                 f_path = _path.join(root, name)
                 with open(f_path, 'rb') as f:
@@ -282,6 +287,6 @@ class File(Abstract):
         """Clear entire pool
         """
         try:
-            _rmtree(_path.join(self._path, _server_name, pool))
+            _rmtree(_path.join(self._path, self._server_name, pool))
         except FileNotFoundError:
             pass

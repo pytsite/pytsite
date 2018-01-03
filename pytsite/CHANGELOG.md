@@ -1,6 +1,23 @@
 # PytSite 6 Changelog
 
 
+## 7.4 (2018-01-03)
+
+### Added
+
+- `util`: empty directories check in `remove_obsolete_files()`.
+
+
+### Changed
+
+- `plugman`: fixed numerous errors and refactored.
+
+
+### Fixed
+
+- `cache`: dependency from `cron`.
+
+
 ## 7.3 (2018-01-02)
 
 ### Added

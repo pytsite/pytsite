@@ -9,7 +9,8 @@ import re as _re
 import pytz as _pytz
 import json as _json
 import subprocess as _subprocess
-from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk
+from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk, listdir as _listdir, \
+    rmdir as _rmdir
 from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
 from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
 from frozendict import frozendict as _frozendict
@@ -682,5 +683,12 @@ def remove_obsolete_files(root_path: str, ttl: int) -> tuple:
 
                 except Exception as e:
                     failed.append((f_path, e))
+
+        # Remove empty directories
+        for d_name in d_names:
+            d_path = _path.join(root, d_name)
+            if _listdir(d_path) == []:
+                _rmdir(d_path)
+                print(d_path)
 
     return success, failed

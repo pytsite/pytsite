@@ -56,8 +56,7 @@ def _init():
         environ['PATH'] = path.join(env_path, 'bin') + ':' + environ['PATH']
 
     # Additional filesystem paths
-    reg.put('paths.session', path.join(reg.get('paths.tmp'), 'session'))
-    reg.put('paths.setup_lock', path.join(reg.get('paths.storage'), 'setup.lock'))
+    reg.put('paths.session', path.join(reg.get('paths.storage'), 'session'))
     reg.put('paths.maintenance_lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
 
     # Debug is disabled by default
@@ -66,10 +65,6 @@ def _init():
     # Check for 'app' package
     if not path.exists(app_path):
         raise FileNotFoundError("Directory '{}' is not found".format(app_path))
-
-    # Create cache directory
-    reg.put('paths.cache', path.join(reg.get('paths.tmp'), 'cache'))
-    makedirs(reg.get('paths.cache'), 0o755, True)
 
     # Switch registry to the file driver
     file_driver = reg.driver.File(reg.get('paths.config'), reg.get('env.name'), reg.get_driver())
@@ -88,8 +83,12 @@ def _init():
     # Initialize rest of the system
     from pytsite import console
     try:
+        # Initialize cache with default driver
+        from pytsite import cache
+        cache.set_driver(cache.driver.File())
+
         # Load required core packages, order is important
-        for pkg_name in ('cron', 'stats', 'reload', 'update', 'cleanup', 'plugman', 'testing'):
+        for pkg_name in ('cron', 'stats', 'reload', 'update', 'plugman', 'testing'):
             import_module('pytsite.' + pkg_name)
 
         # Register app's language resources

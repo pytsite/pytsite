@@ -110,6 +110,8 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
 def data(package_name_or_json_path: str, key: str = None, defaults: dict = None, override: dict = None) -> _Any:
     if package_name_or_json_path.startswith('/'):
         source = package_name_or_json_path
+        if not _path.exists(source):
+            raise _error.PackageNotFound()
     else:
         if package_name_or_json_path == 'pytsite':
             json_name = 'pytsite.json'

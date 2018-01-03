@@ -71,7 +71,7 @@ class Update(_console.Command):
                     installed_count += _api.install(plugin_spec)
             else:
                 # Update all installed plugins
-                for plugin_name in _api.plugins_info():
+                for plugin_name in _api.local_plugins_info():
                     installed_count += _api.install(plugin_name)
 
         except _error.Error as e:

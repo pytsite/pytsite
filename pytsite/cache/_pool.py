@@ -6,10 +6,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from typing import Mapping as _Mapping, List as _List, Callable as _Callable
-from pytsite import router as _router
 from ._driver import Abstract as _Driver
-
-_server_name = _router.server_name()
 
 
 class Pool:

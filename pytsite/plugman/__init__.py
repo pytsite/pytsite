@@ -8,15 +8,15 @@ __license__ = 'MIT'
 from sys import meta_path as _meta_path
 from os import path as _path
 from . import _error as error
-from ._api import plugins_path, plugin_package_info, install, uninstall, is_installed, load, is_loaded, \
-    plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, \
-    get_allowed_version_range, on_install, on_uninstall, plugin_path, is_loading
+from ._api import plugins_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
+    local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
+    on_uninstall, plugin_path, is_loading, is_installing
 
 
 class _MetaPathHook:
     def find_spec(self, name: str, import_path: list, module=None):
         name_s = name.split('.')
-        if name_s[0] == 'plugins' and len(name_s) == 2:
+        if name_s[0] == 'plugins' and len(name_s) == 2 and not is_installing(name_s[1]):
             # Check if the plugin installed
             p_path = plugin_path(name_s[1])
             search_for = p_path if is_dev_mode() else _path.join(p_path, 'installed')
@@ -24,7 +24,7 @@ class _MetaPathHook:
                 raise error.PluginNotInstalled(name_s[1])
 
             # Check if the plugin loaded
-            if not is_loaded(name_s[1]) and not is_loading(name_s[1]):
+            if not (is_loaded(name_s[1]) or is_loading(name_s[1])):
                 raise error.PluginNotLoaded(name_s[1])
 
 
@@ -49,7 +49,7 @@ def _init():
     console.register_command(_console_command.Uninstall())
 
     # Get information about installed plugins
-    plugins_info_seq = plugins_info()
+    plugins_info_seq = local_plugins_info()
 
     # Enable imports checking
     _meta_path.insert(0, _MetaPathHook())
