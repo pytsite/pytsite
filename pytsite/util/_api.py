@@ -667,7 +667,9 @@ def is_pip_package_installed(pkg_spec: str) -> bool:
         return False
 
 
-def remove_obsolete_files(root_path: str, ttl: int) -> tuple:
+def cleanup_files(root_path: str, ttl: int) -> tuple:
+    """Remove obsolete files and empty directories
+    """
     now = _time()
     success = []
     failed = []
@@ -687,8 +689,7 @@ def remove_obsolete_files(root_path: str, ttl: int) -> tuple:
         # Remove empty directories
         for d_name in d_names:
             d_path = _path.join(root, d_name)
-            if _listdir(d_path) == []:
+            if not _listdir(d_path):
                 _rmdir(d_path)
-                print(d_path)
 
     return success, failed

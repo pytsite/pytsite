@@ -9,7 +9,7 @@ from pytsite import util as _util, reg as _reg, logger as _logger
 
 
 def cleanup():
-    success, failed = _util.remove_obsolete_files(_reg.get('paths.log'), _reg.get('logger.file_ttl', 86400))
+    success, failed = _util.cleanup_files(_reg.get('paths.log'), _reg.get('logger.file_ttl', 2592000))  # 30d
 
     for f_path in success:
         _logger.debug('Obsolete log file removed: {}'.format(f_path))

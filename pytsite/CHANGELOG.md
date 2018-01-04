@@ -1,6 +1,19 @@
 # PytSite 6 Changelog
 
 
+## 7.4.1 (2018-01-04)
+
+
+### Changed
+
+- `util`: `remove_obsolete_files()` renamed to `cleanup_files()`.
+
+
+### Fixed
+
+- `log`: default log file's TTL increased from 1 day to 30 days.
+
+
 ## 7.4 (2018-01-03)
 
 ### Added

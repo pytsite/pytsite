@@ -14,7 +14,7 @@ def cron_hourly():
 
 
 def _cleanup_tmp_files():
-    success, failed = _util.remove_obsolete_files(_reg.get('paths.tmp'), 86400)
+    success, failed = _util.cleanup_files(_reg.get('paths.tmp'), 86400)  # 24h
 
     for f_path in success:
         _logger.debug('Obsolete tmp file removed: {}'.format(f_path))
