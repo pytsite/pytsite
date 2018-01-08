@@ -10,7 +10,7 @@ from os import path as _path
 from . import _error as error
 from ._api import plugins_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
     local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
-    on_uninstall, plugin_path, is_loading, is_installing
+    on_uninstall, plugin_path, is_loading, is_installing, get
 
 
 class _MetaPathHook:

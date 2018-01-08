@@ -11,8 +11,8 @@ def _init():
     """
     import sys
     from importlib import import_module
-    from sys import exit
-    from os import path, environ, makedirs
+    from sys import argv, exit
+    from os import path, environ
     from getpass import getuser
     from socket import gethostname
     from . import reg, package_info
@@ -21,8 +21,11 @@ def _init():
     reg.set_driver(reg.driver.Memory())
 
     # Environment type and name
-    reg.put('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
     reg.put('env.name', getuser() + '@' + gethostname())
+    if len(argv) > 1 and argv[1] == 'test':
+        reg.put('env.type', 'testing')
+    else:
+        reg.put('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
 
     # Detect application's root directory path
     cur_dir = path.abspath(path.dirname(__file__))

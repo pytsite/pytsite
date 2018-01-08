@@ -1,13 +1,19 @@
 # PytSite 6 Changelog
 
 
-## 7.4.1 (2018-01-04)
+## 7.4.2 (2018-01-08)
 
+### Added
+
+- `core`: new environment type: **testing**.
+- `plugman`: new method: `get()`.
+
+
+## 7.4.1 (2018-01-04)
 
 ### Changed
 
 - `util`: `remove_obsolete_files()` renamed to `cleanup_files()`.
-
 
 ### Fixed
 

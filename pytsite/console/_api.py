@@ -111,7 +111,7 @@ def run():
 
 
 def _print(msg: _Union[str, Exception], color: str):
-    if _reg.get('env.type') == 'console':
+    if _reg.get('env.type') != 'uwsgi':
         print('{}{}{}'.format(color, msg, COLOR_END))
 
 

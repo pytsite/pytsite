@@ -7,7 +7,7 @@ __license__ = 'MIT'
 import zipfile as _zipfile
 import requests as _requests
 import json as _json
-from typing import Union as _Union, Dict as _Dict
+from typing import Type as _Type, Union as _Union, Dict as _Dict
 from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module, reload as _reload_module
@@ -26,7 +26,7 @@ _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 _DEBUG = _reg.get('plugman.debug', False)
 
 _loading = {}  # type: _Dict[str, str]
-_loaded = {}  # type: _Dict[str, str]
+_loaded = {}  # type: _Dict[str, _Type]
 _installing = []
 _uninstalling = []
 _required = set()
@@ -175,6 +175,15 @@ def is_loading(plugin_name: str) -> bool:
     return _sanitize_plugin_name(plugin_name) in _loading
 
 
+def get(plugin_name: str) -> object:
+    """Get loaded plugin's module
+    """
+    try:
+        return _loaded[_sanitize_plugin_name(plugin_name)]
+    except KeyError:
+        raise _error.PluginNotLoaded(plugin_name)
+
+
 def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -> object:
     """Load a plugin
     """
@@ -187,6 +196,7 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
 
     # Normalize plugin spec
     plugin_name, version_req = _semver.parse_requirement_str(plugin_spec)
+    plugin_name = _sanitize_plugin_name(plugin_name)
     plugin_spec = '{}{}'.format(plugin_name, version_req)
 
     # Check if the plugin installed
@@ -196,8 +206,8 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
     # Check if the plugin is already loaded
     if plugin_name in _loaded:
         if _DEBUG:
-            _logger.debug("Plugin '{}' already loaded".format(_loaded[plugin_name]))
-        return
+            _logger.debug("Plugin '{}' already loaded".format(plugin_name))
+        return _loaded[plugin_name]
 
     # Checking for circular dependency
     if plugin_name in _loading:
@@ -229,11 +239,13 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
             mod.plugin_load()
 
         # plugin_load_{env.type}() hook
-        env_hook = 'plugin_load_{}'.format(_reg.get('env.type'))
-        if hasattr(mod, env_hook):
-            getattr(mod, env_hook)()
+        env_type = _reg.get('env.type')
+        for env_hook in ('console', 'uwsgi'):
+            env_hook_f_name = 'plugin_load_{}'.format(env_hook)
+            if hasattr(mod, env_hook_f_name) and env_type in ('testing', env_hook):
+                getattr(mod, env_hook_f_name)()
 
-        _loaded[plugin_name] = '{}-{}'.format(plugin_name, p_info['version'])
+        _loaded[plugin_name] = mod
         if _DEBUG:
             _logger.debug("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
 
