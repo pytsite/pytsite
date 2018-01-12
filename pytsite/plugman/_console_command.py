@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import reload as _reload, console as _console, package_info as _package_info
+from pytsite import reload as _reload, console as _console, package_info as _package_info, lang as _lang
 from . import _api, _error
 
 
@@ -68,11 +68,15 @@ class Update(_console.Command):
             if self.args:
                 # Update specified plugins
                 for plugin_spec in self.args:
+                    if not _api.is_installed(plugin_spec):
+                        raise _console.error.Error(_lang.t('pytsite.plugman@plugin_not_installed', {
+                            'plugin': plugin_spec
+                        }))
                     installed_count += _api.install(plugin_spec)
             else:
                 # Update all installed plugins
-                for plugin_name in _api.local_plugins_info():
-                    installed_count += _api.install(plugin_name)
+                for plugin_spec in _api.local_plugins_info():
+                    installed_count += _api.install(plugin_spec)
 
         except _error.Error as e:
             raise _console.error.Error(e)

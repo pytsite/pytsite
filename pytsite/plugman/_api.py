@@ -415,8 +415,13 @@ def install(plugin_spec: str) -> int:
                 }))
                 installed_count += install(req_plugin_spec)
 
-        # Load plugin's module
+        # Detect whether it is new installation or upgrade
+        update_data = _get_update_info(plugin_name)
+
+        # (Re)load plugin's module
         plugin = _import_module('plugins.{}'.format(plugin_name))
+        if update_data:
+            _reload_module(plugin)
 
         # Call installation hooks
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
@@ -430,11 +435,10 @@ def install(plugin_spec: str) -> int:
         # Reload plugin module after installation hooks processed
         _reload_module(plugin)
 
-        # Load plugin
+        # Fully load the plugin
         load(plugin_name)
 
         # Run plugin update tasks
-        update_data = _get_update_info(plugin_name)
         if update_data and hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
             _console.print_info(_lang.t('pytsite.plugman@run_plugin_update_hook', {
                 'plugin': plugin_name,
