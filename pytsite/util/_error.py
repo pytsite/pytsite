@@ -6,7 +6,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class PipPackageInstallError(Exception):
+class Error(Exception):
+    pass
+
+
+class PipPackageInstallError(Error):
     def __init__(self, req: str, err_msg: str):
         super().__init__()
 
@@ -17,11 +21,31 @@ class PipPackageInstallError(Exception):
         return "Error while installing pip package '{}': {}".format(self._req_str, self._err_msg)
 
 
-class PipPackageNotInstalled(Exception):
-    def __init__(self, pkg_name: str):
+class PytSiteVersionNotInstalled(Error):
+    def __init__(self, version: str):
         super().__init__()
 
-        self._pkg_name = pkg_name
+        self._version = version
 
     def __str__(self) -> str:
-        return "Pip package '{}' is not installed".format(self._pkg_name)
+        return "PytSite{} is not installed".format(self._version)
+
+
+class PipPackageNotInstalled(Error):
+    def __init__(self, pkg_spec: str):
+        super().__init__()
+
+        self._pkg_spec = pkg_spec
+
+    def __str__(self) -> str:
+        return "Pip package {} is not installed".format(self._pkg_spec)
+
+
+class PluginNotInstalled(Error):
+    def __init__(self, plugin_spec: str):
+        super().__init__()
+
+        self._plugin_spec = plugin_spec
+
+    def __str__(self) -> str:
+        return "Plugin {} is not installed".format(self._plugin_spec)

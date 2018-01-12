@@ -1,13 +1,14 @@
 """PytSite Cron
 """
-from datetime import datetime as _datetime
-from time import time as _time
-from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, threading as _threading
-from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from datetime import datetime as _datetime
+from time import time as _time
+from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, threading as _threading, \
+    maintenance as _maintenance
+from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
 
 _cache_pool = _cache.create_pool('pytsite.cron')
 _DEBUG = _reg.get('cron.debug', False)
@@ -49,23 +50,28 @@ def _update_stats(part: str) -> dict:
 def _cron_worker():
     """Cron worker
     """
-    # Check lock
     try:
-        lock_time = _cache_pool.get('lock')
-
-        # Double check key's creation time, because cache driver may depend from cron
-        if _time() - lock_time >= _LOCK_TTL:
-            _logger.warn('Obsolete cache lock removed')
-            _cache_pool.rm('lock')
-        else:
-            _logger.warn('Cron is still working')
+        # Check maintenance mode
+        if _maintenance.is_enabled():
+            _logger.warn('Cron worker cannot start due to maintenance mode enabled')
             return
 
-    # Lock does not exist
-    except _cache.error.KeyNotExist:
-        pass
+        # Check lock
+        try:
+            lock_time = _cache_pool.get('lock')
 
-    try:
+            # Double check key's creation time, because cache driver may depend from cron
+            if _time() - lock_time >= _LOCK_TTL:
+                _logger.warn('Obsolete cache lock removed')
+                _cache_pool.rm('lock')
+            else:
+                _logger.warn('Cron is still working')
+                return
+
+        # Lock does not exist
+        except _cache.error.KeyNotExist:
+            pass
+
         # Create lock
         lock_time = _time()
         _cache_pool.put('lock', lock_time, _LOCK_TTL)

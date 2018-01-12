@@ -1,4 +1,4 @@
-"""PytSite Maintenance Console Commands.
+"""PytSite Maintenance Console Commands
 """
 from pytsite import console as _console
 from . import _api

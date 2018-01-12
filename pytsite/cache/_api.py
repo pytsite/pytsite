@@ -1,14 +1,14 @@
 """PytSite Cache API
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from typing import Dict as _Dict
 from pytsite import logger as _logger, reg as _reg
 from . import _error
 from ._driver import Abstract as _AbstractDriver
 from ._pool import Pool as _Pool
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 _current_driver = None  # type: _AbstractDriver
 _pools = {}  # type: _Dict[str, _Pool]

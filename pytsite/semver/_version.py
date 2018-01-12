@@ -1,11 +1,11 @@
 """PytSite Semver Version
 """
-from typing import SupportsInt as _SupportsInt, List as _List, Union as _Union
-from . import _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from typing import SupportsInt as _SupportsInt, List as _List, Union as _Union
+from . import _error
 
 
 class Version(_SupportsInt):

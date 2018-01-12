@@ -26,7 +26,7 @@ from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
 from urllib import request as _urllib_request
-from pytsite import semver as _semver
+from pytsite import semver as _semver, package_info as _package_info, reg as _reg
 from . import _error
 
 _HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
@@ -40,6 +40,7 @@ _URL_RE = _re.compile('^(?:http|ftp)s?://'  # Scheme
                       '(?::\d+)?'  # optional port
                       '(?:/?|[/?]\S+)$', _re.IGNORECASE)
 
+_installed_pip_packages = {}  # Installed pip packages cache
 
 class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
     def __init__(self, safe_tags: str = None):
@@ -658,12 +659,20 @@ def get_installed_pip_package_version(pkg_name: str) -> str:
 def is_pip_package_installed(pkg_spec: str) -> bool:
     """Check if the pip package installed
     """
+    global _installed_pip_packages
+
+    if pkg_spec in _installed_pip_packages:
+        return _installed_pip_packages[pkg_spec]
+
     pkg_name, version_req = _semver.parse_requirement_str(pkg_spec)
 
     try:
-        return _semver.check_conditions(get_installed_pip_package_version(pkg_name), version_req)
+        r = _semver.check_conditions(get_installed_pip_package_version(pkg_name), version_req)
+        _installed_pip_packages[pkg_spec] = r
+        return r
 
     except _error.PipPackageNotInstalled:
+        _installed_pip_packages[pkg_spec] = False
         return False
 
 
@@ -693,3 +702,24 @@ def cleanup_files(root_path: str, ttl: int) -> tuple:
                 _rmdir(d_path)
 
     return success, failed
+
+
+def check_package_requirements(pkg_name: str):
+    # Check for required PytSite version
+    req_ps_ver = _package_info.requires_pytsite(pkg_name)
+    if not _semver.check_conditions(_package_info.version('pytsite'), req_ps_ver):
+        req_ps_cond = _semver.parse_condition_str(req_ps_ver)
+        raise _error.PytSiteVersionNotInstalled("{}{}".format(req_ps_cond[0], str(req_ps_cond[1])))
+
+    # Check for required pip packages
+    for req_pkg_spec in _package_info.requires_packages(pkg_name):
+        if not is_pip_package_installed(req_pkg_spec):
+            req_pkg_cond = _semver.parse_requirement_str(req_pkg_spec)
+            raise _error.PipPackageNotInstalled('{}{}'.format(req_pkg_cond[0], req_pkg_cond[1]))
+
+    # Check for required plugins
+    from pytsite import plugman
+    for req_plugin_spec in _package_info.requires_plugins(pkg_name):
+        if not plugman.is_installed(req_plugin_spec):
+            req_plugin_cond = _semver.parse_requirement_str(req_plugin_spec)
+            raise _error.PluginNotInstalled('{}{}'.format(req_plugin_cond[0], req_plugin_cond[1]))

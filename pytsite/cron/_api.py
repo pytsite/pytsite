@@ -1,10 +1,10 @@
 """PytSite Cron API
 """
-from pytsite import events as _events
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import events as _events
 
 
 def every_min(handler, priority: int = 0):

@@ -1,6 +1,21 @@
 # PytSite 6 Changelog
 
 
+## 7.5 (2018-01-12)
+
+### Added
+
+- `core`: exceptions handling in application init code.
+- `cron`: support for maintenance mode.
+- `maintenance`: support for multiprocess environment.
+- `plugman`: plugins update hook.
+
+### Changed
+
+- `plugman`: dependencies management improved.
+
+
+
 ## 7.4.2 (2018-01-08)
 
 ### Added

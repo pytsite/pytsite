@@ -15,7 +15,7 @@ def _init():
     from os import path, environ
     from getpass import getuser
     from socket import gethostname
-    from . import reg, package_info
+    from . import reg, package_info, semver
 
     # Load regisrty memory driver
     reg.set_driver(reg.driver.Memory())
@@ -60,7 +60,6 @@ def _init():
 
     # Additional filesystem paths
     reg.put('paths.session', path.join(reg.get('paths.storage'), 'session'))
-    reg.put('paths.maintenance_lock', path.join(reg.get('paths.storage'), 'maintenance.lock'))
 
     # Debug is disabled by default
     reg.put('debug', False)
@@ -84,7 +83,7 @@ def _init():
     logger.info('---===[ PytSite-{} Started ]===---'.format(package_info.version('pytsite')))
 
     # Initialize rest of the system
-    from pytsite import console
+    from pytsite import console, util
     try:
         # Initialize cache with default driver
         from pytsite import cache
@@ -99,8 +98,12 @@ def _init():
             from pytsite import lang
             lang.register_package('app', 'lang')
 
-        # Load 'app' package
-        import_module('app')
+        from pytsite import plugman
+        try:
+            util.check_package_requirements('app')
+            import_module('app')
+        except (util.error.Error, plugman.error.Error) as e:
+            raise Warning('Application init error: {}'.format(e))
 
     except Warning as e:
         console.print_warning(e)

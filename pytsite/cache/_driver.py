@@ -1,5 +1,9 @@
 """PytSite Abstract Cache Driver
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from typing import Any as _Any, Mapping as _Mapping, List as _List
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from os import path as _path, unlink as _unlink, makedirs as _makedirs, walk as _walk
@@ -8,10 +12,6 @@ from pickle import dumps as _pickle_dump, loads as _pickle_load
 from time import time as _time
 from pytsite import reg as _reg, util as _util
 from . import _error
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 
 class Abstract(_ABC):

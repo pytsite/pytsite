@@ -14,3 +14,4 @@ plugins_not_specified: 'Не указаны имена плагин'
 plugin_has_dependant_plugins: "От плагина ':plugin' зависят плагины :dependants"
 plugin_requires_pip_package: "Плагин ':plugin' зависит от pip-пакета ':pip_package'"
 plugin_requires_plugin: "Плагин ':plugin' зависит от плагина ':dependency'"
+run_plugin_update_hook: "Обновление плагина ':plugin': :version_from -> :version_to"

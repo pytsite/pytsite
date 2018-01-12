@@ -1,18 +1,17 @@
 """PytSite Router API
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import re as _re
 from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Mapping, Optional as _Optional, \
     Type as _Type
-from os import path as _path
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, events as _events, routing as _routing, errors as _errors
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
+    threading as _threading, events as _events, routing as _routing, errors as _errors, maintenance as _maintenance
 
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 
@@ -129,7 +128,7 @@ def dispatch(env: dict, start_response: callable):
     tid = _threading.get_id()
 
     # Check maintenance mode status
-    if _path.exists(_reg.get('paths.maintenance_lock')):
+    if _maintenance.is_enabled():
         wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
                                                 status=503, content_type='text/html')
         return wsgi_response(env, start_response)

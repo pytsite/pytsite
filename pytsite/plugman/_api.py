@@ -7,8 +7,9 @@ __license__ = 'MIT'
 import zipfile as _zipfile
 import requests as _requests
 import json as _json
+import pickle as _pickle
 from typing import Type as _Type, Union as _Union, Dict as _Dict
-from os import listdir as _listdir, path as _path, mkdir as _mkdir, unlink as _unlink, rename as _rename
+from os import listdir as _listdir, path as _path, makedirs as _makedirs, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module, reload as _reload_module
 from urllib.request import urlretrieve as _urlretrieve
@@ -24,9 +25,11 @@ _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
 _DEBUG = _reg.get('plugman.debug', False)
+_UPDATE_INFO_PATH = _path.join(_reg.get('paths.storage'), 'plugman.update')
 
 _loading = {}  # type: _Dict[str, str]
 _loaded = {}  # type: _Dict[str, _Type]
+_faulty = []
 _installing = []
 _uninstalling = []
 _required = set()
@@ -187,7 +190,7 @@ def get(plugin_name: str) -> object:
 def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -> object:
     """Load a plugin
     """
-    global _required, _loaded, _loading, _installing
+    global _required, _loaded, _loading, _installing, _faulty
 
     # Multiple load requested
     if isinstance(plugin_spec, (list, tuple)):
@@ -195,44 +198,49 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
             load(p_spec)
 
     # Normalize plugin spec
-    plugin_name, version_req = _semver.parse_requirement_str(plugin_spec)
-    plugin_name = _sanitize_plugin_name(plugin_name)
-    plugin_spec = '{}{}'.format(plugin_name, version_req)
+    p_name, version_req = _semver.parse_requirement_str(plugin_spec)
+    p_name = _sanitize_plugin_name(p_name)
+    plugin_spec = '{}{}'.format(p_name, version_req)
+
+    # Check if plugin is not faulty
+    if p_name in _faulty:
+        raise _error.PluginLoadError("Plugin '{}' marked as faulty and cannot be loaded".format(p_name))
 
     # Check if the plugin installed
     if not is_installed(plugin_spec):
         raise _error.PluginNotInstalled(plugin_spec, _required_by_spec)
 
     # Check if the plugin is already loaded
-    if plugin_name in _loaded:
+    if p_name in _loaded:
         if _DEBUG:
-            _logger.debug("Plugin '{}' already loaded".format(plugin_name))
-        return _loaded[plugin_name]
+            _logger.debug("Plugin '{}' already loaded".format(p_name))
+        return _loaded[p_name]
 
-    # Checking for circular dependency
-    if plugin_name in _loading:
-        raise _error.CircularDependencyError(plugin_name, _loading[plugin_name])
+    # Check for circular dependency
+    if p_name in _loading:
+        raise _error.CircularDependencyError(p_name, _loading[p_name])
 
     # Get info about plugin, but NOT actually load it
-    p_info = local_plugin_info(plugin_name)
+    p_info = local_plugin_info(p_name)
+    p_version = p_info['version']
 
     # Mark plugin as loading
-    _loading[plugin_name] = _required_by_spec
-
-    # Load required plugins
-    for req_plugin_spec_str in p_info['requires']['plugins']:
-        req_plugin_spec = _semver.parse_requirement_str(req_plugin_spec_str)
-        _required.add(req_plugin_spec[0])
-        if _DEBUG:
-            _logger.debug("Plugin '{}-{}' requires '{}{}'".format(plugin_name, p_info['version'],
-                                                                  req_plugin_spec[0], req_plugin_spec[1]))
-        load(req_plugin_spec_str, '{}-{}'.format(plugin_name, p_info['version']))
+    _loading[p_name] = _required_by_spec
 
     try:
-        plugin_module_name = _PLUGINS_PACKAGE_NAME + '.' + plugin_name
+        # Load required plugins
+        for req_plugin_spec_str in p_info['requires']['plugins']:
+            req_p_spec = _semver.parse_requirement_str(req_plugin_spec_str)
+            _required.add(req_p_spec[0])
+            if _DEBUG:
+                _logger.debug("Plugin '{}-{}' requires '{}{}'".format(p_name, p_version, req_p_spec[0], req_p_spec[1]))
+            try:
+                load(req_plugin_spec_str, '{}-{}'.format(p_name, p_version))
+            except _error.PluginLoadError as e:
+                raise _error.PluginLoadError('Error while loading dependency for {}: {}'.format(plugin_spec, e))
 
         # Import plugin's package
-        mod = _import_module(plugin_module_name)
+        mod = _import_module(_PLUGINS_PACKAGE_NAME + '.' + p_name)
 
         # plugin_load() hook
         if hasattr(mod, 'plugin_load') and callable(mod.plugin_load):
@@ -245,18 +253,18 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
             if hasattr(mod, env_hook_f_name) and env_type in ('testing', env_hook):
                 getattr(mod, env_hook_f_name)()
 
-        _loaded[plugin_name] = mod
+        _loaded[p_name] = mod
         if _DEBUG:
-            _logger.debug("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
+            _logger.debug("Plugin '{}-{}' loaded".format(p_name, p_info['version']))
 
         return mod
 
     except Exception as e:
-        raise _error.PluginLoadError("Error while loading plugin '{}-{}': {}".
-                                     format(plugin_name, p_info['version'], e))
+        _faulty.append(p_name)
+        raise _error.PluginLoadError("Error while loading plugin {}: {}".format(plugin_spec, e))
 
     finally:
-        del _loading[plugin_name]
+        del _loading[p_name]
 
 
 def get_dependant_plugins(plugin_name: str) -> list:
@@ -317,6 +325,7 @@ def install(plugin_spec: str) -> int:
         # Update plugin
         l_plugin_info = local_plugin_info(plugin_name)
         if l_plugin_info['version'] != ver_to_install:
+            _set_update_info(plugin_name, l_plugin_info['version'])
             uninstall(plugin_name, True)
         else:
             # Necessary version is already installed, nothing to do
@@ -340,7 +349,7 @@ def install(plugin_spec: str) -> int:
         # Create temporary directory to store plugin's content
         tmp_dir_path = _path.join(_reg.get('paths.tmp'), 'plugman')
         if not _path.exists(tmp_dir_path):
-            _mkdir(tmp_dir_path, 0o755)
+            _makedirs(tmp_dir_path, 0o755, True)
 
         # Prepare all necessary data
         zip_url = p_remote_info['zip_url']
@@ -382,6 +391,11 @@ def install(plugin_spec: str) -> int:
         # Get unpacked plugin info
         l_plugin_info = local_plugin_info(plugin_name)
 
+        # Check for PytSite version
+        if not _semver.check_conditions(_package_info.version('pytsite'), l_plugin_info['requires']['pytsite']):
+            raise _error.PluginInstallError("Plugin '{}-{}' requires PytSite{}".format(
+                plugin_name, l_plugin_info['version'], l_plugin_info['requires']['pytsite']))
+
         # Install required pip packages
         for pip_pkg_spec in l_plugin_info['requires']['packages']:
             _console.print_info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
@@ -418,6 +432,19 @@ def install(plugin_spec: str) -> int:
 
         # Load plugin
         load(plugin_name)
+
+        # Run plugin update tasks
+        update_data = _get_update_info(plugin_name)
+        if update_data and hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
+            _console.print_info(_lang.t('pytsite.plugman@run_plugin_update_hook', {
+                'plugin': plugin_name,
+                'version_from': update_data['version_from'],
+                'version_to': ver_to_install,
+            }))
+            v_from = _semver.parse_version_str(update_data['version_from'])
+            plugin.plugin_update(v_from)
+            _events.fire('pytsite.plugman@update', name=plugin_name, version_from=v_from)
+            _rm_update_info(plugin_name)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
@@ -507,3 +534,44 @@ def on_uninstall(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('pytsite.plugman@uninstall', handler, priority)
+
+
+def _get_update_info(plugin_name: str = None) -> dict:
+    if not _path.exists(_UPDATE_INFO_PATH):
+        with open(_UPDATE_INFO_PATH, 'wb') as f:
+            d = {}
+            _pickle.dump(d, f)
+            return d
+
+    with open(_UPDATE_INFO_PATH, 'rb') as f:
+        d = _pickle.load(f)
+
+    return d.get(plugin_name) if plugin_name else d
+
+
+def _set_update_info(plugin_name: str, version_from):
+    d = _get_update_info()
+
+    if plugin_name not in d:
+        d[plugin_name] = {
+            'version_from': version_from,
+        }
+
+    else:
+        if version_from:
+            d[plugin_name]['version_from'] = str(_semver.parse_version_str(version_from))
+
+    with open(_UPDATE_INFO_PATH, 'wb') as f:
+        _pickle.dump(d, f)
+
+
+def _rm_update_info(plugin_name: str):
+    d = _get_update_info()
+
+    if plugin_name not in d:
+        return
+
+    del d[plugin_name]
+
+    with open(_UPDATE_INFO_PATH, 'wb') as f:
+        _pickle.dump(d, f)

@@ -97,6 +97,9 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     req = json_data.setdefault('requires', defaults.get('requires'))
     if not (req and isinstance(req, dict)):
         json_data['requires'] = req = {'packages': [], 'plugins': []}
+    req_pytsite = req.get('pytsite')
+    if not (req_pytsite and isinstance(req_pytsite, str)):
+        json_data['requires']['pytsite'] = '>=0.0.1'
     req_packages = req.get('packages')
     if not (req_packages and isinstance(req_packages, list)):
         json_data['requires']['packages'] = []
@@ -165,6 +168,11 @@ def requires(package_name_or_json_path: str) -> _Dict[str, _List[str]]:
     """
     return data(package_name_or_json_path, 'requires')
 
+
+def requires_pytsite(package_name_or_json_path: str) -> str:
+    """Shortcut
+    """
+    return data(package_name_or_json_path, 'requires')['pytsite']
 
 def requires_packages(package_name_or_json_path: str) -> _List[str]:
     """Shortcut
