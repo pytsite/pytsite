@@ -127,8 +127,7 @@ class File(Abstract):
 
     def _get_key_path(self, pool: str, key: str) -> str:
         h = _util.md5_hex_digest(key)
-
-        return _path.join(self._path, self._server_name, pool, h[:2], h[2:4], key)
+        return _path.join(self._path, self._server_name, pool, h[:2], h[2:4], key.replace(_path.sep, '.'))
 
     def _get_key_dir(self, pool: str, key: str) -> str:
         return _path.dirname(self._get_key_path(pool, key))

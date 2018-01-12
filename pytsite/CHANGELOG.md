@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.5.1 (2018-01-12)
+
+### Fixed
+
+- `cache`: error in file driver.
+
+
 ## 7.5 (2018-01-12)
 
 ### Added
