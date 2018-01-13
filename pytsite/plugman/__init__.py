@@ -7,6 +7,7 @@ __license__ = 'MIT'
 # Public API
 from sys import meta_path as _meta_path
 from os import path as _path
+from pytsite import maintenance as _maintenance
 from . import _error as error
 from ._api import plugins_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
     local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
@@ -53,15 +54,21 @@ def _init():
     _meta_path.insert(0, _MetaPathHook())
 
     # Load installed plugins
-    for p_name in plugins_info_seq:
-        if p_name.startswith('_'):
-            continue
+    try:
+        _maintenance.enable(True)
+        
+        for p_name in plugins_info_seq:
+            if p_name.startswith('_'):
+                continue
 
-        try:
-            if not is_loaded(p_name):
-                load(p_name)
-        except (error.PluginLoadError, error.PluginNotInstalled) as e:
-            console.print_warning(e)
+            try:
+                if not is_loaded(p_name):
+                    load(p_name)
+            except (error.PluginLoadError, error.PluginNotInstalled) as e:
+                console.print_warning(e)
+
+    finally:
+        _maintenance.disable(True)
 
     # Event handlers
     update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))

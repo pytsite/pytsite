@@ -102,7 +102,7 @@ def _init():
         try:
             util.check_package_requirements('app')
             import_module('app')
-        except (util.error.Error, plugman.error.Error) as e:
+        except util.error.Error as e:
             raise Warning('Application init error: {}'.format(e))
 
     except Warning as e:

@@ -235,15 +235,15 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         plugin = _import_module(_PLUGINS_PACKAGE_NAME + '.' + p_name)
 
         # Run plugin update tasks
-        update_data = _get_install_update_info(p_name)
-        if update_data:
+        iu_info = _get_install_update_info(p_name)
+        if iu_info:
             # Call installation hooks
             if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
                 plugin.plugin_install()
             _events.fire('pytsite.plugman@install', name=p_name)
 
             if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
-                v_from = _semver.parse_version_str(update_data['version_from'])
+                v_from = _semver.parse_version_str(iu_info['version_from'])
                 _console.print_info(_lang.t('pytsite.plugman@run_plugin_update_hook', {
                     'plugin': p_name,
                     'version_from': v_from,

@@ -15,17 +15,19 @@ def is_enabled() -> bool:
     return _cache_pool.has('enabled')
 
 
-def enable():
+def enable(silent: bool = False):
     """Enable maintenance mode.
     """
     if not is_enabled():
         _cache_pool.put('enabled', True)
-        _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_enabled'))
+        if not silent:
+            _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_enabled'))
 
 
-def disable():
+def disable(silent: bool = False):
     """Disable maintenance mode.
     """
     if is_enabled():
         _cache_pool.rm('enabled')
-        _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_disabled'))
+        if not silent:
+            _console.print_success(_lang.t('pytsite.maintenance@maintenance_mode_disabled'))

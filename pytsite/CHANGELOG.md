@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.5.6 (2018-01-13)
+
+- `plugman`: maintenance mode during loading of plugins at start.
+
+
 ## 7.5.5 (2018-01-13)
 
 - `plugman`: plugins upgrading issues fixed.
