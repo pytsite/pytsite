@@ -9,6 +9,7 @@ import re as _re
 import pytz as _pytz
 import json as _json
 import subprocess as _subprocess
+from importlib import reload as _importlib_reload
 from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk, listdir as _listdir, \
     rmdir as _rmdir
 from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
@@ -26,7 +27,7 @@ from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
 from urllib import request as _urllib_request
-from pytsite import semver as _semver, package_info as _package_info, reg as _reg
+from pytsite import semver as _semver, package_info as _package_info
 from . import _error
 
 _HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
@@ -41,6 +42,7 @@ _URL_RE = _re.compile('^(?:http|ftp)s?://'  # Scheme
                       '(?:/?|[/?]\S+)$', _re.IGNORECASE)
 
 _installed_pip_packages = {}  # Installed pip packages cache
+
 
 class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
     def __init__(self, safe_tags: str = None):
@@ -723,3 +725,40 @@ def check_package_requirements(pkg_name: str):
         if not plugman.is_installed(req_plugin_spec):
             req_plugin_cond = _semver.parse_requirement_str(req_plugin_spec)
             raise _error.PluginNotInstalled('{}{}'.format(req_plugin_cond[0], req_plugin_cond[1]))
+
+
+def reload_module(module, _package: str = None, _reloaded: list = None):
+    """Recursively reload a module
+    """
+    if not hasattr(module, '__package__'):
+        raise TypeError('Is not a module: {}'.format(module))
+
+    if not _package:
+        _package = module.__package__
+
+    if not _reloaded:
+        _reloaded = []
+
+    mod_id = id(module)
+
+    if mod_id in _reloaded:
+        return
+
+    # Reload the module
+    _reloaded.append(mod_id)
+    _importlib_reload(module)
+
+    # Reload submodules
+    for attr_name in dir(module):
+        attr = getattr(module, attr_name)
+
+        # Attribute is not a module
+        if not hasattr(attr, '__package__'):
+            continue
+
+        # Module is not belongs to the current package
+        if not attr.__package__.startswith(_package):
+            continue
+
+        # Module is a package
+        reload_module(attr, _package, _reloaded)

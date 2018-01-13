@@ -11,7 +11,7 @@ import pickle as _pickle
 from typing import Type as _Type, Union as _Union, Dict as _Dict
 from os import listdir as _listdir, path as _path, makedirs as _makedirs, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
-from importlib import import_module as _import_module, reload as _reload_module
+from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
 from datetime import datetime as _datetime
 from pytsite import reg as _reg, logger as _logger, lang as _lang, util as _util, router as _router, \
@@ -261,7 +261,7 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
 
     except Exception as e:
         _faulty.append(p_name)
-        raise _error.PluginLoadError("Error while loading plugin {}: {}".format(plugin_spec, e))
+        raise _error.PluginLoadError("Error while loading plugin {}: {}".format(p_name, e))
 
     finally:
         del _loading[p_name]
@@ -421,7 +421,7 @@ def install(plugin_spec: str) -> int:
         # (Re)load plugin's module
         plugin = _import_module('plugins.{}'.format(plugin_name))
         if update_data:
-            _reload_module(plugin)
+            _util.reload_module(plugin)
 
         # Call installation hooks
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
@@ -433,7 +433,7 @@ def install(plugin_spec: str) -> int:
             f.write(str(_datetime.now()))
 
         # Reload plugin module after installation hooks processed
-        _reload_module(plugin)
+        _util.reload_module(plugin)
 
         # Fully load the plugin
         load(plugin_name)

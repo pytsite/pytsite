@@ -1,6 +1,13 @@
 # PytSite 6 Changelog
 
 
+## 7.5.3 (2018-01-13)
+
+### Fixed
+
+- `plugman`: plugins upgrading issues.
+
+
 ## 7.5.2 (2018-01-12)
 
 ### Fixed

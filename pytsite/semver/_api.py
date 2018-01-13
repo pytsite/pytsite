@@ -10,8 +10,7 @@ from . import _error
 from ._version import Version as _Version
 
 _REQUIREMENT_RE = _re.compile('([a-zA-Z0-9_.\-]+)\s*(==|!=|<=|>=|>|<)?\s*(\d+\.\d+\.\d+|\d+\.\d+|\d+)?')
-_CONDITION_RE = _re.compile('^([<>=!]{1,2})?([0-9.]+)$')
-_ALLOWED_OPERATORS = ('==', '!=', '>', '<', '>=', '<=')
+_CONDITION_RE = _re.compile('^(==|!=|<=|>=|>|<)?([0-9.]+)$')
 
 
 def parse_condition_str(condition: str) -> _Tuple[str, _Version]:
@@ -27,10 +26,6 @@ def parse_condition_str(condition: str) -> _Tuple[str, _Version]:
 
     operator = match.group(1) or '=='
     version = match.group(2)
-
-    if operator not in _ALLOWED_OPERATORS:
-        raise _error.InvalidComparisonOperator("Unknown comparison operator '{}' used in condition '{}'".
-                                               format(operator, version))
 
     return operator, _Version(version)
 
