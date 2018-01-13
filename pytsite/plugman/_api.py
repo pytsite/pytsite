@@ -429,8 +429,7 @@ def install(plugin_spec: str) -> int:
                 installed_count += install(req_plugin_spec)
 
         # Plan to call installation hooks for next application start
-        iu_info = _get_install_update_info(plugin_name)
-        if plugin_name not in iu_info:
+        if not _get_install_update_info(plugin_name):
             _set_install_update_info(plugin_name, '0.0.1')
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {

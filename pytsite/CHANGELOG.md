@@ -1,32 +1,29 @@
-# PytSite 6 Changelog
+# PytSite 7 Changelog
+
+
+## 7.5.5 (2018-01-13)
+
+- `plugman`: plugins upgrading issues fixed.
 
 
 ## 7.5.4 (2018-01-13)
 
-### Fixed
-
-- `plugman`: plugins upgrading issues.
+- `plugman`: plugins upgrading issues fixed.
 
 
 ## 7.5.3 (2018-01-13)
 
-### Fixed
-
-- `plugman`: plugins upgrading issues.
+- `plugman`: plugins upgrading issues fixed.
 
 
 ## 7.5.2 (2018-01-12)
 
-### Fixed
-
-- `plugman`: plugins upgrading issues.
+- `plugman`: plugins upgrading issues fixed.
 
 
 ## 7.5.1 (2018-01-12)
 
-### Fixed
-
-- `cache`: error in file driver.
+- `plugman`: plugins upgrading issues fixed.
 
 
 ## 7.5 (2018-01-12)
@@ -43,41 +40,23 @@
 - `plugman`: dependencies management improved.
 
 
-
 ## 7.4.2 (2018-01-08)
 
-### Added
-
-- `core`: new environment type: **testing**.
-- `plugman`: new method: `get()`.
+- `core`: new environment type: **testing** added.
+- `plugman`: new method: `get()` added.
 
 
 ## 7.4.1 (2018-01-04)
 
-### Changed
-
 - `util`: `remove_obsolete_files()` renamed to `cleanup_files()`.
-
-### Fixed
-
 - `log`: default log file's TTL increased from 1 day to 30 days.
 
 
 ## 7.4 (2018-01-03)
 
-### Added
-
-- `util`: empty directories check in `remove_obsolete_files()`.
-
-
-### Changed
-
+- `util`: empty directories check in `remove_obsolete_files()` added.
 - `plugman`: fixed numerous errors and refactored.
-
-
-### Fixed
-
-- `cache`: dependency from `cron`.
+- `cache`: dependency from `cron` fixed.
 
 
 ## 7.3 (2018-01-02)
@@ -93,52 +72,38 @@
 
 ## 7.2.8 (2017-12-29)
 
-### Changed
-
-- `cache`: signature of `driver.Abstract.get_hash_item()`.
+- `cache`: signature of `driver.Abstract.get_hash_item()` changed.
 
 
 ## 7.2.7 (2017-12-22)
 
-### Fixed
-
-- `plugman`: pip dependencies installation error.
+- `plugman`: pip dependencies installation error fixed.
 
 
 ## 7.2.6 (2017-12-22)
 
-### Fixed
-
-- `update`: automatic application's dependencies update.
+- `update`: automatic application's dependencies update fixed.
 
 
 ## 7.2.5 (2017-12-21)
 
-### Fixed
-
-- `mongodb`: using exception instead of printing warning.
-- `plugman`: automatic loading plugin after installation.
+- `mongodb`: using exception instead of printing warning fixed.
+- `plugman`: automatic loading plugin after installation fixed.
 
 
 ## 7.2.4 (2017-12-20)
 
-### Fixed
-
-- `plugman`: exception handling while plugins loading.
+- `plugman`: exception handling while plugins loading fixed.
 
 
 ## 7.2.3 (2017-12-20)
 
-### Fixed
-
-- `plugman`: plugin's module reloading while installation.
+- `plugman`: plugin's module reloading while installation fixed.
 
 
 ## 7.2.2 (2017-12-19)
 
-### Fixed
-
-- `router`: `call()`'s arguments management.
+- `router`: `call()`'s arguments management fixed.
 
 
 ## 7.2.1 (2017-12-19)
@@ -166,16 +131,13 @@
 
 ## 7.1.1 (2017-12-14)
 
-### Fixed
-
-- `router`: filters processing.
+- `router`: filters processing fixed.
 
 
 ## 7.1 (2017-12-14)
 
-### Changed
-
-- `routing`: `Controller`'s and `ControllerArgs`'s constructors' signatures.
+- `routing`: `Controller`'s and `ControllerArgs`'s constructors'
+  signatures changed.
 
 
 ## 7.0 (2017-12-13)
