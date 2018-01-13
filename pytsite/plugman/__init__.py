@@ -18,9 +18,7 @@ class _MetaPathHook:
         name_s = name.split('.')
         if name_s[0] == 'plugins' and len(name_s) == 2 and not is_installing(name_s[1]):
             # Check if the plugin installed
-            p_path = plugin_path(name_s[1])
-            search_for = p_path if is_dev_mode() else _path.join(p_path, 'installed')
-            if not _path.exists(search_for):
+            if not is_installed(name_s[1]):
                 raise error.PluginNotInstalled(name_s[1])
 
             # Check if the plugin loaded
