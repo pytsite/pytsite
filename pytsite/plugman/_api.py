@@ -487,7 +487,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
         }))
 
         # Notify about plugin uninstall
-        plugin = _import_module('plugins.' + plugin_name)
+        plugin = get(plugin_name)
         if hasattr(plugin, 'plugin_uninstall') and callable(plugin.plugin_uninstall):
             plugin.plugin_uninstall()
         _events.fire('pytsite.plugman@uninstall', name=plugin_name)
