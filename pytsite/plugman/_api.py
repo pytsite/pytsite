@@ -234,6 +234,10 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         # Import plugin's package
         plugin = _import_module(_PLUGINS_PACKAGE_NAME + '.' + p_name)
 
+        # plugin_load() hook
+        if hasattr(plugin, 'plugin_load') and callable(plugin.plugin_load):
+            plugin.plugin_load()
+
         # Run plugin update tasks
         iu_info = _get_install_update_info(p_name)
         if iu_info:
@@ -254,10 +258,6 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
                 _events.fire('pytsite.plugman@update', name=p_name, version_from=v_from)
 
             _rm_update_info(p_name)
-
-        # plugin_load() hook
-        if hasattr(plugin, 'plugin_load') and callable(plugin.plugin_load):
-            plugin.plugin_load()
 
         # plugin_load_{env.type}() hook
         env_type = _reg.get('env.type')

@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.5.8 (2018-01-15)
+
+- `plugman`: `plugin_update()` hook's call order changed.
+
+
 ## 7.5.7 (2018-01-13)
 
 - `plugman`: typo fixed.
