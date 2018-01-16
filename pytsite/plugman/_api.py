@@ -88,7 +88,7 @@ def plugins_path() -> str:
     return _PLUGINS_PATH
 
 
-def local_plugin_info(plugin_name: str) -> dict:
+def local_plugin_info(plugin_name: str, use_cache: bool = True) -> dict:
     """Get information about local plugin
     """
     try:
@@ -97,20 +97,20 @@ def local_plugin_info(plugin_name: str) -> dict:
         return _package_info.data(plugin_json_path(plugin_name), defaults={
             'name': 'plugins.{}'.format(plugin_name),
             'version': '0.0.1',
-        })
+        }, use_cache=use_cache)
 
     except _package_info.error.PackageNotFound:
         raise _error.PluginPackageNotFound(plugin_name)
 
 
-def local_plugins_info() -> dict:
+def local_plugins_info(use_cache: bool = True) -> dict:
     """Get information about local plugins
     """
     r = {}
     for plugin_name in _listdir(_PLUGINS_PATH):
-        plugin_path = _path.join(_PLUGINS_PATH, plugin_name)
-        if _path.isdir(plugin_path) and not (plugin_name.startswith('.') or plugin_name.startswith('_')):
-            r[plugin_name] = local_plugin_info(plugin_name)
+        p_path = _path.join(_PLUGINS_PATH, plugin_name)
+        if _path.isdir(p_path) and not (plugin_name.startswith('.') or plugin_name.startswith('_')):
+            r[plugin_name] = local_plugin_info(plugin_name, use_cache)
 
     return r
 
@@ -238,27 +238,6 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         if hasattr(plugin, 'plugin_load') and callable(plugin.plugin_load):
             plugin.plugin_load()
 
-        # Run plugin update tasks
-        iu_info = _get_install_update_info(p_name)
-        if iu_info:
-            # Call installation hooks
-            if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
-                plugin.plugin_install()
-            _events.fire('pytsite.plugman@install', name=p_name)
-
-            if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
-                v_from = _semver.parse_version_str(iu_info['version_from'])
-                _console.print_info(_lang.t('pytsite.plugman@run_plugin_update_hook', {
-                    'plugin': p_name,
-                    'version_from': v_from,
-                    'version_to': p_version,
-                }))
-
-                plugin.plugin_update(v_from)
-                _events.fire('pytsite.plugman@update', name=p_name, version_from=v_from)
-
-            _rm_update_info(p_name)
-
         # plugin_load_{env.type}() hook
         env_type = _reg.get('env.type')
         for env_hook in ('console', 'uwsgi'):
@@ -269,6 +248,17 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         _loaded[p_name] = plugin
         if _DEBUG:
             _logger.debug("Plugin '{}-{}' loaded".format(p_name, p_info['version']))
+
+        # Run plugin install and update (stage 1) tasks
+        upd_info = get_update_info(p_name)
+        if upd_info:
+            # Installation hooks
+            if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
+                plugin.plugin_install()
+            _events.fire('pytsite.plugman@install', name=p_name)
+
+            # Update hook, stage 1
+            run_update_hooks(1, p_name, upd_info['version_from'], upd_info['version_to'])
 
         return plugin
 
@@ -335,10 +325,10 @@ def install(plugin_spec: str) -> int:
 
     # Check if the plugin is already installed
     try:
-        # Plan plugin update for next application start
-        l_plugin_info = local_plugin_info(plugin_name)
+        # Schedule plugin update for next application start
+        l_plugin_info = local_plugin_info(plugin_name, False)
         if l_plugin_info['version'] != ver_to_install:
-            _set_install_update_info(plugin_name, l_plugin_info['version'])
+            _set_update_info(plugin_name, l_plugin_info['version'], ver_to_install)
             uninstall(plugin_name, True)
         else:
             # Necessary version is already installed, nothing to do
@@ -402,7 +392,7 @@ def install(plugin_spec: str) -> int:
                 _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
 
         # Get unpacked plugin info
-        l_plugin_info = local_plugin_info(plugin_name)
+        l_plugin_info = local_plugin_info(plugin_name, False)
 
         # Check for PytSite version
         if not _semver.check_conditions(_package_info.version('pytsite'), l_plugin_info['requires']['pytsite']):
@@ -429,8 +419,8 @@ def install(plugin_spec: str) -> int:
                 installed_count += install(req_plugin_spec)
 
         # Plan to call installation hooks for next application start
-        if not _get_install_update_info(plugin_name):
-            _set_install_update_info(plugin_name, '0.0.1')
+        if not get_update_info(plugin_name):
+            _set_update_info(plugin_name, '0.0.1', ver_to_install)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
@@ -481,16 +471,21 @@ def uninstall(plugin_name: str, update_mode: bool = False):
     try:
         _uninstalling.append(plugin_name)
 
-        plugin_version = local_plugin_info(plugin_name)['version']
+        plugin_version = local_plugin_info(plugin_name, False)['version']
         _console.print_info(_lang.t('pytsite.plugman@uninstalling_plugin', {
             'plugin': '{}-{}'.format(plugin_name, plugin_version)
         }))
 
         # Notify about plugin uninstall
-        plugin = get(plugin_name)
-        if hasattr(plugin, 'plugin_uninstall') and callable(plugin.plugin_uninstall):
-            plugin.plugin_uninstall()
-        _events.fire('pytsite.plugman@uninstall', name=plugin_name)
+        try:
+            plugin = get(plugin_name)
+            if hasattr(plugin, 'plugin_uninstall') and callable(plugin.plugin_uninstall):
+                plugin.plugin_uninstall()
+            _events.fire('pytsite.plugman@uninstall', name=plugin_name)
+
+        # Plugin may not be loaded due errors during its startup
+        except _error.PluginNotLoaded:
+            pass
 
         # Delete plugin's files
         _rmtree(plugin_path(plugin_name))
@@ -522,37 +517,36 @@ def on_uninstall(handler, priority: int = 0):
     _events.listen('pytsite.plugman@uninstall', handler, priority)
 
 
-def _get_install_update_info(plugin_name: str = None) -> dict:
-    if not _path.exists(_UPDATE_INFO_PATH):
-        with open(_UPDATE_INFO_PATH, 'wb') as f:
-            d = {}
-            _pickle.dump(d, f)
-            return d
+def get_update_info(plugin_name: str = None) -> dict:
+    def dump_default_file():
+        with open(_UPDATE_INFO_PATH, 'wb') as _f:
+            _d = {}
+            _pickle.dump(_d, _f)
+        return _d
 
-    with open(_UPDATE_INFO_PATH, 'rb') as f:
-        d = _pickle.load(f)
+    if not _path.exists(_UPDATE_INFO_PATH):
+        d = dump_default_file()
+    else:
+        with open(_UPDATE_INFO_PATH, 'rb') as f:
+            d = _pickle.load(f)
 
     return d.get(plugin_name) if plugin_name else d
 
 
-def _set_install_update_info(plugin_name: str, version_from):
-    d = _get_install_update_info()
+def _set_update_info(plugin_name: str, version_from: str, version_to: str):
+    d = get_update_info()
 
-    if plugin_name not in d:
-        d[plugin_name] = {
-            'version_from': version_from,
-        }
-
-    else:
-        if version_from:
-            d[plugin_name]['version_from'] = str(_semver.parse_version_str(version_from))
+    d[plugin_name] = {
+        'version_from': version_from,
+        'version_to': version_to,
+    }
 
     with open(_UPDATE_INFO_PATH, 'wb') as f:
         _pickle.dump(d, f)
 
 
-def _rm_update_info(plugin_name: str):
-    d = _get_install_update_info()
+def rm_update_info(plugin_name: str):
+    d = get_update_info()
 
     if plugin_name not in d:
         return
@@ -561,3 +555,27 @@ def _rm_update_info(plugin_name: str):
 
     with open(_UPDATE_INFO_PATH, 'wb') as f:
         _pickle.dump(d, f)
+
+
+def run_update_hooks(stage: int, plugin_name: str, version_from: str, version_to: str):
+    if stage not in (1, 2):
+        raise RuntimeError('Invalid stage: {}'.format(stage))
+
+    version_from = _semver.Version(version_from)
+    version_to = _semver.Version(version_to)
+    plugin = get(plugin_name)
+
+    _logger.debug(_lang.t('pytsite.plugman@run_plugin_update_hook', {
+        'stage': stage,
+        'plugin': plugin_name,
+        'version_from': version_from,
+        'version_to': version_to,
+    }))
+
+    func_n = 'plugin_update_{}'.format(stage)
+    if hasattr(plugin, func_n):
+        func = getattr(plugin, func_n)
+        if callable(func):
+            func(version_from)
+
+    _events.fire('pytsite.plugman@update_{}'.format(stage), name=plugin_name, version_from=version_from)

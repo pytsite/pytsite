@@ -6,6 +6,12 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
+def on_app_load(handler, priority: int = 0):
+    from pytsite import events
+
+    events.listen('pytsite.app_load', handler, priority)
+
+
 def _init():
     """Init wrapper
     """
@@ -98,12 +104,14 @@ def _init():
             from pytsite import lang
             lang.register_package('app', 'lang')
 
-        from pytsite import plugman
+        from pytsite import plugman, events
         try:
             util.check_package_requirements('app')
             import_module('app')
+            events.fire('pytsite.app_load')
+            logger.debug('Application loaded')
         except (util.error.Error, plugman.error.Error) as e:
-            raise Warning('Application init error: {}'.format(e))
+            raise Warning('Application load error: {}'.format(e))
 
     except Warning as e:
         console.print_warning(e)

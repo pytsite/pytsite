@@ -14,5 +14,5 @@ plugins_not_specified: 'Plugin(s) are not specified'
 plugin_has_dependant_plugins: "Following plugins depend from :plugin: :dependants"
 plugin_requires_pip_package: "Plugin ':plugin' requires pip package ':pip_package'"
 plugin_requires_plugin: "Plugin ':plugin' requires plugin ':dependency'"
-run_plugin_update_hook: "Running plugin update hook for ':plugin': :version_from -> :version_to"
+run_plugin_update_hook: "Updating plugin ':plugin' (stage :stage): :version_from -> :version_to"
 plugin_not_installed: "Plugin ':plugin' is not installed"

@@ -29,8 +29,8 @@ class _MetaPathHook:
 
 def _init():
     from os import mkdir
-    from pytsite import lang, console, update
-    from . import _console_command
+    from pytsite import lang, console, update, on_app_load
+    from . import _console_command, _eh
 
     # Resources
     lang.register_package(__name__)
@@ -71,6 +71,7 @@ def _init():
         _maintenance.disable(True)
 
     # Event handlers
+    on_app_load(_eh.update_stage_2)
     update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))
 
 

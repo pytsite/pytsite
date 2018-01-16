@@ -110,7 +110,8 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     return json_data
 
 
-def data(package_name_or_json_path: str, key: str = None, defaults: dict = None, override: dict = None) -> _Any:
+def data(package_name_or_json_path: str, key: str = None, defaults: dict = None, override: dict = None,
+         use_cache: bool = True) -> _Any:
     if package_name_or_json_path.startswith('/'):
         source = package_name_or_json_path
         if not _path.exists(source):
@@ -131,62 +132,64 @@ def data(package_name_or_json_path: str, key: str = None, defaults: dict = None,
         source = _path.join(resolve_package_path(package_name_or_json_path), json_name)
 
     # Get data from cache if available
-    if source in _parsed_json:
+    if use_cache and source in _parsed_json:
         d = _parsed_json[source]
 
     # Load and cache data
     else:
         try:
             d = parse_json(_util.load_json(source), defaults, override)
-            _parsed_json[source] = d
+            if use_cache:
+                _parsed_json[source] = d
         except ValueError as e:
             raise ValueError("Value error in '{}': {}".format(source, e))
 
     return d.get(key) if key else d
 
 
-def name(package_name_or_json_path: str) -> str:
+def name(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'name')
+    return data(package_name_or_json_path, 'name', use_cache=use_cache)
 
 
-def version(package_name_or_json_path: str) -> str:
+def version(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return str(_semver.parse_version_str(data(package_name_or_json_path, 'version')))
+    return str(_semver.parse_version_str(data(package_name_or_json_path, 'version', use_cache=use_cache)))
 
 
-def description(package_name_or_json_path: str) -> dict:
+def description(package_name_or_json_path: str, use_cache: bool = True) -> dict:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'description')
+    return data(package_name_or_json_path, 'description', use_cache=use_cache)
 
 
-def requires(package_name_or_json_path: str) -> _Dict[str, _List[str]]:
+def requires(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, _List[str]]:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires')
+    return data(package_name_or_json_path, 'requires', use_cache=use_cache)
 
 
-def requires_pytsite(package_name_or_json_path: str) -> str:
+def requires_pytsite(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires')['pytsite']
+    return data(package_name_or_json_path, 'requires', use_cache=use_cache)['pytsite']
 
-def requires_packages(package_name_or_json_path: str) -> _List[str]:
+
+def requires_packages(package_name_or_json_path: str, use_cache: bool = True) -> _List[str]:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires')['packages']
+    return data(package_name_or_json_path, 'requires', use_cache=use_cache)['packages']
 
 
-def requires_plugins(package_name_or_json_path: str) -> _List[str]:
+def requires_plugins(package_name_or_json_path: str, use_cache: bool = True) -> _List[str]:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires')['plugins']
+    return data(package_name_or_json_path, 'requires', use_cache=use_cache)['plugins']
 
 
-def url(package_name_or_json_path: str) -> str:
+def url(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'url')
+    return data(package_name_or_json_path, 'url', use_cache=use_cache)

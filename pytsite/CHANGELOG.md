@@ -1,6 +1,17 @@
 # PytSite 7 Changelog
 
 
+## 7.6 (2018-01-16)
+
+- `plugman`: two-stage update process added.
+- `package_data`: cache related arguments added.
+
+
+## 7.5.9 (2018-01-15)
+
+New method `pytsite.on_app_load()` added.
+
+
 ## 7.5.8 (2018-01-15)
 
 - `plugman`: `plugin_update()` hook's call order changed.
