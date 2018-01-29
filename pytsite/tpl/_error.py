@@ -1,4 +1,4 @@
-"""PytSite Tpl Errors.
+"""PytSite Tpl Errors
 """
 import jinja2 as _jinja
 

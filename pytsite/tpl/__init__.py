@@ -1,3 +1,10 @@
+"""PytSite Tpl
+"""
+
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 # Public API
 import jinja2 as _jinja
 import json as _json
@@ -9,10 +16,6 @@ from urllib.parse import urlparse as _urlparse
 from pytsite import reg as _reg, lang as _lang, util as _util, events as _events, package_info as _package_info
 from . import _error as error
 
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 _packages = {}
 
 
@@ -20,7 +23,10 @@ def _split_location(location: str) -> list:
     for r in _events.fire('pytsite.tpl@split_location', location=location):
         location = r
 
-    return location.split('@')[:2]
+    if '@' in location:
+        return location.split('@')[:2]
+    else:
+        return ['app', location]
 
 
 def _get_path(location: str) -> str:

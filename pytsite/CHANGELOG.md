@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.6.2 (2018-01-29)
+
+Locatoin's splitting issue in `tpl` fixed.
+
+
 ## 7.6.1 (2018-01-29)
 
 Application's load hooks added.
