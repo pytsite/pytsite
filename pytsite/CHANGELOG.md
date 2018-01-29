@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.6.1 (2018-01-29)
+
+Application's load hooks added.
+
+
 ## 7.6 (2018-01-16)
 
 - `plugman`: two-stage update process added.

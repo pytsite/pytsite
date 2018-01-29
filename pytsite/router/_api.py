@@ -256,9 +256,6 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except Exception as e:
-        if isinstance(e, _errors.ForbidOperation):
-            e = _http.error.Forbidden(e)
-
         if isinstance(e, _http.error.E4xx):
             code = e.code
             title = _lang.t('pytsite.router@http_error_' + str(e.code))

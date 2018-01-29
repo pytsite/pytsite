@@ -104,12 +104,26 @@ def _init():
             from pytsite import lang
             lang.register_package('app', 'lang')
 
+        import app
         from pytsite import plugman, events
         try:
             util.check_package_requirements('app')
-            import_module('app')
+
+            # app_load() hook
+            if hasattr(app, 'app_load') and callable(app.app_load):
+                app.app_load()
+
+            # app_load_{ENV}() hook
+            env_load_hook_name = 'app_load_' + reg.get('env.type')
+            if hasattr(app, env_load_hook_name):
+                env_load_hook = getattr(app, env_load_hook_name)
+                if callable(env_load_hook):
+                    env_load_hook()
+
             events.fire('pytsite.app_load')
+
             logger.debug('Application loaded')
+
         except (util.error.Error, plugman.error.Error) as e:
             raise Warning('Application load error: {}'.format(e))
 
