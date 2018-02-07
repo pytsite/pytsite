@@ -16,3 +16,5 @@ plugin_requires_pip_package: "Plugin ':plugin' requires pip package ':pip_packag
 plugin_requires_plugin: "Plugin ':plugin' requires plugin ':dependency'"
 run_plugin_update_hook: "Updating plugin ':plugin' (stage :stage): :version_from -> :version_to"
 plugin_not_installed: "Plugin ':plugin' is not installed"
+installing_upgrading_pip_package: "Installing/upgrading pip package ':package'"
+pip_package_successfully_installed_upgraded: "Pip package ':package' has been successfully installed/upgraded"

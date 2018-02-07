@@ -8,7 +8,6 @@ import random as _random
 import re as _re
 import pytz as _pytz
 import json as _json
-import subprocess as _subprocess
 from importlib import reload as _importlib_reload
 from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk, listdir as _listdir, \
     rmdir as _rmdir
@@ -41,7 +40,7 @@ _URL_RE = _re.compile('^(?:http|ftp)s?://'  # Scheme
                       '(?::\d+)?'  # optional port
                       '(?:/?|[/?]\S+)$', _re.IGNORECASE)
 
-_installed_pip_packages = {}  # Installed pip packages cache
+_installed_packages = {}  # Installed pip packages cache
 
 
 class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
@@ -614,70 +613,6 @@ def load_json(source: str):
         raise _json.JSONDecodeError("Error while loading JSON data from '{}': {}".format(source, e), e.doc, e.pos)
 
 
-def install_pip_package(pkg_spec: str) -> str:
-    """Install a pip package
-    """
-    cmd = ['pip', 'install']
-
-    if is_pip_package_installed(pkg_spec):
-        cmd.append('-U')
-
-    cmd.append(pkg_spec)
-
-    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
-
-    if r.returncode != 0:
-        raise _error.PipPackageInstallError(pkg_spec, r.stderr.decode('utf-8'))
-
-    return r.stdout.decode('utf-8')
-
-
-def get_installed_pip_package_info(pkg_name: str) -> dict:
-    """Get installed pip package info
-    """
-    cmd = ['pip', 'show', pkg_name]
-
-    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
-
-    if r.returncode != 0:
-        raise _error.PipPackageNotInstalled(pkg_name)
-
-    data = {}
-    for r_str in r.stdout.decode('utf-8').split('\n'):
-        r_str_split = r_str.split(':')
-        k = r_str_split[0].strip().lower()
-        if k:
-            data[k] = ':'.join(r_str_split[1:]).strip()
-
-    return data
-
-
-def get_installed_pip_package_version(pkg_name: str) -> str:
-    """Get installed pip package version
-    """
-    return get_installed_pip_package_info(pkg_name)['version']
-
-
-def is_pip_package_installed(pkg_spec: str) -> bool:
-    """Check if the pip package installed
-    """
-    global _installed_pip_packages
-
-    if pkg_spec in _installed_pip_packages:
-        return _installed_pip_packages[pkg_spec]
-
-    pkg_name, version_req = _semver.parse_requirement_str(pkg_spec)
-
-    try:
-        r = _semver.check_conditions(get_installed_pip_package_version(pkg_name), version_req)
-        _installed_pip_packages[pkg_spec] = r
-        return r
-
-    except _error.PipPackageNotInstalled:
-        _installed_pip_packages[pkg_spec] = False
-        return False
-
-
 def cleanup_files(root_path: str, ttl: int) -> tuple:
     """Remove obsolete files and empty directories
     """
@@ -704,28 +639,6 @@ def cleanup_files(root_path: str, ttl: int) -> tuple:
                 _rmdir(d_path)
 
     return success, failed
-
-
-def check_package_requirements(pkg_name: str):
-    # Check for required PytSite version
-    req_ps_ver = _package_info.requires_pytsite(pkg_name)
-    if not _semver.check_conditions(_package_info.version('pytsite'), req_ps_ver):
-        req_ps_cond = _semver.parse_condition_str(req_ps_ver)
-        raise _error.PytSiteVersionNotInstalled("{}{}".format(req_ps_cond[0], str(req_ps_cond[1])))
-
-    # Check for required pip packages
-    for req_pkg_spec in _package_info.requires_packages(pkg_name):
-        if not is_pip_package_installed(req_pkg_spec):
-            req_pkg_cond = _semver.parse_requirement_str(req_pkg_spec)
-            raise _error.PipPackageNotInstalled('{}{}'.format(req_pkg_cond[0], req_pkg_cond[1]))
-
-    # Check for required plugins
-    from pytsite import plugman
-    for req_plugin_spec in _package_info.requires_plugins(pkg_name):
-        if not plugman.is_installed(req_plugin_spec):
-            req_plugin_cond = _semver.parse_requirement_str(req_plugin_spec)
-            raise _error.PluginNotInstalled('{}{}'.format(req_plugin_cond[0], req_plugin_cond[1]))
-
 
 def reload_module(module, _package: str = None, _reloaded: list = None):
     """Recursively reload a module

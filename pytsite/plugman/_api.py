@@ -13,9 +13,8 @@ from os import listdir as _listdir, path as _path, makedirs as _makedirs, unlink
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
-from pytsite import reg as _reg, logger as _logger, lang as _lang, util as _util, router as _router, \
-    console as _console, semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, \
-    events as _events
+from pytsite import reg as _reg, logger as _logger, lang as _lang, router as _router, console as _console, \
+    semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, events as _events, pip as _pip
 from . import _error
 
 _PLUGINS_API_URL = _reg.get('plugman.api_url', 'https://plugins.pytsite.xyz')
@@ -405,9 +404,16 @@ def install(plugin_spec: str) -> int:
                 'plugin': plugin_name,
                 'pip_package': pip_pkg_spec,
             }))
-            _console.print_info('Installing/upgrading pip package: {}'.format(pip_pkg_spec))
-            _util.install_pip_package(pip_pkg_spec)
-            _console.print_success('Required pip package {} has been successfully installed'.format(pip_pkg_spec))
+
+            _console.print_info(_lang.t('pytsite.plugman@installing_upgrading_pip_package', {
+                'package': pip_pkg_spec
+            }))
+
+            _pip.install(pip_pkg_spec, _pip.is_installed(pip_pkg_spec))
+
+            _console.print_success(_lang.t('pytsite.plugman@pip_package_successfully_installed_upgraded', {
+                'package': pip_pkg_spec
+            }))
 
         # Install required plugins
         for req_plugin_spec in l_plugin_info['requires']['plugins']:

@@ -1,0 +1,7 @@
+install_console_command_description: 'Встановлення pip-пакету(ів)'
+uninstall_console_command_description: 'Встановлення pip-пакету(ів)'
+package_name_not_specified: 'Не вказано імена пакетів'
+package_installing: 'Встановлення pip-пакета :package...'
+package_successfully_installed: 'Pip-пакет :package успішно встановлено'
+package_upgrading: 'Оновлення pip-пакета :package...'
+package_successfully_upgraded: 'Pip-пакет :package успішно оновлено'

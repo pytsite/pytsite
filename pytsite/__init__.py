@@ -105,9 +105,9 @@ def _init():
             lang.register_package('app', 'lang')
 
         import app
-        from pytsite import plugman, events
+        from pytsite import plugman, events, pip
         try:
-            util.check_package_requirements('app')
+            package_info.check_requirements('app')
 
             # app_load() hook
             if hasattr(app, 'app_load') and callable(app.app_load):
@@ -124,7 +124,7 @@ def _init():
 
             logger.debug('Application loaded')
 
-        except (util.error.Error, plugman.error.Error) as e:
+        except (plugman.error.Error, pip.error.Error) as e:
             raise Warning('Application load error: {}'.format(e))
 
     except Warning as e:

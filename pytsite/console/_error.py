@@ -15,6 +15,10 @@ class CommandNotFound(Error):
     pass
 
 
+class CommandExecutionError(Error):
+    pass
+
+
 class MissingRequiredOption(Error):
     def __init__(self, opt_name: str):
         self._opt_name = opt_name

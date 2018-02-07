@@ -16,3 +16,5 @@ plugin_requires_pip_package: "Плагин ':plugin' зависит от pip-п�
 plugin_requires_plugin: "Плагин ':plugin' зависит от плагина ':dependency'"
 run_plugin_update_hook: "Обновление плагина ':plugin' (шаг :stage): :version_from -> :version_to"
 plugin_not_installed: "Плагин ':plugin' не установлен"
+installing_upgrading_pip_package: "Установка/обновление pip-пакета ':package'"
+pip_package_successfully_installed_upgraded: "Pip-пакет ':package' успешно установлен/обновлён"

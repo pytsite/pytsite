@@ -1,14 +1,14 @@
 """PytSite Update Console Command
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, chdir as _chdir
 from pytsite import console as _console, events as _events, lang as _lang, package_info as _package_info, reg as _reg, \
-    logger as _logger, maintenance as _maintenance, util as _util, reload as _reload, plugman as _plugman
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
+    logger as _logger, maintenance as _maintenance,reload as _reload, plugman as _plugman, pip as _pip
 
 
 class Update(_console.Command):
@@ -46,8 +46,8 @@ class Update(_console.Command):
         if stage == 1:
             # Update pip and pytsite
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
-            _subprocess.call(['pip', 'install', '-U', 'pip'])
-            _subprocess.call(['pip', 'install', '-U', 'pytsite'])
+            _pip.install('pip', True)
+            _pip.install('pytsite', True)
 
             _logger.info('pytsite.update@stage_1 event, PytSite version: {}'.format(_package_info.version('pytsite')))
             _events.fire('pytsite.update@stage_1')
@@ -114,19 +114,19 @@ class Update(_console.Command):
 
             # Install/update required pip packages
             for pkg_spec in _package_info.requires_packages('app'):
-                _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pkg_spec}))
                 try:
-                    _util.install_pip_package(pkg_spec)
-                except _util.error.PipPackageInstallError as e:
-                    raise _console.error.Error(e)
+                    _console.print_info(_lang.t('pytsite.update@updating_pip_package', {'package': pkg_spec}))
+                    _pip.install(pkg_spec, _pip.is_installed(pkg_spec))
+                except _pip.error.PackageInstallError as e:
+                    raise _console.error.CommandExecutionError(e)
 
             # Install/update required plugins
             for plugin_spec in _package_info.requires_plugins('app'):
-                _console.print_info(_lang.t('pytsite.update@updating_plugin', {'plugin': plugin_spec}))
                 try:
+                    _console.print_info(_lang.t('pytsite.update@updating_plugin', {'plugin': plugin_spec}))
                     _plugman.install(plugin_spec)
                 except _plugman.error.PluginInstallError as e:
-                    raise _console.error.Error(e)
+                    raise _console.error.CommandExecutionError(e)
 
             _logger.info('pytsite.update@after event')
             _events.fire('pytsite.update@after')

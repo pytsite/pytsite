@@ -1,0 +1,7 @@
+install_console_command_description: 'Install pip package(s)'
+uninstall_console_command_description: 'Uninstall pip package(s)'
+package_name_not_specified: 'Package name(s) is not specified'
+package_installing: 'Installing pip package :package...'
+package_successfully_installed: 'Pip package :package has been successfully installed'
+package_upgrading: 'Upgrading pip package :package...'
+package_successfully_upgraded: 'Pip package :package has been successfully upgraded'

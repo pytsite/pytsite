@@ -1,9 +1,17 @@
 # PytSite 7 Changelog
 
 
+## 7.7 (2018-02-07)
+
+- Part of `util` moved to new `pip` module.
+- `util.check_package_requirements()` moved to
+  `package_info.check_requirements()`
+- New exception `console.CommandExecutionError` added.
+
+
 ## 7.6.2 (2018-01-29)
 
-Locatoin's splitting issue in `tpl` fixed.
+Location's splitting issue in `tpl` fixed.
 
 
 ## 7.6.1 (2018-01-29)

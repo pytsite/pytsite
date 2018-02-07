@@ -193,3 +193,25 @@ def url(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
     return data(package_name_or_json_path, 'url', use_cache=use_cache)
+
+
+def check_requirements(pkg_name: str):
+    from pytsite import pip, plugman
+
+    # Check for required PytSite version
+    req_ps_ver = requires_pytsite(pkg_name)
+    if not _semver.check_conditions(version('pytsite'), req_ps_ver):
+        req_ps_cond = _semver.parse_condition_str(req_ps_ver)
+        raise _error.RequiredPytSiteVersionNotInstalled("{}{}".format(req_ps_cond[0], str(req_ps_cond[1])))
+
+    # Check for required pip packages
+    for req_pkg_spec in requires_packages(pkg_name):
+        if not pip.is_installed(req_pkg_spec):
+            req_pkg_cond = _semver.parse_requirement_str(req_pkg_spec)
+            raise _error.RequiredPipPackageNotInstalled('{}{}'.format(req_pkg_cond[0], req_pkg_cond[1]))
+
+    # Check for required plugins
+    for req_plugin_spec in requires_plugins(pkg_name):
+        if not plugman.is_installed(req_plugin_spec):
+            req_plugin_cond = _semver.parse_requirement_str(req_plugin_spec)
+            raise _error.RequiredPluginNotInstalled('{}{}'.format(req_plugin_cond[0], req_plugin_cond[1]))

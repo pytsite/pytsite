@@ -44,7 +44,7 @@ class Test(_console.Command):
                     target = _path.join(_reg.get('paths.root'), target.replace('.', _path.sep), 'tests')
 
                 if not _path.exists(target):
-                    raise _console.error.Error('Directory {} is not found'.format(target))
+                    raise _console.error.CommandExecutionError('Directory {} is not found'.format(target))
 
                 argv.append(target)
                 _unittest.TestProgram(None, argv=argv, failfast=True, verbosity=verbosity)

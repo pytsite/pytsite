@@ -402,7 +402,7 @@ class Email(Regex):
     """
 
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None):
-        super().__init__(value, msg_id, msg_args, pattern='^[0-9a-zA-Z\-_\.+]+@[0-9a-zA-Z\-\.]+$', ignore_case=True)
+        super().__init__(value, msg_id, msg_args, pattern='^[0-9a-zA-Z\-_.+]+@[0-9a-zA-Z\-.]+$', ignore_case=True)
 
 
 class DateTime(Rule):

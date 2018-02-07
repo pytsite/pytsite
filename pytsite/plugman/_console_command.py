@@ -38,7 +38,7 @@ class Install(_console.Command):
                     installed_count += _api.install(plugin_spec)
 
         except _error.Error as e:
-            raise _console.error.Error(e)
+            raise _console.error.CommandExecutionError(e)
 
         if installed_count and self.opt('reload'):
             _reload.reload()
@@ -69,7 +69,7 @@ class Update(_console.Command):
                 # Update specified plugins
                 for plugin_spec in self.args:
                     if not _api.is_installed(plugin_spec):
-                        raise _console.error.Error(_lang.t('pytsite.plugman@plugin_not_installed', {
+                        raise _console.error.CommandExecutionError(_lang.t('pytsite.plugman@plugin_not_installed', {
                             'plugin': plugin_spec
                         }))
                     installed_count += _api.install(plugin_spec)
@@ -79,7 +79,7 @@ class Update(_console.Command):
                     installed_count += _api.install(plugin_spec)
 
         except _error.Error as e:
-            raise _console.error.Error(e)
+            raise _console.error.CommandExecutionError(e)
 
         if installed_count and self.opt('reload'):
             _reload.reload()
@@ -107,6 +107,6 @@ class Uninstall(_console.Command):
             for p_name in plugin_names:
                 _api.uninstall(p_name)
         except _error.Error as e:
-            raise _console.error.Error(str(e))
+            raise _console.error.CommandExecutionError(e)
 
         _reload.reload()
