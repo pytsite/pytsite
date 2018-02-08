@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.7.1 (2018-02-08)
+
+- Core init code fixed.
+- New exception `console.error.MissingOption` added.
+
+
 ## 7.7 (2018-02-07)
 
 - Part of `util` moved to new `pip` module.

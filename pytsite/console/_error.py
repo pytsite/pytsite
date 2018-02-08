@@ -19,6 +19,13 @@ class CommandExecutionError(Error):
     pass
 
 
+class MissingOption(Error):
+    def __init__(self, opts_list: list):
+        self._opts_list = opts_list
+
+    def __str__(self):
+        return _lang.t('pytsite.console@options_not_specified', {'opts_list': self._opts_list})
+
 class MissingRequiredOption(Error):
     def __init__(self, opt_name: str):
         self._opt_name = opt_name

@@ -105,7 +105,7 @@ def _init():
             lang.register_package('app', 'lang')
 
         import app
-        from pytsite import plugman, events, pip
+        from pytsite import plugman, events
         try:
             package_info.check_requirements('app')
 
@@ -124,7 +124,7 @@ def _init():
 
             logger.debug('Application loaded')
 
-        except (plugman.error.Error, pip.error.Error) as e:
+        except (plugman.error.Error, package_info.error.Error) as e:
             raise Warning('Application load error: {}'.format(e))
 
     except Warning as e:
