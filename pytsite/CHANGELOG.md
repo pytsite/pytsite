@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.7.2 (2018-02-10)
+
+- New configuration option `plugman.autoload` added.
+
+
 ## 7.7.1 (2018-02-08)
 
 - Core init code fixed.

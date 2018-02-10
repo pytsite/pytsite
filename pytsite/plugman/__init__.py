@@ -29,7 +29,7 @@ class _MetaPathHook:
 
 def _init():
     from os import mkdir
-    from pytsite import lang, console, update, on_app_load
+    from pytsite import reg, lang, console, update, on_app_load
     from . import _console_command, _eh
 
     # Resources
@@ -54,21 +54,22 @@ def _init():
     _meta_path.insert(0, _MetaPathHook())
 
     # Load installed plugins
-    try:
-        _maintenance.enable(True)
-        
-        for p_name in plugins_info_seq:
-            if p_name.startswith('_'):
-                continue
+    if reg.get('plugman.autoload', True):
+        try:
+            _maintenance.enable(True)
 
-            try:
-                if not is_loaded(p_name):
-                    load(p_name)
-            except (error.PluginLoadError, error.PluginNotInstalled) as e:
-                console.print_warning(e)
+            for p_name in plugins_info_seq:
+                if p_name.startswith('_'):
+                    continue
 
-    finally:
-        _maintenance.disable(True)
+                try:
+                    if not is_loaded(p_name):
+                        load(p_name)
+                except (error.PluginLoadError, error.PluginNotInstalled) as e:
+                    console.print_warning(e)
+
+        finally:
+            _maintenance.disable(True)
 
     # Event handlers
     on_app_load(_eh.update_stage_2)
