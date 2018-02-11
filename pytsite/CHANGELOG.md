@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.8 (2018-02-11)
+
+- New functions added: `console.print_normal()`, `plugman.on_update()`.
+- `plugman` and `update` refactored.
+
+
 ## 7.7.2 (2018-02-10)
 
 - New configuration option `plugman.autoload` added.

@@ -248,17 +248,6 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         if _DEBUG:
             _logger.debug("Plugin '{}-{}' loaded".format(p_name, p_info['version']))
 
-        # Run plugin install and update (stage 1) tasks
-        upd_info = get_update_info(p_name)
-        if upd_info:
-            # Installation hooks
-            if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
-                plugin.plugin_install()
-            _events.fire('pytsite.plugman@install', name=p_name)
-
-            # Update hook, stage 1
-            run_update_hooks(1, p_name, upd_info['version_from'], upd_info['version_to'])
-
         return plugin
 
     except Exception as e:
@@ -517,6 +506,12 @@ def on_install(handler, priority: int = 0):
     _events.listen('pytsite.plugman@install', handler, priority)
 
 
+def on_update(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman@update', handler, priority)
+
+
 def on_uninstall(handler, priority: int = 0):
     """Shortcut
     """
@@ -561,27 +556,3 @@ def rm_update_info(plugin_name: str):
 
     with open(_UPDATE_INFO_PATH, 'wb') as f:
         _pickle.dump(d, f)
-
-
-def run_update_hooks(stage: int, plugin_name: str, version_from: str, version_to: str):
-    if stage not in (1, 2):
-        raise RuntimeError('Invalid stage: {}'.format(stage))
-
-    version_from = _semver.Version(version_from)
-    version_to = _semver.Version(version_to)
-    plugin = get(plugin_name)
-
-    _logger.debug(_lang.t('pytsite.plugman@run_plugin_update_hook', {
-        'stage': stage,
-        'plugin': plugin_name,
-        'version_from': version_from,
-        'version_to': version_to,
-    }))
-
-    func_n = 'plugin_update_{}'.format(stage)
-    if hasattr(plugin, func_n):
-        func = getattr(plugin, func_n)
-        if callable(func):
-            func(version_from)
-
-    _events.fire('pytsite.plugman@update_{}'.format(stage), name=plugin_name, version_from=version_from)

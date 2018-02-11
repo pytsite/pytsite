@@ -3,5 +3,4 @@ updating_environment: 'Updating environment'
 updating_application: 'Updating application'
 updating_configuration: 'Updating configuration'
 applying_updates: 'Applying updates'
-updating_pip_package: "Updating pip package ':package'"
-updating_plugin: "Updating plugin ':plugin'"
+

@@ -11,7 +11,7 @@ from pytsite import maintenance as _maintenance
 from . import _error as error
 from ._api import plugins_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
     local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
-    on_uninstall, plugin_path, is_loading, is_installing, get
+    on_update, on_uninstall, plugin_path, is_loading, is_installing, get
 
 
 class _MetaPathHook:
@@ -30,7 +30,7 @@ class _MetaPathHook:
 def _init():
     from os import mkdir
     from pytsite import reg, lang, console, update, on_app_load
-    from . import _console_command, _eh
+    from . import _cc, _eh
 
     # Resources
     lang.register_package(__name__)
@@ -43,9 +43,9 @@ def _init():
             f.write('"""Pytsite Plugins\n"""\n')
 
     # Register console commands
-    console.register_command(_console_command.Install())
-    console.register_command(_console_command.Update())
-    console.register_command(_console_command.Uninstall())
+    console.register_command(_cc.Install())
+    console.register_command(_cc.Update())
+    console.register_command(_cc.Uninstall())
 
     # Get information about installed plugins
     plugins_info_seq = local_plugins_info()
@@ -55,6 +55,8 @@ def _init():
 
     # Load installed plugins
     if reg.get('plugman.autoload', True):
+        maint_was_enabled = _maintenance.is_enabled()
+
         try:
             _maintenance.enable(True)
 
@@ -69,11 +71,12 @@ def _init():
                     console.print_warning(e)
 
         finally:
-            _maintenance.disable(True)
+            if not maint_was_enabled:
+                _maintenance.disable(True)
 
     # Event handlers
-    on_app_load(_eh.update_stage_2)
-    update.on_update_after(lambda: console.run_command('plugman:update', {'reload': False}))
+    update.on_update_stage_2(_eh.update_stage_2)
+    on_app_load(_eh.app_load)
 
 
 _init()

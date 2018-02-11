@@ -1,11 +1,11 @@
 """PytSite Maintenance Console Commands
 """
-from pytsite import console as _console
-from . import _api
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import console as _console
+from . import _api
 
 
 class Maintenance(_console.Command):
