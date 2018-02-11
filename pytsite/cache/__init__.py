@@ -11,7 +11,7 @@ from ._pool import Pool
 
 from pytsite import reg as _reg, threading as _threading
 
-if _reg.get('env.type') == 'uwsgi':
+if _reg.get('env.type') == 'wsgi':
     def _cleanup_worker():
         cleanup()
         _threading.run_in_thread(_cleanup_worker, 60)

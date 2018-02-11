@@ -239,10 +239,12 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
 
         # plugin_load_{env.type}() hook
         env_type = _reg.get('env.type')
-        for env_hook in ('console', 'uwsgi'):
-            env_hook_f_name = 'plugin_load_{}'.format(env_hook)
-            if hasattr(plugin, env_hook_f_name) and env_type in ('testing', env_hook):
-                getattr(plugin, env_hook_f_name)()
+        hook_names = ['plugin_load_{}'.format(env_type)]
+        if env_type == 'wsgi':
+            hook_names.append('plugin_load_uwsgi')
+        for hook_name in hook_names:
+            if hasattr(plugin, hook_name):
+                getattr(plugin, hook_name)()
 
         _loaded[p_name] = plugin
         if _DEBUG:

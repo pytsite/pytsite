@@ -100,17 +100,35 @@ class Version(_SupportsInt):
 
         return int(self) < int(other)
 
+    def __le__(self, other) -> bool:
+        if isinstance(other, str):
+            other = Version(other)
+
+        return int(self) <= int(other)
+
     def __gt__(self, other) -> bool:
         if isinstance(other, str):
             other = Version(other)
 
         return int(self) > int(other)
 
+    def __ge__(self, other) -> bool:
+        if isinstance(other, str):
+            other = Version(other)
+
+        return int(self) >= int(other)
+
     def __eq__(self, other) -> bool:
         if isinstance(other, str):
             other = Version(other)
 
         return int(self) == int(other)
+
+    def __ne__(self, other) -> bool:
+        if isinstance(other, str):
+            other = Version(other)
+
+        return int(self) != int(other)
 
     def __add__(self, other: int):
         if not isinstance(other, int):

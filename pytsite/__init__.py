@@ -31,7 +31,7 @@ def _init():
     if len(argv) > 1 and argv[1] == 'test':
         reg.put('env.type', 'testing')
     else:
-        reg.put('env.type', 'uwsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
+        reg.put('env.type', 'wsgi' if 'UWSGI_ORIGINAL_PROC_NAME' in environ else 'console')
 
     # Detect application's root directory path
     cur_dir = path.abspath(path.dirname(__file__))
@@ -113,12 +113,14 @@ def _init():
             if hasattr(app, 'app_load') and callable(app.app_load):
                 app.app_load()
 
-            # app_load_{ENV}() hook
-            env_load_hook_name = 'app_load_' + reg.get('env.type')
-            if hasattr(app, env_load_hook_name):
-                env_load_hook = getattr(app, env_load_hook_name)
-                if callable(env_load_hook):
-                    env_load_hook()
+            # app_load_{env.type}() hook
+            env_type = reg.get('env.type')
+            hook_names = ['app_load_{}'.format(env_type)]
+            if env_type == 'wsgi':
+                hook_names.append('app_load_uwsgi')
+            for hook_name in hook_names:
+                if hasattr(app, hook_name):
+                    getattr(app, hook_name)()
 
             events.fire('pytsite.app_load')
 

@@ -1,11 +1,11 @@
 {
   "name": "PytSite",
-  "version": "7.8",
+  "version": "7.9",
   "url": "https://pytsite.xyz",
   "description": {
     "en": "Brand New Python Web Framework",
-    "ru": "Совершенно новый Python веб-фреймворк",
-    "uk": "Абсолютно новий Python веб-фреймворк"
+    "ru": "Новый Python веб-фреймворк",
+    "uk": "Новий Python веб-фреймворк"
   },
   "author": {
     "name": "Alexander Shepetko",

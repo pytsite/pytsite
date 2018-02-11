@@ -118,5 +118,5 @@ def _cron_worker():
             _logger.debug('Next cron start scheduled')
 
 
-if _reg.get('env.type') == 'uwsgi' and _reg.get('cron.enabled', True):
+if _reg.get('env.type') == 'wsgi' and _reg.get('cron.enabled', True):
     _threading.run_in_thread(_cron_worker, 60)

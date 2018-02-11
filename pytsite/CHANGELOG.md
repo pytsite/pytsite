@@ -1,6 +1,13 @@
 # PytSite 7 Changelog
 
 
+## 7.9 (2018-02-11)
+
+- Environment type 'uwsgi' renamed to 'wsgi'.
+- Support for `__le__()` and `__ge()__` methods added to
+  `semver.Version`.
+
+
 ## 7.8 (2018-02-11)
 
 - New functions added: `console.print_normal()`, `plugman.on_update()`.
