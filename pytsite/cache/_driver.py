@@ -4,11 +4,11 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Any as _Any, Mapping as _Mapping, List as _List
+from typing import Any as _Any, Mapping as _Mapping, List as _List, Generator as _Generator, Optional as _Optional
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from os import path as _path, unlink as _unlink, makedirs as _makedirs, walk as _walk
 from shutil import rmtree as _rmtree
-from pickle import dumps as _pickle_dump, loads as _pickle_load
+from pickle import dumps as _pickle_dump, loads as _pickle_load, UnpicklingError as _UnpicklingError
 from time import time as _time
 from pytsite import reg as _reg, util as _util
 from . import _error
@@ -17,6 +17,12 @@ from . import _error
 class Abstract(_ABC):
     """Abstract Cache Driver
     """
+
+    @_abstractmethod
+    def keys(self, pool: str) -> _Generator[str, None, None]:
+        """Get all keys of the pool
+        """
+        pass
 
     @_abstractmethod
     def has(self, pool: str, key: str) -> bool:
@@ -79,8 +85,8 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def ttl(self, pool: str, key: str) -> int:
-        """Get key's expiration time
+    def ttl(self, pool: str, key: str) -> _Optional[int]:
+        """Get remaining time to live of a key
         """
         pass
 
@@ -126,19 +132,40 @@ class File(Abstract):
             _makedirs(self._path, 0o755, True)
 
     def _get_key_path(self, pool: str, key: str) -> str:
+        """Get key's file path
+        """
         h = _util.md5_hex_digest(key)
         return _path.join(self._path, self._server_name, pool, h[:2], h[2:4], key.replace(_path.sep, '.'))
 
     def _get_key_dir(self, pool: str, key: str) -> str:
+        """Get key's file directory
+        """
         return _path.dirname(self._get_key_path(pool, key))
 
     def _load_key(self, pool: str, key) -> dict:
+        """Load key from file
+        """
+        f_path = self._get_key_path(pool, key)
+
         try:
-            with open(self._get_key_path(pool, key), 'rb') as f:
+            with open(f_path, 'rb') as f:
                 return _pickle_load(f.read())
 
         except FileNotFoundError:
             raise _error.KeyNotExist(pool, key)
+
+        except (EOFError, _UnpicklingError):
+            _unlink(f_path)
+            raise _error.KeyNotExist(pool, key)
+
+    def keys(self, pool: str) -> _Generator[str, None, None]:
+        """Get all keys of the pool
+        """
+        for root, dirs, files in _walk(_path.join(self._path, self._server_name, pool), topdown=False):
+            for name in files:
+                f_path = _path.join(root, name)
+                with open(f_path, 'rb') as f:
+                    yield _pickle_load(f.read())['k']
 
     def has(self, pool: str, key: str) -> bool:
         """Check whether an item exists in the pool
@@ -156,7 +183,7 @@ class File(Abstract):
 
         with open(f_path, 'wb') as f:
             now = _time()
-            f.write(_pickle_dump({'c': now, 't': ttl, 'e': (now + ttl) if ttl else None, 'v': value}))
+            f.write(_pickle_dump({'k': key, 'c': now, 't': ttl, 'e': (now + ttl) if ttl else None, 'v': value}))
 
         return value
 
@@ -249,10 +276,12 @@ class File(Abstract):
         except IndexError:
             raise _error.KeyNotExist(pool, key)
 
-    def ttl(self, pool: str, key: str) -> int:
-        """Get key's expiration time
+    def ttl(self, pool: str, key: str) -> _Optional[int]:
+        """Get remaining time to live of a key
         """
-        return self._load_key(pool, key)['t']
+        expires = self._load_key(pool, key)['e']
+
+        return int(expires - _time()) if expires else None
 
     def rnm(self, pool: str, key: str, new_key: str):
         """Rename a key

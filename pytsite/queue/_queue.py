@@ -35,7 +35,7 @@ class Queue:
 
         return self
 
-    def execute(self, no_wait: bool = False):
+    def execute(self, blocking_mode: bool = False):
         """Execute all pending tasks
         """
 
@@ -43,7 +43,7 @@ class Queue:
             for t in self:
                 t.exec()
 
-        _threading.run_in_thread(_execute) if no_wait else _execute()
+        _threading.run_in_thread(_execute) if not blocking_mode else _execute()
 
         return self
 

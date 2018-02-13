@@ -5,7 +5,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Mapping as _Mapping, List as _List, Callable as _Callable
+from typing import Mapping as _Mapping, List as _List, Callable as _Callable, Generator as _Generator
 from ._driver import Abstract as _Driver
 
 
@@ -15,6 +15,17 @@ class Pool:
         """
         self._uid = uid
         self._get_driver = get_driver
+
+    @property
+    def uid(self) -> str:
+        """Get UID of the pool
+        """
+        return self._uid
+
+    def keys(self) -> _Generator[str, None, None]:
+        """Get all existing keys in current pool
+        """
+        return self._get_driver().keys(self._uid)
 
     def has(self, key: str) -> bool:
         """Check whether an item exists in the pool
@@ -67,7 +78,7 @@ class Pool:
         return self._get_driver().r_pop(self._uid, key)
 
     def ttl(self, key: str) -> int:
-        """Get key's expiration time
+        """Get remaining time to live of a key
         """
         return self._get_driver().ttl(self._uid, key)
 

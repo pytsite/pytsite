@@ -8,7 +8,7 @@ import pickle as _pickle
 import subprocess as _subprocess
 from os import path as _path, chdir as _chdir
 from pytsite import console as _console, events as _events, lang as _lang, package_info as _package_info, reg as _reg, \
-    maintenance as _maintenance, reload as _reload, plugman as _plugman, pip as _pip, semver as _semver
+    maintenance as _maintenance, reload as _reload, pip as _pip, semver as _semver
 
 _DEBUG = _reg.get('debug')
 
@@ -71,7 +71,7 @@ class Update(_console.Command):
             if _DEBUG:
                 _console.print_normal(out)
 
-            # Update pytsite
+            # Update PytSite files
             out = _pip.install('pytsite', True)
             if _DEBUG:
                 _console.print_normal(out)
@@ -88,6 +88,9 @@ class Update(_console.Command):
 
         # Stage 2: update application and configuration
         elif stage == 2:
+            # Notify listeners about PytSite update
+            _events.fire('pytsite.update@pytsite', v_from=_semver.Version(d['pytsite_version_from']))
+
             # Update configuration
             if _path.exists(_path.join(config_path, '.git')):
                 _console.print_info(_lang.t('pytsite.update@updating_configuration'))
@@ -111,6 +114,9 @@ class Update(_console.Command):
         # Stage 3: finish update process
         elif stage == 3:
             _console.print_info(_lang.t('pytsite.update@applying_updates'))
+
+            # Notify listeners about application update
+            _events.fire('pytsite.update@app', v_from=_semver.Version(d['app_version_from']))
 
             # Notify listeners
             _events.fire('pytsite.update@update')

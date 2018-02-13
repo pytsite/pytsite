@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 # Public API
-from ._api import on_update_stage_1, on_update_stage_2, on_update
+from ._api import on_update_stage_1, on_update_stage_2, on_update_pytsite, on_update_app, on_update
 
 
 def _init():

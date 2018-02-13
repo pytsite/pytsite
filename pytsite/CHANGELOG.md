@@ -1,6 +1,13 @@
 # PytSite 7 Changelog
 
 
+## 7.10 (2018-02-13)
+
+- `cache`: fixed and refactored;
+- `plugman`: pending updates check added.
+- `update`: new methods added: `on_update_pytsite()`, `on_update_app()`.
+
+
 ## 7.9 (2018-02-11)
 
 - Environment type 'uwsgi' renamed to 'wsgi'.

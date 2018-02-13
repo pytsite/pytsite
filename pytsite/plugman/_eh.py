@@ -6,7 +6,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import console as _console, lang as _lang, package_info as _package_info, events as _events, \
-    logger as _logger, semver as _semver
+    logger as _logger, semver as _semver, reg as _reg
 from . import _api, _error
 
 
@@ -25,12 +25,20 @@ def update_stage_2():
 
 
 def app_load():
+    update_info = _api.get_update_info()
+
+    if not update_info:
+        return
+
+    if _reg.get('env.type') == 'wsgi':
+        raise RuntimeError("There are plugins waiting for update. Please reload app to finish update process.")
+
     # Finish installing/updating plugins
-    for p_name, upd_info in _api.get_update_info().items():
+    for p_name, info in update_info.items():
         plugin = _api.get(p_name)
 
-        v_from = _semver.Version(upd_info['version_from'])
-        v_to = _semver.Version(upd_info['version_to'])
+        v_from = _semver.Version(info['version_from'])
+        v_to = _semver.Version(info['version_to'])
         _logger.debug(_lang.t('pytsite.plugman@run_plugin_update_hook', {
             'plugin': p_name,
             'version_from': v_from,
