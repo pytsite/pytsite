@@ -35,4 +35,4 @@ def on_update_app(handler: _Callable[[_semver.Version], None], priority: int = 0
 def on_update(handler: _Callable[[dict], None], priority: int = 0):
     """Shortcut.
     """
-    _events.listen('pytsite@update', handler, priority)
+    _events.listen('pytsite.update@update', handler, priority)

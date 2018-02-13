@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.10.1 (2018-02-13)
+
+Typo fixed.
+
+
 ## 7.10 (2018-02-13)
 
 - `cache`: fixed and refactored;
