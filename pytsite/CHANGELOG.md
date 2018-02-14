@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.10.2 (2018-02-14)
+
+Automatic uWSGI-reload request while updating plugins added.
+
+
 ## 7.10.1 (2018-02-13)
 
 Typo fixed.

@@ -6,7 +6,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import console as _console, lang as _lang, package_info as _package_info, events as _events, \
-    logger as _logger, semver as _semver, reg as _reg
+    logger as _logger, semver as _semver, reg as _reg, reload as _reload
 from . import _api, _error
 
 
@@ -30,8 +30,10 @@ def app_load():
     if not update_info:
         return
 
+    # If there waiting updates exist, reload the application
     if _reg.get('env.type') == 'wsgi':
-        raise RuntimeError("There are plugins waiting for update. Please reload app to finish update process.")
+        _reload.reload()
+        raise RuntimeWarning('Waiting for reload')
 
     # Finish installing/updating plugins
     for p_name, info in update_info.items():
