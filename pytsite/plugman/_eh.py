@@ -32,8 +32,8 @@ def app_load():
 
     # If there waiting updates exist, reload the application
     if _reg.get('env.type') == 'wsgi':
-        _reload.reload()
-        raise RuntimeWarning('Waiting for reload')
+        _logger.warn('Application needs to be loaded in console to finish plugins update')
+        return
 
     # Finish installing/updating plugins
     for p_name, info in update_info.items():

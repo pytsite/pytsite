@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.10.3 (2018-02-15)
+
+Application reload fix in `plugman`.
+
+
 ## 7.10.2 (2018-02-14)
 
 Automatic uWSGI-reload request while updating plugins added.

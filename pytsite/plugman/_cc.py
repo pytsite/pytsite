@@ -4,6 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import subprocess as _subprocess
 from pytsite import reload as _reload, console as _console, package_info as _package_info, lang as _lang
 from . import _api, _error
 
@@ -15,6 +16,7 @@ class Install(_console.Command):
     def __init__(self):
         super().__init__()
 
+        self.define_option(_console.option.Int('stage', default=1))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -40,8 +42,12 @@ class Install(_console.Command):
         except _error.Error as e:
             raise _console.error.CommandExecutionError(e)
 
-        if installed_count and self.opt('reload'):
-            _reload.reload()
+        if installed_count:
+            if self.opt('stage') == 1:
+                # Run second stage to let plugins finish installation and update
+                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
+            elif self.opt('reload'):
+                _reload.reload()
 
 
 class Update(_console.Command):
@@ -51,6 +57,7 @@ class Update(_console.Command):
     def __init__(self):
         super().__init__()
 
+        self.define_option(_console.option.Int('stage', default=1))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -81,8 +88,12 @@ class Update(_console.Command):
         except _error.Error as e:
             raise _console.error.CommandExecutionError(e)
 
-        if installed_count and self.opt('reload'):
-            _reload.reload()
+        if installed_count:
+            if self.opt('stage') == 1:
+                # Run second stage to let plugins finish installation and update
+                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
+            elif self.opt('reload'):
+                _reload.reload()
 
 
 class Uninstall(_console.Command):
