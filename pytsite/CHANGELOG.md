@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.10.4 (2018-02-16)
+
+Automatic reloading after plugins install/update issue fixed.
+
+
 ## 7.10.3 (2018-02-15)
 
 Application reload fix in `plugman`.

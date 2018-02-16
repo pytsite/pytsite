@@ -17,6 +17,7 @@ class Install(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Int('stage', default=1))
+        self.define_option(_console.option.Int('installed_count', default=0))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -28,7 +29,7 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
-        installed_count = 0
+        installed_count = self.opt('installed_count')
 
         try:
             if self.args:
@@ -45,7 +46,8 @@ class Install(_console.Command):
         if installed_count:
             if self.opt('stage') == 1:
                 # Run second stage to let plugins finish installation and update
-                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
+                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed_count=' + str(installed_count)])
+                return r.returncode
             elif self.opt('reload'):
                 _reload.reload()
 
@@ -58,6 +60,7 @@ class Update(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Int('stage', default=1))
+        self.define_option(_console.option.Int('installed_count', default=0))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -69,7 +72,7 @@ class Update(_console.Command):
         return 'pytsite.plugman@console_command_description_update'
 
     def exec(self):
-        installed_count = 0
+        installed_count = self.opt('installed_count')
 
         try:
             if self.args:
@@ -91,7 +94,8 @@ class Update(_console.Command):
         if installed_count:
             if self.opt('stage') == 1:
                 # Run second stage to let plugins finish installation and update
-                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
+                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed_count=' + str(installed_count)])
+                return r.returncode
             elif self.opt('reload'):
                 _reload.reload()
 
