@@ -45,7 +45,6 @@ def run_command(name: str, options: dict = None, arguments: list = None):
     # Set options
     if options:
         for opt_name, opt_val in options.items():
-            opt_name = opt_name.replace('_', '-')
             cmd.set_opt(opt_name, opt_val)
 
     # Set arguments

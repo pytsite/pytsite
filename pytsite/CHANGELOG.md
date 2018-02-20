@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.11.1 (2018-02-20)
+
+Error in `plugman:update` console command fixed.
+
+
 ## 7.11 (2018-02-20)
 
 - New method `tpl.on_resolve_name()` added.

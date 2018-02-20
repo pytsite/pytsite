@@ -17,7 +17,7 @@ class Install(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Int('stage', default=1))
-        self.define_option(_console.option.Int('installed_count', default=0))
+        self.define_option(_console.option.Int('installed-count', default=0))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -29,7 +29,7 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
-        installed_count = self.opt('installed_count')
+        installed_count = self.opt('installed-count')
 
         try:
             if self.args:
@@ -60,7 +60,7 @@ class Update(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Int('stage', default=1))
-        self.define_option(_console.option.Int('installed_count', default=0))
+        self.define_option(_console.option.Int('installed-count', default=0))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -72,7 +72,7 @@ class Update(_console.Command):
         return 'pytsite.plugman@console_command_description_update'
 
     def exec(self):
-        installed_count = self.opt('installed_count')
+        installed_count = self.opt('installed-count')
 
         try:
             if self.args:
