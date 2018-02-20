@@ -19,8 +19,8 @@ from . import _error as error
 _packages = {}
 
 
-def _split_location(location: str) -> list:
-    for r in _events.fire('pytsite.tpl@split_location', location=location):
+def _resolve_location(location: str) -> list:
+    for r in _events.fire('pytsite.tpl@resolve_location', location=location):
         location = r
 
     if '@' in location:
@@ -29,11 +29,18 @@ def _split_location(location: str) -> list:
         return ['app', location]
 
 
+def _resolve_name(tpl_name: str) -> str:
+    for r in _events.fire('pytsite.tpl@resolve_name', tpl_name=tpl_name):
+        tpl_name = r or tpl_name
+
+    return tpl_name
+
+
 def _get_path(location: str) -> str:
     if not location:
         raise ValueError('Template name is not specified')
 
-    package_name, tpl_name = _split_location(location)
+    package_name, tpl_name = _resolve_location(location)
 
     if package_name not in _packages:
         raise error.TemplateNotFound("Templates package '{}' is not registered".format(package_name))
@@ -109,13 +116,13 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
         _packages[alias] = config
 
 
-def render(template: str, args: _Mapping = None, issue_event: bool = True) -> str:
+def render(template: str, args: _Mapping = None, emit_event: bool = True) -> str:
     """Render a template
     """
     if not args:
         args = {}
 
-    if issue_event:
+    if emit_event:
         _events.fire('pytsite.tpl@render', tpl_name=template, args=args)
 
     return _env.get_template(template).render(args)
@@ -139,10 +146,16 @@ def register_global(name: str, obj):
     _env.globals[name] = obj
 
 
-def on_split_location(handler, priority: int = 0):
+def on_resolve_location(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.tpl@split_location', handler, priority)
+    _events.listen('pytsite.tpl@resolve_location', handler, priority)
+
+
+def on_resolve_name(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.tpl@resolve_name', handler, priority)
 
 
 # Additional functions and filters

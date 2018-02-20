@@ -1,6 +1,14 @@
 # PytSite 7 Changelog
 
 
+## 7.11 (2018-02-20)
+
+- New method `tpl.on_resolve_name()` added.
+- `tpl.on_split_location()` renamed to `tpl.on_resolve_location()`.
+- `pytsite.tpl@split_location` event renamed to
+  `pytsite.tpl@resolve_location`.
+
+
 ## 7.10.4 (2018-02-16)
 
 Automatic reloading after plugins install/update issue fixed.
