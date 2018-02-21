@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.11.2 (2018-02-21)
+
+Old `router`'s dependency removed.
+
+
 ## 7.11.1 (2018-02-20)
 
 Error in `plugman:update` console command fixed.

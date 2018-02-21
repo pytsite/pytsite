@@ -283,8 +283,8 @@ def dispatch(env: dict, start_response: callable):
         # Builtin exception handler
         else:
             try:
-                # User defined template
-                wsgi_response = _tpl.render('$theme@exception', args)
+                # Try to render user defined template
+                wsgi_response = _tpl.render('exception', args)
             except _tpl.error.TemplateNotFound:
                 try:
                     # Default template
