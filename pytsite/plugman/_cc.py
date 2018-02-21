@@ -46,7 +46,7 @@ class Install(_console.Command):
         if installed_count:
             if self.opt('stage') == 1:
                 # Run second stage to let plugins finish installation and update
-                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed_count=' + str(installed_count)])
+                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed-count=' + str(installed_count)])
                 return r.returncode
             elif self.opt('reload'):
                 _reload.reload()
@@ -94,7 +94,7 @@ class Update(_console.Command):
         if installed_count:
             if self.opt('stage') == 1:
                 # Run second stage to let plugins finish installation and update
-                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed_count=' + str(installed_count)])
+                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed-count=' + str(installed_count)])
                 return r.returncode
             elif self.opt('reload'):
                 _reload.reload()
