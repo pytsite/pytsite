@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.11.4 (2018-03-01)
+
+'_' removed from filter list in `util.str_transform_1`.
+
+
 ## 7.11.3 (2018-02-21)
 
 Error in `plugman`'s console commands fixed.

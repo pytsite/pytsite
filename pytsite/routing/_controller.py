@@ -1,13 +1,13 @@
 """PytSite Routing Base Controller
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
 from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import formatters as _formatter, validation as _validation, http as _http
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 
 class ControllerArgs(_Mapping):

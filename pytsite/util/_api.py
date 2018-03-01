@@ -26,8 +26,6 @@ from werkzeug.utils import escape as _escape_html
 from htmlmin import minify as _minify
 from jsmin import jsmin as _jsmin
 from urllib import request as _urllib_request
-from pytsite import semver as _semver, package_info as _package_info
-from . import _error
 
 _HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
 _HTML_SINGLE_TAGS = ('br', 'img', 'input')
@@ -426,14 +424,13 @@ def transform_str_1(s: str) -> str:
     6. Replace multiple hyphens with single ones
     7. Remove leading and trailing hyphens
     """
-    mapping = {
-        '!': '', '@': '', '#': '', '$': '', '%': '', '^': '', '&': '', '*': '', '(': '', ')': '', '_': '',
-        '=': '', '+': '', '"': '', "'": '', '{': '', '}': '', '[': '', ']': '', '`': '', '~': '', '|': '', '\\': '',
-        '?': '', '.': '', ',': '', '<': '', '>': '', '«': '', '»': '', '№': '', ':': '', ';': '',
-    }
+    special_chars = (
+        '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '=', '+', '"', "'", '{', '}', '[', ']', '`', '~', '|', '\\',
+        '?', '.', ',', '<', '>', '«', '»', '№', ':', ';',
+    )
 
-    for k, v in mapping.items():
-        s = s.replace(k, v)
+    for c in special_chars:
+        s = s.replace(c, '')
 
     s = transliterate(s.lower())
     s = _re.sub('/{2,}', '/', s)
@@ -562,8 +559,6 @@ def w3c_datetime_str(dt: _datetime = None, date_only: bool = False) -> str:
 
 def md5_hex_digest(inp, encoding='utf8') -> str:
     """Generates MD5 hex digest for string or bytes.
-
-    :type inp: bytes | str
     """
 
     if isinstance(inp, str):
@@ -639,6 +634,7 @@ def cleanup_files(root_path: str, ttl: int) -> tuple:
                 _rmdir(d_path)
 
     return success, failed
+
 
 def reload_module(module, _package: str = None, _reloaded: list = None):
     """Recursively reload a module
