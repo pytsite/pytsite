@@ -28,6 +28,7 @@ from jsmin import jsmin as _jsmin
 from urllib import request as _urllib_request
 
 _HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
+_MULTIPLE_SPACES_RE = _re.compile('\s{2,}')
 _HTML_SINGLE_TAGS = ('br', 'img', 'input')
 _HTML_ALLOWED_EMPTY_TAGS = ('iframe',)
 _LXML_HTML_PARSER = _lxml_etree.HTMLParser(encoding='utf-8', remove_blank_text=True, remove_comments=True)
@@ -190,7 +191,7 @@ def strip_html_tags(s: str, safe_tags: str = None) -> str:
 
 
 def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = None, remove_tags: str = None) -> str:
-    """Remove tags and attributes except safe_tags and empty tags is necessary.
+    """Remove tags and attributes except safe_tags and empty tags which is should not be removed
     """
     safe_tags = 'a:href,target,rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
                 'dt|em|figcaption|figure|h1:id|h2:id|h3:id|h4:id|h5:id|h6:id|hr|i|iframe:src,width,height|' \
@@ -213,8 +214,8 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
         # If the element has NO children, check its text content
         else:
             if item.tag not in _HTML_SINGLE_TAGS and item.tag not in _HTML_ALLOWED_EMPTY_TAGS and item.text:
-                item_text = item.text.strip()
-                if not item_text:
+                item_text = _MULTIPLE_SPACES_RE.sub(' ', item.text)
+                if not item_text or item_text == ' ':
                     # Remove item with no text
                     item.getparent().remove(item)
                 elif item.tag not in ('pre', 'code'):
@@ -230,6 +231,8 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
         while True:
             s_xml = _empty_tags_cleaner(_lxml_html.fromstring(s, parser=_LXML_HTML_PARSER))
             s_cleaned = _lxml_html.tostring(s_xml, encoding='utf-8').decode('utf-8')
+
+            # All done
             if s_cleaned == s:
                 break
 
@@ -434,7 +437,7 @@ def transform_str_1(s: str) -> str:
 
     s = transliterate(s.lower())
     s = _re.sub('/{2,}', '/', s)
-    s = _re.sub('[^a-zA-Z0-9/]', '-', s)
+    s = _re.sub('[^a-zA-Z0-9_/]', '-', s)
     s = _re.sub('-{2,}', '-', s)
     s = _re.sub('(^-|-$)', '', s)
 
@@ -447,7 +450,7 @@ def transform_str_2(s: str) -> str:
     1. transform_1()
     2. Replace slashes with hyphens
     """
-    return _re.sub('/', '-', transform_str_1(s))
+    return transform_str_1(s).replace('/', '-')
 
 
 def get_module_attr(s: str):

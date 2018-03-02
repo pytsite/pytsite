@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.11.5 (2018-03-02)
+
+`util.tidyfy_html()` fixed.
+
+
 ## 7.11.4 (2018-03-01)
 
 '_' removed from filter list in `util.str_transform_1`.
