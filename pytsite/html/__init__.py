@@ -424,12 +424,16 @@ class Th(Td):
 
 class Form(BlockElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'method', 'action'
+        return 'accept-charset', 'action', 'accept-charset', 'enctype', 'method', 'name', 'novalidate', 'target'
 
 
 class Input(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'value', 'placeholder', 'checked', 'required', 'maxlength', 'disabled', 'accept', 'multiple'
+        return 'accept', 'autocomplete', 'autofocus', 'capture', 'checked', 'disabled', 'form', 'formaction', \
+               'formmethod', 'formnovalidate', 'formtarget', 'value', 'placeholder', 'checked', 'required', \
+               'height', 'inputmode', 'list', 'max', 'maxlength', 'min', 'minlength', 'multiple', 'pattern', \
+               'placeholder', 'readonly', 'required', 'selectionDirection', 'selectionEnd', 'selectionStart', 'size', \
+               'spellcheck', 'src', 'step', 'tabindex', 'value', 'width'
 
     def _get_required_attrs(self) -> tuple:
         return 'type', 'name'
@@ -437,12 +441,16 @@ class Input(InlineElement, SingleTagElement):
 
 class TextArea(BlockElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'name', 'placeholder', 'rows', 'required', 'maxlength', 'disabled'
+        return 'autocomplete', 'autofocus', 'cols', 'disabled', 'form', 'maxlength', 'minlength', 'placeholder', \
+               'readonly', 'required', 'rows', 'spellcheck', 'wrap'
+
+    def _get_required_attrs(self) -> tuple:
+        return 'name',
 
 
 class Label(InlineElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'label_for',
+        return 'label_for', 'form'
 
 
 class Select(BlockElement):
@@ -453,7 +461,7 @@ class Select(BlockElement):
         return 'name',
 
     def _get_valid_attrs(self):
-        return 'required',
+        return 'autofocus', 'disabled', 'form', 'multiple', 'required', 'size'
 
 
 class Option(InlineElement):
@@ -461,4 +469,4 @@ class Option(InlineElement):
         return 'value',
 
     def _get_valid_attrs(self):
-        return 'selected',
+        return 'disabled', 'label', 'selected',
