@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.12 (2018-03-06)
+
+New `tpl`'s global: `plugins`.
+
+
 ## 7.11.6 (2018-03-05)
 
 Attributes list of some elements in `html` extended.

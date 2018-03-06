@@ -27,13 +27,22 @@ class _MetaPathHook:
                 raise error.PluginNotLoaded(name_s[1])
 
 
+class _PluginsTplGlobal:
+    def __getitem__(self, item: str):
+        return get(item)
+
+    def __getattr__(self, item: str):
+        return self.__getitem__(item)
+
+
 def _init():
     from os import mkdir
-    from pytsite import reg, lang, console, update, on_app_load
+    from pytsite import reg, lang, tpl, console, update, on_app_load
     from . import _cc, _eh
 
     # Resources
     lang.register_package(__name__)
+    tpl.register_global('plugins', _PluginsTplGlobal())
 
     # Create 'plugins' package if it doesn't exist
     plugins_dir_path = plugins_path()

@@ -9,7 +9,7 @@ plugin_uninstall_success: "Плагин ':plugin' был успешно удал
 console_command_description_install: 'Установка плагин'
 console_command_description_update: 'Обновление плагин'
 console_command_description_uninstall: 'Удаление плагин'
-updating_plugins: 'Обновляю плагины'
+upgrading_plugins: 'Обновляю плагины'
 plugins_not_specified: 'Не указаны имена плагин'
 plugin_has_dependant_plugins: "От плагина ':plugin' зависят плагины :dependants"
 plugin_requires_pip_package: "Плагин ':plugin' зависит от pip-пакета ':pip_package'"
