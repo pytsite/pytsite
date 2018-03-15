@@ -5,18 +5,18 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
-from collections import Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import formatters as _formatter, validation as _validation, http as _http
 
 
-class ControllerArgs(_Mapping):
-    def __init__(self):
+class ControllerArgs(dict):
+    def __init__(self, seq=None, **kwargs):
         """Init
         """
-        self._values = {}
-        self._formatters = {}  # type: _Dict[str, _List[_formatter.Formatter]]
-        self._rules = {}  # type: _Dict[str, _List[_validation.rule.Rule]]
+        super().__init__(seq or {}, **kwargs)
+
+        self._formatters = kwargs.get('formatters', {})  # type: _Dict[str, _List[_formatter.Formatter]]
+        self._rules = kwargs.get('rules', {})  # type: _Dict[str, _List[_validation.rule.Rule]]
 
     def add_formatter(self, key: str, formatter: _formatter.Formatter):
         """Add a formatter for the field
@@ -34,25 +34,14 @@ class ControllerArgs(_Mapping):
 
         self._rules[key].append(rule)
 
-    def clear(self):
-        """Clear
+    def update(self, other: dict, **kwargs):
+        """It is important to pass all values through formatters
         """
-        self._values = {}
-
-        return self
-
-    def update(self, values: _Mapping):
-        """Set multiple values
-        """
-        for k, v in values.items():
+        for k, v in other.items():
             self[k] = v
 
-        return self
-
-    def pop(self, key: str, default: _Any = None) -> _Any:
-        """Pop a value
-        """
-        return self._values.pop(key, default)
+        for k, v in kwargs.items():
+            self[k] = v
 
     def __setitem__(self, key: str, value: _Any):
         # Apply formatters
@@ -74,19 +63,7 @@ class ControllerArgs(_Mapping):
                         'error': str(e),
                     })
 
-        self._values[key] = value
-
-    def __getitem__(self, key: str) -> _Any:
-        return self._values[key]
-
-    def __iter__(self):
-        return self._values.__iter__()
-
-    def __len__(self):
-        return len(self._values)
-
-    def __repr__(self):
-        return repr(self._values)
+        super().__setitem__(key, value)
 
 
 class Controller(_ABC):

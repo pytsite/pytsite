@@ -60,6 +60,11 @@ class PositiveInt(Int):
         super().__init__(0, maximum)
 
 
+class AboveZeroInt(Int):
+    def __init__(self, maximum: int = None):
+        super().__init__(1, maximum)
+
+
 class Float(Formatter):
     def __init__(self, minimum: float = None, maximum: float = None):
         super().__init__()

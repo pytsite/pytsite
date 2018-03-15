@@ -277,6 +277,9 @@ class BlockElement(Element):
 class Span(InlineElement):
     pass
 
+class Small(InlineElement):
+    pass
+
 
 class B(Span):
     pass

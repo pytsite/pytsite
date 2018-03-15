@@ -1,6 +1,14 @@
 # PytSite 7 Changelog
 
 
+## 7.13 (2018-03-15)
+
+- `formatters`: new formatter: `AboveZeroInt`.
+- `html`: new element: `Small`.
+- `router`: fragment processing fixed in `url()`.
+- `routing`: `ControllerArgs` now extends `dict`.
+
+
 ## 7.12 (2018-03-06)
 
 New `tpl`'s global: `plugins`.

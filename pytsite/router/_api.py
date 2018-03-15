@@ -359,8 +359,8 @@ def url(s: str, **kwargs) -> str:
     strip_query = kwargs.get('strip_query')  # type: bool
     query = kwargs.get('query')  # type: dict
     relative = kwargs.get('relative', False)  # type: bool
-    strip_fragment = kwargs.get('strip_fragment')  # type: bool
-    fragment = kwargs.get('fragment')  # type: str
+    strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
+    fragment = kwargs.get('fragment')  # type: dict
 
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
@@ -391,7 +391,9 @@ def url(s: str, **kwargs) -> str:
         r[5] = ''
     elif fragment:
         # Attaching additional fragment
-        r[5] = fragment
+        parsed_fragment = _urlparse.parse_qs(parsed_url[5])
+        parsed_fragment.update(fragment)
+        r[5] = _urlparse.urlencode(parsed_fragment, doseq=True)
 
     # Adding language suffix (only for relative links as source argument)
     if not parsed_url[0] and not strip_lang:
