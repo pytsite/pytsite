@@ -345,14 +345,13 @@ def time_ago(time: _datetime) -> str:
                 return t('pytsite.lang@just_now')
 
 
-def pretty_date(time: _datetime) -> str:
+def pretty_date(date_time: _datetime) -> str:
     """Format date as pretty string.
     """
-    r = '{} {}'.format(time.day, t_plural('pytsite.lang@month_' + str(time.month)))
+    r = '{} {}'.format(date_time.day, t_plural('pytsite.lang@month_' + str(date_time.month)))
 
-    diff = _datetime.now() - time
-    if abs(diff.days) > 365:
-        r += ' ' + str(time.year)
+    if date_time.now().year != date_time.year:
+        r += ' ' + str(date_time.year)
 
     return r
 

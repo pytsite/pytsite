@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.13.1 (2018-03-17)
+
+Year calculation fixed in `util.pretty_date()`.
+
+
 ## 7.13 (2018-03-15)
 
 - `formatters`: new formatter: `AboveZeroInt`.
