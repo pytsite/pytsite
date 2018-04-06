@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.14.1 (2018-04-06)
+
+Version number fixed.
+
+
 ## 7.14 (2018-04-06)
 
 - `http`: input data processing in `Request` fixed.
