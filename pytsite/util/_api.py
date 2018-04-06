@@ -290,8 +290,15 @@ def dict_merge(a: dict, b: dict) -> dict:
     result = _deepcopy(a)
 
     for k, v in b.items():
-        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
-            result[k] = dict_merge(result[k], v)
+        if k in result:
+            if isinstance(result[k], dict) and isinstance(v, dict):
+                result[k] = dict_merge(result[k], v)
+            elif isinstance(result[k], list) and isinstance(v, (set, list, tuple)):
+                result[k].extend(v)
+            elif isinstance(result[k], set) and isinstance(v, (set, list, tuple)):
+                result[k].update(v)
+            else:
+                result[k] = _deepcopy(v)
         else:
             result[k] = _deepcopy(v)
 

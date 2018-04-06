@@ -11,7 +11,7 @@ from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, events as _events, routing as _routing, errors as _errors, maintenance as _maintenance
+    threading as _threading, events as _events, routing as _routing, maintenance as _maintenance
 
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 
@@ -66,16 +66,13 @@ def delete_session():
     _session_store.delete(session())
 
 
-def get_no_cache() -> bool:
-    """Get 'no-cache' status belonged to the current thread
+def no_cache(state: bool = None) -> _Optional[bool]:
+    """Get/set 'no-cache' status belonged to the current thread
     """
-    return _no_cache.get(_threading.get_id())
-
-
-def set_no_cache(status: bool):
-    """Set 'no-cache' status belonged to the current thread
-    """
-    _no_cache[_threading.get_id()] = status
+    if state is None:
+        return _no_cache.get(_threading.get_id())
+    else:
+        _no_cache[_threading.get_id()] = state
 
 
 def handle(controller: _Union[str, _Type], path: str = None, name: str = None, defaults: dict = None,
@@ -95,20 +92,20 @@ def handle(controller: _Union[str, _Type], path: str = None, name: str = None, d
 
 
 def add_path_alias(alias: str, target: str):
-    """Add an alias for a path.
+    """Add an alias for a path
     """
     _path_aliases[alias] = target
 
 
 def remove_path_alias(alias: str):
-    """Remove an alias for a path.
+    """Remove an alias for a path
     """
     if alias in _path_aliases:
         del _path_aliases[alias]
 
 
 def has_rule(rule_name: str) -> bool:
-    """Check whether endpoint is callable.
+    """Check whether endpoint is callable
     """
     return _rules.has(rule_name)
 
@@ -123,7 +120,7 @@ def call(rule_name: str, args: _Mapping):
 
 
 def dispatch(env: dict, start_response: callable):
-    """Dispatch a request.
+    """Dispatch a request
     """
     tid = _threading.get_id()
 
@@ -140,7 +137,7 @@ def dispatch(env: dict, start_response: callable):
         return _http.response.Redirect(redirect_url, 301)(env, start_response)
 
     # All requests are cached by default
-    set_no_cache(False)
+    no_cache(False)
 
     # Detect language from path
     languages = _lang.langs()
@@ -202,8 +199,8 @@ def dispatch(env: dict, start_response: callable):
         for flt_controller_class in rule.attrs['filters']:
             flt_controller = flt_controller_class()  # type: _routing.Controller
             flt_controller.request = req
-            flt_controller.args.update(rule.args)
-            flt_controller.args.update(req.inp)
+            flt_controller.args.update(req.inp)  # It's important not to overwrite rule's args with input
+            flt_controller.args.update(rule.args)  # It's important not to overwrite rule's args with input
             flt_response = flt_controller.exec()
             if isinstance(flt_response, _http.response.Response):
                 return flt_response(env, start_response)
@@ -214,8 +211,8 @@ def dispatch(env: dict, start_response: callable):
         # Instantiate controller and fill its arguments
         controller = rule.controller_class()  # type: _routing.Controller
         controller.request = req
-        controller.args.update(rule.args)  # Merge rule args
-        controller.args.update(req.inp)  # Merge input
+        controller.args.update(req.inp)  # It's important not to overwrite rule's args with input
+        controller.args.update(rule.args)  # It's important not to overwrite rule's args with input
         controller.args['_pytsite_router_rule_name'] = rule.name
 
         # Call controller
@@ -227,7 +224,7 @@ def dispatch(env: dict, start_response: callable):
 
         # Checking response from the handler
         if isinstance(controller_resp, str):
-            # Minifying output
+            # Minify output
             if _reg.get('output.minify'):
                 controller_resp = _util.minify_html(controller_resp)
             wsgi_response.data = controller_resp
@@ -237,7 +234,7 @@ def dispatch(env: dict, start_response: callable):
             wsgi_response.data = ''
 
         # Cache control
-        if get_no_cache() or req.method != 'GET':
+        if no_cache() or req.method != 'GET':
             wsgi_response.headers.set('Cache-Control', 'private, max-age=0, no-cache, no-store')
             wsgi_response.headers.set('Pragma', 'no-cache')
         else:

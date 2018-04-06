@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union
+from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union, Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import formatters as _formatter, validation as _validation, http as _http
 
@@ -34,7 +34,7 @@ class ControllerArgs(dict):
 
         self._rules[key].append(rule)
 
-    def update(self, other: dict, **kwargs):
+    def update(self, other: _Mapping, **kwargs):
         """It is important to pass all values through formatters
         """
         for k, v in other.items():

@@ -1,6 +1,16 @@
 # PytSite 7 Changelog
 
 
+## 7.14 (2018-04-06)
+
+- `http`: input data processing in `Request` fixed.
+- `router`:
+  - `get_no_cache()` and `set_no_cache()` merged into one
+    function;
+  - arguments passing order to controller fixed.
+- `util.dicgt_merge` lists processing fixed.
+
+
 ## 7.13.1 (2018-03-17)
 
 Year calculation fixed in `util.pretty_date()`.

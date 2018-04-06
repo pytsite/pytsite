@@ -12,7 +12,7 @@ _list_key_re = _re.compile('([^\[]+)\[\]$')
 
 
 class Request(_Request):
-    """HTTP request.
+    """HTTP request
     """
 
     @_cached_property
@@ -41,22 +41,22 @@ class Request(_Request):
                 else:
                     r[k][sub_k].append(v[0])
 
-            # Key has form 'key[sub_key]'. Value will be a dict.
+            # Key has form 'key[sub_key]' -- value will be a dict
             elif is_dict_key:
                 k = is_dict_key.group(1)
                 sub_k = is_dict_key.group(2)
-                if k not in r:
+                if k not in r or not isinstance(r[k], dict):
                     r[k] = {}
                 r[k][sub_k] = v if len(v) > 1 else v[0]
 
-            # Key has form 'key[]'. Value will be a list.
+            # Key has form 'key[]'. Value will be a list
             elif is_list_key:
                 k = is_list_key.group(1)
                 r[k] = v
 
-            # Key is simple string. Value will be used as-is.
+            # Key is simple string. Value will be used as-is
             else:
-                # Value always is a list. If list has only one item, extract it.
+                # Value always is a list. If list has only one item, extract it
                 if len(v) == 1:
                     v = v[0]
 

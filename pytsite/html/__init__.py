@@ -32,6 +32,7 @@ class Element(_ABC):
 
     def __init__(self, content=None, child_sep: str = '', content_first=False, **kwargs):
         """Init
+
         :type content: Element | str
         """
         if isinstance(content, Element):
@@ -69,7 +70,7 @@ class Element(_ABC):
 
     @property
     def children(self):
-        """ Get children
+        """Get children
 
         :rtype: list[Element]
         """
@@ -77,10 +78,12 @@ class Element(_ABC):
 
     @property
     def attrs(self) -> dict:
+        """Get attributes
+        """
         return self._attrs
 
     def set_attr(self, attr: str, value):
-        """Set attribute.
+        """Set attribute
         """
         if attr not in _common_tag_attrs \
                 and not attr.startswith('data_') \
@@ -99,12 +102,12 @@ class Element(_ABC):
         return self
 
     def get_attr(self, attr, default=None) -> str:
-        """Get attribute.
+        """Get attribute
         """
         return self._attrs[attr] if attr in self._attrs else default
 
     def append(self, child):
-        """Append child.
+        """Append a child
 
         :type child: Element
         """
@@ -126,7 +129,7 @@ class Element(_ABC):
         return child
 
     def get_child_by_uid(self, uid: str, parent=None):
-        """Get child by ID.
+        """Get child by ID
 
         :rtype: Element|None
         """
@@ -259,7 +262,7 @@ class TagLessElement(Element):
 
 
 class InlineElement(Element):
-    """Inline element.
+    """Inline element
     """
 
     def _get_valid_children(self) -> tuple:
@@ -267,7 +270,7 @@ class InlineElement(Element):
 
 
 class BlockElement(Element):
-    """Block element.
+    """Block element
     """
 
     def _get_valid_children(self) -> tuple:
@@ -276,6 +279,7 @@ class BlockElement(Element):
 
 class Span(InlineElement):
     pass
+
 
 class Small(InlineElement):
     pass
