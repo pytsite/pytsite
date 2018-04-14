@@ -344,11 +344,11 @@ def is_base_url(compare: str = None) -> bool:
     return base_url() == compare
 
 
-def url(s: str, **kwargs) -> str:
+def url(s: str, **kwargs) -> _Union[str, list]:
     """Generate an URL.
     """
     if not s:
-        raise ValueError('url_str cannot be empty.')
+        raise ValueError('URL is empty')
 
     sch = kwargs.get('scheme', scheme())  # type: str
     lang = kwargs.get('lang', _lang.get_current())  # type: str
@@ -358,6 +358,7 @@ def url(s: str, **kwargs) -> str:
     relative = kwargs.get('relative', False)  # type: bool
     strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
     fragment = kwargs.get('fragment')  # type: dict
+    as_list = kwargs.get('as_list', False)
 
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
@@ -401,7 +402,7 @@ def url(s: str, **kwargs) -> str:
                 b_path += '/'
             r[2] = str(b_path + parsed_url[2]).replace('//', '/')
 
-    return _urlparse.urlunparse(r)
+    return _urlparse.urlunparse(r) if not as_list else r
 
 
 def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str = None) -> str:

@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.15 (2018-04-14)
+
+New argument `as_list` added to `router.url()`.
+
+
 ## 7.14.1 (2018-04-06)
 
 Version number fixed.
