@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.16.1 (2018-04-25)
+
+- `setup.py` fixed.
+- Obsolete `TODO.md` removed.
+
+
 ## 7.16 (2018-04-25)
 
 - `cron`: new API functions added: `on_start()`, `on_stop()`.
