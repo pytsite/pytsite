@@ -426,8 +426,6 @@ def install(plugin_spec: str) -> int:
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
 
-        _events.fire('pytsite.plugman@install', name=plugin_name, version=ver_to_install)
-
         return installed_count + 1
 
     except Exception as e:

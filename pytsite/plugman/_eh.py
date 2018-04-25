@@ -49,7 +49,7 @@ def on_app_load():
         # plugin_install()
         if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
             plugin.plugin_install()
-        _events.fire('pytsite.plugman@install', name=p_name)
+        _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
 
         # plugin_update()
         if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
