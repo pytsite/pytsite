@@ -331,10 +331,11 @@ def install(plugin_spec: str) -> int:
         raise _error.PluginInstallationInProgress(plugin_name)
 
     try:
+        _installing.append(plugin_name)
+
         _events.fire('pytsite.plugman@pre_install', name=plugin_name, version=ver_to_install)
 
         # Flag start of the installation process
-        _installing.append(plugin_name)
         _console.print_info(_lang.t('pytsite.plugman@installing_plugin', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))

@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.16.2 (2018-04-25)
+
+Exceptions handling fixed in `plugman`.
+
+
 ## 7.16.1 (2018-04-25)
 
 - `setup.py` fixed.
