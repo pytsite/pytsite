@@ -1,6 +1,14 @@
 # PytSite 7 Changelog
 
 
+## 7.16 (2018-04-25)
+
+- `cron`: new API functions added: `on_start()`, `on_stop()`.
+- `plugman`:
+  - new API functions added: `on_pre_install()`, `on_install()`,
+    `on_install_error()`.
+  - Fixed some unexpected behaviour.
+
 ## 7.15 (2018-04-14)
 
 New argument `as_list` added to `router.url()`.

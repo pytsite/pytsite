@@ -1,16 +1,17 @@
 """PytSite Validator
 """
-from typing import Tuple as _Tuple
-from . import _rule, _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from typing import Tuple as _Tuple
+from . import _rule, _error
 
 
 class Validator:
     """PytSite Validator
     """
+
     def __init__(self):
         """Init.
         """
@@ -35,7 +36,7 @@ class Validator:
         """Get validator's rules.
         """
         if not self.has_field(field):
-            raise KeyError("Field '{}' is not defined.".format(field))
+            raise KeyError("Field '{}' is not defined".format(field))
 
         return tuple(self._rules[field])
 
@@ -51,7 +52,7 @@ class Validator:
         """Set field's value.
         """
         if not self.has_field(field):
-            raise KeyError("Field '{}' is not defined.".format(field))
+            raise KeyError("Field '{}' is not defined".format(field))
 
         # Set value of the field's rules
         for rule in self.get_rules(field):

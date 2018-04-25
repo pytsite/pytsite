@@ -1,22 +1,19 @@
-"""Pytsite Validation Package.
+"""Pytsite Validation Package
 """
-# Public API
-from . import _validator, _rule, _error
-
-rule = _rule
-error = _error
-Validator = _validator.Validator
-ValidatorError = _error.ValidatorError
-RuleError = _error.RuleError
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+# Public API
+from . import _validator as validator, _rule as rule, _error as error
+from ._validator import Validator
+from ._rule import Rule
+from ._error import RuleError, ValidatorError
 
-def __init():
+
+def _init():
     from pytsite import lang
     lang.register_package(__name__)
 
 
-__init()
+_init()

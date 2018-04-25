@@ -331,6 +331,8 @@ def install(plugin_spec: str) -> int:
         raise _error.PluginInstallationInProgress(plugin_name)
 
     try:
+        _events.fire('pytsite.plugman@pre_install', name=plugin_name, version=ver_to_install)
+
         # Flag start of the installation process
         _installing.append(plugin_name)
         _console.print_info(_lang.t('pytsite.plugman@installing_plugin', {
@@ -423,11 +425,15 @@ def install(plugin_spec: str) -> int:
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
 
+        _events.fire('pytsite.plugman@install', name=plugin_name, version=ver_to_install)
+
         return installed_count + 1
 
     except Exception as e:
         # Remove not completely installed plugin files
         _rmtree(plugin_path(plugin_name), True)
+
+        _events.fire('pytsite.plugman@install_error', name=plugin_name, version=ver_to_install, exception=e)
 
         raise _error.PluginInstallError(_lang.t('pytsite.plugman@plugin_install_error', {
             'plugin': plugin_name,
@@ -502,16 +508,22 @@ def is_dev_mode() -> bool:
     return _DEV_MODE
 
 
+def on_pre_install(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman@pre_install', handler, priority)
+
+
 def on_install(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('pytsite.plugman@install', handler, priority)
 
 
-def on_update(handler, priority: int = 0):
+def on_install_error(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.plugman@update', handler, priority)
+    _events.listen('pytsite.plugman@install_error', handler, priority)
 
 
 def on_uninstall(handler, priority: int = 0):

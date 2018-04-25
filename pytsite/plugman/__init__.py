@@ -11,7 +11,7 @@ from pytsite import maintenance as _maintenance
 from . import _error as error
 from ._api import plugins_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
     local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
-    on_update, on_uninstall, plugin_path, is_loading, is_installing, get
+    on_pre_install, on_install_error, on_uninstall, plugin_path, is_loading, is_installing, get
 
 
 class _MetaPathHook:
@@ -84,8 +84,8 @@ def _init():
                 _maintenance.disable(True)
 
     # Event handlers
-    update.on_update_stage_2(_eh.update_stage_2)
-    on_app_load(_eh.app_load)
+    update.on_update_stage_2(_eh.on_pytsite_update_stage_2)
+    on_app_load(_eh.on_app_load)
 
 
 _init()

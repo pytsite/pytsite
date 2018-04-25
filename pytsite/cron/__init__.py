@@ -4,11 +4,13 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+# Public API
+from ._api import on_start, on_stop, every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
+
 from datetime import datetime as _datetime
 from time import time as _time
 from pytsite import events as _events, reg as _reg, logger as _logger, cache as _cache, threading as _threading, \
     maintenance as _maintenance
-from ._api import every_min, every_5min, every_15min, every_30min, hourly, daily, weekly, monthly
 
 _cache_pool = _cache.create_pool('pytsite.cron')
 _DEBUG = _reg.get('cron.debug', False)
@@ -56,6 +58,8 @@ def _cron_worker():
             _logger.warn('Cron worker cannot start due to maintenance mode enabled')
             return
 
+        _events.fire('pytsite.cron@start')
+
         # Check lock
         try:
             lock_time = _cache_pool.get('lock')
@@ -93,7 +97,7 @@ def _cron_worker():
                         or (evt == 'monthly' and delta.total_seconds() >= 2592000):
 
                     if _DEBUG:
-                        _logger.debug('Cron event: pytsite.cron.' + evt)
+                        _logger.debug('Cron event: pytsite.cron@' + evt)
 
                     try:
                         _events.fire('pytsite.cron@' + evt)
@@ -107,6 +111,8 @@ def _cron_worker():
                 _update_stats(evt)
 
     finally:
+        _events.fire('pytsite.cron@stop')
+
         # Unlock
         _cache_pool.rm('lock')
         if _DEBUG:

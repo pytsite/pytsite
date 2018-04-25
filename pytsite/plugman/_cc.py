@@ -28,40 +28,39 @@ class Install(_console.Command):
     def description(self) -> str:
         return 'pytsite.plugman@console_command_description_install'
 
+    def _get_plugins_specs(self) -> list:
+        return self.args if self.args else _package_info.requires_plugins('app')
+
     def exec(self):
-        installed_count = self.opt('installed-count')
+        stage = self.opt('stage')
 
-        try:
-            if self.args:
-                for plugin_spec in self.args:
+        if stage == 1:
+            installed_count = self.opt('installed-count')
+
+            # Install plugins
+            for plugin_spec in self._get_plugins_specs():
+                try:
                     installed_count += _api.install(plugin_spec)
-            else:
-                # Install plugins required by application
-                for plugin_spec in _package_info.requires_plugins('app'):
-                    installed_count += _api.install(plugin_spec)
+                except _error.Error as e:
+                    raise _console.error.CommandExecutionError(e)
 
-        except _error.Error as e:
-            raise _console.error.CommandExecutionError(e)
-
-        if installed_count:
-            if self.opt('stage') == 1:
+            if installed_count:
                 # Run second stage to let plugins finish installation and update
-                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed-count=' + str(installed_count)])
-                return r.returncode
-            elif self.opt('reload'):
+                p_args = ['./console', self.name, '--stage=2', '--installed-count=' + str(installed_count)]
+                return _subprocess.run(p_args).returncode
+
+        elif stage == 2:
+            # Do nothing, all work done during plugman init
+            if self.opt('reload'):
                 _reload.reload()
 
+        else:
+            raise _console.error.CommandExecutionError('Invalid stage number')
 
-class Update(_console.Command):
+
+class Update(Install):
     """plugman:update
     """
-
-    def __init__(self):
-        super().__init__()
-
-        self.define_option(_console.option.Int('stage', default=1))
-        self.define_option(_console.option.Int('installed-count', default=0))
-        self.define_option(_console.option.Bool('reload', default=True))
 
     @property
     def name(self) -> str:
@@ -71,33 +70,18 @@ class Update(_console.Command):
     def description(self) -> str:
         return 'pytsite.plugman@console_command_description_update'
 
+    def _get_plugins_specs(self) -> list:
+        return self.args if self.args else _api.local_plugins_info().keys()
+
     def exec(self):
-        installed_count = self.opt('installed-count')
+        # Check if the all requested plugins are installed
+        for plugin_spec in self._get_plugins_specs():
+            if not _api.is_installed(plugin_spec):
+                raise _console.error.CommandExecutionError(_lang.t('pytsite.plugman@plugin_not_installed', {
+                    'plugin': plugin_spec
+                }))
 
-        try:
-            if self.args:
-                # Update specified plugins
-                for plugin_spec in self.args:
-                    if not _api.is_installed(plugin_spec):
-                        raise _console.error.CommandExecutionError(_lang.t('pytsite.plugman@plugin_not_installed', {
-                            'plugin': plugin_spec
-                        }))
-                    installed_count += _api.install(plugin_spec)
-            else:
-                # Update all installed plugins
-                for plugin_spec in _api.local_plugins_info():
-                    installed_count += _api.install(plugin_spec)
-
-        except _error.Error as e:
-            raise _console.error.CommandExecutionError(e)
-
-        if installed_count:
-            if self.opt('stage') == 1:
-                # Run second stage to let plugins finish installation and update
-                r = _subprocess.run(['./console', self.name, '--stage=2', '--installed-count=' + str(installed_count)])
-                return r.returncode
-            elif self.opt('reload'):
-                _reload.reload()
+        super().exec()
 
 
 class Uninstall(_console.Command):

@@ -1,16 +1,15 @@
 """PytSite Plugman Events Handlers
 """
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from pytsite import console as _console, lang as _lang, package_info as _package_info, events as _events, \
-    logger as _logger, semver as _semver, reg as _reg, reload as _reload
+    logger as _logger, semver as _semver, reg as _reg
 from . import _api, _error
 
 
-def update_stage_2():
+def on_pytsite_update_stage_2():
     _console.print_info(_lang.t('pytsite.plugman@upgrading_plugins'))
 
     # Update all installed plugins
@@ -24,7 +23,7 @@ def update_stage_2():
             raise _console.error.CommandExecutionError(e)
 
 
-def app_load():
+def on_app_load():
     update_info = _api.get_update_info()
 
     if not update_info:

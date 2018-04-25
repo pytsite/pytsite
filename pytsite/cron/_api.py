@@ -7,6 +7,14 @@ __license__ = 'MIT'
 from pytsite import events as _events
 
 
+def on_start(handler, priority: int = 0):
+    _events.listen('pytsite.cron@start', handler, priority)
+
+
+def on_stop(handler, priority: int = 0):
+    _events.listen('pytsite.cron@stop', handler, priority)
+
+
 def every_min(handler, priority: int = 0):
     _events.listen('pytsite.cron@1min', handler, priority)
 
