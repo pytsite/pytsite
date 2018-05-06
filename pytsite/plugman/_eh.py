@@ -23,7 +23,7 @@ def on_pytsite_update_stage_2():
             raise _console.error.CommandExecutionError(e)
 
 
-def on_app_load():
+def on_pytsite_load():
     update_info = _api.get_update_info()
 
     if not update_info:

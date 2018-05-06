@@ -1,6 +1,13 @@
 # PytSite 7 Changelog
 
 
+## 7.18 (2018-05-06)
+
+- New event `pytsite.load` added.
+- New API function `on_pytsite_load()` added.
+- `plugman`: plugins installation hooks calls fixed.
+
+
 ## 7.17 (2018-05-06)
 
 - `http`: new public API classes: `Request`, `Response`,

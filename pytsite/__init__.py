@@ -11,6 +11,12 @@ def on_app_load(handler, priority: int = 0):
     events.listen('pytsite.app_load', handler, priority)
 
 
+def on_pytsite_load(handler, priority: int = 0):
+    from pytsite import events
+
+    events.listen('pytsite.load', handler, priority)
+
+
 def _init():
     """Init wrapper
     """
@@ -122,11 +128,14 @@ def _init():
                     getattr(app, hook_name)()
 
             events.fire('pytsite.app_load')
-
             logger.debug('Application loaded')
 
         except (plugman.error.Error, package_info.error.Error) as e:
             raise Warning('Application load error: {}'.format(e))
+
+        finally:
+            events.fire('pytsite.load')
+            logger.debug('PytSite initialized and ready to work')
 
     except Warning as e:
         console.print_warning(e)

@@ -37,7 +37,7 @@ class _PluginsTplGlobal:
 
 def _init():
     from os import mkdir
-    from pytsite import reg, lang, tpl, console, update, on_app_load
+    from pytsite import reg, lang, tpl, console, update, on_pytsite_load
     from . import _cc, _eh
 
     # Resources
@@ -85,7 +85,7 @@ def _init():
 
     # Event handlers
     update.on_update_stage_2(_eh.on_pytsite_update_stage_2)
-    on_app_load(_eh.on_app_load)
+    on_pytsite_load(_eh.on_pytsite_load)
 
 
 _init()
