@@ -9,6 +9,7 @@ import requests as _requests
 import json as _json
 import pickle as _pickle
 from typing import Type as _Type, Union as _Union, Dict as _Dict
+from sys import argv
 from os import listdir as _listdir, path as _path, makedirs as _makedirs, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
@@ -574,7 +575,9 @@ def rm_update_info(plugin_name: str):
 def is_management_mode() -> bool:
     """Check if the plugman is installing, uninstalling or updating plugins now
     """
-    try:
-        return isinstance(_console.get_current_command(), (_cc.Install, _cc.Uninstall, _cc.Update))
-    except _console.error.NoCommandRunning:
-        return False
+    cmd_names = [_cc.Install().name, _cc.Update().name, _cc.Uninstall.name]
+    for v in argv:
+        if v in cmd_names:
+            return True
+
+    return False

@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.19.1 (2018-05-06)
+
+`plugman.is_management_mode()` now works right after start of the
+PytSite, not after `plugman` starts.
+
+
 ## 7.19 (2018-05-06)
 
 New API functions: `console.get_current_command()`,
