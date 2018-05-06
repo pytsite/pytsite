@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.17 (2018-05-06)
+
+- `http`: new public API classes: `Request`, `Response`,
+  `RedirectResponse`, `JSONResponse`, `Session`.
+
+
 ## 7.16.3 (2018-04-25)
 
 Event firing order fixed in `plugman`.

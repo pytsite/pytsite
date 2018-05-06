@@ -22,13 +22,13 @@ _rules = _routing.RulesMap()
 _path_aliases = {}
 
 # Session store
-_session_store = _FilesystemSessionStore(path=_reg.get('paths.session'), session_class=_http.session.Session)
+_session_store = _FilesystemSessionStore(path=_reg.get('paths.session'), session_class=_http.Session)
 
 # Thread safe requests collection
-_requests = {}  # type: _Dict[int, _http.request.Request]
+_requests = {}  # type: _Dict[int, _http.Request]
 
 # Thread safe sessions collection
-_sessions = {}  # type: _Dict[int, _http.session.Session]
+_sessions = {}  # type: _Dict[int, _http.Session]
 
 # Thread safe 'no-cache' statues collection
 _no_cache = {}  # type: _Dict[int, bool]
@@ -40,7 +40,7 @@ def get_session_store() -> _FilesystemSessionStore:
     return _session_store
 
 
-def set_request(r: _http.request.Request):
+def set_request(r: _http.Request):
     """Set request for current thread
     """
     _requests[_threading.get_id()] = r
@@ -48,13 +48,13 @@ def set_request(r: _http.request.Request):
     return r
 
 
-def request() -> _Optional[_http.request.Request]:
+def request() -> _Optional[_http.Request]:
     """Get request for current thread
     """
     return _requests.get(_threading.get_id())
 
 
-def session() -> _http.session.Session:
+def session() -> _http.Session:
     """Get session object
     """
     return _sessions.get(_threading.get_id())
@@ -126,15 +126,15 @@ def dispatch(env: dict, start_response: callable):
 
     # Check maintenance mode status
     if _maintenance.is_enabled():
-        wsgi_response = _http.response.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'),
-                                                status=503, content_type='text/html')
+        wsgi_response = _http.Response(response=_lang.t('pytsite.router@we_are_in_maintenance'), status=503,
+                                       content_type='text/html')
         return wsgi_response(env, start_response)
 
     # Remove trailing slash
     if env['PATH_INFO'] != '/' and env['PATH_INFO'].endswith('/'):
         redirect_url = _re.sub('/$', '', env['PATH_INFO'])
         redirect_url += '?' + env['QUERY_STRING'] if env['QUERY_STRING'] else ''
-        return _http.response.Redirect(redirect_url, 301)(env, start_response)
+        return _http.RedirectResponse(redirect_url, 301)(env, start_response)
 
     # All requests are cached by default
     no_cache(False)
@@ -152,7 +152,7 @@ def dispatch(env: dict, start_response: callable):
                     env['PATH_INFO'] = '/'
                 # If requested language is default, redirect to path without language prefix
                 if lang_code == languages[0]:
-                    return _http.response.Redirect(env['PATH_INFO'], 301)(env, start_response)
+                    return _http.RedirectResponse(env['PATH_INFO'], 301)(env, start_response)
             except _lang.error.LanguageNotSupported:
                 # If language is not defined, do nothing. 404 will be fired in the code below.
                 pass
@@ -161,7 +161,7 @@ def dispatch(env: dict, start_response: callable):
             _lang.set_current(languages[0])
 
     # Create request context
-    req = set_request(_http.request.Request(env))
+    req = set_request(_http.Request(env))
 
     # Notify listeners
     if req.is_xhr:
@@ -172,7 +172,7 @@ def dispatch(env: dict, start_response: callable):
     # Loading path alias, if it exists, then re-create request context
     if env['PATH_INFO'] in _path_aliases:
         env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
-        req = set_request(_http.request.Request(env))
+        req = set_request(_http.Request(env))
 
     # Session setup
     sid = req.cookies.get('PYTSITE_SESSION')
@@ -202,11 +202,11 @@ def dispatch(env: dict, start_response: callable):
             flt_controller.args.update(req.inp)  # It's important not to overwrite rule's args with input
             flt_controller.args.update(rule.args)  # It's important not to overwrite rule's args with input
             flt_response = flt_controller.exec()
-            if isinstance(flt_response, _http.response.Response):
+            if isinstance(flt_response, _http.Response):
                 return flt_response(env, start_response)
 
         # Preparing response object
-        wsgi_response = _http.response.Response(response='', status=200, content_type='text/html', headers=[])
+        wsgi_response = _http.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Instantiate controller and fill its arguments
         controller = rule.controller_class()  # type: _routing.Controller
@@ -228,7 +228,7 @@ def dispatch(env: dict, start_response: callable):
             if _reg.get('output.minify'):
                 controller_resp = _util.minify_html(controller_resp)
             wsgi_response.data = controller_resp
-        elif isinstance(controller_resp, _http.response.Response):
+        elif isinstance(controller_resp, _http.Response):
             wsgi_response = controller_resp
         else:
             wsgi_response.data = ''
@@ -290,7 +290,7 @@ def dispatch(env: dict, start_response: callable):
                     # Default simple template
                     wsgi_response = _tpl.render('pytsite.router@exception-simple', args)
 
-        return _http.response.Response(wsgi_response, code, content_type='text/html')(env, start_response)
+        return _http.Response(wsgi_response, code, content_type='text/html')(env, start_response)
 
 
 def base_path(lang: str = None) -> str:

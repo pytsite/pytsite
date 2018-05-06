@@ -78,31 +78,31 @@ class Controller(_ABC):
         self._request = None
 
     @staticmethod
-    def redirect(location: str, status: int = 302) -> _http.response.Redirect:
+    def redirect(location: str, status: int = 302) -> _http.RedirectResponse:
         """Return a redirect
         """
-        return _http.response.Redirect(location, status)
+        return _http.RedirectResponse(location, status)
 
     @staticmethod
-    def not_found(description: _Union[str, Exception] = None, response: _http.response.Response = None):
+    def not_found(description: _Union[str, Exception] = None, response: _http.Response = None):
         """Return a 'Not found' exception
         """
         return _http.error.NotFound(description, response)
 
     @staticmethod
-    def unauthorized(description: _Union[str, Exception] = None, response: _http.response.Response = None):
+    def unauthorized(description: _Union[str, Exception] = None, response: _http.Response = None):
         """Return an 'Unauthorized' exception
         """
         return _http.error.Unauthorized(description, response)
 
     @staticmethod
-    def forbidden(description: _Union[str, Exception] = None, response: _http.response.Response = None):
+    def forbidden(description: _Union[str, Exception] = None, response: _http.Response = None):
         """Return a 'Forbidden' exception
         """
         return _http.error.Forbidden(description, response)
 
     @staticmethod
-    def server_error(description: _Union[str, Exception] = None, response: _http.response.Response = None):
+    def server_error(description: _Union[str, Exception] = None, response: _http.Response = None):
         """Return an 'Internal server error' exception
         """
         return _http.error.InternalServerError(description, response)
@@ -119,7 +119,7 @@ class Controller(_ABC):
         return self._args.get(name, default)
 
     @property
-    def request(self) -> _http.request.Request:
+    def request(self) -> _http.Request:
         """Current request object getter
         """
         if not self._request:
@@ -128,7 +128,7 @@ class Controller(_ABC):
         return self._request
 
     @request.setter
-    def request(self, request: _http.request.Request):
+    def request(self, request: _http.Request):
         """Current request object setter
         """
         self._request = request
