@@ -36,7 +36,11 @@ def on_pytsite_load():
 
     # Finish installing/updating plugins
     for p_name, info in update_info.items():
-        plugin = _api.get(p_name)
+        try:
+            plugin = _api.get(p_name)
+        except _error.PluginNotLoaded as e:
+            _console.print_warning("Cannot finish update of plugin '{}': {}".format(p_name, e))
+            continue
 
         v_from = _semver.Version(info['version_from'])
         v_to = _semver.Version(info['version_to'])

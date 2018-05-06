@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.18.1 (2018-05-06)
+
+Exception handling fixed in `plugman`'s updater.
+
+
 ## 7.18 (2018-05-06)
 
 - New event `pytsite.load` added.
