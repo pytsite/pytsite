@@ -15,7 +15,7 @@ from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
 from pytsite import reg as _reg, logger as _logger, lang as _lang, router as _router, console as _console, \
     semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, events as _events, pip as _pip
-from . import _error
+from . import _error, _cc
 
 _PLUGINS_API_URL = _reg.get('plugman.api_url', 'https://plugins.pytsite.xyz')
 _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
@@ -569,3 +569,12 @@ def rm_update_info(plugin_name: str):
 
     with open(_UPDATE_INFO_PATH, 'wb') as f:
         _pickle.dump(d, f)
+
+
+def is_management_mode() -> bool:
+    """Check if the plugman is installing, uninstalling or updating plugins now
+    """
+    try:
+        return isinstance(_console.get_current_command(), (_cc.Install, _cc.Uninstall, _cc.Update))
+    except _console.error.NoCommandRunning:
+        return False

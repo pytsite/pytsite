@@ -1,15 +1,16 @@
 """PytSite Console.
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import re as _re
 from typing import Union as _Union
 from pytsite import reg as _reg, lang as _lang, logger as _logger
 from . import _error, _command
 
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
-
 _commands = {}
+_current_command = None  # type: _command.Command
 
 COLOR_HEADER = '\033[95m'
 COLOR_INFO = '\033[94m'
@@ -37,9 +38,20 @@ def get_command(name: str) -> _command.Command:
     return _commands[name]
 
 
+def get_current_command() -> _command.Command:
+    """Get currently running command
+    """
+    if not _current_command:
+        raise _error.NoCommandRunning()
+
+    return _current_command
+
+
 def run_command(name: str, options: dict = None, arguments: list = None):
     """Run a console command.
     """
+    global _current_command
+
     cmd = get_command(name)
 
     # Set options
@@ -52,11 +64,16 @@ def run_command(name: str, options: dict = None, arguments: list = None):
         cmd.set_args(arguments)
 
     try:
+        _current_command = cmd
+
         return cmd.do_execute()
 
     except Exception as e:
         _logger.error(e)
         raise e
+
+    finally:
+        _current_command = None
 
 
 def usage():

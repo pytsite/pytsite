@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.19 (2018-05-06)
+
+New API functions: `console.get_current_command()`,
+`plugman.is_management_mode()`.
+
+
 ## 7.18.1 (2018-05-06)
 
 Exception handling fixed in `plugman`'s updater.
