@@ -316,7 +316,7 @@ def install(plugin_spec: str) -> int:
 
     # Check if the plugin is already installed
     try:
-        # Schedule plugin update for next application start
+        # Uninstall plugin and schedule its update during next application start
         l_plugin_info = local_plugin_info(plugin_name, False)
         if l_plugin_info['version'] != ver_to_install:
             _set_update_info(plugin_name, l_plugin_info['version'], ver_to_install)
@@ -421,7 +421,7 @@ def install(plugin_spec: str) -> int:
 
         # Plan to call installation hooks for next application start
         if not get_update_info(plugin_name):
-            _set_update_info(plugin_name, '0.0.1', ver_to_install)
+            _set_update_info(plugin_name, '0.0.0', ver_to_install)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)

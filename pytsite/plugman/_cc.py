@@ -16,8 +16,7 @@ class Install(_console.Command):
     def __init__(self):
         super().__init__()
 
-        self.define_option(_console.option.Int('stage', default=1))
-        self.define_option(_console.option.Int('installed-count', default=0))
+        self.define_option(_console.option.Int('stage', default=1, maximum=3))
         self.define_option(_console.option.Bool('reload', default=True))
 
     @property
@@ -35,7 +34,7 @@ class Install(_console.Command):
         stage = self.opt('stage')
 
         if stage == 1:
-            installed_count = self.opt('installed-count')
+            installed_count = 0
 
             # Install plugins
             for plugin_spec in self._get_plugins_specs():
@@ -45,12 +44,22 @@ class Install(_console.Command):
                     raise _console.error.CommandExecutionError(e)
 
             if installed_count:
-                # Run second stage to let plugins finish installation and update
-                p_args = ['./console', self.name, '--stage=2', '--installed-count=' + str(installed_count)]
-                return _subprocess.run(p_args).returncode
+                # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
+                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
 
         elif stage == 2:
-            # Do nothing, all work done during plugman init
+            # At this point triggers _eh.on_pytsite_load() event handler, which calls plugin_install() and
+            # plugin_update() for every previously installed plugin.
+
+            # During call to plugin_* hooks some plugins (for example `theming`) can install other plugins,
+            # so we need to restart application in console mode in order to call installation hooks of that plugins.
+            if _api.get_update_info():
+                return _subprocess.run(['./console', self.name, '--stage=3']).returncode
+            else:
+                if self.opt('reload'):
+                    _reload.reload()
+
+        elif stage == 3:
             if self.opt('reload'):
                 _reload.reload()
 

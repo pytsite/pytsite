@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.19.2 (2018-05-07)
+
+Plugins hooks call issue fixed in `plugman`.
+
+
 ## 7.19.1 (2018-05-06)
 
 `plugman.is_management_mode()` now works right after start of the

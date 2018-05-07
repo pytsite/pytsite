@@ -84,8 +84,8 @@ def _init():
                 _maintenance.disable(True)
 
     # Event handlers
-    update.on_update_stage_2(_eh.on_pytsite_update_stage_2)
     on_pytsite_load(_eh.on_pytsite_load)
+    update.on_update_stage_2(_eh.on_pytsite_update_stage_2)
 
 
 _init()
