@@ -1,15 +1,16 @@
 """Basic Validation Rules.
 """
-import re as _re
-from typing import Any as _Any
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from decimal import Decimal as _Decimal
-from pytsite import util as _util, lang as _lang
-from . import _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+import re as _re
+from typing import Any as _Any
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from datetime import datetime as _datetime, date as _date, time as _time
+from decimal import Decimal as _Decimal
+from pytsite import util as _util, lang as _lang
+from . import _error
 
 _re_num = _re.compile('^-?\d+(\.\d+)?$')
 _re_int_num = _re.compile('^-?\d+$')
@@ -406,29 +407,24 @@ class Email(Regex):
 
 
 class DateTime(Rule):
-    """Date/time Rule.
+    """Date/time Validation Rule
     """
 
     def _do_validate(self):
-        """Do actual validation of the rule.
+        """Do actual validation of the rule
         """
         if self._value is None:
             return
 
-        from datetime import datetime
         if isinstance(self._value, str):
             self._value = self._value.strip()
 
             try:
-                self._value = _util.parse_rfc822_datetime_str(self._value)
+                self._value = _util.parse_date_time(self._value)
             except ValueError:
-                try:
-                    self._value = _util.parse_w3c_datetime_str(self._value)
-                except ValueError:
-                    if self._value and not _re.match('\d{2}\.\d{2}\.\d{4} \d{2}\.\d{2}', self._value):
-                        raise _error.RuleError(self._msg_id, self._msg_args)
+                raise _error.RuleError(self._msg_id, self._msg_args)
 
-        elif not isinstance(self._value, datetime):
+        elif not isinstance(self._value, _datetime):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 

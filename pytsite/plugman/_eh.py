@@ -45,29 +45,24 @@ def on_pytsite_load():
         v_from = _semver.Version(info['version_from'])
         v_to = _semver.Version(info['version_to'])
 
-        # New installation
-        if v_from == '0.0.0':
-            _logger.debug(_lang.t('pytsite.plugman@run_plugin_install_hook', {
-                'plugin': p_name,
-                'version': v_to,
-            }))
+        # Plugin install hook
+        _logger.debug(_lang.t('pytsite.plugman@run_plugin_install_hook', {
+            'plugin': p_name,
+            'version': v_to,
+        }))
+        if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
+            plugin.plugin_install()
+        _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
 
-            if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
-                plugin.plugin_install()
-
-            _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
-
-        # Updating
-        else:
+        # Update plugin hook
+        if v_from != '0.0.0':
             _logger.debug(_lang.t('pytsite.plugman@run_plugin_update_hook', {
                 'plugin': p_name,
                 'version_from': v_from,
                 'version_to': v_to,
             }))
-
             if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
                 plugin.plugin_update(v_from=v_from)
-
             _events.fire('pytsite.plugman@update', name=p_name, v_from=v_from)
 
         # Remove info from update queue

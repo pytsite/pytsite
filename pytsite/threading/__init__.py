@@ -35,4 +35,7 @@ def create_timer(target, delay: float, **kwargs) -> Timer:
 def run_in_thread(target, delay: float = 0.0, **kwargs):
     """Run target in thread
     """
-    create_timer(target, delay, **kwargs).start()
+    thread = create_timer(target, delay, **kwargs)
+    thread.start()
+
+    return thread

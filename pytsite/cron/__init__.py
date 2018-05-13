@@ -100,7 +100,7 @@ def _cron_worker():
                         _logger.debug('Cron event: pytsite.cron@' + evt)
 
                     try:
-                        _events.fire('pytsite.cron@' + evt)
+                        _events.fire('pytsite.cron@' + evt, True)
 
                     except Exception as e:
                         _logger.error(e)

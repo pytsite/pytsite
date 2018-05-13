@@ -1,53 +1,73 @@
 """Events Subsystem
 """
-import re as _re
-from pytsite import reg as _reg, logger as _logger
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_listeners = []
-_dbg = _reg.get('events.debug', False)
+import re as _re
+from typing import List as _List, Tuple as _Tuple, Callable as _Callable, Any as _Any, Pattern as _Pattern
+
+_LISTENERS = []
 
 
 def listen(event_name: str, handler: callable, priority: int = 0):
     """Add an event listener.
     """
-    global _listeners
+    global _LISTENERS
 
     re = _re.compile(event_name.replace('.', '\.').replace('*', '.*?') + '$')
-    _listeners.append((handler, priority, re))
-    _listeners = sorted(_listeners, key=lambda x: x[1])  # Sort by priority
-
-    if _dbg:
-        _logger.debug('Listener {}.{}() attached to event {}'.format(event_name, handler.__module__, handler.__name__))
+    _LISTENERS.append((handler, priority, re))
+    _LISTENERS = sorted(_LISTENERS, key=lambda x: x[1])  # Sort by priority
 
 
-def fire(event_name: str, stop_after: int = None, **kwargs) -> list:
-    """Fires an event to listeners
+def listeners(event_name: str) -> _List[_Tuple[_Callable[..., _Any], int, _Pattern]]:
+    """Get listeners of the event
     """
-    count = 0
     r = []
 
-    for handler, priority, re in _listeners:
-        if not re.match(event_name):
-            continue
-
-        # Call handler and append its result to return value
-        r.append(handler(**kwargs))
-
-        # Count called handler and stop if it is necessary
-        count += 1
-        if stop_after and count >= stop_after:
-            break
+    for handler, priority, re in _LISTENERS:
+        if re.match(event_name):
+            r.append((handler, priority, re))
 
     return r
 
 
-def first(event: str, **kwargs):
+def fire(event_name: str, _concurrent: bool = False, _wait: bool = True, _stop_after: int = None, **kwargs) -> list:
+    """Fires an event to listeners
+    """
+    r = []
+    q = None
+
+    if _concurrent:
+        from pytsite import queue
+        q = queue.Queue('pytsite.events')
+
+    count = 0
+    for handler, priority, re in listeners(event_name):
+        if not re.match(event_name):
+            continue
+
+        if _concurrent:
+            # Queue handler
+            q.put(handler, **kwargs)
+        else:
+            # Call handler and append its result to return value
+            r.append(handler(**kwargs))
+
+        # Count called handler and stop if it is necessary
+        count += 1
+        if _stop_after and count >= _stop_after:
+            break
+
+    if q:
+        q.execute(_wait)
+
+    return r
+
+
+def first(event: str, _concurrent: bool = False, _wait: bool = True, **kwargs):
     """Fires an event and process only one handler
     """
-    r = fire(event, stop_after=1, **kwargs)
+    r = fire(event, _concurrent, _wait, 1, **kwargs)
 
     return r[0] if r else None

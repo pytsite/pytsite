@@ -106,10 +106,7 @@ class Str(Formatter):
 class DateTime(Formatter):
     def set_val(self, value: _Any):
         if isinstance(value, str):
-            try:
-                value = _util.parse_w3c_datetime_str(value)
-            except ValueError:
-                value = _util.parse_rfc822_datetime_str(value)
+            value = _util.parse_date_time(value)
         elif not isinstance(value, _datetime):
             raise TypeError('String or datetime expected, got {}: {}'.format(type(value), value))
 

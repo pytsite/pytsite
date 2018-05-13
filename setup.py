@@ -72,6 +72,7 @@ setup(
         'pytz',
         'frozendict',
         'uwsgi',
+        'dateparser'
     ],
     classifiers=[
         'Development Status :: 3 - Alpha',

@@ -8,6 +8,7 @@ import random as _random
 import re as _re
 import pytz as _pytz
 import json as _json
+import dateparser as _dateparser
 from importlib import reload as _importlib_reload
 from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk, listdir as _listdir, \
     rmdir as _rmdir
@@ -17,8 +18,8 @@ from frozendict import frozendict as _frozendict
 from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
-from time import time as _time
-from datetime import datetime as _datetime
+from time import time as _current_time
+from datetime import datetime as _datetime, time as _time
 from html import parser as _python_html_parser
 from hashlib import md5 as _md5
 from traceback import extract_stack as _extract_stack
@@ -484,8 +485,10 @@ def cleanup_list(inp: _Union[_List, _Tuple], uniquize: bool = False) -> list:
     for v in inp:
         if isinstance(v, str):
             v = v.strip()
+            if not v:
+                continue
 
-        if v and ((uniquize and v not in r) or not uniquize):
+        if (uniquize and v not in r) or not uniquize:
             r.append(v)
 
     return r
@@ -525,20 +528,18 @@ def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
     return str(li)
 
 
-def parse_rfc822_datetime_str(s: str) -> _datetime:
-    """Parse date/time string according to RFC-822.
+def parse_date_time(s: str) -> _datetime:
+    """Parse a date/time string
     """
-    try:
-        # Year with century
-        return _datetime.strptime(s, '%a, %d %b %Y %H:%M:%S %z')
+    date = _dateparser.parse(s)
+    if date is None:
+        raise ValueError("'{}' is not a valid date/time string".format(s))
 
-    except ValueError:
-        # Year without century
-        return _datetime.strptime(s, '%a, %d %b %y %H:%M:%S %z')
+    return date
 
 
 def rfc822_datetime_str(dt: _datetime = None) -> str:
-    """Format date/time string according to RFC-822.
+    """Format date/time string according to RFC-822 format
     """
     if not dt:
         dt = _datetime.now()
@@ -547,12 +548,6 @@ def rfc822_datetime_str(dt: _datetime = None) -> str:
         dt = _pytz.timezone(_tzname[0]).localize(dt)
 
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
-
-
-def parse_w3c_datetime_str(s: str) -> _datetime:
-    """Parse date/time string according to RFC-822.
-    """
-    return _datetime.strptime(s, '%Y-%m-%dT%H:%M:%S%z')
 
 
 def w3c_datetime_str(dt: _datetime = None, date_only: bool = False) -> str:
@@ -583,8 +578,8 @@ def md5_hex_digest(inp, encoding='utf8') -> str:
 def to_snake_case(s: str) -> str:
     """Convert CamelCase to snake_case.
     """
-    s = _re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
-    return _re.sub('([a-z0-9])([A-Z])', r'\1_\2', s).lower()
+    s = _re.sub('(.)([A-Z][a-z]+)', '\1_\2', s)
+    return _re.sub('([a-z0-9])([A-Z])', '\1_\2', s).lower()
 
 
 def get_call_stack(limit: int = None) -> list:
@@ -621,7 +616,7 @@ def load_json(source: str):
 def cleanup_files(root_path: str, ttl: int) -> tuple:
     """Remove obsolete files and empty directories
     """
-    now = _time()
+    now = _current_time()
     success = []
     failed = []
 

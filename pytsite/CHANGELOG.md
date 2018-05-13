@@ -1,6 +1,28 @@
 # PytSite 7 Changelog
 
 
+## 7.20 (2018-05-13)
+
+- `cron`: tasks now start simultaneously.
+- `events`: new arguments in `fire()`: `_concurrent`, `_wait`.
+- `lang`: weekday names added.
+- `plugman`: update hook call issue fixed.
+- `queue`:
+  - `Queue.put()` signature changed and now supports callables as a
+    handler;
+  - `Queue.execute()` argument `blocking_mode` rnamed to `wait`.
+- `threading`: `run_in_thread()` now returns thread instance.
+- `util`:
+  - new function added: `parse_date_time()`;
+  - functions removed: `parse_rfc822_datetime_str` and
+    `parse_w3c_datetime_str`.
+
+
+## 7.19.3 (2018-05-07)
+
+Plugins hooks call issue #2 fixed in `plugman`.
+
+
 ## 7.19.2 (2018-05-07)
 
 Plugins hooks call issue fixed in `plugman`.
