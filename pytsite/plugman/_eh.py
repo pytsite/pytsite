@@ -10,7 +10,7 @@ from . import _api, _error
 
 
 def on_pytsite_update_stage_2():
-    _console.print_info(_lang.t('pytsite.plugman@upgrading_plugins'))
+    _console.print_info(_lang.t('pytsite.plugman@updating_plugins'))
 
     # Update all installed plugins
     _console.run_command('plugman:update', {'reload': False})
@@ -34,36 +34,89 @@ def on_pytsite_load():
         _logger.warn('Application needs to be loaded in console to finish plugins update')
         return
 
-    # Finish installing/updating plugins
+    failed_plugins = []
+
+    # Call 'plugin_pre_install()' hooks
     for p_name, info in update_info.items():
+        v_to = _semver.Version(info['version_to'])
+
         try:
+            # Check if the plugin is installed and loaded
             plugin = _api.get(p_name)
+
+            # Call plugin_pre_install() hook
+            if hasattr(plugin, 'plugin_pre_install') and callable(plugin.plugin_pre_install):
+                plugin.plugin_pre_install()
+            _events.fire('pytsite.plugman@pre_install', name=p_name, version=v_to)
+
         except _error.PluginNotLoaded as e:
-            _console.print_warning("Cannot finish update of plugin '{}': {}".format(p_name, e))
+            _console.print_warning(_lang.t('pytsite.plugman@plugin_install_error', {
+                'plugin': p_name,
+                'version': v_to,
+                'msg': str(e),
+            }))
+            failed_plugins.append(p_name)
             continue
 
+    # Finish installing/updating plugins
+    for p_name, info in update_info.items():
+        if p_name in failed_plugins:
+            continue
+
+        plugin = _api.get(p_name)
         v_from = _semver.Version(info['version_from'])
         v_to = _semver.Version(info['version_to'])
 
-        # Plugin install hook
-        _logger.debug(_lang.t('pytsite.plugman@run_plugin_install_hook', {
-            'plugin': p_name,
-            'version': v_to,
-        }))
-        if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
-            plugin.plugin_install()
-        _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
-
-        # Update plugin hook
-        if v_from != '0.0.0':
-            _logger.debug(_lang.t('pytsite.plugman@run_plugin_update_hook', {
+        # Call plugin_install() hook
+        try:
+            _logger.info(_lang.t('pytsite.plugman@installing_plugin', {
                 'plugin': p_name,
-                'version_from': v_from,
-                'version_to': v_to,
+                'version': v_to,
             }))
-            if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
-                plugin.plugin_update(v_from=v_from)
-            _events.fire('pytsite.plugman@update', name=p_name, v_from=v_from)
+
+            if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
+                plugin.plugin_install()
+            _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
+
+            _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
+                'plugin': p_name,
+                'version': v_to,
+            }))
+
+        except Exception as e:
+            _console.print_warning(_lang.t('pytsite.plugman@plugin_install_error', {
+                'plugin': p_name,
+                'version': v_to,
+                'msg': str(e),
+            }))
+            continue
+
+        # Update plugin
+        if v_from != '0.0.0':
+            try:
+                _console.print_info(_lang.t('pytsite.plugman@updating_plugin', {
+                    'plugin': p_name,
+                    'v_from': v_from,
+                    'v_to': v_to,
+                }))
+
+                # Call plugin_update() hook
+                if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
+                    plugin.plugin_update(v_from=v_from)
+                _events.fire('pytsite.plugman@update', name=p_name, v_from=v_from)
+
+                _console.print_success(_lang.t('pytsite.plugman@plugin_update_success', {
+                    'plugin': p_name,
+                    'version': v_to,
+                }))
+
+            except Exception as e:
+                _console.print_warning(_lang.t('pytsite.plugman@plugin_update_error', {
+                    'plugin': p_name,
+                    'version': v_to,
+                    'msg': str(e),
+                }))
+                continue
 
         # Remove info from update queue
         _api.rm_update_info(p_name)

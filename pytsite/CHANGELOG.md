@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.21 (2018-05-23)
+
+- `logger`: support for `*args` in module functions.
+- `plugman`: support for hook `plugin_pre_install()`.
+
+
 ## 7.20 (2018-05-13)
 
 - `cron`: tasks now start simultaneously.

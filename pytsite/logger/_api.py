@@ -1,6 +1,5 @@
 """PytSite Logger API Functions
 """
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -11,24 +10,24 @@ from pytsite import reg as _reg
 _logger = _logging.getLogger(_reg.get('env.name', 'default'))
 
 
-def _log(level: int, msg, **kwargs):
+def _log(level: int, msg, *args, **kwargs):
     if isinstance(msg, Exception):
         kwargs['exc_info'] = msg
 
-    _logger.log(level, msg, **kwargs)
+    _logger.log(level, msg, *args, **kwargs)
 
 
-def debug(msg, **kwargs):
-    _log(_logging.DEBUG, msg, **kwargs)
+def debug(msg, *args, **kwargs):
+    _log(_logging.DEBUG, msg, *args, **kwargs)
 
 
-def info(msg, **kwargs):
-    _log(_logging.INFO, msg, **kwargs)
+def info(msg, *args, **kwargs):
+    _log(_logging.INFO, msg, *args, **kwargs)
 
 
-def warn(msg, **kwargs):
-    _log(_logging.WARNING, msg, **kwargs)
+def warn(msg, *args, **kwargs):
+    _log(_logging.WARNING, msg, *args, **kwargs)
 
 
-def error(msg, **kwargs):
-    _log(_logging.ERROR, msg, **kwargs)
+def error(msg, *args, **kwargs):
+    _log(_logging.ERROR, msg, *args, **kwargs)

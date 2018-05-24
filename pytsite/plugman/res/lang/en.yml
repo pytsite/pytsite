@@ -1,21 +1,24 @@
 plugins: 'Plugins'
-upgrading_plugin: "Upgrading plugin ':name' (:old_ver -> :new_ver)..."
 cannot_manage_plugins_in_dev_mode: 'Unable to manage plugins in development mode'
-installing_plugin: "Installing plugin ':plugin'..."
-plugin_install_success: "Plugin ':plugin' has been successfully installed"
-plugin_install_error: "Error while installing plugin ':plugin': :msg"
-uninstalling_plugin: "Uninstalling plugin ':plugin'..."
-plugin_uninstall_success: "Plugin ':plugin' has been successfully uninstalled"
+installing_plugin: 'Installing plugin :plugin-:version...'
+plugin_install_success: 'Plugin :plugin-:version installed'
+plugin_install_error: 'Error while installing plugin :plugin-:version: :msg'
+updating_plugin: 'Updating plugin :plugin (:v_from -> :v_to)...'
+plugin_update_success: 'Plugin :plugin updated to version :version'
+plugin_update_error: 'Error while updating plugin :plugin to version :version: :msg'
+uninstalling_plugin: 'Uninstalling plugin :plugin...'
+plugin_uninstall_success: 'Plugin :plugin uninstalled'
 console_command_description_install: 'Install plugin(s)'
 console_command_description_update: 'Update plugin(s)'
 console_command_description_uninstall: 'Uninstall plugin(s)'
-upgrading_plugins: 'Upgrading plugin(s)'
+updating_plugins: 'Updating plugin(s)'
 plugins_not_specified: 'Plugin(s) are not specified'
-plugin_has_dependant_plugins: "Following plugins depend from :plugin: :dependants"
-plugin_requires_pip_package: "Plugin ':plugin' requires pip package ':pip_package'"
-plugin_requires_plugin: "Plugin ':plugin' requires plugin ':dependency'"
-run_plugin_install_hook: "Installing plugin ':plugin' version :version"
-run_plugin_update_hook: "Updating plugin ':plugin': :version_from -> :version_to"
-plugin_not_installed: "Plugin ':plugin' is not installed"
-installing_upgrading_pip_package: "Installing/upgrading pip package ':package'"
-pip_package_successfully_installed_upgraded: "Pip package ':package' has been successfully installed/upgraded"
+plugin_has_dependant_plugins: 'Following plugins depend from :plugin: :dependants'
+plugin_requires_pip_package: 'Plugin :plugin requires pip package :pip_package'
+plugin_requires_plugin: 'Plugin :plugin requires plugin :dependency'
+plugin_not_installed: 'Plugin :plugin is not installed'
+installing_updating_pip_package: 'Installing/updating pip package :package'
+pip_package_successfully_installed_updated: 'Pip package :package installed/updated'
+downloading_plugin: 'Downloading and unpacking plugin :plugin'
+plugin_download_success: 'Plugin :plugin downloaded'
+plugin_download_error: 'Error while downloading/unpacking plugin :plugin: :msg'

@@ -1,21 +1,24 @@
 plugins: 'Плагіни'
-upgrading_plugin: "Оновлення плагіна ':name' (:old_ver -> :new_ver)..."
 cannot_manage_plugins_in_dev_mode: 'Неможливо керувати плагінами в режимі розробки'
-installing_plugin: "Встановлення плагіна ':plugin'..."
-plugin_install_success: "Плагін ':plugin' було успішно встановлено"
-plugin_install_error: "Помилка при встановленні плагіна ':plugin': :msg"
-uninstalling_plugin: "Видалення плагіна ':plugin'..."
-plugin_uninstall_success: "Плагін ':plugin' було успішно видалено"
+installing_plugin: 'Встановлення плагіна :plugin-:version...'
+plugin_install_success: 'Плагін :plugin-:version встановлено'
+plugin_install_error: 'Помилка при встановленні плагіна :plugin-:version: :msg'
+updating_plugin: 'Оновлення плагіна :plugin (:v_from -> :v_to)...'
+plugin_update_success: 'Плагін :plugin оновлено до версії :version'
+plugin_update_error: 'Помилка при оновленні плагіна :plugin до версії :version: :msg'
+uninstalling_plugin: 'Видалення плагіна :plugin...'
+plugin_uninstall_success: 'Плагін :plugin видалено'
 console_command_description_install: 'Встановлення плагін'
 console_command_description_update: 'Оновлення плагін'
 console_command_description_uninstall: 'Видалення плагін'
-upgrading_plugins: 'Оновлюю плагіни'
+updating_plugins: 'Оновлюю плагіни'
 plugins_not_specified: 'Не вказано імена плагін'
-plugin_has_dependant_plugins: "Від плагіна ':plugin' залежать плагіни :dependants"
-plugin_requires_pip_package: "Плагін ':plugin' залежить від pip-пакета ':pip_package'"
-plugin_requires_plugin: "Плагін ':plugin' залежить від плагіна ':dependency'"
-run_plugin_install_hook: "Встановлення плагіна ':plugin' версії :version"
-run_plugin_update_hook: "Оновлення плагіна ':plugin': :version_from -> :version_to"
-plugin_not_installed: "Плагін ':plugin' не встановлено"
-installing_upgrading_pip_package: "Встановлення/оновлення pip-пакета ':package'"
-pip_package_successfully_installed_upgraded: "Pip-пакет ':package' успішно встановлено/оновлено"
+plugin_has_dependant_plugins: 'Від плагіна :plugin залежать плагіни :dependants'
+plugin_requires_pip_package: 'Плагін :plugin залежить від pip-пакета :pip_package'
+plugin_requires_plugin: 'Плагін :plugin залежить від плагіна :dependency'
+plugin_not_installed: 'Плагін :plugin не встановлено'
+installing_updating_pip_package: 'Встановлення/оновлення pip-пакета :package'
+pip_package_successfully_installed_updated: 'Pip-пакет :package встановлено/оновлено'
+downloading_plugin: 'Завантаження і розпаковування плагіна :plugin'
+plugin_download_success: 'Плагін :plugin завантажено'
+plugin_download_error: 'Помилка в процесі завантаження/розпакування плагіна :plugin: :msg'

@@ -337,11 +337,11 @@ def install(plugin_spec: str) -> int:
         _events.fire('pytsite.plugman@pre_install', name=plugin_name, version=ver_to_install)
 
         # Flag start of the installation process
-        _console.print_info(_lang.t('pytsite.plugman@installing_plugin', {
+        _logger.info(_lang.t('pytsite.plugman@downloading_plugin', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
         if _DEBUG:
-            _logger.debug("Installation of plugin '{}-{}' started".format(plugin_name, ver_to_install))
+            _logger.debug('Downloading and unpacking of plugin {}-{} started'.format(plugin_name, ver_to_install))
 
         # Create temporary directory to store plugin's content
         tmp_dir_path = _path.join(_reg.get('paths.tmp'), 'plugman')
@@ -395,35 +395,35 @@ def install(plugin_spec: str) -> int:
 
         # Install required pip packages
         for pip_pkg_spec in l_plugin_info['requires']['packages']:
-            _console.print_info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
+            _logger.info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
                 'plugin': plugin_name,
                 'pip_package': pip_pkg_spec,
             }))
 
-            _console.print_info(_lang.t('pytsite.plugman@installing_upgrading_pip_package', {
+            _logger.info(_lang.t('pytsite.plugman@installing_updating_pip_package', {
                 'package': pip_pkg_spec
             }))
 
             _pip.install(pip_pkg_spec, _pip.is_installed(pip_pkg_spec))
 
-            _console.print_success(_lang.t('pytsite.plugman@pip_package_successfully_installed_upgraded', {
+            _console.print_success(_lang.t('pytsite.plugman@pip_package_successfully_installed_updated', {
                 'package': pip_pkg_spec
             }))
 
         # Install required plugins
         for req_plugin_spec in l_plugin_info['requires']['plugins']:
             if not is_installed(req_plugin_spec):
-                _console.print_info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
+                _logger.info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
                     'plugin': plugin_name,
                     'dependency': req_plugin_spec,
                 }))
                 installed_count += install(req_plugin_spec)
 
-        # Plan to call installation hooks for next application start
+        # Plan to call plugin installation/updating hooks during next application start
         if not get_update_info(plugin_name):
             _set_update_info(plugin_name, '0.0.0', ver_to_install)
 
-        _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
+        _console.print_success(_lang.t('pytsite.plugman@plugin_download_success', {
             'plugin': '{}-{}'.format(plugin_name, ver_to_install)
         }))
 
@@ -435,7 +435,7 @@ def install(plugin_spec: str) -> int:
 
         _events.fire('pytsite.plugman@install_error', name=plugin_name, version=ver_to_install, exception=e)
 
-        raise _error.PluginInstallError(_lang.t('pytsite.plugman@plugin_install_error', {
+        raise _error.PluginInstallError(_lang.t('pytsite.plugman@plugin_download_error', {
             'plugin': plugin_name,
             'msg': e,
         }))
@@ -475,7 +475,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
         _uninstalling.append(plugin_name)
 
         plugin_version = local_plugin_info(plugin_name, False)['version']
-        _console.print_info(_lang.t('pytsite.plugman@uninstalling_plugin', {
+        _logger.info(_lang.t('pytsite.plugman@uninstalling_plugin', {
             'plugin': '{}-{}'.format(plugin_name, plugin_version)
         }))
 
