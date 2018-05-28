@@ -261,12 +261,12 @@ class GreaterOrEqual(Greater):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
-class Choice(Rule):
+class Enum(Rule):
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
         super().__init__(value, msg_id, msg_args)
 
-        self._options = kwargs.get('options', ())
-        self._msg_args.update({'options': str(self._options)})
+        self.values = set(kwargs.get('values', ()))
+        self._msg_args.update({'values': str(self.values)})
 
     def _do_validate(self):
         """Do actual validation of the rule.
@@ -274,7 +274,7 @@ class Choice(Rule):
         if self._value is None:
             return
 
-        if self._value not in self._options:
+        if self._value not in self.values:
             self._msg_args.update({'value': str(self._value)})
             raise _error.RuleError(self._msg_id, self._msg_args)
 

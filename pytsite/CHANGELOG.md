@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.22 (2018-05-28)
+
+`validation.Choice` renamed to `Enum` and its `options` constructor's
+argument renamed to `values`.
+
+
 ## 7.21 (2018-05-23)
 
 - `logger`: support for `*args` in module functions.

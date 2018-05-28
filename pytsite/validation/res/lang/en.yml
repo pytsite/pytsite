@@ -22,8 +22,7 @@ validation_regex_row: 'Does not match the pattern :pattern (row :row)'
 validation_length: 'Must be longer than :min_length and shorter than :max_length'
 validation_minlength: 'Must be longer than :min_length'
 validation_maxlength: 'Must be shorter than :max_length'
-validation_choice: "':value' is not in :options"
-
+validation_choice: "':value' is not in :values"
 
 list_expected: 'List expected, got :got'
 dict_expected: 'Dict expected, got :got'
