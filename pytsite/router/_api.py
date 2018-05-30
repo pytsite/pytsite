@@ -258,7 +258,7 @@ def dispatch(env: dict, start_response: callable):
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
 
             _logger.error('HTTP {} {} ({}): {}'.format(
-                e.code, e.name, current_path(resolve_alias=False, strip_lang=False), e.description))
+                e.code, e.name, current_path(resolve_alias=False), e.description))
         else:
             code = e.code if isinstance(e, _http.error.E5xx) else 500
             title = _lang.t('pytsite.router@error', {'code': code})
@@ -352,7 +352,8 @@ def url(s: str, **kwargs) -> _Union[str, list]:
 
     sch = kwargs.get('scheme', scheme())  # type: str
     lang = kwargs.get('lang', _lang.get_current())  # type: str
-    strip_lang = kwargs.get('strip_lang', False)  # type: bool
+    add_lang_prefix = kwargs.get('add_lang_prefix', True)  # type: bool
+    strip_lang_prefix = kwargs.get('strip_lang_prefix', False)  # type: bool
     strip_query = kwargs.get('strip_query')  # type: bool
     query = kwargs.get('query')  # type: dict
     relative = kwargs.get('relative', False)  # type: bool
@@ -393,19 +394,23 @@ def url(s: str, **kwargs) -> _Union[str, list]:
         parsed_fragment.update(fragment)
         r[5] = _urlparse.urlencode(parsed_fragment, doseq=True)
 
-    # Adding language suffix (only for relative links as source argument)
-    if not parsed_url[0] and not strip_lang:
-        lang_re = '^/({})/'.format('|'.join(_lang.langs()))
-        if not _re.search(lang_re, parsed_url[2]):
-            b_path = base_path(lang)
-            if not b_path.endswith('/') and not parsed_url[2].startswith('/'):
-                b_path += '/'
-            r[2] = str(b_path + parsed_url[2]).replace('//', '/')
+    lang_re = _re.compile('^/({})/'.format('|'.join(_lang.langs())))
+
+    # Add language prefix to the path
+    if add_lang_prefix and not strip_lang_prefix and not lang_re.search(parsed_url[2]):
+        b_path = base_path(lang)
+        if not b_path.endswith('/') and not parsed_url[2].startswith('/'):
+            b_path += '/'
+        r[2] = str(b_path + parsed_url[2]).replace('//', '/')
+
+    # Strip language prefix from the path
+    if strip_lang_prefix and lang_re.search(parsed_url[2]):
+        r[2] = lang_re.sub('/', parsed_url[2])
 
     return _urlparse.urlunparse(r) if not as_list else r
 
 
-def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: str = None) -> str:
+def current_path(strip_query=False, resolve_alias=True, add_lang_prefix=False, lang: str = None) -> str:
     """Get current path.
     """
     lang = lang or _lang.get_current()
@@ -419,7 +424,7 @@ def current_path(strip_query=False, resolve_alias=True, strip_lang=True, lang: s
                 r = alias
                 break
 
-    if not strip_lang and lang != _lang.get_primary():
+    if add_lang_prefix and lang != _lang.get_primary():
         r = '/' + lang + (r if r != '/' else '')
 
     if not strip_query and req and req.query_string:

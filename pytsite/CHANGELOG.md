@@ -1,6 +1,14 @@
 # PytSite 7 Changelog
 
 
+## 7.23 (2018-05-30)
+
+- `router.url()`:
+  - argument `strip_lang` renamed to `strip_lang_prefix`;
+  - new argument `add_lang_prefix` added.
+- `errors`: new class `NotFound` added.
+
+
 ## 7.22 (2018-05-28)
 
 `validation.Choice` renamed to `Enum` and its `options` constructor's

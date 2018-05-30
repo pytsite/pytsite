@@ -6,7 +6,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class ForbidOperation(RuntimeError):
+class Error(Exception):
+    pass
+
+
+class ForbidOperation(Error):
     pass
 
 
@@ -19,4 +23,8 @@ class ForbidModification(ForbidOperation):
 
 
 class ForbidDeletion(ForbidOperation):
+    pass
+
+
+class NotFound(Error):
     pass
