@@ -162,6 +162,7 @@ def on_resolve_name(handler, priority: int = 0):
 _env.globals['tpl_exists'] = tpl_exists
 _env.globals['t'] = _lang.t
 _env.globals['t_plural'] = _lang.t_plural
+_env.globals['langs'] = _lang.langs
 _env.globals['current_lang'] = _lang.get_current
 _env.globals['reg_get'] = _reg.get
 _env.globals['nav_link'] = _util.nav_link

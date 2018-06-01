@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.25 (2018-06-01)
+
+- `lang`: singular forms of months names added.
+- `tpl`: new global: `langs`.
+
+
 ## 7.24 (2018-06-01)
 
 Changed signatures of `router.current_path()` and
