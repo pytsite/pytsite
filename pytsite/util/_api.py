@@ -19,7 +19,7 @@ from lxml import html as _lxml_html, etree as _lxml_etree
 from time import tzname as _tzname
 from copy import deepcopy as _deepcopy
 from time import time as _current_time
-from datetime import datetime as _datetime, time as _time
+from datetime import datetime as _datetime
 from html import parser as _python_html_parser
 from hashlib import md5 as _md5
 from traceback import extract_stack as _extract_stack

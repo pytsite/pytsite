@@ -258,7 +258,7 @@ def dispatch(env: dict, start_response: callable):
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
 
             _logger.error('HTTP {} {} ({}): {}'.format(
-                e.code, e.name, current_path(resolve_alias=False), e.description))
+                e.code, e.name, current_path(False), e.description))
         else:
             code = e.code if isinstance(e, _http.error.E5xx) else 500
             title = _lang.t('pytsite.router@error', {'code': code})
@@ -410,7 +410,7 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     return _urlparse.urlunparse(r) if not as_list else r
 
 
-def current_path(strip_query=False, resolve_alias=True, add_lang_prefix=False, lang: str = None) -> str:
+def current_path(resolve_alias=True, add_lang_prefix: bool=True, lang: str = None) -> str:
     """Get current path.
     """
     lang = lang or _lang.get_current()
@@ -427,19 +427,17 @@ def current_path(strip_query=False, resolve_alias=True, add_lang_prefix=False, l
     if add_lang_prefix and lang != _lang.get_primary():
         r = '/' + lang + (r if r != '/' else '')
 
-    if not strip_query and req and req.query_string:
-        r += '?' + req.query_string.decode('utf-8')
-
     return r
 
 
-def current_url(strip_query: bool = False, resolve_alias: bool = True, lang: str = None, add_query: dict = None,
-                add_fragment: str = None) -> str:
+def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None,
+                add_query: dict = None, add_fragment: str = None) -> str:
     """Get current URL.
     """
-    r = scheme() + '://' + server_name() + current_path(strip_query, resolve_alias, False, lang)
+    r = scheme() + '://' + server_name() + current_path(resolve_alias, add_lang_prefix, lang)
+
     if add_query or add_fragment:
-        r = url(r, query=add_query, fragment=add_fragment)
+        r = url(r, strip_query=strip_query, query=add_query, fragment=add_fragment)
 
     return r
 

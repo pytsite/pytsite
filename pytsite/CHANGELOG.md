@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.24 (2018-06-01)
+
+Changed signatures of `router.current_path()` and
+`router.current_url()`.
+
+
 ## 7.23 (2018-05-30)
 
 - `router.url()`:
