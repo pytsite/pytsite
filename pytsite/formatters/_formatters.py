@@ -45,7 +45,7 @@ class Int(Formatter):
         if isinstance(value, str):
             value = value.strip()
             if not value:
-                return
+                return super().set_val(None)
 
         try:
             value = int(value)
@@ -82,7 +82,7 @@ class Float(Formatter):
         if isinstance(value, str):
             value = value.strip()
             if not value:
-                return
+                return super().set_val(None)
 
         try:
             value = float(value)

@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.26.1 (2018-06-03)
+
+Empty value processing bug fixed in `Int` and `Float`.
+
+
 ## 7.26 (2018-06-03)
 
 - `routing`: new method `Controller.validate()`.
