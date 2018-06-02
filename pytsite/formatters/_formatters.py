@@ -1,14 +1,14 @@
 """PytSite Router Formatters
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 import json as _json
 from typing import Any as _Any
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from pytsite import util as _util
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 
 class Formatter(_ABC):
@@ -37,10 +37,16 @@ class Bool(Formatter):
 class Int(Formatter):
     def __init__(self, minimum: int = None, maximum: int = None):
         super().__init__()
+
         self._min = minimum
         self._max = maximum
 
-    def set_val(self, value: str):
+    def set_val(self, value: _Any):
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                return
+
         try:
             value = int(value)
 
@@ -68,10 +74,16 @@ class AboveZeroInt(Int):
 class Float(Formatter):
     def __init__(self, minimum: float = None, maximum: float = None):
         super().__init__()
+
         self._min = minimum
         self._max = maximum
 
     def set_val(self, value: str):
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                return
+
         try:
             value = float(value)
             if self._min is not None and value < self._min:
@@ -93,6 +105,7 @@ class PositiveFloat(Float):
 class Str(Formatter):
     def __init__(self, max_len: int = None):
         super().__init__()
+
         self._max_len = max_len
 
     def set_val(self, value: str):

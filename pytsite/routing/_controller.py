@@ -43,6 +43,22 @@ class ControllerArgs(dict):
         for k, v in kwargs.items():
             self[k] = v
 
+    def validate(self):
+        """Validate values
+        """
+        for k, v in self:
+            if k not in self._rules:
+                continue
+
+            for r in self._rules[k]:
+                try:
+                    r.validate(v)
+                except _validation.error.RuleError as e:
+                    raise _validation.error.RuleError('pytsite.router@input_validation_error', {
+                        'field_name': k,
+                        'error': str(e),
+                    })
+
     def __setitem__(self, key: str, value: _Any):
         # Apply formatters
         if key in self._formatters:
@@ -51,17 +67,6 @@ class ControllerArgs(dict):
                     value = f.format(value)
                 except ValueError as e:
                     raise ValueError("Field '{}' cannot be properly formatted: {}".format(key, e))
-
-        # Process rules
-        if key in self._rules:
-            for r in self._rules[key]:
-                try:
-                    r.validate(value)
-                except _validation.error.RuleError as e:
-                    raise _validation.error.RuleError('pytsite.router@input_validation_error', {
-                        'field_name': key,
-                        'error': str(e),
-                    })
 
         super().__setitem__(key, value)
 
@@ -135,4 +140,6 @@ class Controller(_ABC):
 
     @_abstractmethod
     def exec(self):
+        """Execute the controller
+        """
         pass

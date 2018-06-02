@@ -115,6 +115,7 @@ def call(rule_name: str, args: _Mapping):
     """
     c = _rules.get(rule_name).controller_class()  # type: _routing.Controller
     c.args.update(args)
+    c.args.validate()
 
     return c.exec()
 
@@ -201,6 +202,7 @@ def dispatch(env: dict, start_response: callable):
             flt_controller.request = req
             flt_controller.args.update(req.inp)  # It's important not to overwrite rule's args with input
             flt_controller.args.update(rule.args)  # It's important not to overwrite rule's args with input
+            flt_controller.args.validate()
             flt_response = flt_controller.exec()
             if isinstance(flt_response, _http.Response):
                 return flt_response(env, start_response)
@@ -214,6 +216,7 @@ def dispatch(env: dict, start_response: callable):
         controller.args.update(req.inp)  # It's important not to overwrite rule's args with input
         controller.args.update(rule.args)  # It's important not to overwrite rule's args with input
         controller.args['_pytsite_router_rule_name'] = rule.name
+        controller.args.validate()
 
         # Call controller
         try:

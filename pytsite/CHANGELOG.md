@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.26 (2018-06-03)
+
+- `routing`: new method `Controller.validate()`.
+- `formatters`: empty values processing issues fixed.
+
+
 ## 7.25 (2018-06-01)
 
 - `lang`: singular forms of months names added.
