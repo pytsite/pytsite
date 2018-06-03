@@ -46,7 +46,7 @@ class ControllerArgs(dict):
     def validate(self):
         """Validate values
         """
-        for k, v in self:
+        for k, v in self.items():
             if k not in self._rules:
                 continue
 
