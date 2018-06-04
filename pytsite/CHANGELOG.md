@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.27 (2018-06-04)
+
+Added `dateparser`'s arguments support in `util.parse_date_time()`.
+
+
 ## 7.26.2 (2018-06-03)
 
 Bug fixed in `routing.Controller.validate()`.
