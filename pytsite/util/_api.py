@@ -528,13 +528,13 @@ def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
     return str(li)
 
 
-def parse_date_time(s: str, date_formats: list = None, languages: list = None, locales: list = None, region: str = None,
-                    settings: dict = None) -> _datetime:
+def parse_date_time(s: str, date_formats: list = None, languages: list = None, locales: list = None,
+                    region: str = None) -> _datetime:
     """Parse a date/time string
 
     See docs at https://github.com/scrapinghub/dateparser
     """
-    date = _dateparser.parse(s, date_formats, languages, locales, region, settings)
+    date = _dateparser.parse(s, date_formats, languages, locales, region)
     if date is None:
         raise ValueError("'{}' is not a valid date/time string".format(s))
 

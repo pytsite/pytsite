@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.27.1 (2018-06-04)
+
+Removed `settings` argument from `util.parse_date_time()`.
+
+
 ## 7.27 (2018-06-04)
 
 Added `dateparser`'s arguments support in `util.parse_date_time()`.
