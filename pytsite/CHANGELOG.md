@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.28.1 (2018-06-05)
+
+Package version fixed.
+
+
 ## 7.28 (2018-06-05)
 
 New argument `formats` added to `validation.rule.DateTime()`.
