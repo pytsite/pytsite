@@ -410,6 +410,11 @@ class DateTime(Rule):
     """Date/time Validation Rule
     """
 
+    def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
+        super().__init__(value, msg_id, msg_args)
+
+        self._formats = kwargs.get('formats')  # type: list
+
     def _do_validate(self):
         """Do actual validation of the rule
         """
@@ -420,7 +425,7 @@ class DateTime(Rule):
             self._value = self._value.strip()
 
             try:
-                self._value = _util.parse_date_time(self._value)
+                self._value = _util.parse_date_time(self._value, self._formats)
             except ValueError:
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
