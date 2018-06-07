@@ -1,6 +1,18 @@
 # PytSite 7 Changelog
 
 
+## 7.29 (2018-06-07)
+
+- `router`:
+    - `handle()`'s signature types updated;
+    - filters processing chnaged.
+- `routing`:
+    - new class `Filter` added;
+    - new method `Controller.file()` added;
+    - new property `Controller.response` added;
+    - new property `Rule.filters` added.
+
+
 ## 7.28.1 (2018-06-05)
 
 Package version fixed.

@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 import re as _re
 from typing import Dict as _Dict, Union as _Union, List as _List, Mapping as _Mapping, Optional as _Optional, \
-    Type as _Type
+    Type as _Type, Tuple as _Tuple
 from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
@@ -75,20 +75,18 @@ def no_cache(state: bool = None) -> _Optional[bool]:
         _no_cache[_threading.get_id()] = state
 
 
-def handle(controller: _Union[str, _Type], path: str = None, name: str = None, defaults: dict = None,
-           methods='GET', filters: _Union[_Type, _List[_Type]] = None):
+def handle(controller: _Union[str, _Type[_routing.Controller]], path: str = None, name: str = None,
+           defaults: dict = None, methods: _Union[str, _Tuple[str, ...]] = 'GET',
+           filters: _Union[_Type[_routing.Filter], _Tuple[_Type[_routing.Filter]]] = None):
     """Add a rule to the router
     """
     if isinstance(controller, str):
         controller = _rules.get(controller).controller_class
 
-    if filters is None:
-        filters = ()
-
-    if not isinstance(filters, (list, tuple)):
+    if filters is not None and issubclass(filters, _routing.Filter):
         filters = (filters,)
 
-    _rules.add(_routing.Rule(controller, path, name, defaults, methods, {'filters': filters}))
+    _rules.add(_routing.Rule(controller, path, name, defaults, methods, filters))
 
 
 def add_path_alias(alias: str, target: str):
@@ -105,7 +103,7 @@ def remove_path_alias(alias: str):
 
 
 def has_rule(rule_name: str) -> bool:
-    """Check whether endpoint is callable
+    """Check if the rule is registered
     """
     return _rules.has(rule_name)
 
@@ -164,13 +162,13 @@ def dispatch(env: dict, start_response: callable):
     # Create request context
     req = set_request(_http.Request(env))
 
-    # Notify listeners
+    # Notify listeners about incoming request
     if req.is_xhr:
         _events.fire('pytsite.router@xhr_pre_dispatch.{}'.format(req.method.lower()))
     else:
         _events.fire('pytsite.router@pre_dispatch.{}'.format(req.method.lower()))
 
-    # Loading path alias, if it exists, then re-create request context
+    # Get path alias, if it exists, then re-create request context
     if env['PATH_INFO'] in _path_aliases:
         env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
         req = set_request(_http.Request(env))
@@ -184,30 +182,35 @@ def dispatch(env: dict, start_response: callable):
 
     # Processing request
     try:
-        # Notify listeners
+        # Notify listeners about incoming request
         if req.is_xhr:
             _events.fire('pytsite.router@xhr_dispatch.{}'.format(req.method.lower()))
         else:
             _events.fire('pytsite.router@dispatch.{}'.format(req.method.lower()))
 
-        # Search for rule
+        # Search for the rule
         try:
             rule = _rules.match(req.path, req.method)[0]
         except _routing.error.RuleNotFound as e:
             raise _http.error.NotFound(e)
 
-        # Processing rule filters
-        for flt_controller_class in rule.attrs['filters']:
-            flt_controller = flt_controller_class()  # type: _routing.Controller
-            flt_controller.request = req
-            flt_controller.args.update(req.inp)  # It's important not to overwrite rule's args with input
-            flt_controller.args.update(rule.args)  # It's important not to overwrite rule's args with input
-            flt_controller.args.validate()
-            flt_response = flt_controller.exec()
+        # Instantiate filters
+        filters = []  # type: _List[_routing.Filter]
+        for flt_controller_class in rule.filters:  # type: _Type[_routing.Filter]
+            flt = flt_controller_class()  # type: _routing.Filter
+            flt.request = req
+            flt.args.update(req.inp)  # It's important not to overwrite rule's args with input
+            flt.args.update(rule.args)  # It's important not to overwrite rule's args with input
+            flt.args.validate()
+            filters.append(flt)
+
+        # Processing filters before() hook
+        for flt in filters:
+            flt_response = flt.before()
             if isinstance(flt_response, _http.Response):
                 return flt_response(env, start_response)
 
-        # Preparing response object
+        # Prepare response object
         wsgi_response = _http.Response(response='', status=200, content_type='text/html', headers=[])
 
         # Instantiate controller and fill its arguments
@@ -242,6 +245,11 @@ def dispatch(env: dict, start_response: callable):
             wsgi_response.headers.set('Pragma', 'no-cache')
         else:
             wsgi_response.headers.set('Cache-Control', 'public')
+
+        # Processing filters after() hook
+        for flt in filters:
+            flt.response = wsgi_response
+            flt.after()
 
         # Store updated session data
         if session().should_save:
@@ -413,7 +421,7 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     return _urlparse.urlunparse(r) if not as_list else r
 
 
-def current_path(resolve_alias=True, add_lang_prefix: bool=True, lang: str = None) -> str:
+def current_path(resolve_alias=True, add_lang_prefix: bool = True, lang: str = None) -> str:
     """Get current path.
     """
     lang = lang or _lang.get_current()

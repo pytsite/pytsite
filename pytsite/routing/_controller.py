@@ -4,9 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import magic as _magic
 from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union, Mapping as _Mapping
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import formatters as _formatter, validation as _validation, http as _http
+from os import path as _path
+from mimetypes import guess_extension as _guess_extension
+from pytsite import formatters as _formatter, validation as _validation, http as _http, util as _util
 
 
 class ControllerArgs(dict):
@@ -81,12 +84,33 @@ class Controller(_ABC):
         self._args = ControllerArgs()
         self._files = {}
         self._request = None
+        self._response = None
 
     @staticmethod
     def redirect(location: str, status: int = 302) -> _http.RedirectResponse:
         """Return a redirect
         """
         return _http.RedirectResponse(location, status)
+
+    def file(self, path: str, name: str = None, mime: str = None, mode: str = 'rb'):
+        """Return a file stream response
+        """
+        try:
+            if not name:
+                name = _path.basename(path)
+
+            if not mime:
+                mime = _magic.from_file(path, True)
+
+            if not _path.splitext(name)[1] and mime:
+                name += _guess_extension(mime)
+
+            headers = {'Content-Disposition': 'attachment; filename="{}"'.format(name)}
+
+            return _http.Response(open(path, mode), 200, headers, mime, direct_passthrough=True)
+
+        except FileNotFoundError:
+            return self.not_found()
 
     @staticmethod
     def not_found(description: _Union[str, Exception] = None, response: _http.Response = None):
@@ -138,8 +162,41 @@ class Controller(_ABC):
         """
         self._request = request
 
+    @property
+    def response(self) -> _http.Response:
+        """Current response object getter
+        """
+        if not self._response:
+            raise RuntimeError('Response is not set yet')
+
+        return self._response
+
+    @response.setter
+    def response(self, response: _http.Response):
+        """Current response object setter
+        """
+        self._response = response
+
     @_abstractmethod
     def exec(self):
         """Execute the controller
+        """
+        pass
+
+
+class Filter(Controller):
+    def exec(self):
+        """Execute the controller
+        """
+        # Just override abstract method, filters must not do anything there
+        pass
+
+    def before(self):
+        """Hook to call before request processing
+        """
+        pass
+
+    def after(self):
+        """Hook to call after request processing
         """
         pass

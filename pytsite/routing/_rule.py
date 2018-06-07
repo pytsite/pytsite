@@ -1,16 +1,17 @@
 """PytSite Routing Rule
 """
-import re as _re
-from typing import Type as _Type
-from pytsite import util as _util
-from . import _error, _controller
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_rule_arg_re = _re.compile('<(?:(\w+)(?:\(([\w\|]*)\))?:)?(\w+)>')
-_parametrized_arg_type_re = _re.compile('(\w+)\(([\w\|]*)\)')
+import re as _re
+from typing import Type as _Type, List as _List, Union as _Union, Tuple as _Tuple
+from pytsite import util as _util
+from . import _error
+from ._controller import Controller as _Controller, Filter as _Filter
+
+_rule_arg_re = _re.compile('<(?:(\w+)(?:\(([\w|]*)\))?:)?(\w+)>')
+_parametrized_arg_type_re = _re.compile('(\w+)\(([\w|]*)\)')
 
 
 def _rule_arg_repl_func(match):
@@ -45,13 +46,12 @@ class Rule:
     """Routing Rule
     """
 
-    def __init__(self, controller_class: _Type, path: str = None, name: str = None, defaults: dict = None,
-                 methods='GET', attrs: dict = None):
+    def __init__(self, controller_class: _Type[_Controller], path: str = None, name: str = None, defaults: dict = None,
+                 methods: _Union[str, _Tuple[str, ...]] = 'GET', filters: _Tuple[_Type[_Filter], ...] = None,
+                 attrs: dict = None):
 
-        if not isinstance(controller_class, type):
-            raise TypeError('{} expected, got {}'.format(_controller.Controller, type(controller_class)))
-        elif not issubclass(controller_class, _controller.Controller):
-            raise TypeError('str or {} expected, got {}'.format(_controller.Controller, type(controller_class)))
+        if not issubclass(controller_class, _Controller):
+            raise TypeError('{} expected, got {}'.format(_Controller, type(controller_class)))
 
         if path:
             # Cut trailing slash
@@ -62,20 +62,31 @@ class Rule:
             if not path.startswith('/'):
                 path = '/' + path
 
+        # Sanitize methods
         if isinstance(methods, str):
             if methods == '*':
-                methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
+                methods = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD')
             else:
-                methods = [methods]
-        elif not isinstance(methods, (list, tuple)):
-            raise TypeError('List or type expected, got {}'.format(type(methods)))
+                methods = (methods,)
+        elif not isinstance(methods, tuple):
+            raise TypeError('Tuple expected, got {}'.format(type(methods)))
+
+        # Sanitize filters
+        if filters is None:
+            filters = ()
+        if not isinstance(filters, tuple):
+            raise TypeError('Tuple expected, got {}'.format(type(filters)))
+        for flt in filters:
+            if not issubclass(flt, _Filter):
+                raise TypeError('{} expected, got {}'.format(_Filter, type(flt)))
 
         self._path = path
         self._controller_class = controller_class
         self._name = name or _util.random_str()
-        self._defaults = defaults or {}
+        self._defaults = defaults.copy() if defaults else {}
         self._methods = set([m.upper() for m in methods])
-        self._attrs = attrs if attrs else {}
+        self._filters = list(filters) if filters else []
+        self._attrs = attrs.copy() if attrs else {}
 
         # Build regular expression
         if self._path:
@@ -109,6 +120,10 @@ class Rule:
     @property
     def methods(self) -> set:
         return self._methods
+
+    @property
+    def filters(self) -> _List[_Type[_Filter]]:
+        return self._filters
 
     @property
     def attrs(self) -> dict:
