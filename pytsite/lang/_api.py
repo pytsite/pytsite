@@ -46,9 +46,6 @@ def define(languages: list):
     global _languages
     _languages = languages
 
-    # Append 'neutral' language
-    languages.append('n')
-
     set_current(_languages[0])
     set_fallback(_languages[0])
 
@@ -59,13 +56,10 @@ def is_defined(language: str):
     return language in _languages
 
 
-def langs(include_current: bool = True, include_neutral: bool = False) -> _List[str]:
+def langs(include_current: bool = True) -> _List[str]:
     """Get all defined languages
     """
     r = _languages.copy()
-
-    if not include_neutral and 'n' in r:
-        r.remove('n')
 
     if not include_current:
         r.remove(_current[_threading.get_id()])

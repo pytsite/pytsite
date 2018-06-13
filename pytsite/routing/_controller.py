@@ -105,7 +105,7 @@ class Controller(_ABC):
             if not _path.splitext(name)[1] and mime:
                 name += _guess_extension(mime)
 
-            headers = {'Content-Disposition': 'attachment; filename="{}"'.format(name)}
+            headers = {'Content-Disposition': 'attachment; filename="{}"'.format(_util.url_quote(name))}
 
             return _http.Response(open(path, mode), 200, headers, mime, direct_passthrough=True)
 

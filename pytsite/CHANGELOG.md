@@ -1,6 +1,12 @@
 # PytSite 7 Changelog
 
 
+## 7.29.1 (2018-06-13)
+
+- `routing`: encoding of filename URL fixed.
+- `lang`: obsolete 'neutral' language support removed.
+
+
 ## 7.29 (2018-06-07)
 
 - `router`:
