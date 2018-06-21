@@ -109,9 +109,11 @@ def _init():
             from pytsite import lang
             lang.register_package('app', 'lang')
 
-        import app
+        # Load app package
         from pytsite import plugman, events
         try:
+            import app
+
             package_info.check_requirements('app')
 
             # app_load() hook
@@ -130,8 +132,9 @@ def _init():
             events.fire('pytsite.app_load')
             logger.debug('Application loaded')
 
-        except (plugman.error.Error, package_info.error.Error) as e:
-            raise Warning('Application load error: {}'.format(e))
+        except Exception as e:
+            logger.error(e)
+            console.print_warning('Application load error: {}'.format(e))
 
         finally:
             events.fire('pytsite.load')

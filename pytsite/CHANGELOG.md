@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.29.2 (2018-06-21)
+
+`app` package load errors processing fixed.
+
+
 ## 7.29.1 (2018-06-13)
 
 - `routing`: encoding of filename URL fixed.
