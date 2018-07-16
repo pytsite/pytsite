@@ -65,12 +65,13 @@ def _init():
     # Load installed plugins
     if reg.get('plugman.autoload', True):
         maint_was_enabled = _maintenance.is_enabled()
+        disabled_plugins = reg.get('plugman.disabled_plugins', [])
 
         try:
             _maintenance.enable(True)
 
             for p_name in plugins_info_seq:
-                if p_name.startswith('_'):
+                if p_name.startswith('_') or p_name in disabled_plugins:
                     continue
 
                 try:

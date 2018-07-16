@@ -1,6 +1,14 @@
 # PytSite 7 Changelog
 
 
+## 7.30 (2018-07-16)
+
+- `http.Session` refactored.
+- `plugman`: new configuration option `disabled_plugins` added.
+- `router`: session management improved.
+- `routing`: new method: `Controller.warning()`.
+
+
 ## 7.29.2 (2018-06-21)
 
 `app` package load errors processing fixed.

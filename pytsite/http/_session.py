@@ -1,49 +1,21 @@
 """PytSite HTTP Session
 """
-from typing import Optional as _Optional
-from copy import deepcopy as _deepcopy
-from werkzeug.contrib.sessions import Session as _BaseSession
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from werkzeug.contrib.sessions import Session as _BaseSession
 
 
 class Session(_BaseSession):
     """PytSite HTTP Session.
     """
 
-    def __init__(self, data, sid, new=False):
-        """Init
-        """
-        self['__flash'] = {}
-
-        super().__init__(data, sid, new)
-
-    def flash_set(self, key: str, value):
-        """Set flash value
-        """
-        self['__flash'][key] = value
-        self.modified = True
-
-        return self
-
-    def flash_get(self, key: str, default=None):
-        """Pop flash value
-        """
-        r = default
-
-        if key in self['__flash']:
-            r = _deepcopy(self['__flash'][key])
-            del self['__flash'][key]
-
-        return r
-
-    def flash_clear(self):
+    def clear_messages(self):
         """Clear flash data
         """
-        if '__flash' not in self or self['__flash'] != {}:
-            self['__flash'] = {}
+        if '__flash' in self:
+            del self['__flash']
             self.modified = True
 
         return self
@@ -54,13 +26,13 @@ class Session(_BaseSession):
         if unique and self.has_message(msg, section):
             return self
 
-        if '__messages' not in self['__flash']:
-            self['__flash']['__messages'] = {}
+        if '__flash' not in self:
+            self['__flash'] = {}
 
-        if section not in self['__flash']['__messages']:
-            self['__flash']['__messages'][section] = []
+        if section not in self['__flash']:
+            self['__flash'][section] = []
 
-        self['__flash']['__messages'][section].append(msg)
+        self['__flash'][section].append(msg)
         self.modified = True
 
         return self
@@ -88,45 +60,27 @@ class Session(_BaseSession):
     def has_message(self, msg: str, section: str) -> bool:
         """Check if the session contains a flash message
         """
-        if '__messages' not in self['__flash'] or section not in self['__flash']['__messages']:
+        if '__flash' not in self or section not in self['__flash']:
             return False
 
-        return msg in self['__flash']['__messages'][section]
-
-    def has_info_message(self, msg: str) -> bool:
-        """Check if the session contains an info message
-        """
-        return self.has_message(msg, 'info')
-
-    def has_success_message(self, msg: str) -> bool:
-        """Check if the session contains a success message
-        """
-        return self.has_message(msg, 'success')
-
-    def has_warning_message(self, msg: str) -> bool:
-        """Check if the session contains a warning message
-        """
-        return self.has_message(msg, 'warning')
-
-    def has_error_message(self, msg: str) -> bool:
-        """Check if the session contains an error message
-        """
-        return self.has_message(msg, 'error')
+        return msg in self['__flash'][section]
 
     def get_messages(self, section: str) -> tuple:
         """Pop flash messages
         """
-        r = []
+        if '__flash' not in self:
+            return ()
 
-        if '__messages' not in self['__flash']:
-            return tuple(r)
+        r = ()
 
-        if section in self['__flash']['__messages']:
-            r = _deepcopy(self['__flash']['__messages'][section])
-            self['__flash']['__messages'][section].clear()
+        if section in self['__flash']:
+            r = tuple(self['__flash'][section])
+            del self['__flash'][section]
+            if not self['__flash']:
+                del self['__flash']
             self.modified = True
 
-        return tuple(r)
+        return r
 
     def get_info_messages(self) -> tuple:
         """Pop info messages
@@ -147,33 +101,3 @@ class Session(_BaseSession):
         """Pop error messages
         """
         return self.get_messages('error')
-
-    def get_message(self, msg: str, section: str) -> _Optional[str]:
-        """Pop single flash message
-        """
-        if not self.has_message(msg, section):
-            return
-
-        messages = self['__flash']['__messages'][section]
-
-        return messages.pop(messages.index(msg))
-
-    def get_info_message(self, msg: str) -> str:
-        """Pop single info message
-        """
-        return self.get_message(msg, 'info')
-
-    def get_success_message(self, msg: str) -> str:
-        """Pop single success message
-        """
-        return self.get_message(msg, 'success')
-
-    def get_warning_message(self, msg: str) -> str:
-        """Pop single warning message
-        """
-        return self.get_message(msg, 'warning')
-
-    def get_error_message(self, msg: str) -> str:
-        """Pop single error message
-        """
-        return self.get_message(msg, 'error')

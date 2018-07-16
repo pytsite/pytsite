@@ -251,10 +251,14 @@ def dispatch(env: dict, start_response: callable):
             flt.response = wsgi_response
             flt.after()
 
-        # Store updated session data
         if session().should_save:
+            # Store updated session data
             _session_store.save(session())
             wsgi_response.set_cookie('PYTSITE_SESSION', session().sid)
+        elif not session() and 'PYTSITE_SESSION' in request().cookies:
+            # Delete session cookie in case of empty session
+            wsgi_response.delete_cookie('PYTSITE_SESSION')
+            _session_store.delete(session())
 
         if req.is_xhr:
             _events.fire('pytsite.router@xhr_response.{}'.format(req.method.lower()), response=wsgi_response)

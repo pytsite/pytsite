@@ -113,26 +113,32 @@ class Controller(_ABC):
             return self.not_found()
 
     @staticmethod
+    def warning(description: _Union[str, Exception] = None, code: int = 500):
+        """Raise a 'UserWarning' exception
+        """
+        return UserWarning(description, code)
+
+    @staticmethod
     def not_found(description: _Union[str, Exception] = None, response: _http.Response = None):
-        """Return a 'Not found' exception
+        """Raise a 'Not found' exception
         """
         return _http.error.NotFound(description, response)
 
     @staticmethod
     def unauthorized(description: _Union[str, Exception] = None, response: _http.Response = None):
-        """Return an 'Unauthorized' exception
+        """Raise an 'Unauthorized' exception
         """
         return _http.error.Unauthorized(description, response)
 
     @staticmethod
     def forbidden(description: _Union[str, Exception] = None, response: _http.Response = None):
-        """Return a 'Forbidden' exception
+        """Raise a 'Forbidden' exception
         """
         return _http.error.Forbidden(description, response)
 
     @staticmethod
     def server_error(description: _Union[str, Exception] = None, response: _http.Response = None):
-        """Return an 'Internal server error' exception
+        """Raise an 'Internal server error' exception
         """
         return _http.error.InternalServerError(description, response)
 
@@ -188,8 +194,7 @@ class Filter(Controller):
     def exec(self):
         """Execute the controller
         """
-        # Just override abstract method, filters must not do anything there
-        pass
+        raise NotImplementedError('This method must be implemented by filter controllers')
 
     def before(self):
         """Hook to call before request processing

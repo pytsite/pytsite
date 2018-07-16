@@ -39,10 +39,10 @@ def _init():
     # Clear flash messages from all sessions
     s_store = get_session_store()
     for sid in s_store.list():
-        s_store.save_if_modified(s_store.get(sid).flash_clear())
+        s_store.save_if_modified(s_store.get(sid).clear_messages())
 
     # Events handlers
-    cleanup.on_cleanup(_eh.cleanup)
+    cleanup.on_cleanup(_eh.on_cleanup)
 
 
 _init()

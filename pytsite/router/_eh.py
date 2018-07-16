@@ -1,6 +1,5 @@
 """PytSite Router Events Handlers
 """
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -8,7 +7,7 @@ __license__ = 'MIT'
 from pytsite import util as _util, reg as _reg, logger as _logger
 
 
-def cleanup():
+def on_cleanup():
     success, failed = _util.cleanup_files(_reg.get('paths.session'), _reg.get('router.session_ttl', 86400))
 
     for f_path in success:
