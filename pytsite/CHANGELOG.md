@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.31.1 (2018-08-20)
+
+`plugman`'s installed plugins counter issue fixed.
+
+
 ## 7.31 (2018-08-20)
 
 New methods in `plugman`: `on_install_all()`, `on_update_all()`.

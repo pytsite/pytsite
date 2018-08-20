@@ -32,7 +32,6 @@ class Install(_console.Command):
         stage = self.opt('stage')
 
         if stage == 1:
-            installed_count = 0
             plugins_specs = self.args
 
             # If no plugins to install/update was specified
@@ -47,7 +46,7 @@ class Install(_console.Command):
             # Install/update plugins
             for plugin_spec in plugins_specs:
                 try:
-                    installed_count += _api.install(plugin_spec)
+                    _api.install(plugin_spec)
                 except _error.Error as e:
                     raise _console.error.CommandExecutionError(e)
 
@@ -58,9 +57,8 @@ class Install(_console.Command):
                 elif self.name == 'plugman:update':
                     _events.fire('pytsite.plugman@update_all')
 
-            if installed_count:
-                # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
-                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
+            # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
+            return _subprocess.run(['./console', self.name, '--stage=2']).returncode
 
         elif stage == 2:
             # At this point triggers _eh.on_pytsite_load() event handler, which calls plugin_install() and
