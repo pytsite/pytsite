@@ -1,6 +1,6 @@
 """PytSite Console.
 """
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
@@ -61,7 +61,7 @@ def run_command(name: str, options: dict = None, arguments: list = None):
 
     # Set arguments
     if arguments:
-        cmd.set_args(arguments)
+        cmd.args = arguments
 
     try:
         _current_command = cmd

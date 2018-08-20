@@ -1,11 +1,12 @@
 """PytSite Plugin Manager Console Commands
 """
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import subprocess as _subprocess
-from pytsite import reload as _reload, console as _console, package_info as _package_info, lang as _lang
+from pytsite import reload as _reload, console as _console, package_info as _package_info, lang as _lang, \
+    events as _events
 from . import _api, _error
 
 
@@ -27,21 +28,35 @@ class Install(_console.Command):
     def description(self) -> str:
         return 'pytsite.plugman@console_command_description_install'
 
-    def _get_plugins_specs(self) -> list:
-        return self.args if self.args else _package_info.requires_plugins('app')
-
     def exec(self):
         stage = self.opt('stage')
 
         if stage == 1:
             installed_count = 0
+            plugins_specs = self.args
 
-            # Install plugins
-            for plugin_spec in self._get_plugins_specs():
+            # If no plugins to install/update was specified
+            if not self.args:
+                if self.name == 'plugman:install':
+                    # Install all plugins required by application
+                    plugins_specs = _package_info.requires_plugins('app')
+                elif self.name == 'plugman:update':
+                    # Update all installed plugins
+                    plugins_specs = self.args or _api.local_plugins_info().keys()
+
+            # Install/update plugins
+            for plugin_spec in plugins_specs:
                 try:
                     installed_count += _api.install(plugin_spec)
                 except _error.Error as e:
                     raise _console.error.CommandExecutionError(e)
+
+            # Notify listeners if command was called without arguments
+            if not self.args:
+                if self.name == 'plugman:install':
+                    _events.fire('pytsite.plugman@install_all')
+                elif self.name == 'plugman:update':
+                    _events.fire('pytsite.plugman@update_all')
 
             if installed_count:
                 # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
@@ -79,19 +94,6 @@ class Update(Install):
     def description(self) -> str:
         return 'pytsite.plugman@console_command_description_update'
 
-    def _get_plugins_specs(self) -> list:
-        return self.args if self.args else _api.local_plugins_info().keys()
-
-    def exec(self):
-        # Check if the all requested plugins are installed
-        for plugin_spec in self._get_plugins_specs():
-            if not _api.is_installed(plugin_spec):
-                raise _console.error.CommandExecutionError(_lang.t('pytsite.plugman@plugin_not_installed', {
-                    'plugin': plugin_spec
-                }))
-
-        super().exec()
-
 
 class Uninstall(_console.Command):
     """plugman:uninstall
@@ -106,13 +108,11 @@ class Uninstall(_console.Command):
         return 'pytsite.plugman@console_command_description_uninstall'
 
     def exec(self):
-        plugin_names = self.args
-
-        if not plugin_names:
+        if not self.args:
             raise _console.error.MissingArgument('pytsite.plugman@plugins_not_specified')
 
         try:
-            for p_name in plugin_names:
+            for p_name in self.args:
                 _api.uninstall(p_name)
         except _error.Error as e:
             raise _console.error.CommandExecutionError(e)

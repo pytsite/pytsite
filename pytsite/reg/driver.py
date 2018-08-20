@@ -5,7 +5,7 @@ from os import path as _path
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from pytsite import util as _util
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

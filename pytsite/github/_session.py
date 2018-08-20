@@ -5,7 +5,7 @@ import re as _re
 from pytsite import reg as _reg
 from . import _error
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

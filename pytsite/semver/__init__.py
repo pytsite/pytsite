@@ -9,6 +9,6 @@ from ._api import parse_version_str, compare, last, check_conditions, to_int, pa
     parse_condition_str, minimum, maximum, increment, decrement
 from ._version import Version
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'

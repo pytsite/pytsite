@@ -7,7 +7,7 @@ from ._api import get_client, get_collection, get_collection_names, get_config, 
 from pytsite import console as _console, lang as _lang
 from ._console_command import Db
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

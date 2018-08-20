@@ -2,7 +2,7 @@ import re as _re
 from werkzeug.wrappers import Request as _Request
 from werkzeug.utils import cached_property as _cached_property
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

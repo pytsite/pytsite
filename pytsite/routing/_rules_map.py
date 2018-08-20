@@ -5,7 +5,7 @@ import json as _json
 from typing import Dict as _Dict, List as _List
 from . import _rule, _error
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

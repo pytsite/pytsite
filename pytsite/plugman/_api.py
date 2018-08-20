@@ -1,6 +1,6 @@
 """PytSite Package Manager API
 """
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
@@ -518,6 +518,18 @@ def on_install(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('pytsite.plugman@install', handler, priority)
+
+
+def on_install_all(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman@install_all', handler, priority)
+
+
+def on_update_all(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman@update_all', handler, priority)
 
 
 def on_install_error(handler, priority: int = 0):

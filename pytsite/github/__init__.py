@@ -4,7 +4,7 @@
 from . import _error as error
 from ._session import Session
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

@@ -2,7 +2,7 @@
 """
 from ._api import dump, dump_all, get, reset, t_set, rm
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

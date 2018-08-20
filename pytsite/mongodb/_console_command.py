@@ -6,7 +6,7 @@ from os import path as _path
 from datetime import datetime as _datetime
 from pytsite import console as _console, reg as _reg, maintenance as _maintenance, events as _events
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

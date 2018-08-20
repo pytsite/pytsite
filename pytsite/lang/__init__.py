@@ -7,7 +7,7 @@ from ._api import t, t_plural, register_package, define, is_defined, get_package
     is_translation_defined, get_fallback, set_fallback, ietf_tag, get_primary, register_global, on_translate, \
     clear_cache, on_split_msg_id
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

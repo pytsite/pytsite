@@ -4,7 +4,7 @@ from typing import Any as _Any, List as _List
 from pytsite import formatters as _formatter, validation as _validation, util as _util
 from . import _error
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

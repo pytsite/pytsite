@@ -4,7 +4,7 @@ from os import path as _path
 from pytsite import reg as _reg, events as _events, console as _console, lang as _lang, util as _util, \
     threading as _threading
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

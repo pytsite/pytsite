@@ -7,7 +7,7 @@ from os import path as _path
 from pytsite import semver as _semver, util as _util
 from . import _error
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

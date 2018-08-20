@@ -3,7 +3,7 @@
 # Public API
 from ._api import RELOAD_MSG_ID, reload, on_before_reload, on_reload, set_flag, get_flag
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

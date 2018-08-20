@@ -4,7 +4,7 @@ from typing import Dict as _Dict, Any as _Any
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from . import _option, _error
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
@@ -65,9 +65,6 @@ class Command(_ABC):
         except KeyError:
             raise _error.InvalidOption(name)
 
-    def set_args(self, args: list):
-        self._args = args.copy()
-
     def arg(self, index: int, default: _Any = None) -> _Any:
         """Get argument's value
         """
@@ -78,9 +75,15 @@ class Command(_ABC):
 
     @property
     def args(self) -> list:
-        """Get all arguments
+        """Arguments getter
         """
-        return self._args.copy()
+        return self._args
+
+    @args.setter
+    def args(self, value: list):
+        """Arguments setter
+        """
+        self._args = value.copy()
 
     def do_execute(self):
         for opt in self._opts.values():

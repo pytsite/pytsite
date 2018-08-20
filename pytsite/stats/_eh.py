@@ -3,7 +3,7 @@
 from os import path as _path
 from pytsite import events as _events, reg as _reg, logger as _logger, util as _util
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

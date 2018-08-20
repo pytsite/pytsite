@@ -3,7 +3,7 @@
 from pytsite import lang as _lang, util as _util, events as _events, threading as _threading, \
     package_info as _package_info
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

@@ -6,7 +6,7 @@ from pymongo.database import Database as _Database
 from pymongo.collection import Collection as _Collection
 from pytsite import reg as _reg, console as _console
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 

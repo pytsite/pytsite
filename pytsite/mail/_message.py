@@ -9,7 +9,7 @@ from email.mime.text import MIMEText as _MIMEText
 from pytsite import logger as _logger, threading as _threading, package_info as _package_info
 from . import _api
 
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
