@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.32 (2018-08-28)
+
+Ukrainian language support in `util.transliterate()`.
+
+
 ## 7.31.1 (2018-08-20)
 
 `plugman`'s installed plugins counter issue fixed.

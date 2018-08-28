@@ -389,7 +389,7 @@ def html_attrs_str(attrs: dict, replace_keys: dict = None) -> str:
     return r
 
 
-def transliterate(text: str) -> str:
+def transliterate(text: str, language: str = None) -> str:
     """Transliterate a string.
     """
     cyrillic = [
@@ -413,6 +413,14 @@ def transliterate(text: str) -> str:
         'ye', 'G', 'g'
     ]
 
+    if language == 'uk':
+        roman[cyrillic.index('Г')] = 'H'
+        roman[cyrillic.index('И')] = 'Y'
+        roman[cyrillic.index('Й')] = 'I'
+        roman[cyrillic.index('г')] = 'h'
+        roman[cyrillic.index('и')] = 'y'
+        roman[cyrillic.index('й')] = 'i'
+
     r = ''
     for ch in text:
         try:
@@ -424,7 +432,7 @@ def transliterate(text: str) -> str:
     return r
 
 
-def transform_str_1(s: str) -> str:
+def transform_str_1(s: str, language: str = None) -> str:
     """Transform a string, variant 1.
 
     1. Remove some "special" chars except slashes
@@ -443,7 +451,7 @@ def transform_str_1(s: str) -> str:
     for c in special_chars:
         s = s.replace(c, '')
 
-    s = transliterate(s.lower())
+    s = transliterate(s.lower(), language)
     s = _re.sub('/{2,}', '/', s)
     s = _re.sub('[^a-zA-Z0-9_/]', '-', s)
     s = _re.sub('-{2,}', '-', s)
@@ -452,13 +460,13 @@ def transform_str_1(s: str) -> str:
     return s
 
 
-def transform_str_2(s: str) -> str:
+def transform_str_2(s: str, language: str = None) -> str:
     """Transform a string, variant 2.
 
     1. transform_1()
     2. Replace slashes with hyphens
     """
-    return transform_str_1(s).replace('/', '-')
+    return transform_str_1(s, language).replace('/', '-')
 
 
 def get_module_attr(s: str):
