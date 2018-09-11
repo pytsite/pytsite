@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.32.1 (2018-09-11)
+
+Missing request fixed in `router.call()` fixed.
+
+
 ## 7.32 (2018-08-28)
 
 Ukrainian language support in `util.transliterate()`.

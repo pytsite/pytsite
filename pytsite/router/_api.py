@@ -108,10 +108,11 @@ def has_rule(rule_name: str) -> bool:
     return _rules.has(rule_name)
 
 
-def call(rule_name: str, args: _Mapping):
+def call(rule_name: str, args: _Mapping, http_request: _http.Request = None):
     """Call a controller by name
     """
     c = _rules.get(rule_name).controller_class()  # type: _routing.Controller
+    c.request = http_request or request()
     c.args.update(args)
     c.args.validate()
 
