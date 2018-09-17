@@ -448,14 +448,15 @@ def current_path(resolve_alias=True, add_lang_prefix: bool = True, lang: str = N
 
 def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None,
                 add_query: dict = None, add_fragment: str = None) -> str:
-    """Get current URL.
+    """Get current URL
     """
     r = scheme() + '://' + server_name() + current_path(resolve_alias, add_lang_prefix, lang)
 
-    if add_query or add_fragment:
-        r = url(r, strip_query=strip_query, query=add_query, fragment=add_fragment)
+    if not strip_query:
+        add_query = add_query or {}
+        add_query.update(_urlparse.parse_qs(request().query_string))
 
-    return r
+    return url(r, strip_query=strip_query, query=add_query, fragment=add_fragment)
 
 
 def rule_path(rule_name: str, args: dict = None) -> str:

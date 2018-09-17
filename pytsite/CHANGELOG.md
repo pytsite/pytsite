@@ -1,6 +1,11 @@
 # PytSite 7 Changelog
 
 
+## 7.32.2 (2018-09-17)
+
+Query string processing fixed in `router.current_url()`.
+
+
 ## 7.32.1 (2018-09-11)
 
 Missing request fixed in `router.call()` fixed.
