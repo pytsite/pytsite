@@ -454,7 +454,7 @@ def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_
 
     if not strip_query:
         add_query = add_query or {}
-        add_query.update(_urlparse.parse_qs(request().query_string))
+        add_query.update(_urlparse.parse_qs(request().query_string.decode('utf-8')))
 
     return url(r, strip_query=strip_query, query=add_query, fragment=add_fragment)
 

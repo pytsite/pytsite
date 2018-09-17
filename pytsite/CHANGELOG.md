@@ -1,9 +1,14 @@
 # PytSite 7 Changelog
 
 
+## 7.32.3 (2018-09-17)
+
+Query string bytes decoding fixed in `router.current_url()`.
+
+
 ## 7.32.2 (2018-09-17)
 
-Query string processing fixed in `router.current_url()`.
+Query string processing error fixed in `router.current_url()`.
 
 
 ## 7.32.1 (2018-09-11)
