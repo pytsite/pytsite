@@ -99,7 +99,7 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
         json_data['requires'] = req = {'packages': [], 'plugins': []}
     req_pytsite = req.get('pytsite')
     if not (req_pytsite and isinstance(req_pytsite, str)):
-        json_data['requires']['pytsite'] = '>=0.0.1'
+        json_data['requires']['pytsite'] = '*'
     req_packages = req.get('packages')
     if not (req_packages and isinstance(req_packages, list)):
         json_data['requires']['packages'] = []
@@ -199,10 +199,9 @@ def check_requirements(pkg_name: str):
     from pytsite import pip, plugman
 
     # Check for required PytSite version
-    req_ps_ver = requires_pytsite(pkg_name)
-    if not _semver.check_conditions(version('pytsite'), req_ps_ver):
-        req_ps_cond = _semver.parse_condition_str(req_ps_ver)
-        raise _error.RequiredPytSiteVersionNotInstalled("{}{}".format(req_ps_cond[0], str(req_ps_cond[1])))
+    pytsite_ver = requires_pytsite(pkg_name)
+    if not _semver.check_conditions(version('pytsite'), pytsite_ver):
+        raise _error.RequiredPytSiteVersionNotInstalled(pytsite_ver)
 
     # Check for required pip packages
     for req_pkg_spec in requires_packages(pkg_name):

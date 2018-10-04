@@ -5,8 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import subprocess as _subprocess
-from pytsite import reload as _reload, console as _console, package_info as _package_info, lang as _lang, \
-    events as _events
+from pytsite import reload as _reload, console as _console, package_info as _package_info, events as _events
 from . import _api, _error
 
 

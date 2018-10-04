@@ -15,7 +15,8 @@ from shutil import rmtree as _rmtree
 from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
 from pytsite import reg as _reg, logger as _logger, lang as _lang, router as _router, console as _console, \
-    semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, events as _events, pip as _pip
+    semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, events as _events, \
+    pip as _pip, tpl as _tpl
 from . import _error, _cc
 
 _PLUGINS_API_URL = _reg.get('plugman.api_url', 'https://plugins.pytsite.xyz')
@@ -34,10 +35,10 @@ _uninstalling = []
 _required = set()
 _plugman_cache = _cache.create_pool('pytsite.plugman')
 
-_PLUGINS_PATH = _path.join(_reg.get('paths.root'), 'plugins')
+_PLUGINS_DIR_PATH = _path.join(_reg.get('paths.root'), 'plugins')
 _PLUGINS_PACKAGE_NAME = 'plugins'
 
-_reg.put('paths.plugins', _PLUGINS_PATH)
+_reg.put('paths.plugins', _PLUGINS_DIR_PATH)
 
 
 def _sanitize_plugin_name(plugin_name: str) -> str:
@@ -70,10 +71,16 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     return r.json()
 
 
+def plugins_dir_path() -> str:
+    """Get plugins local directory location
+    """
+    return _PLUGINS_DIR_PATH
+
+
 def plugin_path(plugin_name: str) -> str:
     """Calculate local path of a plugin
     """
-    return _path.join(_PLUGINS_PATH, _sanitize_plugin_name(plugin_name))
+    return _path.join(_PLUGINS_DIR_PATH, _sanitize_plugin_name(plugin_name))
 
 
 def plugin_json_path(plugin_name: str) -> str:
@@ -82,10 +89,10 @@ def plugin_json_path(plugin_name: str) -> str:
     return _path.join(plugin_path(plugin_name), 'plugin.json')
 
 
-def plugins_path() -> str:
-    """Get plugins local directory location
+def plugin_package_name(plugin_name: str) -> str:
+    """Calculate plugin package name
     """
-    return _PLUGINS_PATH
+    return '{}.{}'.format(_PLUGINS_PACKAGE_NAME, _sanitize_plugin_name(plugin_name))
 
 
 def local_plugin_info(plugin_name: str, use_cache: bool = True) -> dict:
@@ -107,8 +114,8 @@ def local_plugins_info(use_cache: bool = True) -> dict:
     """Get information about local plugins
     """
     r = {}
-    for plugin_name in _listdir(_PLUGINS_PATH):
-        p_path = _path.join(_PLUGINS_PATH, plugin_name)
+    for plugin_name in _listdir(_PLUGINS_DIR_PATH):
+        p_path = _path.join(_PLUGINS_DIR_PATH, plugin_name)
         if _path.isdir(p_path) and not (plugin_name.startswith('.') or plugin_name.startswith('_')):
             r[plugin_name] = local_plugin_info(plugin_name, use_cache)
 
@@ -182,8 +189,6 @@ def get(plugin_name: str) -> object:
 def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -> object:
     """Load a plugin
     """
-    global _required, _loaded, _loading, _installing, _faulty
-
     # Multiple load requested
     if isinstance(plugin_spec, (list, tuple)):
         for p_spec in plugin_spec:
@@ -192,13 +197,13 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
     # Normalize plugin spec
     p_name, version_req = _semver.parse_requirement_str(plugin_spec)
     p_name = _sanitize_plugin_name(p_name)
-    plugin_spec = '{}{}'.format(p_name, version_req)
+    plugin_spec = '{} {}'.format(p_name, version_req)
 
     # Check if plugin is not faulty
     if p_name in _faulty:
         raise _error.PluginLoadError("Plugin '{}' marked as faulty and cannot be loaded".format(p_name))
 
-    # Check if the plugin installed
+    # Check if the plugin is installed
     if not is_installed(plugin_spec):
         raise _error.PluginNotInstalled(plugin_spec, _required_by_spec)
 
@@ -220,6 +225,11 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
     _loading[p_name] = _required_by_spec
 
     try:
+        # Check required PytSite version
+        req_ps_ver = p_info['requires']['pytsite']
+        if not _semver.check_conditions(_package_info.version('pytsite'), req_ps_ver):
+            raise _error.PluginLoadError("Required PytSite version {} is not installed".format(req_ps_ver))
+
         # Load required plugins
         for req_plugin_spec_str in p_info['requires']['plugins']:
             req_p_spec = _semver.parse_requirement_str(req_plugin_spec_str)
@@ -229,33 +239,45 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
             try:
                 load(req_plugin_spec_str, '{}-{}'.format(p_name, p_version))
             except _error.PluginLoadError as e:
-                raise _error.PluginLoadError('Error while loading dependency for {}: {}'.format(plugin_spec, e))
+                raise _error.PluginLoadError("Error while loading dependency for plugin '{}': {}".format(p_name, e))
+
+        # Notify listeners
+        _events.fire('pytsite.plugman@pre_load', plugin_name=p_name)
 
         # Import plugin's package
-        plugin = _import_module(_PLUGINS_PACKAGE_NAME + '.' + p_name)
+        p_pkg_name = plugin_package_name(p_name)
+        plugin = _import_module(p_pkg_name)
+
+        # Register resources
+        for res in ('lang', 'tpl'):
+            res_path = _path.join(plugin_path(p_name), 'res', res)
+            if _path.isdir(res_path):
+                if res == 'lang':
+                    _lang.register_package(p_pkg_name)
+                elif res == 'tpl':
+                    _tpl.register_package(p_pkg_name)
 
         # plugin_load() hook
-        if hasattr(plugin, 'plugin_load') and callable(plugin.plugin_load):
+        if hasattr(plugin, 'plugin_load'):
             plugin.plugin_load()
 
         # plugin_load_{env.type}() hook
-        env_type = _reg.get('env.type')
-        hook_names = ['plugin_load_{}'.format(env_type)]
-        if env_type == 'wsgi':
-            hook_names.append('plugin_load_uwsgi')
-        for hook_name in hook_names:
-            if hasattr(plugin, hook_name):
-                getattr(plugin, hook_name)()
+        hook_name = 'plugin_load_{}'.format(_reg.get('env.type'))
+        if hasattr(plugin, hook_name):
+            getattr(plugin, hook_name)()
 
         _loaded[p_name] = plugin
         if _DEBUG:
             _logger.debug("Plugin '{}-{}' loaded".format(p_name, p_info['version']))
 
+        # Notify listeners
+        _events.fire('pytsite.plugman@load', plugin_name=p_name)
+
         return plugin
 
     except Exception as e:
         _faulty.append(p_name)
-        raise _error.PluginLoadError("Error while loading plugin {}: {}".format(p_name, e))
+        raise _error.PluginLoadError("Error while loading plugin '{}': {}".format(p_name, e))
 
     finally:
         del _loading[p_name]
@@ -289,21 +311,21 @@ def install(plugin_spec: str) -> int:
         raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
     # Extract plugin name and desired version
-    plugin_name, desired_v_spec = _semver.parse_requirement_str(plugin_spec)
+    plugin_name, plugin_v_range = _semver.parse_requirement_str(plugin_spec)
 
     # Get desired minimum and maximum versions
-    desired_v_min = _semver.minimum(desired_v_spec)
-    desired_v_max = _semver.maximum(desired_v_spec)
+    v_min = plugin_v_range.minimum
+    v_max = plugin_v_range.maximum
 
     # If, after above computations, maximum version is lower than minimum
-    if _semver.compare(desired_v_min, desired_v_max) > 0:
-        desired_v_max = desired_v_min
+    if _semver.compare(v_min, v_max) > 0:
+        v_max = v_min
 
     # Get available remote plugin info
     try:
         p_remote_info = remote_plugin_info(plugin_name, [
-            '>={}'.format(desired_v_min),
-            '<={}'.format(desired_v_max),
+            '>={}'.format(v_min),
+            '<={}'.format(v_max),
         ])
     except _error.PluginsApiError as e:
         if e.error_content.startswith('Unknown plugin'):
@@ -506,6 +528,18 @@ def uninstall(plugin_name: str, update_mode: bool = False):
 
 def is_dev_mode() -> bool:
     return _DEV_MODE
+
+
+def on_pre_load(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman@pre_load', handler, priority)
+
+
+def on_load(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('pytsite.plugman@load', handler, priority)
 
 
 def on_pre_install(handler, priority: int = 0):

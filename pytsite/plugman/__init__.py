@@ -9,10 +9,10 @@ from sys import meta_path as _meta_path
 from os import path as _path
 from pytsite import maintenance as _maintenance
 from . import _error as error
-from ._api import plugins_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
+from ._api import plugins_dir_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
     local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
     on_install_all, on_update_all, on_pre_install, on_install_error, on_uninstall, plugin_path, is_loading, \
-    is_installing, get, is_management_mode
+    is_installing, get, is_management_mode, plugin_package_name, on_pre_load, on_load
 
 
 class _MetaPathHook:
@@ -46,19 +46,16 @@ def _init():
     tpl.register_global('plugins', _PluginsTplGlobal())
 
     # Create 'plugins' package if it doesn't exist
-    plugins_dir_path = plugins_path()
-    if not _path.exists(plugins_dir_path):
-        mkdir(plugins_dir_path, 0o755)
-        with open(_path.join(plugins_dir_path, '__init__.py'), 'wt') as f:
+    plugins_dir = plugins_dir_path()
+    if not _path.exists(plugins_dir):
+        mkdir(plugins_dir, 0o755)
+        with open(_path.join(plugins_dir, '__init__.py'), 'wt') as f:
             f.write('"""Pytsite Plugins\n"""\n')
 
     # Register console commands
     console.register_command(_cc.Install())
     console.register_command(_cc.Update())
     console.register_command(_cc.Uninstall())
-
-    # Get information about installed plugins
-    plugins_info_seq = local_plugins_info()
 
     # Enable imports checking
     _meta_path.insert(0, _MetaPathHook())
@@ -71,7 +68,7 @@ def _init():
         try:
             _maintenance.enable(True)
 
-            for p_name in plugins_info_seq:
+            for p_name in local_plugins_info():
                 if p_name.startswith('_') or p_name in disabled_plugins:
                     continue
 

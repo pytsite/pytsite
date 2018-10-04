@@ -104,10 +104,13 @@ def _init():
         for pkg_name in ('cron', 'stats', 'reload', 'update', 'plugman', 'testing'):
             import_module('pytsite.' + pkg_name)
 
-        # Register app's language resources
-        if path.exists(path.join(app_path, 'lang')):
+        # Register app's resources
+        if path.exists(path.join(app_path, 'res', 'lang')):
             from pytsite import lang
-            lang.register_package('app', 'lang')
+            lang.register_package('app')
+        if path.exists(path.join(app_path, 'res', 'tpl')):
+            from pytsite import tpl
+            tpl.register_package('app')
 
         # Load app package
         from pytsite import plugman, events
@@ -117,17 +120,13 @@ def _init():
             package_info.check_requirements('app')
 
             # app_load() hook
-            if hasattr(app, 'app_load') and callable(app.app_load):
+            if hasattr(app, 'app_load'):
                 app.app_load()
 
             # app_load_{env.type}() hook
-            env_type = reg.get('env.type')
-            hook_names = ['app_load_{}'.format(env_type)]
-            if env_type == 'wsgi':
-                hook_names.append('app_load_uwsgi')
-            for hook_name in hook_names:
-                if hasattr(app, hook_name):
-                    getattr(app, hook_name)()
+            hook_name = 'app_load_{}'.format(reg.get('env.type'))
+            if hasattr(app, hook_name):
+                getattr(app, hook_name)()
 
             events.fire('pytsite.app_load')
             logger.debug('Application loaded')

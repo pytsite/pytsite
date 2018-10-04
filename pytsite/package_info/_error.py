@@ -15,7 +15,13 @@ class PackageNotFound(Error):
 
 
 class RequiredPytSiteVersionNotInstalled(Error):
-    pass
+    def __init__(self, pkg_spec: str):
+        super().__init__()
+
+        self._pkg_spec = pkg_spec
+
+    def __str__(self) -> str:
+        return "Required PytSite version '{}' is not installed".format(self._pkg_spec)
 
 
 class RequiredPipPackageNotInstalled(Error):
