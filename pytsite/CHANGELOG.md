@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.0.1 (2018-10-04)
+
+`pytsite.json` fixed.
+
+
 ## 8.0 (2018-10-04)
 
 - `core`:
