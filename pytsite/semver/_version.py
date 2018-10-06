@@ -32,16 +32,12 @@ class Version(_SupportsInt):
                 raise _error.InvalidVersionIdentifier(version)
             self.major, self.minor, self.patch = match[0][0], match[0][1], match[0][2]
         elif isinstance(version, int):
-            if version >= 10000:
-                self.major = int(version / 10000)
-                version -= self.major * 10000
-            if version >= 100:
-                self.minor = int(version / 100)
-                version -= self.minor * 100
-            if version < 100:
-                self.patch = version
+            version = '{:015d}'.format(version)
+            self.major = version[:5].strip()
+            self.minor = version[5:10].strip()
+            self.patch = version[10:].strip()
         else:
-            raise TypeError('Version identifier must be a str, int or Version instance, got {}'.format(type(version)))
+            raise TypeError('Version identifier must be a str or Version instance, got {}'.format(type(version)))
 
     @property
     def major(self) -> int:
@@ -50,9 +46,8 @@ class Version(_SupportsInt):
     @major.setter
     def major(self, value: int):
         value = int(value or 0)
-        if not 0 <= value <= 99:
-            raise ValueError('Major number must be between 0 and 99')
-
+        if value < 0 or value > 99999:
+            raise ValueError('Major number must be between 0 and 99999')
         self._major = value
 
     @property
@@ -62,9 +57,8 @@ class Version(_SupportsInt):
     @minor.setter
     def minor(self, value: int):
         value = int(value or 0)
-        if not 0 <= value <= 99:
-            raise ValueError('Minor number must be between 0 and 99')
-
+        if value < 0 or value > 99999:
+            raise ValueError('Minor number must be between 0 and 99999')
         self._minor = value
 
     @property
@@ -74,13 +68,12 @@ class Version(_SupportsInt):
     @patch.setter
     def patch(self, value: int):
         value = int(value or 0)
-        if not 0 <= value <= 99:
-            raise ValueError('Patch number must be between 0 and 99')
-
+        if value < 0 or value > 99999:
+            raise ValueError('Patch number must be between 0 and 99999')
         self._patch = value
 
     def __int__(self) -> int:
-        return (self._major * 10000) + (self._minor * 100) + self._patch
+        return int('{:05d}{:05d}{:05d}'.format(self._major, self._minor, self._patch))
 
     def __str__(self) -> str:
         return '{}.{}.{}'.format(self._major, self._minor, self._patch)
@@ -103,26 +96,23 @@ class Version(_SupportsInt):
     def __ne__(self, other) -> bool:
         return int(self) != int(Version(other))
 
-    def __add__(self, other: int):
-        if not isinstance(other, int):
-            raise TypeError('Only integers can be added to version')
+    def __add__(self, other):
+        return Version(int(self) + int(other))
 
-        return Version(int(self) + other)
-
-    def __sub__(self, other: int):
-        if not isinstance(other, int):
-            raise TypeError('Only integers can be subtracted from version')
-
-        return Version(int(self) - other)
+    def __sub__(self, other):
+        return Version(int(self) - int(other))
 
 
 class VersionRange:
-    def __init__(self, v_range):
+    def __init__(self, v_range=None):
         """
         :param _Union[str, VersionRange] v_range: version range
         """
-        self._minimum = Version('0')
-        self._maximum = Version('99.99.99')
+        self._minimum = Version('0.0.1')
+        self._maximum = Version('99999.99999.99999')
+
+        if not v_range or v_range in ('*', 'x'):
+            return
 
         if isinstance(v_range, str):
             match = _VERSION_RANGE_RE_V1.findall(v_range)
@@ -130,21 +120,21 @@ class VersionRange:
                 for m in match:
                     op = m[0]
                     if op in ('>', '>='):
-                        self._minimum.major = int(m[1])
-                        self._minimum.minor = int(m[2] or 0)
-                        self._minimum.patch = int(m[3] or 0)
+                        self._minimum.major = m[1]
+                        self._minimum.minor = m[2] or 0
+                        self._minimum.patch = m[3] or 0
                         if op == '>':
                             self._minimum += 1
                     elif op in ('<', '<='):
-                        self._maximum.major = int(m[1])
-                        self._maximum.minor = int(m[2] or 0)
-                        self._maximum.patch = int(m[3] or 0)
+                        self._maximum.major = m[1]
+                        self._maximum.minor = m[2] or 0
+                        self._maximum.patch = m[3] or 0
                         if op == '<':
                             self._maximum -= 1
                     elif op == '==':
-                        self._minimum.major = self._maximum.major = int(m[1])
-                        self._minimum.minor = self._maximum.minor = int(m[2])
-                        self._minimum.patch = self._maximum.patch = int(m[3])
+                        self._minimum.major = self._maximum.major = m[1]
+                        self._minimum.minor = self._maximum.minor = m[2] or 0
+                        self._minimum.patch = self._maximum.patch = m[3] or 0
 
                 if self._minimum > self._maximum:
                     raise _error.InvalidVersionRangeIdentifier(v_range)
@@ -156,23 +146,23 @@ class VersionRange:
                         if match[0][i] in ('', 'x', '*'):
                             if i == 0:
                                 self._minimum.major = 0
-                                self._maximum.major = 99
+                                self._maximum.major = 99999
                             elif i == 1:
                                 self._minimum.minor = 0
-                                self._maximum.minor = 99
+                                self._maximum.minor = 99999
                             elif i == 2:
                                 self._minimum.patch = 0
-                                self._maximum.patch = 99
+                                self._maximum.patch = 99999
                         else:
                             if i == 0:
-                                self._minimum.major = int(match[0][i])
-                                self._maximum.major = int(match[0][i])
+                                self._minimum.major = match[0][i]
+                                self._maximum.major = match[0][i]
                             elif i == 1:
-                                self._minimum.minor = int(match[0][i])
-                                self._maximum.minor = int(match[0][i])
+                                self._minimum.minor = match[0][i]
+                                self._maximum.minor = match[0][i]
                             elif i == 2:
-                                self._minimum.patch = int(match[0][i])
-                                self._maximum.patch = int(match[0][i])
+                                self._minimum.patch = match[0][i]
+                                self._maximum.patch = match[0][i]
                 else:
                     raise _error.InvalidVersionRangeIdentifier(v_range)
 
@@ -192,5 +182,16 @@ class VersionRange:
     def maximum(self) -> Version:
         return self._maximum
 
+    def __contains__(self, item):
+        if isinstance(item, (list, tuple)):
+            for i in item:
+                if i in self:
+                    return True
+            return False
+
+        return self.minimum <= Version(item) <= self.maximum
+
     def __str__(self) -> str:
-        return '>={} <={}'.format(self._minimum, self._maximum)
+        if self._minimum == self._maximum:
+            return '=={}'.format(self._minimum)
+        return '>={},<={}'.format(self._minimum, self._maximum)

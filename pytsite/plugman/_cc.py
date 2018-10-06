@@ -4,6 +4,7 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import re as _re
 import subprocess as _subprocess
 from pytsite import reload as _reload, console as _console, package_info as _package_info, events as _events
 from . import _api, _error
@@ -28,13 +29,22 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
+        _plugins_spec_re = _re.compile('([^!<>=]+)(.+)')
+
         stage = self.opt('stage')
 
         if stage == 1:
-            plugins_specs = self.args
+            plugins_specs = {}
+
+            if self.args:
+                for p_spec in self.args:
+                    match = _plugins_spec_re.findall(p_spec)
+                    if not match:
+                        raise _console.error.CommandExecutionError('Invalid plugin identifier: {}'.format(p_spec))
+                    plugins_specs[match[0][0]] = match[0][1]
 
             # If no plugins to install/update was specified
-            if not self.args:
+            else:
                 if self.name == 'plugman:install':
                     # Install all plugins required by application
                     plugins_specs = _package_info.requires_plugins('app')
@@ -43,9 +53,9 @@ class Install(_console.Command):
                     plugins_specs = self.args or _api.local_plugins_info().keys()
 
             # Install/update plugins
-            for plugin_spec in plugins_specs:
+            for plugin_name, plugin_version in plugins_specs.items():
                 try:
-                    _api.install(plugin_spec)
+                    _api.install(plugin_name, plugin_version)
                 except _error.Error as e:
                     raise _console.error.CommandExecutionError(e)
 

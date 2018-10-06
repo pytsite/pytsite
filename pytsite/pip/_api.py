@@ -1,6 +1,5 @@
 """PytSite pip API
 """
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -32,48 +31,47 @@ def get_installed_info(pkg_name: str) -> dict:
     return data
 
 
-def get_installed_version(pkg_name: str) -> str:
+def get_installed_version(pkg_name: str) -> _semver.Version:
     """Get installed pip package version
     """
     return get_installed_info(pkg_name)['version']
 
 
-def is_installed(pkg_spec: str) -> bool:
+def is_installed(pkg_name: str, pkg_version: _semver.VersionRange) -> bool:
     """Check if the pip package installed
     """
-    global _installed_packages
+    if pkg_name not in _installed_packages:
+        try:
+            _installed_packages[pkg_name] = get_installed_version(pkg_name) in pkg_version
+        except _error.PackageNotInstalled:
+            _installed_packages[pkg_name] = False
+            return False
 
-    if pkg_spec in _installed_packages:
-        return _installed_packages[pkg_spec]
+    return _installed_packages[pkg_name]
 
-    pkg_name, version_req = _semver.parse_requirement_str(pkg_spec)
-
-    try:
-        r = _semver.check_conditions(get_installed_version(pkg_name), version_req)
-        _installed_packages[pkg_spec] = r
-        return r
-
-    except _error.PackageNotInstalled:
-        _installed_packages[pkg_spec] = False
-        return False
-
-
-def install(pkg_spec: str, upgrade: bool = False) -> str:
+def install(pkg_name: str, pkg_version: str = None, upgrade: bool = False, passthrough: bool = False) -> int:
     """Install a pip package
     """
     cmd = ['pip', 'install']
 
+    if pkg_version:
+        if pkg_version[0].isdigit():
+            pkg_version = '==' + pkg_version
+        pkg_name += pkg_version.replace('x', '*')
+
     if upgrade:
         cmd.append('-U')
 
-    cmd.append(pkg_spec)
+    cmd.append(pkg_name)
 
-    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+    stdout = stderr = None if passthrough else _subprocess.PIPE
 
+    r = _subprocess.run(cmd, stdout=stdout, stderr=stderr)
     if r.returncode != 0:
-        raise _error.PackageInstallError(pkg_spec, r.stderr.decode('utf-8'))
+        raise _error.PackageInstallError('{} {}'.format(pkg_name, pkg_version),
+                                         r.stderr.decode('utf-8') if r.stderr else None)
 
-    return r.stdout.decode('utf-8')
+    return r.returncode
 
 
 def uninstall(pkg_name: str) -> str:

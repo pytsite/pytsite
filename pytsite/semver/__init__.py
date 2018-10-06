@@ -8,5 +8,5 @@ __license__ = 'MIT'
 
 # Public API
 from . import _error as error
-from ._api import parse_version_str, compare, last, check_conditions, to_int, parse_requirement_str
+from ._api import last
 from ._version import Version, VersionRange

@@ -1,5 +1,10 @@
 """PytSite Package Utilities API
 """
+__author__ = 'Oleksandr Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
+import re as _re
 import json as _json
 from typing import List as _List, Any as _Any, Dict as _Dict, Union as _Union
 from importlib.util import find_spec as _find_module_spec
@@ -7,11 +12,22 @@ from os import path as _path
 from pytsite import semver as _semver, util as _util
 from . import _error
 
-__author__ = 'Oleksandr Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
+_REQ_RE = _re.compile('([a-zA-Z0-9\-_]+)\s*(.+)?')
 
 _parsed_json = {}
+
+
+def _req_list_to_dict(req_list: list) -> dict:
+    r = {}
+
+    for req in req_list:
+        match = _REQ_RE.findall(req)
+        if not match:
+            raise ValueError("Invalid requirement specification: '{}'".format(req))
+
+        r[match[0][0]] = match[0][1]
+
+    return r
 
 
 def resolve_package_path(package_name: str):
@@ -50,12 +66,12 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     # Check name
     pkg_name = json_data.setdefault('name', defaults.get('name'))
     if not (pkg_name and isinstance(pkg_name, str)):
-        raise ValueError("'name' is not found")
+        json_data['name'] = 'Untitled'
 
     # Check version
     pkg_version = json_data.setdefault('version', defaults.get('version'))
     if not (pkg_version and isinstance(pkg_version, str)):
-        raise ValueError("'version' is not found")
+        json_data['version'] = '0.0.1'
 
     # Check URL
     pkg_url = json_data.setdefault('url', defaults.get('url'))
@@ -96,16 +112,26 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     # Check requirements
     req = json_data.setdefault('requires', defaults.get('requires'))
     if not (req and isinstance(req, dict)):
-        json_data['requires'] = req = {'packages': [], 'plugins': []}
+        json_data['requires'] = req = {'packages': {}, 'plugins': {}}
     req_pytsite = req.get('pytsite')
+
+    # Check required pytsite version
     if not (req_pytsite and isinstance(req_pytsite, str)):
-        json_data['requires']['pytsite'] = '*'
+        json_data['requires']['pytsite'] = ''
+
+    # Check required pip packages versions
     req_packages = req.get('packages')
-    if not (req_packages and isinstance(req_packages, list)):
-        json_data['requires']['packages'] = []
+    if not req_packages:
+        json_data['requires']['packages'] = {}
+    elif isinstance(req_packages, list):
+        json_data['requires']['packages'] = _req_list_to_dict(json_data['requires']['packages'])
+
+    # Check required plugins versions
     req_plugins = req.get('plugins')
-    if not (req_plugins and isinstance(req_plugins, list)):
-        json_data['requires']['plugins'] = []
+    if not req_plugins:
+        json_data['requires']['plugins'] = {}
+    elif isinstance(req_plugins, list):
+        json_data['requires']['plugins'] = _req_list_to_dict(json_data['requires']['plugins'])
 
     return json_data
 
@@ -153,10 +179,10 @@ def name(package_name_or_json_path: str, use_cache: bool = True) -> str:
     return data(package_name_or_json_path, 'name', use_cache=use_cache)
 
 
-def version(package_name_or_json_path: str, use_cache: bool = True) -> str:
+def version(package_name_or_json_path: str, use_cache: bool = True) -> _semver.Version:
     """Shortcut
     """
-    return str(_semver.parse_version_str(data(package_name_or_json_path, 'version', use_cache=use_cache)))
+    return _semver.Version(data(package_name_or_json_path, 'version', use_cache=use_cache))
 
 
 def description(package_name_or_json_path: str, use_cache: bool = True) -> dict:
@@ -177,13 +203,13 @@ def requires_pytsite(package_name_or_json_path: str, use_cache: bool = True) -> 
     return data(package_name_or_json_path, 'requires', use_cache=use_cache)['pytsite']
 
 
-def requires_packages(package_name_or_json_path: str, use_cache: bool = True) -> _List[str]:
+def requires_packages(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, str]:
     """Shortcut
     """
     return data(package_name_or_json_path, 'requires', use_cache=use_cache)['packages']
 
 
-def requires_plugins(package_name_or_json_path: str, use_cache: bool = True) -> _List[str]:
+def requires_plugins(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, str]:
     """Shortcut
     """
     return data(package_name_or_json_path, 'requires', use_cache=use_cache)['plugins']
@@ -199,18 +225,16 @@ def check_requirements(pkg_name: str):
     from pytsite import pip, plugman
 
     # Check for required PytSite version
-    pytsite_ver = requires_pytsite(pkg_name)
-    if not _semver.check_conditions(version('pytsite'), pytsite_ver):
-        raise _error.RequiredPytSiteVersionNotInstalled(pytsite_ver)
+    required_pytsite_ver = requires_pytsite(pkg_name)
+    if version('pytsite') not in _semver.VersionRange(required_pytsite_ver):
+        raise _error.RequiredPytSiteVersionNotInstalled(required_pytsite_ver)
 
     # Check for required pip packages
-    for req_pkg_spec in requires_packages(pkg_name):
-        if not pip.is_installed(req_pkg_spec):
-            req_pkg_cond = _semver.parse_requirement_str(req_pkg_spec)
-            raise _error.RequiredPipPackageNotInstalled('{}{}'.format(req_pkg_cond[0], req_pkg_cond[1]))
+    for req_p_name, req_p_ver in requires_packages(pkg_name).items():
+        if not pip.is_installed(req_p_name, _semver.VersionRange(req_p_ver)):
+            raise _error.RequiredPipPackageNotInstalled('{} {}'.format(req_p_name, req_p_ver))
 
     # Check for required plugins
-    for req_plugin_spec in requires_plugins(pkg_name):
-        if not plugman.is_installed(req_plugin_spec):
-            req_plugin_cond = _semver.parse_requirement_str(req_plugin_spec)
-            raise _error.RequiredPluginNotInstalled('{}{}'.format(req_plugin_cond[0], req_plugin_cond[1]))
+    for req_p_name, req_p_ver in requires_plugins(pkg_name).items():
+        if not plugman.is_installed(req_p_name, _semver.VersionRange(req_p_ver)):
+            raise _error.RequiredPluginNotInstalled('{} {}'.format(req_p_name, req_p_ver))

@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.0.2 (2018-10-06)
+
+Cleanup, bugfixes in `package_info`, `pip`, `plugman` and `semver`.
+
+
 ## 8.0.1 (2018-10-04)
 
 `pytsite.json` fixed.

@@ -41,13 +41,6 @@ _PLUGINS_PACKAGE_NAME = 'plugins'
 _reg.put('paths.plugins', _PLUGINS_DIR_PATH)
 
 
-def _sanitize_plugin_name(plugin_name: str) -> str:
-    if plugin_name.startswith('plugins.'):
-        plugin_name = plugin_name[8:]
-
-    return plugin_name
-
-
 def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     """Do a request to plugins API host
     """
@@ -60,7 +53,7 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
         'h': _router.server_name(),
     })
 
-    r = _requests.get(request_url, args)
+    r = _requests.get(request_url, params=args)
 
     if not r.ok:
         try:
@@ -80,7 +73,7 @@ def plugins_dir_path() -> str:
 def plugin_path(plugin_name: str) -> str:
     """Calculate local path of a plugin
     """
-    return _path.join(_PLUGINS_DIR_PATH, _sanitize_plugin_name(plugin_name))
+    return _path.join(_PLUGINS_DIR_PATH, plugin_name)
 
 
 def plugin_json_path(plugin_name: str) -> str:
@@ -92,20 +85,14 @@ def plugin_json_path(plugin_name: str) -> str:
 def plugin_package_name(plugin_name: str) -> str:
     """Calculate plugin package name
     """
-    return '{}.{}'.format(_PLUGINS_PACKAGE_NAME, _sanitize_plugin_name(plugin_name))
+    return '{}.{}'.format(_PLUGINS_PACKAGE_NAME, plugin_name)
 
 
 def local_plugin_info(plugin_name: str, use_cache: bool = True) -> dict:
     """Get information about local plugin
     """
     try:
-        plugin_name = _sanitize_plugin_name(plugin_name)
-
-        return _package_info.data(plugin_json_path(plugin_name), defaults={
-            'name': 'plugins.{}'.format(plugin_name),
-            'version': '0.0.1',
-        }, use_cache=use_cache)
-
+        return _package_info.data(plugin_json_path(plugin_name), use_cache=use_cache)
     except _package_info.error.PackageNotFound:
         raise _error.PluginPackageNotFound(plugin_name)
 
@@ -122,12 +109,14 @@ def local_plugins_info(use_cache: bool = True) -> dict:
     return r
 
 
-def remote_plugin_info(plugin_name: str, versions_spec: list = None):
+def remote_plugin_info(plugin_name: str, version_identifier: _Union[str, _semver.VersionRange] = None):
     """Get information about remote plugin
     """
-    versions = ','.join(versions_spec) if versions_spec else '>0.0.0'
+    args = {}
+    if version_identifier:
+        args['version'] = _semver.VersionRange(version_identifier)
 
-    return _plugins_api_request('plugin/{}'.format(_sanitize_plugin_name(plugin_name)), {'version': versions})
+    return _plugins_api_request('plugin/{}'.format(plugin_name), args)
 
 
 def remote_plugins_info() -> dict:
@@ -139,22 +128,12 @@ def remote_plugins_info() -> dict:
         return _plugman_cache.put('remote_plugins', _plugins_api_request('plugins'), 900)  # 15 min TTL
 
 
-def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
+def is_installed(plugin_name: str, version_range: _semver.VersionRange = None) -> bool:
     """Check if the plugin is installed
     """
-    if isinstance(plugin_spec, (list, tuple)):
-        for p_spec in plugin_spec:
-            if not is_installed(p_spec):
-                return False
-
-        return True
-
-    plugin_name, version_req = _semver.parse_requirement_str(plugin_spec)
-    plugin_name = _sanitize_plugin_name(plugin_name)
-
     try:
-        # Check plugin version
-        return _semver.check_conditions(_package_info.version(plugin_json_path(plugin_name)), version_req)
+        version = _package_info.version(plugin_json_path(plugin_name))
+        return version in version_range if version_range else True
     except _package_info.error.PackageNotFound:
         return False
 
@@ -162,95 +141,88 @@ def is_installed(plugin_spec: _Union[str, list, tuple]) -> bool:
 def is_installing(plugin_name: str) -> bool:
     """Check if trhe plugin is installing
     """
-    return _sanitize_plugin_name(plugin_name) in _installing
+    return plugin_name in _installing
 
 
 def is_loaded(plugin_name: str) -> bool:
     """Check if the plugin is loaded
     """
-    return _sanitize_plugin_name(plugin_name) in _loaded
+    return plugin_name in _loaded
 
 
 def is_loading(plugin_name: str) -> bool:
     """Check if the plugin is being loaded
     """
-    return _sanitize_plugin_name(plugin_name) in _loading
+    return plugin_name in _loading
 
 
 def get(plugin_name: str) -> object:
     """Get loaded plugin's module
     """
     try:
-        return _loaded[_sanitize_plugin_name(plugin_name)]
+        return _loaded[plugin_name]
     except KeyError:
         raise _error.PluginNotLoaded(plugin_name)
 
 
-def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -> object:
+def load(plugin_name: str, version_identifier: str = '*', _required_by: str = None) -> object:
     """Load a plugin
     """
-    # Multiple load requested
-    if isinstance(plugin_spec, (list, tuple)):
-        for p_spec in plugin_spec:
-            load(p_spec)
-
     # Normalize plugin spec
-    p_name, version_req = _semver.parse_requirement_str(plugin_spec)
-    p_name = _sanitize_plugin_name(p_name)
-    plugin_spec = '{} {}'.format(p_name, version_req)
+    plugin_spec = '{} {}'.format(plugin_name, version_identifier)
 
     # Check if plugin is not faulty
-    if p_name in _faulty:
-        raise _error.PluginLoadError("Plugin '{}' marked as faulty and cannot be loaded".format(p_name))
+    if plugin_name in _faulty:
+        raise _error.PluginLoadError("Plugin '{}' marked as faulty and cannot be loaded".format(plugin_name))
 
     # Check if the plugin is installed
-    if not is_installed(plugin_spec):
-        raise _error.PluginNotInstalled(plugin_spec, _required_by_spec)
+    if not is_installed(plugin_name, _semver.VersionRange(version_identifier)):
+        raise _error.PluginNotInstalled(plugin_spec, _required_by)
 
     # Check if the plugin is already loaded
-    if p_name in _loaded:
+    if plugin_name in _loaded:
         if _DEBUG:
-            _logger.debug("Plugin '{}' already loaded".format(p_name))
-        return _loaded[p_name]
+            _logger.debug("Plugin '{}' already loaded".format(plugin_name))
+        return _loaded[plugin_name]
 
     # Check for circular dependency
-    if p_name in _loading:
-        raise _error.CircularDependencyError(p_name, _loading[p_name])
+    if plugin_name in _loading:
+        raise _error.CircularDependencyError(plugin_name, _loading[plugin_name])
 
     # Get info about plugin, but NOT actually load it
-    p_info = local_plugin_info(p_name)
-    p_version = p_info['version']
+    p_info = local_plugin_info(plugin_name)
 
     # Mark plugin as loading
-    _loading[p_name] = _required_by_spec
+    _loading[plugin_name] = _required_by
 
     try:
         # Check required PytSite version
         req_ps_ver = p_info['requires']['pytsite']
-        if not _semver.check_conditions(_package_info.version('pytsite'), req_ps_ver):
+        if _package_info.version('pytsite') not in _semver.VersionRange(req_ps_ver):
             raise _error.PluginLoadError("Required PytSite version {} is not installed".format(req_ps_ver))
 
         # Load required plugins
-        for req_plugin_spec_str in p_info['requires']['plugins']:
-            req_p_spec = _semver.parse_requirement_str(req_plugin_spec_str)
-            _required.add(req_p_spec[0])
+        for req_p_name, req_p_ver in p_info['requires']['plugins'].items():
+            _required.add(req_p_name)
             if _DEBUG:
-                _logger.debug("Plugin '{}-{}' requires '{}{}'".format(p_name, p_version, req_p_spec[0], req_p_spec[1]))
+                _logger.debug("Plugin '{}-{}' requires '{}{}'".format(plugin_name, version_identifier,
+                                                                      req_p_name, req_p_ver))
             try:
-                load(req_plugin_spec_str, '{}-{}'.format(p_name, p_version))
+                load(req_p_name, req_p_ver, '{}-{}'.format(plugin_name, version_identifier))
             except _error.PluginLoadError as e:
-                raise _error.PluginLoadError("Error while loading dependency for plugin '{}': {}".format(p_name, e))
+                raise _error.PluginLoadError("Error while loading dependency for plugin '{}': {}".
+                                             format(plugin_name, e))
 
         # Notify listeners
-        _events.fire('pytsite.plugman@pre_load', plugin_name=p_name)
+        _events.fire('pytsite.plugman@pre_load', plugin_name=plugin_name)
 
         # Import plugin's package
-        p_pkg_name = plugin_package_name(p_name)
+        p_pkg_name = plugin_package_name(plugin_name)
         plugin = _import_module(p_pkg_name)
 
         # Register resources
         for res in ('lang', 'tpl'):
-            res_path = _path.join(plugin_path(p_name), 'res', res)
+            res_path = _path.join(plugin_path(plugin_name), 'res', res)
             if _path.isdir(res_path):
                 if res == 'lang':
                     _lang.register_package(p_pkg_name)
@@ -266,28 +238,26 @@ def load(plugin_spec: _Union[str, list, tuple], _required_by_spec: str = None) -
         if hasattr(plugin, hook_name):
             getattr(plugin, hook_name)()
 
-        _loaded[p_name] = plugin
+        _loaded[plugin_name] = plugin
         if _DEBUG:
-            _logger.debug("Plugin '{}-{}' loaded".format(p_name, p_info['version']))
+            _logger.debug("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
 
         # Notify listeners
-        _events.fire('pytsite.plugman@load', plugin_name=p_name)
+        _events.fire('pytsite.plugman@load', plugin_name=plugin_name)
 
         return plugin
 
     except Exception as e:
-        _faulty.append(p_name)
-        raise _error.PluginLoadError("Error while loading plugin '{}': {}".format(p_name, e))
+        _faulty.append(plugin_name)
+        raise _error.PluginLoadError("Error while loading plugin '{}': {}".format(plugin_name, e))
 
     finally:
-        del _loading[p_name]
+        del _loading[plugin_name]
 
 
 def get_dependant_plugins(plugin_name: str) -> list:
     """Get locally installed plugin names which are dependant from plugin_name
     """
-    plugin_name = _sanitize_plugin_name(plugin_name)
-
     if not is_installed(plugin_name):
         raise _error.PluginNotInstalled(plugin_name)
 
@@ -299,7 +269,7 @@ def get_dependant_plugins(plugin_name: str) -> list:
     return r
 
 
-def install(plugin_spec: str) -> int:
+def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRange] = None) -> int:
     """Install a plugin
 
     Returns a number of installed plugins, including dependencies
@@ -310,23 +280,9 @@ def install(plugin_spec: str) -> int:
     if _DEV_MODE:
         raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
-    # Extract plugin name and desired version
-    plugin_name, plugin_v_range = _semver.parse_requirement_str(plugin_spec)
-
-    # Get desired minimum and maximum versions
-    v_min = plugin_v_range.minimum
-    v_max = plugin_v_range.maximum
-
-    # If, after above computations, maximum version is lower than minimum
-    if _semver.compare(v_min, v_max) > 0:
-        v_max = v_min
-
     # Get available remote plugin info
     try:
-        p_remote_info = remote_plugin_info(plugin_name, [
-            '>={}'.format(v_min),
-            '<={}'.format(v_max),
-        ])
+        p_remote_info = remote_plugin_info(plugin_name, version_identifier)
     except _error.PluginsApiError as e:
         if e.error_content.startswith('Unknown plugin'):
             raise _error.UnknownPlugin(plugin_name)
@@ -411,35 +367,37 @@ def install(plugin_spec: str) -> int:
         l_plugin_info = local_plugin_info(plugin_name, False)
 
         # Check for PytSite version
-        if not _semver.check_conditions(_package_info.version('pytsite'), l_plugin_info['requires']['pytsite']):
+        if _package_info.version('pytsite') not in _semver.VersionRange(l_plugin_info['requires']['pytsite']):
             raise _error.PluginInstallError("Plugin '{}-{}' requires PytSite{}".format(
                 plugin_name, l_plugin_info['version'], l_plugin_info['requires']['pytsite']))
 
         # Install required pip packages
-        for pip_pkg_spec in l_plugin_info['requires']['packages']:
+        for pip_pkg_name, pip_pkg_version in l_plugin_info['requires']['packages'].items():
+            pip_pkg_spec = '{} {}'.format(pip_pkg_name, pip_pkg_version)
+
             _logger.info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
                 'plugin': plugin_name,
-                'pip_package': pip_pkg_spec,
+                'pip_package': '{} {}'.format(pip_pkg_name, pip_pkg_version),
             }))
 
             _logger.info(_lang.t('pytsite.plugman@installing_updating_pip_package', {
                 'package': pip_pkg_spec
             }))
 
-            _pip.install(pip_pkg_spec, _pip.is_installed(pip_pkg_spec))
+            _pip.install(pip_pkg_name, pip_pkg_version, True, _DEBUG)
 
             _console.print_success(_lang.t('pytsite.plugman@pip_package_successfully_installed_updated', {
                 'package': pip_pkg_spec
             }))
 
         # Install required plugins
-        for req_plugin_spec in l_plugin_info['requires']['plugins']:
-            if not is_installed(req_plugin_spec):
+        for req_p_name, req_p_version in l_plugin_info['requires']['plugins'].items():
+            if not is_installed(req_p_name, _semver.VersionRange(req_p_version)):
                 _logger.info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
                     'plugin': plugin_name,
-                    'dependency': req_plugin_spec,
+                    'dependency': '{} {}'.format(req_p_name, req_p_version),
                 }))
-                installed_count += install(req_plugin_spec)
+                installed_count += install(req_p_name, req_p_version)
 
         # Plan to call plugin installation/updating hooks during next application start
         if not get_update_info(plugin_name):
@@ -473,8 +431,6 @@ def uninstall(plugin_name: str, update_mode: bool = False):
 
     if _DEV_MODE:
         raise _error.PluginUninstallError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
-
-    plugin_name = _sanitize_plugin_name(plugin_name)
 
     # Check if the plugin is not uninstalling at this moment
     if plugin_name in _uninstalling:

@@ -29,6 +29,7 @@ class Update(_console.Command):
 
     def __init__(self):
         super().__init__()
+        self.define_option(_console.option.Bool('debug', default=_DEBUG))
         self.define_option(_console.option.PositiveInt('stage', default=1, maximum=4))
         self.define_option(_console.option.PositiveInt('stop-after', default=0, maximum=4))
 
@@ -57,8 +58,8 @@ class Update(_console.Command):
 
         d = self._get_update_data()
         if not d['update_in_progress']:
-            d['pytsite_version_from'] = _package_info.version('pytsite')
-            d['app_version_from'] = _package_info.version('app')
+            d['pytsite_version_from'] = str(_package_info.version('pytsite'))
+            d['app_version_from'] = str(_package_info.version('app'))
             d['update_in_progress'] = True
             self._set_update_data(d)
 
@@ -67,15 +68,12 @@ class Update(_console.Command):
             _console.print_info(_lang.t('pytsite.update@updating_environment'))
 
             # Update pip
-            out = _pip.install('pip', True)
-            if _DEBUG:
-                _console.print_normal(out)
+            _pip.install('pip', None, True, self.opt('debug'))
 
-            # Update PytSite files
-            out = _pip.install('pytsite', True)
-            if _DEBUG:
-                _console.print_normal(out)
-            d['pytsite_version_to'] = _package_info.version('pytsite', False)
+            # Update PytSite
+            _pip.install('pytsite', _package_info.requires_pytsite('app'), True, self.opt('debug'))
+
+            d['pytsite_version_to'] = str(_package_info.version('pytsite', False))
             self._set_update_data(d)
 
             # Notify listeners
@@ -100,7 +98,7 @@ class Update(_console.Command):
             if _path.exists(_path.join(app_path, '.git')):
                 _console.print_info(_lang.t('pytsite.update@updating_application'))
                 _subprocess_run(['git', '-C', app_path, 'pull'])
-            d['app_version_to'] = _package_info.version('app', False)
+            d['app_version_to'] = str(_package_info.version('app', False))
             self._set_update_data(d)
 
             # Notify listeners
@@ -153,8 +151,8 @@ class Update(_console.Command):
                 data = {}
 
         if not data:
-            pytsite_v = _package_info.version('pytsite')
-            app_v = _package_info.version('app')
+            pytsite_v = str(_package_info.version('pytsite'))
+            app_v = str(_package_info.version('app'))
             data = {
                 'pytsite_version_from': pytsite_v,
                 'pytsite_version_to': pytsite_v,
