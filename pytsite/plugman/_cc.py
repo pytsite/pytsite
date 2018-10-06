@@ -29,8 +29,9 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
-        _plugins_spec_re = _re.compile('([^!<>=]+)(.+)')
+        _plugins_spec_re = _re.compile('([a-zA-Z0-9_]+)([<>!=~]*.+)?')
 
+        installed_count = 0
         stage = self.opt('stage')
 
         if stage == 1:
@@ -55,7 +56,7 @@ class Install(_console.Command):
             # Install/update plugins
             for plugin_name, plugin_version in plugins_specs.items():
                 try:
-                    _api.install(plugin_name, plugin_version)
+                    installed_count += _api.install(plugin_name, plugin_version)
                 except _error.Error as e:
                     raise _console.error.CommandExecutionError(e)
 
@@ -67,7 +68,8 @@ class Install(_console.Command):
                     _events.fire('pytsite.plugman@update_all')
 
             # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
-            return _subprocess.run(['./console', self.name, '--stage=2']).returncode
+            if installed_count:
+                return _subprocess.run(['./console', self.name, '--stage=2']).returncode
 
         elif stage == 2:
             # At this point triggers _eh.on_pytsite_load() event handler, which calls plugin_install() and
