@@ -369,8 +369,7 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     sch = kwargs.get('scheme', scheme())  # type: str
     lang = kwargs.get('lang', _lang.get_current())  # type: str
     add_lang_prefix = kwargs.get('add_lang_prefix', True)  # type: bool
-    strip_lang_prefix = kwargs.get('strip_lang_prefix', False)  # type: bool
-    strip_query = kwargs.get('strip_query')  # type: bool
+    strip_query = kwargs.get('strip_query', False)  # type: bool
     query = kwargs.get('query')  # type: dict
     relative = kwargs.get('relative', False)  # type: bool
     strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
@@ -380,12 +379,12 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
     r = [
-        parsed_url[0] if parsed_url[0] else sch,  # 0, Scheme
-        parsed_url[1] if parsed_url[1] else server_name(),  # 1, Netloc
-        parsed_url[2] if parsed_url[2] else '',  # 2, Path
-        parsed_url[3] if parsed_url[3] else '',  # 3, Params
-        parsed_url[4] if parsed_url[4] else '',  # 4, Query
-        parsed_url[5] if parsed_url[5] else '',  # 5, Fragment
+        parsed_url[0] or sch,  # 0, Scheme
+        parsed_url[1] or server_name(),  # 1, Netloc
+        parsed_url[2] or '',  # 2, Path
+        parsed_url[3] or '',  # 3, Params
+        parsed_url[4] or '',  # 4, Query
+        parsed_url[5] or '',  # 5, Fragment
     ]
 
     if relative:
@@ -413,20 +412,20 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     lang_re = _re.compile('^/({})/'.format('|'.join(_lang.langs())))
 
     # Add language prefix to the path
-    if add_lang_prefix and not strip_lang_prefix and not lang_re.search(parsed_url[2]):
-        b_path = base_path(lang)
-        if not b_path.endswith('/') and not parsed_url[2].startswith('/'):
-            b_path += '/'
-        r[2] = str(b_path + parsed_url[2]).replace('//', '/')
-
-    # Strip language prefix from the path
-    if strip_lang_prefix and lang_re.search(parsed_url[2]):
+    if add_lang_prefix:
+        if not lang_re.search(parsed_url[2]) and lang != _lang.get_primary():
+            b_path = base_path(lang)
+            if not b_path.endswith('/') and not parsed_url[2].startswith('/'):
+                b_path += '/'
+            r[2] = str(b_path + parsed_url[2]).replace('//', '/')
+    elif lang_re.search(parsed_url[2]):
+        # Strip language prefix from the path
         r[2] = lang_re.sub('/', parsed_url[2])
 
     return _urlparse.urlunparse(r) if not as_list else r
 
 
-def current_path(resolve_alias=True, add_lang_prefix: bool = True, lang: str = None) -> str:
+def current_path(resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None) -> str:
     """Get current path.
     """
     lang = lang or _lang.get_current()
@@ -447,16 +446,15 @@ def current_path(resolve_alias=True, add_lang_prefix: bool = True, lang: str = N
 
 
 def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None,
-                add_query: dict = None, add_fragment: str = None) -> str:
+                query: dict = None, fragment: str = None) -> str:
     """Get current URL
     """
-    r = scheme() + '://' + server_name() + current_path(resolve_alias, add_lang_prefix, lang)
-
     if not strip_query:
-        add_query = add_query or {}
-        add_query.update(_urlparse.parse_qs(request().query_string.decode('utf-8')))
+        query = query or {}
+        query.update(_urlparse.parse_qs(request().query_string.decode('utf-8')))
 
-    return url(r, strip_query=strip_query, query=add_query, fragment=add_fragment)
+    return url(current_path(resolve_alias, False), strip_query=strip_query, add_lang_prefix=add_lang_prefix, lang=lang,
+               query=query, fragment=fragment)
 
 
 def rule_path(rule_name: str, args: dict = None) -> str:

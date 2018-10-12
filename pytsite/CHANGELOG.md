@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.0.4 (2018-10-12)
+
+Unused `strip_lang_prefix` argument removed from `router.url()`.
+
+
 ## 8.0.3 (2018-10-06)
 
 Bugfix of `plugman:install` console command.
