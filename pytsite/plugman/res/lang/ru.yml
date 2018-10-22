@@ -9,7 +9,6 @@ plugin_update_error: 'Ошибка при обновлении плагина :p
 uninstalling_plugin: 'Удаление плагина :plugin...'
 plugin_uninstall_success: 'Плагин :plugin удалён'
 console_command_description_install: 'Установка плагин'
-console_command_description_update: 'Обновление плагин'
 console_command_description_uninstall: 'Удаление плагин'
 updating_plugins: 'Обновляю плагины'
 plugins_not_specified: 'Не указаны имена плагин'

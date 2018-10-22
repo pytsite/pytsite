@@ -9,6 +9,8 @@ import subprocess as _subprocess
 from pytsite import reload as _reload, console as _console, package_info as _package_info, events as _events
 from . import _api, _error
 
+_PLUGINS_SPEC_RE = _re.compile('([a-zA-Z0-9_]+)([<>!=~]*.+)?')
+
 
 class Install(_console.Command):
     """plugman:install
@@ -29,29 +31,22 @@ class Install(_console.Command):
         return 'pytsite.plugman@console_command_description_install'
 
     def exec(self):
-        _plugins_spec_re = _re.compile('([a-zA-Z0-9_]+)([<>!=~]*.+)?')
-
-        installed_count = 0
         stage = self.opt('stage')
 
         if stage == 1:
+            installed_count = 0
             plugins_specs = {}
 
             if self.args:
+                # Install/update specified plugins
                 for p_spec in self.args:
-                    match = _plugins_spec_re.findall(p_spec)
+                    match = _PLUGINS_SPEC_RE.findall(p_spec)
                     if not match:
                         raise _console.error.CommandExecutionError('Invalid plugin identifier: {}'.format(p_spec))
                     plugins_specs[match[0][0]] = match[0][1]
-
-            # If no plugins to install/update was specified
             else:
-                if self.name == 'plugman:install':
-                    # Install all plugins required by application
-                    plugins_specs = _package_info.requires_plugins('app')
-                elif self.name == 'plugman:update':
-                    # Update all installed plugins
-                    plugins_specs = self.args or _api.local_plugins_info().keys()
+                # Install/update all required plugins
+                plugins_specs = _package_info.requires_plugins('app')
 
             # Install/update plugins
             for plugin_name, plugin_version in plugins_specs.items():
@@ -60,15 +55,9 @@ class Install(_console.Command):
                 except _error.Error as e:
                     raise _console.error.CommandExecutionError(e)
 
-            # Notify listeners if command was called without arguments
-            if not self.args:
-                if self.name == 'plugman:install':
-                    _events.fire('pytsite.plugman@install_all')
-                elif self.name == 'plugman:update':
-                    _events.fire('pytsite.plugman@update_all')
-
             # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
             if installed_count:
+                _events.fire('pytsite.plugman@install_all')
                 return _subprocess.run(['./console', self.name, '--stage=2']).returncode
 
         elif stage == 2:
@@ -79,29 +68,15 @@ class Install(_console.Command):
             # so we need to restart application in console mode in order to call installation hooks of that plugins.
             if _api.get_update_info():
                 return _subprocess.run(['./console', self.name, '--stage=3']).returncode
-            else:
-                if self.opt('reload'):
-                    _reload.reload()
-
-        elif stage == 3:
-            if self.opt('reload'):
+            elif self.opt('reload'):
                 _reload.reload()
+
+        elif stage == 3 and self.opt('reload'):
+            # Let all waiting plugins process their hooks and then reload application
+            _reload.reload()
 
         else:
             raise _console.error.CommandExecutionError('Invalid stage number')
-
-
-class Update(Install):
-    """plugman:update
-    """
-
-    @property
-    def name(self) -> str:
-        return 'plugman:update'
-
-    @property
-    def description(self) -> str:
-        return 'pytsite.plugman@console_command_description_update'
 
 
 class Uninstall(_console.Command):

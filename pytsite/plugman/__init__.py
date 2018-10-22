@@ -11,8 +11,8 @@ from pytsite import maintenance as _maintenance
 from . import _error as error
 from ._api import plugins_dir_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
     local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
-    on_install_all, on_update_all, on_pre_install, on_install_error, on_uninstall, plugin_path, is_loading, \
-    is_installing, get, is_management_mode, plugin_package_name, on_pre_load, on_load
+    on_install_all, on_pre_install, on_install_error, on_uninstall, plugin_path, is_loading, is_installing, get, \
+    is_management_mode, plugin_package_name, on_pre_load, on_load
 
 
 class _MetaPathHook:
@@ -54,7 +54,6 @@ def _init():
 
     # Register console commands
     console.register_command(_cc.Install())
-    console.register_command(_cc.Update())
     console.register_command(_cc.Uninstall())
 
     # Enable imports checking

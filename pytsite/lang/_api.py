@@ -123,7 +123,7 @@ def is_package_registered(pkg_name):
     return pkg_name in _packages
 
 
-def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str = None):
+def register_package(pkg_name: str, languages_dir: str = 'res/lang'):
     """Register language container
     """
     spec = _find_spec(pkg_name)
@@ -136,22 +136,14 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang', alias: str 
 
     if pkg_name in _packages:
         raise _error.PackageAlreadyRegistered("Language package '{}' already registered".format(pkg_name))
-    _packages[pkg_name] = {'__path': lng_dir, '__is_alias': False}
-
-    if pkg_name.startswith('plugins.') and not alias:
-        alias = pkg_name.split('.')[1]
-
-    if alias:
-        if alias in _packages:
-            raise RuntimeError("Package '{}' is already registered, so alias can not be registered".format(alias))
-        _packages[alias] = {'__path': lng_dir, '__is_alias': True}
+    _packages[pkg_name] = {'__path': lng_dir}
 
 
 def register_global(name: str, handler: _Callable):
     """Register a global
     """
     if name in _globals:
-        raise RuntimeError("Function '{}' is already registered".format(name))
+        raise RuntimeError("Language global '{}' is already registered".format(name))
 
     if not callable(handler):
         raise TypeError("{} is not callable".format(type(handler)))
@@ -279,7 +271,11 @@ def get_package_translations(pkg_name: str, language: str = None) -> _Dict[str, 
     """
     # Is the package registered?
     if not is_package_registered(pkg_name):
-        raise _error.PackageNotRegistered("Package '{}' is not registered".format(pkg_name))
+        plugins_pkg_name = 'plugins.' + pkg_name
+        if is_package_registered(plugins_pkg_name):
+            pkg_name = plugins_pkg_name
+        else:
+            raise _error.PackageNotRegistered("Language package '{}' is not registered".format(pkg_name))
 
     if not language:
         language = get_current()

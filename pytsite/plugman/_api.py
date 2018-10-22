@@ -516,12 +516,6 @@ def on_install_all(handler, priority: int = 0):
     _events.listen('pytsite.plugman@install_all', handler, priority)
 
 
-def on_update_all(handler, priority: int = 0):
-    """Shortcut
-    """
-    _events.listen('pytsite.plugman@update_all', handler, priority)
-
-
 def on_install_error(handler, priority: int = 0):
     """Shortcut
     """
@@ -577,7 +571,7 @@ def rm_update_info(plugin_name: str):
 def is_management_mode() -> bool:
     """Check if the plugman is installing, uninstalling or updating plugins now
     """
-    cmd_names = [_cc.Install().name, _cc.Update().name, _cc.Uninstall.name]
+    cmd_names = [_cc.Install().name, _cc.Uninstall.name]
     for v in argv:
         if v in cmd_names:
             return True

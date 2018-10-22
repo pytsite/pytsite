@@ -10,17 +10,9 @@ from . import _api, _error
 
 
 def on_pytsite_update_stage_2():
-    _console.print_info(_lang.t('pytsite.plugman@updating_plugins'))
-
     # Update all installed plugins
-    _console.run_command('plugman:update', {'reload': False})
-
-    # Install/update required plugins
-    for plugin_spec in _package_info.requires_plugins('app'):
-        try:
-            _api.install(plugin_spec)
-        except _error.PluginInstallError as e:
-            raise _console.error.CommandExecutionError(e)
+    _console.print_info(_lang.t('pytsite.plugman@updating_plugins'))
+    _console.run_command('plugman:install', {'reload': False})
 
 
 def on_pytsite_load():
@@ -50,6 +42,7 @@ def on_pytsite_load():
             _events.fire('pytsite.plugman@pre_install', name=p_name, version=v_to)
 
         except _error.PluginNotLoaded as e:
+            _logger.error(e)
             _console.print_warning(_lang.t('pytsite.plugman@plugin_install_error', {
                 'plugin': p_name,
                 'version': v_to,
@@ -84,6 +77,7 @@ def on_pytsite_load():
             }))
 
         except Exception as e:
+            _logger.error(e)
             _console.print_warning(_lang.t('pytsite.plugman@plugin_install_error', {
                 'plugin': p_name,
                 'version': v_to,

@@ -29,6 +29,9 @@ class ControllerArgs(dict):
 
         self._formatters[key].append(formatter)
 
+        # Set arg's default value
+        self[key] = formatter.get_val()
+
     def add_validation(self, key: str, rule: _validation.rule.Rule):
         """Add a validation rule
         """

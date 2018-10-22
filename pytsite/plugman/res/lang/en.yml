@@ -9,7 +9,6 @@ plugin_update_error: 'Error while updating plugin :plugin to version :version: :
 uninstalling_plugin: 'Uninstalling plugin :plugin...'
 plugin_uninstall_success: 'Plugin :plugin uninstalled'
 console_command_description_install: 'Install plugin(s)'
-console_command_description_update: 'Update plugin(s)'
 console_command_description_uninstall: 'Uninstall plugin(s)'
 updating_plugins: 'Updating plugin(s)'
 plugins_not_specified: 'Plugin(s) are not specified'

@@ -40,15 +40,19 @@ def _get_path(location: str) -> str:
     if not location:
         raise ValueError('Template name is not specified')
 
-    package_name, tpl_name = _resolve_location(location)
+    pkg_name, tpl_name = _resolve_location(location)
 
-    if package_name not in _packages:
-        raise error.TemplateNotFound("Templates package '{}' is not registered".format(package_name))
+    if pkg_name not in _packages:
+        plugin_pkg_name = 'plugins.' + pkg_name
+        if plugin_pkg_name in _packages:
+            pkg_name = plugin_pkg_name
+        else:
+            raise error.TemplateNotFound("Templates package '{}' is not registered".format(pkg_name))
 
     if not tpl_name.endswith('.jinja2'):
         tpl_name += '.jinja2'
 
-    return _path.join(_packages[package_name]['templates_dir'], tpl_name)
+    return _path.join(_packages[pkg_name]['templates_dir'], tpl_name)
 
 
 def tpl_exists(tpl: str) -> bool:
@@ -86,12 +90,6 @@ def _date_filter(value: _datetime, fmt: str = 'pretty_date') -> str:
         return value.strftime(fmt)
 
 
-def is_package_registered(package_name: str):
-    """Check if the package already registered.
-    """
-    return package_name in _packages
-
-
 def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: str = None):
     """Register templates container.
     """
@@ -105,9 +103,6 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
     templates_dir = _path.join(_path.dirname(pkg_spec.origin), templates_dir)
     if not _path.isdir(templates_dir):
         raise NotADirectoryError("Directory '{}' is not found".format(templates_dir))
-
-    if package_name.startswith('plugins.') and not alias:
-        alias = package_name.split('.')[1]
 
     config = {'templates_dir': templates_dir}
     _packages[package_name] = config

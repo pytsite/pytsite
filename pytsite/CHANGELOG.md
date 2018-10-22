@@ -1,6 +1,16 @@
 # PytSite 8 Changelog
 
 
+## 8.1 (2018-10-22)
+
+- `formatters`: new constructor's parameter: `default`.
+- `lang`: removed unused parameter `alias` from `register_package`.
+- `plugman`:
+    - removed unused console command `plugman:update`;
+    - plugins dependencies processing partly fixed.
+- `tpl`: removed unused function `is_package_registered()`.
+
+
 ## 8.0.4 (2018-10-12)
 
 Unused `strip_lang_prefix` argument removed from `router.url()`.

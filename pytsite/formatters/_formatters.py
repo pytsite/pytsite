@@ -12,8 +12,8 @@ from pytsite import util as _util
 
 
 class Formatter(_ABC):
-    def __init__(self):
-        self._value = None
+    def __init__(self, default=None):
+        self._value = default
 
     def set_val(self, value: _Any):
         self._value = value
@@ -35,18 +35,13 @@ class Bool(Formatter):
 
 
 class Int(Formatter):
-    def __init__(self, minimum: int = None, maximum: int = None):
-        super().__init__()
+    def __init__(self, default: int = 0, minimum: int = None, maximum: int = None):
+        super().__init__(default)
 
         self._min = minimum
         self._max = maximum
 
     def set_val(self, value: _Any):
-        if isinstance(value, str):
-            value = value.strip()
-            if not value:
-                return super().set_val(None)
-
         try:
             value = int(value)
 
@@ -62,18 +57,18 @@ class Int(Formatter):
 
 
 class PositiveInt(Int):
-    def __init__(self, maximum: int = None):
-        super().__init__(0, maximum)
+    def __init__(self, default: int = 0, maximum: int = None):
+        super().__init__(default, 0, maximum)
 
 
 class AboveZeroInt(Int):
-    def __init__(self, maximum: int = None):
-        super().__init__(1, maximum)
+    def __init__(self, default: int = 1, maximum: int = None):
+        super().__init__(default, 1, maximum)
 
 
 class Float(Formatter):
-    def __init__(self, minimum: float = None, maximum: float = None):
-        super().__init__()
+    def __init__(self, default: float = 0.0, minimum: float = None, maximum: float = None):
+        super().__init__(default)
 
         self._min = minimum
         self._max = maximum
@@ -98,13 +93,13 @@ class Float(Formatter):
 
 
 class PositiveFloat(Float):
-    def __init__(self, maximum: float = None):
-        super().__init__(0.0, maximum)
+    def __init__(self, default: float = 0.0, maximum: float = None):
+        super().__init__(default, 0.0, maximum)
 
 
 class Str(Formatter):
-    def __init__(self, max_len: int = None):
-        super().__init__()
+    def __init__(self, default: str = '', max_len: int = None):
+        super().__init__(default)
 
         self._max_len = max_len
 
@@ -127,6 +122,9 @@ class DateTime(Formatter):
 
 
 class JSON(Formatter):
+    def __init__(self, default: str = '{}'):
+        super().__init__(default)
+
     def set_val(self, value: str):
         try:
             return super().set_val(_json.loads(value))
@@ -135,6 +133,9 @@ class JSON(Formatter):
 
 
 class JSONArrayToList(JSON):
+    def __init__(self, default: str = '[]'):
+        super().__init__(default)
+
     def set_val(self, value: str):
         super().set_val(value)
 
