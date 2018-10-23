@@ -269,7 +269,46 @@ def get_dependant_plugins(plugin_name: str) -> list:
     return r
 
 
-def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRange] = None) -> int:
+def _install_dependencies(plugin_name: str) -> int:
+    """Install dependencies for locally installed plugin
+
+    Returns a number of installed plugins.
+    """
+    installed_plugins_count = 0
+    plugin_info = local_plugin_info(plugin_name, False)
+
+    # Install required pip packages
+    for pip_pkg_name, pip_pkg_version in plugin_info['requires']['packages'].items():
+        pip_pkg_spec = '{} {}'.format(pip_pkg_name, pip_pkg_version)
+
+        _logger.info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
+            'plugin': plugin_name,
+            'pip_package': '{} {}'.format(pip_pkg_name, pip_pkg_version),
+        }))
+
+        _logger.info(_lang.t('pytsite.plugman@installing_updating_pip_package', {
+            'package': pip_pkg_spec
+        }))
+
+        _pip.install(pip_pkg_name, pip_pkg_version, True, _DEBUG)
+
+        _logger.info(_lang.t('pytsite.plugman@pip_package_successfully_installed_updated', {
+            'package': pip_pkg_spec
+        }))
+
+    # Install required plugins
+    for p_name, p_version in plugin_info['requires']['plugins'].items():
+        _logger.info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
+            'plugin': plugin_name,
+            'dependency': '{} {}'.format(p_name, p_version),
+        }))
+        installed_plugins_count += install(p_name, p_version, False)
+
+    return installed_plugins_count
+
+
+def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRange] = None,
+            install_dependencies: bool = True) -> int:
     """Install a plugin
 
     Returns a number of installed plugins, including dependencies
@@ -300,8 +339,8 @@ def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRan
             _set_update_info(plugin_name, l_plugin_info['version'], ver_to_install)
             uninstall(plugin_name, True)
         else:
-            # Necessary version is already installed, nothing to do
-            return installed_count
+            # Necessary version is already installed, just update dependencies
+            return _install_dependencies(plugin_name) if install_dependencies else installed_count
     except _error.PluginPackageNotFound:
         pass
 
@@ -371,33 +410,9 @@ def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRan
             raise _error.PluginInstallError("Plugin '{}-{}' requires PytSite{}".format(
                 plugin_name, l_plugin_info['version'], l_plugin_info['requires']['pytsite']))
 
-        # Install required pip packages
-        for pip_pkg_name, pip_pkg_version in l_plugin_info['requires']['packages'].items():
-            pip_pkg_spec = '{} {}'.format(pip_pkg_name, pip_pkg_version)
-
-            _logger.info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
-                'plugin': plugin_name,
-                'pip_package': '{} {}'.format(pip_pkg_name, pip_pkg_version),
-            }))
-
-            _logger.info(_lang.t('pytsite.plugman@installing_updating_pip_package', {
-                'package': pip_pkg_spec
-            }))
-
-            _pip.install(pip_pkg_name, pip_pkg_version, True, _DEBUG)
-
-            _console.print_success(_lang.t('pytsite.plugman@pip_package_successfully_installed_updated', {
-                'package': pip_pkg_spec
-            }))
-
-        # Install required plugins
-        for req_p_name, req_p_version in l_plugin_info['requires']['plugins'].items():
-            if not is_installed(req_p_name, _semver.VersionRange(req_p_version)):
-                _logger.info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
-                    'plugin': plugin_name,
-                    'dependency': '{} {}'.format(req_p_name, req_p_version),
-                }))
-                installed_count += install(req_p_name, req_p_version)
+        # Install dependencies
+        if install_dependencies:
+            installed_count += _install_dependencies(plugin_name)
 
         # Plan to call plugin installation/updating hooks during next application start
         if not get_update_info(plugin_name):

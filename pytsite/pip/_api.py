@@ -49,6 +49,7 @@ def is_installed(pkg_name: str, pkg_version: _semver.VersionRange) -> bool:
 
     return _installed_packages[pkg_name]
 
+
 def install(pkg_name: str, pkg_version: str = None, upgrade: bool = False, passthrough: bool = False) -> int:
     """Install a pip package
     """

@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.1.1 (2018-10-23)
+
+Temporary fix of updating dependencies issue in `plugman`.
+
+
 ## 8.1 (2018-10-22)
 
 - `formatters`: new constructor's parameter: `default`.
