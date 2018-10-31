@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.1.2 (2018-10-31)
+
+Input data processing fixed in `http.Request`.
+
+
 ## 8.1.1 (2018-10-23)
 
 Temporary fix of updating dependencies issue in `plugman`.

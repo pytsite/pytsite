@@ -1,14 +1,16 @@
-import re as _re
-from werkzeug.wrappers import Request as _Request
-from werkzeug.utils import cached_property as _cached_property
-
+"""PytSite Request
+"""
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_dict_list_key_re = _re.compile('([^\[]+)\[(\w+)\]\[\]$')
-_dict_key_re = _re.compile('([^\[]+)\[(\w+)\]$')
-_list_key_re = _re.compile('([^\[]+)\[\]$')
+import re as _re
+from werkzeug.wrappers import Request as _Request
+from werkzeug.utils import cached_property as _cached_property
+
+_dict_list_key_re = _re.compile('^([^\[]+)\[([^\]]+)\]\[\]$')
+_dict_key_re = _re.compile('^([^\[]+)\[([^\]]+)\]$')
+_list_key_re = _re.compile('^([^\[]+)\[\]$')
 
 
 class Request(_Request):
