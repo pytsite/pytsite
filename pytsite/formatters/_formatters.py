@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import json as _json
-from typing import Any as _Any
+from typing import Any as _Any, Union as _Union, Callable as _Callable
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from pytsite import util as _util
@@ -27,11 +27,27 @@ class Formatter(_ABC):
         return self.set_val(value).get_val()
 
 
+class Transform(Formatter):
+    def __init__(self, default: _Any = None, transform: _Union[dict, _Callable[[_Any], _Any]] = None):
+        super().__init__(default)
+
+        if not transform:
+            raise ValueError('Transformation object is not specified')
+
+        self._transform = transform
+
+    def set_val(self, value: _Any):
+        if isinstance(self._transform, dict):
+            value = self._transform[value] if value in self._transform else value
+        elif callable(self._transform):
+            value = self._transform(value)
+
+        return super().set_val(value)
+
+
 class Bool(Formatter):
     def set_val(self, value: _Any):
-        true = (True, 'True', 'true', 'TRUE', '1', 1, 'Y', 'y', 'Yes', 'yes', 'YES')
-
-        return super().set_val(True if value in true else False)
+        return super().set_val(value in (True, 'True', 'true', 'TRUE', '1', 1, 'Y', 'y', 'Yes', 'yes', 'YES'))
 
 
 class Int(Formatter):
@@ -98,15 +114,42 @@ class PositiveFloat(Float):
 
 
 class Str(Formatter):
-    def __init__(self, default: str = '', max_len: int = None):
+    def __init__(self, default: str = '', max_len: int = None, min_len: int = None, lower: bool = False,
+                 upper: bool = False):
         super().__init__(default)
 
         self._max_len = max_len
+        self._min_len = min_len
+        self._lower = lower
+        self._upper = upper
 
     def set_val(self, value: str):
         value = str(value).strip()
-        if self._max_len is not None and len(value) > self._max_len:
+
+        if self._lower:
+            value = value.lower()
+
+        if self._upper:
+            value = value.upper()
+
+        if self._min_len and len(value) < self._min_len:
+            raise ValueError('Value is too short')
+
+        if self._max_len and len(value) > self._max_len:
             value = value[:self._max_len]
+
+        return super().set_val(value)
+
+
+class Enum(Formatter):
+    def __init__(self, default: _Any = None, values: _Union[list, tuple] = None):
+        super().__init__(default)
+
+        self._values = values
+
+    def set_val(self, value: _Any):
+        if value not in self._values:
+            raise ValueError("Value '{}' is not acceptable".format(value))
 
         return super().set_val(value)
 

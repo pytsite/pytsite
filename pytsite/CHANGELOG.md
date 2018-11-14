@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+## 8.2 (2018-11-14)
+
+- New formatters added: `Transform`, `Enum`.
+- New arguments added to `Str` formatter: `min_len`, `lower`, `upper`.
+
+
 ## 8.1.2 (2018-10-31)
 
 Input data processing fixed in `http.Request`.
