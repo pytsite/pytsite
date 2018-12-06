@@ -13,16 +13,16 @@ from pytsite import formatters as _formatter, validation as _validation, http as
 
 
 class ControllerArgs(dict):
-    def __init__(self, seq=None, **kwargs):
+    def __init__(self, **kwargs):
         """Init
         """
-        super().__init__(seq or {}, **kwargs)
+        super().__init__()
 
         self._formatters = kwargs.get('formatters', {})  # type: _Dict[str, _List[_formatter.Formatter]]
         self._rules = kwargs.get('rules', {})  # type: _Dict[str, _List[_validation.rule.Rule]]
 
     def add_formatter(self, key: str, formatter: _formatter.Formatter):
-        """Add a formatter for the field
+        """Add a formatter of the field
         """
         if key not in self._formatters:
             self._formatters[key] = []
@@ -32,13 +32,25 @@ class ControllerArgs(dict):
         # Set arg's default value
         self[key] = formatter.get_val()
 
+    def rm_formatter(self, key: str):
+        """Remove a formatter of the field
+        """
+        if key in self._formatters:
+            del self._formatters[key]
+
     def add_validation(self, key: str, rule: _validation.rule.Rule):
-        """Add a validation rule
+        """Add a validation rule of the field
         """
         if key not in self._rules:
             self._rules[key] = []
 
         self._rules[key].append(rule)
+
+    def rm_validation(self, key: str):
+        """Remove a validation rule of the field
+        """
+        if key in self._rules:
+            del self._rules[key]
 
     def update(self, other: _Mapping, **kwargs):
         """It is important to pass all values through formatters

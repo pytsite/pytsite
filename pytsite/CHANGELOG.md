@@ -1,6 +1,13 @@
 # PytSite 8 Changelog
 
 
+## 8.3 (2018-12-06)
+
+- Signature of `routing.ControllerArgs.__init__()` changed.
+- New methods added to `routing.ControllerArgs`: `rm_formatter()`,
+  `rm_validation()`.
+
+
 ## 8.2 (2018-11-14)
 
 - New formatters added: `Transform`, `Enum`.
