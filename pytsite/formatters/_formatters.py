@@ -5,7 +5,7 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import json as _json
-from typing import Any as _Any, Union as _Union, Callable as _Callable
+from typing import Any as _Any, Union as _Union, Callable as _Callable, Iterable as _Iterable, Type as _Type
 from abc import ABC as _ABC
 from datetime import datetime as _datetime
 from pytsite import util as _util
@@ -165,43 +165,27 @@ class DateTime(Formatter):
 
 
 class JSON(Formatter):
-    def __init__(self, default: str = '{}'):
+    def __init__(self, default: _Any = None, allowed_types: _Iterable[_Type] = (object,)):
+        self._allowed_types = allowed_types
+
         super().__init__(default)
 
-    def set_val(self, value: str):
+    def set_val(self, value: _Any):
         try:
-            return super().set_val(_json.loads(value))
+            if isinstance(value, str):
+                value = _json.loads(value)
+            if type(value) not in self._allowed_types:
+                raise TypeError('{} expected, got {}'.format(self._allowed_types, type(value)))
+            return super().set_val(value)
         except (_json.JSONDecodeError, TypeError) as e:
             raise ValueError('Error while parsing JSON: {}'.format(e))
 
 
-class JSONArrayToList(JSON):
-    def __init__(self, default: str = '[]'):
-        super().__init__(default)
-
-    def set_val(self, value: str):
-        super().set_val(value)
-
-        if not isinstance(self._value, list):
-            raise ValueError('Should be a JSON array')
-
-        return self
+class JSONArray(JSON):
+    def __init__(self, default: _Any = None):
+        super().__init__(default, (list, tuple))
 
 
-class JSONArrayToTuple(JSONArrayToList):
-    def set_val(self, value: str):
-        super().set_val(value)
-
-        self._value = tuple(self._value)
-
-        return self
-
-
-class JSONObjectToDict(JSON):
-    def set_val(self, value: str):
-        super().set_val(value)
-
-        if not isinstance(self._value, dict):
-            raise ValueError('Should be a JSON object')
-
-        return self
+class JSONObject(JSON):
+    def __init__(self, default: _Any = None):
+        super().__init__(default, (dict,))

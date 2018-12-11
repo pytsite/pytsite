@@ -1,13 +1,14 @@
 """PytSite Routing Rules Map
 """
-import re as _re
-import json as _json
-from typing import Dict as _Dict, List as _List
-from . import _rule, _error
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+import re as _re
+import json as _json
+from typing import Dict as _Dict, List as _List, Mapping as _Mapping
+from copy import deepcopy as _deepcopy
+from . import _rule, _error
 
 _rule_arg_re = _re.compile('<((\w+:)?[\w\-]+)>')
 _rule_arg_param_re = _re.compile('\w+:')
@@ -71,24 +72,20 @@ class RulesMap:
 
         return r
 
-    def path(self, name: str, args: dict = None) -> str:
+    def path(self, name: str, args: _Mapping = None) -> str:
         """Build a path for a rule
         """
+        args = _deepcopy(args) if args is not None else {}
 
-        def repl(match):
-            nonlocal rule
-
+        def repl(match, _rule, _args):
             arg_k = _rule_arg_param_re.sub('', match.group(1))
 
-            if arg_k in args:
-                return str(args.pop(arg_k))
-            elif arg_k in rule.defaults:
-                return str(rule.defaults[arg_k])
+            if arg_k in _args:
+                return str(_args.pop(arg_k))
+            elif arg_k in _rule.defaults:
+                return str(_rule.defaults[arg_k])
             else:
                 raise _error.RulePathBuildError("Argument '{}' for rule '{}' is not provided".format(arg_k, name))
-
-        if args is None:
-            args = {}
 
         rule = self.get(name)
 
@@ -96,7 +93,7 @@ class RulesMap:
             raise _error.RulePathBuildError("Rule '{}' has no path".format(name))
 
         # Fill rule's args with values
-        path = _rule_arg_re.sub(repl, rule.path)
+        path = _rule_arg_re.sub(lambda match: repl(match, rule, args), rule.path)
 
         # Add remaining args as query string
         if args:

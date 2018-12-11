@@ -21,7 +21,7 @@ class ControllerArgs(dict):
         self._formatters = kwargs.get('formatters', {})  # type: _Dict[str, _List[_formatter.Formatter]]
         self._rules = kwargs.get('rules', {})  # type: _Dict[str, _List[_validation.rule.Rule]]
 
-    def add_formatter(self, key: str, formatter: _formatter.Formatter):
+    def add_formatter(self, key: str, formatter: _formatter.Formatter, use_default: bool = True):
         """Add a formatter of the field
         """
         if key not in self._formatters:
@@ -29,8 +29,9 @@ class ControllerArgs(dict):
 
         self._formatters[key].append(formatter)
 
-        # Set arg's default value
-        self[key] = formatter.get_val()
+        # Set arg's default value from formatter's default one
+        if use_default:
+            self[key] = formatter.get_val()
 
     def rm_formatter(self, key: str):
         """Remove a formatter of the field

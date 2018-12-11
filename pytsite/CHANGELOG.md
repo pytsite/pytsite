@@ -1,6 +1,19 @@
 # PytSite 8 Changelog
 
 
+## 8.4 (2018-12-11)
+
+- New `routing.ControllerArgs.add_formatter()`'s arg: `use_default`.
+- `http`:
+    - new class `Headers` added;
+    - new `response.JSON`'s constructor arg `headers` added.
+- `formatters`:
+    - `JSON` got new constructor's arg `allowed_type`;
+    - `JSONArrayToList` renamed to `JSONArray`;
+    - `JSONObjectToDict` renamed to `JSONObject`;
+    - `JSONArrayToTuple` removed.
+
+
 ## 8.3 (2018-12-06)
 
 - Signature of `routing.ControllerArgs.__init__()` changed.
