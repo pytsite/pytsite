@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+## 8.4.1 (2018-12-12)
+
+`formatters.JSONArray` and `formatters.JSONObject` default value
+setting fixed.
+
+
 ## 8.4 (2018-12-11)
 
 - New `routing.ControllerArgs.add_formatter()`'s arg: `use_default`.

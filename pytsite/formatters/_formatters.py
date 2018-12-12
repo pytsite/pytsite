@@ -142,7 +142,7 @@ class Str(Formatter):
 
 
 class Enum(Formatter):
-    def __init__(self, default: _Any = None, values: _Union[list, tuple] = None):
+    def __init__(self, default: _Any = None, values: _Iterable = None):
         super().__init__(default)
 
         self._values = values
@@ -183,9 +183,9 @@ class JSON(Formatter):
 
 class JSONArray(JSON):
     def __init__(self, default: _Any = None):
-        super().__init__(default, (list, tuple))
+        super().__init__(default if default is not None else [], (list, tuple))
 
 
 class JSONObject(JSON):
     def __init__(self, default: _Any = None):
-        super().__init__(default, (dict,))
+        super().__init__(default if default is not None else {}, (dict,))
