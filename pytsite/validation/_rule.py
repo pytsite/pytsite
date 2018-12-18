@@ -285,7 +285,6 @@ class Regex(Rule):
 
         self._pattern = kwargs.get('pattern')
         self._ignore_case = kwargs.get('ignore_case', False)
-        self._msg_args.update({'pattern': self._pattern})
 
         if not self._pattern or not isinstance(self._pattern, str):
             raise _error.RuleError('Pattern must be a nonempty string.')
@@ -297,6 +296,11 @@ class Regex(Rule):
         """
         if self._value is None:
             return
+
+        self._msg_args.update({
+            'pattern': self._pattern,
+            'value': self._value
+        })
 
         if isinstance(self.value, (list, tuple)):
             self._msg_id += '_row'
@@ -320,6 +324,11 @@ class Regex(Rule):
         else:
             msg = _lang.t('pytsite.validation@list_dict_str_expected', {'got': self.value.__class__.__name__})
             raise TypeError(msg)
+
+
+class DNSName(Regex):
+    def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
+        super().__init__(value, msg_id, msg_args, pattern='^(?:[^\W_][\w-]*(?:\.|\w))+$', ignore_case=True, **kwargs)
 
 
 class Url(Rule):

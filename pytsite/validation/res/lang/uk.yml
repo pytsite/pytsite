@@ -23,6 +23,7 @@ validation_length: 'Довжина значення має знаходитис�
 validation_minlength: 'Значення повинно бути довшим ніж :min_length'
 validation_maxlength: 'Значення повинно бути коротше ніж :max_length'
 validation_choice: "':value' не є одним з :values"
+validation_dnsname: "':value' не є коректним DNS ім'ям"
 
 list_expected: 'Очикувалось list, отримано :got'
 dict_expected: 'Очикувалось list, отримано :got'

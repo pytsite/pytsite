@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+## 8.4.2 (2018-12-18)
+
+- New `validation`'s rule: `DNSName`.
+- `validation.rule.Regex` fixed.
+
+
 ## 8.4.1 (2018-12-12)
 
 `formatters.JSONArray` and `formatters.JSONObject` default value
