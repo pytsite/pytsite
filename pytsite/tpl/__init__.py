@@ -1,6 +1,5 @@
 """PytSite Tpl
 """
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
@@ -62,7 +61,6 @@ def tpl_exists(tpl: str) -> bool:
 class _TemplateLoader(_jinja.BaseLoader):
     """Template loader.
     """
-
     def get_source(self, environment, tpl: str) -> tuple:
         tpl_path = _get_path(tpl)
 

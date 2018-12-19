@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+## 8.6 (2018-12-19)
+
+- New `force_config` arg in `router.server_name()` function.
+- New `force_config_server_name` arg in `router.url()` function.
+
+
 ## 8.5 (2018-12-18)
 
 New `validation`'s rule: `DNSName`.

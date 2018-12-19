@@ -325,12 +325,12 @@ def base_path(lang: str = None) -> str:
     return '/' if lang == _lang.get_primary() else '/' + lang
 
 
-def server_name():
+def server_name(force_config: bool = False):
     """Get server's name.
     """
     r = request()
 
-    return r.host if r else _reg.get('server_name', 'localhost')
+    return r.host if r and not force_config else _reg.get('server_name', 'localhost')
 
 
 def scheme():
@@ -375,12 +375,13 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
     fragment = kwargs.get('fragment')  # type: dict
     as_list = kwargs.get('as_list', False)
+    force_config_server_name = kwargs.get('force_config_server_name', False)
 
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
     r = [
         parsed_url[0] or sch,  # 0, Scheme
-        parsed_url[1] or server_name(),  # 1, Netloc
+        parsed_url[1] or server_name(force_config_server_name),  # 1, Netloc
         parsed_url[2] or '',  # 2, Path
         parsed_url[3] or '',  # 3, Params
         parsed_url[4] or '',  # 4, Query
