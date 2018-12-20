@@ -325,12 +325,12 @@ def base_path(lang: str = None) -> str:
     return '/' if lang == _lang.get_primary() else '/' + lang
 
 
-def server_name(force_config: bool = False):
+def server_name(use_main: bool = False):
     """Get server's name.
     """
     r = request()
 
-    return r.host if r and not force_config else _reg.get('server_name', 'localhost')
+    return r.host if r and not use_main else _reg.get('server_name', 'localhost')
 
 
 def scheme():
@@ -341,23 +341,26 @@ def scheme():
     return r.scheme if (r and r.scheme) else ('https' if _reg.get('router.https') else 'http')
 
 
-def base_url(lang: str = None, query: dict = None, force_config_server_name: bool = False):
+def base_url(lang: str = None, query: dict = None, use_main_host: bool = False):
     """Get base URL of the application.
     """
-    r = scheme() + '://' + server_name(force_config_server_name) + base_path(lang)
+    r = scheme() + '://' + server_name(use_main_host) + base_path(lang)
     if query:
         r = url(r, query=query)
 
     return r
 
 
-def is_base_url(compare: str = None) -> bool:
-    """Check if the given URL is base.
+def is_base_url(url_str: str = None) -> bool:
+    """Check if the given URL is base
     """
-    if not compare:
-        compare = current_url(True)
+    return base_url() == url_str or current_url(True)
 
-    return base_url() == compare
+
+def is_main_host(host_str: str = None) -> bool:
+    """Check if the current request's host is the same as defined in app's configuration
+    """
+    return request().host == host_str or server_name(True)
 
 
 def url(s: str, **kwargs) -> _Union[str, list]:
@@ -375,13 +378,13 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
     fragment = kwargs.get('fragment')  # type: dict
     as_list = kwargs.get('as_list', False)
-    force_config_server_name = kwargs.get('force_config_server_name', False)
+    use_main_host = kwargs.get('use_main_host', False)
 
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
     r = [
         parsed_url[0] or sch,  # 0, Scheme
-        parsed_url[1] or server_name(force_config_server_name),  # 1, Netloc
+        parsed_url[1] or server_name(use_main_host),  # 1, Netloc
         parsed_url[2] or '',  # 2, Path
         parsed_url[3] or '',  # 3, Params
         parsed_url[4] or '',  # 4, Query
@@ -447,7 +450,7 @@ def current_path(resolve_alias: bool = True, add_lang_prefix: bool = True, lang:
 
 
 def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None,
-                query: dict = None, fragment: str = None) -> str:
+                query: dict = None, fragment: str = None, use_main_host: bool = False) -> str:
     """Get current URL
     """
     if not strip_query:
@@ -455,7 +458,7 @@ def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_
         query.update(_urlparse.parse_qs(request().query_string.decode('utf-8')))
 
     return url(current_path(resolve_alias, False), strip_query=strip_query, add_lang_prefix=add_lang_prefix, lang=lang,
-               query=query, fragment=fragment)
+               query=query, fragment=fragment, use_main_host=use_main_host)
 
 
 def rule_path(rule_name: str, args: dict = None) -> str:

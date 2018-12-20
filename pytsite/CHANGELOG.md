@@ -1,6 +1,15 @@
 # PytSite 8 Changelog
 
 
+## 8.7 (2018-12-19)
+
+- New function: `router.is_main_host()`.
+- New `tpl`'s global: `is_main_host()`.
+- `router.server_name()`'s `force_config` arg renamed to `use_main`.
+- `router`'s `base_url()`, `url()` and `current_url()`'s
+  `force_config_server_name` arg renamed to `use_main_host`.
+
+
 ## 8.6.1 (2018-12-19)
 
 New `force_config_server_name` arg in `router.base_url()` function.

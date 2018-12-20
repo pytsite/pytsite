@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from ._api import handle, add_path_alias, base_path, base_url, call, current_path, current_url, dispatch, rule_path, \
     rule_url, is_base_url, has_rule, no_cache, remove_path_alias, scheme, server_name, url, session, request, \
     set_request, get_session_store, on_pre_dispatch, on_dispatch, on_response, on_exception, on_xhr_dispatch, \
-    on_xhr_pre_dispatch, on_xhr_response, delete_session
+    on_xhr_pre_dispatch, on_xhr_response, delete_session, is_main_host
 
 
 def _init():
@@ -34,6 +34,7 @@ def _init():
     tpl.register_global('current_path', current_path)
     tpl.register_global('base_url', base_url)
     tpl.register_global('is_base_url', is_base_url)
+    tpl.register_global('is_main_host', is_main_host)
     tpl.register_global('session_messages', lambda x: session().get_messages(x) if session() else ())
 
     # Clear flash messages from all sessions
