@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.6.1 (2018-12-19)
+
+New `force_config_server_name` arg in `router.base_url()` function.
+
+
 ## 8.6 (2018-12-19)
 
 - New `force_config` arg in `router.server_name()` function.

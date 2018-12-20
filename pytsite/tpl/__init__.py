@@ -59,8 +59,9 @@ def tpl_exists(tpl: str) -> bool:
 
 
 class _TemplateLoader(_jinja.BaseLoader):
-    """Template loader.
+    """Template Loader
     """
+
     def get_source(self, environment, tpl: str) -> tuple:
         tpl_path = _get_path(tpl)
 

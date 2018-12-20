@@ -341,10 +341,10 @@ def scheme():
     return r.scheme if (r and r.scheme) else ('https' if _reg.get('router.https') else 'http')
 
 
-def base_url(lang: str = None, query: dict = None):
+def base_url(lang: str = None, query: dict = None, force_config_server_name: bool = False):
     """Get base URL of the application.
     """
-    r = scheme() + '://' + server_name() + base_path(lang)
+    r = scheme() + '://' + server_name(force_config_server_name) + base_path(lang)
     if query:
         r = url(r, query=query)
 
