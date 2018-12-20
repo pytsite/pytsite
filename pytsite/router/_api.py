@@ -354,7 +354,7 @@ def base_url(lang: str = None, query: dict = None, use_main_host: bool = False):
 def is_base_url(url_str: str = None) -> bool:
     """Check if the given URL is base
     """
-    return base_url() == url_str or current_url(True)
+    return base_url() == (url_str or current_url(True))
 
 
 def is_main_host(host_str: str = None) -> bool:

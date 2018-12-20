@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+## 8.7.2 (2018-12-21)
+
+`router.is_base_url()` fixed.
+
+
 ## 8.7.1 (2018-12-20)
 
 `router.is_main_host()` fixed.
