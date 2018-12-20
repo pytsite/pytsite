@@ -360,7 +360,7 @@ def is_base_url(url_str: str = None) -> bool:
 def is_main_host(host_str: str = None) -> bool:
     """Check if the current request's host is the same as defined in app's configuration
     """
-    return request().host == host_str or server_name(True)
+    return server_name(True) == (host_str or request().host)
 
 
 def url(s: str, **kwargs) -> _Union[str, list]:

@@ -1,7 +1,12 @@
 # PytSite 8 Changelog
 
 
-## 8.7 (2018-12-19)
+## 8.7.1 (2018-12-20)
+
+`router.is_main_host()` fixed.
+
+
+## 8.7 (2018-12-20)
 
 - New function: `router.is_main_host()`.
 - New `tpl`'s global: `is_main_host()`.
@@ -10,12 +15,12 @@
   `force_config_server_name` arg renamed to `use_main_host`.
 
 
-## 8.6.1 (2018-12-19)
+## 8.6.1 (2018-12-20)
 
 New `force_config_server_name` arg in `router.base_url()` function.
 
 
-## 8.6 (2018-12-19)
+## 8.6 (2018-12-20)
 
 - New `force_config` arg in `router.server_name()` function.
 - New `force_config_server_name` arg in `router.url()` function.
