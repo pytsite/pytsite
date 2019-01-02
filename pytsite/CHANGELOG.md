@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+### 8.7.3 (2019-01-02)
+
+- `router.url()` fixed.
+- `html.Li` fixed.
+
+
 ## 8.7.2 (2018-12-21)
 
 `router.is_base_url()` fixed.

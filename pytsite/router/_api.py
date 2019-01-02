@@ -385,7 +385,7 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     r = [
         parsed_url[0] or sch,  # 0, Scheme
         parsed_url[1] or server_name(use_main_host),  # 1, Netloc
-        parsed_url[2] or '',  # 2, Path
+        parsed_url[2] or '/',  # 2, Path
         parsed_url[3] or '',  # 3, Params
         parsed_url[4] or '',  # 4, Query
         parsed_url[5] or '',  # 5, Fragment

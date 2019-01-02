@@ -389,7 +389,7 @@ class Ol(Ul):
 
 class Li(BlockElement):
     def _get_valid_children(self) -> tuple:
-        return 'inline', 'ul'
+        return 'any',
 
 
 class Table(BlockElement):
