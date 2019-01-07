@@ -4,7 +4,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Any as _Any, Mapping as _Mapping, List as _List, Generator as _Generator, Optional as _Optional
+from typing import Any as _Any, Mapping as _Mapping, List as _List, Generator as _Generator, Optional as _Optional, \
+    Type as _Type
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from os import path as _path, unlink as _unlink, makedirs as _makedirs, walk as _walk
 from shutil import rmtree as _rmtree
@@ -26,7 +27,13 @@ class Abstract(_ABC):
 
     @_abstractmethod
     def has(self, pool: str, key: str) -> bool:
-        """Check whether an item exists in the pool
+        """Check whether the pool contains the key
+        """
+        pass
+
+    @_abstractmethod
+    def type(self, pool: str, key: str) -> _Type:
+        """Get key's value type
         """
         pass
 
@@ -49,7 +56,7 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def put_hash_item(self, pool: str, key: str, item_key: str, value: _Any) -> _Any:
+    def put_hash_item(self, pool: str, key: str, item_key: str, value: _Any, ttl: int = None) -> _Any:
         """Put a value into a hash
         """
         pass
@@ -73,14 +80,50 @@ class Abstract(_ABC):
         pass
 
     @_abstractmethod
-    def l_push(self, pool: str, key: str, value: _Any) -> int:
-        """Push a value into beginning of a list
+    def list_len(self, pool: str, key: str) -> int:
+        """Return the length of the list stored at key
         """
         pass
 
     @_abstractmethod
-    def r_pop(self, pool: str, key: str) -> _Any:
-        """Pop an item from the end of a list
+    def get_list(self, pool: str, key: str, start: int = 0, end: int = None) -> list:
+        """Return the specified elements of the list stored at key
+        """
+        pass
+
+    @_abstractmethod
+    def put_list(self, pool, key: str, value: list, ttl: int = None) -> list:
+        """Store a list
+        """
+        pass
+
+    @_abstractmethod
+    def list_l_push(self, pool: str, key: str, value: _Any, ttl: int = None) -> int:
+        """Insert the value at the head of the list stored at key
+        """
+        pass
+
+    @_abstractmethod
+    def list_r_push(self, pool: str, key: str, value: _Any, ttl: int = None) -> int:
+        """Insert the value at the tail of the list stored at key
+        """
+        pass
+
+    @_abstractmethod
+    def list_l_pop(self, pool: str, key: str) -> _Any:
+        """Remove and return the first element of the list stored at key
+        """
+        pass
+
+    @_abstractmethod
+    def list_r_pop(self, pool: str, key: str) -> _Any:
+        """Remove and return the last element of the list stored at key
+        """
+        pass
+
+    @_abstractmethod
+    def expire(self, pool: str, key: str, ttl: int) -> int:
+        """Set a timeout on key
         """
         pass
 
@@ -142,8 +185,23 @@ class File(Abstract):
         """
         return _path.dirname(self._get_key_path(pool, key))
 
-    def _load_key(self, pool: str, key) -> dict:
-        """Load key from file
+    def _store(self, pool: str, key: str, value: _Any, ttl: int = None) -> _Any:
+        """Store an item into the pool
+        """
+        f_path = self._get_key_path(pool, key)
+        d_path = _path.dirname(f_path)
+
+        if not _path.exists(d_path):
+            _makedirs(d_path, 0o755)
+
+        with open(f_path, 'wb') as f:
+            now = _time()
+            f.write(_pickle_dump({'k': key, 'c': now, 't': ttl, 'e': (now + ttl) if ttl else None, 'v': value}))
+
+        return value
+
+    def _load(self, pool: str, key: str) -> dict:
+        """Load an item from the pool
         """
         f_path = self._get_key_path(pool, key)
 
@@ -158,6 +216,13 @@ class File(Abstract):
             _unlink(f_path)
             raise _error.KeyNotExist(pool, key)
 
+    def _load_check_type(self, pool: str, key: str, expected_type: type) -> dict:
+        raw = self._load(pool, key)
+        if not isinstance(raw['v'], expected_type):
+            raise _error.TypeError(pool, key, raw['v'])
+
+        return raw
+
     def keys(self, pool: str) -> _Generator[str, None, None]:
         """Get all keys of the pool
         """
@@ -168,59 +233,58 @@ class File(Abstract):
                     yield _pickle_load(f.read())['k']
 
     def has(self, pool: str, key: str) -> bool:
-        """Check whether an item exists in the pool
+        """Check whether the pool contains the key
         """
         return _path.exists(self._get_key_path(pool, key))
+
+    def type(self, pool: str, key: str) -> _Type:
+        """Get key's value type
+        """
+        return type(self._load(pool, key)['v'])
 
     def put(self, pool: str, key: str, value: _Any, ttl: int = None) -> _Any:
         """Put an item into the pool
         """
-        f_path = self._get_key_path(pool, key)
-        d_path = _path.dirname(f_path)
+        if isinstance(value, (dict, list)):
+            raise _error.TypeError(pool, key, value)
 
-        if not _path.exists(d_path):
-            _makedirs(d_path, 0o755)
-
-        with open(f_path, 'wb') as f:
-            now = _time()
-            f.write(_pickle_dump({'k': key, 'c': now, 't': ttl, 'e': (now + ttl) if ttl else None, 'v': value}))
-
-        return value
+        return self._store(pool, key, value, ttl)
 
     def get(self, pool: str, key: str) -> _Any:
         """Get an item from the pool
         """
-        return self._load_key(pool, key)['v']
+        value = self._load(pool, key)['v']
+        if isinstance(value, (dict, list)):
+            raise _error.TypeError(pool, key, value)
+
+        return value
 
     def put_hash(self, pool: str, key: str, value: _Mapping, ttl: int = None) -> _Any:
         """Put a hash item into the pool
         """
         if not isinstance(value, _Mapping):
-            raise TypeError('{} expected, got {}'.format(_Mapping.__class__, type(value)))
+            raise _error.TypeError(pool, key, value)
 
-        return self.put(pool, key, dict(value), ttl)
+        return self._store(pool, key, dict(value), ttl)
 
-    def put_hash_item(self, pool: str, key: str, item_key: str, value: _Any) -> _Any:
+    def put_hash_item(self, pool: str, key: str, item_key: str, value: _Any, ttl: int = None) -> _Any:
         """Put a value into a hash
         """
-        raw = self._load_key(pool, key)
-        val = raw['v']
-        if not isinstance(val, dict):
-            raise TypeError("Key '{}' is not hashable".format(key))
+        try:
+            raw = self._load_check_type(pool, key, dict)
+            val = raw['v']
+            val[item_key] = value
+            return self._store(pool, key, val, raw['t'])
 
-        val[item_key] = value
+        except _error.KeyNotExist:
+            return self._store(pool, key, {item_key: value}, ttl)
 
-        return self.put(pool, key, val, raw['t'])
-
-    def get_hash(self, pool: str, key: str, hash_keys: _List[str] = None) -> _Mapping:
+    def get_hash(self, pool: str, key: str, hash_keys: _List[str] = None) -> dict:
         """Get hash
         """
-        val = self.get(pool, key)
+        val = self._load_check_type(pool, key, dict)['v']
 
-        if not isinstance(val, dict):
-            raise TypeError("Key '{}' is not hashable".format(key))
-
-        return val
+        return {k: v for k, v in val.items() if k in hash_keys} if hash_keys else val
 
     def get_hash_item(self, pool: str, key: str, item_key: str, default=None) -> _Any:
         """Get a value from a hash
@@ -230,56 +294,85 @@ class File(Abstract):
     def rm_hash_item(self, pool: str, key: str, item_key: str) -> _Any:
         """Remove a value from a hash
         """
-        raw = self._load_key(pool, key)
+        raw = self._load_check_type(pool, key, dict)
         val = raw['v']
-        if not isinstance(val, dict):
-            raise TypeError("Key '{}' is not hashable".format(key))
 
         try:
             val.pop(item_key)
         except KeyError:
             pass
 
-        return self.put(pool, key, val, raw['t'])
+        return self._store(pool, key, val, raw['t'])
 
-    def l_push(self, pool: str, key: str, value: _Any) -> int:
-        """Push a value into beginning of a list
+    def list_len(self, pool: str, key: str) -> int:
+        """Return the length of the list stored at key
+        """
+        return len(self._load_check_type(pool, key, list)['v'])
+
+    def get_list(self, pool: str, key: str, start: int = 0, end: int = None) -> list:
+        """Return the specified elements of the list stored at key
+        """
+        return self._load_check_type(pool, key, list)['v'][start:end]
+
+    def put_list(self, pool, key: str, value: list, ttl: int = None) -> list:
+        """Store a list
+        """
+        if not isinstance(value, list):
+            raise _error.TypeError(pool, key, value)
+
+        return self._store(pool, key, value, ttl)
+
+    def list_l_push(self, pool: str, key: str, value: _Any, ttl: int = None) -> int:
+        """Insert the value at the head of the list stored at key
         """
         try:
-            val = self.get(pool, key)
-            if not isinstance(val, list):
-                raise TypeError("Value of the key '{}' is not a list: {}".format(key, val))
+            raw = self._load_check_type(pool, key, list)
+            val = raw['v']
             val.insert(0, value)
-            self.put(pool, key, val)
-
-            return len(val)
-
+            return len(self._store(pool, key, val, raw['t']))
         except _error.KeyNotExist:
-            val = list()
-            val.append(value)
-            self.put(pool, key, val)
+            return len(self._store(pool, key, [value], ttl))
 
-            return 1
-
-    def r_pop(self, pool: str, key: str) -> _Any:
-        """Pop an item from the end of a list
+    def list_r_push(self, pool: str, key: str, value: _Any, ttl: int = None) -> int:
+        """Insert the value at the tail of the list stored at key
         """
-        val = self.get(pool, key)
-        if not isinstance(val, list):
-            raise TypeError("Value of the key '{}' is not a list: {}".format(key, val))
-
         try:
-            r = val.pop()
-            self.put(pool, key, val)
-            return r
+            raw = self._load_check_type(pool, key, list)
+            val = raw['v']
+            val.append(value)
+            return len(self._store(pool, key, val, raw['t']))
+        except _error.KeyNotExist:
+            return len(self._store(pool, key, [value], ttl))
 
-        except IndexError:
-            raise _error.KeyNotExist(pool, key)
+    def list_l_pop(self, pool: str, key: str) -> _Any:
+        """Remove and return the first element of the list stored at key
+        """
+        raw = self._load_check_type(pool, key, list)
+        val = raw['v']
+        r = val.pop(0)
+        self._store(pool, key, val, raw['t']) if val else self.rm(pool, key)
+
+        return r
+
+    def list_r_pop(self, pool: str, key: str) -> _Any:
+        """Remove and return the last element of the list stored at key
+        """
+        raw = self._load_check_type(pool, key, list)
+        val = raw['v']
+        r = val.pop()
+        self._store(pool, key, val, raw['t']) if val else self.rm(pool, key)
+
+        return r
+
+    def expire(self, pool: str, key: str, ttl: int):
+        """Set a timeout on key
+        """
+        self._store(pool, key, self._load(pool, key)['v'], ttl)
 
     def ttl(self, pool: str, key: str) -> _Optional[int]:
         """Get remaining time to live of a key
         """
-        expires = self._load_key(pool, key)['e']
+        expires = self._load(pool, key)['e']
 
         return int(expires - _time()) if expires else None
 

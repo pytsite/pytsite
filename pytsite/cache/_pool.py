@@ -5,7 +5,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Mapping as _Mapping, List as _List, Callable as _Callable, Generator as _Generator
+from typing import Mapping as _Mapping, List as _List, Callable as _Callable, Generator as _Generator, Type as _Type, \
+    Any as _Any
 from ._driver import Abstract as _Driver
 
 
@@ -31,6 +32,11 @@ class Pool:
         """Check whether an item exists in the pool
         """
         return self._get_driver().has(self._uid, key)
+
+    def type(self, key: str) -> _Type:
+        """Get key's value type
+        """
+        return self._get_driver().type(self._uid, key)
 
     def put(self, key: str, value, ttl: int = None):
         """Put an item into the pool
@@ -67,15 +73,40 @@ class Pool:
         """
         return self._get_driver().rm_hash_item(self._uid, key, item_key)
 
-    def l_push(self, key: str, value) -> int:
-        """Push a value into beginning of a list
+    def list_len(self, key: str):
+        """Return the length of the list stored at key
         """
-        return self._get_driver().l_push(self._uid, key, value)
+        return self._get_driver().list_len(self._uid, key)
 
-    def r_pop(self, key: str):
-        """Pop an item from the end of a list
+    def get_list(self, key: str, start: int = 0, stop: int = None) -> list:
+        """Return the specified elements of the list stored at key
         """
-        return self._get_driver().r_pop(self._uid, key)
+        return self._get_driver().get_list(self._uid, key, start, stop)
+
+    def put_list(self, key: str, value: list, ttl: int = None) -> list:
+        """Store a list
+        """
+        return self._get_driver().put_list(self._uid, key, value, ttl)
+
+    def list_l_push(self, key: str, value: _Any, ttl: int = None) -> int:
+        """Insert the value at the head of the list stored at key
+        """
+        return self._get_driver().list_l_push(self._uid, key, value, ttl)
+
+    def list_r_push(self, key: str, value: _Any, ttl: int = None) -> int:
+        """Insert the value at the tail of the list stored at key
+        """
+        return self._get_driver().list_r_push(self._uid, key, value, ttl)
+
+    def list_l_pop(self, key: str):
+        """Remove and return the first element of the list stored at key
+        """
+        return self._get_driver().list_l_pop(self._uid, key)
+
+    def list_r_pop(self, key: str):
+        """Remove and return the last element of the list stored at key
+        """
+        return self._get_driver().list_r_pop(self._uid, key)
 
     def ttl(self, key: str) -> int:
         """Get remaining time to live of a key

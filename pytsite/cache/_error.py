@@ -1,9 +1,10 @@
 """PytSite Cache Errors.
 """
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from typing import Union as _Union, List as _List, Type as _Type, Any as _Any
 
 
 class Error(Exception):
@@ -54,6 +55,16 @@ class KeyNotExist(Error):
 
     def __str__(self) -> str:
         return "Pool '{}' does not contain key '{}'".format(self._pool_uid, self._key)
+
+
+class TypeError(Error):
+    def __init__(self, pool_uid: str, key: str, value: _Any):
+        self._p_uid = pool_uid
+        self._key = key
+        self._v = value
+
+    def __str__(self) -> str:
+        return "Unexpected value type '{}' in pool '{}' at key '{}'".format(type(self._v), self._p_uid, self._key)
 
 
 class HashKeyNotExists(Error):

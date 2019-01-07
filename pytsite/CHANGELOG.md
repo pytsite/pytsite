@@ -1,6 +1,16 @@
 # PytSite 8 Changelog
 
 
+### 8.8 (2019-01-07)
+
+Changes in `cache`:
+- new methods in `driver.Abstract`: `expire()`, `type()`, `list_len()`,
+  `get_list()`, `put_list()`, `list_r_push()`, `list_l_pop()`;
+- New `ttl` argument added to method `put_hash_item()`;
+- `driver.Abstract.l_push()` renamed ro `list_l_push()`;
+- `driver.Abstract.r_pop()` renamed ro `list_r_pop()`.
+
+
 ### 8.7.3 (2019-01-02)
 
 - `router.url()` fixed.

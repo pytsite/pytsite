@@ -35,7 +35,7 @@ class Queue:
         if not (callable(handler) or isinstance(handler, str)):
             raise TypeError('Callable or string expected, got {}'.format(type(handler)))
 
-        _POOL.l_push(self._name, (handler, args, kwargs))
+        _POOL.list_l_push(self._name, (handler, args, kwargs))
 
         return self
 
@@ -60,7 +60,7 @@ class Queue:
         """Get next pending task
         """
         try:
-            t_data = _POOL.r_pop(self._name)
+            t_data = _POOL.list_r_pop(self._name)
             if len(t_data) == 3:
                 return Task(t_data[0], *t_data[1], **t_data[2])
             elif len(t_data) == 2:

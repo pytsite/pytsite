@@ -23,13 +23,21 @@ def set_driver(driver: _AbstractDriver):
     if not isinstance(driver, _AbstractDriver):
         raise TypeError('Instance of {} expected, got {}'.format(_AbstractDriver, type(driver)))
 
-    # When switching from one driver to another, it is important to move existing keys to the new storage,
+    # When switching from one driver to another, it is important to move existing keys to the new storage
     keys_to_move = {}  # type: _Dict[str, list]
     if _current_driver:
         for pool in _pools.values():
             keys_to_move[pool.uid] = []
             for key in pool.keys():
-                keys_to_move[pool.uid].append((key, pool.get(key), pool.ttl(key)))  # Remember key and value
+                key_type = pool.type(key)
+                if key_type in (list, tuple):
+                    value = pool.get_list(key)
+                elif key_type is dict:
+                    value = pool.get_hash(key)
+                else:
+                    value = pool.get(key)
+
+                keys_to_move[pool.uid].append((key, value, pool.ttl(key)))  # Remember key and value
                 _pools[pool.uid].rm(key)  # Delete key via current driver
 
     # Switch to the new driver
@@ -38,7 +46,15 @@ def set_driver(driver: _AbstractDriver):
     # Move keys from previous driver
     for pool_uid, keys in keys_to_move.items():
         for key, value, ttl in keys:
-            _pools[pool_uid].put(key, value, ttl)
+            # Clear previous value
+            _pools[pool_uid].rm(key)
+
+            if isinstance(value, list):
+                _pools[pool_uid].put_list(key, value)
+            elif isinstance(value, dict):
+                _pools[pool_uid].put_hash(key, value)
+            else:
+                _pools[pool_uid].put(key, value, ttl)
 
 
 def get_driver() -> _AbstractDriver:
