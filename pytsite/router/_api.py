@@ -18,7 +18,7 @@ _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 # Rules map
 _rules = _routing.RulesMap()
 
-# Route path aliases
+# Path aliases
 _path_aliases = {}
 
 # Session store
@@ -49,7 +49,7 @@ def set_request(r: _http.Request):
 
 
 def request() -> _Optional[_http.Request]:
-    """Get request for current thread
+    """Get request of current thread
     """
     return _requests.get(_threading.get_id())
 
@@ -109,7 +109,7 @@ def has_rule(rule_name: str) -> bool:
 
 
 def call(rule_name: str, args: _Mapping, http_request: _http.Request = None):
-    """Call a controller by name
+    """Call a controller
     """
     c = _rules.get(rule_name).controller_class()  # type: _routing.Controller
     c.request = http_request or request()
@@ -225,11 +225,12 @@ def dispatch(env: dict, start_response: callable):
         # Call controller
         try:
             controller_resp = controller.exec()
+
+        # Controllers may call other controllers, and they can generate exceptions
         except _routing.error.RuleNotFound as e:
-            # Controllers can call other controllers, and they can generate such exceptions
             raise _http.error.NotFound(e)
 
-        # Checking response from the handler
+        # Check response from the handler
         if isinstance(controller_resp, str):
             # Minify output
             if _reg.get('output.minify'):
@@ -309,52 +310,20 @@ def dispatch(env: dict, start_response: callable):
         return _http.Response(wsgi_response, code, content_type='text/html')(env, start_response)
 
 
-def base_path(lang: str = None) -> str:
-    """Get base path of application.
-    """
-    available_langs = _lang.langs()
-
-    if len(available_langs) == 1:
-        return '/'
-
-    lang = lang or _lang.get_current()
-
-    if lang not in available_langs:
-        raise RuntimeError("Language '{}' is not supported.".format(lang))
-
-    return '/' if lang == _lang.get_primary() else '/' + lang
-
-
-def server_name(use_main: bool = False):
-    """Get server's name.
-    """
-    r = request()
-
-    return r.host if r and not use_main else _reg.get('server_name', 'localhost')
-
-
 def scheme():
-    """Get current URL scheme.
+    """Get HTTP scheme
     """
     r = request()
 
     return r.scheme if (r and r.scheme) else ('https' if _reg.get('router.https') else 'http')
 
 
-def base_url(lang: str = None, query: dict = None, use_main_host: bool = False):
-    """Get base URL of the application.
+def server_name(use_main: bool = False):
+    """Get server's name
     """
-    r = scheme() + '://' + server_name(use_main_host) + base_path(lang)
-    if query:
-        r = url(r, query=query)
+    r = request()
 
-    return r
-
-
-def is_base_url(url_str: str = None) -> bool:
-    """Check if the given URL is base
-    """
-    return base_url() == (url_str or current_url(True))
+    return r.host if r and not use_main else _reg.get('server_name', 'localhost')
 
 
 def is_main_host(host_str: str = None) -> bool:
@@ -363,11 +332,25 @@ def is_main_host(host_str: str = None) -> bool:
     return server_name(True) == (host_str or request().host)
 
 
-def url(s: str, **kwargs) -> _Union[str, list]:
-    """Generate an URL.
+def base_path(lang: str = None) -> str:
+    """Get base path of application.
     """
-    if not s:
-        raise ValueError('URL is empty')
+    langs = _lang.langs()
+    if len(langs) == 1:
+        return '/'
+
+    lang = lang or _lang.get_current()
+
+    if lang not in langs:
+        raise RuntimeError("Language '{}' is not supported".format(lang))
+
+    return '/' if lang == _lang.get_primary() else '/' + lang
+
+
+def url(s: str = '', **kwargs) -> _Union[str, list]:
+    """Generate an URL
+    """
+    lang_re = _re.compile('^/({})/'.format('|'.join(_lang.langs())))
 
     sch = kwargs.get('scheme', scheme())  # type: str
     lang = kwargs.get('lang', _lang.get_current())  # type: str
@@ -376,7 +359,7 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     query = kwargs.get('query')  # type: dict
     relative = kwargs.get('relative', False)  # type: bool
     strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
-    fragment = kwargs.get('fragment')  # type: dict
+    fragment = kwargs.get('fragment', '')  # type: str
     as_list = kwargs.get('as_list', False)
     use_main_host = kwargs.get('use_main_host', False)
 
@@ -385,7 +368,7 @@ def url(s: str, **kwargs) -> _Union[str, list]:
     r = [
         parsed_url[0] or sch,  # 0, Scheme
         parsed_url[1] or server_name(use_main_host),  # 1, Netloc
-        parsed_url[2] or '/',  # 2, Path
+        parsed_url[2] or '',  # 2, Path
         parsed_url[3] or '',  # 3, Params
         parsed_url[4] or '',  # 4, Query
         parsed_url[5] or '',  # 5, Fragment
@@ -404,29 +387,38 @@ def url(s: str, **kwargs) -> _Union[str, list]:
         parsed_qs.update(query)
         r[4] = _urlparse.urlencode(parsed_qs, doseq=True)
 
-    if strip_fragment:
-        # Stripping fragment
-        r[5] = ''
-    elif fragment:
-        # Attaching additional fragment
-        parsed_fragment = _urlparse.parse_qs(parsed_url[5])
-        parsed_fragment.update(fragment)
-        r[5] = _urlparse.urlencode(parsed_fragment, doseq=True)
-
-    lang_re = _re.compile('^/({})/'.format('|'.join(_lang.langs())))
+    # Fragment
+    r[5] = '' if strip_fragment else _urlparse.quote_plus(r[5] + fragment)
 
     # Add language prefix to the path
     if add_lang_prefix:
+        # If language is not already in URL and if language is not a primary one
         if not lang_re.search(parsed_url[2]) and lang != _lang.get_primary():
             b_path = base_path(lang)
             if not b_path.endswith('/') and not parsed_url[2].startswith('/'):
                 b_path += '/'
             r[2] = str(b_path + parsed_url[2]).replace('//', '/')
+
+    # Strip language prefix from the path
     elif lang_re.search(parsed_url[2]):
-        # Strip language prefix from the path
         r[2] = lang_re.sub('/', parsed_url[2])
 
+    # Remove unwanted slashes from the end of the path
+    r[2] = r[2].rstrip('/')
+
     return _urlparse.urlunparse(r) if not as_list else r
+
+
+def base_url(lang: str = None, query: dict = None, fragment: str = '', use_main_host: bool = False):
+    """Get base URL
+    """
+    return url(lang=lang, query=query, fragment=fragment, use_main_host=use_main_host)
+
+
+def is_base_url(s: str = None) -> bool:
+    """Check if the given URL is the base one
+    """
+    return base_url() == (s or current_url(True))
 
 
 def current_path(resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None) -> str:
@@ -450,10 +442,11 @@ def current_path(resolve_alias: bool = True, add_lang_prefix: bool = True, lang:
 
 
 def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_prefix: bool = True, lang: str = None,
-                query: dict = None, fragment: str = None, use_main_host: bool = False) -> str:
+                query: dict = None, fragment: str = '', use_main_host: bool = False) -> str:
     """Get current URL
     """
-    if not strip_query:
+    # Update query with request's query
+    if not strip_query and request():
         query = query or {}
         query.update(_urlparse.parse_qs(request().query_string.decode('utf-8')))
 
@@ -462,40 +455,54 @@ def current_url(strip_query: bool = False, resolve_alias: bool = True, add_lang_
 
 
 def rule_path(rule_name: str, args: dict = None) -> str:
-    """Get path for an endpoint.
+    """Get path of a rule
     """
     return _rules.path(rule_name, args)
 
 
 def rule_url(rule_name: str, rule_args: dict = None, **kwargs) -> str:
-    """Get URL for an endpoint.
+    """Get URL of a rule
     """
     return url(rule_path(rule_name, rule_args), **kwargs)
 
 
 def on_pre_dispatch(handler, priority: int = 0, method: str = 'get'):
+    """Shortcut
+    """
     _events.listen('pytsite.router@pre_dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_xhr_pre_dispatch(handler, priority: int = 0, method: str = 'get'):
+    """Shortcut
+    """
     _events.listen('pytsite.router@xhr_pre_dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_dispatch(handler, priority: int = 0, method: str = 'get'):
+    """Shortcut
+    """
     _events.listen('pytsite.router@dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_xhr_dispatch(handler, priority: int = 0, method: str = 'get'):
+    """Shortcut
+    """
     _events.listen('pytsite.router@xhr_dispatch.{}'.format(method.lower()), handler, priority)
 
 
 def on_response(handler, priority: int = 0, method: str = 'get'):
+    """Shortcut
+    """
     _events.listen('pytsite.router@response.{}'.format(method.lower()), handler, priority)
 
 
 def on_xhr_response(handler, priority: int = 0, method: str = 'get'):
+    """Shortcut
+    """
     _events.listen('pytsite.router@xhr_response.{}'.format(method.lower()), handler, priority)
 
 
 def on_exception(handler, priority: int = 0):
+    """Shortcut
+    """
     _events.listen('pytsite.router@exception', handler, priority)

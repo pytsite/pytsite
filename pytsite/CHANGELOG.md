@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.8.1 (2019-02-07)
+
+Various bugfixes in `router`.
+
+
 ### 8.8 (2019-01-07)
 
 Changes in `cache`:
