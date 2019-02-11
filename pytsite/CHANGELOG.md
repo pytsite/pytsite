@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+### 8.9 (2019-02-11)
+
+Support of `^` and `~` shortcuts in version range specifications in
+`semver` package.
+
+
 ### 8.8.1 (2019-02-07)
 
 Various bugfixes in `router`.

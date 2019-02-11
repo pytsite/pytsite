@@ -4,12 +4,12 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import SupportsInt as _SupportsInt, List as _List, Union as _Union
+from typing import SupportsInt as _SupportsInt
 import re as _re
 from . import _error
 
 _VERSION_RE = _re.compile('^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$')
-_VERSION_RANGE_RE_V1 = _re.compile('(==|<=|>=|>|<)\s*(\d+)(?:\.(\d+)(?:\.(\d+))?)?')
+_VERSION_RANGE_RE_V1 = _re.compile('(==|<=|>=|>|<|~|\^)\s*(\d+)(?:\.(\d+)(?:\.(\d+))?)?')
 _VERSION_RANGE_RE_V2 = _re.compile('^(\d+|x|\*)(?:\.(\d+|x|\*)(?:\.(\d+|x|\*))?)?$')
 
 
@@ -135,6 +135,14 @@ class VersionRange:
                         self._minimum.major = self._maximum.major = m[1]
                         self._minimum.minor = self._maximum.minor = m[2] or 0
                         self._minimum.patch = self._maximum.patch = m[3] or 0
+                    elif op == '^':
+                        self._minimum.major = self._maximum.major = m[1]
+                        self._minimum.minor = m[2] or 0
+                        self._minimum.patch = m[3] or 0
+                    elif op == '~':
+                        self._minimum.major = self._maximum.major = m[1]
+                        self._minimum.minor = self._maximum.minor = m[2] or 0
+                        self._minimum.patch = m[3] or 0
 
                 if self._minimum > self._maximum:
                     raise _error.InvalidVersionRangeIdentifier(v_range)
