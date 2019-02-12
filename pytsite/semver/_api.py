@@ -17,8 +17,8 @@ def _to_int(version: str) -> int:
     return int(_Version(version))
 
 
-def last(versions: _Iterable[str], constraints: _Union[str, _Iterable[str]] = None) -> _Optional[str]:
-    """Get latest version from list of versions
+def last(versions: _Iterable[_Union[str, _Version]], v_range: _Union[str, _VersionRange] = None) -> _Optional[str]:
+    """Get latest available version from list of versions
     """
     if not versions:
         return None
@@ -26,13 +26,13 @@ def last(versions: _Iterable[str], constraints: _Union[str, _Iterable[str]] = No
     versions = sorted(versions, key=_to_int)
 
     # Return latest available
-    if not constraints:
+    if not v_range:
         return versions[-1]
 
+    if isinstance(v_range, str):
+        v_range = _VersionRange(v_range)
+
     # Search for latest available among constraints
-    filtered = []
-    for v in versions:
-        if v in constraints:
-            filtered.append(v)
+    filtered = [v for v in versions if v in v_range]
 
     return filtered[-1] if filtered else None

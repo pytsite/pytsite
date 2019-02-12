@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.9.1 (2019-02-12)
+
+`semver.last()` fixed.
+
+
 ### 8.9 (2019-02-11)
 
 Support of `^` and `~` shortcuts in version range specifications in
