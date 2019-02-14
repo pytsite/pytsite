@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.10 (2019-02-14)
+
+New getter added: `http.Request.real_remote_addr`.
+
+
 ### 8.9.1 (2019-02-12)
 
 `semver.last()` fixed.

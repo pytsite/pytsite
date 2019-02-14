@@ -18,6 +18,10 @@ class Request(_Request):
     """
 
     @_cached_property
+    def real_remote_addr(self) -> str:
+        return self.access_route[0]
+
+    @_cached_property
     def inp(self) -> dict:
         r = {}
 
