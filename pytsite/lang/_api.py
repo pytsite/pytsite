@@ -8,6 +8,7 @@ import yaml as _yaml
 import re as _re
 from typing import List as _List, Callable as _Callable, Dict as _Dict
 from importlib.util import find_spec as _find_spec
+from copy import copy as _copy
 from datetime import datetime as _datetime
 from os import path as _path
 from pytsite import threading as _threading, events as _events
@@ -20,9 +21,43 @@ _packages = {}
 _globals = {}
 _translated_strings_cache = {}
 
+_ENG_CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
+
+_ENG_IRREGULAR_PLURAL = {
+    'child': 'children',
+    'goose': 'geese',
+    'man': 'men',
+    'woman': 'women',
+    'tooth': 'teeth',
+    'foot': 'feet',
+    'mouse': 'mice',
+    'person': 'people',
+}
+
+_TL_CYRILLIC = [
+    "Щ", "щ", 'Ё', 'Ж', 'Х', 'Ц', 'Ч', 'Ш', 'Ю', 'Я',
+    'ё', 'ж', 'х', 'ц', 'ч', 'ш', 'ю', 'я', 'А', 'Б',
+    'В', 'Г', 'Д', 'Е', 'З', 'И', 'Й', 'К', 'Л', 'М',
+    'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Ь', 'Ы',
+    'Ъ', 'Э', 'а', 'б', 'в', 'г', 'д', 'е', 'з', 'и',
+    'і', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с',
+    'т', 'у', 'ф', 'ь', 'ы', 'ъ', 'э', 'Ї', 'ї', 'Є',
+    'є', 'Ґ', 'ґ']
+
+_TL_ROMAN = [
+    "Sch", "sch", 'Yo', 'Zh', 'Kh', 'Ts', 'Ch', 'Sh', 'Yu', 'Ya',
+    'yo', 'zh', 'kh', 'ts', 'ch', 'sh', 'yu', 'ya', 'A', 'B',
+    'V', 'G', 'D', 'E', 'Z', 'I', 'Y', 'K', 'L', 'M',
+    'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', '', 'Y',
+    '', 'E', 'a', 'b', 'v', 'g', 'd', 'e', 'z', 'i',
+    'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's',
+    't', 'u', 'f', '', 'y', '', 'e', 'i', 'i', 'Ye',
+    'ye', 'G', 'g'
+]
+
 _SUB_TRANS_TOKEN_RE = _re.compile('{:([_a-z0-9@]+)}')
 
-_default_regions = {
+_DEFAULT_REGIONS = {
     'en': 'US',
     'ru': 'RU',
     'uk': 'UA',
@@ -165,6 +200,51 @@ def is_translation_defined(msg_id: str, language: str = None, use_fallback=True)
         return True
     except (_error.TranslationError, _error.PackageNotRegistered):
         return False
+
+
+def english_plural(singular: str):
+    if len(singular) < 2:
+        return singular
+
+    if singular in _ENG_IRREGULAR_PLURAL:
+        return _ENG_IRREGULAR_PLURAL[singular]
+    elif singular[-2:0] == 'on':
+        return singular[:-2] + 'a'
+    elif singular[-2:0] == 'is':
+        return singular[:-2] + 'es'
+    elif singular[-1] in ('s', 'x', 'z') or singular[-2:0] in ('sh', 'ch'):
+        return singular + 'es'
+    elif singular[-1] == 'f' or singular[-2:0] == 'fe':
+        return singular[:-1] + 'ves'
+    elif singular[-1] == 'y' and singular[-2] in _ENG_CONSONANTS:
+        return singular[:-1] + 'ies'
+    else:
+        return singular + 's'
+
+
+def transliterate(text: str, language: str = None) -> str:
+    """Transliterate a string.
+    """
+    TL_ROMAN = _TL_ROMAN
+
+    if language == 'uk':
+        TL_ROMAN = _copy(_TL_ROMAN)
+        TL_ROMAN[_TL_CYRILLIC.index('Г')] = 'H'
+        TL_ROMAN[_TL_CYRILLIC.index('И')] = 'Y'
+        TL_ROMAN[_TL_CYRILLIC.index('Й')] = 'I'
+        TL_ROMAN[_TL_CYRILLIC.index('г')] = 'h'
+        TL_ROMAN[_TL_CYRILLIC.index('и')] = 'y'
+        TL_ROMAN[_TL_CYRILLIC.index('й')] = 'i'
+
+    r = ''
+    for ch in text:
+        try:
+            i = _TL_CYRILLIC.index(ch)
+            r += TL_ROMAN[i]
+        except ValueError:
+            r += ch
+
+    return r
 
 
 def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = False, use_fallback: bool = True) -> str:
@@ -354,13 +434,13 @@ def pretty_date_time(time: _datetime) -> str:
 
 
 def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
-    global _default_regions
+    global _DEFAULT_REGIONS
 
     if not language:
         language = get_current()
 
     if not region:
-        region = _default_regions[language] if language in _default_regions else language
+        region = _DEFAULT_REGIONS[language] if language in _DEFAULT_REGIONS else language
 
     return language.lower() + sep + region.upper()
 

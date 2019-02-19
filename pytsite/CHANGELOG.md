@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+### 8.11 (2019-02-19)
+
+- New function `lang.english_plural()` added. 
+- `util.transliterate()` moved to `lang.transliterate()`.
+
+
 ### 8.10.1 (2019-02-17)
 
 `lang.t_plural()` fixed.
