@@ -313,20 +313,16 @@ def t_plural(msg_id: str, num: int = 2, language: str = None) -> str:
         language = get_current()
 
     # Language is English
-    if language in ['en']:
-        if num == 1:
-            return t(msg_id + '_plural_one')
-        else:
-            return t(msg_id + '_plural_two')
+    if language == 'en':
+        return t(msg_id + '_plural_{}'.format('one' if num == 1 else 'two'))
 
     suffix = 'zero'
     num = num if num < 100 else int(str(num)[-2:])  # Get only last two digits
     if not 5 <= num <= 20:
         last_digit = int(str(num)[-1])
-
         if last_digit == 1:
             suffix = 'one'
-        elif last_digit < 5:
+        elif 1 < last_digit < 5:
             suffix = 'two'
 
     return t(msg_id + '_plural_' + suffix)
