@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.11.2 (2019-03-06)
+
+`html.Img` valid attrs list fixed.
+
+
 ### 8.11.1 (2019-02-27)
 
 `lang.t_plural()` fixed.

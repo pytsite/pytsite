@@ -312,7 +312,7 @@ class A(Span):
 
 class Img(InlineElement, SingleTagElement):
     def _get_valid_attrs(self) -> tuple:
-        return 'width', 'height'
+        return 'alt', 'crossorigin', 'decoding', 'height', 'ismap', 'sizes', 'srcset', 'width', 'usemap'
 
     def _get_required_attrs(self) -> tuple:
         return 'src',
