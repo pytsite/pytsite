@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.11.3 (2019-03-09)
+
+New `host` arg added to `router.url()`.
+
+
 ### 8.11.2 (2019-03-06)
 
 `html.Img` valid attrs list fixed.

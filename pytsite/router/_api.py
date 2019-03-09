@@ -353,6 +353,8 @@ def url(s: str = '', **kwargs) -> _Union[str, list]:
     lang_re = _re.compile('^/({})/'.format('|'.join(_lang.langs())))
 
     sch = kwargs.get('scheme', scheme())  # type: str
+    use_main_host = kwargs.get('use_main_host', False)
+    host = kwargs.get('host', server_name(use_main_host))
     lang = kwargs.get('lang', _lang.get_current())  # type: str
     add_lang_prefix = kwargs.get('add_lang_prefix', True)  # type: bool
     strip_query = kwargs.get('strip_query', False)  # type: bool
@@ -361,13 +363,13 @@ def url(s: str = '', **kwargs) -> _Union[str, list]:
     strip_fragment = kwargs.get('strip_fragment', False)  # type: bool
     fragment = kwargs.get('fragment', '')  # type: str
     as_list = kwargs.get('as_list', False)
-    use_main_host = kwargs.get('use_main_host', False)
+
 
     # https://docs.python.org/3/library/urllib.parse.html#urllib.parse.urlparse
     parsed_url = _urlparse.urlparse(s)
     r = [
         parsed_url[0] or sch,  # 0, Scheme
-        parsed_url[1] or server_name(use_main_host),  # 1, Netloc
+        parsed_url[1] or host,  # 1, Netloc
         parsed_url[2] or '',  # 2, Path
         parsed_url[3] or '',  # 3, Params
         parsed_url[4] or '',  # 4, Query
