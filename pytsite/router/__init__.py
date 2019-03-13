@@ -29,6 +29,7 @@ def _init():
 
     # Tpl globals
     tpl.register_global('url', url)
+    tpl.register_global('is_rule_defined', has_rule)
     tpl.register_global('rule_url', rule_url)
     tpl.register_global('current_url', current_url)
     tpl.register_global('current_path', current_path)

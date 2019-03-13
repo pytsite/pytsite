@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.12 (2019-03-13)
+
+New tpl global `is_rule_defined()` added.
+
+
 ### 8.11.3 (2019-03-09)
 
 New `host` arg added to `router.url()`.
