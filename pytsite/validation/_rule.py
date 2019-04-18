@@ -427,18 +427,18 @@ class DateTime(Rule):
     def _do_validate(self):
         """Do actual validation of the rule
         """
-        if self._value is None:
-            return
-
         if isinstance(self._value, str):
             self._value = self._value.strip()
+
+            if not self._value:
+                return
 
             try:
                 self._value = _util.parse_date_time(self._value, self._formats)
             except ValueError:
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
-        elif not isinstance(self._value, _datetime):
+        elif self._value and not isinstance(self._value, _datetime):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 

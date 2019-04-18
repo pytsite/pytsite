@@ -58,7 +58,7 @@ setup(
     license=pkg_license,
     download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(pkg_version),
     install_requires=[
-        'PyYAML',
+        'PyYAML>=5.1',
         'Werkzeug',
         'Jinja2',
         'pymongo',
@@ -75,7 +75,7 @@ setup(
         'dateparser'
     ],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
@@ -84,7 +84,10 @@ setup(
         'Natural Language :: Russian',
         'Natural Language :: Ukrainian',
         'Operating System :: POSIX',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: JavaScript',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Software Development :: Libraries :: Application Frameworks',

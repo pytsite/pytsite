@@ -197,9 +197,19 @@ class VersionRange:
                     return True
             return False
 
-        return self.minimum <= Version(item) <= self.maximum
+        if isinstance(item, str):
+            item = Version(item)
+
+        if isinstance(item, Version):
+            return self.minimum <= item <= self.maximum
+
+        if isinstance(item, VersionRange):
+            return self.minimum <= item.minimum and self.maximum >= item.maximum
 
     def __str__(self) -> str:
         if self._minimum == self._maximum:
             return '=={}'.format(self._minimum)
         return '>={},<={}'.format(self._minimum, self._maximum)
+
+    def __repr__(self) -> str:
+        return self.__str__()

@@ -369,7 +369,7 @@ def get_package_translations(pkg_name: str, language: str = None) -> _Dict[str, 
         return content
 
     with open(file_path, encoding='utf-8') as f:
-        content = _yaml.load(f)
+        content = _yaml.load(f, _yaml.FullLoader)
 
     if content is None:
         content = {}

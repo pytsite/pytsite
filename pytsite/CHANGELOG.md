@@ -1,6 +1,13 @@
 # PytSite 8 Changelog
 
 
+### 8.13 (2019-04-18)
+
+- Support of `pyYAML-5.1`.
+- Support of `VersionRange` in `semver.VersionRange.__contains__()`.
+- Bug in `validation.DateTime` fixed. 
+
+
 ### 8.12 (2019-03-13)
 
 New tpl global `is_rule_defined()` added.

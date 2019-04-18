@@ -114,7 +114,7 @@ class File(Memory):
             file_path = _path.join(root_dir, name)
             if _path.isfile(file_path):
                 with open(file_path) as f:
-                    f_data = _yaml.load(f)
+                    f_data = _yaml.load(f, _yaml.FullLoader)
                     if isinstance(f_data, dict):
                         self._merge(f_data)
                     f.close()
