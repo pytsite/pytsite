@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.13.1 (2019-04-19)
+
+Processing of `errors.ForbidOperation` fixed in `router.dispatch()`.
+
+
 ### 8.13 (2019-04-18)
 
 - Support of `pyYAML-5.1`.

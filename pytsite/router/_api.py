@@ -11,7 +11,7 @@ from traceback import format_exc as _format_exc
 from urllib import parse as _urlparse
 from werkzeug.contrib.sessions import FilesystemSessionStore as _FilesystemSessionStore
 from pytsite import reg as _reg, logger as _logger, http as _http, util as _util, lang as _lang, tpl as _tpl, \
-    threading as _threading, events as _events, routing as _routing, maintenance as _maintenance
+    threading as _threading, events as _events, routing as _routing, maintenance as _maintenance, errors as _errors
 
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
 
@@ -270,6 +270,9 @@ def dispatch(env: dict, start_response: callable):
         return wsgi_response(env, start_response)
 
     except Exception as e:
+        if isinstance(e, _errors.ForbidOperation):
+            e = _http.error.Forbidden()
+
         if isinstance(e, _http.error.E4xx):
             code = e.code
             title = _lang.t('pytsite.router@http_error_' + str(e.code))
