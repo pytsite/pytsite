@@ -17,17 +17,24 @@ _REQ_RE = _re.compile('([a-zA-Z0-9\-_]+)\s*(.+)?')
 _parsed_json = {}
 
 
-def _req_list_to_dict(req_list: list) -> dict:
-    r = {}
+def _sanitize_req(reqs: _Union[dict, list]) -> _Dict[str, _semver.VersionRange]:
+    # Old versions can contain lists instead of dicts
+    if isinstance(reqs, list):
+        n_reqs = {}
+        for req in reqs:
+            match = _REQ_RE.findall(req)
+            if not match:
+                raise ValueError("Invalid requirement specification: '{}'".format(req))
 
-    for req in req_list:
-        match = _REQ_RE.findall(req)
-        if not match:
-            raise ValueError("Invalid requirement specification: '{}'".format(req))
+            n_reqs[match[0][0]] = match[0][1]
 
-        r[match[0][0]] = match[0][1]
+        reqs = n_reqs
 
-    return r
+    # Convert version strings to VersionRange objects
+    for n, v in reqs.items():
+        reqs[n] = _semver.VersionRange(v)
+
+    return reqs
 
 
 def resolve_package_path(package_name: str):
@@ -49,19 +56,17 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     """
     from pytsite import lang as _lang
 
-    # Check data type
+    # Load data
     if isinstance(json_data, str):
         json_data = _json.loads(json_data)
-    if not isinstance(json_data, dict):
-        raise TypeError('Data should be a valid JSON')
 
-    # Set defaults
+    # Check data type
+    if not isinstance(json_data, dict):
+        raise TypeError('Dict expected, got {}'.format(type(json_data)))
+
+    # Check defaults
     if defaults is None:
         defaults = {}
-
-    # Override data
-    if isinstance(override, dict):
-        json_data = _util.dict_merge(json_data, override)
 
     # Check name
     pkg_name = json_data.setdefault('name', defaults.get('name'))
@@ -69,9 +74,9 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
         json_data['name'] = 'Untitled'
 
     # Check version
-    pkg_version = json_data.setdefault('version', defaults.get('version'))
-    if not (pkg_version and isinstance(pkg_version, str)):
-        json_data['version'] = '0.0.1'
+    pkg_ver = json_data.setdefault('version', _semver.Version(defaults.get('version', '0.0.1')))
+    if not isinstance(pkg_ver, _semver.Version):
+        json_data['version'] = _semver.Version(pkg_ver)
 
     # Check URL
     pkg_url = json_data.setdefault('url', defaults.get('url'))
@@ -112,26 +117,20 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     # Check requirements
     req = json_data.setdefault('requires', defaults.get('requires'))
     if not (req and isinstance(req, dict)):
-        json_data['requires'] = req = {'packages': {}, 'plugins': {}}
-    req_pytsite = req.get('pytsite')
+        json_data['requires'] = req = {'pytsite': None, 'packages': {}, 'plugins': {}}
 
     # Check required pytsite version
-    if not (req_pytsite and isinstance(req_pytsite, str)):
-        json_data['requires']['pytsite'] = ''
+    json_data['requires']['pytsite'] = _semver.VersionRange(req.get('pytsite', '>=0.0.1'))
 
     # Check required pip packages versions
-    req_packages = req.get('packages')
-    if not req_packages:
-        json_data['requires']['packages'] = {}
-    elif isinstance(req_packages, list):
-        json_data['requires']['packages'] = _req_list_to_dict(json_data['requires']['packages'])
+    json_data['requires']['packages'] = _sanitize_req(req.get('packages', {}))
 
     # Check required plugins versions
-    req_plugins = req.get('plugins')
-    if not req_plugins:
-        json_data['requires']['plugins'] = {}
-    elif isinstance(req_plugins, list):
-        json_data['requires']['plugins'] = _req_list_to_dict(json_data['requires']['plugins'])
+    json_data['requires']['plugins'] = _sanitize_req(req.get('plugins', {}))
+
+    # Override data
+    if isinstance(override, dict):
+        json_data = parse_json(_util.dict_merge(json_data, override))
 
     return json_data
 
@@ -182,7 +181,7 @@ def name(package_name_or_json_path: str, use_cache: bool = True) -> str:
 def version(package_name_or_json_path: str, use_cache: bool = True) -> _semver.Version:
     """Shortcut
     """
-    return _semver.Version(data(package_name_or_json_path, 'version', use_cache=use_cache))
+    return data(package_name_or_json_path, 'version', use_cache=use_cache)
 
 
 def description(package_name_or_json_path: str, use_cache: bool = True) -> dict:

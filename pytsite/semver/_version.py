@@ -14,7 +14,7 @@ _VERSION_RANGE_RE_V2 = _re.compile('^(\d+|x|\*)(?:\.(\d+|x|\*)(?:\.(\d+|x|\*))?)
 
 
 class Version(_SupportsInt):
-    def __init__(self, version):
+    def __init__(self, version=0):
         """
         Init
 
@@ -37,7 +37,7 @@ class Version(_SupportsInt):
             self.minor = version[5:10].strip()
             self.patch = version[10:].strip()
         else:
-            raise TypeError('Version identifier must be a str or Version instance, got {}'.format(type(version)))
+            raise TypeError('Version identifier must be a str or Version instance, not {}'.format(type(version)))
 
     @property
     def major(self) -> int:
@@ -72,11 +72,17 @@ class Version(_SupportsInt):
             raise ValueError('Patch number must be between 0 and 99999')
         self._patch = value
 
-    def __int__(self) -> int:
-        return int('{:05d}{:05d}{:05d}'.format(self._major, self._minor, self._patch))
-
     def __str__(self) -> str:
         return '{}.{}.{}'.format(self._major, self._minor, self._patch)
+
+    def __repr__(self) -> str:
+        return "{}('{}')".format(self.__class__.__name__, str(self))
+
+    def __hash__(self) -> int:
+        return int(self)
+
+    def __int__(self) -> int:
+        return int('{:05d}{:05d}{:05d}'.format(self._major, self._minor, self._patch))
 
     def __lt__(self, other) -> bool:
         return int(self) < int(Version(other))
@@ -209,7 +215,34 @@ class VersionRange:
     def __str__(self) -> str:
         if self._minimum == self._maximum:
             return '=={}'.format(self._minimum)
+
+        major = '*'
+        minor = '*'
+        patch = '*'
+
+        if self._minimum.major == self._maximum.major and 0 < self._minimum.major < 99999:
+            major = self._minimum.major
+
+        if self._minimum.minor == self._maximum.minor and 0 < self._minimum.minor < 99999:
+            minor = self._minimum.minor
+
+        if self._minimum.patch == self._maximum.patch and 0 < self._minimum.patch < 99999:
+            patch = self._minimum.patch
+
+        if major == minor == patch == '*':
+            return ''
+        elif minor == patch == '*':
+            return '=={}.*'.format(major)
+        elif patch == '*':
+            return '=={}.{}.*'.format(major, minor)
+
         return '>={},<={}'.format(self._minimum, self._maximum)
 
     def __repr__(self) -> str:
-        return self.__str__()
+        return "{}('{}')".format(self.__class__.__name__, str(self))
+
+    def __int__(self) -> int:
+        return int(self._minimum) + int(self.maximum)
+
+    def __hash__(self) -> int:
+        return int(self)

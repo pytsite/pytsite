@@ -4,6 +4,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from pytsite import semver as _semver
+
 
 class Error(Exception):
     pass
@@ -32,6 +34,15 @@ class UnknownPlugin(Error):
 
     def __str__(self) -> str:
         return "Plugin '{}' is unknown".format(self._name)
+
+
+class UnknownPluginVersion(Error):
+    def __init__(self, plugin_name: str, v_range: _semver.VersionRange):
+        self._name = plugin_name
+        self._v_range = v_range
+
+    def __str__(self) -> str:
+        return "Plugin '{}' has no version(s) {}".format(self._name, self._v_range)
 
 
 class PluginPackageNotFound(Error):

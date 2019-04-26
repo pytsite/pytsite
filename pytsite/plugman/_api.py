@@ -1,4 +1,4 @@
-"""PytSite Package Manager API
+"""PytSite Plugin Manager API
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
@@ -8,7 +8,7 @@ import zipfile as _zipfile
 import requests as _requests
 import json as _json
 import pickle as _pickle
-from typing import Type as _Type, Union as _Union, Dict as _Dict
+from typing import Type as _Type, Dict as _Dict, List as _List
 from sys import argv
 from os import listdir as _listdir, path as _path, makedirs as _makedirs, unlink as _unlink, rename as _rename
 from shutil import rmtree as _rmtree
@@ -16,15 +16,16 @@ from importlib import import_module as _import_module
 from urllib.request import urlretrieve as _urlretrieve
 from pytsite import reg as _reg, logger as _logger, lang as _lang, router as _router, console as _console, \
     semver as _semver, package_info as _package_info, cache as _cache, reload as _reload, events as _events, \
-    pip as _pip, tpl as _tpl
+    pip as _pip, tpl as _tpl, util as _util
 from . import _error, _cc
 
-_PLUGINS_API_URL = _reg.get('plugman.api_url', 'https://plugins.pytsite.xyz')
+_API_CURRENT_VERSION = 2
+_API_URLS = _reg.get('plugman.api_urls', ['https://plugins.pytsite.xyz'])
 _DEV_MODE = _router.server_name() == 'local.plugins.pytsite.xyz'
 
 _GITHUB_ORG = 'pytsite'
 _GITHUB_PLUGIN_REPO_PREFIX = 'plugin-'
-_DEBUG = _reg.get('plugman.debug', False)
+_DEBUG = _reg.get('debug', False)
 _UPDATE_INFO_PATH = _path.join(_reg.get('paths.storage'), 'plugman.update')
 
 _loading = {}  # type: _Dict[str, str]
@@ -37,6 +38,7 @@ _plugman_cache = _cache.create_pool('pytsite.plugman')
 
 _PLUGINS_DIR_PATH = _path.join(_reg.get('paths.root'), 'plugins')
 _PLUGINS_PACKAGE_NAME = 'plugins'
+_CACHE_TTL = 900  # 15 min
 
 _reg.put('paths.plugins', _PLUGINS_DIR_PATH)
 
@@ -44,24 +46,30 @@ _reg.put('paths.plugins', _PLUGINS_DIR_PATH)
 def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
     """Do a request to plugins API host
     """
-    request_url = _PLUGINS_API_URL + '/api/2/' + endpoint
+    r = {}
 
-    if args is None:
-        args = {}
+    for base_url in _API_URLS:
+        request_url = '{}/api/{}/{}'.format(base_url, _API_CURRENT_VERSION, endpoint)
 
-    args.update({
-        'h': _router.server_name(),
-    })
+        if args is None:
+            args = {}
 
-    r = _requests.get(request_url, params=args)
+        args.update({
+            'h': _router.server_name(),
+        })
 
-    if not r.ok:
-        try:
-            raise _error.PluginsApiError(request_url, r.json().get('error'))
-        except _json.JSONDecodeError:
-            raise _error.PluginsApiError(request_url, 'Error while parsing JSON from string: {}'.format(r.content))
+        resp = _requests.get(request_url, params=args)
 
-    return r.json()
+        if not resp.ok:
+            try:
+                raise _error.PluginsApiError(request_url, resp.json().get('error'))
+            except _json.JSONDecodeError:
+                raise _error.PluginsApiError(request_url,
+                                             'Error while parsing JSON from string: {}'.format(resp.content))
+
+        r = _util.dict_merge(r, resp.json())
+
+    return r
 
 
 def plugins_dir_path() -> str:
@@ -89,12 +97,12 @@ def plugin_package_name(plugin_name: str) -> str:
 
 
 def local_plugin_info(plugin_name: str, use_cache: bool = True) -> dict:
-    """Get information about local plugin
+    """Get information about a local plugin
     """
     try:
         return _package_info.data(plugin_json_path(plugin_name), use_cache=use_cache)
     except _package_info.error.PackageNotFound:
-        raise _error.PluginPackageNotFound(plugin_name)
+        raise _error.PluginNotInstalled(plugin_name)
 
 
 def local_plugins_info(use_cache: bool = True) -> dict:
@@ -109,37 +117,55 @@ def local_plugins_info(use_cache: bool = True) -> dict:
     return r
 
 
-def remote_plugin_info(plugin_name: str, version_identifier: _Union[str, _semver.VersionRange] = None):
+def remote_plugins_info(use_cache: bool = True) -> _Dict[str, dict]:
+    """Get information about remote plugins
+    """
+    if use_cache:
+        try:
+            data = _plugman_cache.get_hash('remote_plugins')
+        except _cache.error.KeyNotExist:
+            data = _plugman_cache.put_hash('remote_plugins', _plugins_api_request('plugins'), _CACHE_TTL)
+    else:
+        data = _plugins_api_request('plugins')
+
+    # Sanitize data structures
+    n_data = {}
+    for p_name, p_data in data.items():
+        n_data[p_name] = {}
+        for p_ver_str, p_info in p_data.items():
+            n_data[p_name][_semver.Version(p_ver_str)] = _package_info.parse_json(p_info or {})
+
+    return n_data
+
+
+def remote_plugin_info(plugin_name: str, v_range: _semver.VersionRange = None,
+                       use_cache: bool = True) -> _Dict[_semver.Version, dict]:
     """Get information about remote plugin
     """
-    args = {}
-    if version_identifier:
-        args['version'] = _semver.VersionRange(version_identifier)
+    p_info = remote_plugins_info(use_cache).get(plugin_name)
+    if not p_info:
+        raise _error.UnknownPlugin(plugin_name)
 
-    return _plugins_api_request('plugin/{}'.format(plugin_name), args)
+    if v_range:
+        p_info = {p_ver: p_info[p_ver] for p_ver in p_info.keys() if p_ver in v_range}
+        if not p_info:
+            raise _error.UnknownPluginVersion(plugin_name, _semver.VersionRange(v_range))
 
-
-def remote_plugins_info() -> dict:
-    """Get information about available remote plugins
-    """
-    try:
-        return _plugman_cache.get('remote_plugins')
-    except _cache.error.KeyNotExist:
-        return _plugman_cache.put('remote_plugins', _plugins_api_request('plugins'), 900)  # 15 min TTL
+    return p_info
 
 
-def is_installed(plugin_name: str, version_range: _semver.VersionRange = None) -> bool:
+def is_installed(plugin_name: str, v_range: _semver.VersionRange = None) -> bool:
     """Check if the plugin is installed
     """
     try:
         version = _package_info.version(plugin_json_path(plugin_name))
-        return version in version_range if version_range else True
+        return version in v_range if v_range else True
     except _package_info.error.PackageNotFound:
         return False
 
 
-def is_installing(plugin_name: str) -> bool:
-    """Check if trhe plugin is installing
+def is_being_installed(plugin_name: str) -> bool:
+    """Check if the plugin is being installed
     """
     return plugin_name in _installing
 
@@ -157,7 +183,7 @@ def is_loading(plugin_name: str) -> bool:
 
 
 def get(plugin_name: str) -> object:
-    """Get loaded plugin's module
+    """Get plugin's module object
     """
     try:
         return _loaded[plugin_name]
@@ -165,24 +191,23 @@ def get(plugin_name: str) -> object:
         raise _error.PluginNotLoaded(plugin_name)
 
 
-def load(plugin_name: str, version_identifier: str = '*', _required_by: str = None) -> object:
+def load(plugin_name: str, v_range: _semver.VersionRange = None, _required_by: str = None) -> object:
     """Load a plugin
     """
-    # Normalize plugin spec
-    plugin_spec = '{} {}'.format(plugin_name, version_identifier)
+    v_range = v_range or _semver.VersionRange()
 
     # Check if plugin is not faulty
     if plugin_name in _faulty:
         raise _error.PluginLoadError("Plugin '{}' marked as faulty and cannot be loaded".format(plugin_name))
 
     # Check if the plugin is installed
-    if not is_installed(plugin_name, _semver.VersionRange(version_identifier)):
-        raise _error.PluginNotInstalled(plugin_spec, _required_by)
+    if not is_installed(plugin_name, v_range):
+        raise _error.PluginNotInstalled('{} {}'.format(plugin_name, v_range), _required_by)
 
     # Check if the plugin is already loaded
     if plugin_name in _loaded:
         if _DEBUG:
-            _logger.debug("Plugin '{}' already loaded".format(plugin_name))
+            _logger.debug("Plugin '{}' is already loaded".format(plugin_name))
         return _loaded[plugin_name]
 
     # Check for circular dependency
@@ -205,22 +230,22 @@ def load(plugin_name: str, version_identifier: str = '*', _required_by: str = No
         for req_p_name, req_p_ver in p_info['requires']['plugins'].items():
             _required.add(req_p_name)
             if _DEBUG:
-                _logger.debug("Plugin '{}-{}' requires '{}{}'".format(plugin_name, version_identifier,
-                                                                      req_p_name, req_p_ver))
+                _logger.debug("Plugin '{}{}' requires '{}{}'".format(plugin_name, v_range, req_p_name, req_p_ver))
+
             try:
-                load(req_p_name, req_p_ver, '{}-{}'.format(plugin_name, version_identifier))
+                load(req_p_name, _semver.VersionRange(req_p_ver), '{}{}'.format(plugin_name, v_range))
             except _error.PluginLoadError as e:
                 raise _error.PluginLoadError("Error while loading dependency for plugin '{}': {}".
                                              format(plugin_name, e))
 
-        # Notify listeners
+        # 'pre_load' event
         _events.fire('pytsite.plugman@pre_load', plugin_name=plugin_name)
 
         # Import plugin's package
         p_pkg_name = plugin_package_name(plugin_name)
         plugin = _import_module(p_pkg_name)
 
-        # Register resources
+        # Register resource dirs
         for res in ('lang', 'tpl'):
             res_path = _path.join(plugin_path(plugin_name), 'res', res)
             if _path.isdir(res_path):
@@ -255,8 +280,8 @@ def load(plugin_name: str, version_identifier: str = '*', _required_by: str = No
         del _loading[plugin_name]
 
 
-def get_dependant_plugins(plugin_name: str) -> list:
-    """Get locally installed plugin names which are dependant from plugin_name
+def _locally_dependant_plugins(plugin_name: str) -> _List[str]:
+    """Get installed plugin names which are dependant from plugin_name
     """
     if not is_installed(plugin_name):
         raise _error.PluginNotInstalled(plugin_name)
@@ -269,46 +294,98 @@ def get_dependant_plugins(plugin_name: str) -> list:
     return r
 
 
-def _install_dependencies(plugin_name: str) -> int:
-    """Install dependencies for locally installed plugin
+def _download(plugin_name: str, zip_url: str) -> dict:
+    """Download and unpack plugin's archive
+    """
+    # Create a temporary directory to store plugin's files
+    tmp_dir_path = _path.join(_reg.get('paths.tmp'), 'plugman')
+    if not _path.exists(tmp_dir_path):
+        _makedirs(tmp_dir_path, 0o755, True)
+
+    # Calculate path to the temporary path of the downloaded archive
+    tmp_file_path = _path.join(tmp_dir_path, '{}.zip'.format(plugin_name))
+
+    # Download archive
+    if _DEBUG:
+        _logger.debug('Downloading {} to {}'.format(zip_url, tmp_file_path))
+    _urlretrieve(zip_url, tmp_file_path)
+    if _DEBUG:
+        _logger.debug('{} successfully stored to {}'.format(zip_url, tmp_file_path))
+
+    # Extract downloaded archive
+    if _DEBUG:
+        _logger.debug('Extracting {} into {}'.format(tmp_file_path, tmp_dir_path))
+    with _zipfile.ZipFile(tmp_file_path) as z_file:
+        z_file.extractall(tmp_dir_path)
+    if _DEBUG:
+        _logger.debug('{} successfully extracted to {}'.format(tmp_file_path, tmp_dir_path))
+
+    # Remove downloaded archive
+    _unlink(tmp_file_path)
+    if _DEBUG:
+        _logger.debug('{} removed'.format(tmp_file_path))
+
+    # Move extracted directory to the plugins directory
+    extracted_dir_prefix = '{}-{}{}'.format(_GITHUB_ORG, _GITHUB_PLUGIN_REPO_PREFIX, plugin_name)
+    for dir_name in _listdir(tmp_dir_path):
+        if not dir_name.startswith(extracted_dir_prefix):
+            continue
+
+        source_dir_path = _path.join(tmp_dir_path, dir_name)
+        target_dir_path = plugin_path(plugin_name)
+
+        _rename(source_dir_path, target_dir_path)
+        if _DEBUG:
+            _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
+
+    return local_plugin_info(plugin_name, False)
+
+
+def _install_dependencies(p_info: dict) -> int:
+    """Install dependencies for plugin
 
     Returns a number of installed plugins.
     """
     installed_plugins_count = 0
-    plugin_info = local_plugin_info(plugin_name, False)
+
+    # Check for PytSite version
+    if _package_info.version('pytsite') not in p_info['requires']['pytsite']:
+        raise _error.PluginInstallError("Plugin '{}-{}' requires PytSite{}".format(
+            p_info['name'], p_info['version'], p_info['requires']['pytsite']))
 
     # Install required pip packages
-    for pip_pkg_name, pip_pkg_version in plugin_info['requires']['packages'].items():
-        pip_pkg_spec = '{} {}'.format(pip_pkg_name, pip_pkg_version)
+    for pip_pkg_name, pip_pkg_version in p_info['requires']['packages'].items():
+        pip_pkg_spec = '{}{}'.format(pip_pkg_name, pip_pkg_version)
 
-        _logger.info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
-            'plugin': plugin_name,
-            'pip_package': '{} {}'.format(pip_pkg_name, pip_pkg_version),
-        }))
+        if _DEBUG:
+            _console.print_info(_lang.t('pytsite.plugman@plugin_requires_pip_package', {
+                'plugin': p_info['name'],
+                'pip_package': '{}{}'.format(pip_pkg_name, pip_pkg_version),
+            }))
 
-        _logger.info(_lang.t('pytsite.plugman@installing_updating_pip_package', {
-            'package': pip_pkg_spec
-        }))
+            _console.print_info(_lang.t('pytsite.plugman@installing_updating_pip_package', {
+                'package': pip_pkg_spec
+            }))
 
         _pip.install(pip_pkg_name, pip_pkg_version, True, _DEBUG)
 
-        _logger.info(_lang.t('pytsite.plugman@pip_package_successfully_installed_updated', {
+        _console.print_success(_lang.t('pytsite.plugman@pip_package_successfully_installed_updated', {
             'package': pip_pkg_spec
         }))
 
     # Install required plugins
-    for p_name, p_version in plugin_info['requires']['plugins'].items():
-        _logger.info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
-            'plugin': plugin_name,
-            'dependency': '{} {}'.format(p_name, p_version),
-        }))
-        installed_plugins_count += install(p_name, p_version, False)
+    for p_name, p_version in p_info['requires']['plugins'].items():
+        if _DEBUG:
+            _console.print_info(_lang.t('pytsite.plugman@plugin_requires_plugin', {
+                'plugin': p_info['name'],
+                'dependency': '{}{}'.format(p_name, p_version),
+            }))
+        installed_plugins_count += install(p_name, _semver.VersionRange(p_version))
 
     return installed_plugins_count
 
 
-def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRange] = None,
-            install_dependencies: bool = True) -> int:
+def install(plugin_name: str, v_range: _semver.VersionRange = None, use_cache: bool = True) -> int:
     """Install a plugin
 
     Returns a number of installed plugins, including dependencies
@@ -316,110 +393,57 @@ def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRan
     global _installing
     installed_count = 0
 
+    # Check for development mode
     if _DEV_MODE:
         raise RuntimeError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
-    # Get available remote plugin info
-    try:
-        p_remote_info = remote_plugin_info(plugin_name, version_identifier)
-    except _error.PluginsApiError as e:
-        if e.error_content.startswith('Unknown plugin'):
-            raise _error.UnknownPlugin(plugin_name)
-        else:
-            raise e
-
-    # Version number proposed by server based on plugin_spec
-    ver_to_install = p_remote_info['version']  # type: str
-
-    # Check if the plugin is already installed
-    try:
-        # Uninstall plugin and schedule its update during next application start
-        l_plugin_info = local_plugin_info(plugin_name, False)
-        if l_plugin_info['version'] != ver_to_install:
-            _set_update_info(plugin_name, l_plugin_info['version'], ver_to_install)
-            uninstall(plugin_name, True)
-        else:
-            # Necessary version is already installed, just update dependencies
-            return _install_dependencies(plugin_name) if install_dependencies else installed_count
-    except _error.PluginPackageNotFound:
-        pass
-
-    # Check if the plugin is not installing at this moment
+    # Check if the plugin is not being installed at this moment
     if plugin_name in _installing:
         raise _error.PluginInstallationInProgress(plugin_name)
 
+    # Determine latest available version to install
+    p_info = remote_plugin_info(plugin_name, v_range, use_cache)
+    v_to_install = _semver.last(p_info.keys())
+    p_info = p_info[v_to_install]
+
+    # Version to update from
+    v_to_update_from = _semver.Version()
+
     try:
+        # Check if the required plugin's version is already installed
+        l_p_info = local_plugin_info(plugin_name, False)
+        if l_p_info['version'] == v_to_install:
+            # Necessary version is already installed
+            return installed_count
+        else:
+            # Uninstall current version
+            uninstall(plugin_name, True)
+
+            # Schedule plugin update during next application start
+            v_to_update_from = l_p_info['version']
+
+    except _error.PluginNotInstalled:
+        pass
+
+    try:
+        # Mark beginning of the installation process
         _installing.append(plugin_name)
 
-        _events.fire('pytsite.plugman@pre_install', name=plugin_name, version=ver_to_install)
-
-        # Flag start of the installation process
-        _logger.info(_lang.t('pytsite.plugman@downloading_plugin', {
-            'plugin': '{}-{}'.format(plugin_name, ver_to_install)
-        }))
-        if _DEBUG:
-            _logger.debug('Downloading and unpacking of plugin {}-{} started'.format(plugin_name, ver_to_install))
-
-        # Create temporary directory to store plugin's content
-        tmp_dir_path = _path.join(_reg.get('paths.tmp'), 'plugman')
-        if not _path.exists(tmp_dir_path):
-            _makedirs(tmp_dir_path, 0o755, True)
-
-        # Prepare all necessary data
-        zip_url = p_remote_info['zip_url']
-        tmp_file_path = _path.join(tmp_dir_path, '{}-{}.zip'.format(plugin_name, ver_to_install))
-
-        # Download archive
-        if _DEBUG:
-            _logger.debug('Downloading {} to {}'.format(zip_url, tmp_file_path))
-        _urlretrieve(zip_url, tmp_file_path)
-        if _DEBUG:
-            _logger.debug('{} successfully stored to {}'.format(zip_url, tmp_file_path))
-
-        # Extract downloaded archive
-        if _DEBUG:
-            _logger.debug('Extracting {} into {}'.format(tmp_file_path, tmp_dir_path))
-        with _zipfile.ZipFile(tmp_file_path) as z_file:
-            z_file.extractall(tmp_dir_path)
-        if _DEBUG:
-            _logger.debug('{} successfully extracted to {}'.format(tmp_file_path, tmp_dir_path))
-
-        # Remove downloaded archive
-        _unlink(tmp_file_path)
-        if _DEBUG:
-            _logger.debug('{} removed'.format(tmp_file_path))
-
-        # Move extracted directory to the plugins directory
-        extracted_dir_prefix = '{}-{}{}'.format(_GITHUB_ORG, _GITHUB_PLUGIN_REPO_PREFIX, plugin_name)
-        for dir_name in _listdir(tmp_dir_path):
-            if not dir_name.startswith(extracted_dir_prefix):
-                continue
-
-            source_dir_path = _path.join(tmp_dir_path, dir_name)
-            target_dir_path = plugin_path(plugin_name)
-
-            _rename(source_dir_path, target_dir_path)
-            if _DEBUG:
-                _logger.debug('{} moved to {}'.format(source_dir_path, target_dir_path))
-
-        # Get unpacked plugin info
-        l_plugin_info = local_plugin_info(plugin_name, False)
-
-        # Check for PytSite version
-        if _package_info.version('pytsite') not in _semver.VersionRange(l_plugin_info['requires']['pytsite']):
-            raise _error.PluginInstallError("Plugin '{}-{}' requires PytSite{}".format(
-                plugin_name, l_plugin_info['version'], l_plugin_info['requires']['pytsite']))
-
         # Install dependencies
-        if install_dependencies:
-            installed_count += _install_dependencies(plugin_name)
+        installed_count += _install_dependencies(p_info)
 
-        # Plan to call plugin installation/updating hooks during next application start
-        if not get_update_info(plugin_name):
-            _set_update_info(plugin_name, '0.0.0', ver_to_install)
+        # Download and unpack plugin archive
+        if _DEBUG:
+            _console.print_info(_lang.t('pytsite.plugman@downloading_plugin', {
+                'plugin': '{}-{}'.format(plugin_name, v_to_install)
+            }))
+        _download(plugin_name, p_info['zip_url'])
+
+        # Schedule call of plugin install/update hooks during next application start
+        _set_update_info(plugin_name, v_to_update_from, v_to_install)
 
         _console.print_success(_lang.t('pytsite.plugman@plugin_download_success', {
-            'plugin': '{}-{}'.format(plugin_name, ver_to_install)
+            'plugin': '{}-{}'.format(plugin_name, v_to_install)
         }))
 
         return installed_count + 1
@@ -428,7 +452,7 @@ def install(plugin_name: str, version_identifier: _Union[str, _semver.VersionRan
         # Remove not completely installed plugin files
         _rmtree(plugin_path(plugin_name), True)
 
-        _events.fire('pytsite.plugman@install_error', name=plugin_name, version=ver_to_install, exception=e)
+        _events.fire('pytsite.plugman@install_error', name=plugin_name, version=v_to_install, exception=e)
 
         raise _error.PluginInstallError(_lang.t('pytsite.plugman@plugin_download_error', {
             'plugin': plugin_name,
@@ -444,6 +468,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
     """
     global _uninstalling
 
+    # No operations in dev mode
     if _DEV_MODE:
         raise _error.PluginUninstallError(_lang.t('pytsite.plugman@cannot_manage_plugins_in_dev_mode'))
 
@@ -457,7 +482,7 @@ def uninstall(plugin_name: str, update_mode: bool = False):
 
     # Check for dependant plugins
     if not update_mode:
-        dependants = get_dependant_plugins(plugin_name)
+        dependants = _locally_dependant_plugins(plugin_name)
         if dependants:
             raise _error.PluginDependencyError(_lang.t('pytsite.plugman@plugin_has_dependant_plugins', {
                 'plugin': plugin_name,
@@ -468,9 +493,11 @@ def uninstall(plugin_name: str, update_mode: bool = False):
         _uninstalling.append(plugin_name)
 
         plugin_version = local_plugin_info(plugin_name, False)['version']
-        _logger.info(_lang.t('pytsite.plugman@uninstalling_plugin', {
-            'plugin': '{}-{}'.format(plugin_name, plugin_version)
-        }))
+
+        if _DEBUG:
+            _console.print_info(_lang.t('pytsite.plugman@uninstalling_plugin', {
+                'plugin': '{}-{}'.format(plugin_name, plugin_version)
+            }))
 
         # Notify about plugin uninstall
         try:
@@ -525,12 +552,6 @@ def on_install(handler, priority: int = 0):
     _events.listen('pytsite.plugman@install', handler, priority)
 
 
-def on_install_all(handler, priority: int = 0):
-    """Shortcut
-    """
-    _events.listen('pytsite.plugman@install_all', handler, priority)
-
-
 def on_install_error(handler, priority: int = 0):
     """Shortcut
     """
@@ -559,12 +580,12 @@ def get_update_info(plugin_name: str = None) -> dict:
     return d.get(plugin_name) if plugin_name else d
 
 
-def _set_update_info(plugin_name: str, version_from: str, version_to: str):
+def _set_update_info(plugin_name: str, v_from: _semver.Version, v_to: _semver.Version):
     d = get_update_info()
 
     d[plugin_name] = {
-        'version_from': version_from,
-        'version_to': version_to,
+        'version_from': str(v_from),
+        'version_to': str(v_to),
     }
 
     with open(_UPDATE_INFO_PATH, 'wb') as f:

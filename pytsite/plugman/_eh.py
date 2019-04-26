@@ -4,8 +4,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import console as _console, lang as _lang, package_info as _package_info, events as _events, \
-    logger as _logger, semver as _semver, reg as _reg
+from pytsite import console as _console, lang as _lang, events as _events, logger as _logger, semver as _semver, \
+    reg as _reg
 from . import _api, _error
 
 
@@ -39,6 +39,8 @@ def on_pytsite_load():
             # Call plugin_pre_install() hook
             if hasattr(plugin, 'plugin_pre_install') and callable(plugin.plugin_pre_install):
                 plugin.plugin_pre_install()
+
+            # Fire 'pre_install' event
             _events.fire('pytsite.plugman@pre_install', name=p_name, version=v_to)
 
         except _error.PluginNotLoaded as e:
@@ -60,15 +62,17 @@ def on_pytsite_load():
         v_from = _semver.Version(info['version_from'])
         v_to = _semver.Version(info['version_to'])
 
-        # Call plugin_install() hook
         try:
             _logger.info(_lang.t('pytsite.plugman@installing_plugin', {
                 'plugin': p_name,
                 'version': v_to,
             }))
 
+            # Call plugin_install() hook
             if hasattr(plugin, 'plugin_install') and callable(plugin.plugin_install):
                 plugin.plugin_install()
+
+            # Fire 'install' event
             _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
 
             _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
@@ -97,6 +101,8 @@ def on_pytsite_load():
                 # Call plugin_update() hook
                 if hasattr(plugin, 'plugin_update') and callable(plugin.plugin_update):
                     plugin.plugin_update(v_from=v_from)
+
+                # Fire 'update' event
                 _events.fire('pytsite.plugman@update', name=p_name, v_from=v_from)
 
                 _console.print_success(_lang.t('pytsite.plugman@plugin_update_success', {

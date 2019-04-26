@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 import re as _re
 import subprocess as _subprocess
-from pytsite import reload as _reload, console as _console, package_info as _package_info, events as _events
+from pytsite import reload as _reload, console as _console, package_info as _package_info, semver as _semver
 from . import _api, _error
 
 _PLUGINS_SPEC_RE = _re.compile('([a-zA-Z0-9_]+)([<>!=~]*.+)?')
@@ -21,6 +21,7 @@ class Install(_console.Command):
 
         self.define_option(_console.option.Int('stage', default=1, maximum=3))
         self.define_option(_console.option.Bool('reload', default=True))
+        self.define_option(_console.option.Bool('no-cache'))
 
     @property
     def name(self) -> str:
@@ -51,17 +52,17 @@ class Install(_console.Command):
             # Install/update plugins
             for plugin_name, plugin_version in plugins_specs.items():
                 try:
-                    installed_count += _api.install(plugin_name, plugin_version)
+                    use_cache = not self.opt('no-cache')
+                    installed_count += _api.install(plugin_name, _semver.VersionRange(plugin_version), use_cache)
                 except _error.Error as e:
                     raise _console.error.CommandExecutionError(e)
 
             # Run second stage to call plugin_install() and plugin_update() hooks for every installed plugin
             if installed_count:
-                _events.fire('pytsite.plugman@install_all')
                 return _subprocess.run(['./console', self.name, '--stage=2']).returncode
 
         elif stage == 2:
-            # At this point triggers _eh.on_pytsite_load() event handler, which calls plugin_install() and
+            # At this point trigger _eh.on_pytsite_load() event handler, which calls plugin_install() and
             # plugin_update() for every previously installed plugin.
 
             # During call to plugin_* hooks some plugins (for example `theming`) can install other plugins,
@@ -74,9 +75,6 @@ class Install(_console.Command):
         elif stage == 3 and self.opt('reload'):
             # Let all waiting plugins process their hooks and then reload application
             _reload.reload()
-
-        else:
-            raise _console.error.CommandExecutionError('Invalid stage number')
 
 
 class Uninstall(_console.Command):

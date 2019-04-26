@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+### 8.14 (2019-04-26)
+
+- `plugman` and `semver` partly redesigned.
+- Data checking improved in `package_info` functions.
+
+
 ### 8.13.1 (2019-04-19)
 
 Processing of `errors.ForbidOperation` fixed in `router.dispatch()`.

@@ -10,15 +10,15 @@ from os import path as _path
 from pytsite import maintenance as _maintenance
 from . import _error as error
 from ._api import plugins_dir_path, local_plugin_info, install, uninstall, is_installed, load, is_loaded, \
-    local_plugins_info, remote_plugin_info, remote_plugins_info, is_dev_mode, get_dependant_plugins, on_install, \
-    on_install_all, on_pre_install, on_install_error, on_uninstall, plugin_path, is_loading, is_installing, get, \
-    is_management_mode, plugin_package_name, on_pre_load, on_load
+    local_plugins_info, remote_plugins_info, remote_plugin_info, is_dev_mode, on_install, on_pre_install, \
+    on_install_error, on_uninstall, plugin_path, is_loading, is_being_installed, get, is_management_mode, \
+    plugin_package_name, on_pre_load, on_load
 
 
 class _MetaPathHook:
     def find_spec(self, name: str, import_path: list, module=None):
         name_s = name.split('.')
-        if name_s[0] == 'plugins' and len(name_s) == 2 and not is_installing(name_s[1]):
+        if name_s[0] == 'plugins' and len(name_s) == 2 and not is_being_installed(name_s[1]):
             # Check if the plugin installed
             if not is_installed(name_s[1]):
                 raise error.PluginNotInstalled(name_s[1])
