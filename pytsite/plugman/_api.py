@@ -120,13 +120,13 @@ def local_plugins_info(use_cache: bool = True) -> dict:
 def remote_plugins_info(use_cache: bool = True) -> _Dict[str, dict]:
     """Get information about remote plugins
     """
-    if use_cache:
-        try:
-            data = _plugman_cache.get_hash('remote_plugins')
-        except _cache.error.KeyNotExist:
-            data = _plugman_cache.put_hash('remote_plugins', _plugins_api_request('plugins'), _CACHE_TTL)
-    else:
-        data = _plugins_api_request('plugins')
+    if not use_cache:
+        _plugman_cache.clear()
+
+    try:
+        data = _plugman_cache.get_hash('remote_plugins')
+    except _cache.error.KeyNotExist:
+        data = _plugman_cache.put_hash('remote_plugins', _plugins_api_request('plugins'), _CACHE_TTL)
 
     # Sanitize data structures
     n_data = {}

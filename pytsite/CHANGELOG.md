@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.14.2 (2019-04-27)
+
+Improper cache usage fixed in `plugman`.
+
+
 ### 8.14.1 (2019-04-27)
 
 Arguments names fixed in couple of `plugman`'s events.
