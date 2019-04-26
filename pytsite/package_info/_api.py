@@ -231,9 +231,9 @@ def check_requirements(pkg_name: str):
     # Check for required pip packages
     for req_p_name, req_p_ver in requires_packages(pkg_name).items():
         if not pip.is_installed(req_p_name, _semver.VersionRange(req_p_ver)):
-            raise _error.RequiredPipPackageNotInstalled('{} {}'.format(req_p_name, req_p_ver))
+            raise _error.RequiredPipPackageNotInstalled('{}{}'.format(req_p_name, req_p_ver))
 
     # Check for required plugins
     for req_p_name, req_p_ver in requires_plugins(pkg_name).items():
         if not plugman.is_installed(req_p_name, _semver.VersionRange(req_p_ver)):
-            raise _error.RequiredPluginNotInstalled('{} {}'.format(req_p_name, req_p_ver))
+            raise _error.RequiredPluginNotInstalled('{}{}'.format(req_p_name, req_p_ver))

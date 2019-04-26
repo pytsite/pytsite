@@ -202,7 +202,7 @@ def load(plugin_name: str, v_range: _semver.VersionRange = None, _required_by: s
 
     # Check if the plugin is installed
     if not is_installed(plugin_name, v_range):
-        raise _error.PluginNotInstalled('{} {}'.format(plugin_name, v_range), _required_by)
+        raise _error.PluginNotInstalled('{}{}'.format(plugin_name, v_range), _required_by)
 
     # Check if the plugin is already loaded
     if plugin_name in _loaded:
@@ -224,7 +224,7 @@ def load(plugin_name: str, v_range: _semver.VersionRange = None, _required_by: s
         # Check required PytSite version
         req_ps_ver = p_info['requires']['pytsite']
         if _package_info.version('pytsite') not in _semver.VersionRange(req_ps_ver):
-            raise _error.PluginLoadError("Required PytSite version {} is not installed".format(req_ps_ver))
+            raise _error.PluginLoadError("pytsite{} is not installed".format(req_ps_ver))
 
         # Load required plugins
         for req_p_name, req_p_ver in p_info['requires']['plugins'].items():
@@ -239,7 +239,7 @@ def load(plugin_name: str, v_range: _semver.VersionRange = None, _required_by: s
                                              format(plugin_name, e))
 
         # 'pre_load' event
-        _events.fire('pytsite.plugman@pre_load', plugin_name=plugin_name)
+        _events.fire('pytsite.plugman@pre_load', name=plugin_name)
 
         # Import plugin's package
         p_pkg_name = plugin_package_name(plugin_name)
@@ -265,10 +265,10 @@ def load(plugin_name: str, v_range: _semver.VersionRange = None, _required_by: s
 
         _loaded[plugin_name] = plugin
         if _DEBUG:
-            _logger.debug("Plugin '{}-{}' loaded".format(plugin_name, p_info['version']))
+            _logger.debug("Plugin '{}{}' loaded".format(plugin_name, p_info['version']))
 
         # Notify listeners
-        _events.fire('pytsite.plugman@load', plugin_name=plugin_name)
+        _events.fire('pytsite.plugman@load', name=plugin_name)
 
         return plugin
 

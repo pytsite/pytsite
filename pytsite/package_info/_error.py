@@ -31,7 +31,7 @@ class RequiredPipPackageNotInstalled(Error):
         self._pkg_spec = pkg_spec
 
     def __str__(self) -> str:
-        return "Required pip package '{}' is not installed. Try to run console pip:install '{}'". \
+        return "Required pip package '{}' is not installed. Try to run console 'pip:install {}'". \
             format(self._pkg_spec, self._pkg_spec)
 
 
@@ -42,5 +42,5 @@ class RequiredPluginNotInstalled(Error):
         self._plugin_spec = plugin_spec
 
     def __str__(self) -> str:
-        return "Required plugin '{}' is not installed. Try to run console plugman:install '{}'". \
+        return "Required plugin '{}' is not installed. Try to run console 'plugman:install {}'". \
             format(self._plugin_spec, self._plugin_spec)

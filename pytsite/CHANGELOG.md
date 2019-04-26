@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.14.1 (2019-04-27)
+
+Arguments names fixed in couple of `plugman`'s events.
+
+
 ### 8.14 (2019-04-26)
 
 - `plugman` and `semver` partly redesigned.
