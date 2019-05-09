@@ -48,6 +48,11 @@ class Element(_ABC):
         self._child_sep = child_sep
         self._content_first = content_first
 
+        if 'data' in kwargs and isinstance(kwargs['data'], dict):
+            for k, v in kwargs['data'].items():
+                kwargs['data_' + k] = v
+            del kwargs['data']
+
         for k, v in kwargs.items():
             self.set_attr(k, v)
 

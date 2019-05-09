@@ -465,15 +465,13 @@ def cleanup_list(inp: _Union[_List, _Tuple], uniquize: bool = False) -> list:
 
 
 def cleanup_dict(inp: dict) -> dict:
-    """Remove empty strings from dict.
+    """Remove empty values from a dict
     """
     r = {}
     for k, v in inp.items():
         if isinstance(v, str):
             v = v.strip()
-            if v:
-                r[k] = v
-        else:
+        if v not in (None, ''):
             r[k] = v
 
     return r

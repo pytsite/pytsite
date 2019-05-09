@@ -1,6 +1,13 @@
 # PytSite 8 Changelog
 
 
+### 8.15 (2019-05-09)
+
+- `data` dictionary attributes support added in `html.Element`.
+- `semver.VersionRange.__str__()` output fixed.
+- Processing of `None` values added in `util.cleanup_dict()`.
+
+
 ### 8.14.2 (2019-04-27)
 
 Improper cache usage fixed in `plugman`.

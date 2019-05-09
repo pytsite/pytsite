@@ -15,7 +15,7 @@ class InvalidVersionIdentifier(Exception):
         self._v = v
 
     def __str__(self) -> str:
-        return "'{}' is not a valid version range identifier".format(self._v)
+        return "'{}' is not a valid version identifier".format(self._v)
 
 
 class InvalidVersionRangeIdentifier(Exception):

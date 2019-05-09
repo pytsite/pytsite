@@ -222,9 +222,9 @@ def load(plugin_name: str, v_range: _semver.VersionRange = None, _required_by: s
 
     try:
         # Check required PytSite version
-        req_ps_ver = p_info['requires']['pytsite']
-        if _package_info.version('pytsite') not in _semver.VersionRange(req_ps_ver):
-            raise _error.PluginLoadError("pytsite{} is not installed".format(req_ps_ver))
+        req_ps_ver = _semver.VersionRange(p_info['requires']['pytsite'])
+        if _package_info.version('pytsite') not in req_ps_ver:
+            raise _error.PluginLoadError('pytsite{} is not installed'.format(req_ps_ver))
 
         # Load required plugins
         for req_p_name, req_p_ver in p_info['requires']['plugins'].items():

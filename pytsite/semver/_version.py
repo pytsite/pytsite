@@ -216,25 +216,16 @@ class VersionRange:
         if self._minimum == self._maximum:
             return '=={}'.format(self._minimum)
 
-        major = '*'
-        minor = '*'
-        patch = '*'
+        elif self._maximum == '99999.99999.99999':
+            return '>={}'.format(self._minimum)
 
-        if self._minimum.major == self._maximum.major and 0 < self._minimum.major < 99999:
-            major = self._minimum.major
+        elif self._minimum.major == self._maximum.major:
+            if self._minimum.patch == 0 and self._maximum.patch == 99999:
+                if self._minimum.minor == 0 and self._maximum.minor == 99999:
+                    return '=={}.*'.format(self._minimum.major)
+                elif self._minimum.minor == self.maximum.minor:
+                    return '=={}.{}.*'.format(self._minimum.major, self.minimum.minor)
 
-        if self._minimum.minor == self._maximum.minor and 0 < self._minimum.minor < 99999:
-            minor = self._minimum.minor
-
-        if self._minimum.patch == self._maximum.patch and 0 < self._minimum.patch < 99999:
-            patch = self._minimum.patch
-
-        if major == minor == patch == '*':
-            return ''
-        elif minor == patch == '*':
-            return '=={}.*'.format(major)
-        elif patch == '*':
-            return '=={}.{}.*'.format(major, minor)
 
         return '>={},<={}'.format(self._minimum, self._maximum)
 
