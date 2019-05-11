@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.16.1 (2019-05-11)
+
+Little errors in `semver` fixed.
+
+
 ### 8.16 (2019-05-11)
 
 Signatures of `package_data.parse_json()` and `package_data.data()` 

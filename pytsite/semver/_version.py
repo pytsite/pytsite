@@ -8,10 +8,12 @@ from typing import SupportsInt as _SupportsInt
 import re as _re
 from . import _error
 
+VERSION_PART_MAX = 99999
+
 _VERSION_RE = _re.compile('^(\d+)(?:\.(\d+)(?:\.(\d+))?)?$')
 _VERSION_RANGE_RE_V1 = _re.compile('(==|<=|>=|>|<|~|\^)\s*(\d+)(?:\.(\d+)(?:\.(\d+))?)?')
 _VERSION_RANGE_RE_V2 = _re.compile('^(\d+|x|\*)(?:\.(\d+|x|\*)(?:\.(\d+|x|\*))?)?$')
-
+_MAX_VERSION_STR = '{}.{}.{}'.format(VERSION_PART_MAX, VERSION_PART_MAX, VERSION_PART_MAX)
 
 class Version(_SupportsInt):
     def __init__(self, version=0):
@@ -46,8 +48,8 @@ class Version(_SupportsInt):
     @major.setter
     def major(self, value: int):
         value = int(value or 0)
-        if value < 0 or value > 99999:
-            raise ValueError('Major number must be between 0 and 99999')
+        if value < 0 or value > VERSION_PART_MAX:
+            raise ValueError('Major number must be between 0 and {}'.format(VERSION_PART_MAX))
         self._major = value
 
     @property
@@ -57,8 +59,8 @@ class Version(_SupportsInt):
     @minor.setter
     def minor(self, value: int):
         value = int(value or 0)
-        if value < 0 or value > 99999:
-            raise ValueError('Minor number must be between 0 and 99999')
+        if value < 0 or value > VERSION_PART_MAX:
+            raise ValueError('Minor number must be between 0 and {}'.format(VERSION_PART_MAX))
         self._minor = value
 
     @property
@@ -68,8 +70,8 @@ class Version(_SupportsInt):
     @patch.setter
     def patch(self, value: int):
         value = int(value or 0)
-        if value < 0 or value > 99999:
-            raise ValueError('Patch number must be between 0 and 99999')
+        if value < 0 or value > VERSION_PART_MAX:
+            raise ValueError('Patch number must be between 0 and {}'.format(VERSION_PART_MAX))
         self._patch = value
 
     def __str__(self) -> str:
@@ -114,8 +116,8 @@ class VersionRange:
         """
         :param _Union[str, VersionRange] v_range: version range
         """
-        self._minimum = Version('0.0.1')
-        self._maximum = Version('99999.99999.99999')
+        self._minimum = Version('0.0.0')
+        self._maximum = Version('{}.{}.{}'.format(VERSION_PART_MAX, VERSION_PART_MAX, VERSION_PART_MAX))
 
         if not v_range or v_range in ('*', 'x'):
             return
@@ -138,9 +140,12 @@ class VersionRange:
                         if op == '<':
                             self._maximum -= 1
                     elif op == '==':
-                        self._minimum.major = self._maximum.major = m[1]
-                        self._minimum.minor = self._maximum.minor = m[2] or 0
-                        self._minimum.patch = self._maximum.patch = m[3] or 0
+                        if m[1]:
+                            self._minimum.major = self._maximum.major = m[1]
+                        if m[2]:
+                            self._minimum.minor = self._maximum.minor = m[2]
+                        if m[3]:
+                            self._minimum.patch = self._maximum.patch = m[3] or 0
                     elif op == '^':
                         self._minimum.major = self._maximum.major = m[1]
                         self._minimum.minor = m[2] or 0
@@ -160,13 +165,13 @@ class VersionRange:
                         if match[0][i] in ('', 'x', '*'):
                             if i == 0:
                                 self._minimum.major = 0
-                                self._maximum.major = 99999
+                                self._maximum.major = VERSION_PART_MAX
                             elif i == 1:
                                 self._minimum.minor = 0
-                                self._maximum.minor = 99999
+                                self._maximum.minor = VERSION_PART_MAX
                             elif i == 2:
                                 self._minimum.patch = 0
-                                self._maximum.patch = 99999
+                                self._maximum.patch = VERSION_PART_MAX
                         else:
                             if i == 0:
                                 self._minimum.major = match[0][i]
@@ -213,19 +218,31 @@ class VersionRange:
             return self.minimum <= item.minimum and self.maximum >= item.maximum
 
     def __str__(self) -> str:
-        if self._minimum == self._maximum:
+        # Any version
+        if self._minimum == Version('0.0.0') and self._maximum == Version(_MAX_VERSION_STR):
+            return '>=*'
+
+        # Exact version
+        elif self._minimum == self._maximum:
             return '=={}'.format(self._minimum)
 
-        elif self._maximum == '99999.99999.99999':
+        # Greater or equals version
+        elif self._maximum == _MAX_VERSION_STR:
             return '>={}'.format(self._minimum)
 
+        # Fixed major version
         elif self._minimum.major == self._maximum.major:
-            if self._minimum.patch == 0 and self._maximum.patch == 99999:
-                if self._minimum.minor == 0 and self._maximum.minor == 99999:
-                    return '=={}.*'.format(self._minimum.major)
-                elif self._minimum.minor == self.maximum.minor:
-                    return '=={}.{}.*'.format(self._minimum.major, self.minimum.minor)
+            # Fixed minor version
+            if self._minimum.minor == self._maximum.minor:
+                # Any patch version
+                if self._minimum.patch == 0 and self._maximum.patch == VERSION_PART_MAX:
+                    return '=={}.{}.*'.format(self._minimum.major, self._minimum.minor)
 
+            # Any minor version
+            elif self._minimum.minor == 0 and self._maximum.minor == VERSION_PART_MAX:
+                # Any patch version
+                if self._minimum.patch == 0 and self._maximum.patch == VERSION_PART_MAX:
+                    return '=={}.*'.format(self._minimum.major, self._minimum.minor)
 
         return '>={},<={}'.format(self._minimum, self._maximum)
 

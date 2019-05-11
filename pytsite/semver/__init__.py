@@ -9,4 +9,4 @@ __license__ = 'MIT'
 # Public API
 from . import _error as error
 from ._api import last
-from ._version import Version, VersionRange
+from ._version import Version, VersionRange, VERSION_PART_MAX
