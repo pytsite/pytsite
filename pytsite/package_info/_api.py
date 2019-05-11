@@ -51,7 +51,7 @@ def resolve_package_path(package_name: str):
     return package_path
 
 
-def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, override: dict = None) -> dict:
+def parse_json(json_data: _Union[str, dict, list], defaults: dict = None) -> dict:
     """Parse package's JSON from string
     """
     from pytsite import lang as _lang
@@ -128,15 +128,10 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None, overri
     # Check required plugins versions
     json_data['requires']['plugins'] = _sanitize_req(req.get('plugins', {}))
 
-    # Override data
-    if isinstance(override, dict):
-        json_data = parse_json(_util.dict_merge(json_data, override))
-
     return json_data
 
 
-def data(package_name_or_json_path: str, key: str = None, defaults: dict = None, override: dict = None,
-         use_cache: bool = True) -> _Any:
+def data(package_name_or_json_path: str, key: str = None, use_cache: bool = True, defaults: dict = None) -> _Any:
     if package_name_or_json_path.startswith('/'):
         source = package_name_or_json_path
         if not _path.exists(source):
@@ -163,7 +158,7 @@ def data(package_name_or_json_path: str, key: str = None, defaults: dict = None,
     # Load and cache data
     else:
         try:
-            d = parse_json(_util.load_json(source), defaults, override)
+            d = parse_json(_util.load_json(source), defaults)
             if use_cache:
                 _parsed_json[source] = d
         except ValueError as e:
@@ -175,49 +170,49 @@ def data(package_name_or_json_path: str, key: str = None, defaults: dict = None,
 def name(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'name', use_cache=use_cache)
+    return data(package_name_or_json_path, 'name', use_cache)
 
 
 def version(package_name_or_json_path: str, use_cache: bool = True) -> _semver.Version:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'version', use_cache=use_cache)
+    return data(package_name_or_json_path, 'version', use_cache)
 
 
 def description(package_name_or_json_path: str, use_cache: bool = True) -> dict:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'description', use_cache=use_cache)
+    return data(package_name_or_json_path, 'description', use_cache)
 
 
 def requires(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, _List[str]]:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires', use_cache=use_cache)
+    return data(package_name_or_json_path, 'requires', use_cache)
 
 
 def requires_pytsite(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires', use_cache=use_cache)['pytsite']
+    return data(package_name_or_json_path, 'requires', use_cache)['pytsite']
 
 
 def requires_packages(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, str]:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires', use_cache=use_cache)['packages']
+    return data(package_name_or_json_path, 'requires', use_cache)['packages']
 
 
 def requires_plugins(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, str]:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'requires', use_cache=use_cache)['plugins']
+    return data(package_name_or_json_path, 'requires', use_cache)['plugins']
 
 
 def url(package_name_or_json_path: str, use_cache: bool = True) -> str:
     """Shortcut
     """
-    return data(package_name_or_json_path, 'url', use_cache=use_cache)
+    return data(package_name_or_json_path, 'url', use_cache)
 
 
 def check_requirements(pkg_name: str):

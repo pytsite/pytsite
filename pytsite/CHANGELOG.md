@@ -1,6 +1,12 @@
 # PytSite 8 Changelog
 
 
+### 8.16 (2019-05-11)
+
+Signatures of `package_data.parse_json()` and `package_data.data()` 
+changed.
+
+
 ### 8.15 (2019-05-09)
 
 - `data` dictionary attributes support added in `html.Element`.
