@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.16.2 (2019-05-21)
+
+Error in `semver.VersionRange.__str__()` fixed.
+
+
 ### 8.16.1 (2019-05-11)
 
 Little errors in `semver` fixed.

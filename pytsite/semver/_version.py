@@ -218,12 +218,8 @@ class VersionRange:
             return self.minimum <= item.minimum and self.maximum >= item.maximum
 
     def __str__(self) -> str:
-        # Any version
-        if self._minimum == Version('0.0.0') and self._maximum == Version(_MAX_VERSION_STR):
-            return '>=*'
-
         # Exact version
-        elif self._minimum == self._maximum:
+        if self._minimum == self._maximum:
             return '=={}'.format(self._minimum)
 
         # Greater or equals version
