@@ -4,46 +4,45 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import random as _random
-import re as _re
-import pytz as _pytz
-import json as _json
-import dateparser as _dateparser
+import random
+import re
+import pytz
+import json
+import dateparser
 from importlib import reload as _importlib_reload
-from os import path as _path, makedirs as _makedirs, unlink as _unlink, walk as _walk, listdir as _listdir, \
-    rmdir as _rmdir
-from tempfile import mkstemp as _mkstemp, mkdtemp as _mkdtemp
-from typing import Iterable as _Iterable, Union as _Union, List as _List, Tuple as _Tuple
-from frozendict import frozendict as _frozendict
+from os import path, makedirs, unlink, walk, listdir, rmdir
+from tempfile import mkstemp, mkdtemp
+from typing import Iterable, Union, List, Tuple
+from frozendict import frozendict
 from lxml import html as _lxml_html, etree as _lxml_etree
-from time import tzname as _tzname
-from copy import deepcopy as _deepcopy
-from time import time as _current_time
-from datetime import datetime as _datetime
-from html import parser as _python_html_parser
-from hashlib import md5 as _md5
-from traceback import extract_stack as _extract_stack
-from werkzeug.utils import escape as _escape_html
-from htmlmin import minify as _minify
-from jsmin import jsmin as _jsmin
-from urllib import request as _urllib_request
+from time import tzname
+from copy import deepcopy
+from time import time
+from datetime import datetime
+from html import parser as python_html_parser
+from hashlib import md5
+from traceback import extract_stack
+from werkzeug.utils import escape as wz_escape_html
+from htmlmin import minify
+from jsmin import jsmin
+from urllib import request as urllib_request
 
-_HTML_SCRIPT_RE = _re.compile('(<script[^>]*>)([^<].+?)(</script>)', _re.MULTILINE | _re.DOTALL)
-_MULTIPLE_SPACES_RE = _re.compile('\s{2,}')
+_HTML_SCRIPT_RE = re.compile('(<script[^>]*>)([^<].+?)(</script>)', re.MULTILINE | re.DOTALL)
+_MULTIPLE_SPACES_RE = re.compile('\s{2,}')
 _HTML_SINGLE_TAGS = ('br', 'img', 'input')
 _HTML_ALLOWED_EMPTY_TAGS = ('iframe',)
 _LXML_HTML_PARSER = _lxml_etree.HTMLParser(encoding='utf-8', remove_blank_text=True, remove_comments=True)
-_URL_RE = _re.compile('^(?:http|ftp)s?://'  # Scheme
-                      '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
-                      'localhost|'  # localhost...
-                      '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-                      '(?::\d+)?'  # optional port
-                      '(?:/?|[/?]\S+)$', _re.IGNORECASE)
+_URL_RE = re.compile('^(?:http|ftp)s?://'  # Scheme
+                     '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
+                     'localhost|'  # localhost...
+                     '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+                     '(?::\d+)?'  # optional port
+                     '(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 _installed_packages = {}  # Installed pip packages cache
 
 
-class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
+class _HTMLStripTagsParser(python_html_parser.HTMLParser):
     def __init__(self, safe_tags: str = None):
         """
         :param safe_tags: safe tags and attributes, i. e. 'a:href,rel|img:src,alt|p:class,lang'
@@ -101,7 +100,7 @@ class _HTMLStripTagsParser(_python_html_parser.HTMLParser):
         return ''.join(self._content)
 
 
-class _HTMLTrimParser(_python_html_parser.HTMLParser):
+class _HTMLTrimParser(python_html_parser.HTMLParser):
     def __init__(self, limit: int, count_bytes: bool = False):
         super().__init__(convert_charrefs=False)
 
@@ -197,7 +196,7 @@ def tidyfy_html(s: str, remove_empty_tags: bool = True, add_safe_tags: str = Non
     safe_tags = 'a:href,target,rel|abbr|address|b|blockquote|br|cite|code:class|col|colgroup|dd|del|details|dfn|dl|' \
                 'dt|em|figcaption|figure|h1:id|h2:id|h3:id|h4:id|h5:id|h6:id|hr|i|iframe:src,width,height|' \
                 'img:src,alt|ins|kbd|li|mark|ol|output|p:style,id|param|pre:class|q|rt|ruby|s|samp|small|span|strong|' \
-                'sub|summary|sup|table:style|tbody|td:style|tfoot|th|thead|time|tr|u|ul|var|wbr'
+                'sub|summary|sup|table:style|tbody|td:style|tfoot|th|thead|time|tr|u|ul|var|wbr|header|footer'
 
     if remove_tags:
         for remove_tag in remove_tags.split('|'):
@@ -258,7 +257,7 @@ def trim_str(s: str, limit: int = 140, count_bytes: bool = False) -> str:
 def escape_html(s: str) -> str:
     """Escape an HTML string.
     """
-    return _escape_html(s)
+    return wz_escape_html(s)
 
 
 def minify_html(s: str) -> str:
@@ -267,9 +266,9 @@ def minify_html(s: str) -> str:
 
     def sub_f(m):
         g = m.groups()
-        return ''.join((g[0], _jsmin(g[1]), g[2])).replace('\n', '')
+        return ''.join((g[0], jsmin(g[1]), g[2])).replace('\n', '')
 
-    return _HTML_SCRIPT_RE.sub(sub_f, _minify(s, True, True, remove_optional_attribute_quotes=False))
+    return _HTML_SCRIPT_RE.sub(sub_f, minify(s, True, True, remove_optional_attribute_quotes=False))
 
 
 def dict_merge(a: dict, b: dict) -> dict:
@@ -280,15 +279,15 @@ def dict_merge(a: dict, b: dict) -> dict:
     on both values and the result stored in the returned dictionary.
     https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
 
-    if not isinstance(a, (dict, _frozendict)) or not isinstance(b, (dict, _frozendict)):
+    if not isinstance(a, (dict, frozendict)) or not isinstance(b, (dict, frozendict)):
         raise TypeError('Expected both dictionaries as arguments')
 
-    if isinstance(a, _frozendict):
+    if isinstance(a, frozendict):
         a = dict(a)
-    if isinstance(b, _frozendict):
+    if isinstance(b, frozendict):
         b = dict(b)
 
-    result = _deepcopy(a)
+    result = deepcopy(a)
 
     for k, v in b.items():
         if k in result:
@@ -299,14 +298,14 @@ def dict_merge(a: dict, b: dict) -> dict:
             elif isinstance(result[k], set) and isinstance(v, (set, list, tuple)):
                 result[k].update(v)
             else:
-                result[k] = _deepcopy(v)
+                result[k] = deepcopy(v)
         else:
-            result[k] = _deepcopy(v)
+            result[k] = deepcopy(v)
 
     return result
 
 
-def mk_tmp_file(suffix: str = None, prefix: str = None, subdir: str = None, text: bool = False) -> _Tuple[int, str]:
+def mk_tmp_file(suffix: str = None, prefix: str = None, subdir: str = None, text: bool = False) -> Tuple[int, str]:
     """Create temporary file
 
     Returns tuple of two items: file's descriptor and absolute path.
@@ -318,12 +317,12 @@ def mk_tmp_file(suffix: str = None, prefix: str = None, subdir: str = None, text
         raise RuntimeError('Cannot determine temporary directory location')
 
     if subdir:
-        tmp_dir = _path.join(tmp_dir, subdir)
+        tmp_dir = path.join(tmp_dir, subdir)
 
-    if not _path.exists(tmp_dir):
-        _makedirs(tmp_dir, 0o755)
+    if not path.exists(tmp_dir):
+        makedirs(tmp_dir, 0o755)
 
-    return _mkstemp(suffix, prefix, tmp_dir, text)
+    return mkstemp(suffix, prefix, tmp_dir, text)
 
 
 def mk_tmp_dir(suffix: str = None, prefix: str = None, subdir: str = None) -> str:
@@ -334,19 +333,19 @@ def mk_tmp_dir(suffix: str = None, prefix: str = None, subdir: str = None) -> st
         raise RuntimeError('Cannot determine temporary directory location')
 
     if subdir:
-        tmp_root = _path.join(tmp_root, subdir)
+        tmp_root = path.join(tmp_root, subdir)
 
-    if not _path.exists(tmp_root):
-        _makedirs(tmp_root, 0o755)
+    if not path.exists(tmp_root):
+        makedirs(tmp_root, 0o755)
 
-    return _mkdtemp(suffix, prefix, tmp_root)
+    return mkdtemp(suffix, prefix, tmp_root)
 
 
-def random_str(size: int = 16, alphabet: str = '0123456789abcdef', exclude: _Iterable = None):
+def random_str(size: int = 16, alphabet: str = '0123456789abcdef', exclude: Iterable = None):
     """Generate random string.
     """
     while True:
-        s = ''.join(_random.choice(alphabet) for _ in range(size))
+        s = ''.join(random.choice(alphabet) for _ in range(size))
         if not exclude or s not in exclude:
             return s
 
@@ -356,7 +355,7 @@ def random_password(size: int = 16, alphanum_only: bool = False):
     """
     alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     if not alphanum_only:
-        alphabet += '!@#$%^&*()_+=-`~|\/.,?><{}[]":;'
+        alphabet += '!@#$%^&*()_+=-`~|\\/.,?><{}[]":;'
 
     return random_str(size, alphabet)
 
@@ -384,12 +383,9 @@ def html_attrs_str(attrs: dict, replace_keys: dict = None) -> str:
                     r += ' {}'.format(k)
             else:
                 v = str(v).strip()
-                r += ' {}="{}"'.format(k, _escape_html(v))
+                r += ' {}="{}"'.format(k, wz_escape_html(v))
 
     return r
-
-
-
 
 
 def transform_str_1(s: str, language: str = None) -> str:
@@ -414,10 +410,10 @@ def transform_str_1(s: str, language: str = None) -> str:
         s = s.replace(c, '')
 
     s = lang.transliterate(s.lower(), language)
-    s = _re.sub('/{2,}', '/', s)
-    s = _re.sub('[^a-zA-Z0-9_/]', '-', s)
-    s = _re.sub('-{2,}', '-', s)
-    s = _re.sub('(^-|-$)', '', s)
+    s = re.sub('/{2,}', '/', s)
+    s = re.sub('[^a-zA-Z0-9_/]', '-', s)
+    s = re.sub('-{2,}', '-', s)
+    s = re.sub('(^-|-$)', '', s)
 
     return s
 
@@ -445,7 +441,7 @@ def get_module_attr(s: str):
     return getattr(module_obj, attr_name)
 
 
-def cleanup_list(inp: _Union[_List, _Tuple], uniquize: bool = False) -> list:
+def cleanup_list(inp: Union[List, Tuple], uniquize: bool = False) -> list:
     """Remove empty values from a list.
     """
     if not isinstance(inp, (list, tuple)):
@@ -497,38 +493,38 @@ def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
 
 
 def parse_date_time(s: str, date_formats: list = None, languages: list = None, locales: list = None,
-                    region: str = None) -> _datetime:
+                    region: str = None) -> datetime:
     """Parse a date/time string
 
     See docs at https://github.com/scrapinghub/dateparser
     """
-    date = _dateparser.parse(s, date_formats, languages, locales, region)
+    date = dateparser.parse(s, date_formats, languages, locales, region)
     if date is None:
         raise ValueError("'{}' is not a valid date/time string".format(s))
 
     return date
 
 
-def rfc822_datetime_str(dt: _datetime = None) -> str:
+def rfc822_datetime_str(dt: datetime = None) -> str:
     """Format date/time string according to RFC-822 format
     """
     if not dt:
-        dt = _datetime.now()
+        dt = datetime.now()
 
     if not dt.tzinfo:
-        dt = _pytz.timezone(_tzname[0]).localize(dt)
+        dt = pytz.timezone(tzname[0]).localize(dt)
 
     return dt.strftime('%a, %d %b %Y %H:%M:%S %z')
 
 
-def w3c_datetime_str(dt: _datetime = None, date_only: bool = False) -> str:
+def w3c_datetime_str(dt: datetime = None, date_only: bool = False) -> str:
     """Format date/time string according to W3C.
     """
     if not dt:
-        dt = _datetime.now()
+        dt = datetime.now()
 
     if not dt.tzinfo:
-        dt = _pytz.timezone(_tzname[0]).localize(dt)
+        dt = pytz.timezone(tzname[0]).localize(dt)
 
     return dt.strftime('%Y-%m-%d') if date_only else dt.strftime('%Y-%m-%dT%H:%M:%S%z')
 
@@ -540,7 +536,7 @@ def md5_hex_digest(inp, encoding='utf8') -> str:
     if isinstance(inp, str):
         inp = bytes(inp, encoding)
 
-    m = _md5()
+    m = md5()
     m.update(inp)
 
     return m.hexdigest()
@@ -549,15 +545,15 @@ def md5_hex_digest(inp, encoding='utf8') -> str:
 def to_snake_case(s: str) -> str:
     """Convert CamelCase to snake_case.
     """
-    s = _re.sub('(.)([A-Z][a-z]+)', '\1_\2', s)
-    return _re.sub('([a-z0-9])([A-Z])', '\1_\2', s).lower()
+    s = re.sub('(.)([A-Z][a-z]+)', '\1_\2', s)
+    return re.sub('([a-z0-9])([A-Z])', '\1_\2', s).lower()
 
 
 def get_call_stack(limit: int = None) -> list:
     """Format call stack as string.
     """
     r = []
-    for frame_sum in _extract_stack(limit=limit):
+    for frame_sum in extract_stack(limit=limit):
         r.append([item for item in frame_sum[:3]])
 
     return r
@@ -574,30 +570,30 @@ def load_json(source: str):
     """
     try:
         if is_url(source):
-            with _urllib_request.urlopen(source) as f:
-                return _json.load(f)
+            with urllib_request.urlopen(source) as f:
+                return json.load(f)
         else:
             with open(source) as f:
-                return _json.load(f)
+                return json.load(f)
 
-    except _json.JSONDecodeError as e:
-        raise _json.JSONDecodeError("Error while loading JSON data from '{}': {}".format(source, e), e.doc, e.pos)
+    except json.JSONDecodeError as e:
+        raise json.JSONDecodeError("Error while loading JSON data from '{}': {}".format(source, e), e.doc, e.pos)
 
 
 def cleanup_files(root_path: str, ttl: int) -> tuple:
     """Remove obsolete files and empty directories
     """
-    now = _current_time()
+    now = time()
     success = []
     failed = []
 
-    for root, d_names, f_names in _walk(root_path):
+    for root, d_names, f_names in walk(root_path):
         for f_name in f_names:
-            f_path = _path.join(root, f_name)
-            m_time = _path.getmtime(f_path)
+            f_path = path.join(root, f_name)
+            m_time = path.getmtime(f_path)
             if m_time + ttl < now:
                 try:
-                    _unlink(f_path)
+                    unlink(f_path)
                     success.append(f_path)
 
                 except Exception as e:
@@ -605,9 +601,9 @@ def cleanup_files(root_path: str, ttl: int) -> tuple:
 
         # Remove empty directories
         for d_name in d_names:
-            d_path = _path.join(root, d_name)
-            if not _listdir(d_path):
-                _rmdir(d_path)
+            d_path = path.join(root, d_name)
+            if not listdir(d_path):
+                rmdir(d_path)
 
     return success, failed
 

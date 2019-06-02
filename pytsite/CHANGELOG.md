@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.16.3 (2019-05-21)
+
+`header` and `footer` elements support added in `util.tidyfy_html()`.
+
+
 ### 8.16.2 (2019-05-21)
 
 Error in `semver.VersionRange.__str__()` fixed.
