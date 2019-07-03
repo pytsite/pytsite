@@ -4,15 +4,14 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import console as _console, lang as _lang, events as _events, logger as _logger, semver as _semver, \
-    reg as _reg
+from pytsite import console, lang, events, logger, semver, reg
 from . import _api, _error
 
 
 def on_pytsite_update_stage_2():
     # Update all installed plugins
-    _console.print_info(_lang.t('pytsite.plugman@updating_plugins'))
-    _console.run_command('plugman:install', {'reload': False})
+    console.print_info(lang.t('pytsite.plugman@updating_plugins'))
+    console.run_command('plugman:install', {'reload': False})
 
 
 def on_pytsite_load():
@@ -22,15 +21,15 @@ def on_pytsite_load():
         return
 
     # If there waiting updates exist, reload the application
-    if _reg.get('env.type') == 'wsgi':
-        _logger.warn('Application needs to be loaded in console to finish plugins update')
+    if reg.get('env.type') == 'wsgi':
+        logger.warn('Application needs to be loaded in console to finish plugins update')
         return
 
     failed_plugins = []
 
     # Call 'plugin_pre_install()' hooks
     for p_name, info in update_info.items():
-        v_to = _semver.Version(info['version_to'])
+        v_to = semver.Version(info['version_to'])
 
         try:
             # Check if the plugin is installed and loaded
@@ -41,11 +40,11 @@ def on_pytsite_load():
                 plugin.plugin_pre_install()
 
             # Fire 'pre_install' event
-            _events.fire('pytsite.plugman@pre_install', name=p_name, version=v_to)
+            events.fire('pytsite.plugman@pre_install', name=p_name, version=v_to)
 
         except _error.PluginNotLoaded as e:
-            _logger.error(e)
-            _console.print_warning(_lang.t('pytsite.plugman@plugin_install_error', {
+            logger.error(e)
+            console.print_warning(lang.t('pytsite.plugman@plugin_install_error', {
                 'plugin': p_name,
                 'version': v_to,
                 'msg': str(e),
@@ -59,11 +58,11 @@ def on_pytsite_load():
             continue
 
         plugin = _api.get(p_name)
-        v_from = _semver.Version(info['version_from'])
-        v_to = _semver.Version(info['version_to'])
+        v_from = semver.Version(info['version_from'])
+        v_to = semver.Version(info['version_to'])
 
         try:
-            _logger.info(_lang.t('pytsite.plugman@installing_plugin', {
+            logger.info(lang.t('pytsite.plugman@installing_plugin', {
                 'plugin': p_name,
                 'version': v_to,
             }))
@@ -73,16 +72,16 @@ def on_pytsite_load():
                 plugin.plugin_install()
 
             # Fire 'install' event
-            _events.fire('pytsite.plugman@install', name=p_name, version=v_to)
+            events.fire('pytsite.plugman@install', name=p_name, version=v_to)
 
-            _console.print_success(_lang.t('pytsite.plugman@plugin_install_success', {
+            console.print_success(lang.t('pytsite.plugman@plugin_install_success', {
                 'plugin': p_name,
                 'version': v_to,
             }))
 
         except Exception as e:
-            _logger.error(e)
-            _console.print_warning(_lang.t('pytsite.plugman@plugin_install_error', {
+            logger.error(e)
+            console.print_warning(lang.t('pytsite.plugman@plugin_install_error', {
                 'plugin': p_name,
                 'version': v_to,
                 'msg': str(e),
@@ -92,7 +91,7 @@ def on_pytsite_load():
         # Update plugin
         if v_from != '0.0.0':
             try:
-                _console.print_info(_lang.t('pytsite.plugman@updating_plugin', {
+                console.print_info(lang.t('pytsite.plugman@updating_plugin', {
                     'plugin': p_name,
                     'v_from': v_from,
                     'v_to': v_to,
@@ -103,15 +102,15 @@ def on_pytsite_load():
                     plugin.plugin_update(v_from=v_from)
 
                 # Fire 'update' event
-                _events.fire('pytsite.plugman@update', name=p_name, v_from=v_from)
+                events.fire('pytsite.plugman@update', name=p_name, v_from=v_from)
 
-                _console.print_success(_lang.t('pytsite.plugman@plugin_update_success', {
+                console.print_success(lang.t('pytsite.plugman@plugin_update_success', {
                     'plugin': p_name,
                     'version': v_to,
                 }))
 
             except Exception as e:
-                _console.print_warning(_lang.t('pytsite.plugman@plugin_update_error', {
+                console.print_warning(lang.t('pytsite.plugman@plugin_update_error', {
                     'plugin': p_name,
                     'version': v_to,
                     'msg': str(e),

@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.17 (2019-07-03)
+
+New console command `cron:run` added.
+
+
 ### 8.16.3 (2019-05-21)
 
 `header` and `footer` elements support added in `util.tidyfy_html()`.
