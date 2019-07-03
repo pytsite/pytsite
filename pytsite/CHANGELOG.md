@@ -1,6 +1,11 @@
 # PytSite 8 Changelog
 
 
+### 8.17.1 (2019-07-03)
+
+Typo fixed.
+
+
 ### 8.17 (2019-07-03)
 
 New console command `cron:run` added.
