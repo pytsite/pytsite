@@ -30,7 +30,7 @@ def _do_reload():
 def reload(delay: float = 0.0):
     """Request reload
     """
-    _threading.create_timer(_do_reload, delay).start()
+    _threading.run_in_thread(_do_reload, delay)
 
 
 def on_before_reload(handler, priority: int = 0):

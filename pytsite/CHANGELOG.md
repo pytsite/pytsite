@@ -1,6 +1,13 @@
 # PytSite 8 Changelog
 
 
+### 8.18 (2019-07-06)
+
+- Own classes `threading.Thread` and `threading.Timer` introduced instead of
+  native Python ones. 
+- New function `threading.get_parent_id()` added.
+
+
 ### 8.17.1 (2019-07-03)
 
 Typo fixed.

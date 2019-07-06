@@ -15,7 +15,7 @@ def listen(event_name: str, handler: callable, priority: int = 0):
     """
     global _LISTENERS
 
-    re = _re.compile(event_name.replace('.', '\.').replace('*', '.*?') + '$')
+    re = _re.compile(event_name.replace('.', '\\.').replace('*', '.*?') + '$')
     _LISTENERS.append((handler, priority, re))
     _LISTENERS = sorted(_LISTENERS, key=lambda x: x[1])  # Sort by priority
 
@@ -44,9 +44,6 @@ def fire(event_name: str, _concurrent: bool = False, _wait: bool = True, _stop_a
 
     count = 0
     for handler, priority, re in listeners(event_name):
-        if not re.match(event_name):
-            continue
-
         if _concurrent:
             # Queue handler
             q.put(handler, **kwargs)
