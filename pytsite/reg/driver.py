@@ -1,13 +1,13 @@
 """PytSite Registry Drivers
 """
-import yaml as _yaml
-from os import path as _path
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from pytsite import util as _util
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+import yaml
+from os import path
+from abc import ABC as _ABC, abstractmethod
+from dicmer import dict_merge
 
 
 class Abstract(_ABC):
@@ -20,7 +20,7 @@ class Abstract(_ABC):
         """
         self._parent = parent
 
-    @_abstractmethod
+    @abstractmethod
     def _put(self, key: str, value):
         """Put a value into the registry
         """
@@ -31,7 +31,7 @@ class Abstract(_ABC):
         """
         self._put(key, value)
 
-    @_abstractmethod
+    @abstractmethod
     def _get(self, key: str):
         """Get value from the registry
         """
@@ -111,10 +111,10 @@ class File(Memory):
 
         # Load data from files
         for name in ('default.yml', env_name + '.yml'):
-            file_path = _path.join(root_dir, name)
-            if _path.isfile(file_path):
+            file_path = path.join(root_dir, name)
+            if path.isfile(file_path):
                 with open(file_path) as f:
-                    f_data = _yaml.load(f, _yaml.FullLoader)
+                    f_data = yaml.load(f, yaml.FullLoader)
                     if isinstance(f_data, dict):
                         self._merge(f_data)
                     f.close()
@@ -122,4 +122,4 @@ class File(Memory):
     def _merge(self, other: dict):
         """Merges data into the registry.
         """
-        self._storage = _util.dict_merge(self._storage, other)
+        self._storage = dict_merge(self._storage, other)

@@ -1,4 +1,4 @@
-"""PytSite Helper Functions.
+"""PytSite Helper Functions
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
@@ -9,6 +9,7 @@ import re
 import pytz
 import json
 import dateparser
+import htmler
 from importlib import reload as _importlib_reload
 from os import path, makedirs, unlink, walk, listdir, rmdir
 from tempfile import mkstemp, mkdtemp
@@ -28,16 +29,16 @@ from jsmin import jsmin
 from urllib import request as urllib_request
 
 _HTML_SCRIPT_RE = re.compile('(<script[^>]*>)([^<].+?)(</script>)', re.MULTILINE | re.DOTALL)
-_MULTIPLE_SPACES_RE = re.compile('\s{2,}')
+_MULTIPLE_SPACES_RE = re.compile('\\s{2,}')
 _HTML_SINGLE_TAGS = ('br', 'img', 'input')
 _HTML_ALLOWED_EMPTY_TAGS = ('iframe',)
 _LXML_HTML_PARSER = _lxml_etree.HTMLParser(encoding='utf-8', remove_blank_text=True, remove_comments=True)
 _URL_RE = re.compile('^(?:http|ftp)s?://'  # Scheme
-                     '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain
+                     '(?:(?:[A-Z0-9](?:[A-Z0-9-_]{0,61}[A-Z0-9])?\\.)+(?:[A-Z]{2,6}\\.?|[A-Z0-9-]{2,}\\.?)|'  # domain
                      'localhost|'  # localhost...
-                     '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-                     '(?::\d+)?'  # optional port
-                     '(?:/?|[/?]\S+)$', re.IGNORECASE)
+                     '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})'  # ...or ip
+                     '(?::\\d+)?'  # optional port
+                     '(?:/?|[/?]\\S+)$', re.IGNORECASE)
 
 _installed_packages = {}  # Installed pip packages cache
 
@@ -271,40 +272,6 @@ def minify_html(s: str) -> str:
     return _HTML_SCRIPT_RE.sub(sub_f, minify(s, True, True, remove_optional_attribute_quotes=False))
 
 
-def dict_merge(a: dict, b: dict) -> dict:
-    """Recursively merge dicts.
-
-    Not just simple a['key'] = b['key'], if both a and b have a key who's
-    value is a dict then dict_merge is called
-    on both values and the result stored in the returned dictionary.
-    https://www.xormedia.com/recursively-merge-dictionaries-in-python/"""
-
-    if not isinstance(a, (dict, frozendict)) or not isinstance(b, (dict, frozendict)):
-        raise TypeError('Expected both dictionaries as arguments')
-
-    if isinstance(a, frozendict):
-        a = dict(a)
-    if isinstance(b, frozendict):
-        b = dict(b)
-
-    result = deepcopy(a)
-
-    for k, v in b.items():
-        if k in result:
-            if isinstance(result[k], dict) and isinstance(v, dict):
-                result[k] = dict_merge(result[k], v)
-            elif isinstance(result[k], list) and isinstance(v, (set, list, tuple)):
-                result[k].extend(v)
-            elif isinstance(result[k], set) and isinstance(v, (set, list, tuple)):
-                result[k].update(v)
-            else:
-                result[k] = deepcopy(v)
-        else:
-            result[k] = deepcopy(v)
-
-    return result
-
-
 def mk_tmp_file(suffix: str = None, prefix: str = None, subdir: str = None, text: bool = False) -> Tuple[int, str]:
     """Create temporary file
 
@@ -476,18 +443,18 @@ def cleanup_dict(inp: dict) -> dict:
 def nav_link(url: str, anchor: str = '', icon: str = None, **kwargs) -> str:
     """Generate Bootstrap compatible navigation item link
     """
-    from pytsite import html, router
+    from pytsite import router
 
-    li = html.Li(css=kwargs.pop('li_css', 'nav-item'))
+    li = htmler.Li(css=kwargs.pop('li_css', 'nav-item'))
 
     if not url.startswith('#') and router.url(url, strip_query=True) == router.current_url(strip_query=True):
         li.add_css('active')
 
-    a = html.A(escape_html(anchor), href=url, css=kwargs.pop('a_css', 'nav-link'), **kwargs)
+    a = htmler.A(escape_html(anchor), href=url, css=kwargs.pop('a_css', 'nav-link'), **kwargs)
     if icon:
-        a.append(html.I(css=icon))
+        a.append_child(htmler.I(css=icon))
 
-    li.append(a)
+    li.append_child(a)
 
     return str(li)
 

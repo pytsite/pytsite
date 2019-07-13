@@ -1,23 +1,24 @@
-"""PytSite Package Utilities API
+"""PytSite Package Info Utilities
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
-import json as _json
-from typing import List as _List, Any as _Any, Dict as _Dict, Union as _Union
+import re
+import json
+from typing import List, Any, Dict, Union
 from importlib.util import find_spec as _find_module_spec
-from os import path as _path
-from pytsite import semver as _semver, util as _util
+from os import path as path
+from semaver import Version, VersionRange
+from pytsite import util
 from . import _error
 
-_REQ_RE = _re.compile('([a-zA-Z0-9\-_]+)\s*(.+)?')
+_REQ_RE = re.compile('([a-zA-Z0-9\\-_]+)\\s*(.+)?')
 
 _parsed_json = {}
 
 
-def _sanitize_req(reqs: _Union[dict, list]) -> _Dict[str, _semver.VersionRange]:
+def _sanitize_req(reqs: Union[dict, list]) -> Dict[str, VersionRange]:
     # Old versions can contain lists instead of dicts
     if isinstance(reqs, list):
         n_reqs = {}
@@ -32,7 +33,7 @@ def _sanitize_req(reqs: _Union[dict, list]) -> _Dict[str, _semver.VersionRange]:
 
     # Convert version strings to VersionRange objects
     for n, v in reqs.items():
-        reqs[n] = _semver.VersionRange(v)
+        reqs[n] = VersionRange(v)
 
     return reqs
 
@@ -44,21 +45,21 @@ def resolve_package_path(package_name: str):
     if not spec or not spec.loader:
         raise _error.PackageNotFound("Package '{}' is not found".format(package_name))
 
-    package_path = _path.dirname(spec.origin)
-    if not _path.isdir(package_path):
+    package_path = path.dirname(spec.origin)
+    if not path.isdir(package_path):
         raise _error.PackageNotFound("'{}' is not a directory".format(package_path))
 
     return package_path
 
 
-def parse_json(json_data: _Union[str, dict, list], defaults: dict = None) -> dict:
+def parse_json(json_data: Union[str, dict, list], defaults: dict = None) -> dict:
     """Parse package's JSON from string
     """
-    from pytsite import lang as _lang
+    from pytsite import lang as lang
 
     # Load data
     if isinstance(json_data, str):
-        json_data = _json.loads(json_data)
+        json_data = json.loads(json_data)
 
     # Check data type
     if not isinstance(json_data, dict):
@@ -74,9 +75,9 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None) -> dic
         json_data['name'] = 'Untitled'
 
     # Check version
-    pkg_ver = json_data.setdefault('version', _semver.Version(defaults.get('version', '0.0.1')))
-    if not isinstance(pkg_ver, _semver.Version):
-        json_data['version'] = _semver.Version(pkg_ver)
+    pkg_ver = json_data.setdefault('version', Version(defaults.get('version', '0.0.1')))
+    if not isinstance(pkg_ver, Version):
+        json_data['version'] = Version(pkg_ver)
 
     # Check URL
     pkg_url = json_data.setdefault('url', defaults.get('url'))
@@ -89,7 +90,7 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None) -> dic
         json_data['description'] = pkg_desc = {}
 
     # Check description translations
-    for lng in _lang.langs():
+    for lng in lang.langs():
         t_description = pkg_desc.get(lng)
         if not (t_description and isinstance(t_description, str)):
             json_data['description'][lng] = ''
@@ -120,7 +121,7 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None) -> dic
         json_data['requires'] = req = {'pytsite': None, 'packages': {}, 'plugins': {}}
 
     # Check required pytsite version
-    json_data['requires']['pytsite'] = _semver.VersionRange(req.get('pytsite', '>=0.0.1'))
+    json_data['requires']['pytsite'] = VersionRange(req.get('pytsite', '>=0.0.1'))
 
     # Check required pip packages versions
     json_data['requires']['packages'] = _sanitize_req(req.get('packages', {}))
@@ -131,10 +132,10 @@ def parse_json(json_data: _Union[str, dict, list], defaults: dict = None) -> dic
     return json_data
 
 
-def data(package_name_or_json_path: str, key: str = None, use_cache: bool = True, defaults: dict = None) -> _Any:
+def data(package_name_or_json_path: str, key: str = None, use_cache: bool = True, defaults: dict = None) -> Any:
     if package_name_or_json_path.startswith('/'):
         source = package_name_or_json_path
-        if not _path.exists(source):
+        if not path.exists(source):
             raise _error.PackageNotFound()
     else:
         if package_name_or_json_path == 'pytsite':
@@ -149,7 +150,7 @@ def data(package_name_or_json_path: str, key: str = None, use_cache: bool = True
             json_name = 'pytsite-package.json'
 
         # Calculate path to the JSON file
-        source = _path.join(resolve_package_path(package_name_or_json_path), json_name)
+        source = path.join(resolve_package_path(package_name_or_json_path), json_name)
 
     # Get data from cache if available
     if use_cache and source in _parsed_json:
@@ -158,7 +159,7 @@ def data(package_name_or_json_path: str, key: str = None, use_cache: bool = True
     # Load and cache data
     else:
         try:
-            d = parse_json(_util.load_json(source), defaults)
+            d = parse_json(util.load_json(source), defaults)
             if use_cache:
                 _parsed_json[source] = d
         except ValueError as e:
@@ -173,7 +174,7 @@ def name(package_name_or_json_path: str, use_cache: bool = True) -> str:
     return data(package_name_or_json_path, 'name', use_cache)
 
 
-def version(package_name_or_json_path: str, use_cache: bool = True) -> _semver.Version:
+def version(package_name_or_json_path: str, use_cache: bool = True) -> Version:
     """Shortcut
     """
     return data(package_name_or_json_path, 'version', use_cache)
@@ -185,25 +186,25 @@ def description(package_name_or_json_path: str, use_cache: bool = True) -> dict:
     return data(package_name_or_json_path, 'description', use_cache)
 
 
-def requires(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, _List[str]]:
+def requires(package_name_or_json_path: str, use_cache: bool = True) -> Dict[str, List[str]]:
     """Shortcut
     """
     return data(package_name_or_json_path, 'requires', use_cache)
 
 
-def requires_pytsite(package_name_or_json_path: str, use_cache: bool = True) -> str:
+def requires_pytsite(package_name_or_json_path: str, use_cache: bool = True) -> VersionRange:
     """Shortcut
     """
     return data(package_name_or_json_path, 'requires', use_cache)['pytsite']
 
 
-def requires_packages(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, str]:
+def requires_packages(package_name_or_json_path: str, use_cache: bool = True) -> Dict[str, VersionRange]:
     """Shortcut
     """
     return data(package_name_or_json_path, 'requires', use_cache)['packages']
 
 
-def requires_plugins(package_name_or_json_path: str, use_cache: bool = True) -> _Dict[str, str]:
+def requires_plugins(package_name_or_json_path: str, use_cache: bool = True) -> Dict[str, str]:
     """Shortcut
     """
     return data(package_name_or_json_path, 'requires', use_cache)['plugins']
@@ -220,15 +221,15 @@ def check_requirements(pkg_name: str):
 
     # Check for required PytSite version
     required_pytsite_ver = requires_pytsite(pkg_name)
-    if version('pytsite') not in _semver.VersionRange(required_pytsite_ver):
+    if version('pytsite') not in VersionRange(required_pytsite_ver):
         raise _error.RequiredPytSiteVersionNotInstalled(required_pytsite_ver)
 
     # Check for required pip packages
     for req_p_name, req_p_ver in requires_packages(pkg_name).items():
-        if not pip.is_installed(req_p_name, _semver.VersionRange(req_p_ver)):
+        if not pip.is_installed(req_p_name, VersionRange(req_p_ver)):
             raise _error.RequiredPipPackageNotInstalled('{}{}'.format(req_p_name, req_p_ver))
 
     # Check for required plugins
     for req_p_name, req_p_ver in requires_plugins(pkg_name).items():
-        if not plugman.is_installed(req_p_name, _semver.VersionRange(req_p_ver)):
+        if not plugman.is_installed(req_p_name, VersionRange(req_p_ver)):
             raise _error.RequiredPluginNotInstalled('{}{}'.format(req_p_name, req_p_ver))

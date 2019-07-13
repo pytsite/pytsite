@@ -4,14 +4,14 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import yaml as _yaml
-import re as _re
-from typing import List as _List, Callable as _Callable, Dict as _Dict
-from importlib.util import find_spec as _find_spec
-from copy import copy as _copy
-from datetime import datetime as _datetime
-from os import path as _path
-from pytsite import threading as _threading, events as _events
+import yaml
+import re
+from typing import List, Callable, Dict
+from importlib.util import find_spec
+from copy import copy
+from datetime import datetime
+from os import path
+from pytsite import threading, events
 from . import _error
 
 _languages = []
@@ -55,7 +55,7 @@ _TL_ROMAN = [
     'ye', 'G', 'g'
 ]
 
-_SUB_TRANS_TOKEN_RE = _re.compile('{:([_a-z0-9@]+)}')
+_SUB_TRANS_TOKEN_RE = re.compile('{:([_a-z0-9@]+)}')
 
 _DEFAULT_REGIONS = {
     'en': 'US',
@@ -64,7 +64,7 @@ _DEFAULT_REGIONS = {
 }
 
 
-def _global_re_handler(match: _re) -> str:
+def _global_re_handler(match: re) -> str:
     f_name = match.group(1)
     if f_name not in _globals:
         return match.group(0)
@@ -91,13 +91,13 @@ def is_defined(language: str):
     return language in _languages
 
 
-def langs(include_current: bool = True) -> _List[str]:
+def langs(include_current: bool = True) -> List[str]:
     """Get all defined languages
     """
     r = _languages.copy()
 
     if not include_current:
-        r.remove(_current[_threading.get_id()])
+        r.remove(_current[threading.get_id()])
 
     return r
 
@@ -108,7 +108,7 @@ def set_current(language: str):
     if language not in _languages:
         raise _error.LanguageNotSupported("Language '{}' is not supported".format(language))
 
-    _current[_threading.get_id()] = language
+    _current[threading.get_id()] = language
 
 
 def set_fallback(language: str):
@@ -127,11 +127,11 @@ def get_current() -> str:
     if not _languages:
         raise RuntimeError('No languages are defined')
 
-    tid = _threading.get_id()
+    tid = threading.get_id()
     if tid not in _current:
-        _current[_threading.get_id()] = _languages[0]
+        _current[threading.get_id()] = _languages[0]
 
-    return _current[_threading.get_id()]
+    return _current[threading.get_id()]
 
 
 def get_primary() -> str:
@@ -161,12 +161,12 @@ def is_package_registered(pkg_name):
 def register_package(pkg_name: str, languages_dir: str = 'res/lang'):
     """Register language container
     """
-    spec = _find_spec(pkg_name)
+    spec = find_spec(pkg_name)
     if not spec or not spec.loader:
         raise RuntimeError("Package '{}' is not found".format(pkg_name))
 
-    lng_dir = _path.join(_path.dirname(spec.origin), languages_dir)
-    if not _path.isdir(lng_dir):
+    lng_dir = path.join(path.dirname(spec.origin), languages_dir)
+    if not path.isdir(lng_dir):
         raise RuntimeError("Language directory '{}' is not found".format(lng_dir))
 
     if pkg_name in _packages:
@@ -174,7 +174,7 @@ def register_package(pkg_name: str, languages_dir: str = 'res/lang'):
     _packages[pkg_name] = {'__path': lng_dir}
 
 
-def register_global(name: str, handler: _Callable):
+def register_global(name: str, handler: Callable):
     """Register a global
     """
     if name in _globals:
@@ -228,7 +228,7 @@ def transliterate(text: str, language: str = None) -> str:
     TL_ROMAN = _TL_ROMAN
 
     if language == 'uk':
-        TL_ROMAN = _copy(_TL_ROMAN)
+        TL_ROMAN = copy(_TL_ROMAN)
         TL_ROMAN[_TL_CYRILLIC.index('Г')] = 'H'
         TL_ROMAN[_TL_CYRILLIC.index('И')] = 'Y'
         TL_ROMAN[_TL_CYRILLIC.index('Й')] = 'I'
@@ -271,7 +271,7 @@ def t(msg_id: str, args: dict = None, language: str = None, exceptions: bool = F
     # Message translation is not found in cache, try to fetch it
     if not msg:
         # Try to get translation via event
-        for r in _events.fire('pytsite.lang@translate', language=language, package_name=package_name, msg_id=msg_id):
+        for r in events.fire('pytsite.lang@translate', language=language, package_name=package_name, msg_id=msg_id):
             msg = r
 
         # Load translation from package's data
@@ -343,7 +343,7 @@ def lang_title(language: str = None) -> str:
             return language
 
 
-def get_package_translations(pkg_name: str, language: str = None) -> _Dict[str, str]:
+def get_package_translations(pkg_name: str, language: str = None) -> Dict[str, str]:
     """Load package's language file
     """
     # Is the package registered?
@@ -364,12 +364,12 @@ def get_package_translations(pkg_name: str, language: str = None) -> _Dict[str, 
     content = {}
 
     # Actual data loading
-    file_path = _path.join(_packages[pkg_name]['__path'], language + '.yml')
-    if not _path.exists(file_path):
+    file_path = path.join(_packages[pkg_name]['__path'], language + '.yml')
+    if not path.exists(file_path):
         return content
 
     with open(file_path, encoding='utf-8') as f:
-        content = _yaml.load(f, _yaml.FullLoader)
+        content = yaml.load(f, yaml.FullLoader)
 
     if content is None:
         content = {}
@@ -380,10 +380,10 @@ def get_package_translations(pkg_name: str, language: str = None) -> _Dict[str, 
     return content
 
 
-def time_ago(time: _datetime) -> str:
+def time_ago(time: datetime) -> str:
     """Format date/time as 'time ago' phrase.
     """
-    diff = _datetime.now() - time
+    diff = datetime.now() - time
     """:type: datetime.timedelta"""
 
     if diff.days:
@@ -412,7 +412,7 @@ def time_ago(time: _datetime) -> str:
                 return t('pytsite.lang@just_now')
 
 
-def pretty_date(date_time: _datetime) -> str:
+def pretty_date(date_time: datetime) -> str:
     """Format date as pretty string.
     """
     r = '{} {}'.format(date_time.day, t_plural('pytsite.lang@month_' + str(date_time.month)))
@@ -423,7 +423,7 @@ def pretty_date(date_time: _datetime) -> str:
     return r
 
 
-def pretty_date_time(time: _datetime) -> str:
+def pretty_date_time(time: datetime) -> str:
     """Format date/time as pretty string.
     """
     return '{}, {}'.format(pretty_date(time), time.strftime('%H:%M'))
@@ -444,13 +444,13 @@ def ietf_tag(language: str = None, region: str = None, sep: str = '-') -> str:
 def on_translate(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.lang@translate', handler, priority)
+    events.listen('pytsite.lang@translate', handler, priority)
 
 
 def on_split_msg_id(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.lang@split_msg_id', handler, priority)
+    events.listen('pytsite.lang@split_msg_id', handler, priority)
 
 
 def clear_cache():
@@ -464,7 +464,7 @@ def clear_cache():
 def _split_msg_id(msg_id: str) -> list:
     """Split message ID into message ID and package name.
     """
-    for r in _events.fire('pytsite.lang@split_msg_id', msg_id=msg_id):
+    for r in events.fire('pytsite.lang@split_msg_id', msg_id=msg_id):
         msg_id = r
 
     return msg_id.split('@')[:2] if '@' in msg_id else ['app', msg_id]

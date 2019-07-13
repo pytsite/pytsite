@@ -1,20 +1,20 @@
-"""Console Commands
+"""PytSite Console Command
 """
-from typing import Dict as _Dict, Any as _Any
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from . import _option, _error
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from typing import Dict, Any
+from abc import ABC, abstractmethod
+from . import _option, _error
 
-class Command(_ABC):
-    """Abstract command.
+
+class Command(ABC):
+    """Abstract command
     """
 
     def __init__(self):
-        self._opts = {}  # type: _Dict[str, _option.Option]
+        self._opts = {}  # type: Dict[str, _option.Option]
         self._args = []
         self._required_args = 0
 
@@ -25,14 +25,14 @@ class Command(_ABC):
         self._opts[opt.name] = opt
 
     @property
-    @_abstractmethod
+    @abstractmethod
     def name(self) -> str:
         """Get name of the command.
         """
         raise NotImplementedError()
 
     @property
-    @_abstractmethod
+    @abstractmethod
     def description(self) -> str:
         """Get description of the command.
         """
@@ -48,7 +48,7 @@ class Command(_ABC):
 
         return '{}{}'.format(self.name, options_sig)
 
-    def set_opt(self, name: str, value: _Any):
+    def set_opt(self, name: str, value: Any):
         try:
             if isinstance(value, bool) and isinstance(self._opts[name], _option.Str):
                 value = ''
@@ -57,7 +57,7 @@ class Command(_ABC):
         except KeyError:
             raise _error.InvalidOption(name)
 
-    def opt(self, name: str) -> _Any:
+    def opt(self, name: str) -> Any:
         """Get option's value
         """
         try:
@@ -65,7 +65,7 @@ class Command(_ABC):
         except KeyError:
             raise _error.InvalidOption(name)
 
-    def arg(self, index: int, default: _Any = None) -> _Any:
+    def arg(self, index: int, default: Any = None) -> Any:
         """Get argument's value
         """
         try:
@@ -92,7 +92,7 @@ class Command(_ABC):
 
         return self.exec()
 
-    @_abstractmethod
+    @abstractmethod
     def exec(self):
         """Hook.
         """

@@ -72,7 +72,10 @@ setup(
         'pytz',
         'frozendict',
         'uwsgi',
-        'dateparser'
+        'dateparser',
+        'dicmer',
+        'semaver',
+        'htmler',
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

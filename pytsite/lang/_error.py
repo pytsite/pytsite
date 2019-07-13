@@ -1,4 +1,4 @@
-"""pytsite.lang Errors
+"""PytSite Lang Errors
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

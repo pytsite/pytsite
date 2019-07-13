@@ -1,10 +1,10 @@
-"""PytSite Validator
+"""PytSite Validation Validator
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Tuple as _Tuple
+from typing import Tuple
 from . import _rule, _error
 
 
@@ -32,7 +32,7 @@ class Validator:
         """
         return field in self._rules
 
-    def get_rules(self, field: str) -> _Tuple[_rule.Rule]:
+    def get_rules(self, field: str) -> Tuple[_rule.Rule]:
         """Get validator's rules.
         """
         if not self.has_field(field):

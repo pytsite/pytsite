@@ -1,8 +1,10 @@
-from werkzeug import exceptions as _e
-
+"""PytSite HTTP Errors
+"""
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from werkzeug import exceptions as _e
 
 
 class Base(_e.HTTPException):

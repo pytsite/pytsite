@@ -1,14 +1,15 @@
-"""PytSite API to pip (Package Installer for Python)
+"""PytSite pip Support API Functions
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import subprocess as _subprocess
-from pytsite import semver as _semver, reg as _reg
+import subprocess
+from semaver import Version, VersionRange
+from pytsite import reg
 from . import _error
 
-_DEBUG = _reg.get('debug')
+_DEBUG = reg.get('debug')
 _installed_packages = {}
 
 
@@ -17,7 +18,7 @@ def get_installed_info(pkg_name: str) -> dict:
     """
     cmd = ['pip', 'show', pkg_name]
 
-    r = _subprocess.run(cmd, stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+    r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if r.returncode != 0:
         raise _error.PackageNotInstalled(pkg_name)
@@ -32,13 +33,13 @@ def get_installed_info(pkg_name: str) -> dict:
     return data
 
 
-def get_installed_version(pkg_name: str) -> _semver.Version:
+def get_installed_version(pkg_name: str) -> Version:
     """Get installed package's version
     """
     return get_installed_info(pkg_name)['version']
 
 
-def is_installed(pkg_name: str, pkg_version: _semver.VersionRange) -> bool:
+def is_installed(pkg_name: str, pkg_version: VersionRange) -> bool:
     """Check if the package is installed
     """
     if pkg_name not in _installed_packages:
@@ -51,7 +52,7 @@ def is_installed(pkg_name: str, pkg_version: _semver.VersionRange) -> bool:
     return _installed_packages[pkg_name]
 
 
-def install(pkg_name: str, v_range: _semver.VersionRange = None, upgrade: bool = False,
+def install(pkg_name: str, v_range: VersionRange = None, upgrade: bool = False,
             passthrough: bool = _DEBUG) -> int:
     """Install a package
     """
@@ -65,9 +66,9 @@ def install(pkg_name: str, v_range: _semver.VersionRange = None, upgrade: bool =
 
     cmd.append(pkg_name)
 
-    stdout = stderr = None if passthrough else _subprocess.PIPE
+    stdout = stderr = None if passthrough else subprocess.PIPE
 
-    r = _subprocess.run(cmd, stdout=stdout, stderr=stderr)
+    r = subprocess.run(cmd, stdout=stdout, stderr=stderr)
     if r.returncode != 0:
         raise _error.PackageInstallError('{} {}'.format(pkg_name, v_range),
                                          r.stderr.decode('utf-8') if r.stderr else None)
@@ -78,7 +79,7 @@ def install(pkg_name: str, v_range: _semver.VersionRange = None, upgrade: bool =
 def uninstall(pkg_name: str) -> str:
     """Uninstall a package
     """
-    r = _subprocess.run(['pip', 'uninstall', '-y', pkg_name], stdout=_subprocess.PIPE, stderr=_subprocess.PIPE)
+    r = subprocess.run(['pip', 'uninstall', '-y', pkg_name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if r.returncode != 0:
         raise _error.PackageUninstallError(pkg_name, r.stderr.decode('utf-8'))

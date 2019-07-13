@@ -1,4 +1,4 @@
-"""PytSite Reload Package
+"""PytSite Reload API
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

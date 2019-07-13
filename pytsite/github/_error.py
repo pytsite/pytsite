@@ -1,4 +1,4 @@
-"""PytSite GitHub Errors.
+"""PytSite GitHub Errors
 """
 
 __author__ = 'Oleksandr Shepetko'

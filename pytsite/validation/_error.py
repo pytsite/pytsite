@@ -1,10 +1,10 @@
-"""Validation Exceptions.
+"""PytSite Validation Exceptions
 """
-from pytsite import lang as _lang
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import lang
 
 
 class RuleError(ValueError):
@@ -21,7 +21,7 @@ class RuleError(ValueError):
         return self._msg_args
 
     def __str__(self) -> str:
-        return _lang.t(self._msg_id, self._msg_args)
+        return lang.t(self._msg_id, self._msg_args)
 
 
 class ValidatorError(ValueError):

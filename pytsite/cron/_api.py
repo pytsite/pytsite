@@ -1,4 +1,4 @@
-"""PytSite Cron API
+"""PytSite Cron API Functions
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

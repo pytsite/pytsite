@@ -1,10 +1,10 @@
-"""PytSite Cache Errors.
+"""PytSite Cache Errors
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Union as _Union, List as _List, Type as _Type, Any as _Any
+from typing import Any
 
 
 class Error(Exception):
@@ -57,8 +57,8 @@ class KeyNotExist(Error):
         return "Pool '{}' does not contain key '{}'".format(self._pool_uid, self._key)
 
 
-class TypeError(Error):
-    def __init__(self, pool_uid: str, key: str, value: _Any):
+class ValueTypeError(Error):
+    def __init__(self, pool_uid: str, key: str, value: Any):
         self._p_uid = pool_uid
         self._key = key
         self._v = value

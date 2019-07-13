@@ -1,27 +1,27 @@
-"""PytSite Request
+"""PytSite HTTP Request
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
+import re
 from werkzeug.wrappers import Request as _Request
-from werkzeug.utils import cached_property as _cached_property
+from werkzeug.utils import cached_property
 
-_dict_list_key_re = _re.compile('^([^\[]+)\[([^\]]+)\]\[\]$')
-_dict_key_re = _re.compile('^([^\[]+)\[([^\]]+)\]$')
-_list_key_re = _re.compile('^([^\[]+)\[\]$')
+_dict_list_key_re = re.compile('^([^\[]+)\[([^\]]+)\]\[\]$')
+_dict_key_re = re.compile('^([^\[]+)\[([^\]]+)\]$')
+_list_key_re = re.compile('^([^\[]+)\[\]$')
 
 
 class Request(_Request):
     """HTTP request
     """
 
-    @_cached_property
+    @cached_property
     def real_remote_addr(self) -> str:
         return self.access_route[0]
 
-    @_cached_property
+    @cached_property
     def inp(self) -> dict:
         r = {}
 

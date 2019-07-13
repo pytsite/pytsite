@@ -1,18 +1,18 @@
-"""PytSite Cache API
+"""PytSite Cache API Functions
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Dict as _Dict
-from pytsite import logger as _logger, reg as _reg
+from typing import Dict
+from pytsite import logger, reg
 from . import _error
 from ._driver import Abstract as _AbstractDriver
 from ._pool import Pool as _Pool
 
 _current_driver = None  # type: _AbstractDriver
-_pools = {}  # type: _Dict[str, _Pool]
-_dbg = _reg.get('cache.debug')
+_pools = {}  # type: Dict[str, _Pool]
+_dbg = reg.get('cache.debug')
 
 
 def set_driver(driver: _AbstractDriver):
@@ -24,7 +24,7 @@ def set_driver(driver: _AbstractDriver):
         raise TypeError('Instance of {} expected, got {}'.format(_AbstractDriver, type(driver)))
 
     # When switching from one driver to another, it is important to move existing keys to the new storage
-    keys_to_move = {}  # type: _Dict[str, list]
+    keys_to_move = {}  # type: Dict[str, list]
     if _current_driver:
         for pool in _pools.values():
             keys_to_move[pool.uid] = []
@@ -81,7 +81,7 @@ def create_pool(uid: str) -> _Pool:
     _pools[uid] = _Pool(uid, get_driver)
 
     if _dbg:
-        _logger.debug("POOL CREATED: {}".format(uid))
+        logger.debug("POOL CREATED: {}".format(uid))
 
     return _pools[uid]
 
@@ -91,7 +91,7 @@ def get_pool(uid: str) -> _Pool:
     """
     try:
         if _dbg:
-            _logger.debug("POOL GET: '{}'.".format(uid))
+            logger.debug("POOL GET: '{}'.".format(uid))
 
         return _pools[uid]
 
@@ -99,7 +99,7 @@ def get_pool(uid: str) -> _Pool:
         raise _error.PoolNotExist(uid)
 
 
-def get_pools() -> _Dict[str, _Pool]:
+def get_pools() -> Dict[str, _Pool]:
     """Get all pools
     """
     return _pools.copy()

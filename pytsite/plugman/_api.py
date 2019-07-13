@@ -14,7 +14,9 @@ from os import listdir, path, makedirs, unlink, rename
 from shutil import rmtree
 from importlib import import_module
 from urllib.request import urlretrieve
-from pytsite import reg, logger, lang, router, console, semver, package_info, cache, reload, events, pip, tpl, util
+from dicmer import dict_merge
+from semaver import Version, VersionRange, last as last_version
+from pytsite import reg, logger, lang, router, console, package_info, cache, reload, events, pip, tpl
 from . import _error, _cc
 
 _API_CURRENT_VERSION = 2
@@ -65,7 +67,7 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
                 raise _error.PluginsApiError(request_url,
                                              'Error while parsing JSON from string: {}'.format(resp.content))
 
-        r = util.dict_merge(r, resp.json())
+        r = dict_merge(r, resp.json())
 
     return r
 
@@ -131,13 +133,13 @@ def remote_plugins_info(use_cache: bool = True) -> Dict[str, dict]:
     for p_name, p_data in data.items():
         n_data[p_name] = {}
         for p_ver_str, p_info in p_data.items():
-            n_data[p_name][semver.Version(p_ver_str)] = package_info.parse_json(p_info or {})
+            n_data[p_name][Version(p_ver_str)] = package_info.parse_json(p_info or {})
 
     return n_data
 
 
-def remote_plugin_info(plugin_name: str, v_range: semver.VersionRange = None,
-                       use_cache: bool = True) -> Dict[semver.Version, dict]:
+def remote_plugin_info(plugin_name: str, v_range: VersionRange = None,
+                       use_cache: bool = True) -> Dict[Version, dict]:
     """Get information about remote plugin
     """
     p_info = remote_plugins_info(use_cache).get(plugin_name)
@@ -147,12 +149,12 @@ def remote_plugin_info(plugin_name: str, v_range: semver.VersionRange = None,
     if v_range:
         p_info = {p_ver: p_info[p_ver] for p_ver in p_info.keys() if p_ver in v_range}
         if not p_info:
-            raise _error.UnknownPluginVersion(plugin_name, semver.VersionRange(v_range))
+            raise _error.UnknownPluginVersion(plugin_name, VersionRange(v_range))
 
     return p_info
 
 
-def is_installed(plugin_name: str, v_range: semver.VersionRange = None) -> bool:
+def is_installed(plugin_name: str, v_range: VersionRange = None) -> bool:
     """Check if the plugin is installed
     """
     try:
@@ -189,10 +191,10 @@ def get(plugin_name: str) -> object:
         raise _error.PluginNotLoaded(plugin_name)
 
 
-def load(plugin_name: str, v_range: semver.VersionRange = None, _required_by: str = None) -> object:
+def load(plugin_name: str, v_range: VersionRange = None, _required_by: str = None) -> object:
     """Load a plugin
     """
-    v_range = v_range or semver.VersionRange()
+    v_range = v_range or VersionRange()
 
     # Check if plugin is not faulty
     if plugin_name in _faulty:
@@ -220,7 +222,7 @@ def load(plugin_name: str, v_range: semver.VersionRange = None, _required_by: st
 
     try:
         # Check required PytSite version
-        req_ps_ver = semver.VersionRange(p_info['requires']['pytsite'])
+        req_ps_ver = VersionRange(p_info['requires']['pytsite'])
         if package_info.version('pytsite') not in req_ps_ver:
             raise _error.PluginLoadError('pytsite{} is not installed'.format(req_ps_ver))
 
@@ -231,7 +233,7 @@ def load(plugin_name: str, v_range: semver.VersionRange = None, _required_by: st
                 logger.debug("Plugin '{}{}' requires '{}{}'".format(plugin_name, v_range, req_p_name, req_p_ver))
 
             try:
-                load(req_p_name, semver.VersionRange(req_p_ver), '{}{}'.format(plugin_name, v_range))
+                load(req_p_name, VersionRange(req_p_ver), '{}{}'.format(plugin_name, v_range))
             except _error.PluginLoadError as e:
                 raise _error.PluginLoadError("Error while loading dependency for plugin '{}': {}".
                                              format(plugin_name, e))
@@ -378,12 +380,12 @@ def _install_dependencies(p_info: dict) -> int:
                 'plugin': p_info['name'],
                 'dependency': '{}{}'.format(p_name, p_version),
             }))
-        installed_plugins_count += install(p_name, semver.VersionRange(p_version))
+        installed_plugins_count += install(p_name, VersionRange(p_version))
 
     return installed_plugins_count
 
 
-def install(plugin_name: str, v_range: semver.VersionRange = None, use_cache: bool = True) -> int:
+def install(plugin_name: str, v_range: VersionRange = None, use_cache: bool = True) -> int:
     """Install a plugin
 
     Returns a number of installed plugins, including dependencies
@@ -401,11 +403,11 @@ def install(plugin_name: str, v_range: semver.VersionRange = None, use_cache: bo
 
     # Determine latest available version to install
     p_info = remote_plugin_info(plugin_name, v_range, use_cache)
-    v_to_install = semver.last(p_info.keys())
+    v_to_install = last_version(p_info.keys())
     p_info = p_info[v_to_install]
 
     # Version to update from
-    v_to_update_from = semver.Version()
+    v_to_update_from = Version()
 
     try:
         # Check if the required plugin's version is already installed
@@ -578,7 +580,7 @@ def get_update_info(plugin_name: str = None) -> dict:
     return d.get(plugin_name) if plugin_name else d
 
 
-def _set_update_info(plugin_name: str, v_from: semver.Version, v_to: semver.Version):
+def _set_update_info(plugin_name: str, v_from: Version, v_to: Version):
     d = get_update_info()
 
     d[plugin_name] = {

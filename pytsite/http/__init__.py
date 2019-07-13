@@ -1,4 +1,4 @@
-"""PytSite HTTP Package
+"""PytSite HTTP
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

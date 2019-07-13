@@ -1,14 +1,14 @@
-"""PytSite Reload Console Command
+"""PytSite Reload Console Commands
 """
-from pytsite import console as _console
-from . import _api
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from pytsite import console
+from . import _api
 
-class Reload(_console.Command):
+
+class Reload(console.Command):
     """Reload Console Command
     """
 

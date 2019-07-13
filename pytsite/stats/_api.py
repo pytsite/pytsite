@@ -1,11 +1,11 @@
-"""PytSite Stats API
+"""PytSite Stats API Functions
 """
-from pytsite import events as _events
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+from pytsite import events
+
 
 def on_update(handler):
-    _events.listen('pytsite.stats@update', handler)
+    events.listen('pytsite.stats@update', handler)

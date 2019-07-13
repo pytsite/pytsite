@@ -1,11 +1,11 @@
-"""Events Subsystem
+"""PytSite Events
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import re as _re
-from typing import List as _List, Tuple as _Tuple, Callable as _Callable, Any as _Any, Pattern as _Pattern
+from typing import List, Tuple, Callable, Any, Pattern
 
 _LISTENERS = []
 
@@ -20,7 +20,7 @@ def listen(event_name: str, handler: callable, priority: int = 0):
     _LISTENERS = sorted(_LISTENERS, key=lambda x: x[1])  # Sort by priority
 
 
-def listeners(event_name: str) -> _List[_Tuple[_Callable[..., _Any], int, _Pattern]]:
+def listeners(event_name: str) -> List[Tuple[Callable[..., Any], int, Pattern]]:
     """Get listeners of the event
     """
     r = []

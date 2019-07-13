@@ -1,25 +1,25 @@
-"""PytSite Tpl
+"""PytSite Templates Support
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 # Public API
-import jinja2 as _jinja
-import json as _json
-from typing import Mapping as _Mapping
-from datetime import datetime as _datetime
-from importlib.util import find_spec as _find_module_spec
-from os import path as _path
-from urllib.parse import urlparse as _urlparse
-from pytsite import reg as _reg, lang as _lang, util as _util, events as _events, package_info as _package_info
+import jinja2
+import json
+from typing import Mapping
+from datetime import datetime
+from importlib.util import find_spec as find_module_spec
+from os import path
+from urllib.parse import urlparse
+from pytsite import reg as reg, lang, util, events, package_info
 from . import _error as error
 
 _packages = {}
 
 
 def _resolve_location(location: str) -> list:
-    for r in _events.fire('pytsite.tpl@resolve_location', location=location):
+    for r in events.fire('pytsite.tpl@resolve_location', location=location):
         location = r
 
     if '@' in location:
@@ -29,7 +29,7 @@ def _resolve_location(location: str) -> list:
 
 
 def _resolve_name(tpl_name: str) -> str:
-    for r in _events.fire('pytsite.tpl@resolve_name', tpl_name=tpl_name):
+    for r in events.fire('pytsite.tpl@resolve_name', tpl_name=tpl_name):
         tpl_name = r or tpl_name
 
     return tpl_name
@@ -51,14 +51,14 @@ def _get_path(location: str) -> str:
     if not tpl_name.endswith('.jinja2'):
         tpl_name += '.jinja2'
 
-    return _path.join(_packages[pkg_name]['templates_dir'], tpl_name)
+    return path.join(_packages[pkg_name]['templates_dir'], tpl_name)
 
 
 def tpl_exists(tpl: str) -> bool:
-    return _path.exists(_get_path(tpl))
+    return path.exists(_get_path(tpl))
 
 
-class _TemplateLoader(_jinja.BaseLoader):
+class _TemplateLoader(jinja2.BaseLoader):
     """Template Loader
     """
 
@@ -74,17 +74,17 @@ class _TemplateLoader(_jinja.BaseLoader):
         return source, tpl_path, lambda: False
 
 
-_env = _jinja.Environment(loader=_TemplateLoader(), extensions=['jinja2.ext.do'])
+_env = jinja2.Environment(loader=_TemplateLoader(), extensions=['jinja2.ext.do'])
 
 
-def _date_filter(value: _datetime, fmt: str = 'pretty_date') -> str:
+def _date_filter(value: datetime, fmt: str = 'pretty_date') -> str:
     if not value:
-        value = _datetime.now()
+        value = datetime.now()
 
     if fmt == 'pretty_date':
-        return _lang.pretty_date(value)
+        return lang.pretty_date(value)
     elif fmt == 'pretty_date_time':
-        return _lang.pretty_date_time(value)
+        return lang.pretty_date_time(value)
     else:
         return value.strftime(fmt)
 
@@ -95,12 +95,12 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
     if package_name in _packages:
         raise RuntimeError("Package '{}' already registered".format(package_name))
 
-    pkg_spec = _find_module_spec(package_name)
+    pkg_spec = find_module_spec(package_name)
     if not pkg_spec:
         raise RuntimeError("Package '{}' is not found".format(package_name))
 
-    templates_dir = _path.join(_path.dirname(pkg_spec.origin), templates_dir)
-    if not _path.isdir(templates_dir):
+    templates_dir = path.join(path.dirname(pkg_spec.origin), templates_dir)
+    if not path.isdir(templates_dir):
         raise NotADirectoryError("Directory '{}' is not found".format(templates_dir))
 
     config = {'templates_dir': templates_dir}
@@ -110,14 +110,14 @@ def register_package(package_name: str, templates_dir: str = 'res/tpl', alias: s
         _packages[alias] = config
 
 
-def render(template: str, args: _Mapping = None, emit_event: bool = True) -> str:
+def render(template: str, args: Mapping = None, emit_event: bool = True) -> str:
     """Render a template
     """
     if not args:
         args = {}
 
     if emit_event:
-        _events.fire('pytsite.tpl@render', tpl_name=template, args=args)
+        events.fire('pytsite.tpl@render', tpl_name=template, args=args)
 
     return _env.get_template(template).render(args)
 
@@ -125,7 +125,7 @@ def render(template: str, args: _Mapping = None, emit_event: bool = True) -> str
 def on_render(handler, priority: int = 0):
     """Shortcut function to register event handler
     """
-    _events.listen('pytsite.tpl@render', handler, priority)
+    events.listen('pytsite.tpl@render', handler, priority)
 
 
 def is_global_registered(name: str) -> bool:
@@ -143,26 +143,26 @@ def register_global(name: str, obj):
 def on_resolve_location(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.tpl@resolve_location', handler, priority)
+    events.listen('pytsite.tpl@resolve_location', handler, priority)
 
 
 def on_resolve_name(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('pytsite.tpl@resolve_name', handler, priority)
+    events.listen('pytsite.tpl@resolve_name', handler, priority)
 
 
 # Additional functions and filters
 _env.globals['tpl_exists'] = tpl_exists
-_env.globals['t'] = _lang.t
-_env.globals['t_plural'] = _lang.t_plural
-_env.globals['langs'] = _lang.langs
-_env.globals['current_lang'] = _lang.get_current
-_env.globals['reg_get'] = _reg.get
-_env.globals['nav_link'] = _util.nav_link
-_env.globals['url_parse'] = _urlparse
-_env.globals['app_name'] = lambda: _reg.get('app.app_name_' + _lang.get_current(), 'PytSite')
-_env.globals['app_version'] = _package_info.version('app')
+_env.globals['t'] = lang.t
+_env.globals['t_plural'] = lang.t_plural
+_env.globals['langs'] = lang.langs
+_env.globals['current_lang'] = lang.get_current
+_env.globals['reg_get'] = reg.get
+_env.globals['nav_link'] = util.nav_link
+_env.globals['url_parse'] = urlparse
+_env.globals['app_name'] = lambda: reg.get('app.app_name_' + lang.get_current(), 'PytSite')
+_env.globals['app_version'] = package_info.version('app')
 _env.filters['date'] = _date_filter
-_env.filters['nl2br'] = lambda value: value.replace('\n', _jinja.Markup('<br>'))
-_env.filters['tojson'] = lambda obj: _json.dumps(obj)
+_env.filters['nl2br'] = lambda value: value.replace('\n', jinja2.Markup('<br>'))
+_env.filters['tojson'] = lambda obj: json.dumps(obj)

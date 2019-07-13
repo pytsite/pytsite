@@ -1,17 +1,17 @@
 """PytSite GitHub Session
 """
-import requests as _requests
-import re as _re
-from pytsite import reg as _reg
-from . import _error
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
+import requests
+import re
+from pytsite import reg
+from . import _error
+
 _API_URL = 'https://api.github.com/'
 
-_next_link_re = _re.compile('<(.+?)>; rel="next"')
+_next_link_re = re.compile('<(.+?)>; rel="next"')
 
 _error_map = {
     401: _error.Unauthorized,
@@ -25,11 +25,11 @@ class Session:
     """
 
     def __init__(self, access_token: str = None):
-        self._access_token = access_token or _reg.get('github.access_token')
+        self._access_token = access_token or reg.get('github.access_token')
 
     @staticmethod
     def _request(method: str, url, params: dict = None):
-        r = _requests.request(method, url, params=params)
+        r = requests.request(method, url, params=params)
 
         if r.status_code == 200:
             return r
@@ -90,19 +90,19 @@ class Session:
         return self.paginated_request('user/repos', visibility=visibility, affiliation=affiliation, sort=sort,
                                       direction=direction)
 
-    def user_repos(self, user: str, type: str = 'owner', sort: str = 'full_name', direction: str = 'asc') -> list:
+    def user_repos(self, user: str, r_type: str = 'owner', sort: str = 'full_name', direction: str = 'asc') -> list:
         """List user's repositories
 
         https://developer.github.com/v3/repos/#list-user-repositories
         """
-        return self.paginated_request('users/{}/repos'.format(user), type=type, sort=sort, direction=direction)
+        return self.paginated_request('users/{}/repos'.format(user), type=r_type, sort=sort, direction=direction)
 
-    def org_repos(self, org: str, type: str = 'all') -> list:
+    def org_repos(self, org: str, r_type: str = 'all') -> list:
         """List organization's repositories
 
         https://developer.github.com/v3/repos/#list-organization-repositories
         """
-        return self.paginated_request('orgs/{}/repos'.format(org), type=type)
+        return self.paginated_request('orgs/{}/repos'.format(org), type=r_type)
 
     def repo(self, owner: str, repo: str) -> dict:
         """Get repository's information

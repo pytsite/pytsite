@@ -4,14 +4,14 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
-import json as _json
-from typing import Dict as _Dict, List as _List, Mapping as _Mapping
-from copy import deepcopy as _deepcopy
+import re
+import json
+from typing import Dict as Dict, List, Mapping
+from copy import deepcopy
 from . import _rule, _error
 
-_rule_arg_re = _re.compile('<((\w+:)?[\w\-]+)>')
-_rule_arg_param_re = _re.compile('\w+:')
+_rule_arg_re = re.compile('<((\\w+:)?[\\w\\-]+)>')
+_rule_arg_param_re = re.compile('\\w+:')
 
 
 class RulesMap:
@@ -21,7 +21,7 @@ class RulesMap:
     def __init__(self):
         """Init.
         """
-        self._rules = {}  # type: _Dict[str, _rule.Rule]
+        self._rules = {}  # type: Dict[str, _rule.Rule]
 
     def add(self, rule: _rule.Rule):
         """Add a rule
@@ -47,7 +47,7 @@ class RulesMap:
         except KeyError:
             raise _error.RuleNotFound("Rule '{}' is not found".format(name))
 
-    def match(self, path: str, method: str = 'GET') -> _List[_rule.Rule]:
+    def match(self, path: str, method: str = 'GET') -> List[_rule.Rule]:
         """Match rule against a path
         """
         r = []
@@ -72,10 +72,10 @@ class RulesMap:
 
         return r
 
-    def path(self, name: str, args: _Mapping = None) -> str:
+    def path(self, name: str, args: Mapping = None) -> str:
         """Build a path for a rule
         """
-        args = _deepcopy(args) if args is not None else {}
+        args = deepcopy(args) if args is not None else {}
 
         def repl(match, _rule, _args):
             arg_k = _rule_arg_param_re.sub('', match.group(1))
@@ -99,7 +99,7 @@ class RulesMap:
         if args:
             c_args = {}
             for k, v in args.items():
-                c_args[k] = _json.dumps(v) if isinstance(v, (list, tuple, dict)) else v
+                c_args[k] = json.dumps(v) if isinstance(v, (list, tuple, dict)) else v
 
             path += '?' + '&'.join(['{}={}'.format(k, v) for k, v in c_args.items()])
 

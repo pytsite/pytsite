@@ -1,15 +1,15 @@
-"""PytSite Routing Base Controller
+"""PytSite Routing Controller
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import magic as _magic
-from typing import List as _List, Dict as _Dict, Any as _Any, Union as _Union, Mapping as _Mapping
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from os import path as _path
-from mimetypes import guess_extension as _guess_extension
-from pytsite import formatters as _formatter, validation as _validation, http as _http, util as _util
+import magic
+from typing import List, Dict, Any, Union, Mapping
+from abc import ABC as _ABC, abstractmethod
+from os import path as p_path
+from mimetypes import guess_extension
+from pytsite import formatters, validation, http, util
 
 
 class ControllerArgs(dict):
@@ -18,10 +18,10 @@ class ControllerArgs(dict):
         """
         super().__init__()
 
-        self._formatters = kwargs.get('formatters', {})  # type: _Dict[str, _List[_formatter.Formatter]]
-        self._rules = kwargs.get('rules', {})  # type: _Dict[str, _List[_validation.rule.Rule]]
+        self._formatters = kwargs.get('formatters', {})  # type: Dict[str, List[formatters.Formatter]]
+        self._rules = kwargs.get('rules', {})  # type: Dict[str, List[validation.rule.Rule]]
 
-    def add_formatter(self, key: str, formatter: _formatter.Formatter, use_default: bool = True):
+    def add_formatter(self, key: str, formatter: formatters.Formatter, use_default: bool = True):
         """Add a formatter of the field
         """
         if key not in self._formatters:
@@ -39,7 +39,7 @@ class ControllerArgs(dict):
         if key in self._formatters:
             del self._formatters[key]
 
-    def add_validation(self, key: str, rule: _validation.rule.Rule):
+    def add_validation(self, key: str, rule: validation.rule.Rule):
         """Add a validation rule of the field
         """
         if key not in self._rules:
@@ -53,7 +53,7 @@ class ControllerArgs(dict):
         if key in self._rules:
             del self._rules[key]
 
-    def update(self, other: _Mapping, **kwargs):
+    def update(self, other: Mapping, **kwargs):
         """It is important to pass all values through formatters
         """
         for k, v in other.items():
@@ -72,13 +72,13 @@ class ControllerArgs(dict):
             for r in self._rules[k]:
                 try:
                     r.validate(v)
-                except _validation.error.RuleError as e:
-                    raise _validation.error.RuleError('pytsite.router@input_validation_error', {
+                except validation.error.RuleError as e:
+                    raise validation.error.RuleError('pytsite.router@input_validation_error', {
                         'field_name': k,
                         'error': str(e),
                     })
 
-    def __setitem__(self, key: str, value: _Any):
+    def __setitem__(self, key: str, value: Any):
         # Apply formatters
         if key in self._formatters:
             for f in self._formatters[key]:
@@ -103,60 +103,60 @@ class Controller(_ABC):
         self._response = None
 
     @staticmethod
-    def redirect(location: str, status: int = 302) -> _http.RedirectResponse:
+    def redirect(location: str, status: int = 302) -> http.RedirectResponse:
         """Return a redirect
         """
-        return _http.RedirectResponse(location, status)
+        return http.RedirectResponse(location, status)
 
     def file(self, path: str, name: str = None, mime: str = None, mode: str = 'rb'):
         """Return a file stream response
         """
         try:
             if not name:
-                name = _path.basename(path)
+                name = p_path.basename(path)
 
             if not mime:
-                mime = _magic.from_file(path, True)
+                mime = magic.from_file(path, True)
 
-            if not _path.splitext(name)[1] and mime:
-                name += _guess_extension(mime)
+            if not p_path.splitext(name)[1] and mime:
+                name += guess_extension(mime)
 
-            headers = {'Content-Disposition': 'attachment; filename="{}"'.format(_util.url_quote(name))}
+            headers = {'Content-Disposition': 'attachment; filename="{}"'.format(util.url_quote(name))}
 
-            return _http.Response(open(path, mode), 200, headers, mime, direct_passthrough=True)
+            return http.Response(open(path, mode), 200, headers, mime, direct_passthrough=True)
 
         except FileNotFoundError:
             return self.not_found()
 
     @staticmethod
-    def warning(description: _Union[str, Exception] = None, code: int = 500):
+    def warning(description: Union[str, Exception] = None, code: int = 500):
         """Raise a 'UserWarning' exception
         """
         return UserWarning(description, code)
 
     @staticmethod
-    def not_found(description: _Union[str, Exception] = None, response: _http.Response = None):
+    def not_found(description: Union[str, Exception] = None, response: http.Response = None):
         """Raise a 'Not found' exception
         """
-        return _http.error.NotFound(description, response)
+        return http.error.NotFound(description, response)
 
     @staticmethod
-    def unauthorized(description: _Union[str, Exception] = None, response: _http.Response = None):
+    def unauthorized(description: Union[str, Exception] = None, response: http.Response = None):
         """Raise an 'Unauthorized' exception
         """
-        return _http.error.Unauthorized(description, response)
+        return http.error.Unauthorized(description, response)
 
     @staticmethod
-    def forbidden(description: _Union[str, Exception] = None, response: _http.Response = None):
+    def forbidden(description: Union[str, Exception] = None, response: http.Response = None):
         """Raise a 'Forbidden' exception
         """
-        return _http.error.Forbidden(description, response)
+        return http.error.Forbidden(description, response)
 
     @staticmethod
-    def server_error(description: _Union[str, Exception] = None, response: _http.Response = None):
+    def server_error(description: Union[str, Exception] = None, response: http.Response = None):
         """Raise an 'Internal server error' exception
         """
-        return _http.error.InternalServerError(description, response)
+        return http.error.InternalServerError(description, response)
 
     @property
     def args(self) -> ControllerArgs:
@@ -164,13 +164,13 @@ class Controller(_ABC):
         """
         return self._args
 
-    def arg(self, name: str, default: _Any = None) -> _Any:
+    def arg(self, name: str, default: Any = None) -> Any:
         """Shortcut to get argument's value without KeyError raising
         """
         return self._args.get(name, default)
 
     @property
-    def request(self) -> _http.Request:
+    def request(self) -> http.Request:
         """Current request object getter
         """
         if not self._request:
@@ -179,13 +179,13 @@ class Controller(_ABC):
         return self._request
 
     @request.setter
-    def request(self, request: _http.Request):
+    def request(self, request: http.Request):
         """Current request object setter
         """
         self._request = request
 
     @property
-    def response(self) -> _http.Response:
+    def response(self) -> http.Response:
         """Current response object getter
         """
         if not self._response:
@@ -194,12 +194,12 @@ class Controller(_ABC):
         return self._response
 
     @response.setter
-    def response(self, response: _http.Response):
+    def response(self, response: http.Response):
         """Current response object setter
         """
         self._response = response
 
-    @_abstractmethod
+    @abstractmethod
     def exec(self):
         """Execute the controller
         """

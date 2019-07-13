@@ -4,7 +4,7 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import semver
+from semaver import VersionRange
 
 
 class Error(Exception):
@@ -37,7 +37,7 @@ class UnknownPlugin(Error):
 
 
 class UnknownPluginVersion(Error):
-    def __init__(self, plugin_name: str, v_range: semver.VersionRange):
+    def __init__(self, plugin_name: str, v_range: VersionRange):
         self._name = plugin_name
         self._v_range = v_range
 

@@ -1,23 +1,23 @@
-"""Basic Validation Rules.
+"""PytSite Validation Rules
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
-from typing import Any as _Any
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from datetime import datetime as _datetime, date as _date, time as _time
-from decimal import Decimal as _Decimal
-from pytsite import util as _util, lang as _lang
+import re
+from typing import Any
+from abc import ABC, abstractmethod
+from datetime import datetime
+from decimal import Decimal as DecimalType
+from pytsite import util, lang
 from . import _error
 
-_re_num = _re.compile('^-?\d+(\.\d+)?$')
-_re_int_num = _re.compile('^-?\d+$')
-_re_decimal_num = _re.compile('^-?\d+\.\d+$')
+_re_num = re.compile('^-?\\d+(\\.\\d+)?$')
+_re_int_num = re.compile('^-?\\d+$')
+_re_decimal_num = re.compile('^-?\\d+\\.\\d+$')
 
 
-class Rule(_ABC):
+class Rule(ABC):
     """Base Rule.
     """
 
@@ -38,7 +38,7 @@ class Rule(_ABC):
         """
         self._value = value
 
-    def validate(self, value=None) -> _Any:
+    def validate(self, value=None) -> Any:
         if value is not None:
             self._value = value
 
@@ -47,7 +47,7 @@ class Rule(_ABC):
 
         return self._value
 
-    @_abstractmethod
+    @abstractmethod
     def _do_validate(self):
         pass
 
@@ -73,9 +73,9 @@ class NonEmpty(Rule):
             return self._value
 
         if isinstance(self._value, list):
-            self._value = _util.cleanup_list(self._value)
+            self._value = util.cleanup_list(self._value)
         elif isinstance(self._value, dict):
-            self._value = _util.cleanup_dict(self._value)
+            self._value = util.cleanup_dict(self._value)
         elif isinstance(self._value, str):
             self._value = self._value.strip()
 
@@ -143,7 +143,7 @@ class DictPartsNonEmpty(Rule):
             return
 
         if not isinstance(self._value, dict):
-            raise TypeError(_lang.t('pytsite.validation@dict_expected', {'got': self.value.__class__.__name__}))
+            raise TypeError(lang.t('pytsite.validation@dict_expected', {'got': self.value.__class__.__name__}))
 
         for k in self._keys:
             if k not in self._value or not self._value[k]:
@@ -161,7 +161,7 @@ class Number(Rule):
         if isinstance(self._value, str):
             if not _re_num.match(self._value):
                 raise _error.RuleError(self._msg_id)
-        elif type(self._value) not in (float, int, _Decimal):
+        elif type(self._value) not in (float, int, DecimalType):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
@@ -195,7 +195,7 @@ class Decimal(Rule):
         if isinstance(self._value, str):
             if not _re_decimal_num.match(self._value):
                 raise _error.RuleError(self._msg_id, self._msg_args)
-        elif type(self._value) not in (float, _Decimal):
+        elif type(self._value) not in (float, DecimalType):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
@@ -289,7 +289,7 @@ class Regex(Rule):
         if not self._pattern or not isinstance(self._pattern, str):
             raise _error.RuleError('Pattern must be a nonempty string.')
 
-        self._regex = _re.compile(self._pattern, _re.IGNORECASE) if self._ignore_case else _re.compile(self._pattern)
+        self._regex = re.compile(self._pattern, re.IGNORECASE) if self._ignore_case else re.compile(self._pattern)
 
     def _do_validate(self):
         """Do actual validation of the rule.
@@ -304,14 +304,14 @@ class Regex(Rule):
 
         if isinstance(self.value, (list, tuple)):
             self._msg_id += '_row'
-            self.value = _util.cleanup_list(self.value)
+            self.value = util.cleanup_list(self.value)
             for k, v in enumerate(self.value):
                 if not self._regex.match(v):
                     raise _error.RuleError(self._msg_id, dict(self._msg_args, row=k + 1))
 
         elif isinstance(self.value, dict):
             self._msg_id += '_row'
-            self.value = _util.cleanup_dict(self.value)
+            self.value = util.cleanup_dict(self.value)
             for k, v in self.value.items():
                 if not self._regex.match(v):
                     raise _error.RuleError(self._msg_id, dict(self._msg_args, row=k + 1))
@@ -322,13 +322,14 @@ class Regex(Rule):
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
         else:
-            msg = _lang.t('pytsite.validation@list_dict_str_expected', {'got': self.value.__class__.__name__})
+            msg = lang.t('pytsite.validation@list_dict_str_expected', {'got': self.value.__class__.__name__})
             raise TypeError(msg)
 
 
 class DNSName(Regex):
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None, **kwargs):
-        super().__init__(value, msg_id, msg_args, pattern='^(?:[^\W_][\w-]*(?:\.|\w))+$', ignore_case=True, **kwargs)
+        super().__init__(value, msg_id, msg_args, pattern='^(?:[^\\W_][\\w-]*(?:\\.|\\w))+$',
+                         ignore_case=True, **kwargs)
 
 
 class Url(Rule):
@@ -341,22 +342,22 @@ class Url(Rule):
 
         if isinstance(self._value, (list, tuple)):
             for k, v in enumerate(self._value):
-                if not _util.is_url(v):
+                if not util.is_url(v):
                     self._msg_args['row'] = k + 1
                     raise _error.RuleError(self._msg_id, self._msg_args)
 
         elif isinstance(self._value, dict):
             for k, v in enumerate(self._value.items()):
-                if not _util.is_url(v):
+                if not util.is_url(v):
                     self._msg_args['row'] = k + 1
                     raise _error.RuleError(self._msg_id, self._msg_args)
 
         elif isinstance(self._value, str):
-            if not _util.is_url(self._value):
+            if not util.is_url(self._value):
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
         else:
-            raise TypeError(_lang.t('pytsite.validation@list_dict_str_expected', {'got': type(self._value)}))
+            raise TypeError(lang.t('pytsite.validation@list_dict_str_expected', {'got': type(self._value)}))
 
 
 class VideoHostingUrl(Url):
@@ -383,11 +384,11 @@ class VideoHostingUrl(Url):
             if not self._validate_str(self._value):
                 raise _error.RuleError(self._msg_id, self._msg_args)
         else:
-            raise TypeError(_lang.t('pytsite.validation@list_dict_str_expected', {'got': type(self._value)}))
+            raise TypeError(lang.t('pytsite.validation@list_dict_str_expected', {'got': type(self._value)}))
 
     def _validate_str(self, inp: str):
-        for re in self._get_re():
-            if re.search(inp):
+        for regex in self._get_re():
+            if regex.search(inp):
                 return True
 
         return False
@@ -395,14 +396,14 @@ class VideoHostingUrl(Url):
     @staticmethod
     def _get_re() -> list:
         patterns = (
-            '(youtu\.be|youtube\.com)/(watch\?v=)?[0-9a-z-A-Z_-]{11}',
-            'facebook\.com/[^/]+/videos/(\d+)',
-            'vimeo\.com/\d+',
-            'rutube\.ru/video/\w{32}'
+            '(youtu\\.be|youtube\\.com)/(watch\\?v=)?[0-9a-z-A-Z_-]{11}',
+            'facebook\\.com/[^/]+/videos/(\\d+)',
+            'vimeo\\.com/\\d+',
+            'rutube\\.ru/video/\\w{32}'
         )
         r = []
         for p in patterns:
-            r.append(_re.compile(p, _re.IGNORECASE))
+            r.append(re.compile(p, re.IGNORECASE))
 
         return r
 
@@ -412,7 +413,7 @@ class Email(Regex):
     """
 
     def __init__(self, value: str = None, msg_id: str = None, msg_args: dict = None):
-        super().__init__(value, msg_id, msg_args, pattern='^[0-9a-zA-Z\-_.+]+@[0-9a-zA-Z\-.]+$', ignore_case=True)
+        super().__init__(value, msg_id, msg_args, pattern='^[0-9a-zA-Z\\-_.+]+@[0-9a-zA-Z\\-.]+$', ignore_case=True)
 
 
 class DateTime(Rule):
@@ -434,11 +435,11 @@ class DateTime(Rule):
                 return
 
             try:
-                self._value = _util.parse_date_time(self._value, self._formats)
+                self._value = util.parse_date_time(self._value, self._formats)
             except ValueError:
                 raise _error.RuleError(self._msg_id, self._msg_args)
 
-        elif self._value and not isinstance(self._value, _datetime):
+        elif self._value and not isinstance(self._value, datetime):
             raise _error.RuleError(self._msg_id, self._msg_args)
 
 
@@ -456,12 +457,12 @@ class ListListItemNotEmpty(Rule):
             return
 
         if not isinstance(self.value, list):
-            msg = _lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
+            msg = lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
             raise TypeError(msg)
 
         for row, sub_list in enumerate(self.value):
             if not isinstance(sub_list, list):
-                msg = _lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
+                msg = lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
                 raise TypeError(msg)
 
             if self._index + 1 > len(sub_list):
@@ -479,12 +480,12 @@ class ListListItemUrl(ListListItemNotEmpty):
             return
 
         if not isinstance(self.value, list):
-            msg = _lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
+            msg = lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
             raise TypeError(msg)
 
         for row, sub_list in enumerate(self.value):
             if not isinstance(sub_list, list):
-                msg = _lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
+                msg = lang.t('pytsite.validation@list_expected', {'got': self.value.__class__.__name__})
                 raise TypeError(msg)
 
             if self._index + 1 > len(sub_list):

@@ -1,10 +1,10 @@
-"""Console Errors
+"""PytSite Console Errors
 """
-from pytsite import lang as _lang
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import lang
 
 
 class Error(Exception):
@@ -29,7 +29,7 @@ class MissingOption(Error):
         self._opts_list = opts_list
 
     def __str__(self):
-        return _lang.t('pytsite.console@options_not_specified', {'opts_list': self._opts_list})
+        return lang.t('pytsite.console@options_not_specified', {'opts_list': self._opts_list})
 
 
 class MissingRequiredOption(Error):
@@ -37,7 +37,7 @@ class MissingRequiredOption(Error):
         self._opt_name = opt_name
 
     def __str__(self):
-        return _lang.t('pytsite.console@required_option_not_specified', {'opt_name': self._opt_name})
+        return lang.t('pytsite.console@required_option_not_specified', {'opt_name': self._opt_name})
 
 
 class InvalidOption(Error):
@@ -45,7 +45,7 @@ class InvalidOption(Error):
         self._opt_name = opt_name
 
     def __str__(self):
-        return _lang.t('pytsite.console@invalid_option', {'opt_name': self._opt_name})
+        return lang.t('pytsite.console@invalid_option', {'opt_name': self._opt_name})
 
 
 class InvalidArgument(Error):
@@ -54,7 +54,7 @@ class InvalidArgument(Error):
         self._arg_value = arg_value
 
     def __str__(self):
-        return _lang.t('pytsite.console@invalid_argument', {'arg_index': self._arg_index, 'arg_value': self._arg_value})
+        return lang.t('pytsite.console@invalid_argument', {'arg_index': self._arg_index, 'arg_value': self._arg_value})
 
 
 class MissingArgument(Error):
@@ -63,4 +63,4 @@ class MissingArgument(Error):
         self._arg_index = arg_index
 
     def __str__(self):
-        return _lang.t(self._msg_id, {'arg_index': self._arg_index})
+        return lang.t(self._msg_id, {'arg_index': self._arg_index})

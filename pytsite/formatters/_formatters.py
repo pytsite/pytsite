@@ -1,34 +1,34 @@
-"""PytSite Router Formatters
+"""PytSite Formatters
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import json as _json
-from typing import Any as _Any, Union as _Union, Callable as _Callable, Iterable as _Iterable, Type as _Type
-from abc import ABC as _ABC
-from datetime import datetime as _datetime
-from pytsite import util as _util
+import json
+from typing import Any, Union, Callable, Iterable, Type
+from abc import ABC
+from datetime import datetime
+from pytsite import util
 
 
-class Formatter(_ABC):
+class Formatter(ABC):
     def __init__(self, default=None):
         self._value = default
 
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         self._value = value
 
         return self
 
-    def get_val(self) -> _Any:
+    def get_val(self) -> Any:
         return self._value
 
-    def format(self, value: _Any):
+    def format(self, value: Any):
         return self.set_val(value).get_val()
 
 
 class Transform(Formatter):
-    def __init__(self, default: _Any = None, transform: _Union[dict, _Callable[[_Any], _Any]] = None):
+    def __init__(self, default: Any = None, transform: Union[dict, Callable[[Any], Any]] = None):
         super().__init__(default)
 
         if not transform:
@@ -36,7 +36,7 @@ class Transform(Formatter):
 
         self._transform = transform
 
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         if isinstance(self._transform, dict):
             value = self._transform[value] if value in self._transform else value
         elif callable(self._transform):
@@ -46,7 +46,7 @@ class Transform(Formatter):
 
 
 class Bool(Formatter):
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         return super().set_val(value in (True, 'True', 'true', 'TRUE', '1', 1, 'Y', 'y', 'Yes', 'yes', 'YES'))
 
 
@@ -57,7 +57,7 @@ class Int(Formatter):
         self._min = minimum
         self._max = maximum
 
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         try:
             value = int(value)
 
@@ -142,12 +142,12 @@ class Str(Formatter):
 
 
 class Enum(Formatter):
-    def __init__(self, default: _Any = None, values: _Iterable = None):
+    def __init__(self, default: Any = None, values: Iterable = None):
         super().__init__(default)
 
         self._values = values
 
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         if value not in self._values:
             raise ValueError("Value '{}' is not acceptable".format(value))
 
@@ -155,37 +155,37 @@ class Enum(Formatter):
 
 
 class DateTime(Formatter):
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         if isinstance(value, str):
-            value = _util.parse_date_time(value)
-        elif not isinstance(value, _datetime):
+            value = util.parse_date_time(value)
+        elif not isinstance(value, datetime):
             raise TypeError('String or datetime expected, got {}: {}'.format(type(value), value))
 
         return super().set_val(value)
 
 
 class JSON(Formatter):
-    def __init__(self, default: _Any = None, allowed_types: _Iterable[_Type] = (object,)):
+    def __init__(self, default: Any = None, allowed_types: Iterable[Type] = (object,)):
         self._allowed_types = allowed_types
 
         super().__init__(default)
 
-    def set_val(self, value: _Any):
+    def set_val(self, value: Any):
         try:
             if isinstance(value, str):
-                value = _json.loads(value)
+                value = json.loads(value)
             if type(value) not in self._allowed_types:
                 raise TypeError('{} expected, got {}'.format(self._allowed_types, type(value)))
             return super().set_val(value)
-        except (_json.JSONDecodeError, TypeError) as e:
+        except (json.JSONDecodeError, TypeError) as e:
             raise ValueError('Error while parsing JSON: {}'.format(e))
 
 
 class JSONArray(JSON):
-    def __init__(self, default: _Any = None):
+    def __init__(self, default: Any = None):
         super().__init__(default if default is not None else [], (list, tuple))
 
 
 class JSONObject(JSON):
-    def __init__(self, default: _Any = None):
+    def __init__(self, default: Any = None):
         super().__init__(default if default is not None else {}, (dict,))

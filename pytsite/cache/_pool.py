@@ -5,13 +5,12 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Mapping as _Mapping, List as _List, Callable as _Callable, Generator as _Generator, Type as _Type, \
-    Any as _Any
-from ._driver import Abstract as _Driver
+from typing import Mapping, List, Callable, Generator, Type, Any
+from ._driver import Abstract as AbstractDriver
 
 
 class Pool:
-    def __init__(self, uid: str, get_driver: _Callable[[], _Driver]):
+    def __init__(self, uid: str, get_driver: Callable[[], AbstractDriver]):
         """Init
         """
         self._uid = uid
@@ -23,7 +22,7 @@ class Pool:
         """
         return self._uid
 
-    def keys(self) -> _Generator[str, None, None]:
+    def keys(self) -> Generator[str, None, None]:
         """Get all existing keys in current pool
         """
         return self._get_driver().keys(self._uid)
@@ -33,7 +32,7 @@ class Pool:
         """
         return self._get_driver().has(self._uid, key)
 
-    def type(self, key: str) -> _Type:
+    def type(self, key: str) -> Type:
         """Get key's value type
         """
         return self._get_driver().type(self._uid, key)
@@ -48,7 +47,7 @@ class Pool:
         """
         return self._get_driver().get(self._uid, key)
 
-    def put_hash(self, key: str, value: _Mapping, ttl: int = None):
+    def put_hash(self, key: str, value: Mapping, ttl: int = None):
         """Put a hash item into the pool
         """
         return self._get_driver().put_hash(self._uid, key, value, ttl)
@@ -58,7 +57,7 @@ class Pool:
         """
         return self._get_driver().put_hash_item(self._uid, key, item_key, value)
 
-    def get_hash(self, key: str, hash_keys: _List[str] = None) -> _Mapping:
+    def get_hash(self, key: str, hash_keys: List[str] = None) -> Mapping:
         """Get hash
         """
         return self._get_driver().get_hash(self._uid, key, hash_keys)
@@ -88,12 +87,12 @@ class Pool:
         """
         return self._get_driver().put_list(self._uid, key, value, ttl)
 
-    def list_l_push(self, key: str, value: _Any, ttl: int = None) -> int:
+    def list_l_push(self, key: str, value: Any, ttl: int = None) -> int:
         """Insert the value at the head of the list stored at key
         """
         return self._get_driver().list_l_push(self._uid, key, value, ttl)
 
-    def list_r_push(self, key: str, value: _Any, ttl: int = None) -> int:
+    def list_r_push(self, key: str, value: Any, ttl: int = None) -> int:
         """Insert the value at the tail of the list stored at key
         """
         return self._get_driver().list_r_push(self._uid, key, value, ttl)

@@ -1,10 +1,10 @@
 """PytSite Console Help Command
 """
-from . import _command, _api, _error
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from . import _command, _api, _error
 
 
 class Help(_command.Command):

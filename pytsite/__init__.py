@@ -26,7 +26,7 @@ def _init():
     from os import path, environ
     from getpass import getuser
     from socket import gethostname
-    from . import reg, package_info, semver
+    from . import reg, package_info
 
     # Load regisrty memory driver
     reg.set_driver(reg.driver.Memory())
@@ -101,7 +101,7 @@ def _init():
         cache.set_driver(cache.driver.File())
 
         # Load required core packages, order is important
-        for pkg_name in ('cron', 'stats', 'reload', 'update', 'plugman', 'testing'):
+        for pkg_name in ('cron', 'stats', 'reload', 'update', 'plugman'):
             import_module('pytsite.' + pkg_name)
 
         # Register app's resources

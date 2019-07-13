@@ -4,16 +4,16 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import cache as _cache, util as _util, threading as _threading
-from typing import Any as _Any, Union as _Union, Callable as _Callable
+from pytsite import cache, util, threading
+from typing import Any, Union, Callable
 
-_POOL = _cache.create_pool('pytsite.queue')
+_POOL = cache.create_pool('pytsite.queue')
 
 
 class Task:
     def __init__(self, handler: str, *args, **kwargs):
         if isinstance(handler, str):
-            handler = _util.get_module_attr(handler)
+            handler = util.get_module_attr(handler)
 
         self._handler = handler
         self._args = args
@@ -29,7 +29,7 @@ class Queue:
         """
         self._name = name
 
-    def put(self, handler: _Union[_Callable[..., _Any], str], *args, **kwargs):
+    def put(self, handler: Union[Callable[..., Any], str], *args, **kwargs):
         """Put a task into the queue
         """
         if not (callable(handler) or isinstance(handler, str)):
@@ -44,7 +44,7 @@ class Queue:
         """
         threads = []
         for task in self:
-            threads.append(_threading.run_in_thread(task.exec))
+            threads.append(threading.run_in_thread(task.exec))
 
         # Wait while all tasks finish
         if wait:
@@ -67,5 +67,5 @@ class Queue:
                 return Task(t_data[0], *t_data[1])
             else:
                 return Task(t_data[0])
-        except _cache.error.KeyNotExist:
+        except cache.error.KeyNotExist:
             raise StopIteration()

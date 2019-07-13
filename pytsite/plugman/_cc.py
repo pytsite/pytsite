@@ -6,7 +6,8 @@ __license__ = 'MIT'
 
 import re
 import subprocess
-from pytsite import reload, console, package_info, semver
+from semaver import VersionRange
+from pytsite import reload, console, package_info
 from . import _api, _error
 
 _PLUGINS_SPEC_RE = re.compile('([a-zA-Z0-9_]+)([<>!=~]*.+)?')
@@ -53,7 +54,7 @@ class Install(console.Command):
             for plugin_name, plugin_version in plugins_specs.items():
                 try:
                     use_cache = not self.opt('no-cache')
-                    installed_count += _api.install(plugin_name, semver.VersionRange(plugin_version), use_cache)
+                    installed_count += _api.install(plugin_name, VersionRange(plugin_version), use_cache)
                 except _error.Error as e:
                     raise console.error.CommandExecutionError(e)
 

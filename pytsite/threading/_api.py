@@ -1,4 +1,4 @@
-"""PytSite Threading API
+"""PytSite Threading API Functions
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

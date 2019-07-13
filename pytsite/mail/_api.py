@@ -1,13 +1,13 @@
-"""PytSite Mail API
+"""PytSite Mail API Functions
 """
-from pytsite import router as _router, reg as _reg
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import router, reg
 
 
 def mail_from() -> tuple:
     """Get default mail sender's address and name.
     """
-    return _reg.get('mail.from', 'info@' + _router.server_name())
+    return reg.get('mail.from', 'info@' + router.server_name())

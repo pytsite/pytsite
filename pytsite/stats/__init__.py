@@ -1,10 +1,10 @@
 """PytSite Stats
 """
-from ._api import on_update
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from ._api import on_update
 
 
 def _init():

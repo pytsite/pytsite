@@ -1,4 +1,4 @@
-"""PytSite Maintenance Package.
+"""PytSite Maintenance
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

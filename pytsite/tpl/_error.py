@@ -1,4 +1,4 @@
-"""PytSite Tpl Errors
+"""PytSite Templates Support Errors
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'

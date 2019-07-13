@@ -1,12 +1,12 @@
-"""PytSite Console.
+"""PytSite Console API Functions
 """
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
-from typing import Union as _Union
-from pytsite import reg as _reg, lang as _lang, logger as _logger
+import re
+from typing import Union
+from pytsite import reg, lang, logger
 from . import _error, _command
 
 _commands = {}
@@ -33,7 +33,7 @@ def get_command(name: str) -> _command.Command:
     """Get a console command.
     """
     if name not in _commands:
-        raise _error.CommandNotFound(_lang.t('pytsite.console@unknown_command', {'name': name}))
+        raise _error.CommandNotFound(lang.t('pytsite.console@unknown_command', {'name': name}))
 
     return _commands[name]
 
@@ -69,7 +69,7 @@ def run_command(name: str, options: dict = None, arguments: list = None):
         return cmd.do_execute()
 
     except Exception as e:
-        _logger.error(e)
+        logger.error(e)
         raise e
 
     finally:
@@ -82,7 +82,7 @@ def usage():
     global _commands
     r = ''
     for name, cmd in sorted(_commands.items()):
-        r += "{}{}{} -- {}\n".format(COLOR_HEADER, name, COLOR_END, _lang.t(cmd.description))
+        r += "{}{}{} -- {}\n".format(COLOR_HEADER, name, COLOR_END, lang.t(cmd.description))
 
     return r
 
@@ -105,7 +105,7 @@ def run():
     arguments = []
     for arg_v in argv[2:]:
         if arg_v.startswith('--'):
-            opt = _re.sub(r'^--', '', arg_v)
+            opt = re.sub(r'^--', '', arg_v)
             opt_split = opt.split('=')
             if len(opt_split) == 1:
                 options[opt_split[0]] = True
@@ -126,31 +126,31 @@ def run():
         exit(-1)
 
 
-def _print(msg: _Union[str, Exception], color: str = None):
-    if _reg.get('env.type') != 'wsgi':
+def _print(msg: Union[str, Exception], color: str = None):
+    if reg.get('env.type') != 'wsgi':
         print('{}{}{}'.format(color, msg, COLOR_END)) if color else print(msg)
 
 
-def print_normal(msg: _Union[str, Exception]):
-    _logger.info(msg)
+def print_normal(msg: Union[str, Exception]):
+    logger.info(msg)
     _print(msg)
 
 
-def print_info(msg: _Union[str, Exception]):
-    _logger.info(msg)
+def print_info(msg: Union[str, Exception]):
+    logger.info(msg)
     _print(msg, COLOR_INFO)
 
 
-def print_success(msg: _Union[str, Exception]):
-    _logger.info(msg)
+def print_success(msg: Union[str, Exception]):
+    logger.info(msg)
     _print(msg, COLOR_SUCCESS)
 
 
-def print_warning(msg: _Union[str, Exception]):
-    _logger.warn(msg)
+def print_warning(msg: Union[str, Exception]):
+    logger.warn(msg)
     _print(msg, COLOR_WARNING)
 
 
-def print_error(msg: _Union[str, Exception]):
-    _logger.error(msg)
+def print_error(msg: Union[str, Exception]):
+    logger.error(msg)
     _print(msg, COLOR_ERROR)

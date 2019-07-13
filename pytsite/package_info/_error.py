@@ -1,6 +1,5 @@
-"""PytSite Package Info Errors
+"""PytSite Package Info Utilities Errors
 """
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'

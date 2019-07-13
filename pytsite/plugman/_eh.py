@@ -4,7 +4,8 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import console, lang, events, logger, semver, reg
+from semaver import Version
+from pytsite import console, lang, events, logger, reg
 from . import _api, _error
 
 
@@ -29,7 +30,7 @@ def on_pytsite_load():
 
     # Call 'plugin_pre_install()' hooks
     for p_name, info in update_info.items():
-        v_to = semver.Version(info['version_to'])
+        v_to = Version(info['version_to'])
 
         try:
             # Check if the plugin is installed and loaded
@@ -58,8 +59,8 @@ def on_pytsite_load():
             continue
 
         plugin = _api.get(p_name)
-        v_from = semver.Version(info['version_from'])
-        v_to = semver.Version(info['version_to'])
+        v_from = Version(info['version_from'])
+        v_to = Version(info['version_to'])
 
         try:
             logger.info(lang.t('pytsite.plugman@installing_plugin', {

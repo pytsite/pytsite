@@ -4,14 +4,14 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-import re as _re
-from typing import Type as _Type, List as _List, Union as _Union, Tuple as _Tuple
-from pytsite import util as _util
+import re
+from typing import Type, List, Union, Tuple
+from pytsite import util
 from . import _error
-from ._controller import Controller as _Controller, Filter as _Filter
+from ._controller import Controller, Filter
 
-_rule_arg_re = _re.compile('<(?:(\w+)(?:\(([\w|]*)\))?:)?(\w+)>')
-_parametrized_arg_type_re = _re.compile('(\w+)\(([\w|]*)\)')
+_rule_arg_re = re.compile('<(?:(\\w+)(?:\\(([\\w|]*)\\))?:)?(\\w+)>')
+_parametrized_arg_type_re = re.compile('(\\w+)\\(([\\w|]*)\\)')
 
 
 def _rule_arg_repl_func(match):
@@ -23,9 +23,9 @@ def _rule_arg_repl_func(match):
     if arg_formatter == 'common':
         return '(?P<{}>[^/]+)'.format(arg_name)
     elif arg_formatter == 'int':
-        return '(?P<{}>\d+)'.format(arg_name)
+        return '(?P<{}>\\d+)'.format(arg_name)
     elif arg_formatter == 'float':
-        return '(?P<{}>\d+\.\d+)'.format(arg_name)
+        return '(?P<{}>\\d+\\.\\d+)'.format(arg_name)
     elif arg_formatter == 'alpha':
         return '(?P<{}>[a-z-A-Z]+)'.format(arg_name)
     elif arg_formatter == 'alnum':
@@ -46,12 +46,12 @@ class Rule:
     """Routing Rule
     """
 
-    def __init__(self, controller_class: _Type[_Controller], path: str = None, name: str = None, defaults: dict = None,
-                 methods: _Union[str, _Tuple[str, ...]] = 'GET', filters: _Tuple[_Type[_Filter], ...] = None,
+    def __init__(self, controller_class: Type[Controller], path: str = None, name: str = None, defaults: dict = None,
+                 methods: Union[str, Tuple[str, ...]] = 'GET', filters: Tuple[Type[Filter], ...] = None,
                  attrs: dict = None):
 
-        if not issubclass(controller_class, _Controller):
-            raise TypeError('{} expected, got {}'.format(_Controller, type(controller_class)))
+        if not issubclass(controller_class, Controller):
+            raise TypeError('{} expected, got {}'.format(Controller, type(controller_class)))
 
         if path:
             # Cut trailing slash
@@ -77,12 +77,12 @@ class Rule:
         if not isinstance(filters, tuple):
             raise TypeError('Tuple expected, got {}'.format(type(filters)))
         for flt in filters:
-            if not issubclass(flt, _Filter):
-                raise TypeError('{} expected, got {}'.format(_Filter, type(flt)))
+            if not issubclass(flt, Filter):
+                raise TypeError('{} expected, got {}'.format(Filter, type(flt)))
 
         self._path = path
         self._controller_class = controller_class
-        self._name = name or _util.random_str()
+        self._name = name or util.random_str()
         self._defaults = defaults.copy() if defaults else {}
         self._methods = set([m.upper() for m in methods])
         self._filters = list(filters) if filters else []
@@ -91,7 +91,7 @@ class Rule:
         # Build regular expression
         if self._path:
             rule_regex_str = _rule_arg_re.sub(_rule_arg_repl_func, path)
-            self._regex = _re.compile('^/?{}/?$'.format(rule_regex_str))
+            self._regex = re.compile('^/?{}/?$'.format(rule_regex_str))
             self._args = dict.fromkeys(self._regex.groupindex.keys())
         else:
             self._regex = None
@@ -106,7 +106,7 @@ class Rule:
         return self._path
 
     @property
-    def controller_class(self) -> _Type:
+    def controller_class(self) -> Type:
         return self._controller_class
 
     @property
@@ -122,7 +122,7 @@ class Rule:
         return self._methods
 
     @property
-    def filters(self) -> _List[_Type[_Filter]]:
+    def filters(self) -> List[Type[Filter]]:
         return self._filters
 
     @property

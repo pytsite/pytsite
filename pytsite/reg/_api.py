@@ -1,15 +1,15 @@
 """PytSite Registry API Functions
 """
-from .driver import Abstract as _Driver
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-_current_driver = None
+from .driver import Abstract as AbstractDriver
+
+_current_driver = None  # type: _Driver
 
 
-def set_driver(driver: _Driver):
+def set_driver(driver: AbstractDriver):
     """Switch registry driver
     """
     global _current_driver
@@ -17,7 +17,7 @@ def set_driver(driver: _Driver):
     _current_driver = driver
 
 
-def get_driver() -> _Driver:
+def get_driver() -> AbstractDriver:
     if not _current_driver:
         raise RuntimeError('Registry driver is not set')
 

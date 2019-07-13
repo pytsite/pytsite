@@ -4,11 +4,11 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import console as _console
+from pytsite import console
 from . import _api
 
 
-class Maintenance(_console.Command):
+class Maintenance(console.Command):
     """'maintenance' Console Command
     """
 
@@ -34,4 +34,4 @@ class Maintenance(_console.Command):
         elif action == 'disable':
             _api.disable()
         else:
-            raise _console.error.InvalidArgument(0, action)
+            raise console.error.InvalidArgument(0, action)

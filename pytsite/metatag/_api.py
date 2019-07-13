@@ -1,11 +1,10 @@
 """PytSite Meta Tags
 """
-from pytsite import lang as _lang, util as _util, events as _events, threading as _threading, \
-    package_info as _package_info
-
 __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import lang, util, events, threading, package_info
 
 _tags = {}
 
@@ -13,13 +12,13 @@ _tags = {}
 def reset(title: str = None):
     """Reset tags
     """
-    tid = _threading.get_id()
+    tid = threading.get_id()
     _tags[tid] = {}
 
     t_set('charset', 'UTF-8')
-    t_set('title', title or _lang.t('pytsite.metatag@untitled_document'))
+    t_set('title', title or lang.t('pytsite.metatag@untitled_document'))
     t_set('viewport', 'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0')
-    t_set('pytsite-version', str(_package_info.version('pytsite')))
+    t_set('pytsite-version', str(package_info.version('pytsite')))
 
 
 def t_set(tag: str, value: str = None, **kwargs):
@@ -28,7 +27,7 @@ def t_set(tag: str, value: str = None, **kwargs):
     if not _tags:
         raise RuntimeError('reset() should be called before')
 
-    tid = _threading.get_id()
+    tid = threading.get_id()
 
     if tag not in _tags[tid]:
         _tags[tid][tag] = [] if tag == 'link' else ''
@@ -36,7 +35,7 @@ def t_set(tag: str, value: str = None, **kwargs):
     if tag == 'link':
         _tags[tid][tag].append(kwargs)
     else:
-        _tags[tid][tag] = _util.escape_html(value)
+        _tags[tid][tag] = util.escape_html(value)
 
 
 def get(tag: str) -> str:
@@ -45,13 +44,13 @@ def get(tag: str) -> str:
     if not _tags:
         raise RuntimeError('reset() should be called before')
 
-    return _tags[_threading.get_id()].get(tag, '')
+    return _tags[threading.get_id()].get(tag, '')
 
 
 def rm(tag: str, **kwargs):
     """Remove a tag
     """
-    tid = _threading.get_id()
+    tid = threading.get_id()
     if tid not in _tags or tag not in _tags[tid]:
         return
 
@@ -77,7 +76,7 @@ def dump(tag: str) -> str:
     if not _tags:
         raise RuntimeError('reset() should be called before')
 
-    tid = _threading.get_id()
+    tid = threading.get_id()
 
     if tag not in _tags[tid]:
         return ''
@@ -88,7 +87,7 @@ def dump(tag: str) -> str:
 
     # Page title
     elif tag == 'title':
-        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], _lang.t('app_name'))
+        r = '<title>{} | {}</title>\n'.format(_tags[tid][tag], lang.t('app_name'))
 
     # OpenGraph tags
     elif tag.startswith('og:') or tag.startswith('author:') or tag.startswith('fb:'):
@@ -114,10 +113,10 @@ def dump_all() -> str:
     if not _tags:
         raise RuntimeError('reset() should be called before')
 
-    _events.fire('pytsite.metatag@dump_all')
+    events.fire('pytsite.metatag@dump_all')
 
     r = str()
-    for tag in _tags[_threading.get_id()]:
+    for tag in _tags[threading.get_id()]:
         r += dump(tag) + '\n'
 
     return r
