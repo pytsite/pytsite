@@ -47,8 +47,9 @@ class Install(console.Command):
                         raise console.error.CommandExecutionError('Invalid plugin identifier: {}'.format(p_spec))
                     plugins_specs[match[0][0]] = match[0][1]
             else:
-                # Install/update all required plugins
-                plugins_specs = package_info.requires_plugins('app')
+                # Install/update all locally installed and required by application plugins
+                plugins_specs = {k: VersionRange() for k, v in _api.local_plugins_info().items()}
+                plugins_specs.update(package_info.requires_plugins('app'))
 
             # Install/update plugins
             for plugin_name, plugin_version in plugins_specs.items():

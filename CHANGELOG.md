@@ -3,7 +3,12 @@
 For previous versions see [changelog](changelog/) folder.
 
 
-### 9.0 (2019-07-10)
+### 9.0.1 (2019-07-13)
+
+Missing update of locally installed plugins fixed.
+
+
+### 9.0 (2019-07-13)
 
 - `html` moved to separate PyPi package 
   [htmler](https://github.com/ashep/htmler).
