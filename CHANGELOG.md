@@ -3,6 +3,11 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.1 (2019-07-17)
+
+New argument `fields` added to `validation.Validator.validate()` method.
+
+
 ### 9.0.1 (2019-07-13)
 
 Missing update of locally installed plugins fixed.
