@@ -28,8 +28,17 @@ _requests = {}  # type: Dict[int, http.Request]
 # Thread safe sessions collection
 _sessions = {}  # type: Dict[int, http.Session]
 
-# Thread safe 'no-cache' statues collection
-_no_cache = {}  # type: Dict[int, bool]
+# Per thread 'no-cache' cache control directives
+_cache_control_no_cache = {}  # type: Dict[int, bool]
+
+# Per thread 'no-store' cache control directives
+_cache_control_no_store = {}  # type: Dict[int, bool]
+
+# Per thread 'private' cache control directives
+_cache_control_private = {}  # type: Dict[int, bool]
+
+# Per thread 'max-age' cache control directives
+_cache_control_max_age = {}  # type: Dict[int, int]
 
 
 def get_session_store() -> FilesystemSessionStore:
@@ -64,13 +73,41 @@ def delete_session():
     _session_store.delete(session())
 
 
-def no_cache(state: bool = None) -> Optional[bool]:
-    """Get/set 'no-cache' status belonged to the current thread
+def no_cache(state: bool = None) -> bool:
+    """Get/set 'no-cache' cache control status
     """
     if state is None:
-        return _no_cache.get(threading.get_id())
+        return _cache_control_no_cache.get(threading.get_id(), False)
     else:
-        _no_cache[threading.get_id()] = state
+        _cache_control_no_cache[threading.get_id()] = state
+
+
+def no_store(state: bool = None) -> bool:
+    """Get/set 'no-store' cache control status
+    """
+    if state is None:
+        return _cache_control_no_store.get(threading.get_id(), False)
+    else:
+        _cache_control_no_store[threading.get_id()] = state
+
+
+def private(state: bool = None) -> bool:
+    """Get/set 'private' cache control status
+    """
+    if state is None:
+        return _cache_control_private.get(threading.get_id(), False)
+    else:
+        _cache_control_private[threading.get_id()] = state
+        return state
+
+
+def max_age(seconds: int = None) -> int:
+    """Get/set 'max-age' cache control value
+    """
+    if seconds is None:
+        return _cache_control_max_age.get(threading.get_id(), 86400)
+    else:
+        _cache_control_max_age[threading.get_id()] = seconds
 
 
 def handle(controller: Union[str, Type[routing.Controller]], path: str = None, name: str = None,
@@ -179,6 +216,13 @@ def dispatch(env: dict, start_response: callable):
     else:
         _sessions[tid] = _session_store.new()
 
+    # Don't cache non-GET requests by default
+    if req.method != 'GET':
+        no_cache(True)
+        no_store(True)
+        private(True)
+        max_age(0)
+
     # Processing request
     try:
         # Notify listeners about incoming request
@@ -240,11 +284,24 @@ def dispatch(env: dict, start_response: callable):
             wsgi_response.data = ''
 
         # Cache control
-        if no_cache() or req.method != 'GET':
-            wsgi_response.headers.set('Cache-Control', 'private, max-age=0, no-cache, no-store')
-            wsgi_response.headers.set('Pragma', 'no-cache')
-        else:
-            wsgi_response.headers.set('Cache-Control', 'public')
+        cache_control = []
+
+        # Cache control, 'no-cache' directive
+        if no_cache():
+            cache_control.append('no-cache')
+
+        # Cache control, 'no-store' directive
+        if no_store():
+            cache_control.append('no-store')
+
+        # Cache control, 'private'/'public' directive
+        cache_control.append('private' if private() else 'public')
+
+        # Cache control, 'max-age' directive
+        cache_control.append(f'max-age={max_age()}')
+
+        # Set Cache-Control HTTP header
+        wsgi_response.headers.set('Cache-Control', ', '.join(cache_control))
 
         # Processing filters after() hook
         for flt in filters:

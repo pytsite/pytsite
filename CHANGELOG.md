@@ -3,6 +3,12 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.2 (2019-07-18)
+
+- New methods added to the `router`: `no_store()`, `private()` and `max_age()`.
+- `Cache-Control` HTTP response header formatting fixed.
+
+
 ### 9.1 (2019-07-17)
 
 New argument `fields` added to `validation.Validator.validate()` method.
