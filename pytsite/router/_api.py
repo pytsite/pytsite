@@ -171,9 +171,6 @@ def dispatch(env: dict, start_response: callable):
         redirect_url += '?' + env['QUERY_STRING'] if env['QUERY_STRING'] else ''
         return http.RedirectResponse(redirect_url, 301)(env, start_response)
 
-    # All requests are cached by default
-    no_cache(False)
-
     # Detect language from path
     languages = lang_api.langs()
     if len(languages) > 1:
