@@ -3,6 +3,11 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3 (2019-07-24)
+
+`ETag` HTTP header generation enabled for `GET` methods by default.
+
+
 ### 9.2.1 (2019-07-18)
 
 Missing `router`'s public API function added.

@@ -62,8 +62,6 @@ setup(
         'Werkzeug',
         'Jinja2',
         'pymongo',
-        'Pillow',
-        'ExifRead',
         'python-magic',
         'htmlmin',
         'jsmin',
@@ -76,6 +74,7 @@ setup(
         'dicmer',
         'semaver',
         'htmler',
+        'xxhash'
     ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',

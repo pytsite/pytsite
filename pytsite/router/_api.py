@@ -9,6 +9,7 @@ from typing import Dict, Union, List, Mapping, Optional, Type, Tuple
 from traceback import format_exc
 from urllib import parse as urlparse
 from werkzeug.contrib.sessions import FilesystemSessionStore
+from xxhash import xxh32_hexdigest
 from pytsite import reg, logger, http, util, lang as lang_api, tpl, threading, events, routing, maintenance, errors
 
 _LANG_CODE_RE = _re.compile('^/[a-z]{2}(/|$)')
@@ -318,6 +319,10 @@ def dispatch(env: dict, start_response: callable):
             events.fire('pytsite.router@xhr_response.{}'.format(req.method.lower()), response=wsgi_response)
         else:
             events.fire('pytsite.router@response.{}'.format(req.method.lower()), response=wsgi_response)
+
+        # Set ETag
+        if req.method == 'GET' and wsgi_response.get_etag() == (None, None):
+            wsgi_response.set_etag(xxh32_hexdigest(wsgi_response.data))
 
         return wsgi_response(env, start_response)
 
