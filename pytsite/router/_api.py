@@ -106,7 +106,7 @@ def max_age(seconds: int = None) -> int:
     """Get/set 'max-age' cache control value
     """
     if seconds is None:
-        return _cache_control_max_age.get(threading.get_id(), 86400)
+        return _cache_control_max_age.get(threading.get_id(), 0)
     else:
         _cache_control_max_age[threading.get_id()] = seconds
 
@@ -207,19 +207,23 @@ def dispatch(env: dict, start_response: callable):
         env['PATH_INFO'] = _path_aliases[env['PATH_INFO']]
         req = set_request(http.Request(env))
 
+    # Cache-Control defaults
+    max_age(0)
+    if req.method != 'GET':
+        no_cache(True)
+        no_store(True)
+        private(True)
+    else:
+        no_cache(False)
+        no_store(False)
+        private(False)
+
     # Session setup
     sid = req.cookies.get('PYTSITE_SESSION')
     if sid:
         _sessions[tid] = _session_store.get(sid)
     else:
         _sessions[tid] = _session_store.new()
-
-    # Don't cache non-GET requests by default
-    if req.method != 'GET':
-        no_cache(True)
-        no_store(True)
-        private(True)
-        max_age(0)
 
     # Processing request
     try:

@@ -3,6 +3,12 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3.1 (2019-07-24)
+
+- `Cache-Control` values setting fix.
+- `Cache-Control: max-age` set to `0` by default.
+
+
 ### 9.3 (2019-07-24)
 
 `ETag` HTTP header generation enabled for `GET` methods by default.
