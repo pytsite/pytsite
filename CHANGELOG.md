@@ -3,6 +3,12 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3.2 (2019-07-26)
+
+- `Cache-Control`'s `max-age` parameter is not set by default now.
+- `Cache-Control`'s `must-revalidate` and `proxy-revalidate` added.  
+
+
 ### 9.3.1 (2019-07-24)
 
 - `Cache-Control` values setting fix.

@@ -78,7 +78,7 @@ def no_cache(state: bool = None) -> bool:
     """Get/set 'no-cache' cache control status
     """
     if state is None:
-        return _cache_control_no_cache.get(threading.get_id(), False)
+        return _cache_control_no_cache.get(threading.get_id())
     else:
         _cache_control_no_cache[threading.get_id()] = state
 
@@ -87,7 +87,7 @@ def no_store(state: bool = None) -> bool:
     """Get/set 'no-store' cache control status
     """
     if state is None:
-        return _cache_control_no_store.get(threading.get_id(), False)
+        return _cache_control_no_store.get(threading.get_id())
     else:
         _cache_control_no_store[threading.get_id()] = state
 
@@ -96,7 +96,7 @@ def private(state: bool = None) -> bool:
     """Get/set 'private' cache control status
     """
     if state is None:
-        return _cache_control_private.get(threading.get_id(), False)
+        return _cache_control_private.get(threading.get_id())
     else:
         _cache_control_private[threading.get_id()] = state
         return state
@@ -106,7 +106,7 @@ def max_age(seconds: int = None) -> int:
     """Get/set 'max-age' cache control value
     """
     if seconds is None:
-        return _cache_control_max_age.get(threading.get_id(), 0)
+        return _cache_control_max_age.get(threading.get_id())
     else:
         _cache_control_max_age[threading.get_id()] = seconds
 
@@ -208,7 +208,6 @@ def dispatch(env: dict, start_response: callable):
         req = set_request(http.Request(env))
 
     # Cache-Control defaults
-    max_age(0)
     if req.method != 'GET':
         no_cache(True)
         no_store(True)
@@ -297,10 +296,17 @@ def dispatch(env: dict, start_response: callable):
             cache_control.append('no-store')
 
         # Cache control, 'private'/'public' directive
-        cache_control.append('private' if private() else 'public')
+        if private():
+            cache_control.append('private')
+        else:
+            cache_control.append('public')
+            cache_control.append('must-revalidate')
+            cache_control.append('proxy-revalidate')
 
         # Cache control, 'max-age' directive
-        cache_control.append(f'max-age={max_age()}')
+        m_age = max_age()
+        if m_age is not None:
+            cache_control.append(f'max-age={m_age}')
 
         # Set Cache-Control HTTP header
         wsgi_response.headers.set('Cache-Control', ', '.join(cache_control))
