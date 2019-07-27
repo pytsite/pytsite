@@ -108,7 +108,7 @@ def max_age(seconds: int = None) -> int:
     if seconds is None:
         return _cache_control_max_age.get(threading.get_id())
     else:
-        _cache_control_max_age[threading.get_id()] = seconds
+        _cache_control_max_age[threading.get_id()] = seconds if seconds >= 0 else None
 
 
 def handle(controller: Union[str, Type[routing.Controller]], path: str = None, name: str = None,
@@ -209,10 +209,12 @@ def dispatch(env: dict, start_response: callable):
 
     # Cache-Control defaults
     if req.method != 'GET':
+        max_age(0)
         no_cache(True)
         no_store(True)
         private(True)
     else:
+        max_age(-1)
         no_cache(False)
         no_store(False)
         private(False)

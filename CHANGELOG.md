@@ -3,6 +3,11 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3.3 (2019-07-27)
+
+Resetting of `Cache-Control`'s `max-age` parameter fixed.  
+
+
 ### 9.3.2 (2019-07-26)
 
 - `Cache-Control`'s `max-age` parameter is not set by default now.
