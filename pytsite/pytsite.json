@@ -1,6 +1,6 @@
 {
   "name": "PytSite",
-  "version": "9.3.3",
+  "version": "9.3.4",
   "url": "https://pytsite.xyz",
   "description": {
     "en": "The Rapid Web Application Development Framework",
@@ -15,5 +15,26 @@
   "license": {
     "name": "MIT",
     "url": "https://opensource.org/licenses/MIT"
+  },
+  "requires": {
+    "packages": {
+      "pyyaml": "^5.1",
+      "werkzeug": "^0.15",
+      "jinja2": "^2.10",
+      "pymongo": "^3.8",
+      "python-magic": "^0.4",
+      "htmlmin": "^0.1",
+      "jsmin": "^2.2",
+      "requests": "^2.22",
+      "lxml": "^4.4",
+      "pytz": "^2019.1",
+      "frozendict": "^1.2",
+      "uwsgi": "^2.0",
+      "dateparser": "^0.7",
+      "dicmer": "^0.1",
+      "semaver": "^0.1",
+      "htmler": "^0.1",
+      "xxhash": "^0.1"
+    }
   }
 }

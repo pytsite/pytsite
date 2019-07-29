@@ -5,7 +5,8 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 import subprocess
-from semaver import Version, VersionRange
+import json
+from semaver import VersionRange
 from pytsite import reg
 from . import _error
 
@@ -13,7 +14,20 @@ _DEBUG = reg.get('debug')
 _installed_packages = {}
 
 
-def get_installed_info(pkg_name: str) -> dict:
+def ls(outdated: bool = False) -> dict:
+    """Get list of installed packages
+    """
+    cmd = ['pip', 'list', '--format=json']
+
+    if outdated:
+        cmd.append('--outdated')
+
+    r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    return json.loads(r.stdout)
+
+
+def show(pkg_name: str) -> dict:
     """Get installed package's info
     """
     cmd = ['pip', 'show', pkg_name]
@@ -33,27 +47,20 @@ def get_installed_info(pkg_name: str) -> dict:
     return data
 
 
-def get_installed_version(pkg_name: str) -> Version:
-    """Get installed package's version
-    """
-    return get_installed_info(pkg_name)['version']
-
-
 def is_installed(pkg_name: str, pkg_version: VersionRange) -> bool:
     """Check if the package is installed
     """
-    if pkg_name not in _installed_packages:
+    if (pkg_name, str(pkg_version)) not in _installed_packages:
         try:
-            _installed_packages[pkg_name] = get_installed_version(pkg_name) in pkg_version
+            _installed_packages[(pkg_name, str(pkg_version))] = show(pkg_name)['version'] in pkg_version
         except _error.PackageNotInstalled:
-            _installed_packages[pkg_name] = False
+            _installed_packages[(pkg_name, str(pkg_version))] = False
             return False
 
-    return _installed_packages[pkg_name]
+    return _installed_packages[(pkg_name, str(pkg_version))]
 
 
-def install(pkg_name: str, v_range: VersionRange = None, upgrade: bool = False,
-            passthrough: bool = _DEBUG) -> int:
+def install(pkg_name: str, v_range: VersionRange = None, upgrade: bool = False, passthrough: bool = _DEBUG) -> int:
     """Install a package
     """
     cmd = ['pip', 'install']

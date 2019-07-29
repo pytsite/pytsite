@@ -11,6 +11,34 @@ _PKG_SPEC_RE = re.compile('^([a-zA-Z0-9\\-_]+)([~=!<>]+[0-9]+(?:\\.[0-9]+)*)?')
 _DEBUG = reg.get('debug')
 
 
+class List(console.Command):
+    @property
+    def name(self) -> str:
+        """Get name of the command
+        """
+        return 'pip:list'
+
+    @property
+    def description(self) -> str:
+        """Get description of the command.
+        """
+        return 'pytsite.pip@list_console_command_description'
+
+    def __init__(self):
+        super().__init__()
+
+        self.define_option(console.option.Bool('outdated'))
+
+    def exec(self):
+        for data in pip.ls(self.opt('outdated')):
+            r = f"{data['name']} {data['version']}"
+
+            if 'latest_version' in data:
+                r += f" ({data['latest_version']} available)"
+
+            console.print_info(r)
+
+
 class Install(console.Command):
     def __init__(self):
         super().__init__()

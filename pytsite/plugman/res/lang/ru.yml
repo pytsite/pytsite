@@ -17,7 +17,7 @@ plugin_requires_pip_package: 'Плагин :plugin зависит от pip-па�
 plugin_requires_plugin: 'Плагин :plugin зависит от плагина :dependency'
 plugin_not_installed: 'Плагин :plugin не установлен'
 installing_updating_pip_package: 'Установка pip-пакета :package'
-pip_package_successfully_installed_updated: 'Pip-пакет :package установлен'
+pip_package_successfully_installed_updated: 'Pip-пакет :package установлен/обновлён'
 downloading_plugin: 'Загрузка и распаковка плагина :plugin'
 plugin_download_success: 'Плагин :plugin загружен'
 plugin_download_error: 'Ошибка в процессе загрузки/распаковки плагина :plugin: :msg'

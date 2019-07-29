@@ -59,7 +59,6 @@ def _plugins_api_request(endpoint: str, args: dict = None) -> dict:
         })
 
         resp = requests.get(request_url, params=args)
-
         if not resp.ok:
             try:
                 raise _error.PluginsApiError(request_url, resp.json().get('error'))

@@ -1,4 +1,4 @@
-import re, json
+import re, json, semaver
 from os import walk, path, system
 from setuptools import setup, find_packages, Command
 
@@ -11,6 +11,7 @@ with open(path.join(path.dirname(__file__), 'pytsite', 'pytsite.json')) as f:
     pkg_author = data['author']['name']
     pkg_author_email = data['author']['email']
     pkg_license = data['license']['name']
+    pkg_requires_packages = data['requires']['packages']  # type: dict
 
 ASSET_FNAME_RE = re.compile('\.(png|jpg|jpeg|gif|svg|ttf|woff|woff2|eot|otf|map|js|css|less|txt|md|yml|jinja2|json)$')
 
@@ -57,25 +58,7 @@ setup(
     author_email=pkg_author_email,
     license=pkg_license,
     download_url='https://github.com/pytsite/pytsite/archive/{}.tar.gz'.format(pkg_version),
-    install_requires=[
-        'PyYAML>=5.1',
-        'Werkzeug',
-        'Jinja2',
-        'pymongo',
-        'python-magic',
-        'htmlmin',
-        'jsmin',
-        'requests',
-        'lxml',
-        'pytz',
-        'frozendict',
-        'uwsgi',
-        'dateparser',
-        'dicmer',
-        'semaver',
-        'htmler',
-        'xxhash'
-    ],
+    install_requires=[f'{k}{semaver.VersionRange(v)}' for k, v in pkg_requires_packages.items()],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',

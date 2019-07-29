@@ -6,7 +6,7 @@ __license__ = 'MIT'
 
 # Public API
 from . import _error as error
-from ._api import get_installed_info, get_installed_version, is_installed, install, uninstall
+from ._api import ls, show, is_installed, install, uninstall
 
 
 def _init():
@@ -17,6 +17,7 @@ def _init():
     lang.register_package(__name__)
 
     # Console commands
+    console.register_command(_cc.List())
     console.register_command(_cc.Install())
     console.register_command(_cc.Uninstall())
 

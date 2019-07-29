@@ -63,7 +63,7 @@ class Update(console.Command):
             d['update_in_progress'] = True
             self._set_update_data(d)
 
-        # Stage 1: update pip and PytSite
+        # Stage 1: update pip, PytSite and its dependencies
         if stage == 1:
             console.print_info(lang.t('pytsite.update@updating_environment'))
 
@@ -73,12 +73,18 @@ class Update(console.Command):
             # Update PytSite
             pip.install('pytsite', package_info.requires_pytsite('app'), True, self.opt('debug'))
 
+            # Update PytSite's dependencies
+            for pkg_n, pkg_v in package_info.requires_packages('pytsite'):
+                pip.install(pkg_n, pkg_v, True, _DEBUG)
+
+            # Store information about update process to use it in other stages of the update process
             d['pytsite_version_to'] = str(package_info.version('pytsite', False))
             self._set_update_data(d)
 
             # Notify listeners
             events.fire('pytsite.update@stage_1')
 
+            # Start next stage
             if stop_after != 1:
                 subprocess.call(['./console', 'update', '--stage=2'])
             else:
