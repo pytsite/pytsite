@@ -1,6 +1,6 @@
 {
   "name": "PytSite",
-  "version": "9.3.4",
+  "version": "9.3.5",
   "url": "https://pytsite.xyz",
   "description": {
     "en": "The Rapid Web Application Development Framework",
@@ -18,23 +18,23 @@
   },
   "requires": {
     "packages": {
-      "pyyaml": "^5.1",
-      "werkzeug": "^0.15",
-      "jinja2": "^2.10",
-      "pymongo": "^3.8",
-      "python-magic": "^0.4",
-      "htmlmin": "^0.1",
-      "jsmin": "^2.2",
-      "requests": "^2.22",
-      "lxml": "^4.4",
-      "pytz": "^2019.1",
-      "frozendict": "^1.2",
-      "uwsgi": "^2.0",
       "dateparser": "^0.7",
       "dicmer": "^0.1",
-      "semaver": "^0.1",
+      "frozendict": "^1.2",
       "htmler": "^0.1",
-      "xxhash": "^0.1"
+      "htmlmin": "^0.1",
+      "jsmin": "^2.2",
+      "jinja2": "^2.10",
+      "lxml": "^4.4",
+      "pymongo": "^3.8",
+      "python-magic": "^0.4",
+      "pytz": "^2019.1",
+      "pyyaml": "^5.1",
+      "requests": "^2.22",
+      "semaver": "^0.1",
+      "uwsgi": "^2.0",
+      "werkzeug": "^0.15",
+      "xxhash": "^1.3"
     }
   }
 }

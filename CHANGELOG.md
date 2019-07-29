@@ -3,6 +3,11 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3.5 (2019-07-29)
+
+Requirements typo fixed.
+
+
 ### 9.3.4 (2019-07-29)
 
 Updating of pip packages on `console update` fixed.
