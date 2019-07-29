@@ -74,7 +74,7 @@ class Update(console.Command):
             pip.install('pytsite', package_info.requires_pytsite('app'), True, self.opt('debug'))
 
             # Update PytSite's dependencies
-            for pkg_n, pkg_v in package_info.requires_packages('pytsite'):
+            for pkg_n, pkg_v in package_info.requires_packages('pytsite').items():
                 pip.install(pkg_n, pkg_v, True, _DEBUG)
 
             # Store information about update process to use it in other stages of the update process

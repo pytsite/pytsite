@@ -3,6 +3,11 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3.6 (2019-07-29)
+
+Error in `console update` fixed.
+
+
 ### 9.3.5 (2019-07-29)
 
 Requirements typo fixed.
