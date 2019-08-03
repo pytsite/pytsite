@@ -333,7 +333,7 @@ def dispatch(env: dict, start_response: callable):
             events.fire('pytsite.router@response.{}'.format(req.method.lower()), response=wsgi_response)
 
         # Set ETag
-        if req.method == 'GET' and wsgi_response.get_etag() == (None, None):
+        if req.method == 'GET' and wsgi_response.get_etag() == (None, None) and not wsgi_response.direct_passthrough:
             wsgi_response.set_etag(xxh32_hexdigest(wsgi_response.data))
 
         return wsgi_response(env, start_response)

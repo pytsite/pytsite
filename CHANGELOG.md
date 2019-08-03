@@ -3,6 +3,11 @@
 For previous versions see [changelog](changelog/) folder.
 
 
+### 9.3.7 (2019-08-03)
+
+Error while generating ETag for direct passthrough response fixed.
+
+
 ### 9.3.6 (2019-07-29)
 
 Error in `console update` fixed.
